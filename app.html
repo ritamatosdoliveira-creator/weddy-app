@@ -170,6 +170,12 @@ body{
 .guest-row .check svg{ width:12px; height:12px; color:#fff; opacity:0; }
 .guest-row.confirmed .check svg{ opacity:1; }
 .remove-x{ all:unset; cursor:pointer; color:#B4AFA6; font-size:15px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cat-edit-btn{ all:unset; cursor:pointer; color:var(--ink-soft); width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cat-edit-btn svg{ width:15px; height:15px; }
+.theme-swatch-row{ display:flex; gap:14px; padding:2px 16px 20px; }
+.theme-swatch{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line); cursor:pointer; }
+.theme-swatch.active{ box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--ink); }
+.hero-preview{ width:100%; height:110px; border-radius:14px; background-size:cover; background-position:center; margin-bottom:12px; }
 .remove-x:active{ color:var(--rust); }
 
 .add-row{ display:flex; align-items:center; gap:8px; padding:10px 14px; }
@@ -259,8 +265,7 @@ body{
 
 /* Início — cartão herói com fotografia */
 .hero-photo-card{ position:relative; margin:2px 16px 20px; border-radius:22px; overflow:hidden; box-shadow:var(--shadow); height:192px; }
-.hero-photo-card .hero-photo{ position:absolute; inset:0; background-size:cover; background-position:52% 42%; }
-.hero-photo-card .hero-photo{ background:linear-gradient(135deg, #EFE0D2 0%, #E3C9B6 30%, #C9A02E 65%, #96453A 100%); }
+.hero-photo-card .hero-photo{ position:absolute; inset:0; background-size:cover; background-position:52% 42%; background-color:#E3C9B6; background-image:linear-gradient(135deg, #EFE0D2 0%, #E3C9B6 30%, #C9A02E 65%, #96453A 100%); }
 /* Ícones reais do convite (alianças, cocktail, bolo, mesa posta) */
 .icon-real{ width:34px; height:34px; flex-shrink:0; background-size:contain; background-repeat:no-repeat; background-position:center; }
 
@@ -500,7 +505,9 @@ const ICONS = {
   search:'<svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="M17 17l-3.5-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.2.2-.5.3-.8.3Z"/></svg>',
   logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4H6.8a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7.7"/><path d="M9.5 12h10.3m0 0-3.2-3.2m3.2 3.2-3.2 3.2"/></svg>',
-  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.05A1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.05a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.05a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.05A1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.05a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.05a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4Z"/><circle cx="12" cy="13.5" r="3.3"/></svg>'
 };
 /* --- ícones da barra de separadores: outline (inativo) vs. preenchido (ativo), como no iOS --- */
 const TAB_ICONS = {
@@ -535,6 +542,24 @@ const TAB_ICONS = {
 };
 const CAT_COLORS = ['#C1583E','#8CA0B3','#E3A79B','#C9A02E','#93A87C','#8B5F73','#CB8577','#B9AE8D'];
 
+const THEMES = {
+  rust:     { label:'Terracota',       heading:'#96453A', rust:'#C1583E', rustDark:'#9A4530', gold:'#C9A02E' },
+  navy:     { label:'Azul-marinho',    heading:'#2C4460', rust:'#3B5B7A', rustDark:'#293F55', gold:'#B9A36A' },
+  olive:    { label:'Verde-oliva',     heading:'#4F5A3A', rust:'#6B7A4F', rustDark:'#4F5A3A', gold:'#B08D57' },
+  blush:    { label:'Rosa-antigo',     heading:'#8F535C', rust:'#B76E79', rustDark:'#8F535C', gold:'#C9A02E' },
+  gold:     { label:'Dourado-clássico',heading:'#7A5C1E', rust:'#B08D2F', rustDark:'#8A6D24', gold:'#D8B94A' }
+};
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.rust;
+  let styleEl = document.getElementById('theme-override');
+  if(!styleEl){
+    styleEl = document.createElement('style');
+    styleEl.id = 'theme-override';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `:root{ --heading:${t.heading}; --rust:${t.rust}; --rust-dark:${t.rustDark}; --gold:${t.gold}; }`;
+}
+
 /* ============================================================
    SEED DATA — transcrito da bíblia de casamento original
 ============================================================ */
@@ -567,7 +592,8 @@ function defaultSettings(name1, name2, dateStr, venue){
     coupleName2: name2 || 'Nome 2',
     weddingDate: dateStr || '',
     venue: venue || '',
-    accentColor: 'rust'
+    accentColor: 'rust',
+    heroPhotoUrl: null
   };
 }
 
@@ -667,6 +693,7 @@ function renderTabbar(){
 }
 
 function render(){
+  applyTheme(weddingSettings.accentColor);
   renderTabbar();
   const body = document.getElementById('app-body');
   body.innerHTML =
@@ -711,7 +738,7 @@ function viewInicio(){
   </div>
 
   <div class="hero-photo-card">
-    <div class="hero-photo"></div>
+    <div class="hero-photo" ${weddingSettings.heroPhotoUrl?`style="background-image:url('${weddingSettings.heroPhotoUrl}')"`:''}></div>
     <div class="hero-scrim"></div>
     <div class="hero-overlay">
       <div class="hero-eyebrow">Até ao grande dia</div>
@@ -790,14 +817,16 @@ function viewOrcamento(){
     <div class="list-row" style="flex-direction:column; align-items:stretch;">
       <div style="display:flex; align-items:center; gap:11px;">
         <div class="icon-chip" style="background:${CAT_COLORS[i%CAT_COLORS.length]};">${ICONS.budget}</div>
-        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px; flex:1;">
           <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>${c.name}
         </div>
+        <button class="cat-edit-btn" data-renamecat="${c.id}" title="Renomear">${ICONS.pencil}</button>
         <div class="pct-stepper">
           <button data-pct="${c.id}|-1">−</button>
           <span class="pctval">${Math.round(c.pct*1000)/10}%</span>
           <button data-pct="${c.id}|1">+</button>
         </div>
+        <button class="remove-x" data-delcat="${c.id}" title="Eliminar categoria">✕</button>
       </div>
       <div style="display:flex; justify-content:space-between; padding-left:39px; margin-top:5px; font-size:12px; color:var(--ink-soft);">
         <span>${fmtEUR(catTotal)} total</span><span>${fmtEUR(catPerGuest)} / convidado</span>
@@ -835,7 +864,13 @@ function viewOrcamento(){
   ${pctNote}
 
   <div class="section-label">Categorias · toca para ver detalhe</div>
-  <div class="list-group">${rows}</div>
+  <div class="list-group">
+    ${rows}
+    <div class="add-row">
+      <input type="text" placeholder="Nova categoria…" id="add-cat-name">
+      <button class="add-circle" id="addbtn-cat">${ICONS.plus}</button>
+    </div>
+  </div>
   `;
 }
 
@@ -1123,6 +1158,21 @@ function viewDefinicoes(){
     <button class="login-btn" id="def-save" style="margin-top:0;">Guardar alterações</button>
   </div>
 
+  <div class="section-label">Cor do casamento</div>
+  <div class="theme-swatch-row">
+    ${Object.keys(THEMES).map(key=>`
+      <button class="theme-swatch ${(s.accentColor||'rust')===key?'active':''}" data-theme="${key}" style="background:${THEMES[key].rust};" title="${THEMES[key].label}"></button>
+    `).join('')}
+  </div>
+
+  <div class="section-label">Foto de capa (Início)</div>
+  <div style="padding:0 16px 20px;">
+    ${weddingSettings.heroPhotoUrl ? `<div class="hero-preview" style="background-image:url('${weddingSettings.heroPhotoUrl}')"></div>` : ''}
+    <button class="login-btn" id="def-photo-btn" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink); display:flex; align-items:center; justify-content:center; gap:8px;">${ICONS.camera} ${weddingSettings.heroPhotoUrl?'Trocar foto':'Adicionar foto'}</button>
+    ${weddingSettings.heroPhotoUrl ? `<button class="login-btn" id="def-photo-remove" style="margin-top:8px; background:none; color:var(--rust-dark); box-shadow:none;">Remover foto (usar gradiente)</button>` : ''}
+    <input type="file" id="def-photo-input" accept="image/*" style="display:none;">
+  </div>
+
   <div class="section-label">Convidar parceiro/a</div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">Email da pessoa a convidar</div>
@@ -1183,11 +1233,11 @@ function bindHandlers(){
   const defSave = document.getElementById('def-save');
   if(defSave) defSave.addEventListener('click', ()=>{
     weddingSettings = {
+      ...weddingSettings,
       coupleName1: document.getElementById('def-name1').value.trim() || 'Nome 1',
       coupleName2: document.getElementById('def-name2').value.trim() || 'Nome 2',
       weddingDate: document.getElementById('def-date').value,
-      venue: document.getElementById('def-venue').value.trim(),
-      accentColor: weddingSettings.accentColor || 'rust'
+      venue: document.getElementById('def-venue').value.trim()
     };
     render();
   });
@@ -1203,6 +1253,25 @@ function bindHandlers(){
   });
   const defSignout = document.getElementById('def-signout');
   if(defSignout) defSignout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+  document.querySelectorAll('[data-theme]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      weddingSettings.accentColor = e.currentTarget.dataset.theme;
+      render();
+    });
+  });
+  const defPhotoBtn = document.getElementById('def-photo-btn');
+  if(defPhotoBtn) defPhotoBtn.addEventListener('click', ()=>{ document.getElementById('def-photo-input').click(); });
+  const defPhotoRemove = document.getElementById('def-photo-remove');
+  if(defPhotoRemove) defPhotoRemove.addEventListener('click', ()=>{ weddingSettings.heroPhotoUrl = null; render(); });
+  const defPhotoInput = document.getElementById('def-photo-input');
+  if(defPhotoInput) defPhotoInput.addEventListener('change', async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    try{
+      weddingSettings.heroPhotoUrl = await resizeImageFile(file, 1000, 0.75);
+      render();
+    }catch(err){}
+  });
 
   // Orçamento
   const inTotal = document.getElementById('in-total');
@@ -1223,6 +1292,34 @@ function bindHandlers(){
       openDesc[id] = !openDesc[id];
       render();
     });
+  });
+  document.querySelectorAll('[data-renamecat]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.renamecat;
+      const c = catById(id);
+      const novo = prompt('Novo nome da categoria:', c.name);
+      if(novo && novo.trim()){ c.name = novo.trim(); render(); }
+    });
+  });
+  document.querySelectorAll('[data-delcat]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.delcat;
+      const c = catById(id);
+      const emUso = state.expenses.some(exp=>exp.category===id);
+      if(emUso){ alert(`A categoria "${c.name}" tem gastos associados. Remove ou muda esses gastos primeiro.`); return; }
+      if(!confirm(`Eliminar a categoria "${c.name}"?`)) return;
+      state.categories = state.categories.filter(x=>x.id!==id);
+      render();
+    });
+  });
+  const addCatBtn = document.getElementById('addbtn-cat');
+  if(addCatBtn) addCatBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('add-cat-name');
+    const name = input.value.trim();
+    if(!name) return;
+    const id = 'cat'+Date.now()+Math.random().toString(36).slice(2,6);
+    state.categories.push({ id, name, pct:0, desc:[] });
+    render();
   });
 
   // Convidados
