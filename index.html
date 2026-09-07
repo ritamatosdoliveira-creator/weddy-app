@@ -312,13 +312,16 @@ body{
    (Definições do projeto → Os teus apps → configuração do SDK).
    Instruções completas no README.md.
 ============================================================ */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// Initialize Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCSBdfCVRFv17HeMccFsPmFAkFFd5MLOro",
-  authDomain: "rita-tiago-app.firebaseapp.com",
-  projectId: "rita-tiago-app",
-  storageBucket: "rita-tiago-app.firebasestorage.app",
-  messagingSenderId: "1013669100016",
-  appId: "1:1013669100016:web:0f9fe5e4b2efee5c5f4535"
+  apiKey: "AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk",
+  authDomain: "weddy-app-bd12f.firebaseapp.com",
+  projectId: "weddy-app-bd12f",
+  storageBucket: "weddy-app-bd12f.firebasestorage.app",
+  messagingSenderId: "696758255059",
+  appId: "1:696758255059:web:b225c5ddf9587d5c8f8326"
 };
 const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
 let auth = null, db = null;
