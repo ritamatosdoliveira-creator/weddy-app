@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <title>Weddy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?fasmily=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <style>
 :root{
   --cream:#FBF4E8;
@@ -123,6 +123,8 @@ body{
 
 /* pct stepper */
 .pct-stepper{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.cat-name-input{ all:unset; font:inherit; color:inherit; flex:1; min-width:0; cursor:text; }
+.add-cat-btn{ all:unset; display:block; text-align:center; margin:10px 16px 20px; padding:12px; border-radius:12px; background:rgba(43,40,30,0.06); color:var(--rust); font-weight:600; font-size:14px; cursor:pointer; }
 .pct-stepper button{ all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:rgba(43,40,30,0.07); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; }
 .pct-stepper button:active{ background:rgba(43,40,30,0.15); }
 .pct-stepper .pctval{ width:38px; text-align:center; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums; }
@@ -226,6 +228,14 @@ body{
 .btn-cancel{ background:rgba(43,40,30,0.07); color:var(--ink); }
 .btn-save{ background:var(--rust); color:#fff; }
 .btn-cancel:active, .btn-save:active{ opacity:.75; }
+.sheet-tall{ max-height:82vh; display:flex; flex-direction:column; }
+.sheet-scroll{ overflow-y:auto; -webkit-overflow-scrolling:touch; flex:1; }
+.pz-preview{ width:100%; height:110px; border-radius:12px; background:rgba(43,40,30,0.06) center/cover no-repeat; margin-top:8px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:12px; }
+.pz-swatch-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+.pz-swatch{ width:38px; height:38px; border-radius:50%; cursor:pointer; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.6); border:2px solid transparent; }
+.pz-swatch.active{ border-color:var(--ink); }
+.pz-bg-swatch{ width:38px; height:38px; border-radius:10px; cursor:pointer; border:2px solid transparent; }
+.pz-bg-swatch.active{ border-color:var(--ink); }
 
 .empty-note{ padding:14px; font-size:12.5px; color:var(--ink-soft); font-style:italic; text-align:center; }
 
@@ -289,6 +299,46 @@ body{
     <div class="picker-list" id="seat-picker-list"></div>
   </div>
 
+  <div class="sheet sheet-tall" id="personalize-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Personalizar</div>
+    <div class="sheet-scroll">
+      <div class="sheet-field"><label>Nome de um dos noivos</label><input type="text" id="pz-c1"></div>
+      <div class="sheet-field"><label>Nome do outro noivo</label><input type="text" id="pz-c2"></div>
+      <div class="sheet-field"><label>Data do casamento</label><input type="date" id="pz-date"></div>
+      <div class="sheet-field"><label>Local (opcional)</label><input type="text" id="pz-venue" placeholder="Ex: Quinta de Santo André, Barcelos"></div>
+
+      <div class="sheet-field">
+        <label>Foto de capa (ecrã Início)</label>
+        <input type="file" id="pz-cover-file" accept="image/*">
+        <div id="pz-cover-preview" class="pz-preview"></div>
+        <button class="btn-cancel" id="pz-cover-remove" style="margin-top:8px;">Remover foto</button>
+      </div>
+
+      <div class="sheet-field">
+        <label>Ícone da app</label>
+        <input type="file" id="pz-icon-file" accept="image/*">
+        <div id="pz-icon-preview" class="pz-preview" style="width:72px;height:72px;border-radius:16px;"></div>
+      </div>
+
+      <div class="sheet-field">
+        <label>Cores do casamento</label>
+        <div class="pz-swatch-row" id="pz-theme-swatches"></div>
+      </div>
+
+      <div class="sheet-field">
+        <label>Fundo da app</label>
+        <div class="pz-swatch-row" id="pz-bg-swatches"></div>
+      </div>
+
+      <div class="login-msg" id="pz-msg"></div>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="pz-cancel">Fechar</button>
+      <button class="btn-save" id="pz-save">Guardar</button>
+    </div>
+  </div>
+
   <div class="tabbar" id="tabbar"></div>
 
   <div class="login-screen" id="login-screen">
@@ -302,6 +352,7 @@ body{
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 <script>
 (function(){
@@ -313,19 +364,20 @@ body{
    Instruções completas no README.md.
 ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk",
-  authDomain: "weddy-app-bd12f.firebaseapp.com",
-  projectId: "weddy-app-bd12f",
-  storageBucket: "weddy-app-bd12f.firebasestorage.app",
-  messagingSenderId: "696758255059",
-  appId: "1:696758255059:web:b225c5ddf9587d5c8f8326"
+  apiKey: "AIzaSyCSBdfCVRFv17HeMccFsPmFAkFFd5MLOro",
+  authDomain: "rita-tiago-app.firebaseapp.com",
+  projectId: "rita-tiago-app",
+  storageBucket: "rita-tiago-app.firebasestorage.app",
+  messagingSenderId: "1013669100016",
+  appId: "1:1013669100016:web:0f9fe5e4b2efee5c5f4535"
 };
 const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
-let auth = null, db = null;
+let auth = null, db = null, storage = null;
 if(FIREBASE_READY){
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db = firebase.firestore();
+  storage = firebase.storage();
 }
 let currentWeddingId = null;
 const SHARED_DOC = () => db.collection('weddings').doc(currentWeddingId);
@@ -348,7 +400,8 @@ const ICONS = {
   check:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   plus:'<svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>',
   search:'<svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="M17 17l-3.5-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
-  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4H6.8a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7.7"/><path d="M9.5 12h10.3m0 0-3.2-3.2m3.2 3.2-3.2 3.2"/></svg>'
+  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4H6.8a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7.7"/><path d="M9.5 12h10.3m0 0-3.2-3.2m3.2 3.2-3.2 3.2"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V19.9a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.04H2.1a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.04 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H8.2a1.7 1.7 0 0 0 1.04-1.56V2.1a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V8.2a1.7 1.7 0 0 0 1.56 1.04h.09a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.04Z"/></svg>'
 };
 /* --- ícones da barra de separadores: outline (inativo) vs. preenchido (ativo), como no iOS --- */
 const TAB_ICONS = {
@@ -411,6 +464,40 @@ let openTable = {};
 let editingSeatKey = null;
 let seatQuery = '';
 let guestFilter = '';
+let pzPendingCoverURL = undefined; // undefined = sem alteração; null = remover
+let pzPendingIconURL = undefined;
+let pzSelectedTheme = null;
+let pzSelectedBg = null;
+
+const THEME_PRESETS = [
+  { id:'terracota', label:'Terracota', rust:'#C1583E', rustDark:'#9A4530', heading:'#96453A' },
+  { id:'bordo',     label:'Bordô',     rust:'#8C3B4A', rustDark:'#6E2C38', heading:'#7A2F3A' },
+  { id:'verde',     label:'Verde',     rust:'#6B8F5E', rustDark:'#527048', heading:'#4F6E45' },
+  { id:'azul',      label:'Azul',      rust:'#5E7F9A', rustDark:'#48657D', heading:'#4A6579' },
+  { id:'dourado',   label:'Dourado',   rust:'#B8912E', rustDark:'#95741F', heading:'#8C6D24' },
+  { id:'rosa',      label:'Rosa',      rust:'#C77B8B', rustDark:'#A75F70', heading:'#9E5566' }
+];
+const BG_PRESETS = [
+  { id:'bege',        label:'Bege',        cream:'#FBF4E8', card:'#FFFDF8' },
+  { id:'branco',      label:'Branco',      cream:'#F7F5F1', card:'#FFFFFF' },
+  { id:'verde-claro', label:'Verde claro', cream:'#F1F4EC', card:'#FBFDF8' },
+  { id:'azul-claro',  label:'Azul claro',  cream:'#EEF2F5', card:'#FAFCFD' },
+  { id:'rosa-claro',  label:'Rosa claro',  cream:'#F8EFEE', card:'#FFFBFA' }
+];
+function applyTheme(){
+  const w = state.wedding || {};
+  const theme = THEME_PRESETS.find(t=>t.id===w.themeId) || THEME_PRESETS[0];
+  const bg = BG_PRESETS.find(b=>b.id===w.bgId) || BG_PRESETS[0];
+  const root = document.documentElement.style;
+  root.setProperty('--rust', theme.rust);
+  root.setProperty('--rust-dark', theme.rustDark);
+  root.setProperty('--heading', theme.heading);
+  root.setProperty('--cream', bg.cream);
+  root.setProperty('--card', bg.card);
+  if(w.iconURL){
+    document.querySelectorAll('link[rel="apple-touch-icon"]').forEach(l=>l.href=w.iconURL);
+  }
+}
 
 /* ============================================================
    HELPERS
@@ -490,14 +577,17 @@ function viewInicio(){
   return `
   <div class="navbar navbar-row">
     <div><div class="eyebrow">O nosso casamento</div><h1>Início</h1></div>
-    <button class="nav-action neutral" id="btn-logout" title="Sair">${ICONS.logout}</button>
+    <div style="display:flex; gap:8px;">
+      <button class="nav-action neutral" id="btn-personalize" title="Personalizar">${ICONS.gear}</button>
+      <button class="nav-action neutral" id="btn-logout" title="Sair">${ICONS.logout}</button>
+    </div>
   </div>
 
-  <div class="hero-card">
-    <div class="hero-names">${w.couple1||''} <span class="amp">&amp;</span> ${w.couple2||''}</div>
-    ${w.venue ? `<div class="hero-sub">${w.venue}</div>` : ''}
+  <div class="hero-card" style="${w.coverPhotoURL?`background-image:linear-gradient(180deg, rgba(20,18,14,0.15), rgba(20,18,14,0.55)), url('${w.coverPhotoURL}'); background-size:cover; background-position:center;`:''}">
+    <div class="hero-names" style="${w.coverPhotoURL?'color:#fff;':''}">${w.couple1||''} <span class="amp" style="${w.coverPhotoURL?'color:#fff;':''}">&amp;</span> ${w.couple2||''}</div>
+    ${w.venue ? `<div class="hero-sub" style="${w.coverPhotoURL?'color:rgba(255,255,255,0.85);':''}">${w.venue}</div>` : ''}
     <div class="hero-rule"></div>
-    <div class="hero-count"><span class="num">${days}</span><span class="lbl">dias até ${dateLabel}</span></div>
+    <div class="hero-count"><span class="num" style="${w.coverPhotoURL?'color:#fff;':''}">${days}</span><span class="lbl" style="${w.coverPhotoURL?'color:rgba(255,255,255,0.85);':''}">dias até ${dateLabel}</span></div>
   </div>
 
   <div class="stats-row">
@@ -554,14 +644,16 @@ function viewOrcamento(){
     <div class="list-row" style="flex-direction:column; align-items:stretch;">
       <div style="display:flex; align-items:center; gap:11px;">
         <div class="icon-chip" style="background:${CAT_COLORS[i%CAT_COLORS.length]};">${ICONS.budget}</div>
-        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
-          <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>${c.name}
+        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px; flex:1; min-width:0;">
+          <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+          <input class="cat-name-input" data-catname="${c.id}" value="${c.name}" onclick="event.stopPropagation()">
         </div>
         <div class="pct-stepper">
           <button data-pct="${c.id}|-1">−</button>
           <span class="pctval">${Math.round(c.pct*1000)/10}%</span>
           <button data-pct="${c.id}|1">+</button>
         </div>
+        <button class="exp-del" data-delcat="${c.id}" title="Eliminar categoria">✕</button>
       </div>
       <div style="display:flex; justify-content:space-between; padding-left:39px; margin-top:5px; font-size:12px; color:var(--ink-soft);">
         <span>${fmtEUR(catTotal)} total</span><span>${fmtEUR(catPerGuest)} / convidado</span>
@@ -595,6 +687,7 @@ function viewOrcamento(){
 
   <div class="section-label">Categorias · toca para ver detalhe</div>
   <div class="list-group">${rows}</div>
+  <button class="add-cat-btn" id="add-category">+ Adicionar categoria</button>
   `;
 }
 
@@ -803,6 +896,8 @@ function bindHandlers(){
   });
   const btnLogout = document.getElementById('btn-logout');
   if(btnLogout) btnLogout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+  const btnPersonalize = document.getElementById('btn-personalize');
+  if(btnPersonalize) btnPersonalize.addEventListener('click', openPersonalizeSheet);
 
   // Orçamento
   const inTotal = document.getElementById('in-total');
@@ -823,6 +918,31 @@ function bindHandlers(){
       openDesc[id] = !openDesc[id];
       render();
     });
+  });
+  document.querySelectorAll('[data-catname]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const c = catById(e.currentTarget.dataset.catname);
+      if(c) c.name = e.target.value;
+      pushRemote();
+    });
+  });
+  document.querySelectorAll('[data-delcat]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.delcat;
+      if(state.categories.length<=1){ alert('Tem de existir pelo menos uma categoria.'); return; }
+      if(!confirm('Eliminar esta categoria? Os gastos já registados nela ficam sem categoria.')) return;
+      state.categories = state.categories.filter(c=>c.id!==id);
+      state.expenses.forEach(ex=>{ if(ex.category===id) ex.category=''; });
+      render();
+    });
+  });
+  const addCatBtn = document.getElementById('add-category');
+  if(addCatBtn) addCatBtn.addEventListener('click', ()=>{
+    const name = prompt('Nome da nova categoria:');
+    if(!name) return;
+    const id = 'cat_'+Date.now();
+    state.categories.push({ id, name, pct:0, desc:[] });
+    render();
   });
 
   // Convidados
@@ -946,7 +1066,7 @@ function closeExpenseSheet(){
   document.getElementById('expense-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
 }
-document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); });
+document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); closePersonalizeSheet(); });
 document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
 document.getElementById('sf-save').addEventListener('click', ()=>{
   const desc = document.getElementById('sf-desc').value.trim();
@@ -1130,6 +1250,7 @@ function handleCreateWedding(){
     currentWeddingId = code;
     state = newState;
     window._newInviteCode = code;
+    applyTheme();
     attachFirestoreSync();
   }).catch(()=>{ renderCreateWeddingForm('Não foi possível criar. Tenta novamente.', true); });
 }
@@ -1147,6 +1268,117 @@ function findMyWedding(email){
   return db.collection('weddings').where('authorizedEmails','array-contains', email).limit(1).get()
     .then(snap => snap.empty ? null : snap.docs[0]);
 }
+
+/* ============================================================
+   SHEET: Personalizar
+============================================================ */
+function resizeImageFile(file, maxDim){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if(width > height){ if(width > maxDim){ height = Math.round(height*maxDim/width); width = maxDim; } }
+      else { if(height > maxDim){ width = Math.round(width*maxDim/height); height = maxDim; } }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob=>resolve(blob), 'image/jpeg', 0.85);
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function uploadWeddingImage(blob, name){
+  const ref = storage.ref().child('weddings/'+currentWeddingId+'/'+name);
+  return ref.put(blob).then(()=>ref.getDownloadURL());
+}
+function openPersonalizeSheet(){
+  const w = state.wedding || {};
+  document.getElementById('pz-c1').value = w.couple1||'';
+  document.getElementById('pz-c2').value = w.couple2||'';
+  document.getElementById('pz-date').value = w.date||'';
+  document.getElementById('pz-venue').value = w.venue||'';
+  pzPendingCoverURL = undefined;
+  pzPendingIconURL = undefined;
+  pzSelectedTheme = w.themeId || THEME_PRESETS[0].id;
+  pzSelectedBg = w.bgId || BG_PRESETS[0].id;
+  const coverPrev = document.getElementById('pz-cover-preview');
+  coverPrev.style.backgroundImage = w.coverPhotoURL? `url('${w.coverPhotoURL}')` : '';
+  coverPrev.textContent = w.coverPhotoURL? '' : 'sem foto';
+  const iconPrev = document.getElementById('pz-icon-preview');
+  iconPrev.style.backgroundImage = w.iconURL? `url('${w.iconURL}')` : '';
+  iconPrev.textContent = w.iconURL? '' : 'sem ícone';
+  document.getElementById('pz-msg').textContent = '';
+  renderPzSwatches();
+  document.getElementById('personalize-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closePersonalizeSheet(){
+  document.getElementById('personalize-sheet').classList.remove('show');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+}
+function renderPzSwatches(){
+  document.getElementById('pz-theme-swatches').innerHTML = THEME_PRESETS.map(t=>
+    `<div class="pz-swatch ${t.id===pzSelectedTheme?'active':''}" data-theme="${t.id}" style="background:${t.rust};" title="${t.label}"></div>`
+  ).join('');
+  document.getElementById('pz-bg-swatches').innerHTML = BG_PRESETS.map(b=>
+    `<div class="pz-bg-swatch ${b.id===pzSelectedBg?'active':''}" data-bg="${b.id}" style="background:${b.cream}; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);" title="${b.label}"></div>`
+  ).join('');
+  document.querySelectorAll('[data-theme]').forEach(el=>{
+    el.addEventListener('click', e=>{ pzSelectedTheme = e.currentTarget.dataset.theme; renderPzSwatches(); });
+  });
+  document.querySelectorAll('[data-bg]').forEach(el=>{
+    el.addEventListener('click', e=>{ pzSelectedBg = e.currentTarget.dataset.bg; renderPzSwatches(); });
+  });
+}
+document.getElementById('pz-cancel').addEventListener('click', closePersonalizeSheet);
+document.getElementById('pz-cover-file').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  document.getElementById('pz-msg').textContent = 'A carregar foto…';
+  resizeImageFile(file, 1600).then(blob=>uploadWeddingImage(blob, 'cover.jpg')).then(url=>{
+    pzPendingCoverURL = url;
+    const prev = document.getElementById('pz-cover-preview');
+    prev.style.backgroundImage = `url('${url}')`; prev.textContent='';
+    document.getElementById('pz-msg').textContent = '';
+  }).catch(()=>{ document.getElementById('pz-msg').textContent = 'Não foi possível carregar a foto.'; });
+});
+document.getElementById('pz-cover-remove').addEventListener('click', ()=>{
+  pzPendingCoverURL = null;
+  const prev = document.getElementById('pz-cover-preview');
+  prev.style.backgroundImage = ''; prev.textContent = 'sem foto';
+});
+document.getElementById('pz-icon-file').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  document.getElementById('pz-msg').textContent = 'A carregar ícone…';
+  resizeImageFile(file, 512).then(blob=>uploadWeddingImage(blob, 'icon.jpg')).then(url=>{
+    pzPendingIconURL = url;
+    const prev = document.getElementById('pz-icon-preview');
+    prev.style.backgroundImage = `url('${url}')`; prev.textContent='';
+    document.getElementById('pz-msg').textContent = '';
+  }).catch(()=>{ document.getElementById('pz-msg').textContent = 'Não foi possível carregar o ícone.'; });
+});
+document.getElementById('pz-save').addEventListener('click', ()=>{
+  const c1 = document.getElementById('pz-c1').value.trim();
+  const c2 = document.getElementById('pz-c2').value.trim();
+  const date = document.getElementById('pz-date').value;
+  const venue = document.getElementById('pz-venue').value.trim();
+  if(!c1 || !c2 || !date){ document.getElementById('pz-msg').textContent = 'Preenche pelo menos os nomes e a data.'; return; }
+  state.wedding = state.wedding || {};
+  state.wedding.couple1 = c1;
+  state.wedding.couple2 = c2;
+  state.wedding.date = date;
+  state.wedding.venue = venue;
+  state.wedding.themeId = pzSelectedTheme;
+  state.wedding.bgId = pzSelectedBg;
+  if(pzPendingCoverURL !== undefined) state.wedding.coverPhotoURL = pzPendingCoverURL || '';
+  if(pzPendingIconURL !== undefined) state.wedding.iconURL = pzPendingIconURL || '';
+  applyTheme();
+  closePersonalizeSheet();
+  render();
+});
 
 /* ============================================================
    SINCRONIZAÇÃO — autenticação + dados partilhados em tempo real
@@ -1177,6 +1409,7 @@ function attachFirestoreSync(){
         state = incoming;
       }
     }
+    applyTheme();
     _origRender();
     if(!firstSyncDone){
       firstSyncDone = true;
