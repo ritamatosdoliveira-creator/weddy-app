@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Weddy">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<title>Weddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FFFFFF;
+  --cream2:#F4F4F2;
+  --card:#FFFFFF;
+  --ink:#242220;
+  --ink-soft:#8B8781;
+  --rust:#C1583E;        /* coral-terracota, cor principal (nomes no convite) */
+  --rust-dark:#9A4530;
+  --heading:#96453A;     /* castanho-terracota para títulos e números */
+  --gold:#C9A02E;        /* mostarda antiga */
+  --gold-soft:#EBD9A6;
+  --blush:#E3A79B;       /* rosa pastel das flores */
+  --blush-dark:#CB8577;
+  --dusty:#8CA0B3;       /* azul-poeira das flores */
+  --dusty-dark:#6C8296;
+  --sage:#93A87C;        /* verde folhagem — usado só como acento pontual */
+  --sage-dark:#6B7E56;
+  --line:rgba(20,20,20,0.08);
+  --shadow:0 2px 10px rgba(20,20,20,0.06), 0 1px 2px rgba(20,20,20,0.04);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--cream);
+  min-height:100dvh;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  position:fixed; inset:0;
+}
+.screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+.statusbar-spacer{ height:calc(env(safe-area-inset-top) + 8px); flex-shrink:0; }
+
+/* ===================== NAV / CONTENT ===================== */
+.app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+.tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
+.tabpanel.active{ display:flex; }
+.scroll{ flex:1; overflow-y:auto; padding-bottom:110px; -webkit-overflow-scrolling:touch; }
+.scroll::-webkit-scrollbar{ display:none; }
+
+.navbar{ padding:10px 18px 16px; flex-shrink:0; }
+.navbar .eyebrow{ font-size:12.5px; color:var(--rust); font-weight:600; margin-bottom:7px; }
+.navbar h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
+.navbar-row{ display:flex; align-items:flex-end; justify-content:space-between; }
+.nav-action{
+  all:unset; cursor:pointer; width:32px; height:32px; border-radius:50%;
+  background:var(--rust); color:#fff; display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow);
+}
+.nav-action:active{ transform:scale(0.9); background:var(--rust-dark); }
+.nav-action svg{ width:16px; height:16px; }
+
+.section-label{ font-size:12.5px; color:var(--ink-soft); margin:20px 18px 10px; letter-spacing:.01em; }
+.section-label:first-child{ margin-top:4px; }
+
+/* Segmented control */
+.segmented{ display:flex; background:rgba(20,20,20,0.08); border-radius:9px; padding:2px; margin:2px 16px 4px; }
+.segmented button{ all:unset; cursor:pointer; flex:1; text-align:center; padding:7px 2px; font-size:12.8px; border-radius:7px; color:var(--ink-soft); font-weight:500; }
+.segmented button.active{ background:#fff; color:var(--ink); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.18); }
+.segmented button:active{ opacity:0.7; }
+
+/* Search bar */
+.search-bar{ margin:2px 16px 6px; background:rgba(20,20,20,0.08); border-radius:10px; padding:8px 10px; display:flex; align-items:center; gap:6px; }
+.search-bar svg{ width:15px; height:15px; color:var(--ink-soft); flex-shrink:0; }
+.search-bar input{ border:none; background:transparent; flex:1; font-size:14.5px; color:var(--ink); outline:none; font-family:inherit; }
+.search-bar input::placeholder{ color:#ABA7A0; }
+
+/* Stat cards row */
+.stats-row{ display:flex; gap:10px; margin:0 16px 8px; }
+.stat-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 12px 11px; box-shadow:var(--shadow); }
+.ring-row{ display:flex; gap:10px; margin:4px 16px 8px; }
+.ring-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px 10px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; }
+.ring-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px; }
+.ring-wrap{ position:relative; width:92px; height:92px; }
+.ring-wrap svg{ width:100%; height:100%; }
+.ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-center .num{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:21px; color:var(--ink); line-height:1; }
+.ring-center .sub{ font-size:8.8px; color:var(--ink-soft); margin-top:2px; }
+.ring-breakdown{ display:flex; gap:14px; margin-top:11px; }
+.ring-breakdown .n{ font-size:13px; font-weight:700; color:var(--ink); text-align:center; }
+.ring-breakdown .l{ font-size:8.5px; color:var(--ink-soft); text-align:center; margin-top:1px; }
+
+/* Inspiração */
+.insp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:4px 16px 24px; }
+.insp-tile{ position:relative; border-radius:16px; overflow:hidden; aspect-ratio:1/1; background:var(--card); box-shadow:var(--shadow); }
+.insp-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+.insp-remove{ all:unset; box-sizing:border-box; position:absolute; top:7px; right:7px; width:22px; height:22px; border-radius:50%; background:rgba(20,18,14,0.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; }
+.insp-remove:active{ background:rgba(20,18,14,0.8); }
+.insp-add-tile{ all:unset; box-sizing:border-box; aspect-ratio:1/1; border-radius:16px; border:1.6px dashed #D8D4CC; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer; color:var(--ink-soft); background:rgba(20,20,20,0.03); }
+.insp-add-tile:active{ background:rgba(20,20,20,0.07); }
+.insp-add-icon{ font-size:26px; font-weight:300; line-height:1; color:var(--rust); }
+.insp-add-label{ font-size:10.5px; font-weight:600; }
+
+/* Pré-visualização de imagem (Inspiração) */
+.img-lightbox{ position:absolute; inset:0; z-index:200; background:rgba(10,8,6,0.94); display:none; align-items:center; justify-content:center; padding:24px; }
+.img-lightbox.show{ display:flex; }
+.img-lightbox img{ max-width:100%; max-height:100%; border-radius:12px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.4); }
+.img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:18px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; z-index:2; }
+.img-lightbox-close:active{ background:rgba(255,255,255,0.3); }
+.insp-tile img{ cursor:pointer; }
+.stat-card .n{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--heading); line-height:1; }
+.stat-card .l{ font-size:10.8px; color:var(--ink-soft); margin-top:4px; line-height:1.25; min-height:27px; }
+
+/* List group (grouped iOS list) */
+.list-group{ background:var(--card); border:1px solid var(--line); border-radius:18px; margin:0 16px 18px; box-shadow:var(--shadow); overflow:hidden; }
+.list-row{ display:flex; align-items:center; gap:11px; padding:11px 14px; border-bottom:1px solid var(--line); position:relative; min-height:24px; }
+.list-row:last-child{ border-bottom:none; }
+.list-row:active{ background:rgba(20,20,20,0.035); }
+.icon-chip{ width:28px; height:28px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
+.icon-chip svg{ width:15px; height:15px; }
+.list-row .title{ flex:1; font-size:15px; color:var(--ink); min-width:0; }
+.list-row .title .sub{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
+.list-row .value{ font-size:14.5px; color:var(--ink-soft); flex-shrink:0; }
+.chev{ width:7px; height:12px; opacity:.32; flex-shrink:0; }
+.list-row.tappable{ cursor:pointer; }
+
+/* Editable value fields (iOS-style inline inputs in a row) */
+.field-input{ border:none; background:transparent; font-size:15px; color:var(--ink); text-align:right; width:100%; font-family:inherit; outline:none; }
+.field-input.big{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--heading); }
+.field-input:focus{ color:var(--rust); }
+
+/* Budget bar */
+.split-bar{ height:10px; border-radius:5px; overflow:hidden; display:flex; margin:2px 16px 8px; box-shadow:inset 0 0 0 1px rgba(20,20,20,0.06); }
+.split-seg{ height:100%; }
+.legend-wrap{ display:flex; flex-wrap:wrap; gap:6px 12px; margin:0 16px 16px; }
+.legend-item{ display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); }
+.legend-dot{ width:7px; height:7px; border-radius:2px; flex-shrink:0; }
+.donut-chart-card{ display:flex; align-items:center; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:20px; margin:0 16px 12px; padding:16px; box-shadow:var(--shadow); }
+.donut-chart-card .legend-wrap{ flex-direction:column; flex-wrap:nowrap; gap:6px; }
+.ring-stat-card{ display:flex; align-items:center; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:20px; margin:0 16px 16px; padding:16px; box-shadow:var(--shadow); }
+.ring-stat-list{ display:flex; flex-direction:column; gap:10px; flex:1; min-width:0; }
+.ring-stat-item .n{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18px; color:var(--ink); line-height:1; display:block; }
+.ring-stat-item .l{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; display:block; }
+.pct-note{ margin:0 16px 18px; font-size:12px; padding:9px 12px; border-radius:10px; }
+.pct-note.ok{ background:rgba(92,107,71,0.13); color:var(--sage-dark); }
+.pct-note.warn{ background:rgba(168,72,46,0.13); color:var(--rust-dark); }
+
+.cat-desc{ padding:0 14px 12px 53px; font-size:12px; color:var(--ink-soft); line-height:1.55; }
+.cat-desc ul{ margin:4px 0 0; padding-left:16px; }
+.cat-desc li{ margin-bottom:2px; }
+.chev-toggle{ transition:transform .2s ease; }
+.chev-toggle.open{ transform:rotate(90deg); }
+
+/* pct stepper */
+.pct-stepper{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.pct-stepper button{ all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:rgba(20,20,20,0.07); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; }
+.pct-stepper button:active{ background:rgba(20,20,20,0.15); }
+.pct-stepper .pctval{ width:38px; text-align:center; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+/* Guest rows */
+.guest-row .check{ width:22px; height:22px; border-radius:50%; border:1.6px solid #D6D2C9; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.guest-row.confirmed .check{ background:var(--sage); border-color:var(--sage); }
+.guest-row.confirmed .title{ color:var(--sage-dark); font-weight:600; }
+.guest-row .check svg{ width:12px; height:12px; color:#fff; opacity:0; }
+.guest-row.confirmed .check svg{ opacity:1; }
+.remove-x{ all:unset; cursor:pointer; color:#B4AFA6; font-size:15px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.remove-x:active{ color:var(--rust); }
+
+.add-row{ display:flex; align-items:center; gap:8px; padding:10px 14px; }
+.add-row input{ flex:1; border:none; background:rgba(20,20,20,0.06); border-radius:9px; padding:8px 10px; font-size:14px; font-family:inherit; color:var(--ink); outline:none; }
+.add-row input::placeholder{ color:#ABA7A0; }
+.add-circle{ all:unset; cursor:pointer; width:28px; height:28px; border-radius:50%; background:var(--rust); color:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.add-circle:active{ transform:scale(0.9); background:var(--rust-dark); }
+.add-circle svg{ width:14px; height:14px; }
+
+/* Expense row */
+.exp-row{ padding:11px 14px; border-bottom:1px solid var(--line); }
+.exp-row:last-child{ border-bottom:none; }
+.exp-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.exp-desc-input{ border:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; flex:1; min-width:0; }
+.exp-val{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--heading); flex-shrink:0; }
+.exp-meta{ display:flex; align-items:center; gap:8px; margin-top:5px; }
+.exp-date-input{ border:none; background:transparent; font-size:11.5px; color:var(--ink-soft); font-family:inherit; outline:none; }
+.tag-pill{ font-size:10.5px; padding:2px 8px; border-radius:20px; color:#fff; font-weight:600; }
+.exp-paid-row{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:11.5px; color:var(--ink-soft); }
+.exp-paid-row input{ width:64px; border:none; background:rgba(20,20,20,0.06); border-radius:6px; padding:3px 6px; font-size:12px; font-family:inherit; color:var(--ink); outline:none; text-align:right; }
+.exp-del{ all:unset; cursor:pointer; color:#B4AFA6; font-size:14px; padding:2px 4px; flex-shrink:0; }
+.exp-del:active{ color:var(--rust); }
+
+.cat-progress{ padding:10px 14px; border-bottom:1px solid var(--line); }
+.cat-progress:last-child{ border-bottom:none; }
+.cp-row{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px; color:var(--ink); }
+.cp-row .over{ color:var(--rust); font-weight:600; }
+.cp-track{ height:6px; background:rgba(20,20,20,0.09); border-radius:3px; overflow:hidden; }
+.cp-fill{ height:100%; background:var(--sage); border-radius:3px; }
+.cp-fill.over{ background:var(--rust); }
+
+/* Stepper full row */
+.stepper-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid var(--line); }
+.stepper-row:last-child{ border-bottom:none; }
+.stepper{ display:flex; align-items:center; background:rgba(20,20,20,0.07); border-radius:8px; overflow:hidden; }
+.stepper button{ all:unset; cursor:pointer; width:30px; height:28px; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--rust); }
+.stepper button:active{ background:rgba(168,72,46,0.15); }
+.stepper .sval{ width:32px; text-align:center; font-size:14.5px; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+/* Table cards (Mesas) */
+.table-group{ background:var(--card); border:1px solid var(--line); border-radius:18px; margin:0 16px 12px; box-shadow:var(--shadow); overflow:hidden; }
+.table-head{ display:flex; align-items:center; gap:11px; padding:12px 14px; cursor:pointer; }
+.table-head:active{ background:rgba(20,20,20,0.035); }
+.table-head .icon-chip{ width:28px; height:28px; }
+.table-head .ttitle{ flex:1; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--heading); }
+.table-head .fillcount{ font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-right:2px; }
+.seat-list{ border-top:1px solid var(--line); }
+.seat-row{ display:flex; align-items:center; gap:10px; padding:10px 14px 10px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
+.seat-row:last-child{ border-bottom:none; }
+.seat-row:active{ background:rgba(20,20,20,0.035); }
+.seat-row .seat-n{ width:20px; height:20px; border-radius:50%; background:rgba(20,20,20,0.07); color:var(--ink-soft); font-size:10.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.seat-row .seat-name{ flex:1; font-size:14px; color:var(--ink-soft); min-width:0; }
+.seat-row.filled .seat-name{ color:var(--ink); font-weight:600; }
+.seat-row.filled .seat-n{ background:var(--sage); color:#fff; }
+
+/* Sheet: lista de seleção de convidado (mesas) */
+.picker-search{ margin:0 0 10px; background:rgba(20,20,20,0.07); border-radius:10px; padding:8px 10px; display:flex; align-items:center; gap:6px; }
+.picker-search svg{ width:14px; height:14px; color:var(--ink-soft); flex-shrink:0; }
+.picker-search input{ border:none; background:transparent; flex:1; font-size:14px; color:var(--ink); outline:none; font-family:inherit; }
+.picker-list{ max-height:270px; overflow-y:auto; margin:0 -18px; padding:0 18px; }
+.picker-row{ display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); cursor:pointer; }
+.picker-row:last-child{ border-bottom:none; }
+.picker-row:active{ background:rgba(20,20,20,0.04); }
+.picker-row .side-tag{ font-size:10px; color:#fff; padding:2px 7px; border-radius:20px; font-weight:600; flex-shrink:0; }
+.picker-row .pname{ flex:1; font-size:14.5px; color:var(--ink); }
+.picker-row.is-selected .pname{ color:var(--heading); font-weight:600; }
+
+/* Home hero */
+.hero-card{ margin:4px 16px 20px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:30px 24px 26px; text-align:center; box-shadow:var(--shadow); }
+.hero-names{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:32px; color:var(--heading); letter-spacing:.01em; }
+.hero-names .amp{ color:var(--gold); font-style:italic; padding:0 5px; }
+.hero-rule{ width:34px; height:1px; background:var(--gold); opacity:.55; margin:16px auto; }
+.hero-sub{ color:var(--ink-soft); font-size:11.5px; letter-spacing:.02em; }
+.hero-count{ margin-top:20px; display:flex; flex-direction:column; align-items:center; gap:1px; }
+.hero-count .num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:36px; color:var(--heading); line-height:1; }
+.hero-count .lbl{ color:var(--ink-soft); font-size:11.5px; margin-top:6px; }
+
+/* Início — cabeçalho */
+.home-header{ display:flex; align-items:center; gap:12px; padding:8px 18px 16px; }
+.home-avatar{ width:44px; height:44px; border-radius:50%; background:linear-gradient(150deg,var(--rust),var(--heading)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:15px; flex-shrink:0; box-shadow:var(--shadow); }
+.home-header-text{ flex:1; min-width:0; }
+.home-header-text .names{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:19px; color:var(--ink); line-height:1.15; }
+.home-header-text .date{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
+.home-icon-btn{ all:unset; box-sizing:border-box; width:36px; height:36px; border-radius:50%; background:var(--cream2); display:flex; align-items:center; justify-content:center; color:var(--rust); cursor:pointer; flex-shrink:0; }
+.home-icon-btn svg{ width:17px; height:17px; }
+.home-icon-btn:active{ background:var(--line); }
+
+/* Início — cartão herói com fotografia */
+.hero-photo-card{ position:relative; margin:2px 16px 20px; border-radius:22px; overflow:hidden; box-shadow:var(--shadow); height:192px; }
+.hero-photo-card .hero-photo{ position:absolute; inset:0; background-size:cover; background-position:52% 42%; }
+.hero-photo-card .hero-photo{ background:linear-gradient(135deg, #EFE0D2 0%, #E3C9B6 30%, #C9A02E 65%, #96453A 100%); }
+/* Ícones reais do convite (alianças, cocktail, bolo, mesa posta) */
+.icon-real{ width:34px; height:34px; flex-shrink:0; background-size:contain; background-repeat:no-repeat; background-position:center; }
+
+/* Linha do tempo horizontal — O grande dia */
+.timeline-card{ margin:0 0 18px; overflow:hidden; }
+.timeline-scroll{ display:flex; overflow-x:auto; padding:6px 16px 4px; min-width:0; -webkit-overflow-scrolling:touch; }
+.timeline-scroll::-webkit-scrollbar{ display:none; }
+.timeline-item{ flex:0 0 108px; display:flex; flex-direction:column; align-items:center; position:relative; }
+.timeline-item::before{ content:''; position:absolute; left:0; right:0; top:21px; height:14px; z-index:1; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='14' viewBox='0 0 36 14'%3E%3Cpath d='M0,7 Q9,1 18,7 T36,7' stroke='%23C9A02E' stroke-width='1.3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:repeat-x; background-size:36px 14px; opacity:.85; }
+.timeline-item:first-child::before{ left:50%; }
+.timeline-item:last-child::before{ right:50%; }
+.timeline-time{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; color:var(--ink); margin-bottom:8px; }
+.timeline-dot{ width:11px; height:11px; border-radius:50%; border:1.6px solid var(--gold); background:var(--card); position:relative; z-index:2; flex-shrink:0; }
+.timeline-stem{ width:1px; height:13px; background:var(--line); }
+.timeline-item .icon-real{ margin-top:5px; }
+.timeline-label{ margin-top:9px; text-align:center; font-size:11px; font-weight:600; color:var(--ink); line-height:1.3; }
+.timeline-label span{ display:block; font-size:9px; font-weight:500; color:var(--ink-soft); margin-top:2px; }
+
+
+
+
+
+.hero-photo-card .hero-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(24,18,12,0.05) 0%, rgba(24,18,12,0.12) 40%, rgba(24,18,12,0.8) 100%); }
+.hero-photo-card .hero-overlay{ position:absolute; left:0; right:0; bottom:0; padding:16px 18px 18px; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,0.35); }
+.hero-photo-card .hero-eyebrow{ font-size:10.5px; letter-spacing:.04em; opacity:.92; text-transform:uppercase; }
+.hero-photo-card .hero-heading{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px; line-height:1.05; margin-top:2px; }
+.hero-photo-card .hero-venue{ font-size:11.5px; opacity:.88; margin-top:4px; }
+.hero-cta{ all:unset; box-sizing:border-box; display:inline-block; margin-top:12px; padding:9px 18px; border-radius:20px; background:#fff; color:var(--heading); font-size:12px; font-weight:700; cursor:pointer; }
+.hero-cta:active{ opacity:.82; }
+
+/* Início — atalhos em grelha */
+.quicklink-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 16px 8px; }
+.quicklink-card{ all:unset; box-sizing:border-box; width:100%; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 3px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; box-shadow:var(--shadow); cursor:pointer; text-align:center; }
+.quicklink-card:active{ transform:scale(0.95); }
+.quicklink-icon{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.quicklink-icon svg{ width:17px; height:17px; }
+.quicklink-label{ font-size:9.8px; font-weight:600; color:var(--ink); line-height:1.2; }
+
+/* Sheet (add expense) */
+.sheet-backdrop{ position:absolute; inset:0; background:rgba(20,18,14,0.42); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+.sheet-backdrop.show{ opacity:1; pointer-events:auto; }
+.sheet{ position:absolute; left:0; right:0; bottom:0; background:var(--cream); border-radius:24px 24px 0 0; z-index:51; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding:10px 18px 28px; box-shadow:0 -10px 30px rgba(0,0,0,0.2); }
+.sheet.show{ transform:translateY(0); }
+.sheet-handle{ width:36px; height:4px; border-radius:2px; background:rgba(20,20,20,0.25); margin:4px auto 12px; }
+.sheet-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:20px; color:var(--heading); margin:0 0 12px; text-align:center; }
+.sheet-field{ margin-bottom:10px; }
+.sheet-field label{ display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; }
+.sheet-field input, .sheet-field select{ width:100%; border:1px solid var(--line); background:#fff; border-radius:9px; padding:9px 10px; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; }
+.sheet-btns{ display:flex; gap:10px; margin-top:14px; }
+.sheet-btns button{ all:unset; cursor:pointer; flex:1; text-align:center; padding:11px 0; border-radius:11px; font-size:14.5px; font-weight:600; }
+.btn-cancel{ background:rgba(20,20,20,0.07); color:var(--ink); }
+.btn-save{ background:var(--rust); color:#fff; }
+.btn-cancel:active, .btn-save:active{ opacity:.75; }
+
+.empty-note{ padding:14px; font-size:12.5px; color:var(--ink-soft); font-style:italic; text-align:center; }
+
+/* Tab bar */
+.tabbar{ position:absolute; left:0; right:0; bottom:0; z-index:20; display:flex; padding:8px 0 calc(env(safe-area-inset-bottom) + 6px); background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line); }
+.tabbar button{ all:unset; cursor:pointer; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; color:#ABA7A0; }
+.tabbar button svg{ width:19px; height:19px; }
+.tabbar button span{ font-size:9px; font-weight:600; letter-spacing:-.01em; }
+.tab-icon-wrap{ display:flex; align-items:center; justify-content:center; width:34px; height:24px; border-radius:12px; transition:background .18s ease, color .18s ease; }
+.tabbar button.active{ color:var(--rust); }
+.tabbar button.active .tab-icon-wrap{ background:var(--rust); color:#fff; }
+.tabbar button:active .tab-icon-wrap{ transform:scale(0.88); }
+
+/* Mesa 3D */
+.mesa3d-panel{ display:none; flex-direction:column; flex:1; min-height:0; min-width:0; overflow-x:hidden; }
+.mesa3d-panel.active{ display:flex; }
+.mesa3d-view{ display:none; flex-direction:column; flex:1; min-height:0; min-width:0; overflow-x:hidden; }
+.mesa3d-view.active{ display:flex; }
+.table-chip-row{ display:flex; gap:8px; overflow-x:auto; padding:2px 16px 14px; width:100%; min-width:0; box-sizing:border-box; -webkit-overflow-scrolling:touch; }
+.table-chip-row::-webkit-scrollbar{ display:none; }
+.table-chip{ all:unset; box-sizing:border-box; cursor:pointer; flex-shrink:0; width:34px; height:34px; border-radius:50%; background:var(--card); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--ink-soft); font-weight:600; }
+.table-chip.active{ background:var(--rust); color:#fff; }
+.table-chip:active{ transform:scale(0.92); }
+.mesa3d-canvas-wrap{ position:relative; margin:0 16px 16px; border-radius:20px; overflow:hidden; background:radial-gradient(ellipse at 50% 26%, #FFF9EE, #F0DFC8 82%); box-shadow:var(--shadow); flex:1; min-height:0; }
+#mesa3d-canvas{ width:100%; height:100%; display:block; touch-action:none; }
+.mesa3d-labels{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.mesa3d-label{ position:absolute; transform:translate(-50%,-100%); font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; background:rgba(255,253,248,0.96); box-shadow:0 1px 4px rgba(20,20,20,0.2); color:var(--ink-soft); white-space:nowrap; }
+.mesa3d-label::after{ content:''; position:absolute; left:50%; bottom:-4px; width:7px; height:7px; background:inherit; box-shadow:inherit; transform:translateX(-50%) rotate(45deg); border-radius:0 0 3px 0; z-index:-1; }
+.mesa3d-label.assigned.noiva{ background:var(--blush-dark); color:#fff; }
+.mesa3d-label.assigned.noivo{ background:var(--dusty-dark); color:#fff; }
+.mesa3d-hint{ position:absolute; left:0; right:0; bottom:11px; text-align:center; font-size:10.5px; color:var(--ink-soft); opacity:.85; pointer-events:none; }
+.mesa3d-fillcount{ font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-left:auto; }
+.mini-ring{ position:relative; width:34px; height:34px; margin-left:auto; flex-shrink:0; }
+.mini-ring svg{ width:100%; height:100%; }
+.mini-ring-txt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7.5px; font-weight:700; color:var(--ink); }
+
+/* Visão da sala */
+.sala-scroll{ flex:1; min-height:0; overflow-y:auto; padding:2px 16px 24px; -webkit-overflow-scrolling:touch; }
+.sala-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.sala-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px 12px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; }
+.sala-card svg{ width:100%; height:auto; }
+.sala-legend{ display:flex; justify-content:center; gap:14px; margin:2px 0 16px; }
+.sala-legend-item{ display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); }
+.sala-legend-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+#mesa3d-header{ min-width:0; flex-shrink:0; }
+
+
+/* Login */
+.login-screen{ position:absolute; inset:0; z-index:100; background:var(--cream); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; }
+.login-screen.hidden{ display:none; }
+.login-mark{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:38px; color:var(--heading); margin-bottom:4px; }
+.login-mark .amp{ color:var(--heading); font-style:normal; font-weight:500; padding:0 6px; }
+.login-tag{ color:var(--ink-soft); font-size:12.5px; margin-bottom:26px; letter-spacing:.01em; }
+.login-field{ width:100%; max-width:280px; }
+.login-field input{ width:100%; border:1px solid var(--line); background:var(--card); border-radius:12px; padding:13px 14px; font-size:15px; color:var(--ink); font-family:inherit; outline:none; text-align:center; }
+.login-field input:focus{ border-color:var(--gold); }
+.login-btn{ all:unset; box-sizing:border-box; cursor:pointer; width:100%; max-width:280px; text-align:center; margin-top:12px; padding:13px 0; border-radius:12px; background:var(--rust); color:#fff; font-size:14.5px; font-weight:600; }
+.login-btn:active{ opacity:.8; }
+.login-msg{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:280px; line-height:1.5; }
+.login-msg.error{ color:var(--rust-dark); }
+.login-note{ margin-top:24px; font-size:11px; color:var(--ink-soft); opacity:.75; max-width:250px; line-height:1.5; }
+
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="statusbar-spacer"></div>
+
+  <div class="app-body" id="app-body">
+    <!-- panels injected by JS -->
+  </div>
+
+  <div class="mesa3d-panel" id="mesa3d-panel">
+    <div id="mesa3d-header"></div>
+    <div class="mesa3d-view" id="mesa3d-view-mesa">
+      <div class="table-chip-row" id="mesa3d-chips"></div>
+      <div class="mesa3d-canvas-wrap">
+        <canvas id="mesa3d-canvas"></canvas>
+        <div class="mesa3d-labels" id="mesa3d-labels"></div>
+        <div class="mesa3d-hint">arrasta para rodar · toca num lugar para atribuir</div>
+      </div>
+    </div>
+    <div class="mesa3d-view" id="mesa3d-view-sala">
+      <div class="sala-scroll" id="sala-scroll"></div>
+    </div>
+  </div>
+
+  <div class="sheet-backdrop" id="sheet-backdrop"></div>
+  <div class="sheet" id="expense-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Novo movimento</div>
+    <div class="sheet-field"><label>Descrição</label><input type="text" id="sf-desc" placeholder="Ex: Sinal do fotógrafo"></div>
+    <div class="sheet-field"><label>Data</label><input type="date" id="sf-date"></div>
+    <div class="sheet-field"><label>Valor total (€)</label><input type="number" id="sf-value" placeholder="0"></div>
+    <div class="sheet-field"><label>Já pago (€)</label><input type="number" id="sf-paid" placeholder="0"></div>
+    <div class="sheet-field"><label>Categoria</label><select id="sf-cat"></select></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="sf-cancel">Cancelar</button>
+      <button class="btn-save" id="sf-save">Guardar</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="seat-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="seat-sheet-title">Atribuir lugar</div>
+    <div class="picker-search"><svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="M17 17l-3.5-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><input type="text" id="seat-picker-search" placeholder="Procurar convidado"></div>
+    <div class="picker-list" id="seat-picker-list"></div>
+  </div>
+
+  <input type="file" id="insp-file-input" accept="image/*" multiple style="display:none;">
+
+  <div class="img-lightbox" id="img-lightbox">
+    <button class="img-lightbox-close" id="img-lightbox-close">✕</button>
+    <img id="img-lightbox-img" src="" alt="">
+  </div>
+
+  <div class="tabbar" id="tabbar"></div>
+
+  <div class="login-screen" id="login-screen">
+    <div class="login-inner" id="login-inner">
+      <div class="login-mark">Rita <span class="amp">&amp;</span> Tiago</div>
+      <div class="login-tag">A verificar sessão…</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(function(){
+
+/* ============================================================
+   FIREBASE — configuração
+   Este é um projeto Firebase NOVO, separado do da Rita & Tiago.
+   Cria um projeto Firebase chamado "weddy-app" e cola aqui a
+   configuração (ver README para o passo a passo).
+============================================================ */
+const firebaseConfig = {
+  apiKey: "COLOCA_AQUI_A_TUA_API_KEY",
+  authDomain: "COLOCA_AQUI.firebaseapp.com",
+  projectId: "COLOCA_AQUI_O_PROJECT_ID",
+  storageBucket: "COLOCA_AQUI.appspot.com",
+  messagingSenderId: "COLOCA_AQUI",
+  appId: "COLOCA_AQUI"
+};
+const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
+let auth = null, db = null;
+if(FIREBASE_READY){
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+}
+let currentWeddingId = null;
+let currentWeddingOwners = [];
+const WEDDINGS = () => db.collection('weddings');
+const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
+
+
+/* ============================================================
+   ICONS (estilo SF Symbols, outline)
+============================================================ */
+const ICONS = {
+  /* --- chips (preenchidos, estilo ícone da app Definições) --- */
+  home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.5 11h2.3v8.3A1.2 1.2 0 0 0 6 20.5h4.1v-5.8h3.8v5.8H18a1.2 1.2 0 0 0 1.2-1.2V11h2.3z"/></svg>',
+  budget: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9.6" opacity=".28"/><text x="12" y="16.3" font-size="13.5" font-weight="700" text-anchor="middle" font-family="Georgia,serif">€</text></svg>',
+  guests: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7.6" r="3.3"/><circle cx="17.1" cy="9" r="2.55" opacity=".7"/><path d="M2.3 20c.5-4 3.2-6.2 6.7-6.2s6.2 2.2 6.7 6.2a.85.85 0 0 1-.85.95H3.15A.85.85 0 0 1 2.3 20Z"/><path d="M16.2 13.9c2.8.35 4.9 2.15 5.4 5.4.1.65-.4 1.25-1.05 1.25h-2.9c.15-2.55-.4-4.7-1.45-6.65Z" opacity=".7"/></svg>',
+  expenses: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.2 3.8h1.9l.55 2.15h13.7a1 1 0 0 1 .97 1.25l-1.55 6.1a1.6 1.6 0 0 1-1.55 1.2H8.3a1.6 1.6 0 0 1-1.56-1.25L4.4 4.9H3.2Z" opacity=".55"/><circle cx="9.3" cy="19.3" r="1.55"/><circle cx="17.6" cy="19.3" r="1.55"/></svg>',
+  tables: '<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="7.2" rx="8" ry="3.1"/><path d="M4 7.2v3.9c0 1.7 3.6 3.1 8 3.1s8-1.4 8-3.1V7.2c0 1.7-3.6 3.1-8 3.1s-8-1.4-8-3.1Z" opacity=".55"/><rect x="11.1" y="14" width="1.8" height="7.4" rx=".9"/><rect x="7.6" y="20.2" width="8.8" height="1.6" rx=".8"/></svg>',
+  church:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="11.15" y="1.6" width="1.7" height="4" rx=".5"/><rect x="9.7" y="2.9" width="4.6" height="1.4" rx=".5"/><path d="M12 5.4 20.3 11v9.6a.9.9 0 0 1-.9.9h-3.9v-6.1a3.5 3.5 0 0 0-7 0v6.1H4.6a.9.9 0 0 1-.9-.9V11Z"/><rect x="10.35" y="14.8" width="3.3" height="6.7" rx="1.6" fill="var(--cream)"/></svg>',
+  ring:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.3 13.7 6l-1.7 1.4L10.3 6Z"/><circle cx="7.7" cy="14.6" r="4.55" opacity=".55"/><circle cx="7.7" cy="14.6" r="2.5" fill="var(--cream)"/><circle cx="16.1" cy="14.6" r="4.55"/><circle cx="16.1" cy="14.6" r="2.5" fill="var(--cream)"/></svg>',
+  rings:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8.3" cy="14.8" r="5" opacity=".55"/><circle cx="8.3" cy="14.8" r="2.85" fill="var(--cream)"/><circle cx="15.4" cy="13.3" r="5" /><circle cx="15.4" cy="13.3" r="2.85" fill="var(--cream)"/><path d="M4.6 7.4c1.6-2 4.4-2.3 6.2-.8-2.1.1-3.6 1-4.4 2.7-.8-.5-1.4-1.1-1.8-1.9Z" opacity=".85"/></svg>',
+  cocktail:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 4.3h15.4c.4 0 .6.4.4.7l-6.6 7.6v4.7h3v1.9H7.5v-1.9h3v-4.7L3.9 5c-.3-.3-.1-.7.4-.7Z"/><circle cx="9.6" cy="7.6" r="1" fill="var(--cream)"/></svg>',
+  cake:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5.3" y="14.3" width="13.4" height="5.9" rx="1.2"/><rect x="7.7" y="8.6" width="8.6" height="5.2" rx="1" opacity=".8"/><rect x="11.35" y="6.6" width="1.3" height="2.2"/><circle cx="12" cy="5.9" r="1.15"/></svg>',
+  placesetting:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12.3" r="6.6" opacity=".45"/><circle cx="12" cy="12.3" r="4.4" fill="var(--cream)"/><rect x="3.15" y="3.2" width="1.3" height="17.6" rx=".65"/><rect x="19.55" y="3.2" width="1.3" height="8" rx=".65"/><path d="M20.2 11.2v9.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  seat:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 3h11a1.5 1.5 0 0 1 1.5 1.5v7.3H5V4.5A1.5 1.5 0 0 1 6.5 3Z" opacity=".55"/><path d="M4.3 11.8h15.4a1.2 1.2 0 0 1 1.2 1.35l-.65 5.2a1.6 1.6 0 0 1-1.6 1.4H5.35a1.6 1.6 0 0 1-1.6-1.4l-.65-5.2a1.2 1.2 0 0 1 1.2-1.35Z"/><rect x="4.6" y="19.6" width="2" height="2.1" rx=".6"/><rect x="17.4" y="19.6" width="2" height="2.1" rx=".6"/></svg>',
+  /* --- pequenos, estilo outline/regular --- */
+  chev:'<svg class="chev" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevleft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  check:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  plus:'<svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>',
+  search:'<svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="M17 17l-3.5-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.2.2-.5.3-.8.3Z"/></svg>',
+  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4H6.8a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7.7"/><path d="M9.5 12h10.3m0 0-3.2-3.2m3.2 3.2-3.2 3.2"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.05A1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.05a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.05a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+};
+/* --- ícones da barra de separadores: outline (inativo) vs. preenchido (ativo), como no iOS --- */
+const TAB_ICONS = {
+  home:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.6 10v8.6c0 .6.5 1.1 1.1 1.1h3.6v-5.9h3.4v5.9h3.6c.6 0 1.1-.5 1.1-1.1V10"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.5 11h2.3v8.3A1.2 1.2 0 0 0 6 20.5h4.1v-5.8h3.8v5.8H18a1.2 1.2 0 0 0 1.2-1.2V11h2.3z"/></svg>'
+  },
+  budget:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9.3"/><text x="12" y="16.3" font-size="12.5" font-weight="700" text-anchor="middle" font-family="Georgia,serif" fill="currentColor" stroke="none">€</text></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9.6" opacity=".3"/><text x="12" y="16.3" font-size="13.5" font-weight="700" text-anchor="middle" font-family="Georgia,serif">€</text></svg>'
+  },
+  guests:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7.8" r="3.15"/><circle cx="17" cy="9.1" r="2.35"/><path d="M2.6 19.6c.5-3.7 3-5.8 6.4-5.8s5.9 2.1 6.4 5.8"/><path d="M15.6 13.9c2.5.25 4.4 1.9 4.9 4.9"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7.6" r="3.3"/><circle cx="17.1" cy="9" r="2.55" opacity=".7"/><path d="M2.3 20c.5-4 3.2-6.2 6.7-6.2s6.2 2.2 6.7 6.2a.85.85 0 0 1-.85.95H3.15A.85.85 0 0 1 2.3 20Z"/><path d="M16.2 13.9c2.8.35 4.9 2.15 5.4 5.4.1.65-.4 1.25-1.05 1.25h-2.9c.15-2.55-.4-4.7-1.45-6.65Z" opacity=".7"/></svg>'
+  },
+  expenses:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 3.8h1.9l.55 2.15h13.7a1 1 0 0 1 .97 1.25l-1.55 6.1a1.6 1.6 0 0 1-1.55 1.2H8.3a1.6 1.6 0 0 1-1.56-1.25L4.4 4.9H3.2Z"/><circle cx="9.3" cy="19.3" r="1.35"/><circle cx="17.6" cy="19.3" r="1.35"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.2 3.8h1.9l.55 2.15h13.7a1 1 0 0 1 .97 1.25l-1.55 6.1a1.6 1.6 0 0 1-1.55 1.2H8.3a1.6 1.6 0 0 1-1.56-1.25L4.4 4.9H3.2Z" opacity=".55"/><circle cx="9.3" cy="19.3" r="1.55"/><circle cx="17.6" cy="19.3" r="1.55"/></svg>'
+  },
+  tables:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7.2" rx="7.6" ry="2.9"/><path d="M4.4 7.2v3.7c0 1.6 3.4 2.9 7.6 2.9s7.6-1.3 7.6-2.9V7.2"/><path d="M12 13.8V21M8 21h8"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="7.2" rx="8" ry="3.1"/><path d="M4 7.2v3.9c0 1.7 3.6 3.1 8 3.1s8-1.4 8-3.1V7.2c0 1.7-3.6 3.1-8 3.1s-8-1.4-8-3.1Z" opacity=".55"/><rect x="11.1" y="14" width="1.8" height="7.4" rx=".9"/><rect x="7.6" y="20.2" width="8.8" height="1.6" rx=".8"/></svg>'
+  },
+  cube:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6 20.3 7.2v9.6L12 21.4 3.7 16.8V7.2Z"/><path d="M3.7 7.2 12 11.8l8.3-4.6M12 11.8v9.6"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6 20.3 7.2 12 11.8 3.7 7.2Z"/><path d="M3.5 8.5 11.4 13v8.3l-7.9-4.4Z" opacity=".72"/><path d="M20.5 8.5 12.6 13v8.3l7.9-4.4Z" opacity=".5"/></svg>'
+  },
+  photo:{
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.4"/><circle cx="8.3" cy="9.4" r="1.6"/><path d="M3.4 16.8 8.6 11.9a1.6 1.6 0 0 1 2.2 0l1.7 1.6"/><path d="M12.8 14.3l2.6-2.5a1.6 1.6 0 0 1 2.2 0l3 2.9"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.4" opacity=".5"/><circle cx="8.3" cy="9.4" r="1.8"/><path d="M3.4 17.4 8.9 12a1.7 1.7 0 0 1 2.3 0l1.9 1.8 2.9-2.8a1.7 1.7 0 0 1 2.3 0l3.2 3.1v1.7a1.4 1.4 0 0 1-1.4 1.4H4.8a1.4 1.4 0 0 1-1.4-1.4z"/></svg>'
+  }
+};
+const CAT_COLORS = ['#C1583E','#8CA0B3','#E3A79B','#C9A02E','#93A87C','#8B5F73','#CB8577','#B9AE8D'];
+
+/* ============================================================
+   SEED DATA — transcrito da bíblia de casamento original
+============================================================ */
+function seedData(){
+  return {
+    budget:{ total:20000, guestsEstimate:80 },
+    categories:[
+      { id:'quinta', name:'Espaço e Catering', pct:0.50, desc:['Aluguer do espaço','Catering (cocktail, refeição, sobremesas, ceia)','Bebidas (vinho, champanhe, bar aberto, cocktails)','Staff (cozinha, empregados de mesa, coordenador de sala)','Mobiliário (mesas, cadeiras, lounges)','Loiça, talheres, copos, toalhas, guardanapos','Eventuais extras: tenda, pista de dança, horário extra'] },
+      { id:'cerimonia', name:'Cerimónia', pct:0.05, desc:['Taxa da igreja ou conservatória','Músicos para a cerimónia (órgão, coro, quarteto, violino)','Decoração da igreja/altar ou local da cerimónia civil','Tapete, bancos, cadeiras, microfones','Porta-alianças','Alianças'] },
+      { id:'entretenimento', name:'Entretenimento', pct:0.08, desc:['DJ e/ou banda','Som e iluminação','Animações extra (saxofonista, fogo-de-artifício, artistas)','Photobooth / cabine de fotos','Atividades para crianças'] },
+      { id:'foto', name:'Fotografia e Vídeo', pct:0.12, desc:['Fotógrafo principal','Segundo fotógrafo (opcional)','Videógrafo(s)','Drone (se incluído)','Álbum físico e digital','Teaser/vídeo editado final'] },
+      { id:'vestuario', name:'Vestuário e Acessórios', pct:0.15, desc:['Vestido de noiva (compra ou aluguer)','Fato do noivo','Sapatos de noiva e noivo','Acessórios (véu, joias, gravata, suspensórios)','Bouquet da noiva e acessórios florais','Maquilhagem e cabelo (ensaio incluído)'] },
+      { id:'decoracao', name:'Decoração e Flores', pct:0.05, desc:['Arranjos florais (igreja, quinta, mesas)','Decoração da sala (velas, centros de mesa)','Decoração exterior (entrada, jardins, lounge)','Iluminação ambiente (fairy lights, tochas)','Estruturas (arco floral, photowall, backdrops)'] },
+      { id:'convites', name:'Convites e Papelaria', pct:0.02, desc:['Convites formais','Save the date','Missais/ordem da cerimónia','Menus de mesa e seating plan','Marcadores de mesa/nome'] },
+      { id:'extras', name:'Extras e Logística', pct:0.03, desc:['Lembranças para convidados','Wedding planner / coordenador do dia','Licenças e seguros','Ensaios gerais','Kit SOS para noiva/noivo','Taxas e imprevistos'] }
+    ],
+    guests:{
+      noiva:{ familia:[], amigos:[], duvida:[], staff:[] },
+      noivo:{ familia:[], amigos:[], duvida:[], staff:[] },
+      criancas:[]
+    },
+    confirmed:{},
+    expenses:[],
+    seating:{ numTables:10, seatsPerTable:10, assignments:{} }
+  };
+}
+function defaultSettings(name1, name2, dateStr, venue){
+  return {
+    coupleName1: name1 || 'Nome 1',
+    coupleName2: name2 || 'Nome 2',
+    weddingDate: dateStr || '',
+    venue: venue || '',
+    accentColor: 'rust'
+  };
+}
+
+let state = seedData();
+let weddingSettings = defaultSettings();
+let activeTab = 'inicio';
+let guestSeg = 'noiva';
+let openDesc = {};
+let openTable = {};
+let editingSeatKey = null;
+let seatQuery = '';
+let guestFilter = '';
+let inspirations = [];
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
+function catById(id){ return state.categories.find(c=>c.id===id); }
+function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
+function isConfirmed(side,cat,idx){ return !!state.confirmed[guestKey(side,cat,idx)]; }
+function countGuests(side){ const g=state.guests[side]; return g.familia.length+g.amigos.length+g.duvida.length+g.staff.length; }
+function countConfirmed(side){ const g=state.guests[side]; let n=0; ['familia','amigos','duvida','staff'].forEach(cat=>{ g[cat].forEach((name,idx)=>{ if(isConfirmed(side,cat,idx)) n++; }); }); return n; }
+function totalExpenseValue(){ return state.expenses.reduce((s,e)=>s+(Number(e.value)||0),0); }
+function totalExpensePaid(){ return state.expenses.reduce((s,e)=>s+(Number(e.paid)||0),0); }
+function spentByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+(Number(e.value)||0),0); }
+function allAdultGuests(){
+  const out=[];
+  ['noiva','noivo'].forEach(side=>{ ['familia','amigos','duvida','staff'].forEach(cat=>{ (state.guests[side][cat]||[]).forEach((name,idx)=>{ out.push({side,cat,idx,name,key:guestKey(side,cat,idx)}); }); }); });
+  return out;
+}
+function daysUntil(dateStr){
+  const target = new Date(dateStr+'T00:00:00');
+  const now = new Date();
+  const diff = Math.ceil((target - now)/(1000*60*60*24));
+  return diff;
+}
+function formatDatePT(dateStr){
+  if(!dateStr) return 'Data por definir';
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const d = new Date(dateStr+'T00:00:00');
+  return `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+}
+function donutSVG(pct, color, size, stroke){
+  const r = (size-stroke)/2, c = size/2;
+  const circ = 2*Math.PI*r;
+  const off = circ*(1-Math.max(0,Math.min(pct,1)));
+  return `<svg viewBox="0 0 ${size} ${size}">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="rgba(20,20,20,0.09)" stroke-width="${stroke}"/>
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 ${c} ${c})"/>
+  </svg>`;
+}
+function multiDonutSVG(segments, size, stroke){
+  const r = (size-stroke)/2, c = size/2;
+  const circ = 2*Math.PI*r;
+  let acc = 0, arcs = '';
+  segments.forEach(seg=>{
+    const len = circ*Math.max(0, seg.pct);
+    if(len > 0.15){
+      const rot = -90 + (acc/circ)*360;
+      arcs += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${stroke}" stroke-dasharray="${Math.max(len-1.4,0)} ${circ}" transform="rotate(${rot} ${c} ${c})"/>`;
+    }
+    acc += len;
+  });
+  return `<svg viewBox="0 0 ${size} ${size}">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="rgba(20,20,20,0.07)" stroke-width="${stroke}"/>
+    ${arcs}
+  </svg>`;
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+const TABS = [
+  { id:'inicio', label:'Início', icon:'home' },
+  { id:'orcamento', label:'Orçamento', icon:'budget' },
+  { id:'convidados', label:'Convidados', icon:'guests' },
+  { id:'gastos', label:'Gastos', icon:'expenses' },
+  { id:'mesas', label:'Mesas', icon:'tables' },
+  { id:'mesa3d', label:'Lugares', icon:'cube' }
+];
+
+function renderTabbar(){
+  const bar = document.getElementById('tabbar');
+  bar.innerHTML = TABS.map(t=>{
+    const isActive = t.id===activeTab;
+    const glyph = TAB_ICONS[t.icon][isActive?'fill':'line'];
+    return `<button data-goto="${t.id}" class="${isActive?'active':''}">
+      <span class="tab-icon-wrap">${glyph}</span>
+      <span>${t.label}</span>
+    </button>`;
+  }).join('');
+  bar.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{ activeTab=b.dataset.goto; render(); });
+  });
+}
+
+function render(){
+  renderTabbar();
+  const body = document.getElementById('app-body');
+  body.innerHTML =
+    panel('inicio', viewInicio()) +
+    panel('orcamento', viewOrcamento()) +
+    panel('convidados', viewConvidados()) +
+    panel('gastos', viewGastos()) +
+    panel('mesas', viewMesas()) +
+    panel('inspiracao', viewInspiracao()) +
+    panel('definicoes', viewDefinicoes());
+  bindHandlers();
+  syncMesa3DPanel();
+}
+function panel(id, html){
+  return `<div class="tabpanel ${id===activeTab?'active':''}" data-panel="${id}"><div class="scroll">${html}</div></div>`;
+}
+
+/* ============================================================
+   VIEW: Início
+============================================================ */
+function viewInicio(){
+  const totalGuests = countGuests('noiva')+countGuests('noivo');
+  const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
+  const spent = totalExpenseValue();
+  const spentPct = Math.round((spent/state.budget.total)*100);
+  const name1 = weddingSettings.coupleName1 || 'Nome 1';
+  const name2 = weddingSettings.coupleName2 || 'Nome 2';
+  const initials = (name1[0]||'?') + (name2[0]||'?');
+  const hasDate = !!weddingSettings.weddingDate;
+  const days = hasDate ? daysUntil(weddingSettings.weddingDate) : null;
+  const venue = weddingSettings.venue || 'Local por definir';
+
+  return `
+  <div class="home-header">
+    <div class="home-avatar">${initials.toUpperCase()}</div>
+    <div class="home-header-text">
+      <div class="names">${name1} &amp; ${name2}</div>
+      <div class="date">${formatDatePT(weddingSettings.weddingDate)}</div>
+    </div>
+    <button class="home-icon-btn" data-goto="inspiracao">${ICONS.heart}</button>
+    <button class="home-icon-btn" data-goto="definicoes" style="margin-left:8px;">${ICONS.gear}</button>
+  </div>
+
+  <div class="hero-photo-card">
+    <div class="hero-photo"></div>
+    <div class="hero-scrim"></div>
+    <div class="hero-overlay">
+      <div class="hero-eyebrow">Até ao grande dia</div>
+      <div class="hero-heading">${hasDate ? days+' dias' : '—'}</div>
+      <div class="hero-venue">${venue}</div>
+    </div>
+  </div>
+
+  <div class="quicklink-grid">
+    <button class="quicklink-card" data-goto="orcamento">
+      <div class="quicklink-icon" style="background:var(--gold);">${ICONS.budget}</div>
+      <div class="quicklink-label">Orçamento</div>
+    </button>
+    <button class="quicklink-card" data-goto="convidados">
+      <div class="quicklink-icon" style="background:var(--dusty);">${ICONS.guests}</div>
+      <div class="quicklink-label">Convidados</div>
+    </button>
+    <button class="quicklink-card" data-goto="gastos">
+      <div class="quicklink-icon" style="background:var(--rust);">${ICONS.expenses}</div>
+      <div class="quicklink-label">Gastos</div>
+    </button>
+    <button class="quicklink-card" data-goto="mesas">
+      <div class="quicklink-icon" style="background:var(--blush-dark);">${ICONS.tables}</div>
+      <div class="quicklink-label">Mesas</div>
+    </button>
+  </div>
+
+  <div class="section-label">O teu progresso</div>
+  <div class="ring-row">
+    <div class="ring-card">
+      <div class="ring-label">Confirmados</div>
+      <div class="ring-wrap">
+        ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--dusty-dark)', 92, 9)}
+        <div class="ring-center"><span class="num">${totalConfirmed}</span><span class="sub">de ${totalGuests}</span></div>
+      </div>
+      <div class="ring-breakdown">
+        <div><div class="n">${countConfirmed('noiva')}</div><div class="l">Noiva</div></div>
+        <div><div class="n">${countConfirmed('noivo')}</div><div class="l">Noivo</div></div>
+      </div>
+    </div>
+    <div class="ring-card">
+      <div class="ring-label">Orçamento gasto</div>
+      <div class="ring-wrap">
+        ${donutSVG(state.budget.total? spent/state.budget.total : 0, 'var(--gold)', 92, 9)}
+        <div class="ring-center"><span class="num">${spentPct}%</span><span class="sub">${fmtEUR(spent)}</span></div>
+      </div>
+      <div class="ring-breakdown">
+        <div><div class="n">${fmtEUR(state.budget.total-spent)}</div><div class="l">Por gastar</div></div>
+      </div>
+    </div>
+  </div>
+
+  `;
+}
+
+/* ============================================================
+   VIEW: Orçamento
+============================================================ */
+function viewOrcamento(){
+  const total = state.budget.total;
+  const guests = state.budget.guestsEstimate;
+  const perGuest = guests? total/guests : 0;
+  const pctSum = state.categories.reduce((s,c)=>s+Number(c.pct),0);
+
+  const bar = state.categories.map((c,i)=>`<div class="split-seg" style="width:${c.pct*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></div>`).join('');
+  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${c.name} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
+  const pctNote = Math.abs(pctSum-1)<0.001
+    ? `<div class="pct-note ok">As percentagens somam ${Math.round(pctSum*1000)/10}% — orçamento totalmente repartido.</div>`
+    : `<div class="pct-note warn">As percentagens somam ${Math.round(pctSum*1000)/10}% — falta ${(100-Math.round(pctSum*1000)/10).toFixed(1)}% para 100%.</div>`;
+
+  const rows = state.categories.map((c,i)=>{
+    const catTotal = total*c.pct;
+    const catPerGuest = guests? catTotal/guests : 0;
+    const open = !!openDesc[c.id];
+    return `
+    <div class="list-row" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; align-items:center; gap:11px;">
+        <div class="icon-chip" style="background:${CAT_COLORS[i%CAT_COLORS.length]};">${ICONS.budget}</div>
+        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+          <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>${c.name}
+        </div>
+        <div class="pct-stepper">
+          <button data-pct="${c.id}|-1">−</button>
+          <span class="pctval">${Math.round(c.pct*1000)/10}%</span>
+          <button data-pct="${c.id}|1">+</button>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding-left:39px; margin-top:5px; font-size:12px; color:var(--ink-soft);">
+        <span>${fmtEUR(catTotal)} total</span><span>${fmtEUR(catPerGuest)} / convidado</span>
+      </div>
+      ${open? `<div class="cat-desc"><ul>${c.desc.map(d=>`<li>${d}</li>`).join('')}</ul></div>` : ''}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="navbar"><h1>Orçamento</h1></div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="l" style="margin:0 0 4px;">Orçamento total</div>
+      <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" value="${total}" style="text-align:left;"></div>
+    </div>
+    <div class="stat-card">
+      <div class="l" style="margin:0 0 4px;">Convidados (est.)</div>
+      <input class="field-input big" id="in-guests" type="number" value="${guests}" style="text-align:left;">
+    </div>
+    <div class="stat-card">
+      <div class="l" style="margin:0 0 4px;">€ / convidado</div>
+      <div class="n" id="perguest-display" style="font-size:21px;">${fmtEUR(perGuest)}</div>
+    </div>
+  </div>
+
+  <div class="section-label">Repartição por categoria</div>
+  <div class="donut-chart-card">
+    <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
+      ${multiDonutSVG(state.categories.map((c,i)=>({pct:c.pct, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
+      <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">repartido</span></div>
+    </div>
+    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
+  </div>
+  ${pctNote}
+
+  <div class="section-label">Categorias · toca para ver detalhe</div>
+  <div class="list-group">${rows}</div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Convidados
+============================================================ */
+function guestGroupHTML(side, catKey, catLabel){
+  const items = state.guests[side][catKey];
+  const rows = items.map((name,idx)=>{
+    if(guestFilter && !name.toLowerCase().includes(guestFilter.toLowerCase())) return '';
+    const conf = isConfirmed(side,catKey,idx);
+    return `
+    <div class="list-row guest-row ${conf?'confirmed':''}">
+      <div class="check tappable" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
+      <div class="title tappable" data-confirm="${side}|${catKey}|${idx}">${name}</div>
+      <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-label">${catLabel} (${items.length})</div>
+  <div class="list-group">
+    ${rows || `<div class="empty-note">sem convidados nesta categoria</div>`}
+    <div class="add-row">
+      <input type="text" placeholder="Adicionar a ${catLabel.toLowerCase()}…" data-addname="${side}|${catKey}">
+      <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
+    </div>
+  </div>`;
+}
+
+function viewConvidados(){
+  const totalGuests = countGuests('noiva')+countGuests('noivo');
+  const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
+  const spent = totalExpenseValue();
+  const perConfirmed = totalConfirmed? spent/totalConfirmed : 0;
+
+  let body = '';
+  if(guestSeg==='criancas'){
+    const rows = state.guests.criancas.map((n,idx)=>{
+      if(guestFilter && !n.toLowerCase().includes(guestFilter.toLowerCase())) return '';
+      const conf = !!state.confirmed['crianca|'+idx];
+      return `
+      <div class="list-row guest-row ${conf?'confirmed':''}">
+        <div class="check tappable" data-confirmchild="${idx}">${ICONS.check}</div>
+        <div class="title tappable" data-confirmchild="${idx}">${n}</div>
+        <button class="remove-x" data-removechild="${idx}">✕</button>
+      </div>`;
+    }).join('');
+    body = `
+    <div class="section-label">Crianças não pagantes (${state.guests.criancas.length})</div>
+    <div class="list-group">
+      ${rows || `<div class="empty-note">sem crianças</div>`}
+      <div class="add-row"><input type="text" id="add-crianca" placeholder="Adicionar criança…"><button class="add-circle" id="addbtn-crianca">${ICONS.plus}</button></div>
+    </div>`;
+  } else {
+    body = guestGroupHTML(guestSeg,'familia','Família')
+      + guestGroupHTML(guestSeg,'amigos','Amigos')
+      + guestGroupHTML(guestSeg,'duvida','Na dúvida')
+      + guestGroupHTML(guestSeg,'staff','Staff / fornecedores');
+  }
+
+  return `
+  <div class="navbar"><h1>Convidados</h1></div>
+
+  <div class="ring-stat-card">
+    <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
+      ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--dusty-dark)', 78, 8)}
+      <div class="ring-center"><span class="num" style="font-size:17px;">${totalConfirmed}</span></div>
+    </div>
+    <div class="ring-stat-list">
+      <div class="ring-stat-item"><span class="n">${totalGuests}</span><span class="l">convidados no total</span></div>
+      <div class="ring-stat-item"><span class="n">${fmtEUR2(perConfirmed)}</span><span class="l">€ atual / confirmado</span></div>
+    </div>
+  </div>
+
+  <div class="segmented">
+    <button data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">Noiva</button>
+    <button data-seg="noivo" class="${guestSeg==='noivo'?'active':''}">Noivo</button>
+    <button data-seg="criancas" class="${guestSeg==='criancas'?'active':''}">Crianças</button>
+  </div>
+
+  <div class="search-bar">${ICONS.search}<input type="text" id="guest-search" placeholder="Procurar convidado" value="${guestFilter}"></div>
+
+  ${body}
+  `;
+}
+
+/* ============================================================
+   VIEW: Gastos
+============================================================ */
+function viewGastos(){
+  const totalValue = totalExpenseValue();
+  const totalPaid = totalExpensePaid();
+
+  const rows = state.expenses.map((e,i)=>{
+    const cat = catById(e.category);
+    const catIdx = state.categories.findIndex(c=>c.id===e.category);
+    const color = CAT_COLORS[catIdx>=0?catIdx%CAT_COLORS.length:0];
+    return `
+    <div class="exp-row">
+      <div class="exp-top">
+        <input class="exp-desc-input" data-exp="desc|${i}" value="${e.desc}" placeholder="Descrição">
+        <span class="exp-val">${fmtEUR(e.value)}</span>
+        <button class="exp-del" data-delexp="${i}">✕</button>
+      </div>
+      <div class="exp-meta">
+        <input class="exp-date-input" type="date" data-exp="date|${i}" value="${e.date||''}">
+        <span class="tag-pill" style="background:${color};">${cat?cat.name:'—'}</span>
+      </div>
+      <div class="exp-paid-row">
+        Pago: <input type="number" data-exp="paid|${i}" value="${e.paid}"> / ${fmtEUR(e.value)}
+      </div>
+    </div>`;
+  }).join('');
+
+  const progress = state.categories.map((c,i)=>{
+    const budgeted = state.budget.total*c.pct;
+    const spent = spentByCategory(c.id);
+    const pct = budgeted? Math.min(100,(spent/budgeted)*100) : 0;
+    const over = spent>budgeted;
+    return `
+    <div class="cat-progress">
+      <div class="cp-row"><span>${c.name}</span><span class="${over?'over':''}">${fmtEUR(spent)} / ${fmtEUR(budgeted)}</span></div>
+      <div class="cp-track"><div class="cp-fill ${over?'over':''}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="navbar navbar-row">
+    <div><h1>Gastos</h1></div>
+    <button class="nav-action" id="open-sheet">${ICONS.plus}</button>
+  </div>
+
+  <div class="ring-row">
+    <div class="ring-card">
+      <div class="ring-label">Pago</div>
+      <div class="ring-wrap">
+        ${donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)}
+        <div class="ring-center"><span class="num">${totalValue? Math.round(totalPaid/totalValue*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
+      </div>
+      <div class="ring-breakdown">
+        <div><div class="n">${fmtEUR(totalValue-totalPaid)}</div><div class="l">Por pagar</div></div>
+      </div>
+    </div>
+    <div class="ring-card">
+      <div class="ring-label">Do orçamento</div>
+      <div class="ring-wrap">
+        ${donutSVG(state.budget.total? totalValue/state.budget.total : 0, 'var(--rust)', 92, 9)}
+        <div class="ring-center"><span class="num">${state.budget.total? Math.round(totalValue/state.budget.total*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>
+      </div>
+      <div class="ring-breakdown">
+        <div><div class="n">${fmtEUR(state.budget.total)}</div><div class="l">Orçamento</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Orçamentado vs. gasto</div>
+  <div class="list-group">${progress}</div>
+
+  <div class="section-label">Movimentos</div>
+  <div class="list-group">${rows || `<div class="empty-note">sem movimentos registados</div>`}</div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Mesas
+============================================================ */
+function viewMesas(){
+  const numTables = state.seating.numTables;
+  const seatsPerTable = state.seating.seatsPerTable;
+  const totalSeats = numTables*seatsPerTable;
+  const assignedCount = Object.keys(state.seating.assignments).filter(k=>state.seating.assignments[k]).length;
+
+  let tablesHTML = '';
+  for(let t=1;t<=numTables;t++){
+    let filled = 0;
+    for(let s=1;s<=seatsPerTable;s++){ if(state.seating.assignments['t'+t+'-s'+s]) filled++; }
+    const open = !!openTable[t];
+    let seatsHTML = '';
+    if(open){
+      for(let s=1;s<=seatsPerTable;s++){
+        const key = 't'+t+'-s'+s;
+        const val = state.seating.assignments[key] || '';
+        const name = val ? val.split('::')[1] : 'toca para atribuir';
+        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev}</div>`;
+      }
+    }
+    tablesHTML += `
+    <div class="table-group">
+      <div class="table-head" data-toggletable="${t}">
+        <div class="icon-chip" style="background:${CAT_COLORS[(t-1)%CAT_COLORS.length]};">${ICONS.seat}</div>
+        <div class="ttitle">Mesa ${t}</div>
+        <span class="fillcount">${filled}/${seatsPerTable}</span>
+        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+      </div>
+      ${open? `<div class="seat-list">${seatsHTML}</div>` : ''}
+    </div>`;
+  }
+
+  return `
+  <div class="navbar"><h1>Mesas</h1></div>
+
+  <div class="stepper-row">
+    <span class="title" style="flex:none;">Nº de mesas</span>
+    <div class="stepper"><button data-step="numTables|-1">−</button><span class="sval">${numTables}</span><button data-step="numTables|1">+</button></div>
+  </div>
+  <div class="stepper-row" style="margin:-8px 0 0;">
+    <span class="title" style="flex:none;">Lugares por mesa</span>
+    <div class="stepper"><button data-step="seatsPerTable|-1">−</button><span class="sval">${seatsPerTable}</span><button data-step="seatsPerTable|1">+</button></div>
+  </div>
+
+  <div class="ring-stat-card" style="margin-top:14px;">
+    <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
+      ${donutSVG(totalSeats? assignedCount/totalSeats : 0, 'var(--blush-dark)', 78, 8)}
+      <div class="ring-center"><span class="num" style="font-size:15px;">${assignedCount}/${totalSeats}</span></div>
+    </div>
+    <div class="ring-stat-list">
+      <div class="ring-stat-item"><span class="n">${numTables}</span><span class="l">mesas no total</span></div>
+      <div class="ring-stat-item"><span class="n">${totalSeats-assignedCount}</span><span class="l">lugares por atribuir</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">Toca numa mesa para ver e atribuir os lugares</div>
+  ${tablesHTML}
+  <div style="height:6px;"></div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Inspiração
+============================================================ */
+function viewInspiracao(){
+  const tiles = inspirations.map(img => `
+    <div class="insp-tile">
+      <img src="${img.dataUrl}" alt="" data-insplightbox="${img.id}">
+      <button class="insp-remove" data-insprm="${img.id}">✕</button>
+    </div>`).join('');
+
+  return `
+  <div class="navbar" style="display:flex; align-items:center; gap:12px;">
+    <button class="nav-action neutral" id="insp-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
+    <div><h1>Inspiração</h1></div>
+  </div>
+  <div class="section-label">Guarda imagens que te inspiraram — vestidos, decoração, flores, o que quiseres</div>
+  <div class="insp-grid">
+    ${tiles}
+    <button class="insp-add-tile" id="insp-add-btn">
+      <span class="insp-add-icon">+</span>
+      <span class="insp-add-label">Adicionar</span>
+    </button>
+  </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Definições
+============================================================ */
+function viewDefinicoes(){
+  const s = weddingSettings;
+  const owners = (currentWeddingOwners||[]).map(email => `
+    <div class="list-row"><div class="title">${email}</div></div>`).join('');
+  return `
+  <div class="navbar" style="display:flex; align-items:center; gap:12px;">
+    <button class="nav-action neutral" id="def-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
+    <div><h1>Definições</h1></div>
+  </div>
+
+  <div class="section-label">O vosso casamento</div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">Primeiro nome</div>
+    <input class="field-input big" id="def-name1" type="text" value="${s.coupleName1||''}" style="text-align:left;">
+  </div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">Segundo nome</div>
+    <input class="field-input big" id="def-name2" type="text" value="${s.coupleName2||''}" style="text-align:left;">
+  </div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">Data do casamento</div>
+    <input class="field-input big" id="def-date" type="date" value="${s.weddingDate||''}" style="text-align:left;">
+  </div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">Local</div>
+    <input class="field-input big" id="def-venue" type="text" value="${s.venue||''}" style="text-align:left;">
+  </div>
+  <div style="padding:0 16px 20px;">
+    <button class="login-btn" id="def-save" style="margin-top:0;">Guardar alterações</button>
+  </div>
+
+  <div class="section-label">Convidar parceiro/a</div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">Email da pessoa a convidar</div>
+    <input class="field-input big" id="def-invite-email" type="email" placeholder="email@exemplo.com" style="text-align:left;">
+  </div>
+  <div style="padding:0 16px 20px;">
+    <button class="login-btn" id="def-invite-btn" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Convidar</button>
+    <div class="login-msg" id="def-invite-msg"></div>
+  </div>
+
+  <div class="section-label">Quem tem acesso</div>
+  <div class="list-group" style="margin-bottom:20px;">${owners}</div>
+
+  <div style="padding:0 16px 30px;">
+    <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
+  </div>
+  `;
+}
+
+/* ============================================================
+   EVENT BINDING
+============================================================ */
+function bindHandlers(){
+  document.querySelectorAll('[data-goto]').forEach(el=>{
+    el.addEventListener('click', ()=>{ activeTab = el.dataset.goto; render(); });
+  });
+  document.querySelectorAll('[data-scrollto]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const target = document.getElementById(e.currentTarget.dataset.scrollto);
+      if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  const btnLogout = document.getElementById('btn-logout');
+  if(btnLogout) btnLogout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+
+  // Inspiração
+  const inspAddBtn = document.getElementById('insp-add-btn');
+  if(inspAddBtn) inspAddBtn.addEventListener('click', ()=>{ document.getElementById('insp-file-input').click(); });
+  document.querySelectorAll('[data-insprm]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      inspirations = inspirations.filter(i=>i.id!==e.currentTarget.dataset.insprm);
+      saveInspirations();
+      render();
+    });
+  });
+  const inspBack = document.getElementById('insp-back');
+  if(inspBack) inspBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  document.querySelectorAll('[data-insplightbox]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const item = inspirations.find(i=>i.id===e.currentTarget.dataset.insplightbox);
+      if(item) openImgLightbox(item.dataUrl);
+    });
+  });
+
+  // Definições
+  const defBack = document.getElementById('def-back');
+  if(defBack) defBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  const defSave = document.getElementById('def-save');
+  if(defSave) defSave.addEventListener('click', ()=>{
+    weddingSettings = {
+      coupleName1: document.getElementById('def-name1').value.trim() || 'Nome 1',
+      coupleName2: document.getElementById('def-name2').value.trim() || 'Nome 2',
+      weddingDate: document.getElementById('def-date').value,
+      venue: document.getElementById('def-venue').value.trim(),
+      accentColor: weddingSettings.accentColor || 'rust'
+    };
+    render();
+  });
+  const defInviteBtn = document.getElementById('def-invite-btn');
+  if(defInviteBtn) defInviteBtn.addEventListener('click', ()=>{
+    const email = document.getElementById('def-invite-email').value.trim();
+    const msgEl = document.getElementById('def-invite-msg');
+    if(!email){ msgEl.textContent = 'Escreve um email válido.'; return; }
+    CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayUnion(email) }).then(()=>{
+      msgEl.textContent = `${email} já pode entrar e criar a conta com este email.`;
+      document.getElementById('def-invite-email').value = '';
+    }).catch(()=>{ msgEl.textContent = 'Não foi possível convidar. Tenta novamente.'; });
+  });
+  const defSignout = document.getElementById('def-signout');
+  if(defSignout) defSignout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+
+  // Orçamento
+  const inTotal = document.getElementById('in-total');
+  const inGuests = document.getElementById('in-guests');
+  if(inTotal) inTotal.addEventListener('input', e=>{ state.budget.total = Number(e.target.value)||0; softUpdateBudget(); });
+  if(inGuests) inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Number(e.target.value)||0; softUpdateBudget(); });
+  document.querySelectorAll('[data-pct]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [id,dir] = e.currentTarget.dataset.pct.split('|');
+      const c = catById(id);
+      c.pct = Math.max(0, Math.round((c.pct*1000)+Number(dir)*5)/1000);
+      render();
+    });
+  });
+  document.querySelectorAll('[data-toggledesc]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.toggledesc;
+      openDesc[id] = !openDesc[id];
+      render();
+    });
+  });
+
+  // Convidados
+  document.querySelectorAll('.segmented button[data-seg]').forEach(b=>{
+    b.addEventListener('click', ()=>{ guestSeg = b.dataset.seg; render(); });
+  });
+  const gsearch = document.getElementById('guest-search');
+  if(gsearch){
+    gsearch.addEventListener('input', e=>{ guestFilter = e.target.value; render(); document.getElementById('guest-search').focus(); document.getElementById('guest-search').selectionStart = document.getElementById('guest-search').value.length; });
+  }
+  document.querySelectorAll('[data-confirm]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.confirm.split('|');
+      const k = guestKey(side,cat,Number(idx));
+      state.confirmed[k] = !state.confirmed[k];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
+      state.guests[side][cat].splice(Number(idx),1);
+      Object.keys(state.confirmed).forEach(k=>{ if(k.startsWith(side+'|'+cat+'|')) delete state.confirmed[k]; });
+      render();
+    });
+  });
+  document.querySelectorAll('[data-addbtn]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat] = e.currentTarget.dataset.addbtn.split('|');
+      const input = document.querySelector(`[data-addname="${side}|${cat}"]`);
+      const name = input.value.trim();
+      if(name){ state.guests[side][cat].push(name); render(); }
+    });
+  });
+  document.querySelectorAll('[data-addname]').forEach(inp=>{
+    inp.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        const [side,cat] = e.currentTarget.dataset.addname.split('|');
+        const name = e.currentTarget.value.trim();
+        if(name){ state.guests[side][cat].push(name); render(); }
+      }
+    });
+  });
+  document.querySelectorAll('[data-confirmchild]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const idx = e.currentTarget.dataset.confirmchild;
+      state.confirmed['crianca|'+idx] = !state.confirmed['crianca|'+idx];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-removechild]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      state.guests.criancas.splice(Number(e.currentTarget.dataset.removechild),1);
+      render();
+    });
+  });
+  const addCrianca = document.getElementById('addbtn-crianca');
+  if(addCrianca) addCrianca.addEventListener('click', ()=>{
+    const input = document.getElementById('add-crianca');
+    const name = input.value.trim();
+    if(name){ state.guests.criancas.push(name); render(); }
+  });
+
+  // Gastos
+  document.querySelectorAll('[data-exp]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const [field,idx] = e.currentTarget.dataset.exp.split('|');
+      const row = state.expenses[Number(idx)];
+      if(field==='value'||field==='paid') row[field] = Number(e.target.value)||0;
+      else row[field] = e.target.value;
+      if(field==='value'||field==='paid') render();
+    });
+  });
+  document.querySelectorAll('[data-delexp]').forEach(btn=>{
+    btn.addEventListener('click', e=>{ state.expenses.splice(Number(e.currentTarget.dataset.delexp),1); render(); });
+  });
+  const openSheetBtn = document.getElementById('open-sheet');
+  if(openSheetBtn) openSheetBtn.addEventListener('click', openExpenseSheet);
+
+  // Mesas
+  document.querySelectorAll('[data-step]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [field,dir] = e.currentTarget.dataset.step.split('|');
+      state.seating[field] = Math.max(1, state.seating[field]+Number(dir));
+      render();
+    });
+  });
+  document.querySelectorAll('[data-toggletable]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const t = e.currentTarget.dataset.toggletable;
+      openTable[t] = !openTable[t];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-openseat]').forEach(el=>{
+    el.addEventListener('click', e=>{ openSeatSheet(e.currentTarget.dataset.openseat); });
+  });
+}
+
+function softUpdateBudget(){
+  const total = state.budget.total, guests = state.budget.guestsEstimate;
+  const perGuest = guests? total/guests : 0;
+  const pg = document.getElementById('perguest-display');
+  if(pg) pg.textContent = fmtEUR(perGuest);
+}
+
+/* ============================================================
+   SHEET: novo movimento
+============================================================ */
+function openExpenseSheet(){
+  const sel = document.getElementById('sf-cat');
+  sel.innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('sf-desc').value='';
+  document.getElementById('sf-date').value='';
+  document.getElementById('sf-value').value='';
+  document.getElementById('sf-paid').value='';
+  document.getElementById('expense-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closeExpenseSheet(){
+  document.getElementById('expense-sheet').classList.remove('show');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+}
+document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); });
+document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
+document.getElementById('sf-save').addEventListener('click', ()=>{
+  const desc = document.getElementById('sf-desc').value.trim();
+  const date = document.getElementById('sf-date').value;
+  const value = Number(document.getElementById('sf-value').value)||0;
+  const paid = Number(document.getElementById('sf-paid').value)||0;
+  const category = document.getElementById('sf-cat').value;
+  if(desc){ state.expenses.unshift({date,desc,value,paid,category}); }
+  closeExpenseSheet();
+  render();
+});
+
+/* ============================================================
+   SHEET: atribuir lugar (mesas)
+============================================================ */
+function openSeatSheet(seatKey){
+  editingSeatKey = seatKey;
+  seatQuery = '';
+  const t = seatKey.split('-')[0].replace('t','');
+  const s = seatKey.split('-')[1].replace('s','');
+  document.getElementById('seat-sheet-title').textContent = 'Mesa '+t+' · Lugar '+s;
+  document.getElementById('seat-picker-search').value = '';
+  renderSeatPickerList();
+  document.getElementById('seat-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closeSeatSheet(){
+  document.getElementById('seat-sheet').classList.remove('show');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+  editingSeatKey = null;
+}
+function renderSeatPickerList(){
+  const list = document.getElementById('seat-picker-list');
+  const current = state.seating.assignments[editingSeatKey] || '';
+  const q = seatQuery.toLowerCase();
+  let rows = `<div class="picker-row ${current===''?'is-selected':''}" data-pick=""><span class="side-tag" style="background:var(--ink-soft);">—</span><span class="pname">Lugar livre</span></div>`;
+  allAdultGuests().forEach(g=>{
+    if(q && !g.name.toLowerCase().includes(q)) return;
+    const val = g.key+'::'+g.name;
+    rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${val}"><span class="side-tag" style="background:${g.side==='noiva'?'var(--blush-dark)':'var(--dusty-dark)'};">${g.side==='noiva'?'Noiva':'Noivo'}</span><span class="pname">${g.name}</span></div>`;
+  });
+  list.innerHTML = rows;
+  list.querySelectorAll('[data-pick]').forEach(row=>{
+    row.addEventListener('click', e=>{
+      state.seating.assignments[editingSeatKey] = e.currentTarget.dataset.pick;
+      closeSeatSheet();
+      render();
+    });
+  });
+}
+document.getElementById('seat-picker-search').addEventListener('input', e=>{
+  seatQuery = e.target.value;
+  renderSeatPickerList();
+});
+
+/* ============================================================
+   MESA 3D — pré-visualização em 3D dos lugares
+   Reaproveita openSeatSheet() da tab Mesas para atribuir convidados.
+============================================================ */
+let mesa3dReady = false;
+let mesa3dSelectedTable = 1;
+let mesa3dViewMode = 'mesa';
+const mesa3d = { scene:null, camera:null, renderer:null, tableGroup:null, chairs:[], dragging:false, startX:0, startRotY:0, moved:0, raf:null };
+
+function parseSeatAssignment(val){
+  if(!val) return null;
+  const [key, name] = val.split('::');
+  if(!name) return null;
+  return { side:key.split('|')[0], name };
+}
+
+function ensureMesa3DHeader(){
+  const el = document.getElementById('mesa3d-header');
+  const filled = mesa3d.chairs.length ? mesa3d.chairs.filter(c=>c.name).length : 0;
+  const seatsPerTable = state.seating.seatsPerTable;
+  const badge = mesa3dViewMode==='mesa'
+    ? `<div class="mini-ring">${donutSVG(seatsPerTable? filled/seatsPerTable : 0, 'var(--blush-dark)', 34, 4)}<span class="mini-ring-txt">${filled}/${seatsPerTable}</span></div>`
+    : `<span class="mesa3d-fillcount">${state.seating.numTables} mesas</span>`;
+  el.innerHTML = `
+    <div class="navbar navbar-row">
+      <div><h1>Lugares</h1></div>
+      ${badge}
+    </div>
+    <div class="segmented">
+      <button data-mesa3dview="mesa" class="${mesa3dViewMode==='mesa'?'active':''}">Mesa a mesa</button>
+      <button data-mesa3dview="sala" class="${mesa3dViewMode==='sala'?'active':''}">Visão da sala</button>
+    </div>
+  `;
+  el.querySelectorAll('[data-mesa3dview]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      mesa3dViewMode = e.currentTarget.dataset.mesa3dview;
+      syncMesa3DPanel();
+    });
+  });
+}
+
+function renderMesa3DChips(){
+  const el = document.getElementById('mesa3d-chips');
+  const numTables = state.seating.numTables;
+  let chips = '';
+  for(let t=1;t<=numTables;t++){
+    chips += `<button class="table-chip ${t===mesa3dSelectedTable?'active':''}" data-mesa3dsel="${t}">${t}</button>`;
+  }
+  el.innerHTML = chips;
+  el.querySelectorAll('[data-mesa3dsel]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      mesa3dSelectedTable = Number(e.currentTarget.dataset.mesa3dsel);
+      renderMesa3DChips();
+      loadMesa3DTable();
+    });
+  });
+}
+
+function initMesa3D(){
+  const canvas = document.getElementById('mesa3d-canvas');
+  const wrap = canvas.parentElement;
+  const w = Math.max(wrap.clientWidth, 10), h = Math.max(wrap.clientHeight, 10);
+
+  mesa3d.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  mesa3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  mesa3d.renderer.setSize(w, h, false);
+
+  mesa3d.scene = new THREE.Scene();
+  mesa3d.camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100);
+  mesa3d.camera.position.set(0, 5.7, 7.3);
+  mesa3d.camera.lookAt(0, 0, 0);
+
+  mesa3d.scene.add(new THREE.HemisphereLight(0xfff6e9, 0x5b4632, 1.1));
+  const dir = new THREE.DirectionalLight(0xfff2d8, 0.6);
+  dir.position.set(3, 6, 4);
+  mesa3d.scene.add(dir);
+
+  mesa3d.tableGroup = new THREE.Group();
+  mesa3d.scene.add(mesa3d.tableGroup);
+
+  const tableTop = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.15, 2.15, 0.16, 48),
+    new THREE.MeshStandardMaterial({ color:0xFFF9EE, roughness:0.92 })
+  );
+  mesa3d.tableGroup.add(tableTop);
+
+  // toalha a cair (sugere o pano de linho até ao chão)
+  const cloth = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.05, 2.28, 0.9, 48, 1, true),
+    new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.95, side:THREE.DoubleSide })
+  );
+  cloth.position.y = -0.48;
+  mesa3d.tableGroup.add(cloth);
+
+  const rim = new THREE.Mesh(
+    new THREE.TorusGeometry(2.15, 0.04, 12, 48),
+    new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.45 })
+  );
+  rim.rotation.x = Math.PI/2; rim.position.y = 0.085;
+  mesa3d.tableGroup.add(rim);
+
+  // corredor de mesa (runner) em tom blush
+  const runner = new THREE.Mesh(
+    new THREE.BoxGeometry(0.62, 0.012, 4.3),
+    new THREE.MeshStandardMaterial({ color:0xE3A79B, roughness:0.8 })
+  );
+  runner.position.y = 0.089;
+  mesa3d.tableGroup.add(runner);
+
+  // arranjo central: castiçal dourado + flores em tons pastel
+  const centerpiece = new THREE.Group();
+  const candlestick = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.05, 0.42, 12),
+    new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.3, metalness:0.5 })
+  );
+  candlestick.position.y = 0.3;
+  centerpiece.add(candlestick);
+  const candle = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.028, 0.028, 0.14, 10),
+    new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.7 })
+  );
+  candle.position.y = 0.58;
+  centerpiece.add(candle);
+  const flowerColors = [0xE3A79B, 0x93A87C, 0xCB8577, 0xC9A02E];
+  for(let f=0; f<6; f++){
+    const fAngle = (f/6)*Math.PI*2;
+    const bloom = new THREE.Mesh(
+      new THREE.SphereGeometry(0.075, 10, 10),
+      new THREE.MeshStandardMaterial({ color:flowerColors[f%flowerColors.length], roughness:0.75 })
+    );
+    bloom.position.set(Math.cos(fAngle)*0.14, 0.16+Math.random()*0.05, Math.sin(fAngle)*0.14);
+    centerpiece.add(bloom);
+  }
+  const foliage = new THREE.Mesh(
+    new THREE.SphereGeometry(0.13, 10, 10),
+    new THREE.MeshStandardMaterial({ color:0x93A87C, roughness:0.85 })
+  );
+  foliage.position.y = 0.12;
+  foliage.scale.set(1, 0.55, 1);
+  centerpiece.add(foliage);
+  centerpiece.position.y = 0.08;
+  mesa3d.tableGroup.add(centerpiece);
+
+  const leg = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.26, 1.0, 20),
+    new THREE.MeshStandardMaterial({ color:0xD8CBAE, roughness:0.9 })
+  );
+  leg.position.y = -0.58;
+  mesa3d.tableGroup.add(leg);
+  const base = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.55, 0.55, 0.06, 32),
+    new THREE.MeshStandardMaterial({ color:0xD8CBAE, roughness:0.9 })
+  );
+  base.position.y = -1.05;
+  mesa3d.tableGroup.add(base);
+
+  const seatCount = state.seating.seatsPerTable;
+  mesa3d.chairs = [];
+  for(let i=0; i<seatCount; i++){
+    const angle = (i/seatCount) * Math.PI * 2;
+    const radius = 2.75;
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
+    const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), mat);
+    seatMesh.position.y = -0.02;
+    const backMat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
+    const backMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.5, 0.09), backMat);
+    backMesh.position.set(0, 0.25, -0.2);
+    const sash = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.07, 0.11),
+      new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.4 })
+    );
+    sash.position.set(0, 0.1, -0.2);
+    group.add(seatMesh, backMesh, sash);
+    group.position.set(Math.sin(angle)*radius, 0, Math.cos(angle)*radius);
+    group.lookAt(0, 0.2, 0);
+    mesa3d.tableGroup.add(group);
+    mesa3d.chairs.push({ group, seatMesh, backMesh, index:i+1, name:'', side:'', seatKey:'', worldPos:new THREE.Vector3() });
+  }
+
+  canvas.addEventListener('pointerdown', e=>{
+    mesa3d.dragging = true; mesa3d.moved = 0;
+    mesa3d.startX = e.clientX; mesa3d.startRotY = mesa3d.tableGroup.rotation.y;
+    canvas.setPointerCapture(e.pointerId);
+    startDragLoop();
+  });
+  canvas.addEventListener('pointermove', e=>{
+    if(!mesa3d.dragging) return;
+    const dx = e.clientX - mesa3d.startX;
+    mesa3d.moved = Math.max(mesa3d.moved, Math.abs(dx));
+    mesa3d.tableGroup.rotation.y = mesa3d.startRotY + dx*0.012;
+  });
+  canvas.addEventListener('pointerup', e=>{
+    mesa3d.dragging = false;
+    stopDragLoop();
+    if(mesa3d.moved < 6){ handleMesa3DTap(e); }
+  });
+
+  window.addEventListener('resize', resizeMesa3D);
+
+  loadMesa3DTable();
+}
+
+function resizeMesa3D(){
+  if(!mesa3d.renderer) return;
+  const canvas = document.getElementById('mesa3d-canvas');
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  if(w < 10 || h < 10) return;
+  mesa3d.camera.aspect = w/h;
+  mesa3d.camera.updateProjectionMatrix();
+  mesa3d.renderer.setSize(w, h, false);
+  renderMesa3DFrame();
+}
+
+function loadMesa3DTable(){
+  const t = mesa3dSelectedTable;
+  mesa3d.chairs.forEach(ch=>{
+    const key = 't'+t+'-s'+ch.index;
+    const info = parseSeatAssignment(state.seating.assignments[key] || '');
+    const color = info ? (info.side==='noiva' ? 0xCB8577 : 0x6C8296) : 0xFFFCF4;
+    ch.seatMesh.material.color.setHex(color);
+    ch.backMesh.material.color.setHex(color);
+    ch.name = info ? info.name : '';
+    ch.side = info ? info.side : '';
+    ch.seatKey = key;
+  });
+  ensureMesa3DHeader();
+  renderMesa3DFrame();
+}
+
+function renderMesa3DFrame(){
+  if(!mesa3d.renderer) return;
+  mesa3d.renderer.render(mesa3d.scene, mesa3d.camera);
+  updateMesa3DLabels();
+}
+function updateMesa3DLabels(){
+  const canvas = document.getElementById('mesa3d-canvas');
+  const labelsEl = document.getElementById('mesa3d-labels');
+  const rect = canvas.getBoundingClientRect();
+  if(rect.width < 10){ return; }
+  let html = '';
+  mesa3d.chairs.forEach(ch=>{
+    ch.group.getWorldPosition(ch.worldPos);
+    const above = ch.worldPos.clone(); above.y += 0.74;
+    const p = above.project(mesa3d.camera);
+    if(p.z > 1) return;
+    const x = (p.x*0.5+0.5) * rect.width;
+    const y = (1-(p.y*0.5+0.5)) * rect.height;
+    const cls = ch.name ? ('assigned '+ch.side) : '';
+    html += `<div class="mesa3d-label ${cls}" style="left:${x}px; top:${y}px;">${ch.name || ch.index}</div>`;
+  });
+  labelsEl.innerHTML = html;
+}
+
+function handleMesa3DTap(e){
+  const canvas = document.getElementById('mesa3d-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const mouse = new THREE.Vector2(
+    ((e.clientX-rect.left)/rect.width)*2-1,
+    -((e.clientY-rect.top)/rect.height)*2+1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, mesa3d.camera);
+  const hits = raycaster.intersectObjects(mesa3d.chairs.map(c=>c.seatMesh));
+  if(hits.length){
+    const chair = mesa3d.chairs.find(c=>c.seatMesh===hits[0].object);
+    if(chair) openSeatSheet(chair.seatKey);
+  }
+}
+
+function startDragLoop(){
+  if(mesa3d.raf) return;
+  const loop = ()=>{
+    mesa3d.raf = requestAnimationFrame(loop);
+    renderMesa3DFrame();
+  };
+  loop();
+}
+function stopDragLoop(){
+  if(mesa3d.raf){ cancelAnimationFrame(mesa3d.raf); mesa3d.raf = null; }
+  renderMesa3DFrame();
+}
+
+function syncMesa3DPanel(){
+  const isMesa3D = activeTab === 'mesa3d';
+  document.getElementById('app-body').style.display = isMesa3D ? 'none' : 'flex';
+  document.getElementById('mesa3d-panel').classList.toggle('active', isMesa3D);
+  if(!isMesa3D){ stopDragLoop(); return; }
+
+  ensureMesa3DHeader();
+  document.getElementById('mesa3d-view-mesa').classList.toggle('active', mesa3dViewMode==='mesa');
+  document.getElementById('mesa3d-view-sala').classList.toggle('active', mesa3dViewMode==='sala');
+
+  if(mesa3dViewMode==='mesa'){
+    if(!mesa3dReady){ renderMesa3DChips(); initMesa3D(); mesa3dReady = true; }
+    else { renderMesa3DChips(); loadMesa3DTable(); resizeMesa3D(); }
+  } else {
+    renderSalaView();
+  }
+}
+
+/* ---- Visão da sala: mapa 2D de todas as mesas, vista de cima ---- */
+function tableSVG(t){
+  const seatCount = state.seating.seatsPerTable;
+  const cx = 80, cy = 78, tableR = 34, seatR = 5, orbit = 55;
+  let seats = '';
+  for(let s=1; s<=seatCount; s++){
+    const angle = (s/seatCount)*Math.PI*2 - Math.PI/2;
+    const sx = cx + Math.cos(angle)*orbit;
+    const sy = cy + Math.sin(angle)*orbit;
+    const info = parseSeatAssignment(state.seating.assignments['t'+t+'-s'+s] || '');
+    const dotColor = info ? (info.side==='noiva' ? '#CB8577' : '#6C8296') : '#E7DEC8';
+    seats += `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
+    if(info){
+      const label = info.name.length>9 ? info.name.slice(0,8)+'…' : info.name;
+      const lx = cx + Math.cos(angle)*(orbit+11);
+      const ly = cy + Math.sin(angle)*(orbit+11);
+      const anchor = Math.cos(angle) > 0.25 ? 'start' : (Math.cos(angle) < -0.25 ? 'end' : 'middle');
+      seats += `<text x="${lx}" y="${ly}" font-size="7.6" font-weight="600" fill="#6B6354" text-anchor="${anchor}" dominant-baseline="middle">${label}</text>`;
+    }
+  }
+  return `
+  <svg viewBox="0 0 160 156" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${cy}" r="${tableR}" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>
+    <circle cx="${cx}" cy="${cy}" r="${tableR-9}" fill="none" stroke="#E3A79B" stroke-width="1" opacity="0.55"/>
+    <text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>
+    ${seats}
+  </svg>`;
+}
+function renderSalaView(){
+  const wrap = document.getElementById('sala-scroll');
+  let cards = '';
+  for(let t=1; t<=state.seating.numTables; t++){
+    cards += `<div class="sala-card">${tableSVG(t)}</div>`;
+  }
+  wrap.innerHTML = `
+    <div class="sala-legend">
+      <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#CB8577;"></span>Noiva</span>
+      <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#6C8296;"></span>Noivo</span>
+      <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#E7DEC8;"></span>Livre</span>
+    </div>
+    <div class="sala-grid">${cards}</div>
+  `;
+}
+
+/* ============================================================
+   INSPIRAÇÃO — guarda as imagens no telemóvel (só este protótipo)
+============================================================ */
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w >= h && w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+        else if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function saveInspirations(){
+  try{ localStorage.setItem('rita-tiago-inspiracoes', JSON.stringify(inspirations)); }catch(e){}
+}
+function loadInspirations(){
+  try{
+    const raw = localStorage.getItem('rita-tiago-inspiracoes');
+    if(raw) inspirations = JSON.parse(raw);
+  }catch(e){}
+}
+document.getElementById('insp-file-input').addEventListener('change', async (e)=>{
+  const files = Array.from(e.target.files || []);
+  for(const file of files){
+    try{
+      const dataUrl = await resizeImageFile(file, 480, 0.72);
+      inspirations.push({ id:'insp'+Date.now()+Math.random().toString(36).slice(2,7), dataUrl });
+    }catch(err){}
+  }
+  saveInspirations();
+  render();
+  e.target.value = '';
+});
+
+function openImgLightbox(src){
+  document.getElementById('img-lightbox-img').src = src;
+  document.getElementById('img-lightbox').classList.add('show');
+}
+function closeImgLightbox(){
+  document.getElementById('img-lightbox').classList.remove('show');
+}
+document.getElementById('img-lightbox-close').addEventListener('click', closeImgLightbox);
+document.getElementById('img-lightbox').addEventListener('click', e=>{
+  if(e.target.id === 'img-lightbox') closeImgLightbox();
+});
+
+/* ============================================================
+   LOGIN — entrar / criar conta / configurar o casamento
+============================================================ */
+let authMode = 'login'; // 'login' | 'signup'
+
+function renderLoginForm(msg, isError){
+  const isSignup = authMode === 'signup';
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-mark">Weddy</div>
+    <div class="login-tag">${isSignup? 'Cria a tua conta de casal' : 'Entra na tua conta'}</div>
+    <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass" placeholder="Password (mín. 6 caracteres)" autocomplete="${isSignup?'new-password':'current-password'}"></div>
+    <button class="login-btn" id="login-send">${isSignup? 'Criar conta' : 'Entrar'}</button>
+    <div class="login-msg ${isError?'error':''}">${msg||''}</div>
+    <div class="login-note" style="cursor:pointer;" id="login-toggle">${isSignup? 'Já tens conta? Entrar' : 'Ainda não tens conta? Criar conta'}</div>
+  `;
+  document.getElementById('login-send').addEventListener('click', handleAuthSubmit);
+  document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
+  document.getElementById('login-toggle').addEventListener('click', ()=>{ authMode = isSignup?'login':'signup'; renderLoginForm(); });
+}
+function renderLoginSetupNeeded(){
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-mark">Weddy</div>
+    <div class="login-tag">Falta configurar o acesso</div>
+    <div class="login-msg">Ainda não colocaste a configuração do Firebase no ficheiro <b>app.html</b>. Segue as instruções no README.md.</div>
+  `;
+}
+function renderLoading(msg){
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-mark">Weddy</div>
+    <div class="login-tag">${msg||'A carregar…'}</div>
+  `;
+}
+function handleAuthSubmit(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if(!email || !pass){ renderLoginForm('Escreve o email e a password.', true); return; }
+  if(authMode==='signup'){
+    auth.createUserWithEmailAndPassword(email, pass).catch(err=>{
+      const msg = err.code==='auth/email-already-in-use' ? 'Já existe uma conta com este email — tenta entrar.' : 'Não foi possível criar a conta. Verifica o email e a password (mín. 6 caracteres).';
+      renderLoginForm(msg, true);
+    });
+  } else {
+    auth.signInWithEmailAndPassword(email, pass).catch(()=>{
+      renderLoginForm('Email ou password incorretos. Tenta novamente.', true);
+    });
+  }
+}
+
+/* ---- Assistente de configuração (primeira vez) ---- */
+function renderOnboarding(){
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-mark">Weddy</div>
+    <div class="login-tag">Vamos configurar o vosso casamento</div>
+    <div class="login-field"><input type="text" id="ob-name1" placeholder="Primeiro nome (ex: Rita)"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-name2" placeholder="Segundo nome (ex: Tiago)"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="date" id="ob-date"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-venue" placeholder="Local (ex: Quinta de Santo André, Barcelos)"></div>
+    <button class="login-btn" id="ob-save">Começar</button>
+    <div class="login-msg" id="ob-msg"></div>
+  `;
+  document.getElementById('ob-save').addEventListener('click', handleOnboardingSubmit);
+}
+function handleOnboardingSubmit(){
+  const name1 = document.getElementById('ob-name1').value.trim();
+  const name2 = document.getElementById('ob-name2').value.trim();
+  const date = document.getElementById('ob-date').value;
+  const venue = document.getElementById('ob-venue').value.trim();
+  if(!name1 || !name2){
+    document.getElementById('ob-msg').textContent = 'Escreve pelo menos os dois nomes.';
+    document.getElementById('ob-msg').classList.add('error');
+    return;
+  }
+  renderLoading('A criar o vosso espaço…');
+  const email = auth.currentUser.email;
+  weddingSettings = defaultSettings(name1, name2, date, venue);
+  state = seedData();
+  WEDDINGS().add({
+    ownerEmails: [email],
+    settings: weddingSettings,
+    json: JSON.stringify(state),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(docRef=>{
+    currentWeddingId = docRef.id;
+    attachFirestoreSync();
+  }).catch(()=>{
+    renderOnboarding();
+  });
+}
+
+/* ============================================================
+   SINCRONIZAÇÃO — autenticação + dados partilhados em tempo real
+============================================================ */
+const _origRender = render;
+let saveTimer = null;
+let firstSyncDone = false;
+let unsubscribeSnapshot = null;
+
+function pushRemote(){
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    CURRENT_DOC().set({
+      settings: weddingSettings,
+      json: JSON.stringify(state),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge:true }).catch(()=>{});
+  }, 500);
+}
+render = function(){ _origRender(); pushRemote(); };
+
+function attachFirestoreSync(){
+  if(unsubscribeSnapshot) unsubscribeSnapshot();
+  unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
+    if(snap.exists){
+      const data = snap.data();
+      if(data.json){
+        const incoming = JSON.parse(data.json);
+        if(JSON.stringify(incoming) !== JSON.stringify(state)){ state = incoming; }
+      }
+      if(data.settings) weddingSettings = data.settings;
+      if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
+    }
+    _origRender();
+    if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); }
+  }, err=>{
+    if(err.code === 'permission-denied'){
+      firstSyncDone = false;
+      document.getElementById('login-screen').classList.remove('hidden');
+      renderLoginForm('Não foi possível aceder aos dados. Tenta sair e entrar de novo.', true);
+    }
+  });
+}
+
+function findOrCreateFlow(user){
+  renderLoading('A verificar a tua conta…');
+  WEDDINGS().where('ownerEmails','array-contains', user.email).limit(1).get().then(qs=>{
+    if(!qs.empty){
+      currentWeddingId = qs.docs[0].id;
+      attachFirestoreSync();
+    } else {
+      currentWeddingId = null;
+      renderOnboarding();
+    }
+  }).catch(()=>{
+    renderLoginForm('Não foi possível verificar a tua conta. Tenta novamente.', true);
+  });
+}
+
+loadInspirations();
+
+if(FIREBASE_READY){
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      findOrCreateFlow(user);
+    } else {
+      firstSyncDone = false;
+      currentWeddingId = null;
+      if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+      document.getElementById('login-screen').classList.remove('hidden');
+      renderLoginForm();
+    }
+  });
+} else {
+  renderLoginSetupNeeded();
+}
+
+})();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
