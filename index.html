@@ -110,7 +110,7 @@ body{
 /* Pré-visualização de imagem (Inspiração) */
 .img-lightbox{ position:absolute; inset:0; z-index:200; background:rgba(10,8,6,0.94); display:none; align-items:center; justify-content:center; padding:24px; }
 .img-lightbox.show{ display:flex; }
-.img-lightbox img{ max-width:100%; max-height:100%; border-radius:12px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.4); }
+.img-lightbox img{ max-width:100%; max-height:100%; border-radius:12px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.4); touch-action:none; transition:transform .05s linear; }
 .img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:18px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; z-index:2; }
 .img-lightbox-close:active{ background:rgba(255,255,255,0.3); }
 .insp-tile img{ cursor:pointer; }
@@ -222,11 +222,17 @@ body{
 .phase-num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--heading); }
 .phase-ring-label{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.1; }
 .phase-ring-count{ font-size:9.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.01em; }
+.phase-num-chip{ background:var(--rust); font-family:'Cormorant Garamond',serif; font-weight:700; font-size:17px; color:#fff; }
+.show-more-btn{ all:unset; box-sizing:border-box; display:block; width:calc(100% - 32px); margin:0 16px 20px; padding:10px 0; text-align:center; border-radius:11px; background:rgba(20,20,20,0.06); color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; }
+.show-more-btn:active{ background:rgba(20,20,20,0.12); }
 .table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
 .shape-picker{ display:flex; gap:6px; }
 .shape-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:10px; border:1.4px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer; }
 .shape-btn svg{ width:18px; height:18px; }
 .shape-btn.active{ border-color:var(--rust); color:var(--rust); background:rgba(193,88,62,0.08); }
+.del-table-btn{ all:unset; box-sizing:border-box; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px 0; border-radius:12px; background:rgba(193,88,62,0.09); color:var(--rust-dark); font-size:13px; font-weight:600; cursor:pointer; }
+.del-table-btn svg{ width:15px; height:15px; }
+.del-table-btn:active{ background:rgba(193,88,62,0.18); }
 
 /* Stepper full row */
 .stepper-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid var(--line); }
@@ -252,6 +258,14 @@ body{
 .phase-desc{ display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .visit-detail{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
 .visit-detail b{ color:var(--ink); font-weight:600; }
+.visit-fav-btn{ all:unset; box-sizing:border-box; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:#D9D4C7; flex-shrink:0; cursor:pointer; }
+.visit-fav-btn svg{ width:18px; height:18px; }
+.visit-fav-btn.active{ color:var(--rust); }
+.visit-fav-btn.active svg{ fill:var(--rust); }
+.visit-action-btn{ all:unset; box-sizing:border-box; flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 0; border-radius:11px; background:rgba(20,20,20,0.07); color:var(--ink); font-size:13px; font-weight:600; cursor:pointer; }
+.visit-action-btn svg{ width:14px; height:14px; }
+.visit-action-btn.danger{ background:rgba(193,88,62,0.1); color:var(--rust-dark); }
+.visit-action-btn:active{ opacity:.75; }
 .table-head:active{ background:rgba(20,20,20,0.035); }
 .table-head .icon-chip{ width:28px; height:28px; }
 .table-head .ttitle{ flex:1; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--heading); }
@@ -276,6 +290,7 @@ body{
 .picker-row .side-tag{ font-size:10px; color:#fff; padding:2px 7px; border-radius:20px; font-weight:600; flex-shrink:0; }
 .picker-row .pname{ flex:1; font-size:14.5px; color:var(--ink); }
 .picker-row.is-selected .pname{ color:var(--heading); font-weight:600; }
+.pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 
 /* Home hero */
 .hero-card{ margin:4px 16px 20px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:30px 24px 26px; text-align:center; box-shadow:var(--shadow); }
@@ -353,8 +368,8 @@ body{
 .sheet-field label{ display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; }
 .sheet-field input, .sheet-field select{ width:100%; border:1px solid var(--line); background:#fff; border-radius:9px; padding:9px 10px; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; }
 .sheet-btns{ display:flex; gap:10px; margin-top:14px; }
-.sheet-btns button{ all:unset; cursor:pointer; flex:1; text-align:center; padding:11px 0; border-radius:11px; font-size:14.5px; font-weight:600; }
-.btn-cancel{ background:rgba(20,20,20,0.07); color:var(--ink); }
+.btn-cancel, .btn-save{ all:unset; box-sizing:border-box; cursor:pointer; flex:1; text-align:center; padding:11px 0; border-radius:11px; font-size:14.5px; font-weight:600; }
+.btn-cancel{ background:rgba(20,20,20,0.07); color:var(--rust-dark); }
 .btn-save{ background:var(--rust); color:#fff; }
 .btn-cancel:active, .btn-save:active{ opacity:.75; }
 
@@ -604,8 +619,9 @@ const ICONS = {
   checklist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.3" width="16" height="17.4" rx="2"/><path d="M8 8.3h8M8 12.3h5.5M7 16.3l1.3 1.3L11 15"/></svg>',
   tableround:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="4.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="19.8" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="8" r="1.15" fill="currentColor" stroke="none"/></svg>',
   tablelong:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="8.5" width="14" height="7" rx="1.4"/><rect x="2.2" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="2.2" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/></svg>',
-  tableserpentine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5c5 0 3 6 8 6s3 6 8 6"/><circle cx="5" cy="3" r="1.1" fill="currentColor" stroke="none"/><circle cx="5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="8.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="13.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="19" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="19" cy="21" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  tableserpentine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 7c2.2 0 2.2 4 4.4 4s2.2-4 4.4-4 2.2 4 4.4 4 2.2-4 4.4-4"/><circle cx="2.5" cy="17" r="1.15" fill="currentColor" stroke="none"/><circle cx="8.2" cy="17" r="1.15" fill="currentColor" stroke="none"/><circle cx="13.9" cy="17" r="1.15" fill="currentColor" stroke="none"/><circle cx="19.6" cy="17" r="1.15" fill="currentColor" stroke="none"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.8 12a2 2 0 0 1-2 1.9H8.8a2 2 0 0 1-2-1.9L6 7"/><path d="M10 11v6M14 11v6"/></svg>',
   question:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.3 9.2a2.7 2.7 0 1 1 3.9 2.4c-1 .5-1.7 1.2-1.7 2.4v.3"/><circle cx="11.5" cy="17.7" r=".15" fill="currentColor" stroke-width="2.4"/></svg>',
   briefcase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.3" width="17.6" height="12" rx="1.8"/><path d="M8.6 7.3V5.7a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.6"/><path d="M3.2 12.6h17.6"/></svg>'
 };
@@ -786,7 +802,8 @@ function seedData(){
     checklistDone:{},
     checklistPersonal:[],
     dressChecklistDone:{},
-    dressVisits:[]
+    dressVisits:[],
+    favoriteVisitId:null
   };
 }
 function defaultSettings(name1, name2, dateStr, venue){
@@ -810,7 +827,16 @@ let guestSeg = 'noiva';
 let openDesc = {};
 let openTable = {};
 let openGuestGroup = {};
-let openChecklistPhase = {};
+let openChecklistPhaseId = null;
+let showAllPhaseProgress = false;
+function collapseAllSections(){
+  openDesc = {};
+  openTable = {};
+  openGuestGroup = {};
+  openChecklistPhaseId = null;
+  openDressVisit = {};
+  definicoesSection = null;
+}
 let openDressVisit = {};
 let definicoesSection = null;
 let dressInspirations = [];
@@ -916,7 +942,12 @@ function renderTabbar(){
     </button>`;
   }).join('');
   bar.querySelectorAll('button').forEach(b=>{
-    b.addEventListener('click',()=>{ activeTab=b.dataset.goto; render(); });
+    b.addEventListener('click',()=>{
+      const target = b.dataset.goto;
+      if(target !== activeTab) collapseAllSections();
+      activeTab = target;
+      render();
+    });
   });
 }
 
@@ -1029,12 +1060,12 @@ function viewInicio(){
     </div>
     <div class="ring-card">
       <div class="ring-label">Orçamento gasto</div>
-      <div class="ring-wrap">
+      <div class="ring-wrap" id="inicio-orc-ring-wrap">
         ${donutSVG(state.budget.total? spent/state.budget.total : 0, 'var(--gold)', 92, 9)}
         <div class="ring-center"><span class="num">${spentPct}%</span><span class="sub">${fmtEUR(spent)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n">${fmtEUR(state.budget.total-spent)}</div><div class="l">Por gastar</div></div>
+        <div><div class="n" id="inicio-porgastar">${fmtEUR(state.budget.total-spent)}</div><div class="l">Por gastar</div></div>
       </div>
     </div>
   </div>
@@ -1171,11 +1202,68 @@ function guestGroupHTML(side, catKey, catLabel, icon, color){
   </div>`;
 }
 
-function viewConvidados(){
-  const totalGuests = countGuests('noiva')+countGuests('noivo');
-  const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
-  const perGuest = state.budget.guestsEstimate ? state.budget.total/state.budget.guestsEstimate : 0;
-
+function bindGuestGroupHandlers(scope){
+  scope.querySelectorAll('[data-togglegroup]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const key = e.currentTarget.dataset.togglegroup;
+      openGuestGroup[key] = !openGuestGroup[key];
+      softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-confirm]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.confirm.split('|');
+      const k = guestKey(side,cat,Number(idx));
+      state.confirmed[k] = !state.confirmed[k];
+      softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
+      state.guests[side][cat].splice(Number(idx),1);
+      Object.keys(state.confirmed).forEach(k=>{ if(k.startsWith(side+'|'+cat+'|')) delete state.confirmed[k]; });
+      softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-addbtn]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat] = e.currentTarget.dataset.addbtn.split('|');
+      const input = scope.querySelector(`[data-addname="${side}|${cat}"]`) || document.querySelector(`[data-addname="${side}|${cat}"]`);
+      const name = input.value.trim();
+      if(name){ state.guests[side][cat].push(name); softUpdateConvidados(); }
+    });
+  });
+  scope.querySelectorAll('[data-addname]').forEach(inp=>{
+    inp.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        const [side,cat] = e.currentTarget.dataset.addname.split('|');
+        const name = e.currentTarget.value.trim();
+        if(name){ state.guests[side][cat].push(name); softUpdateConvidados(); }
+      }
+    });
+  });
+  scope.querySelectorAll('[data-confirmchild]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const idx = e.currentTarget.dataset.confirmchild;
+      state.confirmed['crianca|'+idx] = !state.confirmed['crianca|'+idx];
+      softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-removechild]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      state.guests.criancas.splice(Number(e.currentTarget.dataset.removechild),1);
+      softUpdateConvidados();
+    });
+  });
+  const addCrianca = scope.querySelector('#addbtn-crianca');
+  if(addCrianca) addCrianca.addEventListener('click', ()=>{
+    const input = document.getElementById('add-crianca');
+    const name = input.value.trim();
+    if(name){ state.guests.criancas.push(name); softUpdateConvidados(); }
+  });
+}
+function buildGuestBody(){
   let body = '';
   if(guestSeg==='criancas'){
     const rows = state.guests.criancas.map((n,idx)=>{
@@ -1206,12 +1294,20 @@ function viewConvidados(){
       + guestGroupHTML(guestSeg,'duvida','Na dúvida', ICONS.question, 'var(--gold)')
       + guestGroupHTML(guestSeg,'staff','Staff / fornecedores', ICONS.briefcase, 'var(--blush-dark)');
   }
-
+  return body;
+}
+function softUpdateConvidados(){
+  const el = document.getElementById('guest-groups-container');
+  if(!el) return;
+  el.innerHTML = buildGuestBody();
+  bindGuestGroupHandlers(el);
+  pushRemote();
+}
+function buildConvidadosDynamic(){
+  const totalGuests = countGuests('noiva')+countGuests('noivo');
+  const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
+  const perGuest = state.budget.guestsEstimate ? state.budget.total/state.budget.guestsEstimate : 0;
   return `
-  <div class="navbar"><h1>Convidados</h1></div>
-
-  <button class="add-guest-cta" id="open-guest-sheet">${ICONS.plus} Adicionar convidado</button>
-
   <div class="ring-stat-card">
     <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
       ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--dusty-dark)', 78, 8)}
@@ -1222,6 +1318,20 @@ function viewConvidados(){
       <div class="ring-stat-item"><span class="n">${fmtEUR(perGuest)}</span><span class="l">€ / convidado (orçamento)</span></div>
     </div>
   </div>
+  <div id="guest-groups-container">${buildGuestBody()}</div>`;
+}
+function softUpdateConvidados(){
+  const el = document.getElementById('convidados-dynamic');
+  if(!el) return;
+  el.innerHTML = buildConvidadosDynamic();
+  bindGuestGroupHandlers(el);
+  pushRemote();
+}
+function viewConvidados(){
+  return `
+  <div class="navbar"><h1>Convidados</h1></div>
+
+  <button class="add-guest-cta" id="open-guest-sheet">${ICONS.plus} Adicionar convidado</button>
 
   <div class="segmented">
     <button data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">Noiva</button>
@@ -1231,7 +1341,7 @@ function viewConvidados(){
 
   <div class="search-bar">${ICONS.search}<input type="text" id="guest-search" placeholder="Procurar convidado" value="${guestFilter}"></div>
 
-  ${body}
+  <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
   `;
 }
 
@@ -1318,75 +1428,51 @@ function viewGastos(){
 function viewMesas(){
   const tables = state.seating.tables;
   const totalSeats = totalSeatsCount();
-const assignedCount = assignedSeatsCount();
+  const assignedCount = assignedSeatsCount();
 
-let tablesHTML = '';
-tables.forEach((table, ti) => {
-  // Try-catch impede que uma única mesa com dados corrompidos mande a app inteira abaixo
-  try {
+  let tablesHTML = '';
+  tables.forEach((table,ti)=>{
     const t = table.id;
     let filled = 0;
-    for (let s = 1; s <= table.seats; s++) { 
-      if (state.seating.assignments['t' + t + '-s' + s]) filled++; 
-    }
+    for(let s=1;s<=table.seats;s++){ if(state.seating.assignments['t'+t+'-s'+s]) filled++; }
     const open = !!openTable[t];
     let bodyHTML = '';
-    
-    if (open) {
+    if(open){
       let seatsHTML = '';
-      for (let s = 1; s <= table.seats; s++) {
-        const key = 't' + t + '-s' + s;
+      for(let s=1;s<=table.seats;s++){
+        const key = 't'+t+'-s'+s;
         const val = state.seating.assignments[key] || '';
-        
-        // Correção de segurança para o split
-        const parts = val ? val.split('::') : [];
-        const name = parts.length > 1 ? parts[1] : 'toca para atribuir';
-        
-        seatsHTML += `<div class="seat-row ${val ? 'filled' : ''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev || ''}</div>`;
+        const name = val ? val.split('::')[1] : 'toca para atribuir';
+        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev}</div>`;
       }
-      
       bodyHTML = `
       <div class="table-config-row">
         <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
         <div class="shape-picker">
-          ${Object.keys(TABLE_SHAPES || {}).map(sh => {
-            const shapeDef = TABLE_SHAPES[sh];
-            const iconKey = shapeDef ? shapeDef.icon : '';
-            const iconHTML = ICONS[iconKey] || '';
-            const label = shapeDef ? shapeDef.label : sh;
-            return `<button class="shape-btn ${table.shape === sh ? 'active' : ''}" data-setshape="${t}|${sh}" title="${label}">${iconHTML}</button>`;
-          }).join('')}
+          ${Object.keys(TABLE_SHAPES).map(sh=>`<button class="shape-btn ${table.shape===sh?'active':''}" data-setshape="${t}|${sh}" title="${TABLE_SHAPES[sh].label}">${ICONS[TABLE_SHAPES[sh].icon]}</button>`).join('')}
         </div>
       </div>
       <div class="table-config-row">
         <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
         <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
-        <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
+      </div>
+      <div style="padding:2px 14px 12px;">
+        <button class="del-table-btn" data-deltable="${t}">${ICONS.trash} Eliminar mesa</button>
       </div>
       <div class="seat-list">${seatsHTML}</div>`;
     }
-
-    // Garante que o formato da mesa existe, se não existir usa um formato padrão seguro
-    const currentShapeDef = (TABLE_SHAPES && TABLE_SHAPES[table.shape]) ? TABLE_SHAPES[table.shape] : { icon: '', label: 'Desconhecido' };
-    const currentIconHTML = ICONS[currentShapeDef.icon] || '';
-
     tablesHTML += `
     <div class="table-group">
       <div class="table-head" data-toggletable="${t}">
-        <div class="icon-chip" style="background:${CAT_COLORS[ti % CAT_COLORS.length]};">${currentIconHTML}</div>
-        <div class="ttitle">Mesa ${t}<span class="phase-desc">${currentShapeDef.label}</span></div>
+        <div class="icon-chip" style="background:${CAT_COLORS[ti%CAT_COLORS.length]};">${ICONS[TABLE_SHAPES[table.shape].icon]}</div>
+        <div class="ttitle">Mesa ${t}<span class="phase-desc">${TABLE_SHAPES[table.shape].label}</span></div>
         <span class="fillcount">${filled}/${table.seats}</span>
-        <span class="chev-toggle ${open ? 'open' : ''}" style="display:inline-flex;">${ICONS.chev || ''}</span>
+        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
       </div>
       ${bodyHTML}
     </div>`;
-    
-  } catch (error) {
-    console.error("Erro ao renderizar a mesa:", table, error);
-    // Cria um bloco visual simples para saberes qual é a mesa que está com dados corrompidos
-    tablesHTML += `<div class="table-group" style="border: 1px solid red; padding: 10px; color: red;">Erro nos dados da Mesa (ID: ${table?.id || 'Desconhecido'})</div>`;
-  }
-});
+  });
+
   return `
   <div class="navbar navbar-row">
     <div><h1>Mesas</h1></div>
@@ -1443,24 +1529,27 @@ function viewChecklist(){
   const totalTasks = CHECKLIST_PHASES.reduce((s,p)=>s+p.tasks.length,0) + WEDDING_DAY_CHECKLIST.length;
   const doneTasks = Object.values(state.checklistDone).filter(Boolean).length + Object.values(state.dressChecklistDone).filter(Boolean).length;
 
-  const progressHTML = CHECKLIST_PHASES.map((p,pi)=>{
+  const visiblePhasesForGrid = showAllPhaseProgress ? CHECKLIST_PHASES : CHECKLIST_PHASES.slice(0,4);
+  const progressHTML = visiblePhasesForGrid.map((p,pi)=>{
     const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
     const pct = p.tasks.length ? doneCount/p.tasks.length : 0;
     const complete = doneCount===p.tasks.length;
     return `
     <button class="phase-ring-card" data-togglephase="${p.id}">
       <div class="ring-wrap" style="width:58px;height:58px;">
-        ${donutSVG(pct, complete? 'var(--sage-dark)' : CAT_COLORS[pi%CAT_COLORS.length], 58, 6)}
+        ${donutSVG(pct, complete? 'var(--sage-dark)' : 'var(--rust)', 58, 6)}
         <div class="ring-center"><span class="phase-num">${pi+1}</span></div>
       </div>
       <div class="phase-ring-label">${p.title}</div>
       <div class="phase-ring-count">${doneCount}/${p.tasks.length}</div>
     </button>`;
   }).join('');
+  const showMoreBtn = CHECKLIST_PHASES.length>4 ? `
+    <button class="show-more-btn" id="toggle-phase-progress">${showAllPhaseProgress? 'Mostrar menos' : `Mostrar todas (${CHECKLIST_PHASES.length})`}</button>` : '';
 
   const phasesHTML = CHECKLIST_PHASES.map((p,pi)=>{
     const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
-    const open = !!openChecklistPhase[p.id];
+    const open = openChecklistPhaseId===p.id;
     const tasksHTML = p.tasks.map((task,i)=>{
       const key = p.id+'-'+i;
       const done = !!state.checklistDone[key];
@@ -1471,9 +1560,9 @@ function viewChecklist(){
       </div>`;
     }).join('');
     return `
-    <div class="guest-group-card">
+    <div class="guest-group-card" data-phasecard="${p.id}">
       <div class="guest-group-head" data-togglephase="${p.id}">
-        <div class="icon-chip" style="background:${CAT_COLORS[pi%CAT_COLORS.length]};">${ICONS.checklist}</div>
+        <div class="icon-chip phase-num-chip">${pi+1}</div>
         <div class="ggtitle">${p.title}<span class="phase-desc">${p.desc}</span></div>
         <span class="ggcount">${doneCount}/${p.tasks.length}</span>
         <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
@@ -1483,7 +1572,7 @@ function viewChecklist(){
   }).join('');
 
   const noivaDone = WEDDING_DAY_CHECKLIST.filter((t,i)=>state.dressChecklistDone[i]).length;
-  const noivaOpen = !!openChecklistPhase['noiva'];
+  const noivaOpen = openChecklistPhaseId==='noiva';
   const noivaTasksHTML = WEDDING_DAY_CHECKLIST.map((t,i)=>{
     const done = !!state.dressChecklistDone[i];
     return `
@@ -1519,6 +1608,7 @@ function viewChecklist(){
 
   <div class="section-label">Progresso por fase</div>
   <div class="phase-ring-grid">${progressHTML}</div>
+  ${showMoreBtn}
 
   <div class="section-label">As 12 fases do planeamento</div>
   ${phasesHTML}
@@ -1553,6 +1643,7 @@ function viewVestido(){
       <div class="guest-group-head" data-togglevisit="${v.id}" style="cursor:pointer;">
         <div class="icon-chip" style="background:var(--blush-dark);">${ICONS.dress}</div>
         <div class="ggtitle">${v.loja||'Sem nome'}<span class="phase-desc">${v.data? formatDatePT(v.data) : 'Sem data'}</span></div>
+        <button class="visit-fav-btn ${state.favoriteVisitId===v.id?'active':''}" data-favvisit="${v.id}" title="Marcar como escolhido">${ICONS.heart}</button>
         <span class="chev-toggle ${openDressVisit[v.id]?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
       </div>
       ${openDressVisit[v.id] ? `
@@ -1561,8 +1652,8 @@ function viewVestido(){
         ${v.convidados? `<div class="visit-detail"><b>Foram:</b> ${v.convidados}</div>`:''}
         ${v.notas? `<div class="visit-detail"><b>Notas:</b> ${v.notas}</div>`:''}
         <div style="display:flex; gap:10px; margin-top:10px;">
-          <button class="btn-cancel" style="flex:1;" data-editvisit="${v.id}">Editar</button>
-          <button class="btn-cancel" style="flex:1; color:var(--rust-dark);" data-delvisit="${v.id}">Eliminar</button>
+          <button class="visit-action-btn" data-editvisit="${v.id}">${ICONS.pencil} Editar</button>
+          <button class="visit-action-btn danger" data-delvisit="${v.id}">${ICONS.trash} Eliminar</button>
         </div>
       </div>` : ''}
     </div>`).join('');
@@ -1740,15 +1831,14 @@ function viewDefConvidar(){
 
 function viewDefSeguranca(){
   const owners = (currentWeddingOwners||[]).map(email => `
-    <div class="list-row">
+    <div class="list-row" style="flex-direction:column; align-items:stretch; gap:8px;">
       <div class="title" style="flex:1;">${email}</div>
-      ${currentWeddingOwners.length>1 ? `<button class="remove-x" data-removeowner="${email}" title="Remover acesso">✕</button>` : ''}
+      ${currentWeddingOwners.length>1 ? `<button class="visit-action-btn danger" style="width:100%;" data-removeowner="${email}">${ICONS.trash} Remover acesso</button>` : `<div class="empty-note" style="margin:0;">É o único com acesso — convida alguém em "Convidar" se quiseres partilhar.</div>`}
     </div>`).join('');
   return `
   ${defSubHeader('Segurança')}
   <div class="section-label">Quem tem acesso</div>
   <div class="list-group" style="margin-bottom:6px;">${owners}</div>
-  <div class="empty-note" style="margin:8px 16px 0;">Remover alguém aqui tira-lhe imediatamente o acesso a este casamento.</div>
   ${defSaveBtn('def-save-seguranca','def-msg-seguranca')}
   `;
 }
@@ -1758,7 +1848,12 @@ function viewDefSeguranca(){
 ============================================================ */
 function bindHandlers(){
   document.querySelectorAll('[data-goto]').forEach(el=>{
-    el.addEventListener('click', ()=>{ activeTab = el.dataset.goto; render(); });
+    el.addEventListener('click', ()=>{
+      const target = el.dataset.goto;
+      if(target !== activeTab) collapseAllSections();
+      activeTab = target;
+      render();
+    });
   });
   document.querySelectorAll('[data-scrollto]').forEach(el=>{
     el.addEventListener('click', e=>{
@@ -1794,9 +1889,19 @@ function bindHandlers(){
   document.querySelectorAll('[data-togglephase]').forEach(el=>{
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.togglephase;
-      openChecklistPhase[key] = !openChecklistPhase[key];
+      const wasOpen = openChecklistPhaseId===key;
+      openChecklistPhaseId = wasOpen ? null : key;
       render();
+      if(!wasOpen){
+        const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.guest-group-card');
+        if(card) requestAnimationFrame(()=> card.scrollIntoView({behavior:'smooth', block:'start'}));
+      }
     });
+  });
+  const togglePhaseProgress = document.getElementById('toggle-phase-progress');
+  if(togglePhaseProgress) togglePhaseProgress.addEventListener('click', ()=>{
+    showAllPhaseProgress = !showAllPhaseProgress;
+    render();
   });
   document.querySelectorAll('[data-checktask]').forEach(el=>{
     el.addEventListener('click', e=>{
@@ -1843,6 +1948,14 @@ function bindHandlers(){
     el.addEventListener('click', e=>{
       const id = e.currentTarget.dataset.togglevisit;
       openDressVisit[id] = !openDressVisit[id];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-favvisit]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const id = e.currentTarget.dataset.favvisit;
+      state.favoriteVisitId = (state.favoriteVisitId===id) ? null : id;
       render();
     });
   });
@@ -1903,7 +2016,9 @@ function bindHandlers(){
   document.querySelectorAll('[data-theme]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       weddingSettings.accentColor = e.currentTarget.dataset.theme;
-      render();
+      applyTheme(weddingSettings.accentColor);
+      document.querySelectorAll('[data-theme]').forEach(b=>b.classList.toggle('active', b===e.currentTarget));
+      pushRemote();
     });
   });
   const defPhotoBtn = document.getElementById('def-photo-btn');
@@ -2071,69 +2186,11 @@ function bindHandlers(){
   document.querySelectorAll('.segmented button[data-seg]').forEach(b=>{
     b.addEventListener('click', ()=>{ guestSeg = b.dataset.seg; render(); });
   });
-  document.querySelectorAll('[data-togglegroup]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      const key = e.currentTarget.dataset.togglegroup;
-      openGuestGroup[key] = !openGuestGroup[key];
-      render();
-    });
-  });
   const gsearch = document.getElementById('guest-search');
   if(gsearch){
-    gsearch.addEventListener('input', e=>{ guestFilter = e.target.value; render(); document.getElementById('guest-search').focus(); document.getElementById('guest-search').selectionStart = document.getElementById('guest-search').value.length; });
+    gsearch.addEventListener('input', e=>{ guestFilter = e.target.value; softUpdateConvidados(); });
   }
-  document.querySelectorAll('[data-confirm]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      const [side,cat,idx] = e.currentTarget.dataset.confirm.split('|');
-      const k = guestKey(side,cat,Number(idx));
-      state.confirmed[k] = !state.confirmed[k];
-      render();
-    });
-  });
-  document.querySelectorAll('[data-remove]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
-      state.guests[side][cat].splice(Number(idx),1);
-      Object.keys(state.confirmed).forEach(k=>{ if(k.startsWith(side+'|'+cat+'|')) delete state.confirmed[k]; });
-      render();
-    });
-  });
-  document.querySelectorAll('[data-addbtn]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const [side,cat] = e.currentTarget.dataset.addbtn.split('|');
-      const input = document.querySelector(`[data-addname="${side}|${cat}"]`);
-      const name = input.value.trim();
-      if(name){ state.guests[side][cat].push(name); render(); }
-    });
-  });
-  document.querySelectorAll('[data-addname]').forEach(inp=>{
-    inp.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){
-        const [side,cat] = e.currentTarget.dataset.addname.split('|');
-        const name = e.currentTarget.value.trim();
-        if(name){ state.guests[side][cat].push(name); render(); }
-      }
-    });
-  });
-  document.querySelectorAll('[data-confirmchild]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      const idx = e.currentTarget.dataset.confirmchild;
-      state.confirmed['crianca|'+idx] = !state.confirmed['crianca|'+idx];
-      render();
-    });
-  });
-  document.querySelectorAll('[data-removechild]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      state.guests.criancas.splice(Number(e.currentTarget.dataset.removechild),1);
-      render();
-    });
-  });
-  const addCrianca = document.getElementById('addbtn-crianca');
-  if(addCrianca) addCrianca.addEventListener('click', ()=>{
-    const input = document.getElementById('add-crianca');
-    const name = input.value.trim();
-    if(name){ state.guests.criancas.push(name); render(); }
-  });
+  bindGuestGroupHandlers(document);
 
   // Gastos
   document.querySelectorAll('[data-exp]').forEach(inp=>{
@@ -2211,6 +2268,12 @@ function softUpdateBudget(){
     if(elTotal) elTotal.textContent = fmtEUR(catTotal)+' total';
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+' / convidado';
   });
+  const spent = totalExpenseValue();
+  const inicioRing = document.getElementById('inicio-orc-ring-wrap');
+  if(inicioRing) inicioRing.innerHTML = donutSVG(total? spent/total : 0, 'var(--gold)', 92, 9)
+    + `<div class="ring-center"><span class="num">${total? Math.round(spent/total*100):0}%</span><span class="sub">${fmtEUR(spent)}</span></div>`;
+  const inicioPorGastar = document.getElementById('inicio-porgastar');
+  if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(total-spent);
   pushRemote();
 }
 function saveSettingsNow(msgId){
@@ -2377,6 +2440,68 @@ function deleteEvent(eventId){
   render();
 }
 document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet(); });
+
+/* ============================================================
+   GESTOS — deslizar para trás nas páginas, deslizar para baixo
+   para fechar as folhas (sheets), como é hábito no iOS.
+============================================================ */
+function bindSheetSwipeDown(sheetEl, closeFn){
+  if(!sheetEl) return;
+  let startY=0, dragging=false;
+  sheetEl.addEventListener('touchstart', e=>{
+    const rect = sheetEl.getBoundingClientRect();
+    const t = e.touches[0];
+    if(t.clientY - rect.top < 46){
+      startY = t.clientY; dragging = true;
+      sheetEl.style.transition = 'none';
+    }
+  }, {passive:true});
+  sheetEl.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    sheetEl.style.transform = `translateY(${dy}px)`;
+  }, {passive:true});
+  function finish(e){
+    if(!dragging) return;
+    dragging = false;
+    sheetEl.style.transition = '';
+    const dy = Math.max(0, (e.changedTouches[0].clientY - startY));
+    sheetEl.style.transform = '';
+    if(dy > 85) closeFn();
+  }
+  sheetEl.addEventListener('touchend', finish, {passive:true});
+  sheetEl.addEventListener('touchcancel', finish, {passive:true});
+}
+['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet'].forEach(id=>{
+  const el = document.getElementById(id);
+  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet };
+  bindSheetSwipeDown(el, closers[id]);
+});
+
+function initSwipeBack(){
+  const appBody = document.getElementById('app-body');
+  if(!appBody) return;
+  let startX=0, startY=0, tracking=false;
+  appBody.addEventListener('touchstart', e=>{
+    const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    tracking = t.clientX < 60;
+  }, {passive:true});
+  appBody.addEventListener('touchend', e=>{
+    if(!tracking) return;
+    tracking = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = Math.abs(t.clientY - startY);
+    if(dx > 70 && dy < 60){
+      const activePanel = document.querySelector('.tabpanel.active');
+      if(!activePanel) return;
+      const backBtn = activePanel.querySelector('#def-back, [data-defback], #insp-back, #checklist-back, #vestido-back');
+      if(backBtn) backBtn.click();
+    }
+  }, {passive:true});
+}
+initSwipeBack();
 document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
 document.getElementById('sf-save').addEventListener('click', ()=>{
   const desc = document.getElementById('sf-desc').value.trim();
@@ -2408,6 +2533,17 @@ function closeSeatSheet(){
   document.getElementById('sheet-backdrop').classList.remove('show');
   editingSeatKey = null;
 }
+function findGuestSeatKey(guestKey, excludeSeatKey){
+  for(const [seatKey, val] of Object.entries(state.seating.assignments)){
+    if(seatKey===excludeSeatKey) continue;
+    if(val && val.startsWith(guestKey+'::')) return seatKey;
+  }
+  return null;
+}
+function seatLabel(seatKey){
+  const m = seatKey.match(/^t(\d+)-s(\d+)$/);
+  return m ? `Mesa ${m[1]} · lugar ${m[2]}` : seatKey;
+}
 function renderSeatPickerList(){
   const list = document.getElementById('seat-picker-list');
   const current = state.seating.assignments[editingSeatKey] || '';
@@ -2416,12 +2552,22 @@ function renderSeatPickerList(){
   allAdultGuests().forEach(g=>{
     if(q && !g.name.toLowerCase().includes(q)) return;
     const val = g.key+'::'+g.name;
-    rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${val}"><span class="side-tag" style="background:${g.side==='noiva'?'var(--blush-dark)':'var(--dusty-dark)'};">${g.side==='noiva'?'Noiva':'Noivo'}</span><span class="pname">${g.name}</span></div>`;
+    const elsewhere = findGuestSeatKey(g.key, editingSeatKey);
+    rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${val}">
+      <span class="side-tag" style="background:${g.side==='noiva'?'var(--blush-dark)':'var(--dusty-dark)'};">${g.side==='noiva'?'Noiva':'Noivo'}</span>
+      <span class="pname">${g.name}${elsewhere?`<span class="pname-hint">já em ${seatLabel(elsewhere)}</span>`:''}</span>
+    </div>`;
   });
   list.innerHTML = rows;
   list.querySelectorAll('[data-pick]').forEach(row=>{
     row.addEventListener('click', e=>{
-      state.seating.assignments[editingSeatKey] = e.currentTarget.dataset.pick;
+      const val = e.currentTarget.dataset.pick;
+      if(val){
+        const guestKey = val.split('::')[0];
+        const elsewhere = findGuestSeatKey(guestKey, editingSeatKey);
+        if(elsewhere) delete state.seating.assignments[elsewhere];
+      }
+      state.seating.assignments[editingSeatKey] = val;
       closeSeatSheet();
       render();
     });
@@ -2759,15 +2905,7 @@ function tableSVG(table){
   function seatDot(sx, sy, angle, s){
     const info = parseSeatAssignment(state.seating.assignments['t'+t+'-s'+s] || '');
     const dotColor = info ? (info.side==='noiva' ? '#CB8577' : '#6C8296') : '#E7DEC8';
-    let out = `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
-    if(info){
-      const label = info.name.length>9 ? info.name.slice(0,8)+'…' : info.name;
-      const lx = sx + Math.cos(angle)*11;
-      const ly = sy + Math.sin(angle)*11;
-      const anchor = Math.cos(angle) > 0.25 ? 'start' : (Math.cos(angle) < -0.25 ? 'end' : 'middle');
-      out += `<text x="${lx}" y="${ly}" font-size="7.6" font-weight="600" fill="#6B6354" text-anchor="${anchor}" dominant-baseline="middle">${label}</text>`;
-    }
-    return out;
+    return `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
   }
 
   let inner = '';
@@ -2805,6 +2943,7 @@ function tableSVG(table){
     inner += `<path d="${pathD}" fill="none" stroke="#FFF9EE" stroke-width="20" stroke-linecap="round"/>`;
     inner += `<path d="${pathD}" fill="none" stroke="#C9A02E" stroke-width="1.3" stroke-linecap="round"/>`;
     const mid = bez(0.5);
+    inner += `<circle cx="${mid.x}" cy="${mid.y}" r="10" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.2"/>`;
     inner += `<text x="${mid.x}" y="${mid.y+4}" font-size="11" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
     for(let s=1; s<=seatCount; s++){
       const tt = (s-0.5)/seatCount;
@@ -2845,9 +2984,10 @@ function ensureTablePositions(){
 }
 function bindSalaTableDrag(el){
   const tableId = Number(el.dataset.tableid);
-  let dragging = false, startX=0, startY=0, origLeft=0, origTop=0;
+  let dragging = false, startX=0, startY=0, origLeft=0, origTop=0, moved=0;
   el.addEventListener('pointerdown', e=>{
     dragging = true;
+    moved = 0;
     el.classList.add('dragging');
     el.setPointerCapture(e.pointerId);
     startX = e.clientX; startY = e.clientY;
@@ -2857,6 +2997,7 @@ function bindSalaTableDrag(el){
   el.addEventListener('pointermove', e=>{
     if(!dragging) return;
     const dx = e.clientX-startX, dy = e.clientY-startY;
+    moved = Math.max(moved, Math.hypot(dx,dy));
     el.style.left = Math.max(0, origLeft+dx)+'px';
     el.style.top = Math.max(0, origTop+dy)+'px';
   });
@@ -2864,6 +3005,14 @@ function bindSalaTableDrag(el){
     if(!dragging) return;
     dragging = false;
     el.classList.remove('dragging');
+    if(moved < 6){
+      el.style.left = origLeft+'px';
+      el.style.top = origTop+'px';
+      mesa3dSelectedTable = tableId;
+      mesa3dViewMode = 'mesa';
+      render();
+      return;
+    }
     const table = getTable(tableId);
     if(table){
       table.x = Math.max(0, parseFloat(el.style.left)||0);
@@ -2890,7 +3039,7 @@ function renderSalaView(){
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#6C8296;"></span>Noivo</span>
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#E7DEC8;"></span>Livre</span>
     </div>
-    <div class="sala-hint">arrasta as mesas para desenhares a sala</div>
+    <div class="sala-hint">toca numa mesa para ver os nomes · arrasta para a mover</div>
     <div class="sala-canvas" id="sala-canvas" style="width:${maxX}px; height:${maxY}px;">${items}</div>
   `;
   wrap.querySelectorAll('.sala-table-item').forEach(bindSalaTableDrag);
@@ -2934,7 +3083,7 @@ document.getElementById('insp-file-input').addEventListener('change', async (e)=
   const files = Array.from(e.target.files || []);
   for(const file of files){
     try{
-      const dataUrl = await resizeImageFile(file, 480, 0.72);
+      const dataUrl = await resizeImageFile(file, 1080, 0.82);
       inspirations.push({ id:'insp'+Date.now()+Math.random().toString(36).slice(2,7), dataUrl });
     }catch(err){}
   }
@@ -2955,7 +3104,7 @@ document.getElementById('dress-insp-file-input').addEventListener('change', asyn
   const files = Array.from(e.target.files || []);
   for(const file of files){
     try{
-      const dataUrl = await resizeImageFile(file, 480, 0.72);
+      const dataUrl = await resizeImageFile(file, 1080, 0.82);
       dressInspirations.push({ id:'dinsp'+Date.now()+Math.random().toString(36).slice(2,7), dataUrl });
     }catch(err){}
   }
@@ -3002,8 +3151,16 @@ document.getElementById('vf-save').addEventListener('click', ()=>{
   render();
 });
 
+let lightboxZoom = 1, lightboxPanX = 0, lightboxPanY = 0;
+function applyLightboxTransform(){
+  const img = document.getElementById('img-lightbox-img');
+  img.style.transform = `translate(${lightboxPanX}px, ${lightboxPanY}px) scale(${lightboxZoom})`;
+}
 function openImgLightbox(src){
-  document.getElementById('img-lightbox-img').src = src;
+  lightboxZoom = 1; lightboxPanX = 0; lightboxPanY = 0;
+  const img = document.getElementById('img-lightbox-img');
+  img.src = src;
+  img.style.transform = 'none';
   document.getElementById('img-lightbox').classList.add('show');
 }
 function closeImgLightbox(){
@@ -3013,13 +3170,59 @@ document.getElementById('img-lightbox-close').addEventListener('click', closeImg
 document.getElementById('img-lightbox').addEventListener('click', e=>{
   if(e.target.id === 'img-lightbox') closeImgLightbox();
 });
+(function bindLightboxZoom(){
+  const img = document.getElementById('img-lightbox-img');
+  let lastTap = 0;
+  let pinchStartDist = 0, pinchStartZoom = 1;
+  let dragging = false, dragStartX=0, dragStartY=0, panStartX=0, panStartY=0;
+
+  function dist(t0,t1){ return Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY); }
+
+  img.addEventListener('touchstart', e=>{
+    if(e.touches.length===2){
+      dragging = false;
+      pinchStartDist = dist(e.touches[0], e.touches[1]);
+      pinchStartZoom = lightboxZoom;
+    } else if(e.touches.length===1){
+      const now = Date.now();
+      if(now - lastTap < 300){
+        lightboxZoom = lightboxZoom > 1.1 ? 1 : 2.4;
+        lightboxPanX = 0; lightboxPanY = 0;
+        applyLightboxTransform();
+        lastTap = 0;
+        return;
+      }
+      lastTap = now;
+      if(lightboxZoom > 1.05){
+        dragging = true;
+        dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
+        panStartX = lightboxPanX; panStartY = lightboxPanY;
+      }
+    }
+  }, {passive:true});
+  img.addEventListener('touchmove', e=>{
+    if(e.touches.length===2){
+      const d = dist(e.touches[0], e.touches[1]);
+      lightboxZoom = Math.max(1, Math.min(4, pinchStartZoom * (d/pinchStartDist)));
+      applyLightboxTransform();
+    } else if(dragging && e.touches.length===1){
+      lightboxPanX = panStartX + (e.touches[0].clientX-dragStartX);
+      lightboxPanY = panStartY + (e.touches[0].clientY-dragStartY);
+      applyLightboxTransform();
+    }
+  }, {passive:true});
+  img.addEventListener('touchend', e=>{
+    dragging = false;
+    if(lightboxZoom < 1.05){ lightboxZoom=1; lightboxPanX=0; lightboxPanY=0; applyLightboxTransform(); }
+  }, {passive:true});
+})();
 
 /* ============================================================
    LOGIN — entrar / criar conta / configurar o casamento
 ============================================================ */
 let authMode = 'login'; // 'login' | 'signup'
 
-function renderLoginForm(msg, isError){
+function renderLoginForm(msg, isError, isSuccess){
   const isSignup = authMode === 'signup';
   document.getElementById('login-inner').innerHTML = `
     <div class="login-mark">Weddy</div>
@@ -3027,12 +3230,27 @@ function renderLoginForm(msg, isError){
     <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
     <div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass" placeholder="Password (mín. 6 caracteres)" autocomplete="${isSignup?'new-password':'current-password'}"></div>
     <button class="login-btn" id="login-send">${isSignup? 'Criar conta' : 'Entrar'}</button>
-    <div class="login-msg ${isError?'error':''}">${msg||''}</div>
+    <div class="login-msg ${isError?'error':isSuccess?'success':''}">${msg||''}</div>
+    ${!isSignup? `<div class="login-note" style="cursor:pointer;" id="login-forgot">Esqueceste a password?</div>` : ''}
     <div class="login-note" style="cursor:pointer;" id="login-toggle">${isSignup? 'Já tens conta? Entrar' : 'Ainda não tens conta? Criar conta'}</div>
   `;
   document.getElementById('login-send').addEventListener('click', handleAuthSubmit);
   document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
   document.getElementById('login-toggle').addEventListener('click', ()=>{ authMode = isSignup?'login':'signup'; renderLoginForm(); });
+  const forgotLink = document.getElementById('login-forgot');
+  if(forgotLink) forgotLink.addEventListener('click', handleForgotPassword);
+}
+function handleForgotPassword(){
+  const email = document.getElementById('login-email').value.trim();
+  if(!email){ renderLoginForm('Escreve o teu email em cima e toca outra vez em "Esqueceste a password?".', true); return; }
+  if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta.', true); return; }
+  auth.sendPasswordResetEmail(email).then(()=>{
+    renderLoginForm(`Enviámos um email para ${email} com instruções para redefinires a password.`, false, true);
+  }).catch(err=>{
+    console.error('Weddy reset error:', err.code, err.message);
+    const msg = err.code==='auth/user-not-found' ? 'Não há nenhuma conta com este email.' : 'Não foi possível enviar o email. Verifica se está correto.';
+    renderLoginForm(msg, true);
+  });
 }
 function renderLoginSetupNeeded(){
   document.getElementById('login-inner').innerHTML = `
@@ -3077,7 +3295,10 @@ function renderOnboarding(){
     <div class="login-tag">Vamos configurar o vosso casamento</div>
     <div class="login-field"><input type="text" id="ob-name1" placeholder="Primeiro nome (ex: Rita)"></div>
     <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-name2" placeholder="Segundo nome (ex: Tiago)"></div>
-    <div class="login-field" style="margin-top:10px;"><input type="date" id="ob-date"></div>
+    <div class="login-field" style="margin-top:10px;">
+      <label style="display:block; text-align:left; font-size:11px; color:var(--ink-soft); margin:0 0 4px 2px;">Data do casamento</label>
+      <input type="date" id="ob-date">
+    </div>
     <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-venue" placeholder="Local (ex: Quinta de Santo André, Barcelos)"></div>
     <button class="login-btn" id="ob-save">Começar</button>
     <div class="login-msg" id="ob-msg"></div>
