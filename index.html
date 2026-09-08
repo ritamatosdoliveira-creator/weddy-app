@@ -538,14 +538,13 @@ body{
    configuração (ver README para o passo a passo).
 ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk",
-  authDomain: "weddy-app-bd12f.firebaseapp.com",
-  projectId: "weddy-app-bd12f",
-  storageBucket: "weddy-app-bd12f.firebasestorage.app",
-  messagingSenderId: "696758255059",
-  appId: "1:696758255059:web:44cbc2e9847d2ab58f8326"
+  apiKey: "COLOCA_AQUI_A_TUA_API_KEY",
+  authDomain: "COLOCA_AQUI.firebaseapp.com",
+  projectId: "COLOCA_AQUI_O_PROJECT_ID",
+  storageBucket: "COLOCA_AQUI.appspot.com",
+  messagingSenderId: "COLOCA_AQUI",
+  appId: "COLOCA_AQUI"
 };
-  const app = initializeApp(firebaseConfig);
 const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
 let auth = null, db = null;
 if(FIREBASE_READY){
