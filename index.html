@@ -1322,63 +1322,71 @@ const assignedCount = assignedSeatsCount();
 
 let tablesHTML = '';
 tables.forEach((table, ti) => {
-  const t = table.id;
-  let filled = 0;
-  for (let s = 1; s <= table.seats; s++) { 
-    if (state.seating.assignments['t' + t + '-s' + s]) filled++; 
-  }
-  const open = !!openTable[t];
-  let bodyHTML = '';
-  
-  if (open) {
-    let seatsHTML = '';
-    for (let s = 1; s <= table.seats; s++) {
-      const key = 't' + t + '-s' + s;
-      const val = state.seating.assignments[key] || '';
-      const name = val ? val.split('::')[1] : 'toca para atribuir';
-      seatsHTML += `<div class="seat-row ${val ? 'filled' : ''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev || ''}</div>`;
+  // Try-catch impede que uma única mesa com dados corrompidos mande a app inteira abaixo
+  try {
+    const t = table.id;
+    let filled = 0;
+    for (let s = 1; s <= table.seats; s++) { 
+      if (state.seating.assignments['t' + t + '-s' + s]) filled++; 
     }
+    const open = !!openTable[t];
+    let bodyHTML = '';
     
-    bodyHTML = `
-    <div class="table-config-row">
-      <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
-      <div class="shape-picker">
-        ${Object.keys(TABLE_SHAPES).map(sh => {
-          // Validação: garante que o formato existe em TABLE_SHAPES antes de ler o ícone
-          const shapeDef = TABLE_SHAPES[sh];
-          const iconKey = shapeDef ? shapeDef.icon : '';
-          const iconHTML = ICONS[iconKey] || '';
-          const label = shapeDef ? shapeDef.label : sh;
-          
-          return `<button class="shape-btn ${table.shape === sh ? 'active' : ''}" data-setshape="${t}|${sh}" title="${label}">${iconHTML}</button>`;
-        }).join('')}
+    if (open) {
+      let seatsHTML = '';
+      for (let s = 1; s <= table.seats; s++) {
+        const key = 't' + t + '-s' + s;
+        const val = state.seating.assignments[key] || '';
+        
+        // Correção de segurança para o split
+        const parts = val ? val.split('::') : [];
+        const name = parts.length > 1 ? parts[1] : 'toca para atribuir';
+        
+        seatsHTML += `<div class="seat-row ${val ? 'filled' : ''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev || ''}</div>`;
+      }
+      
+      bodyHTML = `
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
+        <div class="shape-picker">
+          ${Object.keys(TABLE_SHAPES || {}).map(sh => {
+            const shapeDef = TABLE_SHAPES[sh];
+            const iconKey = shapeDef ? shapeDef.icon : '';
+            const iconHTML = ICONS[iconKey] || '';
+            const label = shapeDef ? shapeDef.label : sh;
+            return `<button class="shape-btn ${table.shape === sh ? 'active' : ''}" data-setshape="${t}|${sh}" title="${label}">${iconHTML}</button>`;
+          }).join('')}
+        </div>
       </div>
-    </div>
-    <div class="table-config-row">
-      <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
-      <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
-      <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
-    </div>
-    <div class="seat-list">${seatsHTML}</div>`;
-  }
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
+        <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
+        <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
+      </div>
+      <div class="seat-list">${seatsHTML}</div>`;
+    }
 
-  // Validação para a mesa atual (caso o formato gravado na mesa seja inválido)
-  const currentShapeDef = TABLE_SHAPES[table.shape] || { icon: '', label: 'Desconhecido' };
-  const currentIconHTML = ICONS[currentShapeDef.icon] || '';
+    // Garante que o formato da mesa existe, se não existir usa um formato padrão seguro
+    const currentShapeDef = (TABLE_SHAPES && TABLE_SHAPES[table.shape]) ? TABLE_SHAPES[table.shape] : { icon: '', label: 'Desconhecido' };
+    const currentIconHTML = ICONS[currentShapeDef.icon] || '';
 
-  tablesHTML += `
-  <div class="table-group">
-    <div class="table-head" data-toggletable="${t}">
-      <div class="icon-chip" style="background:${CAT_COLORS[ti % CAT_COLORS.length]};">${currentIconHTML}</div>
-      <div class="ttitle">Mesa ${t}<span class="phase-desc">${currentShapeDef.label}</span></div>
-      <span class="fillcount">${filled}/${table.seats}</span>
-      <span class="chev-toggle ${open ? 'open' : ''}" style="display:inline-flex;">${ICONS.chev || ''}</span>
-    </div>
-    ${bodyHTML}
-});
+    tablesHTML += `
+    <div class="table-group">
+      <div class="table-head" data-toggletable="${t}">
+        <div class="icon-chip" style="background:${CAT_COLORS[ti % CAT_COLORS.length]};">${currentIconHTML}</div>
+        <div class="ttitle">Mesa ${t}<span class="phase-desc">${currentShapeDef.label}</span></div>
+        <span class="fillcount">${filled}/${table.seats}</span>
+        <span class="chev-toggle ${open ? 'open' : ''}" style="display:inline-flex;">${ICONS.chev || ''}</span>
+      </div>
+      ${bodyHTML}
     </div>`;
-  });
-
+    
+  } catch (error) {
+    console.error("Erro ao renderizar a mesa:", table, error);
+    // Cria um bloco visual simples para saberes qual é a mesa que está com dados corrompidos
+    tablesHTML += `<div class="table-group" style="border: 1px solid red; padding: 10px; color: red;">Erro nos dados da Mesa (ID: ${table?.id || 'Desconhecido'})</div>`;
+  }
+});
   return `
   <div class="navbar navbar-row">
     <div><h1>Mesas</h1></div>
