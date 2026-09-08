@@ -38,7 +38,6 @@
 html,body{margin:0;padding:0;height:100%;}
 body{
   background:var(--cream);
-  min-height:100dvh;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   display:flex; flex-direction:column;
   overflow:hidden;
@@ -62,7 +61,7 @@ body{
   all:unset; cursor:pointer; width:32px; height:32px; border-radius:50%;
   background:var(--rust); color:#fff; display:flex; align-items:center; justify-content:center;
   box-shadow:var(--shadow);
-}
+ line-height:1;}
 .nav-action:active{ transform:scale(0.9); background:var(--rust-dark); }
 .nav-action svg{ width:16px; height:16px; }
 
@@ -100,7 +99,7 @@ body{
 .insp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:4px 16px 24px; }
 .insp-tile{ position:relative; border-radius:16px; overflow:hidden; aspect-ratio:1/1; background:var(--card); box-shadow:var(--shadow); }
 .insp-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
-.insp-remove{ all:unset; box-sizing:border-box; position:absolute; top:7px; right:7px; width:22px; height:22px; border-radius:50%; background:rgba(20,18,14,0.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; }
+.insp-remove{ all:unset; box-sizing:border-box; position:absolute; top:7px; right:7px; width:22px; height:22px; border-radius:50%; background:rgba(20,18,14,0.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;  line-height:1;}
 .insp-remove:active{ background:rgba(20,18,14,0.8); }
 .insp-add-tile{ all:unset; box-sizing:border-box; aspect-ratio:1/1; border-radius:16px; border:1.6px dashed #D8D4CC; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer; color:var(--ink-soft); background:rgba(20,20,20,0.03); }
 .insp-add-tile:active{ background:rgba(20,20,20,0.07); }
@@ -111,8 +110,13 @@ body{
 .img-lightbox{ position:absolute; inset:0; z-index:200; background:rgba(10,8,6,0.94); display:none; align-items:center; justify-content:center; padding:24px; }
 .img-lightbox.show{ display:flex; }
 .img-lightbox img{ max-width:100%; max-height:100%; border-radius:12px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.4); touch-action:none; transition:transform .05s linear; }
-.img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:18px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; z-index:2; }
-.img-lightbox-close:active{ background:rgba(255,255,255,0.3); }
+.img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:16px; display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:20px; background:rgba(20,18,14,0.75); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:13px; font-weight:600; cursor:pointer; z-index:2; line-height:1;}
+.img-lightbox-close svg{ width:13px; height:13px; }
+.img-lightbox-close:active{ background:rgba(20,18,14,0.9); }
+.save-toast{ position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 78px); transform:translateX(-50%) translateY(8px); z-index:300; display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:rgba(30,28,24,0.92); color:#fff; font-size:12.5px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; }
+.save-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.save-toast.error{ background:rgba(154,69,48,0.95); }
+.save-toast svg{ width:14px; height:14px; flex-shrink:0; }
 .insp-tile img{ cursor:pointer; }
 .stat-card .n{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--heading); line-height:1; }
 .stat-card .l{ font-size:10.8px; color:var(--ink-soft); margin-top:4px; line-height:1.25; min-height:27px; }
@@ -122,7 +126,7 @@ body{
 .list-row{ display:flex; align-items:center; gap:11px; padding:11px 14px; border-bottom:1px solid var(--line); position:relative; min-height:24px; }
 .list-row:last-child{ border-bottom:none; }
 .list-row:active{ background:rgba(20,20,20,0.035); }
-.icon-chip{ width:28px; height:28px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
+.icon-chip{ width:28px; height:28px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff;  line-height:1;}
 .icon-chip svg{ width:15px; height:15px; }
 .list-row .title{ flex:1; font-size:15px; color:var(--ink); min-width:0; }
 .list-row .title .sub{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
@@ -171,8 +175,8 @@ body{
 .guest-row.confirmed .title{ color:var(--sage-dark); font-weight:600; }
 .guest-row .check svg{ width:12px; height:12px; color:#fff; opacity:0; }
 .guest-row.confirmed .check svg{ opacity:1; }
-.remove-x{ all:unset; cursor:pointer; color:#B4AFA6; font-size:15px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.cat-edit-btn{ all:unset; cursor:pointer; color:var(--ink-soft); width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.remove-x{ all:unset; cursor:pointer; color:#B4AFA6; font-size:15px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0;  line-height:1;}
+.cat-edit-btn{ all:unset; cursor:pointer; color:var(--ink-soft); width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0;  line-height:1;}
 .cat-edit-btn svg{ width:15px; height:15px; }
 .theme-swatch-row{ display:flex; gap:14px; padding:2px 16px 20px; }
 .theme-swatch{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line); cursor:pointer; }
@@ -189,7 +193,7 @@ body{
 .add-row{ display:flex; align-items:center; gap:8px; padding:10px 14px; }
 .add-row input{ flex:1; border:none; background:rgba(20,20,20,0.06); border-radius:9px; padding:8px 10px; font-size:14px; font-family:inherit; color:var(--ink); outline:none; }
 .add-row input::placeholder{ color:#ABA7A0; }
-.add-circle{ all:unset; cursor:pointer; width:28px; height:28px; border-radius:50%; background:var(--rust); color:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.add-circle{ all:unset; cursor:pointer; width:28px; height:28px; border-radius:50%; background:var(--rust); color:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;  line-height:1;}
 .add-circle:active{ transform:scale(0.9); background:var(--rust-dark); }
 .add-circle svg{ width:14px; height:14px; }
 
@@ -222,15 +226,15 @@ body{
 .phase-num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--heading); }
 .phase-ring-label{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.1; }
 .phase-ring-count{ font-size:9.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.01em; }
-.phase-num-chip{ background:var(--rust); font-family:'Cormorant Garamond',serif; font-weight:700; font-size:17px; color:#fff; }
+.phase-num-chip{ background:var(--rust); font-family:'Cormorant Garamond',serif; font-weight:700; font-size:17px; color:#fff;  line-height:1;}
 .show-more-btn{ all:unset; box-sizing:border-box; display:block; width:calc(100% - 32px); margin:0 16px 20px; padding:10px 0; text-align:center; border-radius:11px; background:rgba(20,20,20,0.06); color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; }
 .show-more-btn:active{ background:rgba(20,20,20,0.12); }
 .table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
 .shape-picker{ display:flex; gap:6px; }
-.shape-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:10px; border:1.4px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer; }
+.shape-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:10px; border:1.4px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer;  line-height:1;}
 .shape-btn svg{ width:18px; height:18px; }
 .shape-btn.active{ border-color:var(--rust); color:var(--rust); background:rgba(193,88,62,0.08); }
-.del-table-btn{ all:unset; box-sizing:border-box; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px 0; border-radius:12px; background:rgba(193,88,62,0.09); color:var(--rust-dark); font-size:13px; font-weight:600; cursor:pointer; }
+.del-table-btn{ all:unset; box-sizing:border-box; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px 0; border-radius:12px; background:rgba(193,88,62,0.09); color:var(--rust-dark); font-size:13px; font-weight:600; cursor:pointer;  line-height:1;}
 .del-table-btn svg{ width:15px; height:15px; }
 .del-table-btn:active{ background:rgba(193,88,62,0.18); }
 
@@ -258,11 +262,11 @@ body{
 .phase-desc{ display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .visit-detail{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
 .visit-detail b{ color:var(--ink); font-weight:600; }
-.visit-fav-btn{ all:unset; box-sizing:border-box; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:#D9D4C7; flex-shrink:0; cursor:pointer; }
+.visit-fav-btn{ all:unset; box-sizing:border-box; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:#D9D4C7; flex-shrink:0; cursor:pointer;  line-height:1;}
 .visit-fav-btn svg{ width:18px; height:18px; }
 .visit-fav-btn.active{ color:var(--rust); }
 .visit-fav-btn.active svg{ fill:var(--rust); }
-.visit-action-btn{ all:unset; box-sizing:border-box; flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 0; border-radius:11px; background:rgba(20,20,20,0.07); color:var(--ink); font-size:13px; font-weight:600; cursor:pointer; }
+.visit-action-btn{ all:unset; box-sizing:border-box; flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 0; border-radius:11px; background:rgba(20,20,20,0.07); color:var(--ink); font-size:13px; font-weight:600; cursor:pointer;  line-height:1;}
 .visit-action-btn svg{ width:14px; height:14px; }
 .visit-action-btn.danger{ background:rgba(193,88,62,0.1); color:var(--rust-dark); }
 .visit-action-btn:active{ opacity:.75; }
@@ -291,6 +295,10 @@ body{
 .picker-row .pname{ flex:1; font-size:14.5px; color:var(--ink); }
 .picker-row.is-selected .pname{ color:var(--heading); font-weight:600; }
 .pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
+.privacy-text{ padding:0 16px 30px; font-size:13px; color:var(--ink); line-height:1.6; }
+.privacy-text p{ margin:0 0 16px; }
+.privacy-text b{ color:var(--heading); font-weight:700; }
+.privacy-note{ font-size:11.5px; color:var(--ink-soft); font-style:italic; }
 
 /* Home hero */
 .hero-card{ margin:4px 16px 20px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:30px 24px 26px; text-align:center; box-shadow:var(--shadow); }
@@ -308,7 +316,7 @@ body{
 .home-header-text{ flex:1; min-width:0; }
 .home-header-text .names{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:19px; color:var(--ink); line-height:1.15; }
 .home-header-text .date{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
-.home-icon-btn{ all:unset; box-sizing:border-box; width:36px; height:36px; border-radius:50%; background:var(--cream2); display:flex; align-items:center; justify-content:center; color:var(--rust); cursor:pointer; flex-shrink:0; }
+.home-icon-btn{ all:unset; box-sizing:border-box; width:36px; height:36px; border-radius:50%; background:var(--cream2); display:flex; align-items:center; justify-content:center; color:var(--rust); cursor:pointer; flex-shrink:0;  line-height:1;}
 .home-icon-btn svg{ width:17px; height:17px; }
 .home-icon-btn:active{ background:var(--line); }
 
@@ -538,8 +546,9 @@ body{
   <input type="file" id="insp-file-input" accept="image/*" multiple style="display:none;">
   <input type="file" id="dress-insp-file-input" accept="image/*" multiple style="display:none;">
 
+  <div class="save-toast" id="save-toast"></div>
   <div class="img-lightbox" id="img-lightbox">
-    <button class="img-lightbox-close" id="img-lightbox-close">✕</button>
+    <button class="img-lightbox-close" id="img-lightbox-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg> Fechar</button>
     <img id="img-lightbox-img" src="" alt="">
   </div>
 
@@ -608,6 +617,8 @@ const ICONS = {
   chev:'<svg class="chev" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   chevleft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   check:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v4.2"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke-width="2.2"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg>',
   plus:'<svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>',
   search:'<svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="M17 17l-3.5-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.2.2-.5.3-.8.3Z"/></svg>',
@@ -1194,10 +1205,6 @@ function guestGroupHTML(side, catKey, catLabel, icon, color){
     ${open? `
     <div class="guest-group-body">
       ${rows || `<div class="empty-note">sem convidados nesta categoria</div>`}
-      <div class="add-row">
-        <input type="text" placeholder="Adicionar a ${catLabel.toLowerCase()}…" data-addname="${side}|${catKey}">
-        <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
-      </div>
     </div>` : ''}
   </div>`;
 }
@@ -1285,7 +1292,6 @@ function buildGuestBody(){
       </div>
       <div class="guest-group-body">
         ${rows || `<div class="empty-note">sem crianças</div>`}
-        <div class="add-row"><input type="text" id="add-crianca" placeholder="Adicionar criança…"><button class="add-circle" id="addbtn-crianca">${ICONS.plus}</button></div>
       </div>
     </div>`;
   } else {
@@ -1696,6 +1702,7 @@ function viewDefinicoes(){
   if(definicoesSection==='categorias') return viewDefCategorias();
   if(definicoesSection==='convidar') return viewDefConvidar();
   if(definicoesSection==='seguranca') return viewDefSeguranca();
+  if(definicoesSection==='privacidade') return viewDefPrivacidade();
   return viewDefMenu();
 }
 
@@ -1720,6 +1727,7 @@ function viewDefMenu(){
     ${defMenuRow('categorias', ICONS.budget, 'var(--dusty-dark)', 'Categorias')}
     ${defMenuRow('convidar', ICONS.guests, 'var(--sage-dark)', 'Convidar')}
     ${defMenuRow('seguranca', ICONS.lock, 'var(--blush-dark)', 'Segurança')}
+    ${defMenuRow('privacidade', ICONS.checklist, 'var(--ink-soft)', 'Privacidade e RGPD')}
   </div>
   <div style="padding:20px 16px 30px;">
     <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
@@ -1840,6 +1848,33 @@ function viewDefSeguranca(){
   <div class="section-label">Quem tem acesso</div>
   <div class="list-group" style="margin-bottom:6px;">${owners}</div>
   ${defSaveBtn('def-save-seguranca','def-msg-seguranca')}
+  `;
+}
+
+function viewDefPrivacidade(){
+  return `
+  ${defSubHeader('Privacidade e RGPD')}
+  <div class="privacy-text">
+    <p><b>O que guardamos</b><br>
+    O teu email de acesso; os nomes e data do casamento; o local; a lista de convidados (nomes) e as suas confirmações; o orçamento e os gastos que registas; a disposição das mesas; a checklist e as visitas a lojas que anotares. Tudo isto fica associado apenas ao vosso casamento, nunca visível a mais ninguém.</p>
+
+    <p><b>Fotos</b><br>
+    As fotos que adicionas em "Inspiração" e "Dress" ficam guardadas só neste telemóvel (não são enviadas para nenhum servidor). Se desinstalares a app ou trocares de telemóvel, perdes essas fotos.</p>
+
+    <p><b>Onde fica guardado</b><br>
+    Os restantes dados ficam nos servidores do Firebase (Google Cloud), protegidos por regras que garantem que só quem tu convidares explicitamente consegue ler ou alterar os dados do vosso casamento.</p>
+
+    <p><b>Quem vê os teus dados</b><br>
+    Só as pessoas com o email que tu convidares em "Convidar", e que estejam listadas em "Segurança". Podes remover o acesso de alguém a qualquer momento.</p>
+
+    <p><b>Os teus direitos</b><br>
+    Podes aceder, corrigir ou apagar os teus dados a qualquer momento diretamente na app. Se quiseres apagar a conta e todos os dados associados por completo, contacta-nos através do email abaixo.</p>
+
+    <p><b>Contacto</b><br>
+    Para questões sobre os teus dados, escreve para <span style="color:var(--rust);">privacidade@weddy.app</span>.</p>
+
+    <p class="privacy-note">Esta página é um ponto de partida simples e claro, não substitui aconselhamento jurídico. Se fores usar a Weddy com outros casais como produto, recomendamos que um advogado reveja este texto antes de publicares.</p>
+  </div>
   `;
 }
 
@@ -3340,6 +3375,17 @@ let saveTimer = null;
 let firstSyncDone = false;
 let unsubscribeSnapshot = null;
 
+let saveToastTimer = null;
+function showSaveToast(isError){
+  const el = document.getElementById('save-toast');
+  if(!el) return;
+  el.innerHTML = isError
+    ? `${ICONS.warn} Não foi possível guardar`
+    : `${ICONS.check} Guardado`;
+  el.className = 'save-toast show' + (isError? ' error' : '');
+  clearTimeout(saveToastTimer);
+  saveToastTimer = setTimeout(()=>{ el.classList.remove('show'); }, isError ? 2600 : 1500);
+}
 function pushRemote(){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return;
   clearTimeout(saveTimer);
@@ -3348,7 +3394,11 @@ function pushRemote(){
       settings: weddingSettings,
       json: JSON.stringify(state),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true }).catch(()=>{});
+    }, { merge:true }).then(()=>{
+      showSaveToast(false);
+    }).catch(()=>{
+      showSaveToast(true);
+    });
   }, 500);
 }
 render = function(){ _origRender(); pushRemote(); };
