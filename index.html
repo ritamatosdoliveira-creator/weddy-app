@@ -1318,64 +1318,46 @@ function viewGastos(){
 function viewMesas(){
   const tables = state.seating.tables;
   const totalSeats = totalSeatsCount();
-const assignedCount = assignedSeatsCount();
+  const assignedCount = assignedSeatsCount();
 
-let tablesHTML = '';
-tables.forEach((table, ti) => {
-  const t = table.id;
-  let filled = 0;
-  for (let s = 1; s <= table.seats; s++) { 
-    if (state.seating.assignments['t' + t + '-s' + s]) filled++; 
-  }
-  const open = !!openTable[t];
-  let bodyHTML = '';
-  
-  if (open) {
-    let seatsHTML = '';
-    for (let s = 1; s <= table.seats; s++) {
-      const key = 't' + t + '-s' + s;
-      const val = state.seating.assignments[key] || '';
-      const name = val ? val.split('::')[1] : 'toca para atribuir';
-      seatsHTML += `<div class="seat-row ${val ? 'filled' : ''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev || ''}</div>`;
-    }
-    
-    bodyHTML = `
-    <div class="table-config-row">
-      <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
-      <div class="shape-picker">
-        ${Object.keys(TABLE_SHAPES).map(sh => {
-          // Validação: garante que o formato existe em TABLE_SHAPES antes de ler o ícone
-          const shapeDef = TABLE_SHAPES[sh];
-          const iconKey = shapeDef ? shapeDef.icon : '';
-          const iconHTML = ICONS[iconKey] || '';
-          const label = shapeDef ? shapeDef.label : sh;
-          
-          return `<button class="shape-btn ${table.shape === sh ? 'active' : ''}" data-setshape="${t}|${sh}" title="${label}">${iconHTML}</button>`;
-        }).join('')}
+  let tablesHTML = '';
+  tables.forEach((table,ti)=>{
+    const t = table.id;
+    let filled = 0;
+    for(let s=1;s<=table.seats;s++){ if(state.seating.assignments['t'+t+'-s'+s]) filled++; }
+    const open = !!openTable[t];
+    let bodyHTML = '';
+    if(open){
+      let seatsHTML = '';
+      for(let s=1;s<=table.seats;s++){
+        const key = 't'+t+'-s'+s;
+        const val = state.seating.assignments[key] || '';
+        const name = val ? val.split('::')[1] : 'toca para atribuir';
+        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev}</div>`;
+      }
+      bodyHTML = `
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
+        <div class="shape-picker">
+          ${Object.keys(TABLE_SHAPES).map(sh=>`<button class="shape-btn ${table.shape===sh?'active':''}" data-setshape="${t}|${sh}" title="${TABLE_SHAPES[sh].label}">${ICONS[TABLE_SHAPES[sh].icon]}</button>`).join('')}
+        </div>
       </div>
-    </div>
-    <div class="table-config-row">
-      <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
-      <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
-      <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
-    </div>
-    <div class="seat-list">${seatsHTML}</div>`;
-  }
-
-  // Validação para a mesa atual (caso o formato gravado na mesa seja inválido)
-  const currentShapeDef = TABLE_SHAPES[table.shape] || { icon: '', label: 'Desconhecido' };
-  const currentIconHTML = ICONS[currentShapeDef.icon] || '';
-
-  tablesHTML += `
-  <div class="table-group">
-    <div class="table-head" data-toggletable="${t}">
-      <div class="icon-chip" style="background:${CAT_COLORS[ti % CAT_COLORS.length]};">${currentIconHTML}</div>
-      <div class="ttitle">Mesa ${t}<span class="phase-desc">${currentShapeDef.label}</span></div>
-      <span class="fillcount">${filled}/${table.seats}</span>
-      <span class="chev-toggle ${open ? 'open' : ''}" style="display:inline-flex;">${ICONS.chev || ''}</span>
-    </div>
-    ${bodyHTML}
-});
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
+        <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
+        <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
+      </div>
+      <div class="seat-list">${seatsHTML}</div>`;
+    }
+    tablesHTML += `
+    <div class="table-group">
+      <div class="table-head" data-toggletable="${t}">
+        <div class="icon-chip" style="background:${CAT_COLORS[ti%CAT_COLORS.length]};">${ICONS[TABLE_SHAPES[table.shape].icon]}</div>
+        <div class="ttitle">Mesa ${t}<span class="phase-desc">${TABLE_SHAPES[table.shape].label}</span></div>
+        <span class="fillcount">${filled}/${table.seats}</span>
+        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+      </div>
+      ${bodyHTML}
     </div>`;
   });
 
