@@ -216,6 +216,11 @@ body{
 .phase-num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--heading); }
 .phase-ring-label{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.1; }
 .phase-ring-count{ font-size:9.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.01em; }
+.table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
+.shape-picker{ display:flex; gap:6px; }
+.shape-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:10px; border:1.4px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer; }
+.shape-btn svg{ width:18px; height:18px; }
+.shape-btn.active{ border-color:var(--rust); color:var(--rust); background:rgba(193,88,62,0.08); }
 
 /* Stepper full row */
 .stepper-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid var(--line); }
@@ -545,7 +550,7 @@ const firebaseConfig = {
   messagingSenderId: "696758255059",
   appId: "1:696758255059:web:44cbc2e9847d2ab58f8326"
 };
-const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLA AQUI');
+const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
 let auth = null, db = null;
 if(FIREBASE_READY){
   firebase.initializeApp(firebaseConfig);
@@ -588,6 +593,9 @@ const ICONS = {
   camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4Z"/><circle cx="12" cy="13.5" r="3.3"/></svg>',
   dress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.2h5l.6 2.6-1.4 1.2.9 1.6L18 19.5a1 1 0 0 1-1 1.3H7a1 1 0 0 1-1-1.3l3.4-10.9.9-1.6-1.4-1.2Z"/><path d="M9.8 6.6h4.4"/></svg>',
   checklist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.3" width="16" height="17.4" rx="2"/><path d="M8 8.3h8M8 12.3h5.5M7 16.3l1.3 1.3L11 15"/></svg>',
+  tableround:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="4.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="19.8" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="8" r="1.15" fill="currentColor" stroke="none"/></svg>',
+  tablelong:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="8.5" width="14" height="7" rx="1.4"/><rect x="2.2" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="2.2" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/></svg>',
+  tablehorseshoe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 5.5v8a6 6 0 0 0 12 0v-8"/><circle cx="6" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="18" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="3.4" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="20.6" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="3.4" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="20.6" cy="13" r="1.1" fill="currentColor" stroke="none"/></svg>',
   question:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.3 9.2a2.7 2.7 0 1 1 3.9 2.4c-1 .5-1.7 1.2-1.7 2.4v.3"/><circle cx="11.5" cy="17.7" r=".15" fill="currentColor" stroke-width="2.4"/></svg>',
   briefcase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.3" width="17.6" height="12" rx="1.8"/><path d="M8.6 7.3V5.7a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.6"/><path d="M3.2 12.6h17.6"/></svg>'
 };
@@ -763,7 +771,7 @@ function seedData(){
     },
     confirmed:{},
     expenses:[],
-    seating:{ numTables:10, seatsPerTable:10, assignments:{} },
+    seating:{ tables: Array.from({length:10}, (_,i)=>({ id:i+1, shape:'round', seats:10 })), assignments:{} },
     daySchedule:[],
     checklistDone:{},
     checklistPersonal:[],
@@ -804,6 +812,23 @@ function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'cu
 function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
+const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, horseshoe:{label:'Ferradura', icon:'tablehorseshoe'} };
+function getTable(id){ return state.seating.tables.find(t=>t.id===id); }
+function nextTableId(){ return state.seating.tables.length ? Math.max(...state.seating.tables.map(t=>t.id))+1 : 1; }
+function totalSeatsCount(){ return state.seating.tables.reduce((s,t)=>s+t.seats,0); }
+function assignedSeatsCount(){ return Object.keys(state.seating.assignments).filter(k=>state.seating.assignments[k]).length; }
+function clearSeatsAbove(tableId, fromSeat){
+  Object.keys(state.seating.assignments).forEach(k=>{
+    const m = k.match(/^t(\d+)-s(\d+)$/);
+    if(m && Number(m[1])===tableId && Number(m[2])>fromSeat) delete state.seating.assignments[k];
+  });
+}
+function clearAllSeatsForTable(tableId){
+  Object.keys(state.seating.assignments).forEach(k=>{
+    const m = k.match(/^t(\d+)-s(\d+)$/);
+    if(m && Number(m[1])===tableId) delete state.seating.assignments[k];
+  });
+}
 function isConfirmed(side,cat,idx){ return !!state.confirmed[guestKey(side,cat,idx)]; }
 function countGuests(side){ const g=state.guests[side]; return g.familia.length+g.amigos.length+g.duvida.length+g.staff.length; }
 function countConfirmed(side){ const g=state.guests[side]; let n=0; ['familia','amigos','duvida','staff'].forEach(cat=>{ g[cat].forEach((name,idx)=>{ if(isConfirmed(side,cat,idx)) n++; }); }); return n; }
@@ -1277,61 +1302,69 @@ function viewGastos(){
    VIEW: Mesas
 ============================================================ */
 function viewMesas(){
-  const numTables = state.seating.numTables;
-  const seatsPerTable = state.seating.seatsPerTable;
-  const totalSeats = numTables*seatsPerTable;
-  const assignedCount = Object.keys(state.seating.assignments).filter(k=>state.seating.assignments[k]).length;
+  const tables = state.seating.tables;
+  const totalSeats = totalSeatsCount();
+  const assignedCount = assignedSeatsCount();
 
   let tablesHTML = '';
-  for(let t=1;t<=numTables;t++){
+  tables.forEach((table,ti)=>{
+    const t = table.id;
     let filled = 0;
-    for(let s=1;s<=seatsPerTable;s++){ if(state.seating.assignments['t'+t+'-s'+s]) filled++; }
+    for(let s=1;s<=table.seats;s++){ if(state.seating.assignments['t'+t+'-s'+s]) filled++; }
     const open = !!openTable[t];
-    let seatsHTML = '';
+    let bodyHTML = '';
     if(open){
-      for(let s=1;s<=seatsPerTable;s++){
+      let seatsHTML = '';
+      for(let s=1;s<=table.seats;s++){
         const key = 't'+t+'-s'+s;
         const val = state.seating.assignments[key] || '';
         const name = val ? val.split('::')[1] : 'toca para atribuir';
         seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev}</div>`;
       }
+      bodyHTML = `
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Forma</span>
+        <div class="shape-picker">
+          ${Object.keys(TABLE_SHAPES).map(sh=>`<button class="shape-btn ${table.shape===sh?'active':''}" data-setshape="${t}|${sh}" title="${TABLE_SHAPES[sh].label}">${ICONS[TABLE_SHAPES[sh].icon]}</button>`).join('')}
+        </div>
+      </div>
+      <div class="table-config-row">
+        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
+        <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
+        <button class="remove-x" data-deltable="${t}" style="margin-left:auto;" title="Eliminar mesa">✕</button>
+      </div>
+      <div class="seat-list">${seatsHTML}</div>`;
     }
     tablesHTML += `
     <div class="table-group">
       <div class="table-head" data-toggletable="${t}">
-        <div class="icon-chip" style="background:${CAT_COLORS[(t-1)%CAT_COLORS.length]};">${ICONS.seat}</div>
-        <div class="ttitle">Mesa ${t}</div>
-        <span class="fillcount">${filled}/${seatsPerTable}</span>
+        <div class="icon-chip" style="background:${CAT_COLORS[ti%CAT_COLORS.length]};">${ICONS[TABLE_SHAPES[table.shape].icon]}</div>
+        <div class="ttitle">Mesa ${t}<span class="phase-desc">${TABLE_SHAPES[table.shape].label}</span></div>
+        <span class="fillcount">${filled}/${table.seats}</span>
         <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
       </div>
-      ${open? `<div class="seat-list">${seatsHTML}</div>` : ''}
+      ${bodyHTML}
     </div>`;
-  }
+  });
 
   return `
-  <div class="navbar"><h1>Mesas</h1></div>
-
-  <div class="stepper-row">
-    <span class="title" style="flex:none;">Nº de mesas</span>
-    <div class="stepper"><button data-step="numTables|-1">−</button><span class="sval">${numTables}</span><button data-step="numTables|1">+</button></div>
-  </div>
-  <div class="stepper-row" style="margin:-8px 0 0;">
-    <span class="title" style="flex:none;">Lugares por mesa</span>
-    <div class="stepper"><button data-step="seatsPerTable|-1">−</button><span class="sval">${seatsPerTable}</span><button data-step="seatsPerTable|1">+</button></div>
+  <div class="navbar navbar-row">
+    <div><h1>Mesas</h1></div>
+    <button class="nav-action" id="add-table-btn">${ICONS.plus}</button>
   </div>
 
-  <div class="ring-stat-card" style="margin-top:14px;">
+  <div class="ring-stat-card" style="margin-top:2px;">
     <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
       ${donutSVG(totalSeats? assignedCount/totalSeats : 0, 'var(--blush-dark)', 78, 8)}
       <div class="ring-center"><span class="num" style="font-size:15px;">${assignedCount}/${totalSeats}</span></div>
     </div>
     <div class="ring-stat-list">
-      <div class="ring-stat-item"><span class="n">${numTables}</span><span class="l">mesas no total</span></div>
+      <div class="ring-stat-item"><span class="n">${tables.length}</span><span class="l">mesas no total</span></div>
       <div class="ring-stat-item"><span class="n">${totalSeats-assignedCount}</span><span class="l">lugares por atribuir</span></div>
     </div>
   </div>
 
-  <div class="section-label">Toca numa mesa para ver e atribuir os lugares</div>
+  <div class="section-label">Toca numa mesa para ver, editar a forma e atribuir lugares</div>
   ${tablesHTML}
   <div style="height:6px;"></div>
   `;
@@ -1959,10 +1992,36 @@ function bindHandlers(){
   if(openSheetBtn) openSheetBtn.addEventListener('click', openExpenseSheet);
 
   // Mesas
-  document.querySelectorAll('[data-step]').forEach(btn=>{
+  const addTableBtn = document.getElementById('add-table-btn');
+  if(addTableBtn) addTableBtn.addEventListener('click', ()=>{
+    const id = nextTableId();
+    state.seating.tables.push({ id, shape:'round', seats:8 });
+    openTable[id] = true;
+    render();
+  });
+  document.querySelectorAll('[data-setshape]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      const [field,dir] = e.currentTarget.dataset.step.split('|');
-      state.seating[field] = Math.max(1, state.seating[field]+Number(dir));
+      const [id,shape] = e.currentTarget.dataset.setshape.split('|');
+      getTable(Number(id)).shape = shape;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-tableseat]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [id,dir] = e.currentTarget.dataset.tableseat.split('|');
+      const table = getTable(Number(id));
+      const newSeats = Math.max(2, Math.min(24, table.seats+Number(dir)));
+      if(newSeats < table.seats) clearSeatsAbove(table.id, newSeats);
+      table.seats = newSeats;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-deltable]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const id = Number(e.currentTarget.dataset.deltable);
+      if(!confirm('Eliminar esta mesa? Os lugares atribuídos ficam livres.')) return;
+      clearAllSeatsForTable(id);
+      state.seating.tables = state.seating.tables.filter(t=>t.id!==id);
       render();
     });
   });
@@ -2184,10 +2243,11 @@ function parseSeatAssignment(val){
 function ensureMesa3DHeader(){
   const el = document.getElementById('mesa3d-header');
   const filled = mesa3d.chairs.length ? mesa3d.chairs.filter(c=>c.name).length : 0;
-  const seatsPerTable = state.seating.seatsPerTable;
+  const selTable = getTable(mesa3dSelectedTable);
+  const seatsPerTable = selTable ? selTable.seats : 0;
   const badge = mesa3dViewMode==='mesa'
     ? `<div class="mini-ring">${donutSVG(seatsPerTable? filled/seatsPerTable : 0, 'var(--blush-dark)', 34, 4)}<span class="mini-ring-txt">${filled}/${seatsPerTable}</span></div>`
-    : `<span class="mesa3d-fillcount">${state.seating.numTables} mesas</span>`;
+    : `<span class="mesa3d-fillcount">${state.seating.tables.length} mesas</span>`;
   el.innerHTML = `
     <div class="navbar navbar-row">
       <div><h1>Lugares</h1></div>
@@ -2208,11 +2268,11 @@ function ensureMesa3DHeader(){
 
 function renderMesa3DChips(){
   const el = document.getElementById('mesa3d-chips');
-  const numTables = state.seating.numTables;
   let chips = '';
-  for(let t=1;t<=numTables;t++){
+  state.seating.tables.forEach(table=>{
+    const t = table.id;
     chips += `<button class="table-chip ${t===mesa3dSelectedTable?'active':''}" data-mesa3dsel="${t}">${t}</button>`;
-  }
+  });
   el.innerHTML = chips;
   el.querySelectorAll('[data-mesa3dsel]').forEach(btn=>{
     btn.addEventListener('click', e=>{
@@ -2223,6 +2283,34 @@ function renderMesa3DChips(){
   });
 }
 
+function buildMesa3DChairs(seatCount){
+  if(mesa3d.chairsGroup){
+    while(mesa3d.chairsGroup.children.length) mesa3d.chairsGroup.remove(mesa3d.chairsGroup.children[0]);
+  }
+  mesa3d.chairs = [];
+  for(let i=0; i<seatCount; i++){
+    const angle = (i/seatCount) * Math.PI * 2;
+    const radius = 2.75;
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
+    const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), mat);
+    seatMesh.position.y = -0.02;
+    const backMat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
+    const backMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.5, 0.09), backMat);
+    backMesh.position.set(0, 0.25, -0.2);
+    const sash = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.07, 0.11),
+      new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.4 })
+    );
+    sash.position.set(0, 0.1, -0.2);
+    group.add(seatMesh, backMesh, sash);
+    group.position.set(Math.sin(angle)*radius, 0, Math.cos(angle)*radius);
+    group.lookAt(0, 0.2, 0);
+    mesa3d.chairsGroup.add(group);
+    mesa3d.chairs.push({ group, seatMesh, backMesh, index:i+1, name:'', side:'', seatKey:'', worldPos:new THREE.Vector3() });
+  }
+  mesa3d.builtSeatCount = seatCount;
+}
 function initMesa3D(){
   const canvas = document.getElementById('mesa3d-canvas');
   const wrap = canvas.parentElement;
@@ -2321,29 +2409,10 @@ function initMesa3D(){
   base.position.y = -1.05;
   mesa3d.tableGroup.add(base);
 
-  const seatCount = state.seating.seatsPerTable;
-  mesa3d.chairs = [];
-  for(let i=0; i<seatCount; i++){
-    const angle = (i/seatCount) * Math.PI * 2;
-    const radius = 2.75;
-    const group = new THREE.Group();
-    const mat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
-    const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), mat);
-    seatMesh.position.y = -0.02;
-    const backMat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
-    const backMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.5, 0.09), backMat);
-    backMesh.position.set(0, 0.25, -0.2);
-    const sash = new THREE.Mesh(
-      new THREE.BoxGeometry(0.48, 0.07, 0.11),
-      new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.4 })
-    );
-    sash.position.set(0, 0.1, -0.2);
-    group.add(seatMesh, backMesh, sash);
-    group.position.set(Math.sin(angle)*radius, 0, Math.cos(angle)*radius);
-    group.lookAt(0, 0.2, 0);
-    mesa3d.tableGroup.add(group);
-    mesa3d.chairs.push({ group, seatMesh, backMesh, index:i+1, name:'', side:'', seatKey:'', worldPos:new THREE.Vector3() });
-  }
+  mesa3d.chairsGroup = new THREE.Group();
+  mesa3d.tableGroup.add(mesa3d.chairsGroup);
+  mesa3d.builtSeatCount = 0;
+  buildMesa3DChairs((getTable(mesa3dSelectedTable)||{seats:8}).seats);
 
   canvas.addEventListener('pointerdown', e=>{
     mesa3d.dragging = true; mesa3d.moved = 0;
@@ -2381,7 +2450,13 @@ function resizeMesa3D(){
 }
 
 function loadMesa3DTable(){
-  const t = mesa3dSelectedTable;
+  if(!getTable(mesa3dSelectedTable) && state.seating.tables.length){
+    mesa3dSelectedTable = state.seating.tables[0].id;
+  }
+  const table = getTable(mesa3dSelectedTable);
+  if(!table) return;
+  const t = table.id;
+  if(mesa3d.builtSeatCount !== table.seats) buildMesa3DChairs(table.seats);
   mesa3d.chairs.forEach(ch=>{
     const key = 't'+t+'-s'+ch.index;
     const info = parseSeatAssignment(state.seating.assignments[key] || '');
@@ -2468,39 +2543,84 @@ function syncMesa3DPanel(){
 }
 
 /* ---- Visão da sala: mapa 2D de todas as mesas, vista de cima ---- */
-function tableSVG(t){
-  const seatCount = state.seating.seatsPerTable;
-  const cx = 80, cy = 78, tableR = 34, seatR = 5, orbit = 55;
-  let seats = '';
-  for(let s=1; s<=seatCount; s++){
-    const angle = (s/seatCount)*Math.PI*2 - Math.PI/2;
-    const sx = cx + Math.cos(angle)*orbit;
-    const sy = cy + Math.sin(angle)*orbit;
+function tableSVG(table){
+  const t = table.id;
+  const seatCount = table.seats;
+  const seatR = 5;
+
+  function seatDot(sx, sy, angle, s){
     const info = parseSeatAssignment(state.seating.assignments['t'+t+'-s'+s] || '');
     const dotColor = info ? (info.side==='noiva' ? '#CB8577' : '#6C8296') : '#E7DEC8';
-    seats += `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
+    let out = `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
     if(info){
       const label = info.name.length>9 ? info.name.slice(0,8)+'…' : info.name;
-      const lx = cx + Math.cos(angle)*(orbit+11);
-      const ly = cy + Math.sin(angle)*(orbit+11);
+      const lx = sx + Math.cos(angle)*11;
+      const ly = sy + Math.sin(angle)*11;
       const anchor = Math.cos(angle) > 0.25 ? 'start' : (Math.cos(angle) < -0.25 ? 'end' : 'middle');
-      seats += `<text x="${lx}" y="${ly}" font-size="7.6" font-weight="600" fill="#6B6354" text-anchor="${anchor}" dominant-baseline="middle">${label}</text>`;
+      out += `<text x="${lx}" y="${ly}" font-size="7.6" font-weight="600" fill="#6B6354" text-anchor="${anchor}" dominant-baseline="middle">${label}</text>`;
+    }
+    return out;
+  }
+
+  let inner = '';
+  if(table.shape==='long'){
+    const cx=80, cy=78, halfW=42, halfH=15;
+    const perSide = Math.ceil(seatCount/2);
+    inner += `<rect x="${cx-halfW}" y="${cy-halfH}" width="${halfW*2}" height="${halfH*2}" rx="7" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
+    inner += `<text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    for(let s=1; s<=seatCount; s++){
+      const onTop = s<=perSide;
+      const idxOnSide = onTop? s-1 : s-perSide-1;
+      const sideCount = onTop? perSide : seatCount-perSide;
+      const spacing = sideCount>1 ? (halfW*2-14)/(sideCount-1) : 0;
+      const sx = sideCount>1 ? (cx-halfW+7) + spacing*idxOnSide : cx;
+      const sy = onTop ? cy-halfH-16 : cy+halfH+16;
+      inner += seatDot(sx, sy, onTop?-Math.PI/2:Math.PI/2, s);
+    }
+  } else if(table.shape==='horseshoe'){
+    const cx=80, cy=90, rOuter=48, rInner=26, topY=28;
+    inner += `<path d="M ${cx-rOuter} ${topY} L ${cx-rOuter} ${cy} A ${rOuter} ${rOuter} 0 0 0 ${cx+rOuter} ${cy} L ${cx+rOuter} ${topY} L ${cx+rInner} ${topY} L ${cx+rInner} ${cy} A ${rInner} ${rInner} 0 0 1 ${cx-rInner} ${cy} L ${cx-rInner} ${topY} Z" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
+    inner += `<text x="${cx}" y="${cy+2}" font-size="12" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    const arcSeats = Math.max(0, seatCount-2);
+    const perLeg = Math.round(arcSeats*0.28);
+    const curveSeats = arcSeats - perLeg*2;
+    let s = 1;
+    for(let i=0;i<perLeg;i++){
+      const frac = perLeg>1? i/(perLeg-1) : 0;
+      const sy = topY + frac*(cy-topY);
+      inner += seatDot(cx-rOuter-13, sy, Math.PI, s); s++;
+    }
+    for(let i=0;i<=curveSeats;i++){
+      const angle = Math.PI - (i/curveSeats)*Math.PI;
+      const sx = cx + Math.cos(angle)*(rOuter+13);
+      const sy = cy + Math.sin(angle)*(rOuter+13);
+      inner += seatDot(sx, sy, angle, s); s++;
+    }
+    for(let i=0;i<perLeg;i++){
+      const frac = perLeg>1? i/(perLeg-1) : 0;
+      const sy = cy - frac*(cy-topY);
+      inner += seatDot(cx+rOuter+13, sy, 0, s); s++;
+    }
+  } else {
+    const cx=80, cy=78, tableR=34, orbit=55;
+    inner += `<circle cx="${cx}" cy="${cy}" r="${tableR}" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
+    inner += `<circle cx="${cx}" cy="${cy}" r="${tableR-9}" fill="none" stroke="#E3A79B" stroke-width="1" opacity="0.55"/>`;
+    inner += `<text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    for(let s=1; s<=seatCount; s++){
+      const angle = (s/seatCount)*Math.PI*2 - Math.PI/2;
+      const sx = cx + Math.cos(angle)*orbit;
+      const sy = cy + Math.sin(angle)*orbit;
+      inner += seatDot(sx, sy, angle, s);
     }
   }
-  return `
-  <svg viewBox="0 0 160 156" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="${cx}" cy="${cy}" r="${tableR}" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>
-    <circle cx="${cx}" cy="${cy}" r="${tableR-9}" fill="none" stroke="#E3A79B" stroke-width="1" opacity="0.55"/>
-    <text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>
-    ${seats}
-  </svg>`;
+  return `<svg viewBox="0 0 160 176" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
 }
 function renderSalaView(){
   const wrap = document.getElementById('sala-scroll');
   let cards = '';
-  for(let t=1; t<=state.seating.numTables; t++){
-    cards += `<div class="sala-card">${tableSVG(t)}</div>`;
-  }
+  state.seating.tables.forEach(table=>{
+    cards += `<div class="sala-card">${tableSVG(table)}</div>`;
+  });
   wrap.innerHTML = `
     <div class="sala-legend">
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#CB8577;"></span>Noiva</span>
@@ -2652,7 +2772,7 @@ function renderLoginSetupNeeded(){
   document.getElementById('login-inner').innerHTML = `
     <div class="login-mark">Weddy</div>
     <div class="login-tag">Falta configurar o acesso</div>
-    <div class="login-msg">Ainda não colocaste a configuração do Firebase no ficheiro <b>app.html</b>. Segue as instruções no README.md.</div>
+    <div class="login-msg">Ainda não colocaste a configuração do Firebase no ficheiro <b>index.html</b>. Segue as instruções no README.md.</div>
   `;
 }
 function renderLoading(msg){
