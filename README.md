@@ -18,7 +18,7 @@ próprios dados.
 5. No menu da esquerda → ⚙️ **Definições do projeto** → em baixo,
    secção "As suas apps" → clica no ícone `</>` (Web) → dá um nome
    → **Registar app**. Vais ver um bloco `firebaseConfig = {...}`.
-6. Abre `app.html`, procura por `COLOCA_AQUI` (é perto do início do
+6. Abre `index.html`, procura por `COLOCA_AQUI` (é perto do início do
    `<script>`) e substitui pelos valores reais que copiaste no passo 5.
 
 ## 2. Publicar no GitHub Pages
