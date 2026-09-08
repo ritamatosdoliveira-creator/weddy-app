@@ -51,7 +51,7 @@ body{
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
 .tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
 .tabpanel.active{ display:flex; }
-.scroll{ flex:1; overflow-y:auto; padding-bottom:110px; -webkit-overflow-scrolling:touch; }
+.scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; }
 .scroll::-webkit-scrollbar{ display:none; }
 
 .navbar{ padding:10px 18px 16px; flex-shrink:0; }
@@ -178,6 +178,12 @@ body{
 .theme-swatch{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line); cursor:pointer; }
 .theme-swatch.active{ box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--ink); }
 .hero-preview{ width:100%; height:110px; border-radius:14px; background-size:cover; background-position:center; margin-bottom:12px; }
+.crop-viewport{ width:100%; height:150px; border-radius:14px; background-repeat:no-repeat; margin-bottom:10px; position:relative; overflow:hidden; touch-action:none; cursor:grab; box-shadow:inset 0 0 0 1px var(--line); }
+.crop-viewport.dragging{ cursor:grabbing; }
+.crop-hint{ position:absolute; left:0; right:0; bottom:0; padding:6px 10px; font-size:10px; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,0.35)); text-align:center; pointer-events:none; }
+.crop-zoom-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; color:var(--ink-soft); }
+.crop-zoom-row svg{ width:16px; height:16px; flex-shrink:0; }
+.crop-zoom-row input[type="range"]{ flex:1; accent-color:var(--rust); }
 .remove-x:active{ color:var(--rust); }
 
 .add-row{ display:flex; align-items:center; gap:8px; padding:10px 14px; }
@@ -388,13 +394,15 @@ body{
 .mini-ring-txt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7.5px; font-weight:700; color:var(--ink); }
 
 /* Visão da sala */
-.sala-scroll{ flex:1; min-height:0; overflow-y:auto; padding:2px 16px 24px; -webkit-overflow-scrolling:touch; }
-.sala-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.sala-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px 12px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; }
-.sala-card svg{ width:100%; height:auto; }
-.sala-legend{ display:flex; justify-content:center; gap:14px; margin:2px 0 16px; }
+.sala-scroll{ flex:1; min-height:0; overflow:auto; padding:2px 0 24px; -webkit-overflow-scrolling:touch; }
+.sala-legend{ display:flex; justify-content:center; gap:14px; margin:2px 16px 10px; }
 .sala-legend-item{ display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); }
 .sala-legend-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sala-hint{ text-align:center; font-size:11px; color:var(--ink-soft); margin:0 16px 12px; }
+.sala-canvas{ position:relative; margin:0 16px; background:repeating-linear-gradient(0deg, rgba(20,20,20,0.035) 0 1px, transparent 1px 28px), repeating-linear-gradient(90deg, rgba(20,20,20,0.035) 0 1px, transparent 1px 28px), var(--cream2); border-radius:16px; border:1px solid var(--line); }
+.sala-table-item{ position:absolute; width:108px; touch-action:none; cursor:grab; user-select:none; z-index:1; transition:box-shadow .15s; }
+.sala-table-item svg{ width:100%; height:auto; display:block; }
+.sala-table-item.dragging{ cursor:grabbing; z-index:5; filter:drop-shadow(0 8px 14px rgba(20,20,20,0.25)); }
 #mesa3d-header{ min-width:0; flex-shrink:0; }
 
 
@@ -411,6 +419,7 @@ body{
 .login-btn:active{ opacity:.8; }
 .login-msg{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:280px; line-height:1.5; }
 .login-msg.error{ color:var(--rust-dark); }
+.login-msg.success{ color:var(--sage-dark); }
 .login-note{ margin-top:24px; font-size:11px; color:var(--ink-soft); opacity:.75; max-width:250px; line-height:1.5; }
 
 </style>
@@ -595,7 +604,8 @@ const ICONS = {
   checklist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.3" width="16" height="17.4" rx="2"/><path d="M8 8.3h8M8 12.3h5.5M7 16.3l1.3 1.3L11 15"/></svg>',
   tableround:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="4.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="18.2" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="19.8" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="5.8" cy="8" r="1.15" fill="currentColor" stroke="none"/></svg>',
   tablelong:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="8.5" width="14" height="7" rx="1.4"/><rect x="2.2" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="2.2" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="6.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/><rect x="19.4" y="15.3" width="2.4" height="2.4" rx=".7" fill="currentColor" stroke="none"/></svg>',
-  tablehorseshoe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 5.5v8a6 6 0 0 0 12 0v-8"/><circle cx="6" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="18" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="3.4" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="20.6" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="3.4" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="20.6" cy="13" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  tableserpentine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5c5 0 3 6 8 6s3 6 8 6"/><circle cx="5" cy="3" r="1.1" fill="currentColor" stroke="none"/><circle cx="5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="8.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="13.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="19" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="19" cy="21" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>',
   question:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.3 9.2a2.7 2.7 0 1 1 3.9 2.4c-1 .5-1.7 1.2-1.7 2.4v.3"/><circle cx="11.5" cy="17.7" r=".15" fill="currentColor" stroke-width="2.4"/></svg>',
   briefcase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.3" width="17.6" height="12" rx="1.8"/><path d="M8.6 7.3V5.7a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.6"/><path d="M3.2 12.6h17.6"/></svg>'
 };
@@ -771,7 +781,7 @@ function seedData(){
     },
     confirmed:{},
     expenses:[],
-    seating:{ tables: Array.from({length:10}, (_,i)=>({ id:i+1, shape:'round', seats:10 })), assignments:{} },
+    seating:{ tables: Array.from({length:10}, (_,i)=>({ id:i+1, shape:'round', seats:10, x:null, y:null })), assignments:{} },
     daySchedule:[],
     checklistDone:{},
     checklistPersonal:[],
@@ -786,7 +796,10 @@ function defaultSettings(name1, name2, dateStr, venue){
     weddingDate: dateStr || '',
     venue: venue || '',
     accentColor: 'rust',
-    heroPhotoUrl: null
+    heroPhotoUrl: null,
+    heroPhotoPosX: 50,
+    heroPhotoPosY: 50,
+    heroPhotoZoom: 100
   };
 }
 
@@ -799,6 +812,7 @@ let openTable = {};
 let openGuestGroup = {};
 let openChecklistPhase = {};
 let openDressVisit = {};
+let definicoesSection = null;
 let dressInspirations = [];
 let editingSeatKey = null;
 let seatQuery = '';
@@ -812,7 +826,7 @@ function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'cu
 function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
-const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, horseshoe:{label:'Ferradura', icon:'tablehorseshoe'} };
+const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, serpentine:{label:'Serpente', icon:'tableserpentine'} };
 function getTable(id){ return state.seating.tables.find(t=>t.id===id); }
 function nextTableId(){ return state.seating.tables.length ? Math.max(...state.seating.tables.map(t=>t.id))+1 : 1; }
 function totalSeatsCount(){ return state.seating.tables.reduce((s,t)=>s+t.seats,0); }
@@ -972,7 +986,7 @@ function viewInicio(){
   </div>
 
   <div class="hero-photo-card">
-    <div class="hero-photo" ${weddingSettings.heroPhotoUrl?`style="background-image:url('${weddingSettings.heroPhotoUrl}')"`:''}></div>
+    <div class="hero-photo" ${weddingSettings.heroPhotoUrl?`style="background-image:url('${weddingSettings.heroPhotoUrl}'); background-position:${weddingSettings.heroPhotoPosX??50}% ${weddingSettings.heroPhotoPosY??50}%; background-size:${weddingSettings.heroPhotoZoom??100}%;"`:''}></div>
     <div class="hero-scrim"></div>
     <div class="hero-overlay">
       <div class="hero-eyebrow">Até ao grande dia</div>
@@ -992,7 +1006,7 @@ function viewInicio(){
     </button>
     <button class="quicklink-card" data-goto="vestido">
       <div class="quicklink-icon" style="background:var(--blush-dark);">${ICONS.dress}</div>
-      <div class="quicklink-label">O Vestido</div>
+      <div class="quicklink-label">Dress</div>
     </button>
     <button class="quicklink-card" data-goto="checklist">
       <div class="quicklink-icon" style="background:var(--sage-dark);">${ICONS.checklist}</div>
@@ -1560,22 +1574,60 @@ function viewVestido(){
    VIEW: Definições
 ============================================================ */
 function viewDefinicoes(){
-  const s = weddingSettings;
-  const owners = (currentWeddingOwners||[]).map(email => `
-    <div class="list-row"><div class="title">${email}</div></div>`).join('');
-  const catRows = state.categories.map(c=>`
-    <div class="list-row">
-      <div class="title" style="flex:1;">${c.name}</div>
-      <button class="cat-edit-btn" data-renamecat="${c.id}" title="Renomear">${ICONS.pencil}</button>
-      <button class="remove-x" data-delcat="${c.id}" title="Eliminar">✕</button>
-    </div>`).join('');
+  if(definicoesSection==='casamento') return viewDefCasamento();
+  if(definicoesSection==='design') return viewDefDesign();
+  if(definicoesSection==='categorias') return viewDefCategorias();
+  if(definicoesSection==='convidar') return viewDefConvidar();
+  if(definicoesSection==='seguranca') return viewDefSeguranca();
+  return viewDefMenu();
+}
+
+function defMenuRow(key, icon, color, label){
+  return `
+  <div class="list-row tappable" data-defgoto="${key}" style="cursor:pointer;">
+    <div class="icon-chip" style="background:${color};">${icon}</div>
+    <div class="title" style="flex:1;">${label}</div>
+    ${ICONS.chev}
+  </div>`;
+}
+function viewDefMenu(){
   return `
   <div class="navbar" style="display:flex; align-items:center; gap:12px;">
     <button class="nav-action neutral" id="def-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
     <div><h1>Definições</h1></div>
   </div>
+  <div class="section-label">Gerir o casamento</div>
+  <div class="list-group">
+    ${defMenuRow('casamento', ICONS.heart, 'var(--rust)', 'Casamento')}
+    ${defMenuRow('design', ICONS.camera, 'var(--gold)', 'Design')}
+    ${defMenuRow('categorias', ICONS.budget, 'var(--dusty-dark)', 'Categorias')}
+    ${defMenuRow('convidar', ICONS.guests, 'var(--sage-dark)', 'Convidar')}
+    ${defMenuRow('seguranca', ICONS.lock, 'var(--blush-dark)', 'Segurança')}
+  </div>
+  <div style="padding:20px 16px 30px;">
+    <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
+  </div>
+  `;
+}
+function defSubHeader(title){
+  return `
+  <div class="navbar" style="display:flex; align-items:center; gap:12px;">
+    <button class="nav-action neutral" data-defback style="flex-shrink:0;">${ICONS.chevleft}</button>
+    <div><h1>${title}</h1></div>
+  </div>`;
+}
+function defSaveBtn(id, msgId){
+  return `
+  <div style="padding:4px 16px 30px;">
+    <button class="login-btn" id="${id}" style="margin-top:0;">Guardar</button>
+    <div class="login-msg" id="${msgId}"></div>
+  </div>`;
+}
 
-  <div class="section-label">O vosso casamento</div>
+function viewDefCasamento(){
+  const s = weddingSettings;
+  return `
+  ${defSubHeader('Casamento')}
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">Primeiro nome</div>
     <input class="field-input big" id="def-name1" type="text" value="${s.coupleName1||''}" style="text-align:left;">
@@ -1592,10 +1644,15 @@ function viewDefinicoes(){
     <div class="l" style="margin:0 0 4px;">Local</div>
     <input class="field-input big" id="def-venue" type="text" value="${s.venue||''}" style="text-align:left;">
   </div>
-  <div style="padding:0 16px 20px;">
-    <button class="login-btn" id="def-save" style="margin-top:0;">Guardar alterações</button>
-  </div>
+  ${defSaveBtn('def-save-casamento','def-msg-casamento')}
+  `;
+}
 
+function viewDefDesign(){
+  const s = weddingSettings;
+  const hasPhoto = !!s.heroPhotoUrl;
+  return `
+  ${defSubHeader('Design')}
   <div class="section-label">Cor do casamento</div>
   <div class="theme-swatch-row">
     ${Object.keys(THEMES).map(key=>`
@@ -1604,13 +1661,33 @@ function viewDefinicoes(){
   </div>
 
   <div class="section-label">Foto de capa (Início)</div>
-  <div style="padding:0 16px 20px;">
-    ${weddingSettings.heroPhotoUrl ? `<div class="hero-preview" style="background-image:url('${weddingSettings.heroPhotoUrl}')"></div>` : ''}
-    <button class="login-btn" id="def-photo-btn" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink); display:flex; align-items:center; justify-content:center; gap:8px;">${ICONS.camera} ${weddingSettings.heroPhotoUrl?'Trocar foto':'Adicionar foto'}</button>
-    ${weddingSettings.heroPhotoUrl ? `<button class="login-btn" id="def-photo-remove" style="margin-top:8px; background:none; color:var(--rust-dark); box-shadow:none;">Remover foto (usar gradiente)</button>` : ''}
+  <div style="padding:0 16px 10px;">
+    ${hasPhoto ? `
+    <div class="crop-viewport" id="crop-viewport" style="background-image:url('${s.heroPhotoUrl}'); background-position:${s.heroPhotoPosX??50}% ${s.heroPhotoPosY??50}%; background-size:${s.heroPhotoZoom??100}%;">
+      <div class="crop-hint">arrasta para recentrar</div>
+    </div>
+    <div class="crop-zoom-row">
+      <span>${ICONS.camera}</span>
+      <input type="range" id="crop-zoom-slider" min="100" max="260" value="${s.heroPhotoZoom??100}">
+    </div>
+    ` : `<div class="empty-note" style="margin:0 0 12px;">Ainda não escolheste uma foto de capa — fica um gradiente elegante por defeito.</div>`}
+    <button class="login-btn" id="def-photo-btn" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink); display:flex; align-items:center; justify-content:center; gap:8px;">${ICONS.camera} ${hasPhoto?'Trocar foto':'Adicionar foto'}</button>
+    ${hasPhoto ? `<button class="login-btn" id="def-photo-remove" style="margin-top:8px; background:none; color:var(--rust-dark); box-shadow:none;">Remover foto (usar gradiente)</button>` : ''}
     <input type="file" id="def-photo-input" accept="image/*" style="display:none;">
   </div>
+  ${defSaveBtn('def-save-design','def-msg-design')}
+  `;
+}
 
+function viewDefCategorias(){
+  const catRows = state.categories.map(c=>`
+    <div class="list-row">
+      <div class="title" style="flex:1;">${c.name}</div>
+      <button class="cat-edit-btn" data-renamecat="${c.id}" title="Renomear">${ICONS.pencil}</button>
+      <button class="remove-x" data-delcat="${c.id}" title="Eliminar">✕</button>
+    </div>`).join('');
+  return `
+  ${defSubHeader('Categorias')}
   <div class="section-label">Categorias de gastos</div>
   <div class="list-group">
     ${catRows}
@@ -1619,23 +1696,34 @@ function viewDefinicoes(){
       <button class="add-circle" id="def-addbtn-cat">${ICONS.plus}</button>
     </div>
   </div>
+  ${defSaveBtn('def-save-categorias','def-msg-categorias')}
+  `;
+}
 
+function viewDefConvidar(){
+  return `
+  ${defSubHeader('Convidar')}
   <div class="section-label">Convidar parceiro/a</div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">Email da pessoa a convidar</div>
     <input class="field-input big" id="def-invite-email" type="email" placeholder="email@exemplo.com" style="text-align:left;">
   </div>
-  <div style="padding:0 16px 20px;">
-    <button class="login-btn" id="def-invite-btn" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Convidar</button>
-    <div class="login-msg" id="def-invite-msg"></div>
-  </div>
+  ${defSaveBtn('def-invite-btn','def-invite-msg').replace('Guardar','Convidar')}
+  `;
+}
 
+function viewDefSeguranca(){
+  const owners = (currentWeddingOwners||[]).map(email => `
+    <div class="list-row">
+      <div class="title" style="flex:1;">${email}</div>
+      ${currentWeddingOwners.length>1 ? `<button class="remove-x" data-removeowner="${email}" title="Remover acesso">✕</button>` : ''}
+    </div>`).join('');
+  return `
+  ${defSubHeader('Segurança')}
   <div class="section-label">Quem tem acesso</div>
-  <div class="list-group" style="margin-bottom:20px;">${owners}</div>
-
-  <div style="padding:0 16px 30px;">
-    <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
-  </div>
+  <div class="list-group" style="margin-bottom:6px;">${owners}</div>
+  <div class="empty-note" style="margin:8px 16px 0;">Remover alguém aqui tira-lhe imediatamente o acesso a este casamento.</div>
+  ${defSaveBtn('def-save-seguranca','def-msg-seguranca')}
   `;
 }
 
@@ -1760,11 +1848,21 @@ function bindHandlers(){
     });
   });
 
-  // Definições
+  // Definições — menu
+  document.querySelectorAll('[data-defgoto]').forEach(el=>{
+    el.addEventListener('click', e=>{ definicoesSection = e.currentTarget.dataset.defgoto; render(); });
+  });
+  document.querySelectorAll('[data-defback]').forEach(el=>{
+    el.addEventListener('click', ()=>{ definicoesSection = null; render(); });
+  });
   const defBack = document.getElementById('def-back');
   if(defBack) defBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
-  const defSave = document.getElementById('def-save');
-  if(defSave) defSave.addEventListener('click', ()=>{
+  const defSignout = document.getElementById('def-signout');
+  if(defSignout) defSignout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+
+  // Casamento
+  const defSaveCasamento = document.getElementById('def-save-casamento');
+  if(defSaveCasamento) defSaveCasamento.addEventListener('click', ()=>{
     weddingSettings = {
       ...weddingSettings,
       coupleName1: document.getElementById('def-name1').value.trim() || 'Nome 1',
@@ -1772,20 +1870,10 @@ function bindHandlers(){
       weddingDate: document.getElementById('def-date').value,
       venue: document.getElementById('def-venue').value.trim()
     };
-    render();
+    saveSettingsNow('def-msg-casamento');
   });
-  const defInviteBtn = document.getElementById('def-invite-btn');
-  if(defInviteBtn) defInviteBtn.addEventListener('click', ()=>{
-    const email = document.getElementById('def-invite-email').value.trim();
-    const msgEl = document.getElementById('def-invite-msg');
-    if(!email){ msgEl.textContent = 'Escreve um email válido.'; return; }
-    CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayUnion(email) }).then(()=>{
-      msgEl.textContent = `${email} já pode entrar e criar a conta com este email.`;
-      document.getElementById('def-invite-email').value = '';
-    }).catch(()=>{ msgEl.textContent = 'Não foi possível convidar. Tenta novamente.'; });
-  });
-  const defSignout = document.getElementById('def-signout');
-  if(defSignout) defSignout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
+
+  // Design
   document.querySelectorAll('[data-theme]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       weddingSettings.accentColor = e.currentTarget.dataset.theme;
@@ -1795,7 +1883,33 @@ function bindHandlers(){
   const defPhotoBtn = document.getElementById('def-photo-btn');
   if(defPhotoBtn) defPhotoBtn.addEventListener('click', ()=>{ document.getElementById('def-photo-input').click(); });
   const defPhotoRemove = document.getElementById('def-photo-remove');
-  if(defPhotoRemove) defPhotoRemove.addEventListener('click', ()=>{ weddingSettings.heroPhotoUrl = null; render(); });
+  if(defPhotoRemove) defPhotoRemove.addEventListener('click', ()=>{
+    weddingSettings.heroPhotoUrl = null;
+    weddingSettings.heroPhotoPosX = 50; weddingSettings.heroPhotoPosY = 50; weddingSettings.heroPhotoZoom = 100;
+    render();
+  });
+  const defPhotoInput = document.getElementById('def-photo-input');
+  if(defPhotoInput) defPhotoInput.addEventListener('change', async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    try{
+      weddingSettings.heroPhotoUrl = await resizeImageFile(file, 1000, 0.75);
+      weddingSettings.heroPhotoPosX = 50; weddingSettings.heroPhotoPosY = 50; weddingSettings.heroPhotoZoom = 100;
+      render();
+    }catch(err){}
+  });
+  const cropViewport = document.getElementById('crop-viewport');
+  if(cropViewport) bindCropDrag(cropViewport);
+  const cropZoomSlider = document.getElementById('crop-zoom-slider');
+  if(cropZoomSlider) cropZoomSlider.addEventListener('input', e=>{
+    weddingSettings.heroPhotoZoom = Number(e.target.value);
+    const vp = document.getElementById('crop-viewport');
+    if(vp) vp.style.backgroundSize = weddingSettings.heroPhotoZoom+'%';
+  });
+  const defSaveDesign = document.getElementById('def-save-design');
+  if(defSaveDesign) defSaveDesign.addEventListener('click', ()=>saveSettingsNow('def-msg-design'));
+
+  // Categorias
   const defAddCatBtn = document.getElementById('def-addbtn-cat');
   if(defAddCatBtn) defAddCatBtn.addEventListener('click', ()=>{
     const input = document.getElementById('def-add-cat-name');
@@ -1805,15 +1919,36 @@ function bindHandlers(){
     state.categories.push({ id, name, pct:0, desc:[] });
     render();
   });
-  const defPhotoInput = document.getElementById('def-photo-input');
-  if(defPhotoInput) defPhotoInput.addEventListener('change', async (e)=>{
-    const file = e.target.files && e.target.files[0];
-    if(!file) return;
-    try{
-      weddingSettings.heroPhotoUrl = await resizeImageFile(file, 1000, 0.75);
-      render();
-    }catch(err){}
+  const defSaveCategorias = document.getElementById('def-save-categorias');
+  if(defSaveCategorias) defSaveCategorias.addEventListener('click', ()=>saveSettingsNow('def-msg-categorias'));
+
+  // Convidar
+  const defInviteBtn = document.getElementById('def-invite-btn');
+  if(defInviteBtn) defInviteBtn.addEventListener('click', ()=>{
+    const email = document.getElementById('def-invite-email').value.trim();
+    const msgEl = document.getElementById('def-invite-msg');
+    if(!email){ msgEl.textContent = 'Escreve um email válido.'; msgEl.className='login-msg error'; return; }
+    msgEl.textContent = 'A convidar…'; msgEl.className = 'login-msg';
+    CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayUnion(email) }).then(()=>{
+      msgEl.textContent = `${email} já pode entrar e criar a conta com este email.`;
+      msgEl.className = 'login-msg success';
+      document.getElementById('def-invite-email').value = '';
+    }).catch(()=>{ msgEl.textContent = 'Não foi possível convidar. Tenta novamente.'; msgEl.className='login-msg error'; });
   });
+
+  // Segurança
+  document.querySelectorAll('[data-removeowner]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const email = e.currentTarget.dataset.removeowner;
+      if(!confirm(`Remover o acesso de ${email}?`)) return;
+      CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayRemove(email) }).then(()=>{
+        currentWeddingOwners = currentWeddingOwners.filter(e2=>e2!==email);
+        render();
+      }).catch(()=>{ alert('Não foi possível remover. Tenta novamente.'); });
+    });
+  });
+  const defSaveSeguranca = document.getElementById('def-save-seguranca');
+  if(defSaveSeguranca) defSaveSeguranca.addEventListener('click', ()=>saveSettingsNow('def-msg-seguranca'));
 
   // O grande dia
   const addEventBtn = document.getElementById('add-event-btn');
@@ -1995,7 +2130,7 @@ function bindHandlers(){
   const addTableBtn = document.getElementById('add-table-btn');
   if(addTableBtn) addTableBtn.addEventListener('click', ()=>{
     const id = nextTableId();
-    state.seating.tables.push({ id, shape:'round', seats:8 });
+    state.seating.tables.push({ id, shape:'round', seats:8, x:null, y:null });
     openTable[id] = true;
     render();
   });
@@ -2051,6 +2186,53 @@ function softUpdateBudget(){
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+' / convidado';
   });
   pushRemote();
+}
+function saveSettingsNow(msgId){
+  const msgEl = document.getElementById(msgId);
+  if(msgEl){ msgEl.textContent = 'A guardar…'; msgEl.className = 'login-msg'; }
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId){
+    if(msgEl){ msgEl.textContent = 'Não foi possível guardar (sem ligação).'; msgEl.className = 'login-msg error'; }
+    return;
+  }
+  clearTimeout(saveTimer);
+  CURRENT_DOC().set({
+    settings: weddingSettings,
+    json: JSON.stringify(state),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true }).then(()=>{
+    if(msgEl){ msgEl.textContent = 'Guardado com sucesso.'; msgEl.className = 'login-msg success'; }
+  }).catch(()=>{
+    if(msgEl){ msgEl.textContent = 'Não foi possível guardar. Tenta novamente.'; msgEl.className = 'login-msg error'; }
+  });
+}
+function bindCropDrag(el){
+  let dragging=false, startX=0, startY=0, startPosX=50, startPosY=50;
+  el.addEventListener('pointerdown', e=>{
+    dragging = true;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    startPosX = weddingSettings.heroPhotoPosX ?? 50;
+    startPosY = weddingSettings.heroPhotoPosY ?? 50;
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const rect = el.getBoundingClientRect();
+    const dx = (e.clientX-startX) / rect.width * 100;
+    const dy = (e.clientY-startY) / rect.height * 100;
+    const posX = Math.max(0, Math.min(100, startPosX - dx));
+    const posY = Math.max(0, Math.min(100, startPosY - dy));
+    weddingSettings.heroPhotoPosX = posX;
+    weddingSettings.heroPhotoPosY = posY;
+    el.style.backgroundPosition = posX+'% '+posY+'%';
+  });
+  function finish(){
+    if(!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+  }
+  el.addEventListener('pointerup', finish);
+  el.addEventListener('pointercancel', finish);
 }
 function softUpdateGastos(){
   const totalValue = totalExpenseValue();
@@ -2577,29 +2759,37 @@ function tableSVG(table){
       const sy = onTop ? cy-halfH-16 : cy+halfH+16;
       inner += seatDot(sx, sy, onTop?-Math.PI/2:Math.PI/2, s);
     }
-  } else if(table.shape==='horseshoe'){
-    const cx=80, cy=90, rOuter=48, rInner=26, topY=28;
-    inner += `<path d="M ${cx-rOuter} ${topY} L ${cx-rOuter} ${cy} A ${rOuter} ${rOuter} 0 0 0 ${cx+rOuter} ${cy} L ${cx+rOuter} ${topY} L ${cx+rInner} ${topY} L ${cx+rInner} ${cy} A ${rInner} ${rInner} 0 0 1 ${cx-rInner} ${cy} L ${cx-rInner} ${topY} Z" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
-    inner += `<text x="${cx}" y="${cy+2}" font-size="12" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
-    const arcSeats = Math.max(0, seatCount-2);
-    const perLeg = Math.round(arcSeats*0.28);
-    const curveSeats = arcSeats - perLeg*2;
-    let s = 1;
-    for(let i=0;i<perLeg;i++){
-      const frac = perLeg>1? i/(perLeg-1) : 0;
-      const sy = topY + frac*(cy-topY);
-      inner += seatDot(cx-rOuter-13, sy, Math.PI, s); s++;
+  } else if(table.shape==='serpentine'){
+    const P0={x:32,y:28}, P1={x:150,y:28}, P2={x:10,y:148}, P3={x:128,y:148};
+    function bez(tt){
+      const mt=1-tt;
+      return {
+        x: mt*mt*mt*P0.x + 3*mt*mt*tt*P1.x + 3*mt*tt*tt*P2.x + tt*tt*tt*P3.x,
+        y: mt*mt*mt*P0.y + 3*mt*mt*tt*P1.y + 3*mt*tt*tt*P2.y + tt*tt*tt*P3.y
+      };
     }
-    for(let i=0;i<=curveSeats;i++){
-      const angle = Math.PI - (i/curveSeats)*Math.PI;
-      const sx = cx + Math.cos(angle)*(rOuter+13);
-      const sy = cy + Math.sin(angle)*(rOuter+13);
-      inner += seatDot(sx, sy, angle, s); s++;
+    function tangent(tt){
+      const mt=1-tt;
+      const dx = 3*mt*mt*(P1.x-P0.x) + 6*mt*tt*(P2.x-P1.x) + 3*tt*tt*(P3.x-P2.x);
+      const dy = 3*mt*mt*(P1.y-P0.y) + 6*mt*tt*(P2.y-P1.y) + 3*tt*tt*(P3.y-P2.y);
+      const len = Math.sqrt(dx*dx+dy*dy)||1;
+      return {x:dx/len, y:dy/len};
     }
-    for(let i=0;i<perLeg;i++){
-      const frac = perLeg>1? i/(perLeg-1) : 0;
-      const sy = cy - frac*(cy-topY);
-      inner += seatDot(cx+rOuter+13, sy, 0, s); s++;
+    const pathD = `M ${P0.x} ${P0.y} C ${P1.x} ${P1.y} ${P2.x} ${P2.y} ${P3.x} ${P3.y}`;
+    inner += `<path d="${pathD}" fill="none" stroke="#FFF9EE" stroke-width="20" stroke-linecap="round"/>`;
+    inner += `<path d="${pathD}" fill="none" stroke="#C9A02E" stroke-width="1.3" stroke-linecap="round"/>`;
+    const mid = bez(0.5);
+    inner += `<text x="${mid.x}" y="${mid.y+4}" font-size="11" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    for(let s=1; s<=seatCount; s++){
+      const tt = (s-0.5)/seatCount;
+      const p = bez(tt);
+      const tan = tangent(tt);
+      const perp = {x:-tan.y, y:tan.x};
+      const side = (s%2===0) ? 1 : -1;
+      const sx = p.x + perp.x*13*side;
+      const sy = p.y + perp.y*13*side;
+      const angle = Math.atan2(perp.y*side, perp.x*side);
+      inner += seatDot(sx, sy, angle, s);
     }
   } else {
     const cx=80, cy=78, tableR=34, orbit=55;
@@ -2615,11 +2805,58 @@ function tableSVG(table){
   }
   return `<svg viewBox="0 0 160 176" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
 }
+function ensureTablePositions(){
+  const spacing = 132, perRow = 3, startX = 16, startY = 16;
+  let changed = false;
+  state.seating.tables.forEach((t,i)=>{
+    if(typeof t.x !== 'number' || typeof t.y !== 'number'){
+      t.x = startX + (i % perRow) * spacing;
+      t.y = startY + Math.floor(i / perRow) * spacing;
+      changed = true;
+    }
+  });
+  return changed;
+}
+function bindSalaTableDrag(el){
+  const tableId = Number(el.dataset.tableid);
+  let dragging = false, startX=0, startY=0, origLeft=0, origTop=0;
+  el.addEventListener('pointerdown', e=>{
+    dragging = true;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    origLeft = parseFloat(el.style.left)||0;
+    origTop = parseFloat(el.style.top)||0;
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const dx = e.clientX-startX, dy = e.clientY-startY;
+    el.style.left = Math.max(0, origLeft+dx)+'px';
+    el.style.top = Math.max(0, origTop+dy)+'px';
+  });
+  function finishDrag(){
+    if(!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    const table = getTable(tableId);
+    if(table){
+      table.x = Math.max(0, parseFloat(el.style.left)||0);
+      table.y = Math.max(0, parseFloat(el.style.top)||0);
+    }
+    render();
+  }
+  el.addEventListener('pointerup', finishDrag);
+  el.addEventListener('pointercancel', finishDrag);
+}
 function renderSalaView(){
+  const changed = ensureTablePositions();
   const wrap = document.getElementById('sala-scroll');
-  let cards = '';
+  const itemSize = 108, pad = 40;
+  const maxX = Math.max(340, ...state.seating.tables.map(t=>t.x+itemSize)) + pad;
+  const maxY = Math.max(420, ...state.seating.tables.map(t=>t.y+itemSize+16)) + pad;
+  let items = '';
   state.seating.tables.forEach(table=>{
-    cards += `<div class="sala-card">${tableSVG(table)}</div>`;
+    items += `<div class="sala-table-item" data-tableid="${table.id}" style="left:${table.x}px; top:${table.y}px;">${tableSVG(table)}</div>`;
   });
   wrap.innerHTML = `
     <div class="sala-legend">
@@ -2627,8 +2864,11 @@ function renderSalaView(){
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#6C8296;"></span>Noivo</span>
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#E7DEC8;"></span>Livre</span>
     </div>
-    <div class="sala-grid">${cards}</div>
+    <div class="sala-hint">arrasta as mesas para desenhares a sala</div>
+    <div class="sala-canvas" id="sala-canvas" style="width:${maxX}px; height:${maxY}px;">${items}</div>
   `;
+  wrap.querySelectorAll('.sala-table-item').forEach(bindSalaTableDrag);
+  if(changed) pushRemote();
 }
 
 /* ============================================================
@@ -2785,16 +3025,23 @@ function handleAuthSubmit(){
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if(!email || !pass){ renderLoginForm('Escreve o email e a password.', true); return; }
-  if(authMode==='signup'){
-    auth.createUserWithEmailAndPassword(email, pass).catch(err=>{
-      const msg = err.code==='auth/email-already-in-use' ? 'Já existe uma conta com este email — tenta entrar.' : 'Não foi possível criar a conta. Verifica o email e a password (mín. 6 caracteres).';
-      renderLoginForm(msg, true);
-    });
-  } else {
-    auth.signInWithEmailAndPassword(email, pass).catch(()=>{
-      renderLoginForm('Email ou password incorretos. Tenta novamente.', true);
-    });
-  }
+  if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta neste ficheiro.', true); return; }
+  const btn = document.getElementById('login-send');
+  if(btn){ btn.textContent = 'Aguarda…'; btn.disabled = true; }
+  const action = authMode==='signup'
+    ? auth.createUserWithEmailAndPassword(email, pass)
+    : auth.signInWithEmailAndPassword(email, pass);
+  action.catch(err=>{
+    console.error('Weddy auth error:', err.code, err.message);
+    let msg;
+    if(err.code==='auth/email-already-in-use') msg = 'Já existe uma conta com este email — tenta entrar.';
+    else if(err.code==='auth/unauthorized-domain') msg = 'Este site ainda não está autorizado no Firebase (Authentication → Settings → Authorized domains).';
+    else if(err.code==='auth/invalid-credential' || err.code==='auth/wrong-password' || err.code==='auth/user-not-found') msg = 'Email ou password incorretos. Tenta novamente.';
+    else if(err.code==='auth/weak-password') msg = 'A password precisa de pelo menos 6 caracteres.';
+    else if(err.code==='auth/invalid-email') msg = 'Esse email não parece válido.';
+    else msg = 'Não foi possível continuar (' + (err.code||err.message||'erro desconhecido') + ').';
+    renderLoginForm(msg, true);
+  });
 }
 
 /* ---- Assistente de configuração (primeira vez) ---- */
@@ -2892,8 +3139,10 @@ function findOrCreateFlow(user){
       currentWeddingId = null;
       renderOnboarding();
     }
-  }).catch(()=>{
-    renderLoginForm('Não foi possível verificar a tua conta. Tenta novamente.', true);
+  }).catch(err=>{
+    console.error('Weddy Firestore error:', err.code, err.message);
+    const extra = err.code==='permission-denied' ? ' (permissão negada — confirma as regras do Firestore)' : ' ('+(err.code||'')+')';
+    renderLoginForm('Não foi possível verificar a tua conta.'+extra, true);
   });
 }
 
