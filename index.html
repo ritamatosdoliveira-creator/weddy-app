@@ -876,6 +876,7 @@ if(FIREBASE_READY){
 }
 let currentWeddingId = null;
 let currentWeddingOwners = [];
+let currentWeddingCreator = null;
 let currentLastLogins = {};
 const WEDDINGS = () => db.collection('weddings');
 const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
@@ -1203,6 +1204,15 @@ let inspirations = [];
 /* ============================================================
    HELPERS
 ============================================================ */
+function escapeHTML(str){
+  if(str===undefined || str===null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
 function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function catById(id){ return state.categories.find(c=>c.id===id); }
@@ -1366,13 +1376,13 @@ function viewInicio(){
   const totalGuests = countGuests('noiva')+countGuests('noivo');
   const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
   const spent = totalExpenseValue();
-  const spentPct = Math.round((spent/state.budget.total)*100);
-  const name1 = weddingSettings.coupleName1 || 'Nome 1';
-  const name2 = weddingSettings.coupleName2 || 'Nome 2';
+  const spentPct = state.budget.total ? Math.round((spent/state.budget.total)*100) : 0;
+  const name1 = escapeHTML(weddingSettings.coupleName1 || 'Nome 1');
+  const name2 = escapeHTML(weddingSettings.coupleName2 || 'Nome 2');
   const initials = (name1[0]||'?') + (name2[0]||'?');
   const hasDate = !!weddingSettings.weddingDate;
   const days = hasDate ? daysUntil(weddingSettings.weddingDate) : null;
-  const venue = weddingSettings.venue || 'Local por definir';
+  const venue = escapeHTML(weddingSettings.venue || 'Local por definir');
   const events = (state.daySchedule||[]).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
   const eventsHTML = events.length ? `
     <div class="timeline-card">
@@ -1508,7 +1518,7 @@ function viewInicio(){
 function buildDonutSection(){
   const total = state.budget.total;
   const pctSum = state.categories.reduce((s,c)=>s+Number(c.pct),0);
-  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${c.name} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
+  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
   const pctNote = Math.abs(pctSum-1)<0.001
     ? `<div class="pct-note ok">As percentagens somam ${Math.round(pctSum*1000)/10}% — orçamento totalmente repartido.</div>`
     : `<div class="pct-note warn">As percentagens somam ${Math.round(pctSum*1000)/10}% — falta ${(100-Math.round(pctSum*1000)/10).toFixed(1)}% para 100%.</div>`;
@@ -1560,7 +1570,7 @@ function viewOrcamento(){
       <div class="cat-row-head tappable" data-toggledesc="${c.id}">
         <div class="icon-chip" style="${chipStyle(i)}">${ICONS.budget}</div>
         <div class="cat-row-mid">
-          <div class="cat-row-name">${c.name}</div>
+          <div class="cat-row-name">${escapeHTML(c.name)}</div>
           <div class="cat-row-bar-track"><div class="cat-row-bar-fill" data-catbar="${c.id}" style="width:${pctDisplay}%; background:${pair.fg};"></div></div>
         </div>
         <div class="cat-row-vals">
@@ -1641,7 +1651,7 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx){
     return `
     <div class="list-row guest-row ${conf?'confirmed':''}">
       <div class="check tappable" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
-      <div class="title tappable" data-confirm="${side}|${catKey}|${idx}">${name}</div>
+      <div class="title tappable" data-confirm="${side}|${catKey}|${idx}">${escapeHTML(name)}</div>
       <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
     </div>`;
   }).join('');
@@ -1734,7 +1744,7 @@ function buildGuestBody(){
       return `
       <div class="list-row guest-row ${conf?'confirmed':''}">
         <div class="check tappable" data-confirmchild="${idx}">${ICONS.check}</div>
-        <div class="title tappable" data-confirmchild="${idx}">${n}</div>
+        <div class="title tappable" data-confirmchild="${idx}">${escapeHTML(n)}</div>
         <button class="remove-x" data-removechild="${idx}">✕</button>
       </div>`;
     }).join('');
@@ -1819,7 +1829,7 @@ function viewGastos(){
     return `
     <div class="exp-row">
       <div class="exp-top">
-        <input class="exp-desc-input" data-exp="desc|${i}" value="${e.desc}" placeholder="Descrição">
+        <input class="exp-desc-input" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="Descrição">
         <span class="exp-val">${fmtEUR(e.value)}</span>
         <button class="exp-del" data-delexp="${i}">✕</button>
       </div>
@@ -1845,7 +1855,7 @@ function viewGastos(){
     const over = spent>budgeted;
     return `
     <div class="cat-progress" data-catprogress="${c.id}">
-      <div class="cp-row"><span>${c.name}</span><span class="${over?'over':''}">${fmtEUR(spent)} / ${fmtEUR(budgeted)}</span></div>
+      <div class="cp-row"><span>${escapeHTML(c.name)}</span><span class="${over?'over':''}">${fmtEUR(spent)} / ${fmtEUR(budgeted)}</span></div>
       <div class="cp-track"><div class="cp-fill ${over?'over':''}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
@@ -1909,7 +1919,7 @@ function viewMesas(){
         const key = 't'+t+'-s'+s;
         const val = state.seating.assignments[key] || '';
         const name = val ? val.split('::')[1] : 'toca para atribuir';
-        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${name}</span>${ICONS.chev}</div>`;
+        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${escapeHTML(name)}</span>${ICONS.chev}</div>`;
       }
       bodyHTML = `
       <div class="table-config-row">
@@ -2049,7 +2059,7 @@ function viewChecklist(){
   const personalHTML = state.checklistPersonal.map((item,i)=>`
     <div class="list-row guest-row ${item.done?'confirmed':''}">
       <div class="check tappable" data-checkpersonal="${i}">${ICONS.check}</div>
-      <div class="title tappable" data-checkpersonal="${i}">${item.text}</div>
+      <div class="title tappable" data-checkpersonal="${i}">${escapeHTML(item.text)}</div>
       <button class="remove-x" data-delpersonal="${i}">✕</button>
     </div>`).join('');
 
@@ -2111,7 +2121,7 @@ function viewVestido(){
       <div class="guest-group-body" style="padding:4px 16px 16px;">
         ${v.morada? `<div class="visit-detail"><b>Morada:</b> ${v.morada}</div>`:''}
         ${v.convidados? `<div class="visit-detail"><b>Foram:</b> ${v.convidados}</div>`:''}
-        ${v.notas? `<div class="visit-detail"><b>Notas:</b> ${v.notas}</div>`:''}
+        ${v.notas? `<div class="visit-detail"><b>Notas:</b> ${escapeHTML(v.notas)}</div>`:''}
         <div style="display:flex; gap:10px; margin-top:10px;">
           <button class="visit-action-btn" data-editvisit="${v.id}">${ICONS.pencil} Editar</button>
           <button class="visit-action-btn danger" data-delvisit="${v.id}">${ICONS.trash} Eliminar</button>
@@ -2162,18 +2172,18 @@ function supplierCardHTML(opts){
   <div class="sup-card ${notClickable?'sup-card-static':''}" ${attrs||''}>
     <div class="sup-thumb ${isAdd?'is-add':''}">${isAdd? ICONS.plus : ICONS.briefcase}</div>
     <div class="sup-info">
-      <div class="sup-cat">${catLabel}</div>
-      <div class="sup-name">${title}</div>
+      <div class="sup-cat">${escapeHTML(catLabel)}</div>
+      <div class="sup-name">${escapeHTML(title)}</div>
       ${isAdd
         ? `<div class="sup-meta-line">Guarda aqui os teus próprios fornecedores.</div>`
         : `<div class="sup-meta">
-             ${phone?`<span class="sup-meta-item">${ICONS.phone} ${phone}</span>`:''}
-             ${local?`<span class="sup-meta-item">${ICONS.pin} ${local}</span>`:''}
-             ${price?`<span class="sup-meta-item">${ICONS.budget} ${price}</span>`:''}
-             ${site?`<span class="sup-meta-item">${ICONS.globe} ${site}</span>`:''}
+             ${phone?`<span class="sup-meta-item">${ICONS.phone} ${escapeHTML(phone)}</span>`:''}
+             ${local?`<span class="sup-meta-item">${ICONS.pin} ${escapeHTML(local)}</span>`:''}
+             ${price?`<span class="sup-meta-item">${ICONS.budget} ${escapeHTML(price)}</span>`:''}
+             ${site?`<span class="sup-meta-item">${ICONS.globe} ${escapeHTML(site)}</span>`:''}
            </div>`}
     </div>
-    ${badge?`<span class="sup-badge">${badge}</span>`:''}
+    ${badge?`<span class="sup-badge">${escapeHTML(badge)}</span>`:''}
     ${notClickable?'':`<span class="sup-chev">${ICONS.chev}</span>`}
   </div>`;
 }
@@ -2246,7 +2256,7 @@ function viewTodoCategory(cat){
   const rows = cat.items.map((item,i)=>`
     <div class="list-row guest-row ${item.done?'confirmed':''}">
       <div class="check tappable" data-catitemcheck="${cat.id}|${i}">${ICONS.check}</div>
-      <div class="title tappable" data-catitemcheck="${cat.id}|${i}">${item.text}</div>
+      <div class="title tappable" data-catitemcheck="${cat.id}|${i}">${escapeHTML(item.text)}</div>
       <button class="remove-x" data-catitemdel="${cat.id}|${i}">✕</button>
     </div>`).join('');
   return `
@@ -2281,7 +2291,7 @@ function ideaCardHTML(idea){
   <div class="hm-idea-card" data-editidea="${idea.id}">
     <div class="hm-idea-photo" style="background:${theme?theme.grad:'var(--cream2)'};">${theme?ICONS[theme.icon]:''}</div>
     <div class="hm-idea-mid">
-      <div class="hm-idea-name">${idea.name}</div>
+      <div class="hm-idea-name">${escapeHTML(idea.name)}</div>
       <div class="hm-idea-type">${(HM_CATEGORIES.find(c=>c.id===idea.category)||{}).label||''}</div>
       <button class="hm-idea-hearts" data-hearttoggle="${idea.id}">${ICONS.heart} ${idea.hearts||0}</button>
     </div>
@@ -2392,7 +2402,7 @@ function viewFornecedoresRecomendados(){
   }).filter(g=>g.items.length);
 
   const groupsHTML = groups.map(g=>`
-    <div class="sup-section-head"><span>${g.cat.name}</span></div>
+    <div class="sup-section-head"><span>${escapeHTML(g.cat.name)}</span></div>
     <div class="sup-list">
       ${g.items.map(r=>supplierCardHTML({
         title: r.name,
@@ -2600,7 +2610,7 @@ function viewDefDesign(){
 function viewDefCategorias(){
   const catRows = state.categories.map(c=>`
     <div class="list-row">
-      <div class="title" style="flex:1;">${c.name}</div>
+      <div class="title" style="flex:1;">${escapeHTML(c.name)}</div>
       <button class="cat-edit-btn" data-renamecat="${c.id}" title="Renomear">${ICONS.pencil}</button>
       <button class="remove-x" data-delcat="${c.id}" title="Eliminar">✕</button>
     </div>`).join('');
@@ -2639,14 +2649,19 @@ function formatLastLogin(ts){
   return `${d.getDate()} ${meses[d.getMonth()]} às ${hh}:${mm}`;
 }
 function viewDefSeguranca(){
-  const owners = (currentWeddingOwners||[]).map(email => `
+  const myEmail = (auth && auth.currentUser) ? auth.currentUser.email.toLowerCase() : '';
+  const owners = (currentWeddingOwners||[]).map(email => {
+    const isCreator = currentWeddingCreator && email === currentWeddingCreator;
+    const canRemove = currentWeddingOwners.length>1 && (!isCreator || email===myEmail);
+    return `
     <div class="list-row" style="flex-direction:column; align-items:stretch; gap:8px;">
       <div>
-        <div class="title" style="flex:1;">${email}</div>
+        <div class="title" style="flex:1;">${escapeHTML(email)}${isCreator?' <span style="color:var(--ink-soft);font-weight:400;font-size:12px;">(criou o casamento)</span>':''}</div>
         <div class="visit-detail">Última sessão: ${formatLastLogin(currentLastLogins[sanitizeEmailKey(email)])}</div>
       </div>
-      ${currentWeddingOwners.length>1 ? `<button class="visit-action-btn danger" style="width:100%;" data-removeowner="${email}">${ICONS.trash} Remover acesso</button>` : `<div class="empty-note" style="margin:0;">É o único com acesso — convida alguém em "Convidar" se quiseres partilhar.</div>`}
-    </div>`).join('');
+      ${canRemove ? `<button class="visit-action-btn danger" style="width:100%;" data-removeowner="${escapeHTML(email)}">${ICONS.trash} Remover acesso</button>` : (currentWeddingOwners.length===1 ? `<div class="empty-note" style="margin:0;">É o único com acesso — convida alguém em "Convidar" se quiseres partilhar.</div>` : `<div class="empty-note" style="margin:0;">Só quem criou o casamento pode remover o próprio acesso.</div>`)}
+    </div>`;
+  }).join('');
   return `
   ${defSubHeader('Segurança')}
   <div class="section-label">Quem tem acesso</div>
@@ -3093,6 +3108,11 @@ function bindHandlers(){
   document.querySelectorAll('[data-removeowner]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const email = e.currentTarget.dataset.removeowner;
+      const myEmail = (auth && auth.currentUser) ? auth.currentUser.email.toLowerCase() : '';
+      if(currentWeddingCreator && email===currentWeddingCreator && email!==myEmail){
+        alert('Só quem criou o casamento pode remover o próprio acesso.');
+        return;
+      }
       if(!confirm(`Remover o acesso de ${email}?`)) return;
       CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayRemove(email) }).then(()=>{
         currentWeddingOwners = currentWeddingOwners.filter(e2=>e2!==email);
@@ -3376,7 +3396,7 @@ function softUpdateGastos(){
 ============================================================ */
 function openExpenseSheet(){
   const sel = document.getElementById('sf-cat');
-  sel.innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.innerHTML = state.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
   document.getElementById('sf-desc').value='';
   document.getElementById('sf-date').value='';
   document.getElementById('sf-value').value='';
@@ -3574,9 +3594,9 @@ function renderSeatPickerList(){
     if(q && !g.name.toLowerCase().includes(q)) return;
     const val = g.key+'::'+g.name;
     const elsewhere = findGuestSeatKey(g.key, editingSeatKey);
-    rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${val}">
+    rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${escapeHTML(val)}">
       <span class="side-tag" style="background:${g.side==='noiva'?'var(--blush-dark)':'var(--dusty-dark)'};">${g.side==='noiva'?'Noiva':'Noivo'}</span>
-      <span class="pname">${g.name}${elsewhere?`<span class="pname-hint">já em ${seatLabel(elsewhere)}</span>`:''}</span>
+      <span class="pname">${escapeHTML(g.name)}${elsewhere?`<span class="pname-hint">já em ${seatLabel(elsewhere)}</span>`:''}</span>
     </div>`;
   });
   list.innerHTML = rows;
@@ -4097,11 +4117,17 @@ function resizeImageFile(file, maxDim, quality){
   });
 }
 function saveInspirations(){
-  try{ localStorage.setItem('rita-tiago-inspiracoes', JSON.stringify(inspirations)); }catch(e){}
+  try{ localStorage.setItem('weddy-inspiracoes', JSON.stringify(inspirations)); }
+  catch(e){ showSaveToast(true); alert('Não foi possível guardar a foto — o telemóvel pode estar sem espaço de armazenamento. Tenta apagar alguma foto antiga.'); }
 }
 function loadInspirations(){
   try{
-    const raw = localStorage.getItem('rita-tiago-inspiracoes');
+    let raw = localStorage.getItem('weddy-inspiracoes');
+    if(!raw){
+      // Migração de contas antigas, de quando a app ainda se chamava "Rita & Tiago"
+      const legacy = localStorage.getItem('rita-tiago-inspiracoes');
+      if(legacy){ raw = legacy; localStorage.setItem('weddy-inspiracoes', legacy); }
+    }
     if(raw) inspirations = JSON.parse(raw);
   }catch(e){}
 }
@@ -4119,7 +4145,8 @@ document.getElementById('insp-file-input').addEventListener('change', async (e)=
   e.target.value = '';
 });
 function saveDressInspirations(){
-  try{ localStorage.setItem('weddy-dress-inspiracoes', JSON.stringify(dressInspirations)); }catch(e){}
+  try{ localStorage.setItem('weddy-dress-inspiracoes', JSON.stringify(dressInspirations)); }
+  catch(e){ showSaveToast(true); alert('Não foi possível guardar a foto — o telemóvel pode estar sem espaço de armazenamento. Tenta apagar alguma foto antiga.'); }
 }
 function loadDressInspirations(){
   try{
@@ -4299,7 +4326,7 @@ function openSupplierSheet(supplierId, presetCat){
   const s = supplierId ? state.suppliers.find(x=>x.id===supplierId) : null;
   document.getElementById('supplier-sheet-title').textContent = s ? 'Editar fornecedor' : 'Novo fornecedor';
   document.getElementById('sup-name').value = s ? s.name : '';
-  document.getElementById('sup-cat').innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('sup-cat').innerHTML = state.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
   document.getElementById('sup-cat').value = s ? s.category : (presetCat || state.categories[0].id);
   document.getElementById('sup-contact').value = s ? s.contact : '';
   document.getElementById('sup-price').value = s ? (s.price||'') : '';
@@ -4448,6 +4475,35 @@ function renderLoading(msg){
     <div class="login-tag">${msg||'A carregar…'}</div>
   `;
 }
+function renderVerifyEmail(user){
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-tag">Confirma o teu email</div>
+    <div class="login-msg">Enviámos um link de confirmação para <b>${escapeHTML(user.email)}</b>. Abre esse email e toca no link antes de continuares — isto protege o teu casamento.</div>
+    <button class="login-btn" id="verify-resend">Reenviar email</button>
+    <button class="login-btn" id="verify-check" style="margin-top:10px;background:rgba(60,51,43,0.08);color:var(--ink);">Já confirmei, continuar</button>
+    <button class="login-btn" id="verify-signout" style="margin-top:10px;background:transparent;color:var(--ink-soft);">Sair</button>
+    <div class="login-msg" id="verify-msg"></div>
+  `;
+  document.getElementById('verify-resend').addEventListener('click', ()=>{
+    const msgEl = document.getElementById('verify-msg');
+    user.sendEmailVerification().then(()=>{ msgEl.textContent = 'Email reenviado.'; msgEl.className='login-msg success'; })
+      .catch(()=>{ msgEl.textContent = 'Não foi possível reenviar. Tenta outra vez daqui a pouco.'; msgEl.className='login-msg error'; });
+  });
+  document.getElementById('verify-check').addEventListener('click', ()=>{
+    const msgEl = document.getElementById('verify-msg');
+    msgEl.textContent = 'A verificar…'; msgEl.className='login-msg';
+    user.reload().then(()=>{
+      if(auth.currentUser.emailVerified){
+        activeTab = 'inicio';
+        findOrCreateFlow(auth.currentUser);
+      } else {
+        msgEl.textContent = 'Ainda não está confirmado. Verifica o email (e o spam).';
+        msgEl.className='login-msg error';
+      }
+    });
+  });
+  document.getElementById('verify-signout').addEventListener('click', ()=>auth.signOut());
+}
 function handleAuthSubmit(){
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
@@ -4456,7 +4512,9 @@ function handleAuthSubmit(){
   const btn = document.getElementById('login-send');
   if(btn){ btn.textContent = 'Aguarda…'; btn.disabled = true; }
   const action = authMode==='signup'
-    ? auth.createUserWithEmailAndPassword(email, pass)
+    ? auth.createUserWithEmailAndPassword(email, pass).then(cred=>{
+        return cred.user.sendEmailVerification().catch(()=>{});
+      })
     : auth.signInWithEmailAndPassword(email, pass);
   action.catch(err=>{
     console.error('Weddy auth error:', err.code, err.message);
@@ -4504,6 +4562,7 @@ function handleOnboardingSubmit(){
   state = seedData();
   WEDDINGS().add({
     ownerEmails: [email],
+    creatorEmail: email,
     settings: weddingSettings,
     json: JSON.stringify(state),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -4566,6 +4625,7 @@ function attachFirestoreSync(){
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
+      if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
     }
     if(changed || !firstSyncDone){
@@ -4610,6 +4670,11 @@ if(FIREBASE_READY){
     if(user){
       activeTab = 'inicio';
       collapseAllSections();
+      if(!user.emailVerified){
+        document.getElementById('login-screen').classList.remove('hidden');
+        renderVerifyEmail(user);
+        return;
+      }
       findOrCreateFlow(user);
     } else {
       firstSyncDone = false;
