@@ -3703,6 +3703,11 @@ function attachFirestoreSync(){
       if(data.json){
         const incoming = JSON.parse(data.json);
         if(JSON.stringify(incoming) !== JSON.stringify(state)){ state = incoming; }
+        // Contas criadas antes de existirem certos campos podem não os ter guardado — preenche em falta
+        const defaults = seedData();
+        Object.keys(defaults).forEach(key=>{
+          if(state[key] === undefined) state[key] = defaults[key];
+        });
       }
       if(data.settings) weddingSettings = data.settings;
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
