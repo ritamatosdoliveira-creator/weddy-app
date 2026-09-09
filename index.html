@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Weddy">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FAF8F5">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <title>Weddy</title>
@@ -35,13 +35,14 @@
   --shadow:0 2px 12px rgba(48,44,41,0.055), 0 1px 2px rgba(48,44,41,0.04);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;height:100%;}
+html,body{margin:0;padding:0;height:100%;background:#FAF8F5;}
 body{
   background:var(--cream);
   font-family:'Manrope',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   display:flex; flex-direction:column;
   overflow:hidden;
   position:fixed; inset:0;
+  height:calc(var(--app-height, 100%));
 }
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 8px); flex-shrink:0; }
@@ -88,7 +89,20 @@ body{
 
 /* Stat cards row */
 .stats-row{ display:flex; gap:10px; margin:0 16px 8px; }
-.stat-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 12px 11px; box-shadow:var(--shadow); }
+.stat-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 12px 11px; box-shadow:var(--shadow); position:relative; }
+.stat-card-icon{ margin-top:8px; color:var(--heading); opacity:.55; }
+.stat-card-icon svg{ width:15px; height:15px; }
+.cat-row-v2{ background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 16px 9px; overflow:hidden; }
+.cat-row-head{ display:flex; align-items:center; gap:11px; padding:12px 13px; cursor:pointer; }
+.cat-row-mid{ flex:1; min-width:0; }
+.cat-row-name{ font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+.cat-row-bar-track{ height:4px; border-radius:3px; background:var(--cream2); overflow:hidden; }
+.cat-row-bar-fill{ height:100%; border-radius:3px; }
+.cat-row-vals{ text-align:right; flex-shrink:0; }
+.cat-row-total{ font-size:13px; font-weight:700; color:var(--ink); white-space:nowrap; }
+.cat-row-pct{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+.cat-row-expand{ padding:0 13px 12px; border-top:1px solid var(--line); margin-top:2px; }
+.cat-row-perguest{ font-size:11.5px; color:var(--ink-soft); padding-top:10px; }
 .ring-row{ display:flex; gap:10px; margin:4px 16px 8px; }
 .ring-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px 10px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; }
 .ring-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
@@ -401,30 +415,30 @@ body{
 .timeline-del:active{ background:rgba(20,20,20,0.18); }
 
 .hero-photo-card .hero-scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(24,18,12,0.08) 0%, rgba(24,18,12,0.1) 35%, rgba(24,18,12,0.78) 100%); }
-.hero-photo-card .hero-overlay{ position:absolute; left:0; right:0; bottom:0; padding:16px 18px 18px; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,0.35); }
-.hero-names-row{ font-size:11px; font-weight:700; letter-spacing:.06em; opacity:.95; }
-.hero-date-row{ font-size:10.5px; opacity:.85; margin-top:2px; }
-.hero-thin-divider{ width:26px; height:1px; background:rgba(255,255,255,0.55); margin:10px 0; }
-.hero-photo-card .hero-eyebrow{ font-size:10.5px; letter-spacing:.04em; opacity:.92; text-transform:uppercase; }
-.hero-photo-card .hero-heading{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px; line-height:1.05; margin-top:2px; }
-.hero-photo-card .hero-venue{ font-size:11.5px; opacity:.88; margin-top:4px; }
+.hero-photo-card .hero-overlay{ position:absolute; left:0; right:0; bottom:0; padding:18px 20px 20px; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,0.35); }
+.hero-names-row{ font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; letter-spacing:.02em; opacity:.98; }
+.hero-date-row{ font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; opacity:.85; margin-top:4px; }
+.hero-thin-divider{ width:30px; height:1px; background:rgba(255,255,255,0.6); margin:8px 0; }
+.hero-thin-divider + .hero-thin-divider{ margin-top:6px; }
+.hero-photo-card .hero-eyebrow{ font-size:12px; font-family:'Cormorant Garamond',serif; opacity:.95; margin-top:6px; }
+.hero-photo-card .hero-heading{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:42px; line-height:1; margin-top:0; }
+.hero-photo-card .hero-venue{ font-family:'Cormorant Garamond',serif; font-size:14px; opacity:.9; margin-top:6px; }
 .hero-cta{ all:unset; box-sizing:border-box; display:inline-block; margin-top:12px; padding:9px 18px; border-radius:20px; background:#fff; color:var(--heading); font-size:12px; font-weight:700; cursor:pointer; }
 .hero-cta:active{ opacity:.82; }
 
 /* Início — atalhos em grelha */
 .quicklink-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:0 16px 8px; }
-.quicklink-card{ all:unset; box-sizing:border-box; width:100%; position:relative; background:var(--cream2); border:1px solid var(--line); border-radius:14px; padding:14px 8px 12px; display:flex; flex-direction:column; align-items:flex-start; gap:16px; cursor:pointer; text-align:left; }
+.quicklink-card{ all:unset; box-sizing:border-box; width:100%; aspect-ratio:1/1.05; position:relative; background:var(--cream2); border:1px solid var(--line); border-radius:16px; padding:16px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; cursor:pointer; text-align:center; }
 .quicklink-card.ql-sage{ background:#E7EBE1; border-color:#DCE2D3; }
 .quicklink-card.ql-taupe{ background:#EAE6E0; border-color:#DFD9D0; }
 .quicklink-card.ql-peach{ background:#F3E2D6; border-color:#EAD3C2; }
 .quicklink-card.ql-peach2{ background:#F0E2D3; border-color:#E6D2BC; }
 .quicklink-card.ql-blush{ background:#F1DFDB; border-color:#E6CAC3; }
 .quicklink-card:active{ transform:scale(0.96); }
-.quicklink-icon{ width:22px; height:22px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
-.quicklink-icon svg{ width:20px; height:20px; }
-.quicklink-label{ font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink); line-height:1.2; }
-.quicklink-arrow{ position:absolute; bottom:11px; right:12px; color:var(--ink-soft); display:flex; }
-.quicklink-arrow svg{ width:12px; height:12px; }
+.quicklink-icon{ width:27px; height:27px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
+.quicklink-icon svg{ width:27px; height:27px; }
+.quicklink-bottom{ display:flex; flex-direction:column; align-items:center; width:100%; }
+.quicklink-label{ font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink); line-height:1.2; text-align:center; }
 .section-label-v2{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--ink); margin:22px 16px 12px; display:flex; align-items:center; gap:12px; }
 .section-label-v2::after{ content:''; flex:1; height:1px; background:var(--line); }
 .day-card{ display:flex; align-items:center; gap:12px; margin:0 16px 18px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; position:relative; overflow:hidden; box-shadow:var(--shadow); }
@@ -452,7 +466,7 @@ body{
 .empty-note{ padding:14px; font-size:12.5px; color:var(--ink-soft); font-style:italic; text-align:center; }
 
 /* Tab bar */
-.tabbar{ position:absolute; left:0; right:0; bottom:0; z-index:20; display:flex; padding:8px 0 calc(env(safe-area-inset-bottom) + 6px); background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line); }
+.tabbar{ position:absolute; left:0; right:0; bottom:0; z-index:20; display:flex; padding:8px 0 calc(env(safe-area-inset-bottom) + 6px); background:rgba(250,248,245,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line); }
 .tabbar button{ all:unset; cursor:pointer; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; color:#ABA7A0; }
 .tabbar button svg{ width:19px; height:19px; }
 .tabbar button span{ font-size:9px; font-weight:600; letter-spacing:-.01em; }
@@ -662,6 +676,22 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (function(){
+  // Corrige a tabbar "flutuante" no iOS instalado (bug conhecido do WebKit em modo standalone):
+  // medimos a altura real do ecrã por JS em vez de confiar só no CSS.
+  function setAppHeight(){
+    const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', h + 'px');
+  }
+  setAppHeight();
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('orientationchange', setAppHeight);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', setAppHeight);
+  }
+})();
+</script>
+<script>
+(function(){
 
 /* ============================================================
    FIREBASE — configuração
@@ -697,6 +727,7 @@ const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
 const ICONS = {
   botanical:'<svg viewBox="0 0 60 90" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M30 88V20"/><path d="M30 34c-8-3-13-11-11-20"/><path d="M30 34c2-9-2-17-10-21"/><path d="M30 50c9-2 15-9 14-18"/><path d="M30 50c-1-9 4-16 13-19"/><path d="M30 66c-7-2-11-8-10-15"/><path d="M30 66c1-8-3-14-11-16"/><circle cx="19" cy="14" r="1.4" fill="currentColor" stroke="none"/><circle cx="44" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>',
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>',
+  tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 3.5h6a2 2 0 0 1 2 2v6L10 21 3.5 14.5 12.9 5.1Z" transform="translate(-1,0)"/><circle cx="15.2" cy="8.8" r="1.1" fill="currentColor" stroke="none"/></svg>',
   filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>',
   /* --- chips (preenchidos, estilo ícone da app Definições) --- */
   home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.5 11h2.3v8.3A1.2 1.2 0 0 0 6 20.5h4.1v-5.8h3.8v5.8H18a1.2 1.2 0 0 0 1.2-1.2V11h2.3z"/></svg>',
@@ -742,7 +773,7 @@ const ICONS = {
 /* --- ícones da barra de separadores: outline (inativo) vs. preenchido (ativo), como no iOS --- */
 const TAB_ICONS = {
   home:{
-    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.6 10v8.6c0 .6.5 1.1 1.1 1.1h3.6v-5.9h3.4v5.9h3.6c.6 0 1.1-.5 1.1-1.1V10"/></svg>',
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.6 10v8.6c0 .6.5 1.1 1.1 1.1h3.6v-5.9h3.4v5.9h3.6c.6 0 1.1-.5 1.1-1.1V10"/></svg>',
     fill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.5 11h2.3v8.3A1.2 1.2 0 0 0 6 20.5h4.1v-5.8h3.8v5.8H18a1.2 1.2 0 0 0 1.2-1.2V11h2.3z"/></svg>'
   },
   budget:{
@@ -750,12 +781,12 @@ const TAB_ICONS = {
     fill:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9.6" opacity=".3"/><text x="12" y="16.3" font-size="13.5" font-weight="700" text-anchor="middle" font-family="Georgia,serif">€</text></svg>'
   },
   guests:{
-    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7.8" r="3.15"/><circle cx="17" cy="9.1" r="2.35"/><path d="M2.6 19.6c.5-3.7 3-5.8 6.4-5.8s5.9 2.1 6.4 5.8"/><path d="M15.6 13.9c2.5.25 4.4 1.9 4.9 4.9"/></svg>',
-    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7.6" r="3.3"/><circle cx="17.1" cy="9" r="2.55" opacity=".7"/><path d="M2.3 20c.5-4 3.2-6.2 6.7-6.2s6.2 2.2 6.7 6.2a.85.85 0 0 1-.85.95H3.15A.85.85 0 0 1 2.3 20Z"/><path d="M16.2 13.9c2.8.35 4.9 2.15 5.4 5.4.1.65-.4 1.25-1.05 1.25h-2.9c.15-2.55-.4-4.7-1.45-6.65Z" opacity=".7"/></svg>'
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.3" cy="8.2" r="2.7"/><circle cx="16.2" cy="9.3" r="2.1"/><path d="M3 19c.4-3.4 2.5-5.2 5.3-5.2s4.9 1.8 5.3 5.2"/><path d="M14.3 14.2c2.1.3 3.7 1.7 4.1 4.3"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8.3" cy="8.2" r="2.9"/><circle cx="16.2" cy="9.3" r="2.3" opacity=".65"/><path d="M2.6 19.3c.4-3.7 2.7-5.7 5.7-5.7s5.3 2 5.7 5.7a.75.75 0 0 1-.75.85H3.35a.75.75 0 0 1-.75-.85Z"/><path d="M14.3 14c2.4.35 4.1 1.9 4.5 4.9.05.6-.35 1.15-.95 1.15h-2.4c.1-2.2-.35-4.05-1.15-6.05Z" opacity=".65"/></svg>'
   },
   expenses:{
-    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 3.8h1.9l.55 2.15h13.7a1 1 0 0 1 .97 1.25l-1.55 6.1a1.6 1.6 0 0 1-1.55 1.2H8.3a1.6 1.6 0 0 1-1.56-1.25L4.4 4.9H3.2Z"/><circle cx="9.3" cy="19.3" r="1.35"/><circle cx="17.6" cy="19.3" r="1.35"/></svg>',
-    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.2 3.8h1.9l.55 2.15h13.7a1 1 0 0 1 .97 1.25l-1.55 6.1a1.6 1.6 0 0 1-1.55 1.2H8.3a1.6 1.6 0 0 1-1.56-1.25L4.4 4.9H3.2Z" opacity=".55"/><circle cx="9.3" cy="19.3" r="1.55"/><circle cx="17.6" cy="19.3" r="1.55"/></svg>'
+    line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="6.6" rx="6.3" ry="2.5"/><path d="M5.7 6.6v4.4c0 1.4 2.8 2.5 6.3 2.5s6.3-1.1 6.3-2.5V6.6"/><path d="M5.7 11v4.4c0 1.4 2.8 2.5 6.3 2.5s6.3-1.1 6.3-2.5V11"/><path d="M5.7 15.4v2.2c0 1.4 2.8 2.5 6.3 2.5s6.3-1.1 6.3-2.5v-2.2"/></svg>',
+    fill:'<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="6.6" rx="6.6" ry="2.7"/><path d="M5.4 6.6v4.4c0 1.5 3 2.7 6.6 2.7s6.6-1.2 6.6-2.7V6.6c0 1.5-3 2.7-6.6 2.7s-6.6-1.2-6.6-2.7Z" opacity=".55"/><path d="M5.4 11.3v4.1c0 1.5 3 2.7 6.6 2.7s6.6-1.2 6.6-2.7v-4.1c0 1.5-3 2.7-6.6 2.7s-6.6-1.2-6.6-2.7Z" opacity=".75"/></svg>'
   },
   tables:{
     line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7.2" rx="7.6" ry="2.9"/><path d="M4.4 7.2v3.7c0 1.6 3.4 2.9 7.6 2.9s7.6-1.3 7.6-2.9V7.2"/><path d="M12 13.8V21M8 21h8"/></svg>',
@@ -1078,7 +1109,7 @@ function renderTabbar(){
       const target = b.dataset.goto;
       if(target !== activeTab) collapseAllSections();
       activeTab = target;
-      render();
+      _origRender();
     });
   });
 }
@@ -1165,6 +1196,7 @@ function viewInicio(){
       <div class="hero-names-row">${name1.toUpperCase()} &amp; ${name2.toUpperCase()}</div>
       <div class="hero-date-row">${formatDatePT(weddingSettings.weddingDate)}</div>
       <div class="hero-thin-divider"></div>
+      <div class="hero-thin-divider"></div>
       <div class="hero-eyebrow">Faltam</div>
       <div class="hero-heading">${hasDate ? days+' dias' : '—'}</div>
       <div class="hero-venue">${venue}</div>
@@ -1174,35 +1206,40 @@ function viewInicio(){
   <div class="quicklink-grid">
     <button class="quicklink-card ql-sage" data-goto="orcamento">
       <div class="quicklink-icon">${ICONS.budget}</div>
-      <div class="quicklink-label">Orçamento</div>
-      <span class="quicklink-arrow">${ICONS.arrowright}</span>
+      <div class="quicklink-bottom">
+        <div class="quicklink-label">Orçamento</div>
+      </div>
     </button>
     <button class="quicklink-card ql-taupe" data-goto="convidados">
       <div class="quicklink-icon">${ICONS.guests}</div>
-      <div class="quicklink-label">Convidados</div>
-      <span class="quicklink-arrow">${ICONS.arrowright}</span>
+      <div class="quicklink-bottom">
+        <div class="quicklink-label">Convidados</div>
+      </div>
     </button>
     <button class="quicklink-card ql-peach" data-goto="vestido">
       <div class="quicklink-icon">${ICONS.dress}</div>
-      <div class="quicklink-label">Dress</div>
-      <span class="quicklink-arrow">${ICONS.arrowright}</span>
+      <div class="quicklink-bottom">
+        <div class="quicklink-label">Dress</div>
+      </div>
     </button>
     <button class="quicklink-card ql-peach2" data-goto="checklist">
       <div class="quicklink-icon">${ICONS.checklist}</div>
-      <div class="quicklink-label">Checklist</div>
-      <span class="quicklink-arrow">${ICONS.arrowright}</span>
+      <div class="quicklink-bottom">
+        <div class="quicklink-label">Checklist</div>
+      </div>
     </button>
     <button class="quicklink-card ql-blush" data-goto="fornecedores">
       <div class="quicklink-icon">${ICONS.briefcase}</div>
-      <div class="quicklink-label">Fornecedores</div>
-      <span class="quicklink-arrow">${ICONS.arrowright}</span>
+      <div class="quicklink-bottom">
+        <div class="quicklink-label">Fornecedores</div>
+      </div>
     </button>
   </div>
 
   <div class="section-label-v2">O teu progresso</div>
   <div class="ring-row">
     <div class="ring-card">
-      <div class="ring-label">Confirmados <span class="ring-label-arrow">${ICONS.arrowright}</span></div>
+      <div class="ring-label">Confirmados</div>
       <div class="ring-wrap">
         ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--sage-dark)', 92, 9)}
         <div class="ring-center"><span class="num">${totalConfirmed}</span><span class="sub">de ${totalGuests}</span></div>
@@ -1213,7 +1250,7 @@ function viewInicio(){
       </div>
     </div>
     <div class="ring-card">
-      <div class="ring-label">Orçamento gasto <span class="ring-label-arrow">${ICONS.arrowright}</span></div>
+      <div class="ring-label">Orçamento gasto</div>
       <div class="ring-wrap" id="inicio-orc-ring-wrap">
         ${donutSVG(state.budget.total? spent/state.budget.total : 0, 'var(--blush-dark)', 92, 9)}
         <div class="ring-center"><span class="num">${spentPct}%</span><span class="sub">${fmtEUR(spent)}</span></div>
@@ -1236,44 +1273,86 @@ function viewInicio(){
 /* ============================================================
    VIEW: Orçamento
 ============================================================ */
-function viewOrcamento(){
+function buildDonutSection(){
   const total = state.budget.total;
-  const guests = state.budget.guestsEstimate;
-  const perGuest = guests? total/guests : 0;
   const pctSum = state.categories.reduce((s,c)=>s+Number(c.pct),0);
-
-  const bar = state.categories.map((c,i)=>`<div class="split-seg" style="width:${c.pct*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></div>`).join('');
   const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${c.name} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
   const pctNote = Math.abs(pctSum-1)<0.001
     ? `<div class="pct-note ok">As percentagens somam ${Math.round(pctSum*1000)/10}% — orçamento totalmente repartido.</div>`
     : `<div class="pct-note warn">As percentagens somam ${Math.round(pctSum*1000)/10}% — falta ${(100-Math.round(pctSum*1000)/10).toFixed(1)}% para 100%.</div>`;
+  return `
+  <div class="donut-chart-card">
+    <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
+      ${multiDonutSVG(state.categories.map((c,i)=>({pct:c.pct, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
+      <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">repartido</span></div>
+    </div>
+    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
+  </div>
+  ${pctNote}`;
+}
+function softUpdateCategoryValue(id, newValue){
+  const cat = state.categories.find(c=>c.id===id);
+  if(!cat) return;
+  const total = state.budget.total;
+  cat.pct = total ? Math.max(0, newValue)/total : 0;
+  const guests = state.budget.guestsEstimate;
+  const pctDisplay = Math.round(cat.pct*1000)/10;
+  const catPerGuest = guests ? newValue/guests : 0;
+
+  const pctEl = document.querySelector(`[data-catpctdisplay="${id}"]`);
+  if(pctEl) pctEl.textContent = pctDisplay+'%';
+  const totalEl = document.querySelector(`[data-cattotal="${id}"]`);
+  if(totalEl) totalEl.textContent = fmtEUR(newValue);
+  const barEl = document.querySelector(`[data-catbar="${id}"]`);
+  if(barEl) barEl.style.width = pctDisplay+'%';
+  const perGuestEl = document.querySelector(`[data-catperguest="${id}"]`);
+  if(perGuestEl) perGuestEl.textContent = fmtEUR(catPerGuest)+' / convidado';
+
+  const donutWrap = document.getElementById('donut-section');
+  if(donutWrap) donutWrap.innerHTML = buildDonutSection();
+  pushRemote();
+}
+function viewOrcamento(){
+  const total = state.budget.total;
+  const guests = state.budget.guestsEstimate;
+  const perGuest = guests? total/guests : 0;
 
   const rows = state.categories.map((c,i)=>{
     const catTotal = total*c.pct;
     const catPerGuest = guests? catTotal/guests : 0;
     const open = !!openDesc[c.id];
+    const pctDisplay = Math.round(c.pct*1000)/10;
+    const pair = CAT_COLOR_PAIRS[i%CAT_COLOR_PAIRS.length];
     return `
-    <div class="list-row" style="flex-direction:column; align-items:stretch;">
-      <div style="display:flex; align-items:center; gap:11px;">
+    <div class="cat-row-v2">
+      <div class="cat-row-head tappable" data-toggledesc="${c.id}">
         <div class="icon-chip" style="${chipStyle(i)}">${ICONS.budget}</div>
-        <div class="title tappable" data-toggledesc="${c.id}" style="cursor:pointer; display:flex; align-items:center; gap:6px; flex:1;">
-          <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>${c.name}
+        <div class="cat-row-mid">
+          <div class="cat-row-name">${c.name}</div>
+          <div class="cat-row-bar-track"><div class="cat-row-bar-fill" data-catbar="${c.id}" style="width:${pctDisplay}%; background:${pair.fg};"></div></div>
         </div>
-        <button class="cat-edit-btn" data-renamecat="${c.id}" title="Renomear">${ICONS.pencil}</button>
-        <div class="pct-stepper">
-          <button data-pct="${c.id}|-1">−</button>
-          <span class="pctval">${Math.round(c.pct*1000)/10}%</span>
-          <button data-pct="${c.id}|1">+</button>
+        <div class="cat-row-vals">
+          <div class="cat-row-total" data-cattotal="${c.id}">${fmtEUR(catTotal)}</div>
+          <div class="cat-row-pct" data-catpctdisplay="${c.id}">${pctDisplay}%</div>
         </div>
-        <button class="remove-x" data-delcat="${c.id}" title="Eliminar categoria">✕</button>
+        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
       </div>
-      <div style="display:flex; justify-content:space-between; padding-left:39px; margin-top:5px; font-size:12px; color:var(--ink-soft);">
-        <span data-cattotal="${c.id}">${fmtEUR(catTotal)} total</span><span data-catperguest="${c.id}">${fmtEUR(catPerGuest)} / convidado</span>
-      </div>
-      ${open? `<div class="cat-desc"><ul>${c.desc.map((d,di)=>`<li>${d}<button class="desc-del" data-deldesc="${c.id}|${di}">✕</button></li>`).join('')}</ul>
-        <div class="add-row" style="margin-top:8px;">
-          <input type="text" placeholder="Adicionar item…" data-adddesc="${c.id}">
-          <button class="add-circle" data-adddescbtn="${c.id}">${ICONS.plus}</button>
+      ${open? `
+      <div class="cat-row-expand">
+        <div class="cat-row-perguest" data-catperguest="${c.id}">${fmtEUR(catPerGuest)} / convidado</div>
+        <div class="table-config-row" style="padding:6px 0;">
+          <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Valor (€)</span>
+          <input type="number" class="field-input" data-catvalue="${c.id}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
+        </div>
+        <div style="display:flex; gap:9px; padding:6px 0 12px;">
+          <button class="visit-action-btn" data-renamecat="${c.id}">${ICONS.pencil} Renomear</button>
+          <button class="visit-action-btn danger" data-delcat="${c.id}">${ICONS.trash} Eliminar</button>
+        </div>
+        <div class="cat-desc" style="padding:0;"><ul>${c.desc.map((d,di)=>`<li>${d}<button class="desc-del" data-deldesc="${c.id}|${di}">✕</button></li>`).join('')}</ul>
+          <div class="add-row" style="margin-top:8px;">
+            <input type="text" placeholder="Adicionar item…" data-adddesc="${c.id}">
+            <button class="add-circle" data-adddescbtn="${c.id}">${ICONS.plus}</button>
+          </div>
         </div>
       </div>` : ''}
     </div>`;
@@ -1283,38 +1362,35 @@ function viewOrcamento(){
   <div class="navbar"><h1>Orçamento</h1><div class="navbar-botanical">${ICONS.botanical}</div></div>
 
   <div class="stats-row">
-    <div class="stat-card">
+    <div class="stat-card" style="background:#E7EBE1; border-color:#DCE2D3;">
       <div class="l" style="margin:0 0 4px;">Orçamento total</div>
       <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" value="${total}" style="text-align:left;"></div>
+      <div class="stat-card-icon">${ICONS.budget}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
       <div class="l" style="margin:0 0 4px;">Convidados (est.)</div>
       <input class="field-input big" id="in-guests" type="number" value="${guests}" style="text-align:left;">
+      <div class="stat-card-icon">${ICONS.guests}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
       <div class="l" style="margin:0 0 4px;">€ / convidado</div>
       <div class="n" id="perguest-display" style="font-size:21px;">${fmtEUR(perGuest)}</div>
+      <div class="stat-card-icon">${ICONS.tag||ICONS.budget}</div>
     </div>
   </div>
 
-  <div class="section-label">Repartição por categoria</div>
-  <div class="donut-chart-card">
-    <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
-      ${multiDonutSVG(state.categories.map((c,i)=>({pct:c.pct, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
-      <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">repartido</span></div>
-    </div>
-    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
-  </div>
-  ${pctNote}
+  <div class="section-label" style="display:flex; align-items:center; gap:10px;">Repartição por categoria<span style="flex:1; height:1px; background:var(--line);"></span></div>
+  <div id="donut-section">${buildDonutSection()}</div>
 
   <div class="section-label">Categorias · toca para ver detalhe</div>
-  <div class="list-group">
-    ${rows}
-    <div class="add-row">
+  ${rows}
+  <div class="cat-row-v2" style="padding:4px 4px;">
+    <div class="add-row" style="margin:0;">
       <input type="text" placeholder="Nova categoria…" id="add-cat-name">
       <button class="add-circle" id="addbtn-cat">${ICONS.plus}</button>
     </div>
   </div>
+  <div style="height:8px;"></div>
   `;
 }
 
@@ -1361,7 +1437,7 @@ function bindGuestGroupHandlers(scope){
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.togglegroup;
       openGuestGroup[key] = !openGuestGroup[key];
-      softUpdateConvidados();
+      softUpdateConvidados(false);
     });
   });
   scope.querySelectorAll('[data-confirm]').forEach(el=>{
@@ -1450,13 +1526,6 @@ function buildGuestBody(){
   }
   return body;
 }
-function softUpdateConvidados(){
-  const el = document.getElementById('guest-groups-container');
-  if(!el) return;
-  el.innerHTML = buildGuestBody();
-  bindGuestGroupHandlers(el);
-  pushRemote();
-}
 function buildConvidadosDynamic(){
   const totalGuests = countGuests('noiva')+countGuests('noivo');
   const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
@@ -1474,12 +1543,12 @@ function buildConvidadosDynamic(){
   </div>
   <div id="guest-groups-container">${buildGuestBody()}</div>`;
 }
-function softUpdateConvidados(){
+function softUpdateConvidados(save){
   const el = document.getElementById('convidados-dynamic');
   if(!el) return;
   el.innerHTML = buildConvidadosDynamic();
   bindGuestGroupHandlers(el);
-  pushRemote();
+  if(save!==false) pushRemote();
 }
 function viewConvidados(){
   return `
@@ -2247,7 +2316,7 @@ function bindHandlers(){
       const target = el.dataset.goto;
       if(target !== activeTab) collapseAllSections();
       activeTab = target;
-      render();
+      _origRender();
     });
   });
   document.querySelectorAll('[data-scrollto]').forEach(el=>{
@@ -2270,7 +2339,7 @@ function bindHandlers(){
     });
   });
   const inspBack = document.getElementById('insp-back');
-  if(inspBack) inspBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  if(inspBack) inspBack.addEventListener('click', ()=>{ activeTab='inicio'; _origRender(); });
   document.querySelectorAll('[data-insplightbox]').forEach(el=>{
     el.addEventListener('click', e=>{
       const item = inspirations.find(i=>i.id===e.currentTarget.dataset.insplightbox);
@@ -2280,13 +2349,13 @@ function bindHandlers(){
 
   // Checklist
   const checklistBack = document.getElementById('checklist-back');
-  if(checklistBack) checklistBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  if(checklistBack) checklistBack.addEventListener('click', ()=>{ activeTab='inicio'; _origRender(); });
   document.querySelectorAll('[data-togglephase]').forEach(el=>{
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.togglephase;
       const wasOpen = openChecklistPhaseId===key;
       openChecklistPhaseId = wasOpen ? null : key;
-      render();
+      _origRender();
       if(!wasOpen){
         const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.guest-group-card');
         if(card) requestAnimationFrame(()=> card.scrollIntoView({behavior:'smooth', block:'start'}));
@@ -2296,7 +2365,7 @@ function bindHandlers(){
   const togglePhaseProgress = document.getElementById('toggle-phase-progress');
   if(togglePhaseProgress) togglePhaseProgress.addEventListener('click', ()=>{
     showAllPhaseProgress = !showAllPhaseProgress;
-    render();
+    _origRender();
   });
   document.querySelectorAll('[data-checktask]').forEach(el=>{
     el.addEventListener('click', e=>{
@@ -2336,14 +2405,14 @@ function bindHandlers(){
 
   // Say Yes to the Dress
   const vestidoBack = document.getElementById('vestido-back');
-  if(vestidoBack) vestidoBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  if(vestidoBack) vestidoBack.addEventListener('click', ()=>{ activeTab='inicio'; _origRender(); });
   const addVisitBtn = document.getElementById('add-visit-btn');
   if(addVisitBtn) addVisitBtn.addEventListener('click', ()=>openVisitSheet());
   document.querySelectorAll('[data-togglevisit]').forEach(el=>{
     el.addEventListener('click', e=>{
       const id = e.currentTarget.dataset.togglevisit;
       openDressVisit[id] = !openDressVisit[id];
-      render();
+      _origRender();
     });
   });
   document.querySelectorAll('[data-favvisit]').forEach(btn=>{
@@ -2384,7 +2453,7 @@ function bindHandlers(){
 
   // Fornecedores
   const fornecedoresBack = document.getElementById('fornecedores-back');
-  if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ activeTab='inicio'; fornecedoresSubview='lista'; render(); });
+  if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ activeTab='inicio'; fornecedoresSubview='lista'; _origRender(); });
   const addSupplierBtn = document.getElementById('add-supplier-btn');
   if(addSupplierBtn) addSupplierBtn.addEventListener('click', ()=>openSupplierSheet());
   document.querySelectorAll('[data-supfilter]').forEach(btn=>{
@@ -2402,13 +2471,13 @@ function bindHandlers(){
 
   // Definições — menu
   document.querySelectorAll('[data-defgoto]').forEach(el=>{
-    el.addEventListener('click', e=>{ definicoesSection = e.currentTarget.dataset.defgoto; render(); });
+    el.addEventListener('click', e=>{ definicoesSection = e.currentTarget.dataset.defgoto; _origRender(); });
   });
   document.querySelectorAll('[data-defback]').forEach(el=>{
-    el.addEventListener('click', ()=>{ definicoesSection = null; render(); });
+    el.addEventListener('click', ()=>{ definicoesSection = null; _origRender(); });
   });
   const defBack = document.getElementById('def-back');
-  if(defBack) defBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  if(defBack) defBack.addEventListener('click', ()=>{ activeTab='inicio'; _origRender(); });
   const defSignout = document.getElementById('def-signout');
   if(defSignout) defSignout.addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
 
@@ -2526,19 +2595,17 @@ function bindHandlers(){
   const inGuests = document.getElementById('in-guests');
   if(inTotal) inTotal.addEventListener('input', e=>{ state.budget.total = Number(e.target.value)||0; softUpdateBudget(); });
   if(inGuests) inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Number(e.target.value)||0; softUpdateBudget(); });
-  document.querySelectorAll('[data-pct]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const [id,dir] = e.currentTarget.dataset.pct.split('|');
-      const c = catById(id);
-      c.pct = Math.max(0, Math.round((c.pct*1000)+Number(dir)*5)/1000);
-      render();
+  document.querySelectorAll('[data-catvalue]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const id = e.currentTarget.dataset.catvalue;
+      softUpdateCategoryValue(id, Number(e.currentTarget.value)||0);
     });
   });
   document.querySelectorAll('[data-toggledesc]').forEach(el=>{
     el.addEventListener('click', e=>{
       const id = e.currentTarget.dataset.toggledesc;
       openDesc[id] = !openDesc[id];
-      render();
+      _origRender();
     });
   });
   document.querySelectorAll('[data-renamecat]').forEach(btn=>{
@@ -2601,7 +2668,7 @@ function bindHandlers(){
   const openGuestSheetBtn = document.getElementById('open-guest-sheet');
   if(openGuestSheetBtn) openGuestSheetBtn.addEventListener('click', openGuestSheet);
   document.querySelectorAll('.segmented button[data-seg]').forEach(b=>{
-    b.addEventListener('click', ()=>{ guestSeg = b.dataset.seg; render(); });
+    b.addEventListener('click', ()=>{ guestSeg = b.dataset.seg; _origRender(); });
   });
   const gsearch = document.getElementById('guest-search');
   if(gsearch){
@@ -2664,7 +2731,7 @@ function bindHandlers(){
     el.addEventListener('click', e=>{
       const t = e.currentTarget.dataset.toggletable;
       openTable[t] = !openTable[t];
-      render();
+      _origRender();
     });
   });
   document.querySelectorAll('[data-openseat]').forEach(el=>{
@@ -2682,8 +2749,10 @@ function softUpdateBudget(){
     const catPerGuest = guests? catTotal/guests : 0;
     const elTotal = document.querySelector(`[data-cattotal="${c.id}"]`);
     const elPerGuest = document.querySelector(`[data-catperguest="${c.id}"]`);
-    if(elTotal) elTotal.textContent = fmtEUR(catTotal)+' total';
+    if(elTotal) elTotal.textContent = fmtEUR(catTotal);
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+' / convidado';
+    const elValueInput = document.querySelector(`[data-catvalue="${c.id}"]`);
+    if(elValueInput && document.activeElement!==elValueInput) elValueInput.value = Math.round(catTotal);
   });
   const spent = totalExpenseValue();
   const inicioRing = document.getElementById('inicio-orc-ring-wrap');
