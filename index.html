@@ -35,6 +35,7 @@
   --shadow:0 2px 12px rgba(48,44,41,0.055), 0 1px 2px rgba(48,44,41,0.04);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html{background:#FAF8F5;}
 html,body{margin:0;padding:0;height:100%;background:#FAF8F5;}
 body{
   background:var(--cream);
@@ -684,8 +685,24 @@ body{
     document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
   }
   setAppHeight();
+  // No arranque em iOS standalone, o window.innerHeight pode vir errado
+  // antes de o WebKit assentar o layout — repetimos a medição nos
+  // primeiros instantes (inclui arranque frio, com Firebase/fontes
+  // ainda a carregar) para apanhar o valor correto.
+  requestAnimationFrame(setAppHeight);
+  setTimeout(setAppHeight, 100);
+  setTimeout(setAppHeight, 300);
+  setTimeout(setAppHeight, 800);
+  setTimeout(setAppHeight, 1500);
   window.addEventListener('resize', setAppHeight);
   window.addEventListener('orientationchange', setAppHeight);
+  // Quando a app volta de segundo plano (troca de apps, ecrã bloqueado),
+  // resize/orientationchange não disparam mas o innerHeight pode ter
+  // ficado desatualizado — por isso recalculamos aqui também.
+  window.addEventListener('pageshow', setAppHeight);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible') setAppHeight();
+  });
 
   // Esconde a tabbar enquanto o teclado está aberto (em vez de a deixar
   // flutuar por cima do teclado) e volta a mostrá-la ao fechar.
