@@ -113,7 +113,7 @@ body{
 .img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:16px; display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:20px; background:rgba(20,18,14,0.75); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:13px; font-weight:600; cursor:pointer; z-index:2; line-height:1;}
 .img-lightbox-close svg{ width:13px; height:13px; }
 .img-lightbox-close:active{ background:rgba(20,18,14,0.9); }
-.save-toast{ position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 78px); transform:translateX(-50%) translateY(8px); z-index:300; display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:rgba(30,28,24,0.92); color:#fff; font-size:12.5px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; }
+.save-toast{ position:absolute; left:50%; top:calc(env(safe-area-inset-top) + 10px); transform:translateX(-50%) translateY(-8px); z-index:300; display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:rgba(30,28,24,0.92); color:#fff; font-size:12.5px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; }
 .save-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 .save-toast.error{ background:rgba(154,69,48,0.95); }
 .save-toast svg{ width:14px; height:14px; flex-shrink:0; }
@@ -182,10 +182,10 @@ body{
 .theme-swatch{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line); cursor:pointer; }
 .theme-swatch.active{ box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--ink); }
 .hero-preview{ width:100%; height:110px; border-radius:14px; background-size:cover; background-position:center; margin-bottom:12px; }
-.crop-viewport{ width:100%; height:150px; border-radius:14px; background-repeat:no-repeat; margin-bottom:10px; position:relative; overflow:hidden; touch-action:none; cursor:grab; box-shadow:inset 0 0 0 1px var(--line); }
+.crop-viewport{ width:100%; max-width:220px; height:96px; border-radius:13px; background-repeat:no-repeat; margin:0 auto 10px; position:relative; overflow:hidden; touch-action:none; cursor:grab; box-shadow:0 3px 10px rgba(20,20,20,0.12), inset 0 0 0 1px rgba(255,255,255,0.4); border:1px solid var(--line); }
 .crop-viewport.dragging{ cursor:grabbing; }
-.crop-hint{ position:absolute; left:0; right:0; bottom:0; padding:6px 10px; font-size:10px; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,0.35)); text-align:center; pointer-events:none; }
-.crop-zoom-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; color:var(--ink-soft); }
+.crop-hint{ position:absolute; left:0; right:0; bottom:0; padding:4px 8px; font-size:8.5px; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,0.4)); text-align:center; pointer-events:none; }
+.crop-zoom-row{ display:flex; align-items:center; gap:10px; margin:0 auto 14px; max-width:220px; color:var(--ink-soft); }
 .crop-zoom-row svg{ width:16px; height:16px; flex-shrink:0; }
 .crop-zoom-row input[type="range"]{ flex:1; accent-color:var(--rust); }
 .remove-x:active{ color:var(--rust); }
@@ -262,6 +262,7 @@ body{
 .phase-desc{ display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .visit-detail{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
 .visit-detail b{ color:var(--ink); font-weight:600; }
+.status-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .visit-fav-btn{ all:unset; box-sizing:border-box; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:#D9D4C7; flex-shrink:0; cursor:pointer;  line-height:1;}
 .visit-fav-btn svg{ width:18px; height:18px; }
 .visit-fav-btn.active{ color:var(--rust); }
@@ -358,7 +359,7 @@ body{
 .hero-cta:active{ opacity:.82; }
 
 /* Início — atalhos em grelha */
-.quicklink-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 16px 8px; }
+.quicklink-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 16px 8px; }
 .quicklink-card{ all:unset; box-sizing:border-box; width:100%; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 3px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; box-shadow:var(--shadow); cursor:pointer; text-align:center; }
 .quicklink-card:active{ transform:scale(0.95); }
 .quicklink-icon{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
@@ -430,15 +431,20 @@ body{
 
 
 /* Login */
-.login-screen{ position:absolute; inset:0; z-index:100; background:var(--cream); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; }
+.login-screen{ position:absolute; inset:0; z-index:100; background:linear-gradient(160deg, #FFFDF8 0%, #FBF1E7 45%, #F3E2D6 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
+.login-screen::before{ content:''; position:absolute; top:-70px; right:-70px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(201,160,46,0.16), transparent 70%); }
+.login-screen::after{ content:''; position:absolute; bottom:-90px; left:-60px; width:240px; height:240px; border-radius:50%; background:radial-gradient(circle, rgba(193,88,62,0.12), transparent 70%); }
+.login-inner{ position:relative; z-index:1; width:100%; }
 .login-screen.hidden{ display:none; }
 .login-mark{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:38px; color:var(--heading); margin-bottom:4px; }
 .login-mark .amp{ color:var(--heading); font-style:normal; font-weight:500; padding:0 6px; }
 .login-tag{ color:var(--ink-soft); font-size:12.5px; margin-bottom:26px; letter-spacing:.01em; }
+.login-divider{ width:34px; height:2px; background:var(--gold); margin:2px auto 14px; border-radius:2px; opacity:.7; }
 .login-field{ width:100%; max-width:280px; }
 .login-field input{ width:100%; border:1px solid var(--line); background:var(--card); border-radius:12px; padding:13px 14px; font-size:15px; color:var(--ink); font-family:inherit; outline:none; text-align:center; }
 .login-field input:focus{ border-color:var(--gold); }
-.login-btn{ all:unset; box-sizing:border-box; cursor:pointer; width:100%; max-width:280px; text-align:center; margin-top:12px; padding:13px 0; border-radius:12px; background:var(--rust); color:#fff; font-size:14.5px; font-weight:600; }
+.login-btn{ all:unset; box-sizing:border-box; cursor:pointer; width:100%; max-width:280px; text-align:center; margin-top:10px; padding:10px 0; border-radius:11px; background:var(--rust); color:#fff; font-size:13.5px; font-weight:600; }
+.login-btn svg{ width:14px; height:14px; flex-shrink:0; vertical-align:-2px; }
 .login-btn:active{ opacity:.8; }
 .login-msg{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:280px; line-height:1.5; }
 .login-msg.error{ color:var(--rust-dark); }
@@ -472,6 +478,25 @@ body{
   </div>
 
   <div class="sheet-backdrop" id="sheet-backdrop"></div>
+  <div class="sheet" id="supplier-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="supplier-sheet-title">Novo fornecedor</div>
+    <div class="sheet-field"><label>Nome</label><input type="text" id="sup-name" placeholder="Ex: Quinta da Alegria"></div>
+    <div class="sheet-field"><label>Categoria</label><select id="sup-cat"></select></div>
+    <div class="sheet-field"><label>Contacto</label><input type="text" id="sup-contact" placeholder="Telefone ou email"></div>
+    <div class="sheet-field"><label>Estado</label>
+      <select id="sup-status">
+        <option value="considerar">A considerar</option>
+        <option value="contactado">Contactado</option>
+        <option value="contratado">Contratado</option>
+      </select>
+    </div>
+    <div class="sheet-field"><label>Notas</label><input type="text" id="sup-notas" placeholder="Preço, disponibilidade…"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="sup-cancel">Cancelar</button>
+      <button class="btn-save" id="sup-save">Guardar</button>
+    </div>
+  </div>
   <div class="sheet" id="visit-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="visit-sheet-title">Nova visita</div>
@@ -556,7 +581,7 @@ body{
 
   <div class="login-screen" id="login-screen">
     <div class="login-inner" id="login-inner">
-      <div class="login-mark">Weddy</div>
+      <div class="login-mark">Weddy</div><div class="login-divider"></div>
       <div class="login-tag">A carregar…</div>
     </div>
   </div>
@@ -592,6 +617,7 @@ if(FIREBASE_READY){
 }
 let currentWeddingId = null;
 let currentWeddingOwners = [];
+let currentLastLogins = {};
 const WEDDINGS = () => db.collection('weddings');
 const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
 
@@ -814,7 +840,8 @@ function seedData(){
     checklistPersonal:[],
     dressChecklistDone:{},
     dressVisits:[],
-    favoriteVisitId:null
+    favoriteVisitId:null,
+    suppliers:[]
   };
 }
 function defaultSettings(name1, name2, dateStr, venue){
@@ -846,9 +873,11 @@ function collapseAllSections(){
   openGuestGroup = {};
   openChecklistPhaseId = null;
   openDressVisit = {};
+  openSupplierCat = {};
   definicoesSection = null;
 }
 let openDressVisit = {};
+let openSupplierCat = {};
 let definicoesSection = null;
 let dressInspirations = [];
 let editingSeatKey = null;
@@ -977,6 +1006,7 @@ function render(){
     panel('inspiracao', viewInspiracao()) +
     panel('checklist', viewChecklist()) +
     panel('vestido', viewVestido()) +
+    panel('fornecedores', viewFornecedores()) +
     panel('definicoes', viewDefinicoes());
   bindHandlers();
   syncMesa3DPanel();
@@ -1038,13 +1068,13 @@ function viewInicio(){
   </div>
 
   <div class="quicklink-grid">
-    <button class="quicklink-card" data-goto="convidados">
-      <div class="quicklink-icon" style="background:var(--dusty);">${ICONS.guests}</div>
-      <div class="quicklink-label">Convidados</div>
-    </button>
     <button class="quicklink-card" data-goto="orcamento">
       <div class="quicklink-icon" style="background:var(--gold);">${ICONS.budget}</div>
       <div class="quicklink-label">Orçamento</div>
+    </button>
+    <button class="quicklink-card" data-goto="convidados">
+      <div class="quicklink-icon" style="background:var(--dusty);">${ICONS.guests}</div>
+      <div class="quicklink-label">Convidados</div>
     </button>
     <button class="quicklink-card" data-goto="vestido">
       <div class="quicklink-icon" style="background:var(--blush-dark);">${ICONS.dress}</div>
@@ -1053,6 +1083,10 @@ function viewInicio(){
     <button class="quicklink-card" data-goto="checklist">
       <div class="quicklink-icon" style="background:var(--sage-dark);">${ICONS.checklist}</div>
       <div class="quicklink-label">Checklist</div>
+    </button>
+    <button class="quicklink-card" data-goto="fornecedores">
+      <div class="quicklink-icon" style="background:var(--dusty-dark);">${ICONS.briefcase}</div>
+      <div class="quicklink-label">Fornecedores</div>
     </button>
   </div>
 
@@ -1205,6 +1239,10 @@ function guestGroupHTML(side, catKey, catLabel, icon, color){
     ${open? `
     <div class="guest-group-body">
       ${rows || `<div class="empty-note">sem convidados nesta categoria</div>`}
+      <div class="add-row">
+        <input type="text" placeholder="Adicionar a ${catLabel.toLowerCase()}…" data-addname="${side}|${catKey}">
+        <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
+      </div>
     </div>` : ''}
   </div>`;
 }
@@ -1292,6 +1330,7 @@ function buildGuestBody(){
       </div>
       <div class="guest-group-body">
         ${rows || `<div class="empty-note">sem crianças</div>`}
+        <div class="add-row"><input type="text" id="add-crianca" placeholder="Adicionar criança…"><button class="add-circle" id="addbtn-crianca">${ICONS.plus}</button></div>
       </div>
     </div>`;
   } else {
@@ -1336,8 +1375,6 @@ function softUpdateConvidados(){
 function viewConvidados(){
   return `
   <div class="navbar"><h1>Convidados</h1></div>
-
-  <button class="add-guest-cta" id="open-guest-sheet">${ICONS.plus} Adicionar convidado</button>
 
   <div class="segmented">
     <button data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">Noiva</button>
@@ -1517,13 +1554,14 @@ function viewInspiracao(){
     <button class="nav-action neutral" id="insp-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
     <div><h1>Inspiração</h1></div>
   </div>
-  <div class="section-label">Guarda imagens que te inspiraram — vestidos, decoração, flores, o que quiseres</div>
+  <div class="section-label">Guarda imagens que te inspiraram — vestidos, decoração, flores, o que quiseres (máx. 6)</div>
   <div class="insp-grid">
     ${tiles}
+    ${inspirations.length<6 ? `
     <button class="insp-add-tile" id="insp-add-btn">
       <span class="insp-add-icon">+</span>
       <span class="insp-add-label">Adicionar</span>
-    </button>
+    </button>` : ''}
   </div>
   `;
 }
@@ -1682,14 +1720,58 @@ function viewVestido(){
   </div>
   ${visitsHTML || `<div class="empty-note" style="margin:0 16px 18px;">Ainda não registaste nenhuma ida a uma loja. Toca no + para adicionar.</div>`}
 
-  <div class="section-label">Fotos de inspiração</div>
+  <div class="section-label">Fotos de inspiração (máx. 6)</div>
   <div class="insp-grid">
     ${tiles}
+    ${dressInspirations.length<6 ? `
     <button class="insp-add-tile" id="dress-insp-add-btn">
       <span class="insp-add-icon">+</span>
       <span class="insp-add-label">Adicionar</span>
-    </button>
+    </button>` : ''}
   </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Fornecedores
+============================================================ */
+const SUPPLIER_STATUS = { considerar:{label:'A considerar', color:'var(--gold)'}, contactado:{label:'Contactado', color:'var(--dusty-dark)'}, contratado:{label:'Contratado', color:'var(--sage-dark)'} };
+function viewFornecedores(){
+  const catsHTML = state.categories.map((c,ci)=>{
+    const list = state.suppliers.filter(s=>s.category===c.id);
+    const open = !!openSupplierCat[c.id];
+    const rowsHTML = list.map(s=>`
+      <div class="list-row" style="flex-direction:column; align-items:stretch; gap:6px;" data-editsupplier="${s.id}">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="status-dot" style="background:${SUPPLIER_STATUS[s.status].color};"></span>
+          <div class="title" style="flex:1;">${s.name}</div>
+          <button class="remove-x" data-delsupplier="${s.id}">✕</button>
+        </div>
+        <div class="visit-detail" style="padding-left:16px;">
+          ${SUPPLIER_STATUS[s.status].label}${s.contact?` · ${s.contact}`:''}${s.notas?`<br>${s.notas}`:''}
+        </div>
+      </div>`).join('');
+    return `
+    <div class="guest-group-card">
+      <div class="guest-group-head" data-togglesupplier="${c.id}">
+        <div class="icon-chip" style="background:${CAT_COLORS[ci%CAT_COLORS.length]};">${ICONS.briefcase}</div>
+        <div class="ggtitle">${c.name}</div>
+        <span class="ggcount">${list.length}</span>
+        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+      </div>
+      ${open? `<div class="guest-group-body">${rowsHTML || `<div class="empty-note">ainda sem fornecedores nesta categoria</div>`}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="navbar" style="display:flex; align-items:center; gap:12px;">
+    <button class="nav-action neutral" id="fornecedores-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
+    <div style="flex:1;"><h1>Fornecedores</h1></div>
+    <button class="nav-action" id="add-supplier-btn" style="flex-shrink:0;">${ICONS.plus}</button>
+  </div>
+  <div class="section-label">Organizados pelas categorias do orçamento — a tua lista de contactos</div>
+  ${catsHTML}
+  <div style="height:6px;"></div>
   `;
 }
 
@@ -1703,6 +1785,7 @@ function viewDefinicoes(){
   if(definicoesSection==='convidar') return viewDefConvidar();
   if(definicoesSection==='seguranca') return viewDefSeguranca();
   if(definicoesSection==='privacidade') return viewDefPrivacidade();
+  if(definicoesSection==='sobre') return viewDefSobre();
   return viewDefMenu();
 }
 
@@ -1728,6 +1811,7 @@ function viewDefMenu(){
     ${defMenuRow('convidar', ICONS.guests, 'var(--sage-dark)', 'Convidar')}
     ${defMenuRow('seguranca', ICONS.lock, 'var(--blush-dark)', 'Segurança')}
     ${defMenuRow('privacidade', ICONS.checklist, 'var(--ink-soft)', 'Privacidade e RGPD')}
+    ${defMenuRow('sobre', ICONS.heart, 'var(--gold)', 'Sobre a Weddy')}
   </div>
   <div style="padding:20px 16px 30px;">
     <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
@@ -1837,10 +1921,21 @@ function viewDefConvidar(){
   `;
 }
 
+function formatLastLogin(ts){
+  if(!ts) return 'Ainda não entrou';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  return `${d.getDate()} ${meses[d.getMonth()]} às ${hh}:${mm}`;
+}
 function viewDefSeguranca(){
   const owners = (currentWeddingOwners||[]).map(email => `
     <div class="list-row" style="flex-direction:column; align-items:stretch; gap:8px;">
-      <div class="title" style="flex:1;">${email}</div>
+      <div>
+        <div class="title" style="flex:1;">${email}</div>
+        <div class="visit-detail">Última sessão: ${formatLastLogin(currentLastLogins[sanitizeEmailKey(email)])}</div>
+      </div>
       ${currentWeddingOwners.length>1 ? `<button class="visit-action-btn danger" style="width:100%;" data-removeowner="${email}">${ICONS.trash} Remover acesso</button>` : `<div class="empty-note" style="margin:0;">É o único com acesso — convida alguém em "Convidar" se quiseres partilhar.</div>`}
     </div>`).join('');
   return `
@@ -1874,6 +1969,23 @@ function viewDefPrivacidade(){
     Para questões sobre os teus dados, escreve para <span style="color:var(--rust);">privacidade@weddy.app</span>.</p>
 
     <p class="privacy-note">Esta página é um ponto de partida simples e claro, não substitui aconselhamento jurídico. Se fores usar a Weddy com outros casais como produto, recomendamos que um advogado reveja este texto antes de publicares.</p>
+  </div>
+  `;
+}
+
+function viewDefSobre(){
+  return `
+  ${defSubHeader('Sobre a Weddy')}
+  <div class="privacy-text">
+    <p style="text-align:center; margin-bottom:22px;">
+      <span style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:32px; color:var(--heading);">Weddy</span>
+    </p>
+    <p>A Weddy nasceu para ser o sítio único onde um casal organiza o casamento — sem folhas soltas, sem grupos de WhatsApp perdidos, sem cinco apps diferentes para orçamento, convidados, mesas e fornecedores.</p>
+    <p>Tudo o que aqui guardas sincroniza em tempo real entre ti e quem convidares — o teu par, os pais, quem estiver a ajudar a planear — cada um vê sempre a versão mais recente.</p>
+    <p><b>Feita para casais, não para empresas</b><br>
+    Sem anúncios, sem venda de dados. Se um dia existirem fornecedores recomendados na app, será sempre claramente identificado como tal.</p>
+    <p><b>Contacto</b><br>
+    Alguma sugestão, problema ou ideia? Escreve para <span style="color:var(--rust);">ola@weddy.app</span>.</p>
   </div>
   `;
 }
@@ -2022,6 +2134,34 @@ function bindHandlers(){
     });
   });
 
+  // Fornecedores
+  const fornecedoresBack = document.getElementById('fornecedores-back');
+  if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  const addSupplierBtn = document.getElementById('add-supplier-btn');
+  if(addSupplierBtn) addSupplierBtn.addEventListener('click', ()=>openSupplierSheet());
+  document.querySelectorAll('[data-togglesupplier]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.togglesupplier;
+      openSupplierCat[id] = !openSupplierCat[id];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-editsupplier]').forEach(row=>{
+    row.addEventListener('click', e=>{
+      if(e.target.closest('[data-delsupplier]')) return;
+      openSupplierSheet(e.currentTarget.dataset.editsupplier);
+    });
+  });
+  document.querySelectorAll('[data-delsupplier]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(confirm('Eliminar este fornecedor?')){
+        state.suppliers = state.suppliers.filter(s=>s.id!==e.currentTarget.dataset.delsupplier);
+        render();
+      }
+    });
+  });
+
   // Definições — menu
   document.querySelectorAll('[data-defgoto]').forEach(el=>{
     el.addEventListener('click', e=>{ definicoesSection = e.currentTarget.dataset.defgoto; render(); });
@@ -2101,7 +2241,7 @@ function bindHandlers(){
   // Convidar
   const defInviteBtn = document.getElementById('def-invite-btn');
   if(defInviteBtn) defInviteBtn.addEventListener('click', ()=>{
-    const email = document.getElementById('def-invite-email').value.trim();
+    const email = document.getElementById('def-invite-email').value.trim().toLowerCase();
     const msgEl = document.getElementById('def-invite-msg');
     if(!email){ msgEl.textContent = 'Escreve um email válido.'; msgEl.className='login-msg error'; return; }
     msgEl.textContent = 'A convidar…'; msgEl.className = 'login-msg';
@@ -2109,7 +2249,11 @@ function bindHandlers(){
       msgEl.textContent = `${email} já pode entrar e criar a conta com este email.`;
       msgEl.className = 'login-msg success';
       document.getElementById('def-invite-email').value = '';
-    }).catch(()=>{ msgEl.textContent = 'Não foi possível convidar. Tenta novamente.'; msgEl.className='login-msg error'; });
+    }).catch(err=>{
+      console.error('Weddy invite error:', err.code, err.message);
+      msgEl.textContent = 'Não foi possível convidar (' + (err.code||'erro desconhecido') + ').';
+      msgEl.className='login-msg error';
+    });
   });
 
   // Segurança
@@ -2474,7 +2618,7 @@ function deleteEvent(eventId){
   state.daySchedule = (state.daySchedule||[]).filter(e=>e.id!==eventId);
   render();
 }
-document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet(); });
+document.getElementById('sheet-backdrop').addEventListener('click', ()=>{ closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet(); closeSupplierSheet(); });
 
 /* ============================================================
    GESTOS — deslizar para trás nas páginas, deslizar para baixo
@@ -2507,9 +2651,9 @@ function bindSheetSwipeDown(sheetEl, closeFn){
   sheetEl.addEventListener('touchend', finish, {passive:true});
   sheetEl.addEventListener('touchcancel', finish, {passive:true});
 }
-['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet'].forEach(id=>{
+['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet'].forEach(id=>{
   const el = document.getElementById(id);
-  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet };
+  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet, 'supplier-sheet':closeSupplierSheet };
   bindSheetSwipeDown(el, closers[id]);
 });
 
@@ -2531,7 +2675,7 @@ function initSwipeBack(){
     if(dx > 70 && dy < 60){
       const activePanel = document.querySelector('.tabpanel.active');
       if(!activePanel) return;
-      const backBtn = activePanel.querySelector('#def-back, [data-defback], #insp-back, #checklist-back, #vestido-back');
+      const backBtn = activePanel.querySelector('#def-back, [data-defback], #insp-back, #checklist-back, #vestido-back, #fornecedores-back');
       if(backBtn) backBtn.click();
     }
   }, {passive:true});
@@ -2708,16 +2852,21 @@ function initMesa3D(){
   mesa3d.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
   mesa3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
   mesa3d.renderer.setSize(w, h, false);
+  if('outputColorSpace' in mesa3d.renderer) mesa3d.renderer.outputColorSpace = THREE.SRGBColorSpace;
+  else if('outputEncoding' in mesa3d.renderer) mesa3d.renderer.outputEncoding = THREE.sRGBEncoding;
 
   mesa3d.scene = new THREE.Scene();
   mesa3d.camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100);
   mesa3d.camera.position.set(0, 5.7, 7.3);
   mesa3d.camera.lookAt(0, 0, 0);
 
-  mesa3d.scene.add(new THREE.HemisphereLight(0xfff6e9, 0x5b4632, 1.1));
-  const dir = new THREE.DirectionalLight(0xfff2d8, 0.6);
+  mesa3d.scene.add(new THREE.HemisphereLight(0xfff8ef, 0x7a6656, 1.5));
+  const dir = new THREE.DirectionalLight(0xfff5e0, 1.0);
   dir.position.set(3, 6, 4);
   mesa3d.scene.add(dir);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.45);
+  fill.position.set(-4, 3, -3);
+  mesa3d.scene.add(fill);
 
   mesa3d.tableGroup = new THREE.Group();
   mesa3d.scene.add(mesa3d.tableGroup);
@@ -3117,6 +3266,7 @@ function loadInspirations(){
 document.getElementById('insp-file-input').addEventListener('change', async (e)=>{
   const files = Array.from(e.target.files || []);
   for(const file of files){
+    if(inspirations.length>=6) break;
     try{
       const dataUrl = await resizeImageFile(file, 1080, 0.82);
       inspirations.push({ id:'insp'+Date.now()+Math.random().toString(36).slice(2,7), dataUrl });
@@ -3138,6 +3288,7 @@ function loadDressInspirations(){
 document.getElementById('dress-insp-file-input').addEventListener('change', async (e)=>{
   const files = Array.from(e.target.files || []);
   for(const file of files){
+    if(dressInspirations.length>=6) break;
     try{
       const dataUrl = await resizeImageFile(file, 1080, 0.82);
       dressInspirations.push({ id:'dinsp'+Date.now()+Math.random().toString(36).slice(2,7), dataUrl });
@@ -3183,6 +3334,45 @@ document.getElementById('vf-save').addEventListener('click', ()=>{
     openDressVisit[id] = true;
   }
   closeVisitSheet();
+  render();
+});
+
+let editingSupplierId = null;
+function openSupplierSheet(supplierId, presetCat){
+  editingSupplierId = supplierId || null;
+  const s = supplierId ? state.suppliers.find(x=>x.id===supplierId) : null;
+  document.getElementById('supplier-sheet-title').textContent = s ? 'Editar fornecedor' : 'Novo fornecedor';
+  document.getElementById('sup-name').value = s ? s.name : '';
+  document.getElementById('sup-cat').innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('sup-cat').value = s ? s.category : (presetCat || state.categories[0].id);
+  document.getElementById('sup-contact').value = s ? s.contact : '';
+  document.getElementById('sup-status').value = s ? s.status : 'considerar';
+  document.getElementById('sup-notas').value = s ? s.notas : '';
+  document.getElementById('supplier-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closeSupplierSheet(){
+  document.getElementById('supplier-sheet').classList.remove('show');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+  editingSupplierId = null;
+}
+document.getElementById('sup-cancel').addEventListener('click', closeSupplierSheet);
+document.getElementById('sup-save').addEventListener('click', ()=>{
+  const name = document.getElementById('sup-name').value.trim();
+  const category = document.getElementById('sup-cat').value;
+  const contact = document.getElementById('sup-contact').value.trim();
+  const status = document.getElementById('sup-status').value;
+  const notas = document.getElementById('sup-notas').value.trim();
+  if(!name){ closeSupplierSheet(); return; }
+  if(editingSupplierId){
+    const s = state.suppliers.find(x=>x.id===editingSupplierId);
+    if(s){ s.name=name; s.category=category; s.contact=contact; s.status=status; s.notas=notas; }
+  } else {
+    const id = 'sup'+Date.now()+Math.random().toString(36).slice(2,6);
+    state.suppliers.push({ id, name, category, contact, status, notas });
+    openSupplierCat[category] = true;
+  }
+  closeSupplierSheet();
   render();
 });
 
@@ -3260,7 +3450,7 @@ let authMode = 'login'; // 'login' | 'signup'
 function renderLoginForm(msg, isError, isSuccess){
   const isSignup = authMode === 'signup';
   document.getElementById('login-inner').innerHTML = `
-    <div class="login-mark">Weddy</div>
+    <div class="login-mark">Weddy</div><div class="login-divider"></div>
     <div class="login-tag">${isSignup? 'Cria a tua conta de casal' : 'Entra na tua conta'}</div>
     <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
     <div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass" placeholder="Password (mín. 6 caracteres)" autocomplete="${isSignup?'new-password':'current-password'}"></div>
@@ -3289,19 +3479,19 @@ function handleForgotPassword(){
 }
 function renderLoginSetupNeeded(){
   document.getElementById('login-inner').innerHTML = `
-    <div class="login-mark">Weddy</div>
+    <div class="login-mark">Weddy</div><div class="login-divider"></div>
     <div class="login-tag">Falta configurar o acesso</div>
     <div class="login-msg">Ainda não colocaste a configuração do Firebase no ficheiro <b>index.html</b>. Segue as instruções no README.md.</div>
   `;
 }
 function renderLoading(msg){
   document.getElementById('login-inner').innerHTML = `
-    <div class="login-mark">Weddy</div>
+    <div class="login-mark">Weddy</div><div class="login-divider"></div>
     <div class="login-tag">${msg||'A carregar…'}</div>
   `;
 }
 function handleAuthSubmit(){
-  const email = document.getElementById('login-email').value.trim();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   if(!email || !pass){ renderLoginForm('Escreve o email e a password.', true); return; }
   if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta neste ficheiro.', true); return; }
@@ -3326,7 +3516,7 @@ function handleAuthSubmit(){
 /* ---- Assistente de configuração (primeira vez) ---- */
 function renderOnboarding(){
   document.getElementById('login-inner').innerHTML = `
-    <div class="login-mark">Weddy</div>
+    <div class="login-mark">Weddy</div><div class="login-divider"></div>
     <div class="login-tag">Vamos configurar o vosso casamento</div>
     <div class="login-field"><input type="text" id="ob-name1" placeholder="Primeiro nome (ex: Rita)"></div>
     <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-name2" placeholder="Segundo nome (ex: Tiago)"></div>
@@ -3351,7 +3541,7 @@ function handleOnboardingSubmit(){
     return;
   }
   renderLoading('A criar o vosso espaço…');
-  const email = auth.currentUser.email;
+  const email = auth.currentUser.email.toLowerCase();
   weddingSettings = defaultSettings(name1, name2, date, venue);
   state = seedData();
   WEDDINGS().add({
@@ -3414,6 +3604,7 @@ function attachFirestoreSync(){
       }
       if(data.settings) weddingSettings = data.settings;
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
+      if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
     }
     _origRender();
     if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); }
@@ -3426,12 +3617,16 @@ function attachFirestoreSync(){
   });
 }
 
+function sanitizeEmailKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_at_'); }
 function findOrCreateFlow(user){
   renderLoading('A verificar a tua conta…');
-  WEDDINGS().where('ownerEmails','array-contains', user.email).limit(1).get().then(qs=>{
+  WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).limit(1).get().then(qs=>{
     if(!qs.empty){
       currentWeddingId = qs.docs[0].id;
       attachFirestoreSync();
+      CURRENT_DOC().update({
+        ['lastLoginByEmail.'+sanitizeEmailKey(user.email.toLowerCase())]: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(()=>{});
     } else {
       currentWeddingId = null;
       renderOnboarding();
@@ -3449,10 +3644,13 @@ loadDressInspirations();
 if(FIREBASE_READY){
   auth.onAuthStateChanged(user=>{
     if(user){
+      activeTab = 'inicio';
+      collapseAllSections();
       findOrCreateFlow(user);
     } else {
       firstSyncDone = false;
       currentWeddingId = null;
+      activeTab = 'inicio';
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
       document.getElementById('login-screen').classList.remove('hidden');
       renderLoginForm();
