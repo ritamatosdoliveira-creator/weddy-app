@@ -79,6 +79,8 @@ body{
 
 /* Search bar */
 .search-bar{ margin:2px 16px 6px; background:rgba(20,20,20,0.08); border-radius:10px; padding:8px 10px; display:flex; align-items:center; gap:6px; }
+.sup-filter-toggle{ all:unset; display:flex; align-items:center; justify-content:center; width:26px; height:26px; color:var(--ink-soft); cursor:pointer; flex-shrink:0; }
+.sup-filter-toggle svg{ width:19px; height:19px; }
 .search-bar svg{ width:15px; height:15px; color:var(--ink-soft); flex-shrink:0; }
 .search-bar input{ border:none; background:transparent; flex:1; font-size:14.5px; color:var(--ink); outline:none; font-family:inherit; }
 .search-bar input::placeholder{ color:#ABA7A0; }
@@ -290,6 +292,8 @@ body{
 .sup-section-head{ display:flex; align-items:center; justify-content:space-between; margin:0 18px 10px; font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); }
 .sup-list{ margin:0 18px 18px; display:flex; flex-direction:column; gap:9px; }
 .sup-card{ display:flex; align-items:center; gap:11px; padding:11px; border-radius:14px; background:#FFFDFB; border:1px solid #EFE7E0; cursor:pointer; position:relative; }
+.sup-card-static{ cursor:default; }
+.sup-card-static:active{ background:#FFFDFB; opacity:1; }
 .sup-card:active{ background:#FBF6F2; }
 .sup-thumb{ width:52px; height:52px; border-radius:11px; background:#EFE3DA; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#B08D77; }
 .sup-thumb svg{ width:20px; height:20px; }
@@ -526,6 +530,7 @@ body{
     <div class="sheet-field"><label>Nome</label><input type="text" id="sup-name" placeholder="Ex: Quinta da Alegria"></div>
     <div class="sheet-field"><label>Categoria</label><select id="sup-cat"></select></div>
     <div class="sheet-field"><label>Contacto</label><input type="text" id="sup-contact" placeholder="Telefone ou email"></div>
+    <div class="sheet-field"><label>Preço</label><input type="text" id="sup-price" placeholder="Ex: 1500€ ou a combinar"></div>
     <div class="sheet-field"><label>Estado</label>
       <select id="sup-status">
         <option value="considerar">A considerar</option>
@@ -668,6 +673,7 @@ const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
    ICONS (estilo SF Symbols, outline)
 ============================================================ */
 const ICONS = {
+  filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>',
   /* --- chips (preenchidos, estilo ícone da app Definições) --- */
   home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.5 11h2.3v8.3A1.2 1.2 0 0 0 6 20.5h4.1v-5.8h3.8v5.8H18a1.2 1.2 0 0 0 1.2-1.2V11h2.3z"/></svg>',
   budget: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9.6" opacity=".28"/><text x="12" y="16.3" font-size="13.5" font-weight="700" text-anchor="middle" font-family="Georgia,serif">€</text></svg>',
@@ -927,7 +933,8 @@ let openDressVisit = {};
 let openSupplierCat = {};
 let supplierFilter = 'todos';
 let supplierQuery = '';
-let showRecommended = false;
+let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados'
+let showFilterChips = false;
 let definicoesSection = null;
 let dressInspirations = [];
 let editingSeatKey = null;
@@ -1787,14 +1794,15 @@ function viewVestido(){
 ============================================================ */
 const SUPPLIER_STATUS = { considerar:{label:'A considerar', color:'var(--gold)'}, contactado:{label:'Contactado', color:'var(--dusty-dark)'}, contratado:{label:'Contratado', color:'var(--sage-dark)'} };
 const RECOMMENDED_SUPPLIERS = [
-  { id:'rec1', name:'Lígia Pereira Photography', catLabel:'Fotografia', phone:'912 345 678', local:'Porto', site:'www.ligiapereira.pt' },
-  { id:'rec2', name:'Flores do Campo', catLabel:'Decoração', phone:'913 456 789', local:'Braga', site:'www.floresdocampo.pt' },
-  { id:'rec3', name:'Doce Atelier', catLabel:'Bolo de casamento', phone:'914 567 890', local:'Lisboa', site:'www.doceatelier.pt' }
+  { id:'rec1', name:'Lígia Pereira Photography', category:'foto', catLabel:'Fotografia', phone:'912 345 678', local:'Porto', site:'www.ligiapereira.pt' },
+  { id:'rec2', name:'Flores do Campo', category:'decoracao', catLabel:'Decoração', phone:'913 456 789', local:'Braga', site:'www.floresdocampo.pt' },
+  { id:'rec3', name:'Doce Atelier', category:'quinta', catLabel:'Bolo de casamento', phone:'914 567 890', local:'Lisboa', site:'www.doceatelier.pt' }
 ];
 function supplierCardHTML(opts){
-  const { title, catLabel, phone, local, site, badge, attrs, isAdd } = opts;
+  const { title, catLabel, phone, local, site, price, badge, attrs, isAdd, clickable } = opts;
+  const notClickable = clickable === false;
   return `
-  <div class="sup-card" ${attrs||''}>
+  <div class="sup-card ${notClickable?'sup-card-static':''}" ${attrs||''}>
     <div class="sup-thumb ${isAdd?'is-add':''}">${isAdd? ICONS.plus : ICONS.briefcase}</div>
     <div class="sup-info">
       <div class="sup-cat">${catLabel}</div>
@@ -1804,39 +1812,20 @@ function supplierCardHTML(opts){
         : `<div class="sup-meta">
              ${phone?`<span class="sup-meta-item">${ICONS.phone} ${phone}</span>`:''}
              ${local?`<span class="sup-meta-item">${ICONS.pin} ${local}</span>`:''}
+             ${price?`<span class="sup-meta-item">${ICONS.budget} ${price}</span>`:''}
              ${site?`<span class="sup-meta-item">${ICONS.globe} ${site}</span>`:''}
            </div>`}
     </div>
     ${badge?`<span class="sup-badge">${badge}</span>`:''}
-    <span class="sup-chev">${ICONS.chev}</span>
+    ${notClickable?'':`<span class="sup-chev">${ICONS.chev}</span>`}
   </div>`;
 }
 function viewFornecedores(){
+  if(fornecedoresSubview === 'recomendados') return viewFornecedoresRecomendados();
+
   const chips = [{id:'todos', label:'Todos'}].concat(state.categories.map(c=>({id:c.id, label:c.name})));
   const chipsHTML = chips.map(c=>`
     <button class="sup-chip ${supplierFilter===c.id?'active':''}" data-supfilter="${c.id}">${c.label}</button>`).join('');
-
-  const mine = state.suppliers.filter(s=> supplierFilter==='todos' || s.category===supplierFilter);
-  const mineHTML = mine.map(s=>{
-    const cat = state.categories.find(c=>c.id===s.category);
-    return supplierCardHTML({
-      title: s.name,
-      catLabel: (cat? cat.name : '').toUpperCase(),
-      phone: s.contact,
-      local: '',
-      site: s.notas,
-      badge: 'O teu fornecedor',
-      attrs: `data-editsupplier="${s.id}"`
-    });
-  }).join('');
-
-  const recHTML = showRecommended ? RECOMMENDED_SUPPLIERS.map(r=>supplierCardHTML({
-    title: r.name,
-    catLabel: r.catLabel.toUpperCase(),
-    phone: r.phone,
-    local: r.local,
-    site: r.site
-  })).join('') : '';
 
   return `
   <div class="sup-header">
@@ -1848,9 +1837,12 @@ function viewFornecedores(){
     <button class="sup-add-btn" id="add-supplier-btn">${ICONS.plus}</button>
   </div>
 
-  <div class="search-bar" style="margin-bottom:12px;">${ICONS.search}<input type="text" id="sup-search" placeholder="Pesquisar fornecedores…" value="${supplierQuery}"></div>
+  <div class="search-bar" style="margin-bottom:12px; gap:8px;">
+    ${ICONS.search}<input type="text" id="sup-search" placeholder="Pesquisar fornecedores… (mín. 2 letras)" value="${supplierQuery}">
+    <button class="sup-filter-toggle" id="sup-filter-toggle" title="Filtrar por categoria">${ICONS.filter}</button>
+  </div>
 
-  <div class="sup-chip-row">${chipsHTML}</div>
+  <div class="sup-chip-row" id="sup-chip-row" style="${showFilterChips?'':'display:none;'}">${chipsHTML}</div>
 
   <div class="sup-banner">
     <div class="sup-banner-text">
@@ -1862,17 +1854,96 @@ function viewFornecedores(){
     <div class="sup-banner-art">${ICONS.flower}</div>
   </div>
 
-  ${showRecommended? `<div class="sup-list">${recHTML}</div>` : ''}
-
   <div class="sup-section-head">
     <span>Os teus fornecedores</span>
   </div>
-  <div class="sup-list">
-    ${mineHTML}
-    ${supplierCardHTML({ title:'Adicionar fornecedor', catLabel:'OUTRO FORNECEDOR', isAdd:true, attrs:'id="add-supplier-card"' })}
-  </div>
+  <div id="sup-results">${buildSupplierResults()}</div>
   <div style="height:10px;"></div>
   `;
+}
+function viewFornecedoresRecomendados(){
+  const groups = state.categories.map(cat=>{
+    const items = RECOMMENDED_SUPPLIERS.filter(r=>r.category===cat.id);
+    return { cat, items };
+  }).filter(g=>g.items.length);
+
+  const groupsHTML = groups.map(g=>`
+    <div class="sup-section-head"><span>${g.cat.name}</span></div>
+    <div class="sup-list">
+      ${g.items.map(r=>supplierCardHTML({
+        title: r.name,
+        catLabel: r.catLabel.toUpperCase(),
+        phone: r.phone,
+        local: r.local,
+        site: r.site,
+        clickable: false
+      })).join('')}
+    </div>`).join('');
+
+  return `
+  <div class="sup-header">
+    <button class="nav-back" id="recomendados-back">${ICONS.chevleft}</button>
+    <div class="sup-header-text">
+      <h1>Fornecedores recomendados</h1>
+      <p>Alguns dos nossos fornecedores preferidos para o teu grande dia.</p>
+    </div>
+  </div>
+  ${groupsHTML || '<div class="empty-note">Ainda sem recomendações.</div>'}
+  <div style="height:10px;"></div>
+  `;
+}
+function buildSupplierResults(){
+  const q = supplierQuery.trim().toLowerCase();
+  const searching = q.length >= 2;
+  const mine = state.suppliers.filter(s=>{
+    if(supplierFilter!=='todos' && s.category!==supplierFilter) return false;
+    if(searching && !s.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const mineHTML = mine.map(s=>{
+    const cat = state.categories.find(c=>c.id===s.category);
+    return supplierCardHTML({
+      title: s.name,
+      catLabel: (cat? cat.name : '').toUpperCase(),
+      phone: s.contact,
+      local: '',
+      price: s.price,
+      site: s.notas,
+      attrs: `data-editsupplier="${s.id}"`
+    });
+  }).join('');
+
+  return `
+  <div class="sup-list">
+    ${mineHTML}
+    ${searching && !mine.length ? '<div class="empty-note">Nenhum fornecedor encontrado.</div>' : ''}
+    ${supplierCardHTML({ title:'Adicionar fornecedor', catLabel:'OUTRO FORNECEDOR', isAdd:true, attrs:'id="add-supplier-card"' })}
+  </div>`;
+}
+function softUpdateFornecedores(){
+  const el = document.getElementById('sup-results');
+  if(!el) return;
+  el.innerHTML = buildSupplierResults();
+  bindSupplierResultHandlers();
+}
+function bindSupplierResultHandlers(){
+  const addSupplierCard = document.getElementById('add-supplier-card');
+  if(addSupplierCard) addSupplierCard.addEventListener('click', ()=>openSupplierSheet());
+  document.querySelectorAll('[data-editsupplier]').forEach(row=>{
+    row.addEventListener('click', e=>{
+      if(e.target.closest('[data-delsupplier]')) return;
+      openSupplierSheet(e.currentTarget.dataset.editsupplier);
+    });
+  });
+  document.querySelectorAll('[data-delsupplier]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(confirm('Eliminar este fornecedor?')){
+        state.suppliers = state.suppliers.filter(s=>s.id!==e.currentTarget.dataset.delsupplier);
+        render();
+      }
+    });
+  });
 }
 
 /* ============================================================
@@ -1903,16 +1974,26 @@ function viewDefMenu(){
     <button class="nav-back" id="def-back" style="flex-shrink:0;">${ICONS.chevleft}</button>
     <div><h1>Definições</h1></div>
   </div>
-  <div class="section-label">Gerir o casamento</div>
+
+  <div class="section-label">O casamento</div>
   <div class="list-group">
-    ${defMenuRow('casamento', ICONS.heart, 'var(--rust)', 'Casamento')}
-    ${defMenuRow('design', ICONS.camera, 'var(--gold)', 'Design')}
-    ${defMenuRow('categorias', ICONS.budget, 'var(--dusty-dark)', 'Categorias')}
-    ${defMenuRow('convidar', ICONS.guests, 'var(--sage-dark)', 'Convidar')}
-    ${defMenuRow('seguranca', ICONS.lock, 'var(--blush-dark)', 'Segurança')}
+    ${defMenuRow('casamento', ICONS.heart, 'var(--rust)', 'Nomes, data e local')}
+    ${defMenuRow('design', ICONS.camera, 'var(--gold)', 'Design e foto de capa')}
+    ${defMenuRow('categorias', ICONS.budget, 'var(--dusty-dark)', 'Categorias de gastos')}
+  </div>
+
+  <div class="section-label">Acesso e conta</div>
+  <div class="list-group">
+    ${defMenuRow('convidar', ICONS.guests, 'var(--sage-dark)', 'Convidar parceiro/a')}
+    ${defMenuRow('seguranca', ICONS.lock, 'var(--blush-dark)', 'Quem tem acesso')}
+  </div>
+
+  <div class="section-label">Informação</div>
+  <div class="list-group">
     ${defMenuRow('privacidade', ICONS.checklist, 'var(--ink-soft)', 'Privacidade e RGPD')}
     ${defMenuRow('sobre', ICONS.heart, 'var(--gold)', 'Sobre a Weddy')}
   </div>
+
   <div style="padding:20px 16px 30px;">
     <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
   </div>
@@ -2050,23 +2131,37 @@ function viewDefPrivacidade(){
   return `
   ${defSubHeader('Privacidade e RGPD')}
   <div class="privacy-text">
-    <p><b>O que guardamos</b><br>
-    O teu email de acesso; os nomes e data do casamento; o local; a lista de convidados (nomes) e as suas confirmações; o orçamento e os gastos que registas; a disposição das mesas; a checklist e as visitas a lojas que anotares. Tudo isto fica associado apenas ao vosso casamento, nunca visível a mais ninguém.</p>
+    <p class="privacy-note" style="margin-bottom:16px;">Conheça a nossa Política de Privacidade, Segurança e Cookies.</p>
 
-    <p><b>Fotos</b><br>
-    As fotos que adicionas em "Inspiração" e "Dress" ficam guardadas só neste telemóvel (não são enviadas para nenhum servidor). Se desinstalares a app ou trocares de telemóvel, perdes essas fotos.</p>
+    <p><b>Quem somos</b><br>
+    A Weddy é um projeto pessoal gerido por Rita Matos Oliveira. Para qualquer questão sobre os teus dados, podes escrever para <span style="color:var(--rust);">ritamatosdoliveira@gmail.com</span>.</p>
 
-    <p><b>Onde fica guardado</b><br>
-    Os restantes dados ficam nos servidores do Firebase (Google Cloud), protegidos por regras que garantem que só quem tu convidares explicitamente consegue ler ou alterar os dados do vosso casamento.</p>
+    <p><b>Quem é responsável pelo tratamento dos seus dados pessoais</b><br>
+    Rita Matos Oliveira é a responsável pelo tratamento dos dados pessoais recolhidos através desta app, no âmbito da organização do teu casamento.</p>
 
-    <p><b>Quem vê os teus dados</b><br>
-    Só as pessoas com o email que tu convidares em "Convidar", e que estejam listadas em "Segurança". Podes remover o acesso de alguém a qualquer momento.</p>
+    <p><b>Como é que recolhemos os seus dados pessoais</b><br>
+    Recolhemos dados quando crias uma conta (email), quando preenches a informação do teu casamento (nomes, data, local), quando adicionas convidados, gastos ou mesas, e quando convidas outra pessoa a juntar-se ao teu casamento.</p>
 
-    <p><b>Os teus direitos</b><br>
-    Podes aceder, corrigir ou apagar os teus dados a qualquer momento diretamente na app. Se quiseres apagar a conta e todos os dados associados por completo, contacta-nos através do email abaixo.</p>
+    <p><b>Para que finalidades e com que fundamento podem ser utilizados os seus dados pessoais</b><br>
+    Os teus dados servem exclusivamente para organizar o teu casamento dentro da app e para sincronizar essa informação entre ti e as pessoas que convidares — com fundamento na execução do serviço que a app te presta. Não usamos os teus dados para marketing, publicidade ou qualquer finalidade comercial, e nunca os vendemos a terceiros.</p>
 
-    <p><b>Contacto</b><br>
-    Para questões sobre os teus dados, escreve para <span style="color:var(--rust);">privacidade@weddy.app</span>.</p>
+    <p><b>Que dados pessoais podem ser recolhidos</b><br>
+    O teu email de acesso; os nomes e a data do casamento; o local; a lista de convidados e as respetivas confirmações; o orçamento e os gastos que registas; a disposição das mesas; e, se carregares, a foto de capa ou o ícone personalizado do teu casamento.</p>
+
+    <p><b>Como é que mantemos os seus dados pessoais seguros</b><br>
+    Os dados ficam guardados nos servidores do Firebase (Google Cloud), protegidos por regras de acesso que garantem que só as pessoas com o email que tu convidares explicitamente conseguem ler ou alterar os dados do teu casamento.</p>
+
+    <p><b>Durante quanto tempo conservamos os seus dados pessoais</b><br>
+    Conservamos os teus dados enquanto a tua conta e o teu casamento existirem na app. Se pedires a eliminação da conta, os dados são apagados de forma permanente.</p>
+
+    <p><b>Direito às informações e à correção, eliminação ou bloqueio de dados pessoais</b><br>
+    Podes aceder, corrigir ou apagar a maior parte dos teus dados a qualquer momento diretamente na app (em "Segurança" e nos restantes ecrãs). Se quiseres apagar a conta e todos os dados associados por completo, bloquear o tratamento, ou tiveres qualquer outra questão sobre os teus dados, escreve para <span style="color:var(--rust);">ritamatosdoliveira@gmail.com</span> — respondemos o mais rapidamente possível.</p>
+
+    <p><b>Nota sobre fotos</b><br>
+    As fotos que adicionares em secções como "Inspiração" ou "Dress" ficam guardadas apenas no teu telemóvel, não são enviadas para nenhum servidor — se desinstalares a app ou trocares de telemóvel, perdes essas fotos.</p>
+
+    <p><b>Nota sobre quem vê os teus dados</b><br>
+    Só as pessoas com o email que tu convidares (em "Convidar"), listadas em "Segurança", conseguem ver os dados do teu casamento. Podes remover o acesso de alguém a qualquer momento.</p>
 
     <p class="privacy-note">Esta página é um ponto de partida simples e claro, não substitui aconselhamento jurídico. Se fores usar a Weddy com outros casais como produto, recomendamos que um advogado reveja este texto antes de publicares.</p>
   </div>
@@ -2236,33 +2331,21 @@ function bindHandlers(){
 
   // Fornecedores
   const fornecedoresBack = document.getElementById('fornecedores-back');
-  if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ activeTab='inicio'; render(); });
+  if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ activeTab='inicio'; fornecedoresSubview='lista'; render(); });
   const addSupplierBtn = document.getElementById('add-supplier-btn');
   if(addSupplierBtn) addSupplierBtn.addEventListener('click', ()=>openSupplierSheet());
-  const addSupplierCard = document.getElementById('add-supplier-card');
-  if(addSupplierCard) addSupplierCard.addEventListener('click', ()=>openSupplierSheet());
   document.querySelectorAll('[data-supfilter]').forEach(btn=>{
-    btn.addEventListener('click', e=>{ supplierFilter = e.currentTarget.dataset.supfilter; render(); });
+    btn.addEventListener('click', e=>{ supplierFilter = e.currentTarget.dataset.supfilter; softUpdateFornecedores(); });
   });
+  const supFilterToggle = document.getElementById('sup-filter-toggle');
+  if(supFilterToggle) supFilterToggle.addEventListener('click', ()=>{ showFilterChips = !showFilterChips; render(); });
   const toggleRec = document.getElementById('toggle-recommended');
-  if(toggleRec) toggleRec.addEventListener('click', ()=>{ showRecommended = !showRecommended; render(); });
+  if(toggleRec) toggleRec.addEventListener('click', ()=>{ fornecedoresSubview = 'recomendados'; render(); });
+  const recomendadosBack = document.getElementById('recomendados-back');
+  if(recomendadosBack) recomendadosBack.addEventListener('click', ()=>{ fornecedoresSubview = 'lista'; render(); });
   const supSearch = document.getElementById('sup-search');
-  if(supSearch) supSearch.addEventListener('input', e=>{ supplierQuery = e.target.value; });
-  document.querySelectorAll('[data-editsupplier]').forEach(row=>{
-    row.addEventListener('click', e=>{
-      if(e.target.closest('[data-delsupplier]')) return;
-      openSupplierSheet(e.currentTarget.dataset.editsupplier);
-    });
-  });
-  document.querySelectorAll('[data-delsupplier]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      e.stopPropagation();
-      if(confirm('Eliminar este fornecedor?')){
-        state.suppliers = state.suppliers.filter(s=>s.id!==e.currentTarget.dataset.delsupplier);
-        render();
-      }
-    });
-  });
+  if(supSearch) supSearch.addEventListener('input', e=>{ supplierQuery = e.target.value; softUpdateFornecedores(); });
+  bindSupplierResultHandlers();
 
   // Definições — menu
   document.querySelectorAll('[data-defgoto]').forEach(el=>{
@@ -3448,6 +3531,7 @@ function openSupplierSheet(supplierId, presetCat){
   document.getElementById('sup-cat').innerHTML = state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('sup-cat').value = s ? s.category : (presetCat || state.categories[0].id);
   document.getElementById('sup-contact').value = s ? s.contact : '';
+  document.getElementById('sup-price').value = s ? (s.price||'') : '';
   document.getElementById('sup-status').value = s ? s.status : 'considerar';
   document.getElementById('sup-notas').value = s ? s.notas : '';
   document.getElementById('supplier-sheet').classList.add('show');
@@ -3463,15 +3547,16 @@ document.getElementById('sup-save').addEventListener('click', ()=>{
   const name = document.getElementById('sup-name').value.trim();
   const category = document.getElementById('sup-cat').value;
   const contact = document.getElementById('sup-contact').value.trim();
+  const price = document.getElementById('sup-price').value.trim();
   const status = document.getElementById('sup-status').value;
   const notas = document.getElementById('sup-notas').value.trim();
   if(!name){ closeSupplierSheet(); return; }
   if(editingSupplierId){
     const s = state.suppliers.find(x=>x.id===editingSupplierId);
-    if(s){ s.name=name; s.category=category; s.contact=contact; s.status=status; s.notas=notas; }
+    if(s){ s.name=name; s.category=category; s.contact=contact; s.price=price; s.status=status; s.notas=notas; }
   } else {
     const id = 'sup'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.suppliers.push({ id, name, category, contact, status, notas });
+    state.suppliers.push({ id, name, category, contact, price, status, notas });
     openSupplierCat[category] = true;
   }
   closeSupplierSheet();
