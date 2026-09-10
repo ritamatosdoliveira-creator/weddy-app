@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Weddy">
 <meta name="theme-color" content="#FAF8F5">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -1626,7 +1626,7 @@ function buildDonutSection(){
   const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
   const pctNote = Math.abs(pctSum-1)<0.001
     ? `<div class="pct-note ok">As percentagens somam ${Math.round(pctSum*1000)/10}% — orçamento totalmente repartido.</div>`
-    : `<div class="pct-note warn">As percentagens somam ${Math.round(pctSum*1000)/10}% — falta ${(100-Math.round(pctSum*1000)/10).toFixed(1)}% para 100%.</div>`;
+    : '';
   return `
   <div class="donut-chart-card">
     <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
