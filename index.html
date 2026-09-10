@@ -153,6 +153,15 @@ body{
 .save-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 .save-toast.error{ background:rgba(154,69,48,0.95); }
 .save-toast svg{ width:14px; height:14px; flex-shrink:0; }
+.iab-warning{ display:none; position:fixed; inset:0; z-index:500; background:rgba(30,26,22,0.92); align-items:center; justify-content:center; padding:28px; }
+.iab-warning.show{ display:flex; }
+.iab-warning-card{ background:var(--cream); border-radius:22px; padding:28px 24px; text-align:center; max-width:340px; }
+.iab-warning-icon{ width:44px; height:44px; margin:0 auto 14px; color:var(--rust); }
+.iab-warning-icon svg{ width:100%; height:100%; }
+.iab-warning-title{ font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:500; color:var(--heading); margin-bottom:12px; }
+.iab-warning-card p{ font-size:13.5px; color:var(--ink); line-height:1.6; margin:0 0 12px; }
+.iab-warning-card b{ color:var(--rust-dark); }
+.iab-warning-note{ font-size:12px !important; color:var(--ink-soft) !important; }
 .insp-tile img{ cursor:pointer; }
 .stat-card .n{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--heading); line-height:1; }
 .stat-card .l{ font-size:10.8px; color:var(--ink-soft); margin-top:4px; line-height:1.25; min-height:27px; }
@@ -491,6 +500,14 @@ body{
 .picker-row.is-selected .pname{ color:var(--heading); font-weight:600; }
 .pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .privacy-text{ padding:0 16px 30px; font-size:13px; color:var(--ink); line-height:1.6; }
+.about-mono{ width:44px; height:44px; margin:6px auto 22px; color:var(--rust); opacity:.85; }
+.about-mono svg{ width:100%; height:100%; }
+.about-card{ margin:0 16px 14px; padding:20px 18px; border-radius:20px; }
+.about-card-icon{ width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+.about-card-icon svg{ width:16px; height:16px; }
+.about-card-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--ink); margin-bottom:6px; }
+.about-card-text{ font-size:12.5px; color:#5b544c; line-height:1.55; }
+.about-version{ text-align:center; font-size:11px; color:var(--ink-soft); margin:10px 0 30px; }
 .privacy-text p{ margin:0 0 16px; }
 .privacy-text b{ color:var(--heading); font-weight:600; }
 .privacy-note{ font-size:11.5px; color:var(--ink-soft); font-style:italic; }
@@ -564,9 +581,9 @@ body{
 .hero-cta:active{ opacity:.82; }
 
 /* Início — atalhos em grelha */
-.quicklink-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:0 16px 9px; }
+.quicklink-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 16px 8px; }
 .quicklink-grid-bottom{ grid-template-columns:repeat(2,1fr); }
-.quicklink-card{ all:unset; box-sizing:border-box; width:100%; aspect-ratio:1/1; position:relative; background:var(--cream2); border:1px solid var(--line); border-radius:16px; padding:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; cursor:pointer; text-align:center; }
+.quicklink-card{ all:unset; box-sizing:border-box; width:100%; aspect-ratio:1/0.82; position:relative; background:var(--cream2); border:1px solid var(--line); border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; text-align:center; }
 .quicklink-card-lg{ aspect-ratio:1.45/1; padding:16px; }
 .quicklink-card.ql-sage{ background:#E7EBE1; border-color:#DCE2D3; }
 .quicklink-card.ql-taupe{ background:#EAE6E0; border-color:#DFD9D0; }
@@ -574,10 +591,10 @@ body{
 .quicklink-card.ql-peach2{ background:#F0E2D3; border-color:#E6D2BC; }
 .quicklink-card.ql-blush{ background:#F1DFDB; border-color:#E6CAC3; }
 .quicklink-card:active{ transform:scale(0.96); }
-.quicklink-icon{ width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
-.quicklink-icon svg{ width:30px; height:30px; }
+.quicklink-icon{ width:23px; height:23px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
+.quicklink-icon svg{ width:23px; height:23px; }
 .quicklink-bottom{ display:flex; align-items:center; justify-content:center; width:100%; }
-.quicklink-label{ font-size:13px; font-weight:500; color:var(--ink); line-height:1.2; text-align:left; }
+.quicklink-label{ font-size:11.5px; font-weight:400; color:var(--ink); line-height:1.2; text-align:left; }
 .quicklink-arrow{ width:16px; height:16px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); flex-shrink:0; }
 .quicklink-arrow svg{ width:100%; height:100%; }
 .section-label-v2{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--ink); margin:22px 16px 12px; display:flex; align-items:center; gap:12px; }
@@ -653,7 +670,7 @@ body{
 
 
 /* Login */
-.login-screen{ position:fixed; inset:0; z-index:100; background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
+.login-screen{ position:fixed; inset:-2px; z-index:100; background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
 .login-inner{ position:relative; z-index:1; width:100%; }
 .login-screen.hidden{ display:none; }
 .login-tag{ color:var(--ink-soft); font-size:12.5px; margin-bottom:26px; letter-spacing:.01em; }
@@ -674,6 +691,16 @@ body{
 
 <div class="screen">
   <div class="statusbar-spacer"></div>
+
+  <div id="iab-warning" class="iab-warning">
+    <div class="iab-warning-card">
+      <div class="iab-warning-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.01"/></svg></div>
+      <div class="iab-warning-title">Quase lá! ✨</div>
+      <p>Estás a abrir a Weddy dentro do Instagram, e por aqui não é possível instalar a app no teu telemóvel.</p>
+      <p><b>Toca nos "•••" ou "⋮" no canto superior direito</b> e escolhe <b>"Abrir no navegador"</b> (Safari ou Chrome).</p>
+      <p class="iab-warning-note">Depois, no Safari, toca no ícone de partilha e em "Adicionar ao ecrã principal" — fica com um atalho como uma app a sério.</p>
+    </div>
+  </div>
 
   <div class="app-body" id="app-body">
     <!-- panels injected by JS -->
@@ -706,7 +733,7 @@ body{
   </div>
   <div class="sheet" id="todo-cat-sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Nova categoria</div>
+    <div class="sheet-title" id="tc-sheet-title">Nova categoria</div>
     <div class="sheet-field"><label>Etiqueta (ex: Flores)</label><input type="text" id="tc-label" placeholder="Ex: Flores"></div>
     <div class="sheet-field"><label>Título</label><input type="text" id="tc-title" placeholder="Ex: Decoração floral"></div>
     <div class="sheet-field"><label>Descrição</label><input type="text" id="tc-desc" placeholder="Ex: As flores para o altar e as mesas."></div>
@@ -830,6 +857,7 @@ body{
     <div class="sheet-field"><label>Data</label><input type="date" id="sf-date"></div>
     <div class="sheet-field"><label>Valor total (€)</label><input type="number" id="sf-value" placeholder="0"></div>
     <div class="sheet-field"><label>Já pago (€)</label><input type="number" id="sf-paid" placeholder="0"></div>
+    <div class="sheet-field"><label>Data limite para pagar o resto (opcional)</label><input type="date" id="sf-duedate"></div>
     <div class="sheet-field"><label>Categoria</label><select id="sf-cat"></select></div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="sf-cancel">Cancelar</button>
@@ -881,6 +909,21 @@ body{
   function isTypingField(el){
     return el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.tagName==='SELECT');
   }
+  document.addEventListener('input', e=>{
+    const el = e.target;
+    if(el.tagName!=='INPUT' || el.type!=='number') return;
+    if(el.value===''||el.value==='-') return;
+    let v = el.value;
+    const neg = v.startsWith('-');
+    if(neg) v = v.slice(1);
+    let [intPart, decPart] = v.split('.');
+    let changed = false;
+    if(intPart && intPart.length>9){ intPart = intPart.slice(0,9); changed = true; }
+    if(decPart && decPart.length>2){ decPart = decPart.slice(0,2); changed = true; }
+    if(changed){
+      el.value = (neg?'-':'') + intPart + (decPart!==undefined ? '.'+decPart : (v.includes('.')?'.':''));
+    }
+  }, true);
   document.addEventListener('focusin', e=>{
     if(!isTypingField(e.target)) return;
     const tabbar = document.getElementById('tabbar');
@@ -1204,7 +1247,8 @@ function seedData(){
       { id:'tc3', icon:'doc', label:'Geral', title:'Outras tarefas', desc:'Ideias, lembretes e tudo o que quiseres organizar.', items:[] }
     ],
     todoNotes:'',
-    honeymoon:{ ideas:[], payments:[] }
+    honeymoon:{ options:[] },
+    payments:[]
   };
 }
 function defaultSettings(name1, name2, dateStr, venue){
@@ -1228,16 +1272,17 @@ let guestSeg = 'noiva';
 let openDesc = {};
 let openTable = {};
 let openGuestGroup = {};
-let openChecklistPhaseId = null;
+let openChecklistPhaseId = CHECKLIST_PHASES[0] ? CHECKLIST_PHASES[0].id : null;
 let showAllPhaseProgress = false;
 function collapseAllSections(){
   openDesc = {};
   openTable = {};
   openGuestGroup = {};
-  openChecklistPhaseId = null;
+  openChecklistPhaseId = CHECKLIST_PHASES[0] ? CHECKLIST_PHASES[0].id : null;
   openDressVisit = {};
   openSupplierCat = {};
   todoOpenCategoryId = null;
+  hmOpenOptionId = null;
   definicoesSection = null;
 }
 let openDressVisit = {};
@@ -1246,6 +1291,7 @@ let todoOpenCategoryId = null;
 let todoFilter = 'todas';
 let todoQuery = '';
 let hmFilter = 'destino';
+let hmOpenOptionId = null;
 let supplierFilter = 'todos';
 let supplierQuery = '';
 let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados'
@@ -1427,19 +1473,6 @@ function getUpcomingPayments(){
       if(days<=15) list.push({ label:e.desc||'Gasto', amount:remaining, days, overdue:days<0 });
     }
   });
-  if(state.honeymoon && state.honeymoon.ideas){
-    state.honeymoon.ideas.forEach(idea=>{
-      if(idea.dueDate){
-        const paidTotal = state.honeymoon.payments.reduce((s,p)=>s+Number(p.amount),0);
-        const budgetTarget = Number(idea.priceMax)||Number(idea.priceMin)||0;
-        const remaining = Math.max(0, budgetTarget-paidTotal);
-        if(remaining>0){
-          const days = Math.ceil((new Date(idea.dueDate)-now)/86400000);
-          if(days<=15) list.push({ label:'Lua-de-mel — '+idea.name, amount:remaining, days, overdue:days<0 });
-        }
-      }
-    });
-  }
   return list.sort((a,b)=>a.days-b.days);
 }
 function viewInicio(){
@@ -1629,6 +1662,13 @@ function viewOrcamento(){
   const guests = state.budget.guestsEstimate;
   const perGuest = guests? total/guests : 0;
 
+  const paymentsHTML = state.payments.map(p=>`
+    <div class="list-row" data-editpayment="${p.id}">
+      <div class="title" style="flex:1;">${formatDatePT(p.date)}<span class="visit-detail" style="display:block;">${p.method==='dinheiro'?'Dinheiro':'Transferência'}</span></div>
+      <div style="font-weight:600; color:var(--ink);">${fmtEUR(Number(p.amount))}</div>
+      <button class="remove-x" data-delpayment="${p.id}">✕</button>
+    </div>`).join('');
+
   const rows = state.categories.map((c,i)=>{
     const catTotal = total*c.pct;
     const catPerGuest = guests? catTotal/guests : 0;
@@ -1701,6 +1741,14 @@ function viewOrcamento(){
       <input type="text" placeholder="Nova categoria…" id="add-cat-name">
       <button class="add-circle" id="addbtn-cat">${ICONS.plus}</button>
     </div>
+  </div>
+
+  <div class="section-label-row">
+    <span class="section-label" style="margin:0;">Pagamentos</span>
+    <button class="section-add-link" id="add-payment-btn">${ICONS.plus} Adicionar</button>
+  </div>
+  <div class="list-group">
+    ${paymentsHTML || `<div class="empty-note">ainda sem pagamentos registados</div>`}
   </div>
   <div style="height:8px;"></div>
   `;
@@ -2117,7 +2165,8 @@ function viewChecklist(){
       <span class="phase-dot-label">Fase ${pi+1}</span>
     </button>`).join('');
 
-  const phasesHTML = CHECKLIST_PHASES.map((p,pi)=>{
+  const phasesHTML = CHECKLIST_PHASES.filter(p=>p.id===openChecklistPhaseId).map((p)=>{
+    const pi = CHECKLIST_PHASES.indexOf(p);
     const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
     const open = openChecklistPhaseId===p.id;
     const tasksHTML = p.tasks.map((task,i)=>{
@@ -2394,6 +2443,10 @@ function viewTodoCategory(cat){
       <button class="add-circle" id="addbtn-catitem" data-forcat="${cat.id}">${ICONS.plus}</button>
     </div>
   </div>
+  <div style="display:flex; gap:9px; margin:0 16px 20px;">
+    <button class="visit-action-btn" id="edit-todocat-btn" data-forcat="${cat.id}">${ICONS.pencil} Editar categoria</button>
+    <button class="visit-action-btn danger" id="del-todocat-btn" data-forcat="${cat.id}">${ICONS.trash} Eliminar categoria</button>
+  </div>
   `;
 }
 
@@ -2401,81 +2454,97 @@ function viewTodoCategory(cat){
 /* ============================================================
    VIEW: Lua-de-mel
 ============================================================ */
-const HM_CATEGORIES = [
-  { id:'destino', label:'Destino / Local', icon:'pin' },
-  { id:'orcamento', label:'Orçamento', icon:'budget' },
-  { id:'itinerario', label:'Itinerário', icon:'calendar' },
-  { id:'dias', label:'Número de dias', icon:'calendar' },
-  { id:'tipo', label:'Tipo de viagem', icon:'honeymoon' },
-  { id:'ajudas', label:'Ajudas / Contribuições', icon:'guests' }
-];
-const HM_THEMES = { praia:{icon:'beach', grad:'linear-gradient(140deg,#8FC1D4,#DCE9DE)'}, cidade:{icon:'city', grad:'linear-gradient(140deg,#C9A480,#E7DCCB)'}, montanha:{icon:'mountain', grad:'linear-gradient(140deg,#8FA88C,#D8E0D2)'} };
-function ideaCardHTML(idea){
-  const theme = HM_THEMES[idea.theme];
+const HM_TYPES = ['Praia','Cidade','Montanha','Cruzeiro','Aventura','Relax'];
+function hmOptionSummary(o){
+  const bits = [];
+  if(o.days) bits.push(`${o.days} dias`);
+  if(o.cities && o.cities.length) bits.push(o.cities.join(' → '));
+  return bits.join(' · ') || 'Ainda por definir';
+}
+function hmOptionCardHTML(o){
   return `
-  <div class="hm-idea-card" data-editidea="${idea.id}">
-    <div class="hm-idea-photo" style="background:${theme?theme.grad:'var(--cream2)'};">${theme?ICONS[theme.icon]:''}</div>
+  <div class="hm-idea-card ${o.favorite?'is-fav':''}" data-editidea="${o.id}">
+    <div class="hm-idea-photo" style="background:${HM_TYPE_GRAD[o.type]||'linear-gradient(140deg,#C9A480,#E7DCCB)'};">${ICONS[HM_TYPE_ICON[o.type]||'honeymoon']}</div>
     <div class="hm-idea-mid">
-      <div class="hm-idea-name">${escapeHTML(idea.name)}</div>
-      <div class="hm-idea-type">${(HM_CATEGORIES.find(c=>c.id===idea.category)||{}).label||''}</div>
-      <button class="hm-idea-hearts" data-hearttoggle="${idea.id}">${ICONS.heart} ${idea.hearts||0}</button>
+      <div class="hm-idea-name">${escapeHTML(o.name)}</div>
+      <div class="hm-idea-type">${hmOptionSummary(o)}</div>
+      ${o.budget ? `<div class="hm-idea-type">${fmtEUR(Number(o.budget))}</div>` : ''}
     </div>
     <div class="hm-idea-right">
-      ${(idea.priceMin||idea.priceMax) ? `<div class="hm-idea-price">${fmtEUR(idea.priceMin||0)} – ${fmtEUR(idea.priceMax||0)}</div>` : ''}
+      <button class="hm-heart ${o.favorite?'active':''}" data-favoption="${o.id}">${ICONS.heart}</button>
       <span class="hm-idea-chev">${ICONS.chev}</span>
     </div>
   </div>`;
 }
+const HM_TYPE_ICON = { Praia:'beach', Cidade:'city', Montanha:'mountain' };
+const HM_TYPE_GRAD = { Praia:'linear-gradient(140deg,#8FC1D4,#DCE9DE)', Cidade:'linear-gradient(140deg,#C9A480,#E7DCCB)', Montanha:'linear-gradient(140deg,#8FA88C,#D8E0D2)' };
 function viewLuademel(){
-  const hm = state.honeymoon;
-  const ideas = hm.ideas.filter(i=>i.category===hmFilter);
-  const ideasHTML = ideas.map(ideaCardHTML).join('');
-
-  const paidTotal = hm.payments.reduce((s,p)=>s+Number(p.amount),0);
-  const budgetIdeas = hm.ideas.filter(i=>i.category==='orcamento');
-  const budgetTotal = budgetIdeas.reduce((s,i)=>s+(Number(i.priceMax)||Number(i.priceMin)||0), 0);
-  const paymentsHTML = hm.payments.map(p=>`
-    <div class="list-row" data-editpayment="${p.id}">
-      <div class="title" style="flex:1;">${formatDatePT(p.date)}<span class="visit-detail" style="display:block;">${p.method==='dinheiro'?'Dinheiro':'Transferência'}</span></div>
-      <div style="font-weight:600; color:var(--ink);">${fmtEUR(Number(p.amount))}</div>
-      <button class="remove-x" data-delpayment="${p.id}">✕</button>
-    </div>`).join('');
-
+  if(hmOpenOptionId){
+    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    if(o) return viewLuademelOption(o);
+    hmOpenOptionId = null;
+  }
+  const options = state.honeymoon.options;
+  const optionsHTML = options.map(hmOptionCardHTML).join('');
   return `
-  ${pageHeader('luademel-back', 'Lua de mel', 'Sonha, planeia, partilha.', `<div class="hm-header-photo">${ICONS.honeymoon}</div>`)}
+  ${pageHeader('luademel-back', 'Lua de mel', 'Sonha, planeia, partilha.', `<button class="nav-action" id="add-idea-btn">${ICONS.plus}</button>`)}
 
   <div class="hm-banner">
     <div class="hm-banner-icon">${ICONS.heart}</div>
     <div>
-      <b>Escolhe o que mais te inspira!</b>
-      <span>Vota no que achas mais importante para a vossa lua de mel.</span>
+      <b>Toca no ♥ da vossa favorita!</b>
+      <span>Podem criar várias hipóteses e ir comparando, só uma fica marcada como a escolhida.</span>
     </div>
   </div>
 
-  <div class="hm-cat-grid">
-    ${HM_CATEGORIES.map(c=>`
-      <button class="hm-cat-chip ${hmFilter===c.id?'active':''}" data-hmfilter="${c.id}">
-        <span class="hm-cat-chip-top">${ICONS[c.icon]}<span class="hm-cat-chip-heart">${ICONS.heart}</span></span>
-        <span class="hm-cat-chip-label">${c.label}</span>
-      </button>`).join('')}
-  </div>
-
-  <div class="section-label-row">
-    <span class="section-label" style="margin:0;">As vossas ideias</span>
-    <button class="section-add-link" id="add-idea-btn">${ICONS.plus} Adicionar</button>
-  </div>
   <div class="hm-idea-list">
-    ${ideasHTML || `<div class="empty-note" style="margin:0 16px 18px;">Ainda sem ideias aqui. Toca em "Adicionar" para começar.</div>`}
-  </div>
-
-  <div class="section-label-row">
-    <span class="section-label" style="margin:0;">Pagamentos</span>
-    <button class="section-add-link" id="add-payment-btn">${ICONS.plus} Adicionar</button>
-  </div>
-  <div class="list-group">
-    ${paymentsHTML || `<div class="empty-note">ainda sem pagamentos registados</div>`}
+    ${optionsHTML || `<div class="empty-note" style="margin:0 16px 18px;">Ainda sem hipóteses de lua-de-mel. Toca no + para criar a primeira.</div>`}
   </div>
   <div style="height:10px;"></div>
+  `;
+}
+function viewLuademelOption(o){
+  const citiesHTML = (o.cities||[]).map((c,i)=>`
+    <div class="list-row" style="padding:10px 14px;">
+      <span class="hm-city-num">${i+1}</span>
+      <div class="title" style="flex:1;">${escapeHTML(c)}</div>
+      <button class="remove-x" data-delcity="${i}">✕</button>
+    </div>`).join('');
+  return `
+  ${pageHeader('luademel-option-back', o.name||'Nova hipótese')}
+
+  <div class="sheet-field" style="margin:0 16px 14px;"><label>Nome da hipótese</label><input type="text" id="hmo-name" value="${escapeHTML(o.name||'')}" placeholder="Ex: Lua-de-mel nas Maldivas"></div>
+
+  <div class="sheet-field" style="margin:0 16px 14px;">
+    <label>Tipo</label>
+    <div class="hm-theme-picker">
+      ${HM_TYPES.map(t=>`<button type="button" class="hm-theme-btn ${o.type===t?'active':''}" data-hmotype="${t}">${ICONS[HM_TYPE_ICON[t]||'honeymoon']}<span>${t}</span></button>`).join('')}
+    </div>
+  </div>
+
+  <div class="sheet-field" style="margin:0 16px 14px;">
+    <label>Nº de dias</label>
+    <div class="pct-stepper" style="width:140px;">
+      <button data-hmodays="-1">−</button>
+      <span class="pctval" id="hmo-days-val">${o.days||0}</span>
+      <button data-hmodays="1">+</button>
+    </div>
+  </div>
+
+  <div class="sheet-field" style="margin:0 16px 14px;"><label>Orçamento estimado (€)</label><input type="number" id="hmo-budget" value="${o.budget||''}" placeholder="0"></div>
+
+  <div class="section-label">Itinerário · cidades a visitar</div>
+  <div class="list-group">
+    ${citiesHTML || `<div class="empty-note">ainda sem cidades</div>`}
+    <div class="add-row">
+      <input type="text" placeholder="Adicionar cidade…" id="add-hmo-city">
+      <button class="add-circle" id="addbtn-hmo-city">${ICONS.plus}</button>
+    </div>
+  </div>
+
+  <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nas passagens"></div>
+
+  <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} Eliminar esta hipótese</button>
   `;
 }
 
@@ -2827,17 +2896,33 @@ function viewDefPrivacidade(){
 function viewDefSobre(){
   return `
   ${defSubHeader('Sobre a Weddy')}
-  <div class="privacy-text">
-    <p style="text-align:center; margin-bottom:22px;">
-      <span style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:32px; color:var(--heading);">Weddy</span>
-    </p>
-    <p>A Weddy nasceu para ser o sítio único onde um casal organiza o casamento — sem folhas soltas, sem grupos de WhatsApp perdidos, sem cinco apps diferentes para orçamento, convidados, mesas e fornecedores.</p>
-    <p>Tudo o que aqui guardas sincroniza em tempo real entre ti e quem convidares — o teu par, os pais, quem estiver a ajudar a planear — cada um vê sempre a versão mais recente.</p>
-    <p><b>Feita para casais, não para empresas</b><br>
-    Sem anúncios, sem venda de dados. Se um dia existirem fornecedores recomendados na app, será sempre claramente identificado como tal.</p>
-    <p><b>Contacto</b><br>
-    Alguma sugestão, problema ou ideia? Escreve para <span style="color:var(--rust);">geral@weddy.pt</span>.</p>
+  <div class="about-mono">${ICONS.heart}</div>
+
+  <div class="about-card" style="background:#F1DFDB;">
+    <div class="about-card-icon" style="background:var(--rust); color:#fff;">${ICONS.heart}</div>
+    <div class="about-card-title">Um só lugar para tudo</div>
+    <div class="about-card-text">Sem folhas soltas, sem grupos de WhatsApp perdidos, sem cinco apps diferentes. Orçamento, convidados, mesas e fornecedores — tudo junto.</div>
   </div>
+
+  <div class="about-card" style="background:#E7EBE1;">
+    <div class="about-card-icon" style="background:var(--sage-dark); color:#fff;">${ICONS.guests}</div>
+    <div class="about-card-title">Em tempo real, a dois</div>
+    <div class="about-card-text">Tudo o que guardas sincroniza logo com quem convidares — o teu par, os pais, quem ajudar a planear. Cada um vê sempre a versão mais recente.</div>
+  </div>
+
+  <div class="about-card" style="background:#F0DFCE;">
+    <div class="about-card-icon" style="background:var(--gold); color:#fff;">${ICONS.lock}</div>
+    <div class="about-card-title">Feita para casais</div>
+    <div class="about-card-text">Sem anúncios, sem venda de dados. Se um dia existirem fornecedores recomendados na app, será sempre claramente identificado como tal.</div>
+  </div>
+
+  <div class="about-card" style="background:#EAE6E0;">
+    <div class="about-card-icon" style="background:var(--dusty-dark); color:#fff;">${ICONS.pencil}</div>
+    <div class="about-card-title">Diz-nos o que achas</div>
+    <div class="about-card-text">Alguma sugestão, problema ou ideia? Escreve para <b style="color:var(--rust-dark);">geral@weddy.pt</b> — lemos tudo.</div>
+  </div>
+
+  <div class="about-version">Weddy · versão 1.0</div>
   `;
 }
 
@@ -2898,13 +2983,10 @@ function bindHandlers(){
   document.querySelectorAll('[data-togglephase]').forEach(el=>{
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.togglephase;
-      const wasOpen = openChecklistPhaseId===key;
-      openChecklistPhaseId = wasOpen ? null : key;
+      openChecklistPhaseId = key;
       _origRender();
-      if(!wasOpen){
-        const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.phase-card-v2');
-        if(card) requestAnimationFrame(()=> scrollIntoPanel(card));
-      }
+      const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.phase-card-v2');
+      if(card) requestAnimationFrame(()=> scrollIntoPanel(card));
     });
   });
   const togglePhaseProgress = document.getElementById('toggle-phase-progress');
@@ -3067,52 +3149,128 @@ function bindHandlers(){
   });
   const addTodoCatBtn = document.getElementById('add-todocat-btn');
   if(addTodoCatBtn) addTodoCatBtn.addEventListener('click', ()=>{
+    editingTodoCatId = null;
+    document.getElementById('tc-sheet-title').textContent = 'Nova categoria';
     document.getElementById('tc-label').value = '';
     document.getElementById('tc-title').value = '';
     document.getElementById('tc-desc').value = '';
     document.getElementById('todo-cat-sheet').classList.add('show');
     document.getElementById('sheet-backdrop').classList.add('show');
   });
+  const editTodoCatBtn = document.getElementById('edit-todocat-btn');
+  if(editTodoCatBtn) editTodoCatBtn.addEventListener('click', e=>{
+    const cat = state.todoCategories.find(c=>c.id===e.currentTarget.dataset.forcat);
+    if(!cat) return;
+    editingTodoCatId = cat.id;
+    document.getElementById('tc-sheet-title').textContent = 'Editar categoria';
+    document.getElementById('tc-label').value = cat.label;
+    document.getElementById('tc-title').value = cat.title;
+    document.getElementById('tc-desc').value = cat.desc;
+    document.getElementById('todo-cat-sheet').classList.add('show');
+    document.getElementById('sheet-backdrop').classList.add('show');
+  });
+  const delTodoCatBtn = document.getElementById('del-todocat-btn');
+  if(delTodoCatBtn) delTodoCatBtn.addEventListener('click', e=>{
+    const catId = e.currentTarget.dataset.forcat;
+    const cat = state.todoCategories.find(c=>c.id===catId);
+    if(!cat) return;
+    if(confirm(`Eliminar "${cat.title}"? Os itens lá dentro perdem-se.`)){
+      state.todoCategories = state.todoCategories.filter(c=>c.id!==catId);
+      todoOpenCategoryId = null;
+      render();
+    }
+  });
 
   // Lua-de-mel
   const luademelBack = document.getElementById('luademel-back');
   if(luademelBack) luademelBack.addEventListener('click', ()=>{ activeTab='inicio'; _origRender(); });
-  document.querySelectorAll('[data-hmfilter]').forEach(btn=>{
-    btn.addEventListener('click', e=>{ hmFilter = e.currentTarget.dataset.hmfilter; render(); });
-  });
   const addOptionBtn = document.getElementById('add-idea-btn');
-  if(addOptionBtn) addOptionBtn.addEventListener('click', ()=>openHmOptionSheet());
+  if(addOptionBtn) addOptionBtn.addEventListener('click', ()=>{
+    const id = 'hm'+Date.now()+Math.random().toString(36).slice(2,6);
+    state.honeymoon.options.push({ id, name:'Nova hipótese', favorite:false, budget:'', days:0, cities:[], type:'', notes:'' });
+    hmOpenOptionId = id;
+    render();
+  });
   document.querySelectorAll('[data-editidea]').forEach(card=>{
     card.addEventListener('click', e=>{
-      if(e.target.closest('[data-hearttoggle]')) return;
-      openHmOptionSheet(e.currentTarget.dataset.editidea);
-    });
-  });
-  document.querySelectorAll('[data-hearttoggle]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      e.stopPropagation();
-      const id = e.currentTarget.dataset.hearttoggle;
-      const idea = state.honeymoon.ideas.find(x=>x.id===id);
-      if(!idea) return;
-      if(idea.heartedByMe){ idea.hearts = Math.max(0,(idea.hearts||0)-1); idea.heartedByMe = false; }
-      else { idea.hearts = (idea.hearts||0)+1; idea.heartedByMe = true; }
+      if(e.target.closest('[data-favoption]')) return;
+      hmOpenOptionId = e.currentTarget.dataset.editidea;
       render();
     });
   });
-  const addPaymentBtn = document.getElementById('add-payment-btn');
-  if(addPaymentBtn) addPaymentBtn.addEventListener('click', ()=>openHmPaymentSheet());
-  document.querySelectorAll('[data-editpayment]').forEach(row=>{
-    row.addEventListener('click', e=>{
-      if(e.target.closest('[data-delpayment]')) return;
-      openHmPaymentSheet(e.currentTarget.dataset.editpayment);
-    });
-  });
-  document.querySelectorAll('[data-delpayment]').forEach(btn=>{
+  document.querySelectorAll('[data-favoption]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       e.stopPropagation();
-      state.honeymoon.payments = state.honeymoon.payments.filter(p=>p.id!==e.currentTarget.dataset.delpayment);
+      const id = e.currentTarget.dataset.favoption;
+      state.honeymoon.options.forEach(o=>{ o.favorite = (o.id===id) ? !o.favorite : false; });
       render();
     });
+  });
+
+  // Página de uma hipótese de lua-de-mel
+  const luademelOptionBack = document.getElementById('luademel-option-back');
+  if(luademelOptionBack) luademelOptionBack.addEventListener('click', ()=>{ hmOpenOptionId = null; render(); });
+  const hmoNameInput = document.getElementById('hmo-name');
+  if(hmoNameInput) hmoNameInput.addEventListener('input', e=>{
+    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    if(o){ o.name = e.target.value; pushRemote(); }
+  });
+  const hmoBudgetInput = document.getElementById('hmo-budget');
+  if(hmoBudgetInput) hmoBudgetInput.addEventListener('input', e=>{
+    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    if(o){ o.budget = Number(e.target.value)||0; pushRemote(); }
+  });
+  const hmoNotesInput = document.getElementById('hmo-notes');
+  if(hmoNotesInput) hmoNotesInput.addEventListener('input', e=>{
+    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    if(o){ o.notes = e.target.value; pushRemote(); }
+  });
+  document.querySelectorAll('[data-hmotype]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      if(o){ o.type = e.currentTarget.dataset.hmotype; render(); }
+    });
+  });
+  document.querySelectorAll('[data-hmodays]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      if(!o) return;
+      o.days = Math.max(0, (o.days||0) + Number(e.currentTarget.dataset.hmodays));
+      const val = document.getElementById('hmo-days-val');
+      if(val) val.textContent = o.days;
+      pushRemote();
+    });
+  });
+  const addHmoCityBtn = document.getElementById('addbtn-hmo-city');
+  if(addHmoCityBtn) addHmoCityBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('add-hmo-city');
+    const city = input.value.trim();
+    if(!city) return;
+    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    if(o){ o.cities = o.cities||[]; o.cities.push(city); render(); }
+  });
+  const addHmoCityInput = document.getElementById('add-hmo-city');
+  if(addHmoCityInput) addHmoCityInput.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      const city = e.currentTarget.value.trim();
+      if(!city) return;
+      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      if(o){ o.cities = o.cities||[]; o.cities.push(city); render(); }
+    }
+  });
+  document.querySelectorAll('[data-delcity]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      if(o){ o.cities.splice(Number(e.currentTarget.dataset.delcity),1); render(); }
+    });
+  });
+  const delHmOptionBtn = document.getElementById('del-hmoption-btn');
+  if(delHmOptionBtn) delHmOptionBtn.addEventListener('click', ()=>{
+    if(confirm('Eliminar esta hipótese de lua-de-mel?')){
+      state.honeymoon.options = state.honeymoon.options.filter(x=>x.id!==hmOpenOptionId);
+      hmOpenOptionId = null;
+      render();
+    }
   });
 
   // Fornecedores
@@ -3312,6 +3470,21 @@ function bindHandlers(){
     const id = 'cat'+Date.now()+Math.random().toString(36).slice(2,6);
     state.categories.push({ id, name, pct:0, desc:[] });
     render();
+  });
+  const addPaymentBtn = document.getElementById('add-payment-btn');
+  if(addPaymentBtn) addPaymentBtn.addEventListener('click', ()=>openPaymentSheet());
+  document.querySelectorAll('[data-editpayment]').forEach(row=>{
+    row.addEventListener('click', e=>{
+      if(e.target.closest('[data-delpayment]')) return;
+      openPaymentSheet(e.currentTarget.dataset.editpayment);
+    });
+  });
+  document.querySelectorAll('[data-delpayment]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      state.payments = state.payments.filter(p=>p.id!==e.currentTarget.dataset.delpayment);
+      render();
+    });
   });
   document.querySelectorAll('[data-deldesc]').forEach(btn=>{
     btn.addEventListener('click', e=>{
@@ -3532,6 +3705,7 @@ function openExpenseSheet(){
   document.getElementById('sf-date').value='';
   document.getElementById('sf-value').value='';
   document.getElementById('sf-paid').value='';
+  document.getElementById('sf-duedate').value='';
   document.getElementById('expense-sheet').classList.add('show');
   document.getElementById('sheet-backdrop').classList.add('show');
 }
@@ -3680,8 +3854,9 @@ document.getElementById('sf-save').addEventListener('click', ()=>{
   const date = document.getElementById('sf-date').value;
   const value = Number(document.getElementById('sf-value').value)||0;
   const paid = Number(document.getElementById('sf-paid').value)||0;
+  const dueDate = document.getElementById('sf-duedate').value;
   const category = document.getElementById('sf-cat').value;
-  if(desc){ state.expenses.unshift({date,desc,value,paid,category}); }
+  if(desc){ state.expenses.unshift({date,desc,value,paid,category,dueDate}); }
   closeExpenseSheet();
   render();
 });
@@ -4348,9 +4523,11 @@ document.getElementById('todo-notes-save').addEventListener('click', ()=>{
   closeTodoNotesSheet();
   render();
 });
+let editingTodoCatId = null;
 function closeTodoCatSheet(){
   document.getElementById('todo-cat-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
+  editingTodoCatId = null;
 }
 document.getElementById('tc-cancel').addEventListener('click', closeTodoCatSheet);
 document.getElementById('tc-save').addEventListener('click', ()=>{
@@ -4358,8 +4535,13 @@ document.getElementById('tc-save').addEventListener('click', ()=>{
   const title = document.getElementById('tc-title').value.trim();
   const desc = document.getElementById('tc-desc').value.trim();
   if(!title){ closeTodoCatSheet(); return; }
-  const id = 'tc'+Date.now()+Math.random().toString(36).slice(2,6);
-  state.todoCategories.push({ id, icon:'doc', label:label||'Geral', title, desc, items:[] });
+  if(editingTodoCatId){
+    const cat = state.todoCategories.find(c=>c.id===editingTodoCatId);
+    if(cat){ cat.label = label||'Geral'; cat.title = title; cat.desc = desc; }
+  } else {
+    const id = 'tc'+Date.now()+Math.random().toString(36).slice(2,6);
+    state.todoCategories.push({ id, icon:'doc', label:label||'Geral', title, desc, items:[] });
+  }
   closeTodoCatSheet();
   render();
 });
@@ -4421,9 +4603,9 @@ document.getElementById('hm-option-save').addEventListener('click', ()=>{
 });
 
 let editingHmPaymentId = null;
-function openHmPaymentSheet(paymentId){
+function openPaymentSheet(paymentId){
   editingHmPaymentId = paymentId || null;
-  const p = paymentId ? state.honeymoon.payments.find(x=>x.id===paymentId) : null;
+  const p = paymentId ? state.payments.find(x=>x.id===paymentId) : null;
   document.getElementById('hm-pay-date').value = p ? p.date : '';
   document.getElementById('hm-pay-amount').value = p ? p.amount : '';
   document.getElementById('hm-pay-method').value = p ? p.method : 'transferencia';
@@ -4442,11 +4624,11 @@ document.getElementById('hm-payment-save').addEventListener('click', ()=>{
   const method = document.getElementById('hm-pay-method').value;
   if(!date || !amount){ closeHmPaymentSheet(); return; }
   if(editingHmPaymentId){
-    const p = state.honeymoon.payments.find(x=>x.id===editingHmPaymentId);
+    const p = state.payments.find(x=>x.id===editingHmPaymentId);
     if(p){ p.date=date; p.amount=amount; p.method=method; }
   } else {
     const id = 'pay'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.honeymoon.payments.push({ id, date, amount, method });
+    state.payments.push({ id, date, amount, method });
   }
   closeHmPaymentSheet();
   render();
@@ -4753,6 +4935,10 @@ function attachFirestoreSync(){
         Object.keys(defaults).forEach(key=>{
           if(state[key] === undefined) state[key] = defaults[key];
         });
+        if(state.payments === undefined) state.payments = [];
+        if(!state.honeymoon || !Array.isArray(state.honeymoon.options)){
+          state.honeymoon = { options:[] };
+        }
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
@@ -4806,6 +4992,14 @@ function findOrCreateFlow(user, isRetry){
     renderLoginForm('Não foi possível verificar a tua conta.'+extra, true);
   });
 }
+
+(function detectInAppBrowser(){
+  const ua = navigator.userAgent || '';
+  const isInApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|MicroMessenger/i.test(ua);
+  if(isInApp){
+    document.getElementById('iab-warning').classList.add('show');
+  }
+})();
 
 loadInspirations();
 loadDressInspirations();
