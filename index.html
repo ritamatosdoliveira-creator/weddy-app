@@ -263,6 +263,16 @@ body{
 .exp-due-row.overdue{ color:var(--rust-dark); }
 .exp-due-row.overdue .exp-due-input{ color:var(--rust-dark); font-weight:600; }
 .exp-due-input{ all:unset; font-size:11.5px; color:inherit; }
+.todo-item-due{ display:flex; align-items:center; gap:5px; width:100%; padding-left:33px; margin-top:-2px; font-size:11px; color:var(--ink-soft); }
+.todo-item-due input[type=date]{ all:unset; font-size:11px; color:inherit; }
+.todo-item-due.soon{ color:var(--gold); }
+.todo-item-due.soon input{ color:var(--gold); font-weight:600; }
+.todo-item-due.overdue{ color:var(--rust-dark); }
+.todo-item-due.overdue input{ color:var(--rust-dark); font-weight:600; }
+.todo-item-due-clear{ all:unset; cursor:pointer; color:inherit; opacity:.6; font-size:11px; line-height:1; padding:0 2px; }
+.todo-cat-due-pill{ font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:rgba(20,20,20,0.06); color:var(--ink-soft); white-space:nowrap; }
+.todo-cat-due-pill.soon{ background:rgba(201,164,128,0.18); color:var(--gold); }
+.todo-cat-due-pill.overdue{ background:rgba(154,79,61,0.12); color:var(--rust-dark); }
 .exp-paid-row input{ width:64px; border:none; background:rgba(20,20,20,0.06); border-radius:6px; padding:3px 6px; font-size:12px; font-family:inherit; color:var(--ink); outline:none; text-align:right; }
 .exp-del{ all:unset; cursor:pointer; color:#B4AFA6; font-size:14px; padding:2px 4px; flex-shrink:0; }
 .exp-del:active{ color:var(--rust); }
@@ -430,7 +440,8 @@ body{
 .hm-idea-chev{ display:flex; color:var(--ink-soft); }
 .hm-idea-chev svg{ width:14px; height:14px; }
 .hm-theme-picker{ display:flex; gap:8px; }
-.hm-theme-btn{ all:unset; box-sizing:border-box; flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 6px; border:1.4px solid var(--line); border-radius:12px; color:var(--ink-soft); cursor:pointer; font-size:11px; }
+.hm-theme-btn{ all:unset; box-sizing:border-box; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 6px; border:1.4px solid var(--line); border-radius:12px; color:var(--ink-soft); cursor:pointer; font-size:11px; }
+.hm-theme-btn span{ text-align:center; }
 .hm-theme-btn svg{ width:19px; height:19px; }
 .hm-theme-btn.active{ border-color:var(--rust); color:var(--rust); background:rgba(193,88,62,0.06); }
 .page-subtitle{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
@@ -1216,7 +1227,7 @@ function applyTheme(key){
 ============================================================ */
 function seedData(){
   return {
-    budget:{ total:20000, guestsEstimate:80 },
+    budget:{ guestsEstimate:80 },
     categories:[
       { id:'quinta', name:'Espaço e Catering', pct:0.50, desc:['Aluguer do espaço','Catering (cocktail, refeição, sobremesas, ceia)','Bebidas (vinho, champanhe, bar aberto, cocktails)','Staff (cozinha, empregados de mesa, coordenador de sala)','Mobiliário (mesas, cadeiras, lounges)','Loiça, talheres, copos, toalhas, guardanapos','Eventuais extras: tenda, pista de dança, horário extra'] },
       { id:'cerimonia', name:'Cerimónia', pct:0.05, desc:['Taxa da igreja ou conservatória','Músicos para a cerimónia (órgão, coro, quarteto, violino)','Decoração da igreja/altar ou local da cerimónia civil','Tapete, bancos, cadeiras, microfones','Porta-alianças','Alianças'] },
@@ -1358,6 +1369,7 @@ function countConfirmed(side){ const g=state.guests[side]; let n=0; ['familia','
 function totalExpenseValue(){ return state.expenses.reduce((s,e)=>s+(Number(e.value)||0),0); }
 function totalExpensePaid(){ return state.expenses.reduce((s,e)=>s+(Number(e.paid)||0),0); }
 function spentByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+(Number(e.value)||0),0); }
+function paidByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+(Number(e.paid)||0),0); }
 function allAdultGuests(){
   const out=[];
   ['noiva','noivo'].forEach(side=>{ ['familia','amigos','duvida','staff'].forEach(cat=>{ (state.guests[side][cat]||[]).forEach((name,idx)=>{ out.push({side,cat,idx,name,key:guestKey(side,cat,idx)}); }); }); });
@@ -1374,6 +1386,19 @@ function formatDatePT(dateStr){
   const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const d = new Date(dateStr+'T00:00:00');
   return `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+}
+function formatDateShortPT(dateStr){
+  if(!dateStr) return '';
+  const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const d = new Date(dateStr+'T00:00:00');
+  return `${d.getDate()} ${meses[d.getMonth()]}`;
+}
+function dueUrgency(dateStr){
+  if(!dateStr) return '';
+  const days = daysUntil(dateStr);
+  if(days<0) return 'overdue';
+  if(days<=7) return 'soon';
+  return '';
 }
 function donutSVG(pct, color, size, stroke){
   const r = (size-stroke)/2, c = size/2;
@@ -1480,8 +1505,9 @@ function getUpcomingPayments(){
 function viewInicio(){
   const totalGuests = countGuests('noiva')+countGuests('noivo');
   const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
-  const spent = totalExpenseValue();
-  const spentPct = state.budget.total ? Math.round((spent/state.budget.total)*100) : 0;
+  const totalValue = totalExpenseValue();
+  const totalPaid = totalExpensePaid();
+  const paidPct = totalValue ? Math.round((totalPaid/totalValue)*100) : 0;
   const name1 = escapeHTML(weddingSettings.coupleName1 || 'Nome 1');
   const name2 = escapeHTML(weddingSettings.coupleName2 || 'Nome 2');
   const initials = (name1[0]||'?') + (name2[0]||'?');
@@ -1597,13 +1623,13 @@ function viewInicio(){
       </div>
     </div>
     <div class="ring-card">
-      <div class="ring-label">Orçamento gasto</div>
+      <div class="ring-label">Total pago</div>
       <div class="ring-wrap" id="inicio-orc-ring-wrap">
-        ${donutSVG(state.budget.total? spent/state.budget.total : 0, 'var(--blush-dark)', 92, 9)}
-        <div class="ring-center"><span class="num">${spentPct}%</span><span class="sub">${fmtEUR(spent)}</span></div>
+        ${donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--blush-dark)', 92, 9)}
+        <div class="ring-center"><span class="num">${paidPct}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n" id="inicio-porgastar">${fmtEUR(state.budget.total-spent)}</div><div class="l">Por gastar</div></div>
+        <div><div class="n" id="inicio-porgastar">${fmtEUR(totalValue-totalPaid)}</div><div class="l">Por pagar</div></div>
       </div>
     </div>
   </div>
@@ -1621,48 +1647,26 @@ function viewInicio(){
    VIEW: Orçamento
 ============================================================ */
 function buildDonutSection(){
-  const total = state.budget.total;
-  const pctSum = state.categories.reduce((s,c)=>s+Number(c.pct),0);
-  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
-  const pctNote = Math.abs(pctSum-1)<0.001
-    ? `<div class="pct-note ok">As percentagens somam ${Math.round(pctSum*1000)/10}% — orçamento totalmente repartido.</div>`
-    : '';
+  const totalPaid = totalExpensePaid();
+  const legend = state.categories.map((c,i)=>{
+    const paid = paidByCategory(c.id);
+    const pct = totalPaid ? paid/totalPaid : 0;
+    return `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(pct*1000)/10}%</span>`;
+  }).join('');
   return `
   <div class="donut-chart-card">
     <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
-      ${multiDonutSVG(state.categories.map((c,i)=>({pct:c.pct, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
-      <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">repartido</span></div>
+      ${multiDonutSVG(state.categories.map((c,i)=>({pct: totalPaid? paidByCategory(c.id)/totalPaid : 0, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
+      <div class="ring-center"><span class="num" style="font-size:17px;">${fmtEUR(totalPaid)}</span><span class="sub">pago</span></div>
     </div>
-    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
-  </div>
-  ${pctNote}`;
+    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend || `<span class="legend-item">Ainda sem pagamentos registados</span>`}</div>
+  </div>`;
 }
-function softUpdateCategoryValue(id, newValue){
-  const cat = state.categories.find(c=>c.id===id);
-  if(!cat) return;
-  const total = state.budget.total;
-  cat.pct = total ? Math.max(0, newValue)/total : 0;
-  const guests = state.budget.guestsEstimate;
-  const pctDisplay = Math.round(cat.pct*1000)/10;
-  const catPerGuest = guests ? newValue/guests : 0;
 
-  const pctEl = document.querySelector(`[data-catpctdisplay="${id}"]`);
-  if(pctEl) pctEl.textContent = pctDisplay+'%';
-  const totalEl = document.querySelector(`[data-cattotal="${id}"]`);
-  if(totalEl) totalEl.textContent = fmtEUR(newValue);
-  const barEl = document.querySelector(`[data-catbar="${id}"]`);
-  if(barEl) barEl.style.width = pctDisplay+'%';
-  const perGuestEl = document.querySelector(`[data-catperguest="${id}"]`);
-  if(perGuestEl) perGuestEl.textContent = fmtEUR(catPerGuest)+' / convidado';
-
-  const donutWrap = document.getElementById('donut-section');
-  if(donutWrap) donutWrap.innerHTML = buildDonutSection();
-  pushRemote();
-}
 function viewOrcamento(){
-  const total = state.budget.total;
   const guests = state.budget.guestsEstimate;
-  const perGuest = guests? total/guests : 0;
+  const totalPaid = totalExpensePaid();
+  const perGuest = guests? totalPaid/guests : 0;
 
   const paymentsHTML = state.payments.map(p=>`
     <div class="list-row" data-editpayment="${p.id}">
@@ -1672,10 +1676,11 @@ function viewOrcamento(){
     </div>`).join('');
 
   const rows = state.categories.map((c,i)=>{
-    const catTotal = total*c.pct;
-    const catPerGuest = guests? catTotal/guests : 0;
+    const paid = paidByCategory(c.id);
+    const pending = Math.max(0, spentByCategory(c.id)-paid);
+    const catPerGuest = guests? paid/guests : 0;
     const open = !!openDesc[c.id];
-    const pctDisplay = Math.round(c.pct*1000)/10;
+    const pctDisplay = totalPaid ? Math.round((paid/totalPaid)*1000)/10 : 0;
     const pair = CAT_COLOR_PAIRS[i%CAT_COLOR_PAIRS.length];
     return `
     <div class="cat-row-v2">
@@ -1686,7 +1691,7 @@ function viewOrcamento(){
           <div class="cat-row-bar-track"><div class="cat-row-bar-fill" data-catbar="${c.id}" style="width:${pctDisplay}%; background:${pair.fg};"></div></div>
         </div>
         <div class="cat-row-vals">
-          <div class="cat-row-total" data-cattotal="${c.id}">${fmtEUR(catTotal)}</div>
+          <div class="cat-row-total" data-cattotal="${c.id}">${fmtEUR(paid)}</div>
           <div class="cat-row-pct" data-catpctdisplay="${c.id}">${pctDisplay}%</div>
         </div>
         <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
@@ -1694,11 +1699,8 @@ function viewOrcamento(){
       ${open? `
       <div class="cat-row-expand">
         <div class="cat-row-perguest" data-catperguest="${c.id}">${fmtEUR(catPerGuest)} / convidado</div>
-        <div class="table-config-row" style="padding:6px 0;">
-          <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Valor (€)</span>
-          <input type="number" class="field-input" data-catvalue="${c.id}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
-        </div>
-        <div style="display:flex; gap:9px; padding:6px 0 12px;">
+        <div class="cat-row-perguest" data-catpending="${c.id}" style="margin-top:2px;">${fmtEUR(pending)} por pagar nesta categoria</div>
+        <div style="display:flex; gap:9px; padding:10px 0 12px;">
           <button class="visit-action-btn" data-renamecat="${c.id}">${ICONS.pencil} Renomear</button>
           <button class="visit-action-btn danger" data-delcat="${c.id}">${ICONS.trash} Eliminar</button>
         </div>
@@ -1717,8 +1719,8 @@ function viewOrcamento(){
 
   <div class="stats-row">
     <div class="stat-card" style="background:#E7EBE1; border-color:#DCE2D3;">
-      <div class="l" style="margin:0 0 4px;">Orçamento total</div>
-      <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" value="${total}" style="text-align:left;"></div>
+      <div class="l" style="margin:0 0 4px;">Total pago</div>
+      <div class="n" id="orc-total-pago-display" style="font-size:21px;">${fmtEUR(totalPaid)}</div>
       <div class="stat-card-icon">${ICONS.budget}</div>
     </div>
     <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
@@ -1733,7 +1735,7 @@ function viewOrcamento(){
     </div>
   </div>
 
-  <div class="section-label" style="display:flex; align-items:center; gap:10px;">Repartição por categoria<span style="flex:1; height:1px; background:var(--line);"></span></div>
+  <div class="section-label" style="display:flex; align-items:center; gap:10px;">Repartição do que já foi pago<span style="flex:1; height:1px; background:var(--line);"></span></div>
   <div id="donut-section">${buildDonutSection()}</div>
 
   <div class="section-label">Categorias · toca para ver detalhe</div>
@@ -1891,7 +1893,7 @@ function buildGuestBody(){
 function buildConvidadosDynamic(){
   const totalGuests = countGuests('noiva')+countGuests('noivo');
   const totalConfirmed = countConfirmed('noiva')+countConfirmed('noivo');
-  const perGuest = state.budget.guestsEstimate ? state.budget.total/state.budget.guestsEstimate : 0;
+  const perGuest = state.budget.guestsEstimate ? totalExpensePaid()/state.budget.guestsEstimate : 0;
   return `
   <div class="ring-stat-card">
     <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
@@ -1900,7 +1902,7 @@ function buildConvidadosDynamic(){
     </div>
     <div class="ring-stat-list">
       <div class="ring-stat-item"><span class="n">${totalGuests}</span><span class="l">convidados no total</span></div>
-      <div class="ring-stat-item"><span class="n">${fmtEUR(perGuest)}</span><span class="l">€ / convidado (orçamento)</span></div>
+      <div class="ring-stat-item"><span class="n">${fmtEUR(perGuest)}</span><span class="l">€ / convidado (pago)</span></div>
     </div>
   </div>
   <div id="guest-groups-container">${buildGuestBody()}</div>`;
@@ -1969,13 +1971,13 @@ function viewGastos(){
   }).join('');
 
   const progress = state.categories.map((c,i)=>{
-    const budgeted = state.budget.total*c.pct;
     const spent = spentByCategory(c.id);
-    const pct = budgeted? Math.min(100,(spent/budgeted)*100) : 0;
-    const over = spent>budgeted;
+    const paid = paidByCategory(c.id);
+    const pct = spent? Math.min(100,(paid/spent)*100) : 0;
+    const over = paid>spent;
     return `
     <div class="cat-progress" data-catprogress="${c.id}">
-      <div class="cp-row"><span>${escapeHTML(c.name)}</span><span class="${over?'over':''}">${fmtEUR(spent)} / ${fmtEUR(budgeted)}</span></div>
+      <div class="cp-row"><span>${escapeHTML(c.name)}</span><span class="${over?'over':''}">${fmtEUR(paid)} / ${fmtEUR(spent)}</span></div>
       <div class="cp-track"><div class="cp-fill ${over?'over':''}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
@@ -1998,18 +2000,18 @@ function viewGastos(){
       </div>
     </div>
     <div class="ring-card">
-      <div class="ring-label">Do orçamento</div>
-      <div class="ring-wrap" id="orc-ring-wrap">
-        ${donutSVG(state.budget.total? totalValue/state.budget.total : 0, 'var(--rust)', 92, 9)}
-        <div class="ring-center"><span class="num">${state.budget.total? Math.round(totalValue/state.budget.total*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>
+      <div class="ring-label">Comprometido</div>
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:92px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; color:var(--ink);" id="gastos-comprometido-total">${fmtEUR(totalValue)}</div>
+        <div style="font-size:10px; color:var(--ink-soft); text-align:center; line-height:1.3;">soma de todos os movimentos registados</div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n">${fmtEUR(state.budget.total)}</div><div class="l">Orçamento</div></div>
+        <div><div class="n" id="gastos-num-movimentos">${state.expenses.length}</div><div class="l">movimentos</div></div>
       </div>
     </div>
   </div>
 
-  <div class="section-label">Orçamentado vs. gasto</div>
+  <div class="section-label">Pago vs. comprometido por categoria</div>
   <div class="list-group">${progress}</div>
 
   <div class="section-label">Movimentos</div>
@@ -2372,6 +2374,10 @@ function todoCatProgress(cat){
   const done = cat.items.filter(i=>i.done).length;
   return { total, done };
 }
+function todoCatNextDue(cat){
+  const dues = cat.items.filter(i=>!i.done && i.due).map(i=>i.due).sort();
+  return dues.length ? dues[0] : null;
+}
 function todoCatStatus(cat){
   const {total,done} = todoCatProgress(cat);
   if(total===0 || done===0) return 'porfazer';
@@ -2392,6 +2398,8 @@ function viewTodo(){
   });
   const rows = filtered.map(cat=>{
     const {total,done} = todoCatProgress(cat);
+    const nextDue = todoCatNextDue(cat);
+    const nextDueUrgency = nextDue ? dueUrgency(nextDue) : '';
     return `
     <div class="todo-cat-card" data-opencat="${cat.id}">
       <div class="todo-cat-icon">${ICONS[TODO_ICONS[cat.icon]]}</div>
@@ -2399,6 +2407,7 @@ function viewTodo(){
         <div class="todo-cat-toprow"><span class="todo-cat-label">${cat.label}</span><span class="todo-cat-count">${done}/${total}</span></div>
         <div class="todo-cat-title">${cat.title}</div>
         <div class="todo-cat-desc">${cat.desc} ${ICONS.chev}</div>
+        ${nextDue ? `<div style="margin-top:8px;"><span class="todo-cat-due-pill ${nextDueUrgency}">até ${formatDateShortPT(nextDue)}</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -2429,19 +2438,28 @@ function viewTodo(){
 }
 function viewTodoCategory(cat){
   const {total,done} = todoCatProgress(cat);
-  const rows = cat.items.map((item,i)=>`
-    <div class="list-row guest-row ${item.done?'confirmed':''}">
+  const rows = cat.items.map((item,i)=>{
+    const urgency = item.done ? '' : dueUrgency(item.due);
+    return `
+    <div class="list-row guest-row ${item.done?'confirmed':''}" style="flex-wrap:wrap; row-gap:3px;">
       <div class="check tappable" data-catitemcheck="${cat.id}|${i}">${ICONS.check}</div>
       <div class="title tappable" data-catitemcheck="${cat.id}|${i}">${escapeHTML(item.text)}</div>
       <button class="remove-x" data-catitemdel="${cat.id}|${i}">✕</button>
-    </div>`).join('');
+      <div class="todo-item-due ${urgency}">
+        <span>até</span>
+        <input type="date" data-catitemdue="${cat.id}|${i}" value="${item.due||''}">
+        ${item.due ? `<button class="todo-item-due-clear" data-catitemdueclear="${cat.id}|${i}" title="Remover prazo">✕</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
   return `
   ${pageHeader('todocat-back', cat.title)}
   <div class="section-label">${cat.desc} (${done}/${total})</div>
   <div class="list-group">
     ${rows || `<div class="empty-note">ainda sem itens</div>`}
-    <div class="add-row">
-      <input type="text" placeholder="Adicionar…" id="add-catitem-name">
+    <div class="add-row" style="flex-wrap:wrap; row-gap:8px;">
+      <input type="text" placeholder="Adicionar…" id="add-catitem-name" style="flex:1; min-width:110px;">
+      <input type="date" id="add-catitem-due" title="Prazo (opcional)" style="flex:0 0 auto; width:132px; border:none; background:rgba(20,20,20,0.06); border-radius:9px; padding:8px 10px; font-size:12.5px; font-family:inherit; color:var(--ink); outline:none;">
       <button class="add-circle" id="addbtn-catitem" data-forcat="${cat.id}">${ICONS.plus}</button>
     </div>
   </div>
@@ -2546,7 +2564,7 @@ function viewLuademelOption(o){
 
   <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nas passagens"></div>
 
-  <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 12px;">${ICONS.check} Guardar</button>
+  <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); max-width:none; margin:0 16px 12px;">${ICONS.check} Guardar</button>
   <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} Eliminar esta hipótese</button>
   `;
 }
@@ -3110,7 +3128,17 @@ function bindHandlers(){
     btn.addEventListener('click', e=>{ todoFilter = e.currentTarget.dataset.todofilter; _origRender(); });
   });
   const todoSearch = document.getElementById('todo-search');
-  if(todoSearch) todoSearch.addEventListener('input', e=>{ todoQuery = e.target.value; _origRender(); });
+  if(todoSearch) todoSearch.addEventListener('input', e=>{
+    todoQuery = e.target.value;
+    const selStart = e.target.selectionStart;
+    const selEnd = e.target.selectionEnd;
+    _origRender();
+    const newSearch = document.getElementById('todo-search');
+    if(newSearch){
+      newSearch.focus();
+      try{ newSearch.setSelectionRange(selStart, selEnd); }catch(_){}
+    }
+  });
   document.querySelectorAll('[data-catitemcheck]').forEach(el=>{
     el.addEventListener('click', e=>{
       const [catId,i] = e.currentTarget.dataset.catitemcheck.split('|');
@@ -3127,21 +3155,39 @@ function bindHandlers(){
       render();
     });
   });
+  document.querySelectorAll('[data-catitemdue]').forEach(el=>{
+    el.addEventListener('change', e=>{
+      const [catId,i] = e.currentTarget.dataset.catitemdue.split('|');
+      const cat = state.todoCategories.find(c=>c.id===catId);
+      cat.items[i].due = e.currentTarget.value || '';
+      render();
+    });
+  });
+  document.querySelectorAll('[data-catitemdueclear]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [catId,i] = e.currentTarget.dataset.catitemdueclear.split('|');
+      const cat = state.todoCategories.find(c=>c.id===catId);
+      cat.items[i].due = '';
+      render();
+    });
+  });
   const addCatItemBtn = document.getElementById('addbtn-catitem');
   if(addCatItemBtn) addCatItemBtn.addEventListener('click', e=>{
     const catId = e.currentTarget.dataset.forcat;
     const cat = state.todoCategories.find(c=>c.id===catId);
     const input = document.getElementById('add-catitem-name');
+    const dueInput = document.getElementById('add-catitem-due');
     const text = input.value.trim();
-    if(text){ cat.items.push({text, done:false}); render(); }
+    if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : ''}); render(); }
   });
   const addCatItemInput = document.getElementById('add-catitem-name');
   if(addCatItemInput) addCatItemInput.addEventListener('keydown', e=>{
     if(e.key==='Enter'){
       const catId = document.getElementById('addbtn-catitem').dataset.forcat;
       const cat = state.todoCategories.find(c=>c.id===catId);
+      const dueInput = document.getElementById('add-catitem-due');
       const text = e.currentTarget.value.trim();
-      if(text){ cat.items.push({text, done:false}); render(); }
+      if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : ''}); render(); }
     }
   });
   const openTodoNotes = document.getElementById('open-todo-notes');
@@ -3435,16 +3481,8 @@ function bindHandlers(){
   });
 
   // Orçamento
-  const inTotal = document.getElementById('in-total');
   const inGuests = document.getElementById('in-guests');
-  if(inTotal) inTotal.addEventListener('input', e=>{ state.budget.total = Number(e.target.value)||0; softUpdateBudget(); });
   if(inGuests) inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Number(e.target.value)||0; softUpdateBudget(); });
-  document.querySelectorAll('[data-catvalue]').forEach(inp=>{
-    inp.addEventListener('input', e=>{
-      const id = e.currentTarget.dataset.catvalue;
-      softUpdateCategoryValue(id, Number(e.currentTarget.value)||0);
-    });
-  });
   document.querySelectorAll('[data-toggledesc]').forEach(el=>{
     el.addEventListener('click', e=>{
       const id = e.currentTarget.dataset.toggledesc;
@@ -3600,26 +3638,17 @@ function bindHandlers(){
 }
 
 function softUpdateBudget(){
-  const total = state.budget.total, guests = state.budget.guestsEstimate;
-  const perGuest = guests? total/guests : 0;
+  const guests = state.budget.guestsEstimate;
+  const totalPaid = totalExpensePaid();
+  const perGuest = guests? totalPaid/guests : 0;
   const pg = document.getElementById('perguest-display');
   if(pg) pg.textContent = fmtEUR(perGuest);
   state.categories.forEach(c=>{
-    const catTotal = total*c.pct;
-    const catPerGuest = guests? catTotal/guests : 0;
-    const elTotal = document.querySelector(`[data-cattotal="${c.id}"]`);
+    const paid = paidByCategory(c.id);
+    const catPerGuest = guests? paid/guests : 0;
     const elPerGuest = document.querySelector(`[data-catperguest="${c.id}"]`);
-    if(elTotal) elTotal.textContent = fmtEUR(catTotal);
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+' / convidado';
-    const elValueInput = document.querySelector(`[data-catvalue="${c.id}"]`);
-    if(elValueInput && document.activeElement!==elValueInput) elValueInput.value = Math.round(catTotal);
   });
-  const spent = totalExpenseValue();
-  const inicioRing = document.getElementById('inicio-orc-ring-wrap');
-  if(inicioRing) inicioRing.innerHTML = donutSVG(total? spent/total : 0, 'var(--gold)', 92, 9)
-    + `<div class="ring-center"><span class="num">${total? Math.round(spent/total*100):0}%</span><span class="sub">${fmtEUR(spent)}</span></div>`;
-  const inicioPorGastar = document.getElementById('inicio-porgastar');
-  if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(total-spent);
   pushRemote();
 }
 function saveSettingsNow(msgId){
@@ -3673,11 +3702,17 @@ function bindCropDrag(el){
 function softUpdateGastos(){
   const totalValue = totalExpenseValue();
   const totalPaid = totalExpensePaid();
+  const guests = state.budget.guestsEstimate;
+
   const pagoWrap = document.getElementById('pago-ring-wrap');
   if(pagoWrap) pagoWrap.innerHTML = donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)
     + `<div class="ring-center"><span class="num">${totalValue? Math.round(totalPaid/totalValue*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
   const porPagar = document.getElementById('pago-porpagar');
   if(porPagar) porPagar.textContent = fmtEUR(totalValue-totalPaid);
+  const comprometidoEl = document.getElementById('gastos-comprometido-total');
+  if(comprometidoEl) comprometidoEl.textContent = fmtEUR(totalValue);
+  const numMovEl = document.getElementById('gastos-num-movimentos');
+  if(numMovEl) numMovEl.textContent = state.expenses.length;
   state.expenses.forEach((e,i)=>{
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
     const remEl = document.querySelector(`[data-dueremaining="${i}"]`);
@@ -3685,22 +3720,48 @@ function softUpdateGastos(){
     const rowEl = document.querySelector(`[data-duerow="${i}"]`);
     if(rowEl) rowEl.style.display = remaining>0 ? '' : 'none';
   });
-  const orcWrap = document.getElementById('orc-ring-wrap');
-  if(orcWrap) orcWrap.innerHTML = donutSVG(state.budget.total? totalValue/state.budget.total : 0, 'var(--rust)', 92, 9)
-    + `<div class="ring-center"><span class="num">${state.budget.total? Math.round(totalValue/state.budget.total*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>`;
+
+  // Repartição por categoria — pago vs. comprometido, e % de cada categoria no total pago
   state.categories.forEach(c=>{
-    const budgeted = state.budget.total*c.pct;
     const spent = spentByCategory(c.id);
-    const pct = budgeted? Math.min(100,(spent/budgeted)*100) : 0;
-    const over = spent>budgeted;
+    const paid = paidByCategory(c.id);
+    const pending = Math.max(0, spent-paid);
+    const pct = spent? Math.min(100,(paid/spent)*100) : 0;
+    const over = paid>spent;
     const row = document.querySelector(`[data-catprogress="${c.id}"]`);
     if(row){
       const valSpan = row.querySelector('.cp-row span:last-child');
       const fill = row.querySelector('.cp-fill');
-      if(valSpan){ valSpan.textContent = `${fmtEUR(spent)} / ${fmtEUR(budgeted)}`; valSpan.classList.toggle('over', over); }
+      if(valSpan){ valSpan.textContent = `${fmtEUR(paid)} / ${fmtEUR(spent)}`; valSpan.classList.toggle('over', over); }
       if(fill){ fill.style.width = pct+'%'; fill.classList.toggle('over', over); }
     }
+    const pctDisplay = totalPaid ? Math.round((paid/totalPaid)*1000)/10 : 0;
+    const catPerGuest = guests ? paid/guests : 0;
+    const pctEl = document.querySelector(`[data-catpctdisplay="${c.id}"]`);
+    if(pctEl) pctEl.textContent = pctDisplay+'%';
+    const totalEl = document.querySelector(`[data-cattotal="${c.id}"]`);
+    if(totalEl) totalEl.textContent = fmtEUR(paid);
+    const barEl = document.querySelector(`[data-catbar="${c.id}"]`);
+    if(barEl) barEl.style.width = pctDisplay+'%';
+    const perGuestCatEl = document.querySelector(`[data-catperguest="${c.id}"]`);
+    if(perGuestCatEl) perGuestCatEl.textContent = fmtEUR(catPerGuest)+' / convidado';
+    const pendingEl = document.querySelector(`[data-catpending="${c.id}"]`);
+    if(pendingEl) pendingEl.textContent = fmtEUR(pending)+' por pagar nesta categoria';
   });
+  const donutWrap = document.getElementById('donut-section');
+  if(donutWrap) donutWrap.innerHTML = buildDonutSection();
+  const perGuestEl = document.getElementById('perguest-display');
+  if(perGuestEl) perGuestEl.textContent = fmtEUR(guests? totalPaid/guests : 0);
+  const orcTotalEl = document.getElementById('orc-total-pago-display');
+  if(orcTotalEl) orcTotalEl.textContent = fmtEUR(totalPaid);
+
+  // Início — o anel "Total pago" segue os mesmos números
+  const inicioRing = document.getElementById('inicio-orc-ring-wrap');
+  if(inicioRing) inicioRing.innerHTML = donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--blush-dark)', 92, 9)
+    + `<div class="ring-center"><span class="num">${totalValue? Math.round(totalPaid/totalValue*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
+  const inicioPorGastar = document.getElementById('inicio-porgastar');
+  if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(totalValue-totalPaid);
+
   pushRemote();
 }
 
