@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" class="login-active">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
@@ -37,6 +37,7 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 b, strong{ font-weight:600; }
 html{background:#FAF8F5;}
+html.login-active{ background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; }
 html,body{margin:0;padding:0;height:100%;background:#FAF8F5;}
 body{
   background:var(--cream);
@@ -730,6 +731,7 @@ body{
       <button class="btn-cancel" id="todo-notes-cancel">Cancelar</button>
       <button class="btn-save" id="todo-notes-save">Guardar</button>
     </div>
+    <button class="visit-action-btn danger" id="todo-notes-delete" style="width:100%; margin-top:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"/></svg> Apagar notas</button>
   </div>
   <div class="sheet" id="todo-cat-sheet">
     <div class="sheet-handle"></div>
@@ -2544,6 +2546,7 @@ function viewLuademelOption(o){
 
   <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nas passagens"></div>
 
+  <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 12px;">${ICONS.check} Guardar</button>
   <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} Eliminar esta hipótese</button>
   `;
 }
@@ -3263,6 +3266,12 @@ function bindHandlers(){
       const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
       if(o){ o.cities.splice(Number(e.currentTarget.dataset.delcity),1); render(); }
     });
+  });
+  const saveHmOptionBtn = document.getElementById('save-hmoption-btn');
+  if(saveHmOptionBtn) saveHmOptionBtn.addEventListener('click', ()=>{
+    hmOpenOptionId = null;
+    render();
+    pushRemote();
   });
   const delHmOptionBtn = document.getElementById('del-hmoption-btn');
   if(delHmOptionBtn) delHmOptionBtn.addEventListener('click', ()=>{
@@ -4523,6 +4532,13 @@ document.getElementById('todo-notes-save').addEventListener('click', ()=>{
   closeTodoNotesSheet();
   render();
 });
+document.getElementById('todo-notes-delete').addEventListener('click', ()=>{
+  if(!state.todoNotes || confirm('Apagar as notas?')){
+    state.todoNotes = '';
+    closeTodoNotesSheet();
+    render();
+  }
+});
 let editingTodoCatId = null;
 function closeTodoCatSheet(){
   document.getElementById('todo-cat-sheet').classList.remove('show');
@@ -4953,11 +4969,11 @@ function attachFirestoreSync(){
     if(renderNeeded){
       _origRender();
     }
-    if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); }
+    if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); document.documentElement.classList.remove('login-active'); }
   }, err=>{
     if(err.code === 'permission-denied'){
       firstSyncDone = false;
-      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm('Não foi possível aceder aos dados. Tenta sair e entrar de novo.', true);
     }
   });
@@ -5010,7 +5026,7 @@ if(FIREBASE_READY){
       activeTab = 'inicio';
       collapseAllSections();
       if(!user.emailVerified){
-        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
         renderVerifyEmail(user);
         return;
       }
@@ -5020,7 +5036,7 @@ if(FIREBASE_READY){
       currentWeddingId = null;
       activeTab = 'inicio';
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
-      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm();
     }
   });
