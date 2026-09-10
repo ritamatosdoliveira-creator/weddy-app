@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Weddy">
 <meta name="theme-color" content="#FAF8F5">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -2544,7 +2544,7 @@ function viewLuademelOption(o){
     </div>
   </div>
 
-  <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar a pagar o voo"></div>
+  <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nas passagens"></div>
 
   <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 12px;">${ICONS.check} Guardar</button>
   <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} Eliminar esta hipótese</button>
@@ -4768,6 +4768,7 @@ function renderLoginForm(msg, isError, isSuccess){
     <div class="login-tag">${isSignup? 'Cria a tua conta de casal' : 'Entra na tua conta'}</div>
     <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
     <div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass" placeholder="Password (mín. 6 caracteres)" autocomplete="${isSignup?'new-password':'current-password'}"></div>
+    ${isSignup? `<div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass-confirm" placeholder="Confirma a password" autocomplete="new-password"></div>` : ''}
     <button class="login-btn" id="login-send">${isSignup? 'Criar conta' : 'Entrar'}</button>
     <div class="login-msg ${isError?'error':isSuccess?'success':''}">${msg||''}</div>
     ${!isSignup? `<div class="login-note" style="cursor:pointer;" id="login-forgot">Esqueceste a password?</div>` : ''}
@@ -4775,6 +4776,8 @@ function renderLoginForm(msg, isError, isSuccess){
   `;
   document.getElementById('login-send').addEventListener('click', handleAuthSubmit);
   document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
+  const passConfirmEl = document.getElementById('login-pass-confirm');
+  if(passConfirmEl) passConfirmEl.addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
   document.getElementById('login-toggle').addEventListener('click', ()=>{ authMode = isSignup?'login':'signup'; renderLoginForm(); });
   const forgotLink = document.getElementById('login-forgot');
   if(forgotLink) forgotLink.addEventListener('click', handleForgotPassword);
@@ -4837,6 +4840,10 @@ function handleAuthSubmit(){
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   if(!email || !pass){ renderLoginForm('Escreve o email e a password.', true); return; }
+  if(authMode==='signup'){
+    const passConfirm = document.getElementById('login-pass-confirm').value;
+    if(pass !== passConfirm){ renderLoginForm('As duas passwords não coincidem.', true); return; }
+  }
   if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta neste ficheiro.', true); return; }
   const btn = document.getElementById('login-send');
   if(btn){ btn.textContent = 'Aguarda…'; btn.disabled = true; }
