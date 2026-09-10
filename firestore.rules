@@ -2,14 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Cada casamento só pode ser lido/editado por quem está em ownerEmails.
-    // Um novo casamento só pode ser criado se o próprio email do criador
-    // estiver na lista (impede criar um casamento em nome de outra pessoa).
     match /weddings/{weddingId} {
       allow read, update: if request.auth != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email in resource.data.ownerEmails;
 
       allow create: if request.auth != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email in request.resource.data.ownerEmails;
 
       allow delete: if false;

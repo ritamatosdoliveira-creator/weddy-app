@@ -46,7 +46,7 @@ body{
   height:100dvh;
 }
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
-.statusbar-spacer{ height:calc(env(safe-area-inset-top) + 36px); flex-shrink:0; }
+.statusbar-spacer{ height:calc(env(safe-area-inset-top) + 14px); flex-shrink:0; }
 
 /* ===================== NAV / CONTENT ===================== */
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
@@ -55,7 +55,7 @@ body{
 .scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; }
 .scroll::-webkit-scrollbar{ display:none; }
 
-.navbar{ padding:10px 18px 14px; flex-shrink:0; position:sticky; top:0; z-index:15; background:var(--cream); display:flex; align-items:center; gap:12px; }
+.navbar{ padding:4px 18px 10px; flex-shrink:0; position:sticky; top:0; z-index:15; background:var(--cream); display:flex; align-items:center; gap:12px; }
 .navbar-titlewrap{ flex:1; min-width:0; }
 .navbar-botanical{ position:absolute; top:8px; right:16px; width:30px; height:auto; color:var(--dusty); opacity:.6; pointer-events:none; }
 .navbar .eyebrow{ font-size:12.5px; color:var(--rust); font-weight:600; margin-bottom:7px; }
@@ -228,6 +228,9 @@ body{
 .exp-row:last-child{ border-bottom:none; }
 .exp-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
 .exp-desc-input{ border:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; flex:1; min-width:0; }
+.title-input-inline{ border:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; }
+.task-status-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.status-select{ border:none; background:rgba(43,40,30,0.07); border-radius:8px; padding:6px 8px; font-size:12px; font-weight:600; color:var(--ink); font-family:inherit; }
 .exp-val{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--heading); flex-shrink:0; }
 .exp-meta{ display:flex; align-items:center; gap:8px; margin-top:5px; }
 .exp-date-input{ border:none; background:transparent; font-size:11.5px; color:var(--ink-soft); font-family:inherit; outline:none; }
@@ -1204,6 +1207,20 @@ let inspirations = [];
 /* ============================================================
    HELPERS
 ============================================================ */
+let pendingRenderAfterEdit = false;
+function isEditingTextField(){
+  const el = document.activeElement;
+  return !!el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA');
+}
+document.addEventListener('focusout', e=>{
+  if(!(e.target && (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA'))) return;
+  setTimeout(()=>{
+    if(pendingRenderAfterEdit && !isEditingTextField()){
+      pendingRenderAfterEdit = false;
+      _origRender();
+    }
+  }, 0);
+});
 function escapeHTML(str){
   if(str===undefined || str===null) return '';
   return String(str)
@@ -1863,7 +1880,6 @@ function viewGastos(){
   return `
   <div class="navbar navbar-row">
     <div><h1>Gastos</h1></div>
-    <div class="navbar-botanical" style="position:static; opacity:.55; margin-right:6px;">${ICONS.botanical}</div>
     <button class="nav-action" id="open-sheet">${ICONS.plus}</button>
   </div>
 
@@ -1999,6 +2015,17 @@ ${pageHeader('insp-back', 'Inspiração')}
 /* ============================================================
    VIEW: Checklist
 ============================================================ */
+const TASK_STATUS = {
+  todo:     { label:'Por fazer',    color:'var(--ink-soft)' },
+  progress: { label:'Em progresso', color:'var(--gold)' },
+  done:     { label:'Concluído',    color:'var(--sage-dark)' }
+};
+function taskStatusOptions(selected){
+  return Object.keys(TASK_STATUS).map(k=>`<option value="${k}" ${k===selected?'selected':''}>${TASK_STATUS[k].label}</option>`).join('');
+}
+function normalizeTaskStatus(item){
+  return item.status || (item.done ? 'done' : 'todo');
+}
 function viewChecklist(){
   const totalTasks = CHECKLIST_PHASES.reduce((s,p)=>s+p.tasks.length,0) + WEDDING_DAY_CHECKLIST.length;
   const doneTasks = Object.values(state.checklistDone).filter(Boolean).length + Object.values(state.dressChecklistDone).filter(Boolean).length;
@@ -2056,12 +2083,16 @@ function viewChecklist(){
     </div>`;
   }).join('');
 
-  const personalHTML = state.checklistPersonal.map((item,i)=>`
-    <div class="list-row guest-row ${item.done?'confirmed':''}">
-      <div class="check tappable" data-checkpersonal="${i}">${ICONS.check}</div>
-      <div class="title tappable" data-checkpersonal="${i}">${escapeHTML(item.text)}</div>
+  const personalHTML = state.checklistPersonal.map((item,i)=>{
+    const status = normalizeTaskStatus(item);
+    return `
+    <div class="list-row guest-row" style="flex-wrap:wrap; row-gap:8px;">
+      <span class="task-status-dot" style="background:${TASK_STATUS[status].color};"></span>
+      <input type="text" class="title-input-inline" data-personaltext="${i}" value="${escapeHTML(item.text)}" style="flex:1; min-width:110px; ${status==='done'?'text-decoration:line-through; opacity:.6;':''}">
+      <select class="status-select" data-personalstatus="${i}">${taskStatusOptions(status)}</select>
       <button class="remove-x" data-delpersonal="${i}">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   return `
 ${pageHeader('checklist-back', 'Checklist')}
@@ -2097,8 +2128,9 @@ ${pageHeader('checklist-back', 'Checklist')}
   <div class="section-label">Checklist pessoal</div>
   <div class="list-group">
     ${personalHTML || `<div class="empty-note">adiciona aqui o que não pode faltar no teu dia</div>`}
-    <div class="add-row">
-      <input type="text" placeholder="Adicionar item…" id="add-personal-item">
+    <div class="add-row" style="flex-wrap:wrap; row-gap:8px;">
+      <input type="text" placeholder="Adicionar item…" id="add-personal-item" style="flex:1; min-width:110px;">
+      <select class="status-select" id="add-personal-status">${taskStatusOptions('todo')}</select>
       <button class="add-circle" id="addbtn-personal">${ICONS.plus}</button>
     </div>
   </div>
@@ -2812,10 +2844,18 @@ function bindHandlers(){
       render();
     });
   });
-  document.querySelectorAll('[data-checkpersonal]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      const i = Number(e.currentTarget.dataset.checkpersonal);
-      state.checklistPersonal[i].done = !state.checklistPersonal[i].done;
+  document.querySelectorAll('[data-personaltext]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = Number(e.currentTarget.dataset.personaltext);
+      state.checklistPersonal[i].text = e.target.value;
+      pushRemote();
+    });
+  });
+  document.querySelectorAll('[data-personalstatus]').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const i = Number(e.currentTarget.dataset.personalstatus);
+      state.checklistPersonal[i].status = e.target.value;
+      delete state.checklistPersonal[i].done;
       render();
     });
   });
@@ -2830,7 +2870,8 @@ function bindHandlers(){
     const input = document.getElementById('add-personal-item');
     const text = input.value.trim();
     if(!text) return;
-    state.checklistPersonal.push({ text, done:false });
+    const status = document.getElementById('add-personal-status').value;
+    state.checklistPersonal.push({ text, status });
     render();
   });
 
@@ -4495,7 +4536,7 @@ function renderVerifyEmail(user){
     user.reload().then(()=>{
       if(auth.currentUser.emailVerified){
         activeTab = 'inicio';
-        findOrCreateFlow(auth.currentUser);
+        auth.currentUser.getIdToken(true).finally(()=>{ findOrCreateFlow(auth.currentUser); });
       } else {
         msgEl.textContent = 'Ainda não está confirmado. Verifica o email (e o spam).';
         msgEl.className='login-msg error';
@@ -4628,7 +4669,12 @@ function attachFirestoreSync(){
       if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
     }
-    if(changed || !firstSyncDone){
+    let renderNeeded = changed || !firstSyncDone;
+    if(renderNeeded && isEditingTextField()){
+      pendingRenderAfterEdit = true;
+      renderNeeded = false;
+    }
+    if(renderNeeded){
       _origRender();
     }
     if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); }
@@ -4642,7 +4688,7 @@ function attachFirestoreSync(){
 }
 
 function sanitizeEmailKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_at_'); }
-function findOrCreateFlow(user){
+function findOrCreateFlow(user, isRetry){
   renderLoading('A verificar a tua conta…');
   WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).limit(1).get().then(qs=>{
     if(!qs.empty){
@@ -4656,6 +4702,15 @@ function findOrCreateFlow(user){
       renderOnboarding();
     }
   }).catch(err=>{
+    // O "bilhete de acesso" (token) pode estar desatualizado — por exemplo logo depois
+    // de confirmares o email. Força um token novo e tenta mais uma vez antes de desistir.
+    if(err.code==='permission-denied' && !isRetry){
+      user.getIdToken(true).then(()=>{ findOrCreateFlow(user, true); }).catch(()=>{
+        console.error('Weddy Firestore error:', err.code, err.message);
+        renderLoginForm('Não foi possível verificar a tua conta. (permissão negada — confirma as regras do Firestore)', true);
+      });
+      return;
+    }
     console.error('Weddy Firestore error:', err.code, err.message);
     const extra = err.code==='permission-denied' ? ' (permissão negada — confirma as regras do Firestore)' : ' ('+(err.code||'')+')';
     renderLoginForm('Não foi possível verificar a tua conta.'+extra, true);
@@ -4675,7 +4730,7 @@ if(FIREBASE_READY){
         renderVerifyEmail(user);
         return;
       }
-      findOrCreateFlow(user);
+      user.getIdToken(true).finally(()=>{ findOrCreateFlow(user); });
     } else {
       firstSyncDone = false;
       currentWeddingId = null;
