@@ -35,6 +35,7 @@
   --shadow:0 2px 12px rgba(48,44,41,0.055), 0 1px 2px rgba(48,44,41,0.04);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+b, strong{ font-weight:600; }
 html{background:#FAF8F5;}
 html,body{margin:0;padding:0;height:100%;background:#FAF8F5;}
 body{
@@ -59,8 +60,8 @@ body{
 .navbar-titlewrap{ flex:1; min-width:0; }
 .navbar-botanical{ position:absolute; top:8px; right:16px; width:30px; height:auto; color:var(--dusty); opacity:.6; pointer-events:none; }
 .navbar .eyebrow{ font-size:12.5px; color:var(--rust); font-weight:600; margin-bottom:7px; }
-.navbar h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
-.hm-header h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
+.navbar h1{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
+.hm-header h1{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
 .navbar-row{ display:flex; align-items:flex-end; justify-content:space-between; }
 .nav-back{ all:unset; cursor:pointer; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0; line-height:1; margin-left:-6px; }
 .nav-back svg{ width:22px; height:22px; }
@@ -74,6 +75,17 @@ body{
 .nav-action svg{ width:16px; height:16px; }
 
 .section-label{ font-size:12.5px; color:var(--ink-soft); margin:20px 18px 10px; letter-spacing:.01em; }
+.section-label-caps{ font-size:10.5px; color:var(--rust-dark); font-weight:600; letter-spacing:.09em; text-transform:uppercase; margin:22px 18px 10px; }
+.def-row-icon{ width:44px; height:44px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; line-height:1; }
+.def-row-icon svg{ width:19px; height:19px; }
+.def-row-mid{ flex:1; min-width:0; }
+.def-row-title{ font-size:14px; color:var(--ink); font-weight:500; }
+.def-row-desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; line-height:1.35; }
+.def-signout-btn{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:9px; width:calc(100% - 32px); margin:22px 16px 30px; padding:15px 0; border-radius:16px; background:#F3E2DC; color:var(--rust-dark); font-size:14.5px; font-weight:600; cursor:pointer; }
+.def-signout-btn svg{ width:16px; height:16px; }
+.def-header-botanical{ position:relative; width:54px; height:74px; flex-shrink:0; }
+.def-header-botanical::before{ content:''; position:absolute; right:0; bottom:0; width:44px; height:44px; border-radius:50%; background:#F1DFDB; z-index:0; }
+.def-header-botanical svg{ position:relative; z-index:1; width:54px; height:74px; color:var(--rust-dark); opacity:.85; }
 .section-label:first-child{ margin-top:4px; }
 
 /* Segmented control */
@@ -102,7 +114,7 @@ body{
 .cat-row-bar-track{ height:4px; border-radius:3px; background:var(--cream2); overflow:hidden; }
 .cat-row-bar-fill{ height:100%; border-radius:3px; }
 .cat-row-vals{ text-align:right; flex-shrink:0; }
-.cat-row-total{ font-size:13px; font-weight:700; color:var(--ink); white-space:nowrap; }
+.cat-row-total{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; }
 .cat-row-pct{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
 .cat-row-expand{ padding:0 13px 12px; border-top:1px solid var(--line); margin-top:2px; }
 .cat-row-perguest{ font-size:11.5px; color:var(--ink-soft); padding-top:10px; }
@@ -114,10 +126,10 @@ body{
 .ring-wrap{ position:relative; width:92px; height:92px; }
 .ring-wrap svg{ width:100%; height:100%; }
 .ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.ring-center .num{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:21px; color:var(--ink); line-height:1; }
+.ring-center .num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--ink); line-height:1; }
 .ring-center .sub{ font-size:8.8px; color:var(--ink-soft); margin-top:2px; }
 .ring-breakdown{ display:flex; gap:14px; margin-top:11px; }
-.ring-breakdown .n{ font-size:13px; font-weight:700; color:var(--ink); text-align:center; }
+.ring-breakdown .n{ font-size:13px; font-weight:600; color:var(--ink); text-align:center; }
 .ring-breakdown .l{ font-size:8.5px; color:var(--ink-soft); text-align:center; margin-top:1px; }
 
 /* Inspiração */
@@ -175,7 +187,7 @@ body{
 .donut-chart-card .legend-wrap{ flex-direction:column; flex-wrap:nowrap; gap:6px; }
 .ring-stat-card{ display:flex; align-items:center; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:20px; margin:0 16px 16px; padding:16px; box-shadow:var(--shadow); }
 .ring-stat-list{ display:flex; flex-direction:column; gap:10px; flex:1; min-width:0; }
-.ring-stat-item .n{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18px; color:var(--ink); line-height:1; display:block; }
+.ring-stat-item .n{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--ink); line-height:1; display:block; }
 .ring-stat-item .l{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; display:block; }
 .pct-note{ margin:0 16px 18px; font-size:12px; padding:9px 12px; border-radius:10px; }
 .pct-note.ok{ background:rgba(92,107,71,0.13); color:var(--sage-dark); }
@@ -238,9 +250,9 @@ body{
 .exp-paid-row{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:11.5px; color:var(--ink-soft); }
 .exp-due-row{ display:flex; align-items:center; gap:6px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--ink-soft); }
 .exp-due-row.soon{ color:var(--gold); }
-.exp-due-row.soon .exp-due-input{ color:var(--gold); font-weight:700; }
+.exp-due-row.soon .exp-due-input{ color:var(--gold); font-weight:600; }
 .exp-due-row.overdue{ color:var(--rust-dark); }
-.exp-due-row.overdue .exp-due-input{ color:var(--rust-dark); font-weight:700; }
+.exp-due-row.overdue .exp-due-input{ color:var(--rust-dark); font-weight:600; }
 .exp-due-input{ all:unset; font-size:11.5px; color:inherit; }
 .exp-paid-row input{ width:64px; border:none; background:rgba(20,20,20,0.06); border-radius:6px; padding:3px 6px; font-size:12px; font-family:inherit; color:var(--ink); outline:none; text-align:right; }
 .exp-del{ all:unset; cursor:pointer; color:#B4AFA6; font-size:14px; padding:2px 4px; flex-shrink:0; }
@@ -261,8 +273,49 @@ body{
 .phase-num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--heading); }
 .phase-ring-label{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.1; }
 .phase-ring-count{ font-size:9.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.01em; }
-.phase-num-chip{ background:var(--rust); font-family:'Cormorant Garamond',serif; font-weight:700; font-size:17px; color:#fff;  line-height:1;}
+.phase-num-chip{ background:var(--rust); font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:#fff;  line-height:1;}
 .show-more-btn{ all:unset; box-sizing:border-box; display:block; width:calc(100% - 32px); margin:0 16px 20px; padding:10px 0; text-align:center; border-radius:11px; background:rgba(20,20,20,0.06); color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; }
+
+/* Checklist v2 */
+.check-progress-card{ display:flex; align-items:center; gap:12px; margin:4px 16px 18px; padding:14px 15px; background:#F1E7DC; border-radius:18px; }
+.check-progress-text{ display:flex; flex-direction:column; }
+.check-progress-text b{ font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); font-weight:600; }
+.check-progress-text span{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+.check-progress-divider{ width:1px; align-self:stretch; background:rgba(48,44,41,0.14); flex-shrink:0; }
+.check-progress-icon{ color:var(--rust-dark); flex-shrink:0; }
+.check-progress-icon svg{ width:20px; height:20px; }
+.phase-selector-row{ display:flex; gap:16px; overflow-x:auto; padding:2px 16px 20px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.phase-selector-row::-webkit-scrollbar{ display:none; }
+.phase-dot-btn{ all:unset; box-sizing:border-box; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
+.phase-dot-num{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; color:var(--ink); }
+.phase-dot-btn.active .phase-dot-num{ background:var(--rust); border-color:var(--rust); color:#fff; }
+.phase-dot-label{ font-size:9.5px; color:var(--ink-soft); }
+.phase-dot-btn.active .phase-dot-label{ color:var(--rust-dark); font-weight:600; }
+.phase-card-v2{ background:var(--card); border:1px solid var(--line); border-radius:16px; margin:0 16px 12px; overflow:hidden; box-shadow:var(--shadow); }
+.phase-card-head{ display:flex; align-items:center; gap:12px; padding:14px; cursor:pointer; }
+.phase-roman{ width:36px; height:36px; border-radius:50%; background:#F0DFCE; color:var(--rust-dark); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; flex-shrink:0; }
+.phase-card-mid{ flex:1; min-width:0; }
+.phase-card-title{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:17px; color:var(--ink); }
+.phase-card-desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; line-height:1.4; }
+.phase-card-right{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.phase-card-count{ font-size:12px; font-weight:600; color:var(--ink-soft); }
+.phase-card-tasks{ border-top:1px solid var(--line); }
+.task-row-v2{ display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid var(--line); cursor:pointer; }
+.task-row-v2:last-child{ border-bottom:none; }
+.task-row-v2 .check{ width:20px; height:20px; border-radius:50%; border:1.4px solid #D8D2C8; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:transparent; }
+.task-row-v2.done .check{ background:var(--sage-dark); border-color:var(--sage-dark); color:#fff; }
+.task-row-v2.done .task-row-text{ text-decoration:line-through; color:var(--ink-soft); }
+.task-row-v2 .check svg{ width:11px; height:11px; }
+.task-row-text{ flex:1; min-width:0; font-size:13px; color:var(--ink); line-height:1.35; }
+.task-tag-pill{ flex-shrink:0; font-size:9.5px; font-weight:600; color:var(--rust-dark); background:#F3E2D6; padding:3px 9px; border-radius:20px; }
+.task-row-chev{ display:flex; color:var(--ink-soft); flex-shrink:0; }
+.task-row-chev svg{ width:13px; height:13px; }
+.add-item-card{ display:flex; align-items:center; gap:12px; margin:6px 16px 20px; padding:14px; background:#F1E7DC; border-radius:16px; cursor:pointer; }
+.add-item-icon{ width:38px; height:38px; border-radius:50%; background:var(--rust); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.add-item-icon svg{ width:15px; height:15px; }
+.add-item-text{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.add-item-text b{ font-family:'Cormorant Garamond',serif; font-size:14.5px; color:var(--ink); font-weight:600; }
+.add-item-text span{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
 .show-more-btn:active{ background:rgba(20,20,20,0.12); }
 .table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
 .shape-picker{ display:flex; gap:6px; }
@@ -290,7 +343,7 @@ body{
 .ggcount{ font-size:12px; color:var(--ink-soft); font-weight:600; margin-right:2px; }
 .guest-group-body{ border-top:1px solid var(--line); }
 .guest-group-body .list-row:last-of-type{ border-bottom:none; }
-.add-guest-cta{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 32px); margin:0 16px 16px; padding:14px 0; border-radius:16px; background:var(--rust); color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(193,88,62,0.28); }
+.add-guest-cta{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 32px); margin:0 16px 16px; padding:14px 0; border-radius:16px; background:var(--rust); color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(193,88,62,0.28); }
 .add-guest-cta svg{ width:15px; height:15px; }
 .add-guest-cta:active{ opacity:.85; }
 .task-note{ font-weight:400; color:var(--ink-soft); font-size:12.5px; }
@@ -312,7 +365,7 @@ body{
 .sup-chip.active{ background:#C3A092; border-color:#C3A092; color:#fff; font-weight:600; }
 .sup-banner{ display:flex; gap:12px; align-items:stretch; margin:0 18px 18px; padding:18px; border-radius:16px; background:#EADFD6; }
 .sup-banner-text{ flex:1; min-width:0; }
-.sup-banner-eyebrow{ font-size:9.5px; font-weight:700; letter-spacing:.08em; color:#A9705C; text-transform:uppercase; margin-bottom:7px; }
+.sup-banner-eyebrow{ font-size:9.5px; font-weight:600; letter-spacing:.08em; color:#A9705C; text-transform:uppercase; margin-bottom:7px; }
 .sup-banner-title{ font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; line-height:1.2; color:#3B332C; margin-bottom:7px; }
 .sup-banner-sub{ font-size:11.5px; line-height:1.5; color:#6E6259; margin-bottom:13px; }
 .sup-banner-btn{ all:unset; box-sizing:border-box; display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:#A9705C; color:#fff; font-size:12.5px; font-weight:600; cursor:pointer; line-height:1; }
@@ -377,7 +430,7 @@ body{
 .todo-cat-icon svg{ width:19px; height:19px; }
 .todo-cat-mid{ flex:1; min-width:0; }
 .todo-cat-toprow{ display:flex; align-items:center; justify-content:space-between; }
-.todo-cat-label{ font-size:9.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-soft); }
+.todo-cat-label{ font-size:9.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-soft); }
 .todo-cat-count{ font-size:11.5px; font-weight:600; color:var(--ink-soft); }
 .todo-cat-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--ink); margin-top:2px; }
 .todo-cat-desc{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; line-height:1.4; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
@@ -395,7 +448,7 @@ body{
 .sup-thumb svg{ width:20px; height:20px; }
 .sup-thumb.is-add{ background:#F4EBE4; color:#B4A296; }
 .sup-info{ flex:1; min-width:0; }
-.sup-cat{ font-size:8.5px; font-weight:700; letter-spacing:.09em; color:#A79485; text-transform:uppercase; margin-bottom:3px; }
+.sup-cat{ font-size:8.5px; font-weight:600; letter-spacing:.09em; color:#A79485; text-transform:uppercase; margin-bottom:3px; }
 .sup-name{ font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:#33302B; line-height:1.2; margin-bottom:5px; }
 .sup-meta{ display:flex; flex-wrap:wrap; gap:4px 11px; }
 .sup-meta-item{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:#7C7268; }
@@ -439,7 +492,7 @@ body{
 .pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .privacy-text{ padding:0 16px 30px; font-size:13px; color:var(--ink); line-height:1.6; }
 .privacy-text p{ margin:0 0 16px; }
-.privacy-text b{ color:var(--heading); font-weight:700; }
+.privacy-text b{ color:var(--heading); font-weight:600; }
 .privacy-note{ font-size:11.5px; color:var(--ink-soft); font-style:italic; }
 
 /* Home hero */
@@ -465,9 +518,9 @@ body{
 .wm-heart svg{ width:11px; height:11px; }
 .weddy-subtitle{ font-size:9.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-top:5px; line-height:1.5; }
 .home-header{ display:flex; align-items:center; gap:12px; padding:8px 18px 16px; }
-.home-avatar{ width:44px; height:44px; border-radius:50%; background:linear-gradient(150deg,var(--rust),var(--heading)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:15px; flex-shrink:0; box-shadow:var(--shadow); }
+.home-avatar{ width:44px; height:44px; border-radius:50%; background:linear-gradient(150deg,var(--rust),var(--heading)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; flex-shrink:0; box-shadow:var(--shadow); }
 .home-header-text{ flex:1; min-width:0; }
-.home-header-text .names{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:19px; color:var(--ink); line-height:1.15; }
+.home-header-text .names{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--ink); line-height:1.15; }
 .home-header-text .date{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
 .home-icon-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--rust); cursor:pointer; flex-shrink:0;  line-height:1;}
 .home-icon-btn svg{ width:15px; height:15px; }
@@ -505,9 +558,9 @@ body{
 .hero-thin-divider{ width:30px; height:1px; background:rgba(255,255,255,0.6); margin:8px 0; }
 .hero-thin-divider + .hero-thin-divider{ margin-top:6px; }
 .hero-photo-card .hero-eyebrow{ font-size:12px; font-family:'Cormorant Garamond',serif; opacity:.95; margin-top:6px; }
-.hero-photo-card .hero-heading{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:42px; line-height:1; margin-top:0; }
+.hero-photo-card .hero-heading{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:42px; line-height:1; margin-top:0; }
 .hero-photo-card .hero-venue{ font-family:'Cormorant Garamond',serif; font-size:14px; opacity:.9; margin-top:6px; }
-.hero-cta{ all:unset; box-sizing:border-box; display:inline-block; margin-top:12px; padding:9px 18px; border-radius:20px; background:#fff; color:var(--heading); font-size:12px; font-weight:700; cursor:pointer; }
+.hero-cta{ all:unset; box-sizing:border-box; display:inline-block; margin-top:12px; padding:9px 18px; border-radius:20px; background:#fff; color:var(--heading); font-size:12px; font-weight:600; cursor:pointer; }
 .hero-cta:active{ opacity:.82; }
 
 /* Início — atalhos em grelha */
@@ -521,8 +574,8 @@ body{
 .quicklink-card.ql-peach2{ background:#F0E2D3; border-color:#E6D2BC; }
 .quicklink-card.ql-blush{ background:#F1DFDB; border-color:#E6CAC3; }
 .quicklink-card:active{ transform:scale(0.96); }
-.quicklink-icon{ width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
-.quicklink-icon svg{ width:24px; height:24px; }
+.quicklink-icon{ width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:var(--heading); flex-shrink:0; }
+.quicklink-icon svg{ width:30px; height:30px; }
 .quicklink-bottom{ display:flex; align-items:center; justify-content:center; width:100%; }
 .quicklink-label{ font-size:13px; font-weight:600; color:var(--ink); line-height:1.2; text-align:left; }
 .quicklink-arrow{ width:16px; height:16px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); flex-shrink:0; }
@@ -531,7 +584,7 @@ body{
 .section-label-v2::after{ content:''; flex:1; height:1px; background:var(--line); }
 .day-card{ display:flex; align-items:center; gap:12px; margin:0 16px 18px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; position:relative; overflow:hidden; box-shadow:var(--shadow); }
 .day-card-text{ flex:1; min-width:0; }
-.day-card-date{ font-size:13.5px; font-weight:700; color:var(--ink); }
+.day-card-date{ font-size:13.5px; font-weight:600; color:var(--ink); }
 .day-card-venue{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
 .day-card-botanical{ width:36px; height:auto; color:var(--dusty); opacity:.55; flex-shrink:0; }
 
@@ -584,7 +637,7 @@ body{
 .mesa3d-fillcount{ font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-left:auto; }
 .mini-ring{ position:relative; width:34px; height:34px; margin-left:auto; flex-shrink:0; }
 .mini-ring svg{ width:100%; height:100%; }
-.mini-ring-txt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7.5px; font-weight:700; color:var(--ink); }
+.mini-ring-txt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7.5px; font-weight:600; color:var(--ink); }
 
 /* Visão da sala */
 .sala-scroll{ flex:1; min-height:0; overflow:auto; padding:2px 0 24px; -webkit-overflow-scrolling:touch; }
@@ -891,7 +944,7 @@ const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
 const ICONS = {
   todo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2.3"/><path d="M8 8.3l1.3 1.3L11.5 7.4M8 13.6l1.3 1.3 2.2-2.2"/><path d="M14 8.3h5.5M14 13.6h5.5M8 18.2h11.5"/></svg>',
   honeymoon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 16.5 12 5.5l9.5 11"/><path d="M6.3 12.1 12 5.5l5.7 6.6"/><path d="M4.4 14.4h15.2M8 20.5c1.2-1.3 2.7-1.3 4-.2 1.3 1.1 2.8 1.1 4-.2"/></svg>',
-  botanical:'<svg viewBox="0 0 60 90" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M30 88V20"/><path d="M30 34c-8-3-13-11-11-20"/><path d="M30 34c2-9-2-17-10-21"/><path d="M30 50c9-2 15-9 14-18"/><path d="M30 50c-1-9 4-16 13-19"/><path d="M30 66c-7-2-11-8-10-15"/><path d="M30 66c1-8-3-14-11-16"/><circle cx="19" cy="14" r="1.4" fill="currentColor" stroke="none"/><circle cx="44" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>',
+  botanical:'<svg viewBox="0 0 64 90" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 86 40 30"/><path d="M22 62 14 54M26 54 20 45M31 46 27 37M35 39 40 30"/><g fill="currentColor" stroke="none"><circle cx="40" cy="18" r="2.6"/><circle cx="47" cy="22" r="2.6"/><circle cx="49" cy="15" r="2.6"/><circle cx="43" cy="11" r="2.6"/><circle cx="53" cy="10" r="2.6"/><circle cx="45" cy="17" r="1.5" opacity=".6"/><circle cx="12" cy="52" r="2" opacity=".7"/><circle cx="24" cy="44" r="1.7" opacity=".7"/><circle cx="33" cy="32" r="1.7" opacity=".7"/></g></svg>',
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>',
   tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 3.5h6a2 2 0 0 1 2 2v6L10 21 3.5 14.5 12.9 5.1Z" transform="translate(-1,0)"/><circle cx="15.2" cy="8.8" r="1.1" fill="currentColor" stroke="none"/></svg>',
   filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>',
@@ -2026,27 +2079,43 @@ function taskStatusOptions(selected){
 function normalizeTaskStatus(item){
   return item.status || (item.done ? 'done' : 'todo');
 }
+function guessTaskTag(text){
+  const t = text.toLowerCase();
+  const rules = [
+    [/orçamento|verba|preço|custo/, 'Finanças'],
+    [/convidado|lista de/, 'Convidados'],
+    [/estilo|tema|moodboard|pinterest|pasta de inspira/, 'Inspiração'],
+    [/local|quinta|espaço|geografica/, 'Local'],
+    [/data/, 'Datas'],
+    [/fornecedor|contratar|reservar|pesquisar band|dj|saxofone|catering|fotógraf|videógraf/, 'Fornecedores'],
+    [/vestido|fato|noiv[ao]/, 'Vestido'],
+    [/convite|papelaria|design/, 'Papelaria'],
+    [/lua de mel|viagem|honeymoon/, 'Lua de mel'],
+    [/documento|processo|certidão|junta/, 'Documentos'],
+    [/cabel|maquilh|beleza/, 'Beleza'],
+    [/transporte|carro/, 'Transporte'],
+    [/decora|flor/, 'Decoração'],
+    [/música|playlist|cântico/, 'Música'],
+    [/cerimónia|igreja|celebrante/, 'Cerimónia'],
+    [/mesa|lugares|plano de sala/, 'Mesas'],
+    [/planeamento|coordenador|wedding planner|não negoci/, 'Planeamento']
+  ];
+  for(const [re,tag] of rules){ if(re.test(t)) return tag; }
+  return 'Geral';
+}
+const ROMAN_NUM = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 function viewChecklist(){
   const totalTasks = CHECKLIST_PHASES.reduce((s,p)=>s+p.tasks.length,0) + WEDDING_DAY_CHECKLIST.length;
   const doneTasks = Object.values(state.checklistDone).filter(Boolean).length + Object.values(state.dressChecklistDone).filter(Boolean).length;
+  const phasesDone = CHECKLIST_PHASES.filter(p=>p.tasks.every((task,i)=>state.checklistDone[p.id+'-'+i])).length;
+  const phasesPct = CHECKLIST_PHASES.length ? phasesDone/CHECKLIST_PHASES.length : 0;
+  const daysLeft = weddingSettings.weddingDate ? daysUntil(weddingSettings.weddingDate) : null;
 
-  const visiblePhasesForGrid = showAllPhaseProgress ? CHECKLIST_PHASES : CHECKLIST_PHASES.slice(0,4);
-  const progressHTML = visiblePhasesForGrid.map((p,pi)=>{
-    const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
-    const pct = p.tasks.length ? doneCount/p.tasks.length : 0;
-    const complete = doneCount===p.tasks.length;
-    return `
-    <button class="phase-ring-card" data-togglephase="${p.id}">
-      <div class="ring-wrap" style="width:58px;height:58px;">
-        ${donutSVG(pct, complete? 'var(--sage-dark)' : 'var(--rust)', 58, 6)}
-        <div class="ring-center"><span class="phase-num">${pi+1}</span></div>
-      </div>
-      <div class="phase-ring-label">${p.title}</div>
-      <div class="phase-ring-count">${doneCount}/${p.tasks.length}</div>
-    </button>`;
-  }).join('');
-  const showMoreBtn = CHECKLIST_PHASES.length>4 ? `
-    <button class="show-more-btn" id="toggle-phase-progress">${showAllPhaseProgress? 'Mostrar menos' : `Mostrar todas (${CHECKLIST_PHASES.length})`}</button>` : '';
+  const selectorHTML = CHECKLIST_PHASES.map((p,pi)=>`
+    <button class="phase-dot-btn ${openChecklistPhaseId===p.id?'active':''}" data-togglephase="${p.id}">
+      <span class="phase-dot-num">${pi+1}</span>
+      <span class="phase-dot-label">Fase ${pi+1}</span>
+    </button>`).join('');
 
   const phasesHTML = CHECKLIST_PHASES.map((p,pi)=>{
     const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
@@ -2055,20 +2124,27 @@ function viewChecklist(){
       const key = p.id+'-'+i;
       const done = !!state.checklistDone[key];
       return `
-      <div class="list-row guest-row ${done?'confirmed':''}" data-checktask="${key}">
+      <div class="task-row-v2 ${done?'done':''}" data-checktask="${key}">
         <div class="check">${ICONS.check}</div>
-        <div class="title">${task.t}${task.n?`<span class="task-note"> · ${task.n}</span>`:''}</div>
+        <div class="task-row-text">${task.t}</div>
+        <span class="task-tag-pill">${guessTaskTag(task.t)}</span>
+        <span class="task-row-chev">${ICONS.chev}</span>
       </div>`;
     }).join('');
     return `
-    <div class="guest-group-card" data-phasecard="${p.id}">
-      <div class="guest-group-head" data-togglephase="${p.id}">
-        <div class="icon-chip phase-num-chip">${pi+1}</div>
-        <div class="ggtitle">${p.title}<span class="phase-desc">${p.desc}</span></div>
-        <span class="ggcount">${doneCount}/${p.tasks.length}</span>
-        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+    <div class="phase-card-v2" data-phasecard="${p.id}">
+      <div class="phase-card-head" data-togglephase="${p.id}">
+        <div class="phase-roman">${ROMAN_NUM[pi]}</div>
+        <div class="phase-card-mid">
+          <div class="phase-card-title">Fase ${pi+1}</div>
+          <div class="phase-card-desc">${p.desc}</div>
+        </div>
+        <div class="phase-card-right">
+          <span class="phase-card-count">${doneCount}/${p.tasks.length}</span>
+          <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+        </div>
       </div>
-      ${open? `<div class="guest-group-body">${tasksHTML}</div>` : ''}
+      ${open? `<div class="phase-card-tasks">${tasksHTML}</div>` : ''}
     </div>`;
   }).join('');
 
@@ -2077,9 +2153,9 @@ function viewChecklist(){
   const noivaTasksHTML = WEDDING_DAY_CHECKLIST.map((t,i)=>{
     const done = !!state.dressChecklistDone[i];
     return `
-    <div class="list-row guest-row ${done?'confirmed':''}" data-checkdaytask="${i}">
+    <div class="task-row-v2 ${done?'done':''}" data-checkdaytask="${i}">
       <div class="check">${ICONS.check}</div>
-      <div class="title">${t}</div>
+      <div class="task-row-text">${t}</div>
     </div>`;
   }).join('');
 
@@ -2095,34 +2171,51 @@ function viewChecklist(){
   }).join('');
 
   return `
-${pageHeader('checklist-back', 'Checklist')}
+  ${pageHeader('checklist-back', 'Checklist', 'Pequenos passos, grandes momentos.<br>Vamos a isso?', `<button class="nav-action" id="add-personal-toggle-btn">${ICONS.plus}</button>`)}
 
-  <div class="ring-stat-card">
-    <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
-      ${donutSVG(totalTasks? doneTasks/totalTasks : 0, 'var(--sage-dark)', 78, 8)}
-      <div class="ring-center"><span class="num" style="font-size:17px;">${doneTasks}</span></div>
+  <div class="check-progress-card">
+    <div class="ring-wrap" style="width:64px;height:64px;flex-shrink:0;">
+      ${donutSVG(phasesPct, 'var(--rust)', 64, 7)}
+      <div class="ring-center"><span class="num" style="font-size:15px;">${phasesDone}/${CHECKLIST_PHASES.length}</span></div>
     </div>
-    <div class="ring-stat-list">
-      <div class="ring-stat-item"><span class="n">${totalTasks}</span><span class="l">tarefas no total</span></div>
-      <div class="ring-stat-item"><span class="n">${totalTasks-doneTasks}</span><span class="l">por fazer</span></div>
+    <div class="check-progress-text">
+      <b>Fases concluídas</b>
+      <span>${Math.round(phasesPct*100)}% do planeamento</span>
+    </div>
+    <div class="check-progress-divider"></div>
+    <div class="check-progress-icon">${ICONS.calendar}</div>
+    <div class="check-progress-text">
+      <b>${daysLeft!==null ? daysLeft+' dias' : '—'}</b>
+      <span>para o grande dia</span>
     </div>
   </div>
 
-  <div class="section-label">Progresso por fase</div>
-  <div class="phase-ring-grid">${progressHTML}</div>
-  ${showMoreBtn}
+  <div class="phase-selector-row">${selectorHTML}</div>
 
-  <div class="section-label">As 12 fases do planeamento</div>
   ${phasesHTML}
 
-  <div class="guest-group-card">
-    <div class="guest-group-head" data-togglephase="noiva">
-      <div class="icon-chip" style="${chipStyle(2)}">${ICONS.dress}</div>
-      <div class="ggtitle">Checklist da noiva<span class="phase-desc">Para a noite anterior</span></div>
-      <span class="ggcount">${noivaDone}/${WEDDING_DAY_CHECKLIST.length}</span>
-      <span class="chev-toggle ${noivaOpen?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+  <div class="phase-card-v2">
+    <div class="phase-card-head" data-togglephase="noiva">
+      <div class="phase-roman" style="${chipStyle(2)}">${ICONS.dress}</div>
+      <div class="phase-card-mid">
+        <div class="phase-card-title">Checklist da noiva</div>
+        <div class="phase-card-desc">Para a noite anterior</div>
+      </div>
+      <div class="phase-card-right">
+        <span class="phase-card-count">${noivaDone}/${WEDDING_DAY_CHECKLIST.length}</span>
+        <span class="chev-toggle ${noivaOpen?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+      </div>
     </div>
-    ${noivaOpen? `<div class="guest-group-body">${noivaTasksHTML}</div>` : ''}
+    ${noivaOpen? `<div class="phase-card-tasks">${noivaTasksHTML}</div>` : ''}
+  </div>
+
+  <div class="add-item-card" id="open-add-personal">
+    <div class="add-item-icon">${ICONS.plus}</div>
+    <div class="add-item-text">
+      <b>Adicionar novo item</b>
+      <span>Escreve aqui a tua tarefa, nota ou lembrete…</span>
+    </div>
+    <span class="task-row-chev">${ICONS.chev}</span>
   </div>
 
   <div class="section-label">Checklist pessoal</div>
@@ -2344,7 +2437,7 @@ function viewLuademel(){
   const paymentsHTML = hm.payments.map(p=>`
     <div class="list-row" data-editpayment="${p.id}">
       <div class="title" style="flex:1;">${formatDatePT(p.date)}<span class="visit-detail" style="display:block;">${p.method==='dinheiro'?'Dinheiro':'Transferência'}</span></div>
-      <div style="font-weight:700; color:var(--ink);">${fmtEUR(Number(p.amount))}</div>
+      <div style="font-weight:600; color:var(--ink);">${fmtEUR(Number(p.amount))}</div>
       <button class="remove-x" data-delpayment="${p.id}">✕</button>
     </div>`).join('');
 
@@ -2526,40 +2619,42 @@ function viewDefinicoes(){
   return viewDefMenu();
 }
 
-function defMenuRow(key, icon, colorIdx, label){
+function defMenuRow(key, icon, colorIdx, label, desc){
   return `
   <div class="list-row tappable" data-defgoto="${key}" style="cursor:pointer;">
-    <div class="icon-chip" style="${chipStyle(colorIdx)}">${icon}</div>
-    <div class="title" style="flex:1;">${label}</div>
+    <div class="def-row-icon" style="${chipStyle(colorIdx)}">${icon}</div>
+    <div class="def-row-mid">
+      <div class="def-row-title">${label}</div>
+      ${desc? `<div class="def-row-desc">${desc}</div>` : ''}
+    </div>
     ${ICONS.chev}
   </div>`;
 }
 function viewDefMenu(){
+  const weddingInfo = [weddingSettings.coupleName1&&weddingSettings.coupleName2? `${weddingSettings.coupleName1} & ${weddingSettings.coupleName2}`:'', weddingSettings.weddingDate? formatDatePT(weddingSettings.weddingDate):'', weddingSettings.venue||''].filter(Boolean).join(' · ') || 'Ainda por definir';
   return `
-  ${pageHeader('def-back', 'Definições')}
+  ${pageHeader('def-back', 'Definições', 'Personaliza a tua experiência na Weddy<br>e gere o teu casamento.', `<div class="def-header-botanical">${ICONS.botanical}</div>`)}
 
-  <div class="section-label">O casamento</div>
+  <div class="section-label-caps">O casamento</div>
   <div class="list-group">
-    ${defMenuRow('casamento', ICONS.heart, 0, 'Nomes, data e local')}
-    ${defMenuRow('design', ICONS.camera, 3, 'Design e foto de capa')}
-    ${defMenuRow('categorias', ICONS.budget, 4, 'Categorias de gastos')}
+    ${defMenuRow('casamento', ICONS.heart, 0, 'Nomes, data e local', weddingInfo)}
+    ${defMenuRow('design', ICONS.camera, 3, 'Design e foto de capa', 'Personaliza a imagem do teu casamento')}
+    ${defMenuRow('categorias', ICONS.budget, 4, 'Categorias de gastos', 'Edita as categorias do teu orçamento')}
   </div>
 
-  <div class="section-label">Acesso e conta</div>
+  <div class="section-label-caps">Acesso e conta</div>
   <div class="list-group">
-    ${defMenuRow('convidar', ICONS.guests, 1, 'Convidar parceiro/a')}
-    ${defMenuRow('seguranca', ICONS.lock, 5, 'Quem tem acesso')}
+    ${defMenuRow('convidar', ICONS.guests, 1, 'Convidar parceiro/a', 'Partilha o planeamento do casamento')}
+    ${defMenuRow('seguranca', ICONS.lock, 5, 'Quem tem acesso', 'Controla quem pode ver e editar os dados')}
   </div>
 
-  <div class="section-label">Informação</div>
+  <div class="section-label-caps">Informação</div>
   <div class="list-group">
-    ${defMenuRow('privacidade', ICONS.checklist, 7, 'Privacidade e RGPD')}
-    ${defMenuRow('sobre', ICONS.heart, 6, 'Sobre a Weddy')}
+    ${defMenuRow('privacidade', ICONS.docnote||ICONS.checklist, 7, 'Privacidade e RGPD', 'Consulta a nossa política de privacidade')}
+    ${defMenuRow('sobre', ICONS.heart, 6, 'Sobre a Weddy', 'Versão 1.0.0')}
   </div>
 
-  <div style="padding:20px 16px 30px;">
-    <button class="login-btn" id="def-signout" style="margin-top:0; background:rgba(20,20,20,0.08); color:var(--ink);">Sair da conta</button>
-  </div>
+  <button class="def-signout-btn" id="def-signout">${ICONS.logout} Terminar sessão</button>
   `;
 }
 function pageHeader(backId, title, subtitle, extraRight){
@@ -2820,7 +2915,7 @@ function bindHandlers(){
       openChecklistPhaseId = wasOpen ? null : key;
       _origRender();
       if(!wasOpen){
-        const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.guest-group-card');
+        const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.phase-card-v2');
         if(card) requestAnimationFrame(()=> scrollIntoPanel(card));
       }
     });
@@ -2874,6 +2969,14 @@ function bindHandlers(){
     state.checklistPersonal.push({ text, status });
     render();
   });
+  function focusAddPersonal(){
+    const input = document.getElementById('add-personal-item');
+    if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>input.focus(), 250); }
+  }
+  const openAddPersonal = document.getElementById('open-add-personal');
+  if(openAddPersonal) openAddPersonal.addEventListener('click', focusAddPersonal);
+  const addPersonalToggleBtn = document.getElementById('add-personal-toggle-btn');
+  if(addPersonalToggleBtn) addPersonalToggleBtn.addEventListener('click', focusAddPersonal);
 
   // Say Yes to the Dress
   const vestidoBack = document.getElementById('vestido-back');
