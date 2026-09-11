@@ -1317,20 +1317,65 @@ function applyTheme(key){
 }
 
 /* ============================================================
-   SEED DATA — transcrito da bíblia de casamento original
+   Migração: as categorias do orçamento costumavam guardar apenas
+   uma percentagem (pct) do total. Isso fazia com que, ao mudar o
+   orçamento total, o valor em euros de cada categoria mudasse
+   sozinho (mantendo a percentagem). Agora guardamos sempre um
+   valor fixo em euros (c.value) — a percentagem passa a ser
+   apenas calculada para mostrar, nunca guardada. Esta função
+   garante que contas antigas (só com "pct") ganham o campo
+   "value" uma única vez, sem perder o valor que já tinham.
 ============================================================ */
+function normalizeCategories(){
+  if(!state || !Array.isArray(state.categories)) return;
+  const total = (state.budget && Number(state.budget.total)) || 0;
+  state.categories.forEach(c=>{
+    if(c.value===undefined || c.value===null || isNaN(Number(c.value))){
+      c.value = total * (Number(c.pct)||0);
+    }
+  });
+}
+
+/* Texto "de fábrica" antigo de cada categoria — usado só para detetar se a
+   pessoa ainda tem o texto original (nunca editou) e, nesse caso, trocá-lo
+   pela versão reescrita. Se a pessoa já tiver apagado ou acrescentado algo,
+   deixamos como está, para nunca perder uma edição própria. */
+const LEGACY_CATEGORY_DESC = {
+  quinta: ['Aluguer do espaço','Catering (cocktail, refeição, sobremesas, ceia)','Bebidas (vinho, champanhe, bar aberto, cocktails)','Staff (cozinha, empregados de mesa, coordenador de sala)','Mobiliário (mesas, cadeiras, lounges)','Loiça, talheres, copos, toalhas, guardanapos','Eventuais extras: tenda, pista de dança, horário extra'],
+  cerimonia: ['Taxa da igreja ou conservatória','Músicos para a cerimónia (órgão, coro, quarteto, violino)','Decoração da igreja/altar ou local da cerimónia civil','Tapete, bancos, cadeiras, microfones','Porta-alianças','Alianças'],
+  entretenimento: ['DJ e/ou banda','Som e iluminação','Animações extra (saxofonista, fogo-de-artifício, artistas)','Photobooth / cabine de fotos','Atividades para crianças'],
+  foto: ['Fotógrafo principal','Segundo fotógrafo (opcional)','Videógrafo(s)','Drone (se incluído)','Álbum físico e digital','Teaser/vídeo editado final'],
+  vestuario: ['Vestido de noiva (compra ou aluguer)','Fato do noivo','Sapatos de noiva e noivo','Acessórios (véu, joias, gravata, suspensórios)','Bouquet da noiva e acessórios florais','Maquilhagem e cabelo (ensaio incluído)'],
+  decoracao: ['Arranjos florais (igreja, quinta, mesas)','Decoração da sala (velas, centros de mesa)','Decoração exterior (entrada, jardins, lounge)','Iluminação ambiente (fairy lights, tochas)','Estruturas (arco floral, photowall, backdrops)'],
+  convites: ['Convites formais','Save the date','Missais/ordem da cerimónia','Menus de mesa e seating plan','Marcadores de mesa/nome'],
+  extras: ['Lembranças para convidados','Wedding planner / coordenador do dia','Licenças e seguros','Ensaios gerais','Kit SOS para noiva/noivo','Taxas e imprevistos']
+};
+function migrateCategoryDescriptions(){
+  if(!state || !Array.isArray(state.categories)) return;
+  const fresh = seedData().categories;
+  state.categories.forEach(c=>{
+    const legacy = LEGACY_CATEGORY_DESC[c.id];
+    if(!legacy || !Array.isArray(c.desc)) return;
+    const isUnchanged = c.desc.length===legacy.length && c.desc.every((d,i)=>d===legacy[i]);
+    if(isUnchanged){
+      const freshCat = fresh.find(f=>f.id===c.id);
+      if(freshCat) c.desc = freshCat.desc.slice();
+    }
+  });
+}
+
 function seedData(){
   return {
     budget:{ total:20000, guestsEstimate:80 },
     categories:[
-      { id:'quinta', name:'Espaço e Catering', pct:0.50, desc:['Aluguer do espaço','Catering (cocktail, refeição, sobremesas, ceia)','Bebidas (vinho, champanhe, bar aberto, cocktails)','Staff (cozinha, empregados de mesa, coordenador de sala)','Mobiliário (mesas, cadeiras, lounges)','Loiça, talheres, copos, toalhas, guardanapos','Eventuais extras: tenda, pista de dança, horário extra'] },
-      { id:'cerimonia', name:'Cerimónia', pct:0.05, desc:['Taxa da igreja ou conservatória','Músicos para a cerimónia (órgão, coro, quarteto, violino)','Decoração da igreja/altar ou local da cerimónia civil','Tapete, bancos, cadeiras, microfones','Porta-alianças','Alianças'] },
-      { id:'entretenimento', name:'Entretenimento', pct:0.08, desc:['DJ e/ou banda','Som e iluminação','Animações extra (saxofonista, fogo-de-artifício, artistas)','Photobooth / cabine de fotos','Atividades para crianças'] },
-      { id:'foto', name:'Fotografia e Vídeo', pct:0.12, desc:['Fotógrafo principal','Segundo fotógrafo (opcional)','Videógrafo(s)','Drone (se incluído)','Álbum físico e digital','Teaser/vídeo editado final'] },
-      { id:'vestuario', name:'Vestuário e Acessórios', pct:0.15, desc:['Vestido de noiva (compra ou aluguer)','Fato do noivo','Sapatos de noiva e noivo','Acessórios (véu, joias, gravata, suspensórios)','Bouquet da noiva e acessórios florais','Maquilhagem e cabelo (ensaio incluído)'] },
-      { id:'decoracao', name:'Decoração e Flores', pct:0.05, desc:['Arranjos florais (igreja, quinta, mesas)','Decoração da sala (velas, centros de mesa)','Decoração exterior (entrada, jardins, lounge)','Iluminação ambiente (fairy lights, tochas)','Estruturas (arco floral, photowall, backdrops)'] },
-      { id:'convites', name:'Convites e Papelaria', pct:0.02, desc:['Convites formais','Save the date','Missais/ordem da cerimónia','Menus de mesa e seating plan','Marcadores de mesa/nome'] },
-      { id:'extras', name:'Extras e Logística', pct:0.03, desc:['Lembranças para convidados','Wedding planner / coordenador do dia','Licenças e seguros','Ensaios gerais','Kit SOS para noiva/noivo','Taxas e imprevistos'] }
+      { id:'quinta', name:'Espaço e Catering', value:10000, desc:['Arrendamento do local do evento','Serviço de catering (welcome drink, jantar, sobremesa e ceia)','Bebidas e bar (vinhos, espumante, bar aberto e cocktails)','Equipa de serviço (cozinha, empregados de mesa e coordenação de sala)','Mobiliário de apoio (mesas, cadeiras e zonas lounge)','Menagem completa: pratos, talheres, copos, toalhas e guardanapos','Extras possíveis: tenda, pista de dança ou prolongamento de horário'] },
+      { id:'cerimonia', name:'Cerimónia', value:1000, desc:['Taxas do local da cerimónia (igreja ou conservatória)','Música ao vivo durante a cerimónia (órgão, coro, quarteto ou violino)','Decoração do altar ou do espaço onde decorre a cerimónia','Equipamento de apoio: tapete, assentos e microfones','Almofada ou caixa para as alianças','Alianças de casamento'] },
+      { id:'entretenimento', name:'Entretenimento', value:1600, desc:['Música para a festa: DJ e/ou banda ao vivo','Equipamento de som e jogos de luz','Momentos extra de animação (saxofonista, fogo de artifício, artistas convidados)','Cabine de fotografias para os convidados','Espaço ou monitores para entreter os mais novos'] },
+      { id:'foto', name:'Fotografia e Vídeo', value:2400, desc:['Fotógrafo responsável pelo dia','Fotógrafo de apoio, caso seja necessário','Equipa de vídeo','Filmagens aéreas com drone, se aplicável','Álbum impresso e respetiva versão digital','Vídeo-resumo e filme final editado'] },
+      { id:'vestuario', name:'Vestuário e Acessórios', value:3000, desc:['Vestido de noiva, comprado ou alugado','Fato ou traje do noivo','Calçado para os dois','Acessórios do look (véu, joias, gravata ou suspensórios)','Ramo de noiva e pequenos detalhes florais','Maquilhagem e penteado, incluindo o ensaio prévio'] },
+      { id:'decoracao', name:'Decoração e Flores', value:1000, desc:['Flores para a cerimónia, o espaço e as mesas','Decoração da sala: velas e centros de mesa','Ambientação dos espaços exteriores (entrada, jardim, zona lounge)','Luz ambiente com pisca-piscas ou tochas','Estruturas decorativas (arco floral, painel para fotos, fundos cenográficos)'] },
+      { id:'convites', name:'Convites e Papelaria', value:400, desc:['Convites oficiais para os convidados','Cartão "Reservem a data"','Folheto com o programa da cerimónia','Menus impressos e mapa de lugares','Cartões com o nome de cada convidado'] },
+      { id:'extras', name:'Extras e Logística', value:600, desc:['Pequenas lembranças para levar para casa','Apoio de wedding planner ou coordenador no dia','Licenças necessárias e seguro do evento','Ensaio geral antes do grande dia','Kit de emergência para os noivos','Margem para taxas e imprevistos'] }
     ],
     guests:{
       noiva:{ familia:[], amigos:[], duvida:[], staff:[] },
@@ -1373,6 +1418,8 @@ function defaultSettings(name1, name2, dateStr, venue){
 }
 
 let state = seedData();
+normalizeCategories();
+migrateCategoryDescriptions();
 let weddingSettings = defaultSettings();
 let activeTab = 'inicio';
 let guestSeg = 'noiva';
@@ -1750,12 +1797,14 @@ function viewInicio(){
    VIEW: Orçamento
 ============================================================ */
 function buildDonutSection(){
-  const pctSum = state.categories.reduce((s,c)=>s+Number(c.pct),0);
-  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(c.pct*1000)/10}%</span>`).join('');
+  const total = state.budget.total;
+  const pctOf = c => total ? Number(c.value)/total : 0;
+  const pctSum = state.categories.reduce((s,c)=>s+pctOf(c),0);
+  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(pctOf(c)*1000)/10}%</span>`).join('');
   return `
   <div class="donut-chart-card">
     <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
-      ${multiDonutSVG(state.categories.map((c,i)=>({pct:c.pct, color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
+      ${multiDonutSVG(state.categories.map((c,i)=>({pct:pctOf(c), color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
       <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">repartido</span></div>
     </div>
     <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
@@ -1766,9 +1815,9 @@ function softUpdateCategoryValue(id, newValue){
   if(!cat) return;
   const total = state.budget.total;
   newValue = Math.max(0, Math.min(newValue, total));
-  cat.pct = total ? newValue/total : 0;
+  cat.value = newValue;
   const guests = state.budget.guestsEstimate;
-  const pctDisplay = Math.round(cat.pct*1000)/10;
+  const pctDisplay = total ? Math.round(newValue/total*1000)/10 : 0;
   const catPerGuest = guests ? newValue/guests : 0;
 
   const pctEl = document.querySelector(`[data-catpctdisplay="${id}"]`);
@@ -1798,10 +1847,10 @@ function viewOrcamento(){
     </div>`).join('');
 
   const rows = state.categories.map((c,i)=>{
-    const catTotal = total*c.pct;
+    const catTotal = Number(c.value)||0;
     const catPerGuest = guests? catTotal/guests : 0;
     const open = !!openDesc[c.id];
-    const pctDisplay = Math.round(c.pct*1000)/10;
+    const pctDisplay = total ? Math.round(catTotal/total*1000)/10 : 0;
     const pair = CAT_COLOR_PAIRS[i%CAT_COLOR_PAIRS.length];
     return `
     <div class="cat-row-v2">
@@ -2096,7 +2145,7 @@ function viewGastos(){
   }).join('');
 
   const progress = state.categories.map((c,i)=>{
-    const catBudget = budgetTotal*c.pct;
+    const catBudget = Number(c.value)||0;
     const paid = paidByCategory(c.id);
     const pct = catBudget? Math.min(100,(paid/catBudget)*100) : 0;
     const over = paid>catBudget;
@@ -3156,8 +3205,10 @@ function bindHandlers(){
       const key = e.currentTarget.dataset.togglephase;
       openChecklistPhaseId = key;
       _origRender();
-      const card = document.querySelector(`[data-phasecard="${key}"]`) || e.currentTarget.closest('.phase-card-v2');
-      if(card) requestAnimationFrame(()=> scrollIntoPanel(card));
+      requestAnimationFrame(()=>{
+        const container = document.querySelector('[data-panel="checklist"] .scroll');
+        if(container) container.scrollTo({ top: 0, behavior: 'auto' });
+      });
     });
   });
   const togglePhaseProgress = document.getElementById('toggle-phase-progress');
@@ -3342,12 +3393,14 @@ function bindHandlers(){
   });
   const openTodoNotes = document.getElementById('open-todo-notes');
   if(openTodoNotes) openTodoNotes.addEventListener('click', ()=>{
+    closeAllSheets();
     document.getElementById('todo-notes-text').value = state.todoNotes||'';
     document.getElementById('todo-notes-sheet').classList.add('show');
     document.getElementById('sheet-backdrop').classList.add('show');
   });
   const addTodoCatBtn = document.getElementById('add-todocat-btn');
   if(addTodoCatBtn) addTodoCatBtn.addEventListener('click', ()=>{
+    closeAllSheets();
     editingTodoCatId = null;
     document.getElementById('tc-sheet-title').textContent = 'Nova categoria';
     document.getElementById('tc-label').value = '';
@@ -3360,6 +3413,7 @@ function bindHandlers(){
   if(editTodoCatBtn) editTodoCatBtn.addEventListener('click', e=>{
     const cat = state.todoCategories.find(c=>c.id===e.currentTarget.dataset.forcat);
     if(!cat) return;
+    closeAllSheets();
     editingTodoCatId = cat.id;
     document.getElementById('tc-sheet-title').textContent = 'Editar categoria';
     document.getElementById('tc-label').value = cat.label;
@@ -3602,7 +3656,7 @@ function bindHandlers(){
     const name = input.value.trim();
     if(!name) return;
     const id = 'cat'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.categories.push({ id, name, pct:0, desc:[] });
+    state.categories.push({ id, name, value:0, desc:[] });
     render();
   });
   const defSaveCategorias = document.getElementById('def-save-categorias');
@@ -3673,7 +3727,7 @@ function bindHandlers(){
     });
     inp.addEventListener('change', e=>{
       const cat = state.categories.find(c=>c.id===e.currentTarget.dataset.catvalue);
-      if(cat) e.currentTarget.value = Math.round(state.budget.total*cat.pct);
+      if(cat) e.currentTarget.value = Math.round(Number(cat.value)||0);
     });
   });
   document.querySelectorAll('[data-toggledesc]').forEach(el=>{
@@ -3708,7 +3762,7 @@ function bindHandlers(){
     const name = input.value.trim();
     if(!name) return;
     const id = 'cat'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.categories.push({ id, name, pct:0, desc:[] });
+    state.categories.push({ id, name, value:0, desc:[] });
     render();
   });
   const addPaymentBtn = document.getElementById('add-payment-btn');
@@ -3837,15 +3891,22 @@ function softUpdateBudget(){
   const pg = document.getElementById('perguest-display');
   if(pg) pg.textContent = fmtEUR(perGuest);
   state.categories.forEach(c=>{
-    const catTotal = total*c.pct;
+    const catTotal = Number(c.value)||0;
     const catPerGuest = guests? catTotal/guests : 0;
+    const pctDisplay = total ? Math.round(catTotal/total*1000)/10 : 0;
     const elTotal = document.querySelector(`[data-cattotal="${c.id}"]`);
     if(elTotal) elTotal.textContent = fmtEUR(catTotal);
     const elPerGuest = document.querySelector(`[data-catperguest="${c.id}"]`);
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+' / convidado';
     const elValueInput = document.querySelector(`[data-catvalue="${c.id}"]`);
     if(elValueInput && document.activeElement!==elValueInput) elValueInput.value = Math.round(catTotal);
+    const elPct = document.querySelector(`[data-catpctdisplay="${c.id}"]`);
+    if(elPct) elPct.textContent = pctDisplay+'%';
+    const elBar = document.querySelector(`[data-catbar="${c.id}"]`);
+    if(elBar) elBar.style.width = pctDisplay+'%';
   });
+  const donutWrap = document.getElementById('donut-section');
+  if(donutWrap) donutWrap.innerHTML = buildDonutSection();
   pushRemote();
 }
 function saveSettingsNow(msgId){
@@ -3921,7 +3982,7 @@ function softUpdateGastos(){
 
   // Pago vs. orçamentado, por categoria
   state.categories.forEach(c=>{
-    const catBudget = budgetTotal*c.pct;
+    const catBudget = Number(c.value)||0;
     const paid = paidByCategory(c.id);
     const pct = catBudget? Math.min(100,(paid/catBudget)*100) : 0;
     const over = paid>catBudget;
@@ -3948,6 +4009,7 @@ function softUpdateGastos(){
    SHEET: novo movimento
 ============================================================ */
 function openExpenseSheet(){
+  closeAllSheets();
   const sel = document.getElementById('sf-cat');
   sel.innerHTML = state.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
   document.getElementById('sf-desc').value='';
@@ -3964,6 +4026,7 @@ function closeExpenseSheet(){
 }
 let editingEventId = null;
 function openEventSheet(eventId){
+  closeAllSheets();
   editingEventId = eventId || null;
   const ev = eventId ? (state.daySchedule||[]).find(e=>e.id===eventId) : null;
   document.getElementById('event-sheet-title').textContent = ev ? 'Editar momento' : 'Novo momento';
@@ -3980,6 +4043,7 @@ function closeEventSheet(){
 }
 let guestSheetSide = 'noiva';
 function openGuestSheet(){
+  closeAllSheets();
   guestSheetSide = 'noiva';
   document.getElementById('gf-name').value = '';
   document.querySelectorAll('#gf-side-seg button').forEach(b=>b.classList.toggle('active', b.dataset.gfside==='noiva'));
@@ -4041,6 +4105,14 @@ function deleteEvent(eventId){
 function closeAllSheets(){
   closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet();
   closeSupplierSheet(); closeHmOptionSheet(); closeHmPaymentSheet(); closeTodoNotesSheet(); closeTodoCatSheet();
+  // Rede de segurança: se um gesto de arrastar for interrompido a meio (ex: o
+  // dedo sai do ecrã sem soltar), pode ficar um "transform" preso na sheet.
+  // Ao fechar tudo, limpamos sempre esse estilo para nunca ficar uma sheet
+  // meio visível por cima de outra.
+  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.style.transform=''; el.style.transition=''; }
+  });
 }
 document.getElementById('sheet-backdrop').addEventListener('click', closeAllSheets);
 
@@ -4129,6 +4201,7 @@ document.getElementById('sf-save').addEventListener('click', ()=>{
    SHEET: atribuir lugar (mesas)
 ============================================================ */
 function openSeatSheet(seatKey){
+  closeAllSheets();
   editingSeatKey = seatKey;
   seatQuery = '';
   const t = seatKey.split('-')[0].replace('t','');
@@ -4740,6 +4813,7 @@ document.getElementById('dress-insp-file-input').addEventListener('change', asyn
 
 let editingVisitId = null;
 function openVisitSheet(visitId){
+  closeAllSheets();
   editingVisitId = visitId || null;
   const v = visitId ? state.dressVisits.find(x=>x.id===visitId) : null;
   document.getElementById('visit-sheet-title').textContent = v ? 'Editar visita' : 'Nova visita';
@@ -4824,6 +4898,7 @@ document.getElementById('tc-save').addEventListener('click', ()=>{
 
 let editingHmOptionId = null;
 function openHmOptionSheet(ideaId){
+  closeAllSheets();
   editingHmOptionId = ideaId || null;
   const o = ideaId ? state.honeymoon.ideas.find(x=>x.id===ideaId) : null;
   document.getElementById('hm-option-sheet-title').textContent = o ? 'Editar ideia' : 'Nova ideia';
@@ -4883,6 +4958,7 @@ document.getElementById('hm-option-save').addEventListener('click', ()=>{
 
 let editingHmPaymentId = null;
 function openPaymentSheet(paymentId){
+  closeAllSheets();
   editingHmPaymentId = paymentId || null;
   const p = paymentId ? state.payments.find(x=>x.id===paymentId) : null;
   document.getElementById('hm-pay-date').value = p ? p.date : '';
@@ -4918,6 +4994,7 @@ document.getElementById('hm-payment-save').addEventListener('click', ()=>{
 });
 
 function openSupplierSheet(supplierId, presetCat){
+  closeAllSheets();
   editingSupplierId = supplierId || null;
   const s = supplierId ? state.suppliers.find(x=>x.id===supplierId) : null;
   document.getElementById('supplier-sheet-title').textContent = s ? 'Editar fornecedor' : 'Novo fornecedor';
@@ -5251,6 +5328,8 @@ function attachFirestoreSync(){
           state.honeymoon = { options:[] };
         }
         if(state.budget && state.budget.total === undefined) state.budget.total = 20000;
+        normalizeCategories();
+        migrateCategoryDescriptions();
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
