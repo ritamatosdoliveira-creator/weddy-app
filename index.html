@@ -707,10 +707,23 @@ body{
 .login-note{ margin:24px auto 0; font-size:11px; color:var(--ink-soft); opacity:.75; max-width:250px; line-height:1.5; }
 
 /* Bloqueio de orientação — a app é sempre vertical */
+.rotate-lock-overlay{ display:none; position:fixed; inset:0; z-index:9999; background:var(--cream); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px; }
+.rotate-lock-overlay svg{ width:56px; height:56px; color:var(--rust-dark); margin-bottom:18px; }
+.rotate-lock-overlay .rl-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--heading); margin-bottom:8px; }
+.rotate-lock-overlay .rl-text{ font-size:13px; color:var(--ink-soft); max-width:260px; line-height:1.5; }
+@media (orientation:landscape){
+  .rotate-lock-overlay{ display:flex; }
+}
 
 </style>
 </head>
 <body>
+
+<div class="rotate-lock-overlay" id="rotate-lock-overlay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/><path d="M3 9l3-3-3-3" transform="translate(0,3)"/></svg>
+  <div class="rl-title">Roda o telemóvel</div>
+  <div class="rl-text">A Weddy foi pensada para seres usada na vertical. Volta a rodar o teu telemóvel para continuares.</div>
+</div>
 
 <div class="screen">
   <div class="statusbar-spacer"></div>
@@ -1495,15 +1508,9 @@ function renderTabbar(){
       <span>${t.label}</span>
     </button>`;
   }).join('');
-  bar.querySelectorAll('button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const target = b.dataset.goto;
-      if(target !== activeTab) collapseAllSections();
-      closeAllSheets();
-      activeTab = target;
-      _origRender();
-    });
-  });
+  // Nota: os cliques nestes botões são tratados em bindHandlers() através do
+  // seletor [data-goto] — não voltar a ligar addEventListener aqui, ou cada
+  // toque na tabbar dispara dois renders seguidos.
 }
 
 function render(){
@@ -1557,7 +1564,7 @@ function getUpcomingPayments(){
   state.expenses.forEach((e,i)=>{
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
     if(remaining>0 && e.dueDate){
-      const days = Math.ceil((new Date(e.dueDate)-now)/86400000);
+      const days = Math.ceil((new Date(e.dueDate+'T00:00:00')-now)/86400000);
       if(days<=15) list.push({ label:e.desc||'Gasto', amount:remaining, days, overdue:days<0 });
     }
   });
@@ -2018,7 +2025,7 @@ function viewGastos(){
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
     let dueWarn = '';
     if(remaining>0 && e.dueDate){
-      const days = Math.ceil((new Date(e.dueDate) - new Date(new Date().toDateString())) / 86400000);
+      const days = Math.ceil((new Date(e.dueDate+'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
       if(days<0) dueWarn = ' overdue';
       else if(days<=15) dueWarn = ' soon';
     }
@@ -2034,7 +2041,7 @@ function viewGastos(){
         <span class="tag-pill" style="background:${pair.bg}; color:${pair.fg};">${cat?cat.name:'—'}</span>
       </div>
       <div class="exp-paid-row">
-        Pago: <input type="number" min="0" data-exp="paid|${i}" value="${e.paid}"> / ${fmtEUR(e.value)}
+        Pago: <input type="number" min="0" data-exp="paid|${i}" value="${e.paid||0}"> / ${fmtEUR(e.value)}
       </div>
       ${remaining>0 ? `
       <div class="exp-due-row${dueWarn}" data-duerow="${i}">
@@ -2076,8 +2083,8 @@ function viewGastos(){
     <div class="ring-card">
       <div class="ring-label">Do orçamento</div>
       <div class="ring-wrap" id="orc-ring-wrap">
-        ${donutSVG(budgetTotal? totalValue/budgetTotal : 0, 'var(--gold)', 92, 9)}
-        <div class="ring-center"><span class="num">${budgetTotal? Math.round(totalValue/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>
+        ${donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)}
+        <div class="ring-center"><span class="num">${budgetTotal? Math.round(totalPaid/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
       </div>
       <div class="ring-breakdown">
         <div><div class="n">${fmtEUR(budgetTotal)}</div><div class="l">Orçamento</div></div>
@@ -3674,8 +3681,8 @@ function bindHandlers(){
       if(field==='value'||field==='paid') row[field] = Math.max(0, Number(e.target.value)||0);
       else row[field] = e.target.value;
       if(field==='paid') softUpdateGastos();
-      else if(field==='value') { pushRemote(); }
       else if(field==='dueDate') { render(); }
+      else { pushRemote(); }
     });
   });
   document.querySelectorAll('[data-delexp]').forEach(btn=>{
@@ -3808,8 +3815,8 @@ function softUpdateGastos(){
   if(porPagar) porPagar.textContent = fmtEUR(totalValue-totalPaid);
 
   const orcWrap = document.getElementById('orc-ring-wrap');
-  if(orcWrap) orcWrap.innerHTML = donutSVG(budgetTotal? totalValue/budgetTotal : 0, 'var(--gold)', 92, 9)
-    + `<div class="ring-center"><span class="num">${budgetTotal? Math.round(totalValue/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>`;
+  if(orcWrap) orcWrap.innerHTML = donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)
+    + `<div class="ring-center"><span class="num">${budgetTotal? Math.round(totalPaid/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
 
   state.expenses.forEach((e,i)=>{
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
@@ -4957,10 +4964,14 @@ function handleForgotPassword(){
   if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta.', true); return; }
   auth.sendPasswordResetEmail(email).then(()=>{
     renderLoginForm(`Enviámos um email para ${email} com instruções para redefinires a password.`, false, true);
+    const emailEl = document.getElementById('login-email');
+    if(emailEl) emailEl.value = email;
   }).catch(err=>{
     console.error('Weddy reset error:', err.code, err.message);
     const msg = err.code==='auth/user-not-found' ? 'Não há nenhuma conta com este email.' : 'Não foi possível enviar o email. Verifica se está correto.';
     renderLoginForm(msg, true);
+    const emailEl = document.getElementById('login-email');
+    if(emailEl) emailEl.value = email;
   });
 }
 function renderLoginSetupNeeded(){
@@ -5031,6 +5042,9 @@ function handleAuthSubmit(){
     else if(err.code==='auth/invalid-email') msg = 'Esse email não parece válido.';
     else msg = 'Não foi possível continuar (' + (err.code||err.message||'erro desconhecido') + ').';
     renderLoginForm(msg, true);
+    // Mantém o email já escrito para a pessoa não ter de o voltar a escrever
+    const emailEl = document.getElementById('login-email');
+    if(emailEl) emailEl.value = email;
   });
 }
 
