@@ -2767,7 +2767,7 @@ function viewDefMenu(){
 
   <div class="section-label-caps">Acesso e conta</div>
   <div class="list-group">
-    ${defMenuRow('convidar', ICONS.guests, 1, 'Convidar parceiro/a', 'Partilha o planeamento do casamento')}
+    ${defMenuRow('convidar', ICONS.guests, 1, 'Convidar participante no planeamento', 'Partilha o planeamento do casamento')}
     ${defMenuRow('seguranca', ICONS.lock, 5, 'Quem tem acesso', 'Controla quem pode ver e editar os dados')}
   </div>
 
@@ -2807,11 +2807,11 @@ function viewDefCasamento(){
   return `
   ${defSubHeader('Casamento')}
   <div class="stat-card" style="margin:0 16px 12px;">
-    <div class="l" style="margin:0 0 4px;">Primeiro nome</div>
+    <div class="l" style="margin:0 0 4px;">Nome noiva</div>
     <input class="field-input big" id="def-name1" type="text" value="${s.coupleName1||''}" style="text-align:left;">
   </div>
   <div class="stat-card" style="margin:0 16px 12px;">
-    <div class="l" style="margin:0 0 4px;">Segundo nome</div>
+    <div class="l" style="margin:0 0 4px;">Nome noivo</div>
     <input class="field-input big" id="def-name2" type="text" value="${s.coupleName2||''}" style="text-align:left;">
   </div>
   <div class="stat-card" style="margin:0 16px 12px;">
@@ -2881,7 +2881,7 @@ function viewDefCategorias(){
 function viewDefConvidar(){
   return `
   ${defSubHeader('Convidar')}
-  <div class="section-label">Convidar parceiro/a</div>
+  <div class="section-label">Convidar participante no planeamento</div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">Email da pessoa a convidar</div>
     <input class="field-input big" id="def-invite-email" type="email" placeholder="email@exemplo.com" style="text-align:left;">
@@ -2930,7 +2930,7 @@ function viewDefPrivacidade(){
     A Weddy é um projeto pessoal gerido por Rita Matos Oliveira. Para qualquer questão sobre os teus dados, podes escrever para <span style="color:var(--rust);">geral@weddy.pt</span>.</p>
 
     <p><b>Quem é responsável pelo tratamento dos seus dados pessoais</b><br>
-    Rita Matos Oliveira é a responsável pelo tratamento dos dados pessoais recolhidos através desta app, no âmbito da organização do teu casamento.</p>
+    A weddy é a responsável pelo tratamento dos dados pessoais recolhidos através desta app, no âmbito da organização do teu casamento.</p>
 
     <p><b>Como é que recolhemos os seus dados pessoais</b><br>
     Recolhemos dados quando crias uma conta (email), quando preenches a informação do teu casamento (nomes, data, local), quando adicionas convidados, gastos ou mesas, e quando convidas outra pessoa a juntar-se ao teu casamento.</p>
@@ -5000,8 +5000,8 @@ function renderOnboarding(){
   document.getElementById('login-inner').innerHTML = `
     
     <div class="login-tag">Vamos configurar o vosso casamento</div>
-    <div class="login-field"><input type="text" id="ob-name1" placeholder="Primeiro nome (ex: Rita)"></div>
-    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-name2" placeholder="Segundo nome (ex: Tiago)"></div>
+    <div class="login-field"><input type="text" id="ob-name1" placeholder="Nome noiva (ex: Rita)"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-name2" placeholder="Nome noivo (ex: Tiago)"></div>
     <div class="login-field" style="margin-top:10px;">
       <label style="display:block; text-align:left; font-size:11px; color:var(--ink-soft); margin:0 0 4px 2px;">Data do casamento</label>
       <input type="date" id="ob-date">
