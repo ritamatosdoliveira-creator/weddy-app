@@ -293,6 +293,9 @@ body{
 .exp-due-row.soon .exp-due-input{ color:var(--gold); font-weight:600; }
 .exp-due-row.overdue{ color:var(--rust-dark); }
 .exp-due-row.overdue .exp-due-input{ color:var(--rust-dark); font-weight:600; }
+.exp-adddue-row{ cursor:pointer; }
+.exp-adddue-row:active{ opacity:.6; }
+.exp-adddue-input{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
 .exp-due-input{ all:unset; font-size:11.5px; color:inherit; }
 .todo-item-due{ display:flex; align-items:center; gap:5px; width:100%; padding-left:33px; margin-top:-2px; font-size:11px; color:var(--ink-soft); }
 .todo-item-due input[type=date]{ all:unset; font-size:11px; color:inherit; }
@@ -2145,6 +2148,11 @@ function viewGastos(){
         <span data-dueremaining="${i}">Falta pagar ${fmtEUR(remaining)} — até</span>
         <input type="date" class="exp-due-input" data-exp="dueDate|${i}" value="${e.dueDate||''}">
       </div>` : ''}
+      ${remaining>0 && !e.dueDate ? `
+      <label class="exp-due-row exp-adddue-row" data-duerow="${i}">
+        <span>+ definir data limite</span>
+        <input type="date" class="exp-adddue-input" data-exp="dueDate|${i}" value="">
+      </label>` : ''}
     </div>`;
   }).join('');
 
