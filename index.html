@@ -53,6 +53,30 @@ body{
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 4px); flex-shrink:0; }
 
+/* ===================== PC / ECRÃS LARGOS ===================== */
+/* A partir daqui a app fica dentro de uma "moldura" de telemóvel,
+   centrada no ecrã — quase tudo dentro de .screen já usa
+   position:absolute relativo a .screen, por isso basta dar-lhe um
+   tamanho e cantos arredondados para os ecrãs, sheets, tabbar, etc.
+   ficarem automaticamente dentro da moldura. */
+@media (min-width:760px){
+  body{
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 18% 15%, rgba(185,103,82,0.16), transparent 55%),
+      radial-gradient(circle at 82% 88%, rgba(168,179,156,0.16), transparent 55%),
+      var(--cream2);
+  }
+  .screen{
+    flex:none;
+    width:430px;
+    height:min(920px, 94vh);
+    border-radius:44px;
+    box-shadow:0 40px 90px rgba(48,44,41,0.32), 0 0 0 10px #fff, 0 0 0 11px rgba(48,44,41,0.08);
+  }
+}
+
 /* ===================== NAV / CONTENT ===================== */
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
 .tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
@@ -711,9 +735,14 @@ body{
 .rotate-lock-overlay svg{ width:56px; height:56px; color:var(--rust-dark); margin-bottom:18px; }
 .rotate-lock-overlay .rl-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--heading); margin-bottom:8px; }
 .rotate-lock-overlay .rl-text{ font-size:13px; color:var(--ink-soft); max-width:260px; line-height:1.5; }
-@media (orientation:landscape){
+@media (orientation:landscape) and (hover:none) and (pointer:coarse){
   .rotate-lock-overlay{ display:flex; }
 }
+/* Controlo por JavaScript (mais fiável do que confiar apenas na media
+   query acima, que em alguns browsers/telemóveis pode não disparar):
+   sempre que a classe "rotate-blocked" é aplicada ao <html>, o aviso
+   aparece e cobre tudo, incluindo a barra de navegação inferior. */
+html.rotate-blocked .rotate-lock-overlay{ display:flex; }
 
 </style>
 </head>
@@ -5123,7 +5152,7 @@ function renderOnboarding(){
       <label style="display:block; text-align:left; font-size:11px; color:var(--ink-soft); margin:0 0 4px 2px;">Data do casamento</label>
       <input type="date" id="ob-date">
     </div>
-    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-venue" placeholder="Local (ex: Quinta de Santo André, Barcelos)"></div>
+    <div class="login-field" style="margin-top:10px;"><input type="text" id="ob-venue" placeholder="Local (ex: Quinta do Jardim, Barcelos)"></div>
     <button class="login-btn" id="ob-save">Começar</button>
     <div class="login-msg" id="ob-msg"></div>
   `;
@@ -5295,14 +5324,55 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
     }
   }catch(e){}
 
-  // Mede o tamanho do ecrã uma única vez, à entrada, e fixa a app nesse
-  // tamanho em pixels para sempre. Depois disto, nada mais aqui reage a
-  // rodar o telemóvel — a app fica exatamente como estava, sem qualquer
-  // rotação, redimensionamento ou mensagem.
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  document.body.style.width = w + 'px';
-  document.body.style.height = h + 'px';
+  function isDesktopLike(){
+    return window.matchMedia('(min-width:760px) and (hover:hover)').matches;
+  }
+  function isTouchDevice(){
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints>0) || (navigator.msMaxTouchPoints>0);
+  }
+  function setBodySize(){
+    document.body.style.width = window.innerWidth + 'px';
+    document.body.style.height = window.innerHeight + 'px';
+  }
+  // Decide, de forma explícita em JS (não só por CSS), se a app deve
+  // mostrar o aviso a bloquear o ecrã. Isto garante que a barra de
+  // navegação nunca fica visível/tocável por baixo de um layout virado —
+  // só um aparelho tátil (telemóvel/tablet) em paisagem ativa o bloqueio;
+  // um PC com rato nunca o faz, mesmo que a janela seja "larga".
+  function updateRotationLock(){
+    if(isDesktopLike()){
+      document.documentElement.classList.remove('rotate-blocked');
+      return;
+    }
+    const isLandscape = window.innerWidth > window.innerHeight;
+    document.documentElement.classList.toggle('rotate-blocked', isTouchDevice() && isLandscape);
+  }
+
+  // Estado inicial: mede o ecrã e fixa a app nesse tamanho em pixels.
+  setBodySize();
+  updateRotationLock();
+
+  // PC: a janela pode ser redimensionada de verdade — acompanha.
+  window.addEventListener('resize', function(){
+    if(isDesktopLike()) setBodySize();
+  });
+
+  // Telemóvel: só reage a mudanças reais de orientação (rodar o
+  // aparelho) — nunca a pequenas variações de altura causadas pela
+  // barra de endereço do browser a aparecer/desaparecer durante o
+  // scroll, que não devem mexer no tamanho fixo da app.
+  function onOrientationChange(){
+    setTimeout(function(){
+      updateRotationLock();
+      if(!isDesktopLike() && window.innerWidth <= window.innerHeight){
+        setBodySize(); // voltou a vertical — reajusta ao ecrã atual
+      }
+    }, 60);
+  }
+  window.addEventListener('orientationchange', onOrientationChange);
+  if(screen.orientation && screen.orientation.addEventListener){
+    screen.orientation.addEventListener('change', onOrientationChange);
+  }
 })();
 
 (function detectInAppBrowser(){
