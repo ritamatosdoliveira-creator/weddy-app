@@ -698,9 +698,24 @@ body{
 .login-msg.success{ color:var(--sage-dark); }
 .login-note{ margin:24px auto 0; font-size:11px; color:var(--ink-soft); opacity:.75; max-width:250px; line-height:1.5; }
 
+/* Bloqueio de orientação — a app é sempre vertical */
+.rotate-lock-overlay{ display:none; position:fixed; inset:0; z-index:9999; background:var(--cream); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px; }
+.rotate-lock-overlay svg{ width:56px; height:56px; color:var(--rust-dark); margin-bottom:18px; }
+.rotate-lock-overlay .rl-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--heading); margin-bottom:8px; }
+.rotate-lock-overlay .rl-text{ font-size:13px; color:var(--ink-soft); max-width:260px; line-height:1.5; }
+@media (orientation:landscape){
+  .rotate-lock-overlay{ display:flex; }
+}
+
 </style>
 </head>
 <body>
+
+<div class="rotate-lock-overlay" id="rotate-lock-overlay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/><path d="M3 9l3-3-3-3" transform="translate(0,3)"/></svg>
+  <div class="rl-title">Roda o telemóvel</div>
+  <div class="rl-text">A Weddy foi pensada para seres usada na vertical. Volta a rodar o teu telemóvel para continuares.</div>
+</div>
 
 <div class="screen">
   <div class="statusbar-spacer"></div>
@@ -920,6 +935,21 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (function(){
+  // Bloqueia a orientação em vertical quando o browser/PWA o permite (sobretudo
+  // Android em modo instalado). Em navegadores que não suportam a API (ex: iOS
+  // Safari), o overlay CSS "roda o telemóvel" acima garante na mesma que a app
+  // nunca é usada na horizontal.
+  function tryLockPortrait(){
+    try{
+      if(screen.orientation && screen.orientation.lock){
+        screen.orientation.lock('portrait').catch(()=>{});
+      }
+    }catch(err){}
+  }
+  tryLockPortrait();
+  document.addEventListener('fullscreenchange', tryLockPortrait);
+  window.addEventListener('load', tryLockPortrait);
+
   // A altura da app é controlada apenas por CSS (100dvh) — deixámos de usar
   // window.innerHeight em JS porque, com apple-mobile-web-app-status-bar-style
   // "black-translucent", o iOS subtrai por engano a altura da barra de estado
