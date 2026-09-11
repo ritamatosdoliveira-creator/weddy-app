@@ -1604,6 +1604,15 @@ function renderTabbar(){
       <span>${t.label}</span>
     </button>`;
   }).join('');
+  // Rede de segurança: a tabbar é escondida enquanto se escreve num campo
+  // (para dar espaço ao teclado) e devolvida ao fechar esse campo. Mas
+  // alguns telemóveis não disparam esse "fechar" quando o foco é roubado
+  // por um alerta nativo (ex: confirm() ao apagar algo) — sem isto, a
+  // tabbar podia ficar escondida para sempre depois disso.
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if(activeTag!=='INPUT' && activeTag!=='TEXTAREA' && activeTag!=='SELECT'){
+    bar.style.display = '';
+  }
   // Nota: os cliques nestes botões são tratados em bindHandlers() através do
   // seletor [data-goto] — não voltar a ligar addEventListener aqui, ou cada
   // toque na tabbar dispara dois renders seguidos.
@@ -3848,7 +3857,7 @@ function bindHandlers(){
       if(field==='value'||field==='paid') row[field] = Math.max(0, Number(e.target.value)||0);
       else row[field] = e.target.value;
       if(field==='paid') softUpdateGastos();
-      else if(field==='dueDate') { render(); }
+      else if(field==='dueDate') { e.target.blur(); render(); }
       else { pushRemote(); }
     });
   });
