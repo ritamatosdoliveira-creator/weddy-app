@@ -5224,6 +5224,23 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
       screen.orientation.lock('portrait').catch(()=>{});
     }
   }catch(e){}
+
+  // Em Safari/iOS, mudar orientação com transform no <html> pode deixar
+  // elementos "fixed" (como a tabbar) com a posição antiga "presa" depois
+  // de a rotação voltar ao normal. Isto força um redesenho do ecrã.
+  function unstickFixedLayout(){
+    requestAnimationFrame(()=>{
+      const prev = document.body.style.transform;
+      document.body.style.transform = 'translateZ(0)';
+      void document.body.offsetHeight;
+      document.body.style.transform = prev;
+    });
+  }
+  window.addEventListener('orientationchange', unstickFixedLayout);
+  window.addEventListener('resize', unstickFixedLayout);
+  if(screen.orientation){
+    screen.orientation.addEventListener('change', unstickFixedLayout);
+  }
 })();
 
 (function detectInAppBrowser(){
