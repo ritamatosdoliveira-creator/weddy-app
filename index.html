@@ -627,6 +627,7 @@ body{
 .sheet-field{ margin-bottom:10px; }
 .sheet-field label{ display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; }
 .sheet-field input, .sheet-field select{ width:100%; border:1px solid var(--line); background:#fff; border-radius:9px; padding:9px 10px; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; }
+.sheet-field input.field-error, .sheet-field select.field-error{ border-color:var(--rust-dark); box-shadow:0 0 0 3px rgba(193,88,62,0.13); }
 .sheet-btns{ display:flex; gap:10px; margin-top:14px; }
 .btn-cancel, .btn-save{ all:unset; box-sizing:border-box; cursor:pointer; flex:1; text-align:center; padding:11px 0; border-radius:11px; font-size:14.5px; font-weight:600; }
 .btn-cancel{ background:rgba(20,20,20,0.07); color:var(--rust-dark); }
@@ -777,8 +778,8 @@ body{
       </div>
       <input type="hidden" id="hm-theme-value" value="">
     </div>
-    <div class="sheet-field"><label>Preço mínimo (€)</label><input type="number" id="hm-price-min" placeholder="0"></div>
-    <div class="sheet-field"><label>Preço máximo (€)</label><input type="number" id="hm-price-max" placeholder="0"></div>
+    <div class="sheet-field"><label>Preço mínimo (€)</label><input type="number" min="0" id="hm-price-min" placeholder="0"></div>
+    <div class="sheet-field"><label>Preço máximo (€)</label><input type="number" min="0" id="hm-price-max" placeholder="0"></div>
     <div class="sheet-field"><label>Data limite de pagamento (opcional)</label><input type="date" id="hm-duedate"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="hm-option-cancel">Cancelar</button>
@@ -790,7 +791,7 @@ body{
     <div class="sheet-handle"></div>
     <div class="sheet-title">Novo pagamento</div>
     <div class="sheet-field"><label>Data</label><input type="date" id="hm-pay-date"></div>
-    <div class="sheet-field"><label>Valor (€)</label><input type="number" id="hm-pay-amount" placeholder="0"></div>
+    <div class="sheet-field"><label>Valor (€)</label><input type="number" min="0" id="hm-pay-amount" placeholder="0"></div>
     <div class="sheet-field"><label>Forma de pagamento</label>
       <select id="hm-pay-method">
         <option value="transferencia">Transferência</option>
@@ -877,8 +878,8 @@ body{
     <div class="sheet-title">Novo movimento</div>
     <div class="sheet-field"><label>Descrição</label><input type="text" id="sf-desc" placeholder="Ex: Sinal do fotógrafo"></div>
     <div class="sheet-field"><label>Data</label><input type="date" id="sf-date"></div>
-    <div class="sheet-field"><label>Valor total (€)</label><input type="number" id="sf-value" placeholder="0"></div>
-    <div class="sheet-field"><label>Já pago (€)</label><input type="number" id="sf-paid" placeholder="0"></div>
+    <div class="sheet-field"><label>Valor total (€) *</label><input type="number" min="0" id="sf-value" placeholder="0"></div>
+    <div class="sheet-field"><label>Já pago (€) *</label><input type="number" min="0" id="sf-paid" placeholder="0"></div>
     <div class="sheet-field"><label>Data limite para pagar o resto (opcional)</label><input type="date" id="sf-duedate"></div>
     <div class="sheet-field"><label>Categoria</label><select id="sf-cat"></select></div>
     <div class="sheet-btns">
@@ -1353,6 +1354,14 @@ function escapeHTML(str){
 }
 function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
 function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
+function flagRequiredField(el){
+  if(!el) return;
+  el.classList.add('field-error');
+  el.focus();
+  if(el.scrollIntoView) el.scrollIntoView({block:'center', behavior:'smooth'});
+  const clear = ()=>{ el.classList.remove('field-error'); el.removeEventListener('input', clear); };
+  el.addEventListener('input', clear);
+}
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
 const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, serpentine:{label:'Serpente', icon:'tableserpentine'} };
@@ -1423,7 +1432,8 @@ function multiDonutSVG(segments, size, stroke){
   const circ = 2*Math.PI*r;
   let acc = 0, arcs = '';
   segments.forEach(seg=>{
-    const len = circ*Math.max(0, seg.pct);
+    const remaining = Math.max(0, circ-acc);
+    const len = Math.min(remaining, circ*Math.max(0, seg.pct));
     if(len > 0.15){
       const rot = -90 + (acc/circ)*360;
       arcs += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${stroke}" stroke-dasharray="${Math.max(len-1.4,0)} ${circ}" transform="rotate(${rot} ${c} ${c})"/>`;
@@ -1676,7 +1686,8 @@ function softUpdateCategoryValue(id, newValue){
   const cat = state.categories.find(c=>c.id===id);
   if(!cat) return;
   const total = state.budget.total;
-  cat.pct = total ? Math.max(0, newValue)/total : 0;
+  newValue = Math.max(0, Math.min(newValue, total));
+  cat.pct = total ? newValue/total : 0;
   const guests = state.budget.guestsEstimate;
   const pctDisplay = Math.round(cat.pct*1000)/10;
   const catPerGuest = guests ? newValue/guests : 0;
@@ -1732,7 +1743,7 @@ function viewOrcamento(){
         <div class="cat-row-perguest" data-catperguest="${c.id}">${fmtEUR(catPerGuest)} / convidado</div>
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Valor (€)</span>
-          <input type="number" class="field-input" data-catvalue="${c.id}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
+          <input type="number" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
         <div style="display:flex; gap:9px; padding:6px 0 12px;">
           <button class="visit-action-btn" data-renamecat="${c.id}">${ICONS.pencil} Renomear</button>
@@ -1754,12 +1765,12 @@ function viewOrcamento(){
   <div class="stats-row">
     <div class="stat-card" style="background:#E7EBE1; border-color:#DCE2D3;">
       <div class="l" style="margin:0 0 4px;">Orçamento total</div>
-      <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" value="${total}" style="text-align:left;"></div>
+      <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" min="0" value="${total}" style="text-align:left;"></div>
       <div class="stat-card-icon">${ICONS.budget}</div>
     </div>
     <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
       <div class="l" style="margin:0 0 4px;">Convidados (est.)</div>
-      <input class="field-input big" id="in-guests" type="number" value="${guests}" style="text-align:left;">
+      <input class="field-input big" id="in-guests" type="number" min="0" value="${guests}" style="text-align:left;">
       <div class="stat-card-icon">${ICONS.guests}</div>
     </div>
     <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
@@ -1995,7 +2006,7 @@ function viewGastos(){
         <span class="tag-pill" style="background:${pair.bg}; color:${pair.fg};">${cat?cat.name:'—'}</span>
       </div>
       <div class="exp-paid-row">
-        Pago: <input type="number" data-exp="paid|${i}" value="${e.paid}"> / ${fmtEUR(e.value)}
+        Pago: <input type="number" min="0" data-exp="paid|${i}" value="${e.paid}"> / ${fmtEUR(e.value)}
       </div>
       ${remaining>0 ? `
       <div class="exp-due-row${dueWarn}" data-duerow="${i}">
@@ -2586,7 +2597,7 @@ function viewLuademelOption(o){
     </div>
   </div>
 
-  <div class="sheet-field" style="margin:0 16px 14px;"><label>Orçamento estimado (€)</label><input type="number" id="hmo-budget" value="${o.budget||''}" placeholder="0"></div>
+  <div class="sheet-field" style="margin:0 16px 14px;"><label>Orçamento estimado (€)</label><input type="number" min="0" id="hmo-budget" value="${o.budget||''}" placeholder="0"></div>
 
   <div class="section-label">Itinerário · cidades a visitar</div>
   <div class="list-group">
@@ -3302,7 +3313,7 @@ function bindHandlers(){
   const hmoBudgetInput = document.getElementById('hmo-budget');
   if(hmoBudgetInput) hmoBudgetInput.addEventListener('input', e=>{
     const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
-    if(o){ o.budget = Number(e.target.value)||0; pushRemote(); }
+    if(o){ o.budget = Math.max(0, Number(e.target.value)||0); pushRemote(); }
   });
   const hmoNotesInput = document.getElementById('hmo-notes');
   if(hmoNotesInput) hmoNotesInput.addEventListener('input', e=>{
@@ -3352,7 +3363,7 @@ function bindHandlers(){
   if(saveHmOptionBtn) saveHmOptionBtn.addEventListener('click', ()=>{
     hmOpenOptionId = null;
     render();
-    pushRemote();
+    pushRemote(true);
   });
   const delHmOptionBtn = document.getElementById('del-hmoption-btn');
   if(delHmOptionBtn) delHmOptionBtn.addEventListener('click', ()=>{
@@ -3517,13 +3528,17 @@ function bindHandlers(){
 
   // Orçamento
   const inTotal = document.getElementById('in-total');
-  if(inTotal) inTotal.addEventListener('input', e=>{ state.budget.total = Number(e.target.value)||0; softUpdateBudget(); });
+  if(inTotal) inTotal.addEventListener('input', e=>{ state.budget.total = Math.max(0, Number(e.target.value)||0); softUpdateBudget(); });
   const inGuests = document.getElementById('in-guests');
-  if(inGuests) inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Number(e.target.value)||0; softUpdateBudget(); });
+  if(inGuests) inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Math.max(0, Number(e.target.value)||0); softUpdateBudget(); });
   document.querySelectorAll('[data-catvalue]').forEach(inp=>{
     inp.addEventListener('input', e=>{
       const id = e.currentTarget.dataset.catvalue;
-      softUpdateCategoryValue(id, Number(e.currentTarget.value)||0);
+      softUpdateCategoryValue(id, Math.max(0, Number(e.currentTarget.value)||0));
+    });
+    inp.addEventListener('change', e=>{
+      const cat = state.categories.find(c=>c.id===e.currentTarget.dataset.catvalue);
+      if(cat) e.currentTarget.value = Math.round(state.budget.total*cat.pct);
     });
   });
   document.querySelectorAll('[data-toggledesc]').forEach(el=>{
@@ -3621,7 +3636,7 @@ function bindHandlers(){
     inp.addEventListener('input', e=>{
       const [field,idx] = e.currentTarget.dataset.exp.split('|');
       const row = state.expenses[Number(idx)];
-      if(field==='value'||field==='paid') row[field] = Number(e.target.value)||0;
+      if(field==='value'||field==='paid') row[field] = Math.max(0, Number(e.target.value)||0);
       else row[field] = e.target.value;
       if(field==='paid') softUpdateGastos();
       else if(field==='value') { pushRemote(); }
@@ -3852,8 +3867,9 @@ document.querySelectorAll('#gf-side-seg button').forEach(b=>{
   });
 });
 document.getElementById('gf-save').addEventListener('click', ()=>{
-  const name = document.getElementById('gf-name').value.trim();
-  if(!name){ closeGuestSheet(); return; }
+  const nameEl = document.getElementById('gf-name');
+  const name = nameEl.value.trim();
+  if(!name){ flagRequiredField(nameEl); return; }
   if(guestSheetSide==='criancas'){
     state.guests.criancas.push(name);
   } else {
@@ -3864,12 +3880,14 @@ document.getElementById('gf-save').addEventListener('click', ()=>{
   }
   closeGuestSheet();
   render();
+  pushRemote(true);
 });
 document.getElementById('ef-save').addEventListener('click', ()=>{
-  const label = document.getElementById('ef-label').value.trim();
+  const labelEl = document.getElementById('ef-label');
+  const label = labelEl.value.trim();
   const time = document.getElementById('ef-time').value;
   const place = document.getElementById('ef-place').value.trim();
-  if(!label) { closeEventSheet(); return; }
+  if(!label) { flagRequiredField(labelEl); return; }
   if(!state.daySchedule) state.daySchedule = [];
   if(editingEventId){
     const ev = state.daySchedule.find(e=>e.id===editingEventId);
@@ -3879,6 +3897,7 @@ document.getElementById('ef-save').addEventListener('click', ()=>{
   }
   closeEventSheet();
   render();
+  pushRemote(true);
 });
 function deleteEvent(eventId){
   state.daySchedule = (state.daySchedule||[]).filter(e=>e.id!==eventId);
@@ -3949,15 +3968,22 @@ function initSwipeBack(){
 initSwipeBack();
 document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
 document.getElementById('sf-save').addEventListener('click', ()=>{
-  const desc = document.getElementById('sf-desc').value.trim();
+  const descEl = document.getElementById('sf-desc');
+  const desc = descEl.value.trim();
   const date = document.getElementById('sf-date').value;
-  const value = Number(document.getElementById('sf-value').value)||0;
-  const paid = Number(document.getElementById('sf-paid').value)||0;
+  const valueEl = document.getElementById('sf-value');
+  const paidEl = document.getElementById('sf-paid');
   const dueDate = document.getElementById('sf-duedate').value;
   const category = document.getElementById('sf-cat').value;
-  if(desc){ state.expenses.unshift({date,desc,value,paid,category,dueDate}); }
+  if(!desc){ flagRequiredField(descEl); return; }
+  if(valueEl.value.trim()==='' || Number(valueEl.value)<=0){ flagRequiredField(valueEl); return; }
+  if(paidEl.value.trim()===''){ flagRequiredField(paidEl); return; }
+  const value = Math.max(0, Number(valueEl.value)||0);
+  const paid = Math.max(0, Number(paidEl.value)||0);
+  state.expenses.unshift({date,desc,value,paid,category,dueDate});
   closeExpenseSheet();
   render();
+  pushRemote(true);
 });
 
 /* ============================================================
@@ -4593,12 +4619,13 @@ function closeVisitSheet(){
 }
 document.getElementById('vf-cancel').addEventListener('click', closeVisitSheet);
 document.getElementById('vf-save').addEventListener('click', ()=>{
-  const loja = document.getElementById('vf-loja').value.trim();
+  const lojaEl = document.getElementById('vf-loja');
+  const loja = lojaEl.value.trim();
   const morada = document.getElementById('vf-morada').value.trim();
   const data = document.getElementById('vf-data').value;
   const convidados = document.getElementById('vf-convidados').value.trim();
   const notas = document.getElementById('vf-notas').value.trim();
-  if(!loja){ closeVisitSheet(); return; }
+  if(!loja){ flagRequiredField(lojaEl); return; }
   if(editingVisitId){
     const v = state.dressVisits.find(x=>x.id===editingVisitId);
     if(v){ v.loja=loja; v.morada=morada; v.data=data; v.convidados=convidados; v.notas=notas; }
@@ -4609,6 +4636,7 @@ document.getElementById('vf-save').addEventListener('click', ()=>{
   }
   closeVisitSheet();
   render();
+  pushRemote(true);
 });
 
 let editingSupplierId = null;
@@ -4621,6 +4649,7 @@ document.getElementById('todo-notes-save').addEventListener('click', ()=>{
   state.todoNotes = document.getElementById('todo-notes-text').value;
   closeTodoNotesSheet();
   render();
+  pushRemote(true);
 });
 document.getElementById('todo-notes-delete').addEventListener('click', ()=>{
   if(!state.todoNotes || confirm('Apagar as notas?')){
@@ -4638,9 +4667,10 @@ function closeTodoCatSheet(){
 document.getElementById('tc-cancel').addEventListener('click', closeTodoCatSheet);
 document.getElementById('tc-save').addEventListener('click', ()=>{
   const label = document.getElementById('tc-label').value.trim();
-  const title = document.getElementById('tc-title').value.trim();
+  const titleEl = document.getElementById('tc-title');
+  const title = titleEl.value.trim();
   const desc = document.getElementById('tc-desc').value.trim();
-  if(!title){ closeTodoCatSheet(); return; }
+  if(!title){ flagRequiredField(titleEl); return; }
   if(editingTodoCatId){
     const cat = state.todoCategories.find(c=>c.id===editingTodoCatId);
     if(cat){ cat.label = label||'Geral'; cat.title = title; cat.desc = desc; }
@@ -4650,6 +4680,7 @@ document.getElementById('tc-save').addEventListener('click', ()=>{
   }
   closeTodoCatSheet();
   render();
+  pushRemote(true);
 });
 
 let editingHmOptionId = null;
@@ -4690,13 +4721,15 @@ document.querySelectorAll('.hm-theme-btn').forEach(btn=>{
   });
 });
 document.getElementById('hm-option-save').addEventListener('click', ()=>{
-  const name = document.getElementById('hm-name').value.trim();
+  const nameEl = document.getElementById('hm-name');
+  const name = nameEl.value.trim();
   const category = document.getElementById('hm-category').value;
   const theme = document.getElementById('hm-theme-value').value;
-  const priceMin = Number(document.getElementById('hm-price-min').value)||0;
-  const priceMax = Number(document.getElementById('hm-price-max').value)||0;
+  let priceMin = Math.max(0, Number(document.getElementById('hm-price-min').value)||0);
+  let priceMax = Math.max(0, Number(document.getElementById('hm-price-max').value)||0);
+  if(priceMin && priceMax && priceMin>priceMax){ const t=priceMin; priceMin=priceMax; priceMax=t; }
   const dueDate = document.getElementById('hm-duedate').value;
-  if(!name){ closeHmOptionSheet(); return; }
+  if(!name){ flagRequiredField(nameEl); return; }
   if(editingHmOptionId){
     const o = state.honeymoon.ideas.find(x=>x.id===editingHmOptionId);
     if(o){ o.name=name; o.category=category; o.theme=theme; o.priceMin=priceMin; o.priceMax=priceMax; o.dueDate=dueDate; }
@@ -4706,6 +4739,7 @@ document.getElementById('hm-option-save').addEventListener('click', ()=>{
   }
   closeHmOptionSheet();
   render();
+  pushRemote(true);
 });
 
 let editingHmPaymentId = null;
@@ -4725,10 +4759,13 @@ function closeHmPaymentSheet(){
 }
 document.getElementById('hm-payment-cancel').addEventListener('click', closeHmPaymentSheet);
 document.getElementById('hm-payment-save').addEventListener('click', ()=>{
-  const date = document.getElementById('hm-pay-date').value;
-  const amount = Number(document.getElementById('hm-pay-amount').value)||0;
+  const dateEl = document.getElementById('hm-pay-date');
+  const amountEl = document.getElementById('hm-pay-amount');
+  const date = dateEl.value;
+  const amount = Math.max(0, Number(amountEl.value)||0);
   const method = document.getElementById('hm-pay-method').value;
-  if(!date || !amount){ closeHmPaymentSheet(); return; }
+  if(!date){ flagRequiredField(dateEl); return; }
+  if(!amount){ flagRequiredField(amountEl); return; }
   if(editingHmPaymentId){
     const p = state.payments.find(x=>x.id===editingHmPaymentId);
     if(p){ p.date=date; p.amount=amount; p.method=method; }
@@ -4738,6 +4775,7 @@ document.getElementById('hm-payment-save').addEventListener('click', ()=>{
   }
   closeHmPaymentSheet();
   render();
+  pushRemote(true);
 });
 
 function openSupplierSheet(supplierId, presetCat){
@@ -4761,13 +4799,14 @@ function closeSupplierSheet(){
 }
 document.getElementById('sup-cancel').addEventListener('click', closeSupplierSheet);
 document.getElementById('sup-save').addEventListener('click', ()=>{
-  const name = document.getElementById('sup-name').value.trim();
+  const nameEl = document.getElementById('sup-name');
+  const name = nameEl.value.trim();
   const category = document.getElementById('sup-cat').value;
   const contact = document.getElementById('sup-contact').value.trim();
   const price = document.getElementById('sup-price').value.trim();
   const status = document.getElementById('sup-status').value;
   const notas = document.getElementById('sup-notas').value.trim();
-  if(!name){ closeSupplierSheet(); return; }
+  if(!name){ flagRequiredField(nameEl); return; }
   if(editingSupplierId){
     const s = state.suppliers.find(x=>x.id===editingSupplierId);
     if(s){ s.name=name; s.category=category; s.contact=contact; s.price=price; s.status=status; s.notas=notas; }
@@ -4778,6 +4817,7 @@ document.getElementById('sup-save').addEventListener('click', ()=>{
   }
   closeSupplierSheet();
   render();
+  pushRemote(true);
 });
 
 let lightboxZoom = 1, lightboxPanX = 0, lightboxPanY = 0;
@@ -5019,7 +5059,7 @@ function showSaveToast(isError){
   clearTimeout(saveToastTimer);
   saveToastTimer = setTimeout(()=>{ el.classList.remove('show'); }, isError ? 2600 : 1500);
 }
-function pushRemote(){
+function pushRemote(confirmToast){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{
@@ -5027,10 +5067,12 @@ function pushRemote(){
       settings: weddingSettings,
       json: JSON.stringify(state),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true }).catch(()=>{
+    }, { merge:true }).then(()=>{
+      if(confirmToast) showSaveToast(false);
+    }).catch(()=>{
       showSaveToast(true);
     });
-  }, 500);
+  }, confirmToast ? 0 : 500);
 }
 render = function(){ _origRender(); pushRemote(); };
 
