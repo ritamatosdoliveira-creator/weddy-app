@@ -1630,9 +1630,13 @@ function render(){
   if(newScroll && savedScrollTop) newScroll.scrollTop = savedScrollTop;
 }
 let paymentAlertDismissed = false;
+try{ paymentAlertDismissed = localStorage.getItem('weddy-payment-alert-dismissed-date') === new Date().toDateString(); }catch(e){}
 function maybeShowPaymentAlert(){
   const popup = document.getElementById('payment-alert-popup');
   if(!popup) return;
+  try{
+    if(localStorage.getItem('weddy-payment-alert-dismissed-date') !== new Date().toDateString()) paymentAlertDismissed = false;
+  }catch(e){}
   if(paymentAlertDismissed || activeTab!=='inicio'){ popup.classList.remove('show'); return; }
   const upcoming = getUpcomingPayments();
   if(!upcoming.length){ popup.classList.remove('show'); return; }
@@ -1656,7 +1660,7 @@ function getUpcomingPayments(){
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
     if(remaining>0 && e.dueDate){
       const days = Math.ceil((new Date(e.dueDate+'T00:00:00')-now)/86400000);
-      if(days<=15) list.push({ label:e.desc||'Gasto', amount:remaining, days, overdue:days<0 });
+      if(days>=0 && days<=15) list.push({ label:e.desc||'Gasto', amount:remaining, days, overdue:false });
     }
   });
   return list.sort((a,b)=>a.days-b.days);
@@ -2136,7 +2140,7 @@ function viewGastos(){
       <div class="exp-paid-row">
         Pago: <input type="number" min="0" data-exp="paid|${i}" value="${e.paid||0}"> / ${fmtEUR(e.value)}
       </div>
-      ${remaining>0 ? `
+      ${remaining>0 && e.dueDate ? `
       <div class="exp-due-row${dueWarn}" data-duerow="${i}">
         <span data-dueremaining="${i}">Falta pagar ${fmtEUR(remaining)} — até</span>
         <input type="date" class="exp-due-input" data-exp="dueDate|${i}" value="${e.dueDate||''}">
@@ -3022,6 +3026,7 @@ function viewDefConvidar(){
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">Email da pessoa a convidar</div>
     <input class="field-input big" id="def-invite-email" type="email" placeholder="email@exemplo.com" style="text-align:left;">
+    <div class="cat-row-perguest" style="margin-top:8px; text-align:left;">Isto não envia nenhum email — apenas dá acesso. Basta avisares a pessoa (por WhatsApp, por exemplo) para criar conta na app com este mesmo email.</div>
   </div>
   ${defSaveBtn('def-invite-btn','def-invite-msg').replace('Guardar','Convidar')}
   `;
@@ -3670,7 +3675,7 @@ function bindHandlers(){
     if(!email){ msgEl.textContent = 'Escreve um email válido.'; msgEl.className='login-msg error'; return; }
     msgEl.textContent = 'A convidar…'; msgEl.className = 'login-msg';
     CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayUnion(email) }).then(()=>{
-      msgEl.textContent = `${email} já pode entrar e criar a conta com este email.`;
+      msgEl.textContent = `Acesso dado. Não foi enviado nenhum email — basta ${email} criar conta na app com este mesmo email.`;
       msgEl.className = 'login-msg success';
       document.getElementById('def-invite-email').value = '';
     }).catch(err=>{
@@ -5389,6 +5394,7 @@ function findOrCreateFlow(user, isRetry){
 
 function closePaymentAlert(){
   paymentAlertDismissed = true;
+  try{ localStorage.setItem('weddy-payment-alert-dismissed-date', new Date().toDateString()); }catch(e){}
   document.getElementById('payment-alert-popup').classList.remove('show');
 }
 document.getElementById('payment-alert-ok').addEventListener('click', closePaymentAlert);
