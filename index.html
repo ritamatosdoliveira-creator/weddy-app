@@ -1026,6 +1026,25 @@ if(FIREBASE_READY){
   auth = firebase.auth();
   db = firebase.firestore();
 }
+
+/* ============================================================
+   EMAILS PERSONALIZADOS (reset de password / confirmação)
+   O Firebase não deixa personalizar o design destes emails,
+   por isso enviamo-los nós, através de uma função serverless
+   (Vercel) que gera o link de ação e o envia com o nosso
+   template via Resend. Ver /api/auth-email.js e README-EMAILS.md.
+============================================================ */
+const AUTH_EMAIL_API_URL = "https://COLOCA_AQUI.vercel.app/api/auth-email";
+function sendCustomAuthEmail(type, email){
+  return fetch(AUTH_EMAIL_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, email })
+  }).then(r=>{
+    if(!r.ok) throw new Error('auth-email-failed');
+    return r.json();
+  });
+}
 let currentWeddingId = null;
 let currentWeddingOwners = [];
 let currentWeddingCreator = null;
@@ -4946,12 +4965,11 @@ function handleForgotPassword(){
   const email = document.getElementById('login-email').value.trim();
   if(!email){ renderLoginForm('Escreve o teu email em cima e toca outra vez em "Esqueceste a password?".', true); return; }
   if(!FIREBASE_READY || !auth){ renderLoginForm('A configuração do Firebase não está pronta.', true); return; }
-  auth.sendPasswordResetEmail(email).then(()=>{
+  sendCustomAuthEmail('reset', email).then(()=>{
     renderLoginForm(`Enviámos um email para ${email} com instruções para redefinires a password.`, false, true);
   }).catch(err=>{
-    console.error('Weddy reset error:', err.code, err.message);
-    const msg = err.code==='auth/user-not-found' ? 'Não há nenhuma conta com este email.' : 'Não foi possível enviar o email. Verifica se está correto.';
-    renderLoginForm(msg, true);
+    console.error('Weddy reset error:', err);
+    renderLoginForm('Não foi possível enviar o email. Verifica se está correto.', true);
   });
 }
 function renderLoginSetupNeeded(){
@@ -4978,7 +4996,7 @@ function renderVerifyEmail(user){
   `;
   document.getElementById('verify-resend').addEventListener('click', ()=>{
     const msgEl = document.getElementById('verify-msg');
-    user.sendEmailVerification().then(()=>{ msgEl.textContent = 'Email reenviado.'; msgEl.className='login-msg success'; })
+    sendCustomAuthEmail('verify', user.email).then(()=>{ msgEl.textContent = 'Email reenviado.'; msgEl.className='login-msg success'; })
       .catch(()=>{ msgEl.textContent = 'Não foi possível reenviar. Tenta outra vez daqui a pouco.'; msgEl.className='login-msg error'; });
   });
   document.getElementById('verify-check').addEventListener('click', ()=>{
@@ -5009,7 +5027,7 @@ function handleAuthSubmit(){
   if(btn){ btn.textContent = 'Aguarda…'; btn.disabled = true; }
   const action = authMode==='signup'
     ? auth.createUserWithEmailAndPassword(email, pass).then(cred=>{
-        return cred.user.sendEmailVerification().catch(()=>{});
+        return sendCustomAuthEmail('verify', cred.user.email).catch(()=>{});
       })
     : auth.signInWithEmailAndPassword(email, pass);
   action.catch(err=>{
