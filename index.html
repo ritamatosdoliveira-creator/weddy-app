@@ -39,24 +39,16 @@ b, strong{ font-weight:600; }
 html{background:#FAF8F5;}
 html.login-active{ background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; }
 html,body{margin:0;padding:0;height:100%;background:#FAF8F5;}
-@media screen and (orientation: landscape){
-  html{
-    width:100vh;
-    height:100vw;
-    transform:rotate(-90deg);
-    transform-origin:left top;
-    position:absolute;
-    top:100%;
-    left:0;
-    overflow:hidden;
-  }
-}
 body{
   background:var(--cream);
   font-family:'Manrope',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   display:flex; flex-direction:column;
   overflow:hidden;
-  position:fixed; inset:0;
+  position:fixed;
+  top:0; left:0;
+  /* O tamanho é definido em pixels fixos por JavaScript, uma única vez, e nunca
+     mais é atualizado — por isso rodar o telemóvel não muda literalmente nada
+     aqui, a app fica exatamente com o mesmo aspeto e tamanho de sempre. */
 }
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 4px); flex-shrink:0; }
@@ -156,20 +148,20 @@ body{
 .insp-add-label{ font-size:10.5px; font-weight:600; }
 
 /* Pré-visualização de imagem (Inspiração) */
-.img-lightbox{ position:fixed; inset:0; z-index:200; background:rgba(10,8,6,0.94); display:none; align-items:center; justify-content:center; padding:24px; }
+.img-lightbox{ position:absolute; inset:0; z-index:200; background:rgba(10,8,6,0.94); display:none; align-items:center; justify-content:center; padding:24px; }
 .img-lightbox.show{ display:flex; }
 .img-lightbox img{ max-width:100%; max-height:100%; border-radius:12px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.4); touch-action:none; transition:transform .05s linear; }
 .img-lightbox-close{ all:unset; box-sizing:border-box; position:absolute; top:calc(env(safe-area-inset-top) + 14px); right:16px; display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:20px; background:rgba(20,18,14,0.75); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:13px; font-weight:600; cursor:pointer; z-index:2; line-height:1;}
 .img-lightbox-close svg{ width:13px; height:13px; }
 .img-lightbox-close:active{ background:rgba(20,18,14,0.9); }
-.save-toast{ position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 10px); transform:translateX(-50%) translateY(-8px); z-index:300; display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:rgba(30,28,24,0.92); color:#fff; font-size:12.5px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; }
-#update-banner{ position:fixed; left:16px; right:16px; bottom:calc(env(safe-area-inset-bottom) + 76px); z-index:400; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:16px; background:var(--rust-dark); color:#fff; font-size:13px; font-weight:600; box-shadow:0 10px 26px rgba(0,0,0,0.25); animation:updateBannerIn .3s ease; }
+.save-toast{ position:absolute; left:50%; top:calc(env(safe-area-inset-top) + 10px); transform:translateX(-50%) translateY(-8px); z-index:300; display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:20px; background:rgba(30,28,24,0.92); color:#fff; font-size:12.5px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; }
+#update-banner{ position:absolute; left:16px; right:16px; bottom:calc(env(safe-area-inset-bottom) + 76px); z-index:400; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:16px; background:var(--rust-dark); color:#fff; font-size:13px; font-weight:600; box-shadow:0 10px 26px rgba(0,0,0,0.25); animation:updateBannerIn .3s ease; }
 #update-banner button{ all:unset; box-sizing:border-box; background:#fff; color:var(--rust-dark); font-size:12px; font-weight:700; padding:8px 14px; border-radius:20px; cursor:pointer; flex-shrink:0; }
 @keyframes updateBannerIn{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
 .save-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 .save-toast.error{ background:rgba(154,69,48,0.95); }
 .save-toast svg{ width:14px; height:14px; flex-shrink:0; }
-.iab-warning{ display:none; position:fixed; inset:0; z-index:500; background:rgba(30,26,22,0.92); align-items:center; justify-content:center; padding:28px; }
+.iab-warning{ display:none; position:absolute; inset:0; z-index:500; background:rgba(30,26,22,0.92); align-items:center; justify-content:center; padding:28px; }
 .iab-warning.show{ display:flex; }
 .iab-warning-card{ background:var(--cream); border-radius:22px; padding:28px 24px; text-align:center; max-width:340px; }
 .iab-warning-icon{ width:44px; height:44px; margin:0 auto 14px; color:var(--rust); }
@@ -653,7 +645,7 @@ body{
 .empty-note{ padding:14px; font-size:12.5px; color:var(--ink-soft); font-style:italic; text-align:center; }
 
 /* Tab bar */
-.tabbar{ position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; padding:8px 0 calc(env(safe-area-inset-bottom) + 6px); background:rgba(250,248,245,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line); }
+.tabbar{ position:absolute; left:0; right:0; bottom:0; z-index:20; display:flex; padding:8px 0 calc(env(safe-area-inset-bottom) + 6px); background:rgba(250,248,245,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line); }
 .tabbar button{ all:unset; cursor:pointer; flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; color:#ABA7A0; padding-bottom:6px; position:relative; }
 .tabbar button svg{ width:19px; height:19px; }
 .tabbar button span{ font-size:9px; font-weight:600; letter-spacing:-.01em; }
@@ -699,7 +691,7 @@ body{
 
 
 /* Login */
-.login-screen{ position:fixed; inset:-2px; z-index:100; background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
+.login-screen{ position:absolute; inset:-2px; z-index:100; background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
 .login-inner{ position:relative; z-index:1; width:100%; }
 .login-screen.hidden{ display:none; }
 .login-tag{ color:var(--ink-soft); font-size:12.5px; margin-bottom:26px; letter-spacing:.01em; }
@@ -5225,22 +5217,14 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
     }
   }catch(e){}
 
-  // Em Safari/iOS, mudar orientação com transform no <html> pode deixar
-  // elementos "fixed" (como a tabbar) com a posição antiga "presa" depois
-  // de a rotação voltar ao normal. Isto força um redesenho do ecrã.
-  function unstickFixedLayout(){
-    requestAnimationFrame(()=>{
-      const prev = document.body.style.transform;
-      document.body.style.transform = 'translateZ(0)';
-      void document.body.offsetHeight;
-      document.body.style.transform = prev;
-    });
-  }
-  window.addEventListener('orientationchange', unstickFixedLayout);
-  window.addEventListener('resize', unstickFixedLayout);
-  if(screen.orientation){
-    screen.orientation.addEventListener('change', unstickFixedLayout);
-  }
+  // Mede o tamanho do ecrã uma única vez, à entrada, e fixa a app nesse
+  // tamanho em pixels para sempre. Depois disto, nada mais aqui reage a
+  // rodar o telemóvel — a app fica exatamente como estava, sem qualquer
+  // rotação, redimensionamento ou mensagem.
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  document.body.style.width = w + 'px';
+  document.body.style.height = h + 'px';
 })();
 
 (function detectInAppBrowser(){
