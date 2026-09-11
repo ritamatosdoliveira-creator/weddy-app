@@ -718,7 +718,7 @@ body{
   <div id="payment-alert-popup" class="iab-warning">
     <div class="iab-warning-card">
       <div class="iab-warning-icon" style="color:var(--rust-dark);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.01"/></svg></div>
-      <div class="iab-warning-title" id="payment-alert-title">Pagamentos a vencer</div>
+      <div class="iab-warning-title" id="payment-alert-title">Pagamentos a terminar o prazo</div>
       <div id="payment-alert-body" style="text-align:left; margin-bottom:6px;"></div>
       <button class="login-btn" id="payment-alert-ok" style="margin-top:14px;">Ok</button>
     </div>
@@ -1510,7 +1510,7 @@ function maybeShowPaymentAlert(){
   if(paymentAlertDismissed || activeTab!=='inicio'){ popup.classList.remove('show'); return; }
   const upcoming = getUpcomingPayments();
   if(!upcoming.length){ popup.classList.remove('show'); return; }
-  document.getElementById('payment-alert-title').textContent = `${upcoming.length} pagamento${upcoming.length>1?'s':''} a vencer`;
+  document.getElementById('payment-alert-title').textContent = `${upcoming.length} pagamento${upcoming.length>1?'s':''} a terminar o prazo`;
   document.getElementById('payment-alert-body').innerHTML = upcoming.map(u=>
     `<p>${escapeHTML(u.label)} — <b>${fmtEUR(u.amount)}</b> ${u.overdue?`(atrasado ${Math.abs(u.days)}d)`:`(em ${u.days}d)`}</p>`
   ).join('');
