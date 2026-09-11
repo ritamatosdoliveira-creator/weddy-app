@@ -1430,12 +1430,14 @@ let openDesc = {};
 let openTable = {};
 let openGuestGroup = {};
 let openChecklistPhaseId = CHECKLIST_PHASES[0] ? CHECKLIST_PHASES[0].id : null;
+let openNoivaChecklist = false;
 let showAllPhaseProgress = false;
 function collapseAllSections(){
   openDesc = {};
   openTable = {};
   openGuestGroup = {};
   openChecklistPhaseId = CHECKLIST_PHASES[0] ? CHECKLIST_PHASES[0].id : null;
+  openNoivaChecklist = false;
   openDressVisit = {};
   openSupplierCat = {};
   todoOpenCategoryId = null;
@@ -2388,7 +2390,7 @@ function viewChecklist(){
   }).join('');
 
   const noivaDone = WEDDING_DAY_CHECKLIST.filter((t,i)=>state.dressChecklistDone[i]).length;
-  const noivaOpen = openChecklistPhaseId==='noiva';
+  const noivaOpen = openNoivaChecklist;
   const noivaTasksHTML = WEDDING_DAY_CHECKLIST.map((t,i)=>{
     const done = !!state.dressChecklistDone[i];
     return `
@@ -2434,7 +2436,7 @@ function viewChecklist(){
   ${phasesHTML}
 
   <div class="phase-card-v2">
-    <div class="phase-card-head" data-togglephase="noiva">
+    <div class="phase-card-head" data-togglenoiva="1">
       <div class="phase-roman" style="${chipStyle(2)}">${ICONS.dress}</div>
       <div class="phase-card-mid">
         <div class="phase-card-title">Checklist da noiva</div>
@@ -3223,6 +3225,11 @@ function bindHandlers(){
         if(container) container.scrollTo({ top: 0, behavior: 'auto' });
       });
     });
+  });
+  const toggleNoivaBtn = document.querySelector('[data-togglenoiva]');
+  if(toggleNoivaBtn) toggleNoivaBtn.addEventListener('click', ()=>{
+    openNoivaChecklist = !openNoivaChecklist;
+    _origRender();
   });
   const togglePhaseProgress = document.getElementById('toggle-phase-progress');
   if(togglePhaseProgress) togglePhaseProgress.addEventListener('click', ()=>{
