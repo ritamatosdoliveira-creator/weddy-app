@@ -1033,6 +1033,7 @@ let currentWeddingId = null;
 let currentWeddingOwners = [];
 let currentWeddingCreator = null;
 let currentLastLogins = {};
+let currentUidByEmail = {};
 const WEDDINGS = () => db.collection('weddings');
 const CURRENT_DOC = () => db.collection('weddings').doc(currentWeddingId);
 
@@ -3543,7 +3544,10 @@ function bindHandlers(){
         return;
       }
       if(!confirm(`Remover o acesso de ${email}?`)) return;
-      CURRENT_DOC().update({ ownerEmails: firebase.firestore.FieldValue.arrayRemove(email) }).then(()=>{
+      const uidToRemove = currentUidByEmail[sanitizeEmailKey(email)];
+      const updates = { ownerEmails: firebase.firestore.FieldValue.arrayRemove(email) };
+      if(uidToRemove) updates.ownerUids = firebase.firestore.FieldValue.arrayRemove(uidToRemove);
+      CURRENT_DOC().update(updates).then(()=>{
         currentWeddingOwners = currentWeddingOwners.filter(e2=>e2!==email);
         render();
       }).catch(()=>{ alert('Não foi possível remover. Tenta novamente.'); });
@@ -5071,6 +5075,7 @@ function handleOnboardingSubmit(){
   state = seedData();
   WEDDINGS().add({
     ownerEmails: [email],
+    ownerUids: [auth.currentUser.uid],
     creatorEmail: email,
     settings: weddingSettings,
     json: JSON.stringify(state),
@@ -5152,6 +5157,7 @@ function attachFirestoreSync(){
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
       if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
+      if(data.uidByEmail) currentUidByEmail = data.uidByEmail;
     }
     let renderNeeded = changed || !firstSyncDone;
     if(renderNeeded && isEditingTextField()){
@@ -5179,7 +5185,9 @@ function findOrCreateFlow(user, isRetry){
       currentWeddingId = qs.docs[0].id;
       attachFirestoreSync();
       CURRENT_DOC().update({
-        ['lastLoginByEmail.'+sanitizeEmailKey(user.email.toLowerCase())]: firebase.firestore.FieldValue.serverTimestamp()
+        ['lastLoginByEmail.'+sanitizeEmailKey(user.email.toLowerCase())]: firebase.firestore.FieldValue.serverTimestamp(),
+        ownerUids: firebase.firestore.FieldValue.arrayUnion(user.uid),
+        ['uidByEmail.'+sanitizeEmailKey(user.email.toLowerCase())]: user.uid
       }).catch(()=>{});
     } else {
       currentWeddingId = null;

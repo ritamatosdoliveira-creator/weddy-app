@@ -5,7 +5,10 @@ service cloud.firestore {
     match /weddings/{weddingId} {
       allow read, update: if request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in resource.data.ownerEmails;
+        && (
+          request.auth.token.email in resource.data.ownerEmails
+          || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
+        );
 
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
