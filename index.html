@@ -941,6 +941,21 @@ body{
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+/* ============================================================
+   EMAILJS — "Reporta um problema"
+   Substitui os 3 valores abaixo pelos que a tua conta EmailJS te dá
+   (Account > General para a Public Key; Email Services para o
+   Service ID; Email Templates para o Template ID).
+============================================================ */
+const EMAILJS_PUBLIC_KEY = 'COLOCA_AQUI_A_TUA_PUBLIC_KEY';
+const EMAILJS_SERVICE_ID = 'COLOCA_AQUI_O_TEU_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'COLOCA_AQUI_O_TEU_TEMPLATE_ID';
+if(typeof emailjs !== 'undefined'){
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+}
+</script>
 <script>
 (function(){
   // Bloqueia a orientação em vertical quando o browser/PWA o permite (sobretudo
@@ -2777,6 +2792,7 @@ function viewDefinicoes(){
   if(definicoesSection==='seguranca') return viewDefSeguranca();
   if(definicoesSection==='privacidade') return viewDefPrivacidade();
   if(definicoesSection==='sobre') return viewDefSobre();
+  if(definicoesSection==='reportar') return viewDefReportar();
   return viewDefMenu();
 }
 
@@ -2813,6 +2829,11 @@ function viewDefMenu(){
   <div class="list-group">
     ${defMenuRow('privacidade', ICONS.docnote||ICONS.checklist, 7, 'Privacidade e RGPD', 'Consulta a nossa política de privacidade')}
     ${defMenuRow('sobre', ICONS.heart, 6, 'Sobre a Weddy', 'Versão 1.0.0')}
+  </div>
+
+  <div class="section-label-caps">Ajuda</div>
+  <div class="list-group">
+    ${defMenuRow('reportar', ICONS.warn, 2, 'Reporta um problema', 'Encontraste um bug? Conta-nos')}
   </div>
 
   <button class="def-signout-btn" id="def-signout">${ICONS.logout} Terminar sessão</button>
@@ -3028,6 +3049,21 @@ function viewDefSobre(){
   </div>
 
   <div class="about-version">Weddy · versão 1.0</div>
+  `;
+}
+
+function viewDefReportar(){
+  return `
+  ${defSubHeader('Reporta um problema')}
+  <div class="empty-note" style="margin:0 16px 14px;">Encontraste um bug, um erro ou algo que não funciona bem? Descreve aqui o que aconteceu — a mensagem é enviada diretamente para nós, sem sair da app.</div>
+  <div class="stat-card" style="margin:0 16px 12px;">
+    <div class="l" style="margin:0 0 4px;">O que aconteceu?</div>
+    <textarea id="def-reportar-text" rows="8" placeholder="Descreve o problema, o que esperavas que acontecesse e em que ecrã da app estavas…" style="all:unset; box-sizing:border-box; width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-top:6px; font-family:inherit; font-size:14px; color:var(--ink); resize:vertical;"></textarea>
+  </div>
+  <div style="padding:4px 16px 30px;">
+    <button class="login-btn" id="def-reportar-send" style="margin-top:0; display:flex; align-items:center; justify-content:center; gap:8px;">${ICONS.mail} Enviar</button>
+    <div class="login-msg" id="def-msg-reportar"></div>
+  </div>
   `;
 }
 
@@ -3449,6 +3485,34 @@ function bindHandlers(){
     if(confirm('Tens a certeza que queres sair da conta?')){
       if(typeof auth!=='undefined' && auth) auth.signOut();
     }
+  });
+  const defReportarSend = document.getElementById('def-reportar-send');
+  if(defReportarSend) defReportarSend.addEventListener('click', ()=>{
+    const msg = document.getElementById('def-msg-reportar');
+    const txt = (document.getElementById('def-reportar-text').value || '').trim();
+    if(!txt){
+      if(msg){ msg.style.color = 'var(--rust-dark)'; msg.textContent = 'Escreve uma descrição antes de enviar.'; }
+      return;
+    }
+    if(typeof emailjs === 'undefined'){
+      if(msg){ msg.style.color = 'var(--rust-dark)'; msg.textContent = 'Não foi possível ligar ao serviço de email.'; }
+      return;
+    }
+    defReportarSend.disabled = true;
+    if(msg){ msg.style.color = 'var(--ink-soft)'; msg.textContent = 'A enviar…'; }
+    const contaEmail = (typeof auth !== 'undefined' && auth && auth.currentUser && auth.currentUser.email) ? auth.currentUser.email : 'não identificado';
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      message: txt,
+      from_email: contaEmail,
+      to_email: 'geral@weddy.pt'
+    }).then(()=>{
+      if(msg){ msg.style.color = 'var(--sage-dark)'; msg.textContent = 'Problema reportado — obrigada!'; }
+      document.getElementById('def-reportar-text').value = '';
+      defReportarSend.disabled = false;
+    }).catch(()=>{
+      if(msg){ msg.style.color = 'var(--rust-dark)'; msg.textContent = 'Não foi possível enviar. Tenta de novo.'; }
+      defReportarSend.disabled = false;
+    });
   });
 
   // Casamento
