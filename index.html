@@ -5891,6 +5891,31 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   });
 })();
 
+/* ============================================================
+   TRAVA DE SCROLL DO ".screen" — bug raro mas grave
+   As "sheets" (Atribuir lugar, Novo movimento, etc.) ficam escondidas
+   ao serem empurradas para BAIXO do ecrã com transform (translateY).
+   Isso faz o ".screen" (que devia estar sempre fixo, nunca ter scroll
+   próprio) achar que "tem mais conteúdo para baixo" do que o ecrã
+   mostra — mesmo essas sheets estando escondidas e sem estarem
+   "abertas". O browser não deixa arrastar esse scroll à mão (por
+   causa do overflow:hidden), mas QUALQUER scrollIntoView()/focus()
+   num campo (ex: tocar em "Adicionar novo item" na checklist) pode
+   *programaticamente* empurrar esse scroll escondido — e nessa
+   altura tudo o que estava escondido cá em baixo (sheets, barra de
+   navegação) aparece no meio do ecrã, por cima do conteúdo. Isto
+   trava esse scroll do ".screen" para 0 sempre, para nunca mais
+   poder acontecer, em nenhuma página.
+============================================================ */
+(function lockScreenScroll(){
+  const screenEl = document.querySelector('.screen');
+  if(!screenEl) return;
+  screenEl.addEventListener('scroll', function(){
+    screenEl.scrollTop = 0;
+    screenEl.scrollLeft = 0;
+  }, { passive:true });
+})();
+
 (function lockOrientation(){
   try{
     if(screen.orientation && screen.orientation.lock){
