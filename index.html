@@ -4145,6 +4145,42 @@ function closeAllSheets(){
 }
 document.getElementById('sheet-backdrop').addEventListener('click', closeAllSheets);
 
+function anySheetOpen(){
+  return !!document.querySelector('.sheet.show');
+}
+function weddyBackStep(){
+  // Devolve true se fechou alguma coisa (o gesto de recuar deve ficar "preso"
+  // dentro da app); devolve false quando já não há nada para fechar (já
+  // estamos no Início) — nesse caso o recuar pode seguir o curso normal.
+  const lightbox = document.getElementById('img-lightbox');
+  if(lightbox && lightbox.classList.contains('show')){
+    lightbox.classList.remove('show');
+    return true;
+  }
+  const paymentPopup = document.getElementById('payment-alert-popup');
+  if(paymentPopup && paymentPopup.classList.contains('show')){
+    paymentPopup.classList.remove('show');
+    return true;
+  }
+  const iabWarning = document.getElementById('iab-warning');
+  if(iabWarning && iabWarning.classList.contains('show')){
+    iabWarning.classList.remove('show');
+    return true;
+  }
+  if(anySheetOpen()){
+    closeAllSheets();
+    return true;
+  }
+  if(activeTab !== 'inicio'){
+    closeAllSheets();
+    activeTab = 'inicio';
+    if(typeof fornecedoresSubview !== 'undefined') fornecedoresSubview = 'lista';
+    _origRender();
+    return true;
+  }
+  return false;
+}
+
 /* ============================================================
    GESTOS — deslizar para trás nas páginas, deslizar para baixo
    para fechar as folhas (sheets), como é hábito no iOS.
@@ -5425,6 +5461,23 @@ document.getElementById('payment-alert-ok').addEventListener('click', closePayme
 document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   if(e.target.id==='payment-alert-popup') closePaymentAlert();
 });
+
+(function guardAndroidBackGesture(){
+  // No Android, deslizar da borda (ou o botão de recuar) navega no histórico
+  // do browser. Como esta app nunca muda o URL, não há nada nesse histórico
+  // para "consumir" — por isso o primeiro gesto fechava a app de repente,
+  // mesmo a meio de uma sub-página ou de um formulário aberto.
+  // Isto não muda nada no iOS: lá não existe um gesto de sistema equivalente
+  // ligado ao histórico do browser, por isso o comportamento fica igual.
+  try{
+    history.pushState({weddyGuard:true}, '', location.href);
+  }catch(e){ return; }
+  window.addEventListener('popstate', ()=>{
+    if(weddyBackStep()){
+      try{ history.pushState({weddyGuard:true}, '', location.href); }catch(e){}
+    }
+  });
+})();
 
 (function lockOrientation(){
   try{
