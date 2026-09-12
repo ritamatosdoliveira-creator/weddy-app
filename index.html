@@ -932,7 +932,7 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">Novo movimento</div>
     <div class="sheet-field"><label>Descrição</label><input type="text" id="sf-desc" placeholder="Ex: Sinal do fotógrafo"></div>
-    <div class="sheet-field"><label>Data</label><input type="date" id="sf-date"></div>
+    <div class="sheet-field"><label>Data *</label><input type="date" id="sf-date"></div>
     <div class="sheet-field"><label>Valor total (€) *</label><input type="number" min="0" id="sf-value" placeholder="0"></div>
     <div class="sheet-field"><label>Já pago (€) *</label><input type="number" min="0" id="sf-paid" placeholder="0"></div>
     <div class="sheet-field"><label>Data limite para pagar o resto (opcional)</label><input type="date" id="sf-duedate"></div>
@@ -1441,7 +1441,11 @@ function collapseAllSections(){
   openDressVisit = {};
   openSupplierCat = {};
   todoOpenCategoryId = null;
+  todoQuery = '';
   hmOpenOptionId = null;
+  hmDraftOption = null;
+  supplierQuery = '';
+  guestFilter = '';
   definicoesSection = null;
 }
 let openDressVisit = {};
@@ -1451,6 +1455,7 @@ let todoFilter = 'todas';
 let todoQuery = '';
 let hmFilter = 'destino';
 let hmOpenOptionId = null;
+let hmDraftOption = null;
 let supplierFilter = 'todos';
 let supplierQuery = '';
 let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados'
@@ -1736,8 +1741,8 @@ function viewInicio(){
       <div class="hero-date-row">${formatDatePT(weddingSettings.weddingDate)}</div>
       <div class="hero-thin-divider"></div>
       <div class="hero-thin-divider"></div>
-      <div class="hero-eyebrow">Faltam</div>
-      <div class="hero-heading">${hasDate ? days+' dias' : '—'}</div>
+      <div class="hero-eyebrow">${hasDate ? 'Faltam' : ''}</div>
+      <div class="hero-heading" style="${hasDate?'':'font-size:26px;'}">${hasDate ? days+' dias' : 'Data ainda por marcar'}</div>
       <div class="hero-venue">${venue}</div>
     </div>
   </div>
@@ -2697,6 +2702,7 @@ function hmOptionCardHTML(o){
 const HM_TYPE_ICON = { Praia:'beach', Cidade:'city', Montanha:'mountain' };
 const HM_TYPE_GRAD = { Praia:'linear-gradient(140deg,#8FC1D4,#DCE9DE)', Cidade:'linear-gradient(140deg,#C9A480,#E7DCCB)', Montanha:'linear-gradient(140deg,#8FA88C,#D8E0D2)' };
 function viewLuademel(){
+  if(hmDraftOption) return viewLuademelOption(hmDraftOption);
   if(hmOpenOptionId){
     const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
     if(o) return viewLuademelOption(o);
@@ -3468,15 +3474,15 @@ function bindHandlers(){
   if(luademelBack) luademelBack.addEventListener('click', ()=>{ closeAllSheets(); activeTab='inicio'; _origRender(); });
   const addOptionBtn = document.getElementById('add-idea-btn');
   if(addOptionBtn) addOptionBtn.addEventListener('click', ()=>{
-    const id = 'hm'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.honeymoon.options.push({ id, name:'Nova hipótese', favorite:false, budget:'', days:0, cities:[], type:'', notes:'' });
-    hmOpenOptionId = id;
-    render();
+    hmDraftOption = { id:null, name:'', favorite:false, budget:'', days:0, cities:[], type:'', notes:'' };
+    hmOpenOptionId = null;
+    _origRender();
   });
   document.querySelectorAll('[data-editidea]').forEach(card=>{
     card.addEventListener('click', e=>{
       if(e.target.closest('[data-favoption]')) return;
       hmOpenOptionId = e.currentTarget.dataset.editidea;
+      hmDraftOption = null;
       render();
     });
   });
@@ -3489,38 +3495,45 @@ function bindHandlers(){
     });
   });
 
-  // Página de uma hipótese de lua-de-mel
+  // Página de uma hipótese de lua-de-mel (a editar uma já existente, ou um rascunho novo)
+  function getCurrentHmOption(){
+    return hmDraftOption || state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+  }
   const luademelOptionBack = document.getElementById('luademel-option-back');
-  if(luademelOptionBack) luademelOptionBack.addEventListener('click', ()=>{ hmOpenOptionId = null; render(); });
+  if(luademelOptionBack) luademelOptionBack.addEventListener('click', ()=>{
+    hmOpenOptionId = null;
+    hmDraftOption = null; // se era uma hipótese nova por guardar, descarta-a — nunca chegou a existir
+    render();
+  });
   const hmoNameInput = document.getElementById('hmo-name');
   if(hmoNameInput) hmoNameInput.addEventListener('input', e=>{
-    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
-    if(o){ o.name = e.target.value; pushRemote(); }
+    const o = getCurrentHmOption();
+    if(o){ o.name = e.target.value; if(!hmDraftOption) pushRemote(); }
   });
   const hmoBudgetInput = document.getElementById('hmo-budget');
   if(hmoBudgetInput) hmoBudgetInput.addEventListener('input', e=>{
-    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
-    if(o){ o.budget = Math.max(0, Number(e.target.value)||0); pushRemote(); }
+    const o = getCurrentHmOption();
+    if(o){ o.budget = Math.max(0, Number(e.target.value)||0); if(!hmDraftOption) pushRemote(); }
   });
   const hmoNotesInput = document.getElementById('hmo-notes');
   if(hmoNotesInput) hmoNotesInput.addEventListener('input', e=>{
-    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
-    if(o){ o.notes = e.target.value; pushRemote(); }
+    const o = getCurrentHmOption();
+    if(o){ o.notes = e.target.value; if(!hmDraftOption) pushRemote(); }
   });
   document.querySelectorAll('[data-hmotype]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      const o = getCurrentHmOption();
       if(o){ o.type = e.currentTarget.dataset.hmotype; render(); }
     });
   });
   document.querySelectorAll('[data-hmodays]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      const o = getCurrentHmOption();
       if(!o) return;
       o.days = Math.max(0, (o.days||0) + Number(e.currentTarget.dataset.hmodays));
       const val = document.getElementById('hmo-days-val');
       if(val) val.textContent = o.days;
-      pushRemote();
+      if(!hmDraftOption) pushRemote();
     });
   });
   const addHmoCityBtn = document.getElementById('addbtn-hmo-city');
@@ -3528,7 +3541,7 @@ function bindHandlers(){
     const input = document.getElementById('add-hmo-city');
     const city = input.value.trim();
     if(!city) return;
-    const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+    const o = getCurrentHmOption();
     if(o){ o.cities = o.cities||[]; o.cities.push(city); render(); }
   });
   const addHmoCityInput = document.getElementById('add-hmo-city');
@@ -3536,24 +3549,45 @@ function bindHandlers(){
     if(e.key==='Enter'){
       const city = e.currentTarget.value.trim();
       if(!city) return;
-      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      const o = getCurrentHmOption();
       if(o){ o.cities = o.cities||[]; o.cities.push(city); render(); }
     }
   });
   document.querySelectorAll('[data-delcity]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      const o = state.honeymoon.options.find(x=>x.id===hmOpenOptionId);
+      const o = getCurrentHmOption();
       if(o){ o.cities.splice(Number(e.currentTarget.dataset.delcity),1); render(); }
     });
   });
   const saveHmOptionBtn = document.getElementById('save-hmoption-btn');
   if(saveHmOptionBtn) saveHmOptionBtn.addEventListener('click', ()=>{
-    hmOpenOptionId = null;
-    render();
-    pushRemote(true);
+    if(hmDraftOption){
+      const name = (hmDraftOption.name||'').trim();
+      if(!name){
+        const nameInput = document.getElementById('hmo-name');
+        if(nameInput){ nameInput.focus(); nameInput.style.borderColor = 'var(--rust)'; }
+        return; // sem nome, não guarda nada — o rascunho fica por guardar
+      }
+      hmDraftOption.id = 'hm'+Date.now()+Math.random().toString(36).slice(2,6);
+      hmDraftOption.name = name;
+      state.honeymoon.options.push(hmDraftOption);
+      hmDraftOption = null;
+      hmOpenOptionId = null;
+      render();
+    } else {
+      hmOpenOptionId = null;
+      render();
+      pushRemote(true);
+    }
   });
   const delHmOptionBtn = document.getElementById('del-hmoption-btn');
   if(delHmOptionBtn) delHmOptionBtn.addEventListener('click', ()=>{
+    if(hmDraftOption){
+      // hipótese ainda nem guardada — só descarta, sem pedir confirmação
+      hmDraftOption = null;
+      render();
+      return;
+    }
     if(confirm('Eliminar esta hipótese de lua-de-mel?')){
       state.honeymoon.options = state.honeymoon.options.filter(x=>x.id!==hmOpenOptionId);
       hmOpenOptionId = null;
@@ -4246,12 +4280,14 @@ document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet
 document.getElementById('sf-save').addEventListener('click', ()=>{
   const descEl = document.getElementById('sf-desc');
   const desc = descEl.value.trim();
-  const date = document.getElementById('sf-date').value;
+  const dateEl = document.getElementById('sf-date');
+  const date = dateEl.value;
   const valueEl = document.getElementById('sf-value');
   const paidEl = document.getElementById('sf-paid');
   const dueDate = document.getElementById('sf-duedate').value;
   const category = document.getElementById('sf-cat').value;
   if(!desc){ flagRequiredField(descEl); return; }
+  if(!date){ flagRequiredField(dateEl); return; }
   if(valueEl.value.trim()==='' || Number(valueEl.value)<=0){ flagRequiredField(valueEl); return; }
   if(paidEl.value.trim()===''){ flagRequiredField(paidEl); return; }
   const value = Math.max(0, Number(valueEl.value)||0);
@@ -5301,13 +5337,23 @@ function renderOnboarding(){
   document.getElementById('ob-save').addEventListener('click', handleOnboardingSubmit);
 }
 function handleOnboardingSubmit(){
-  const name1 = document.getElementById('ob-name1').value.trim();
-  const name2 = document.getElementById('ob-name2').value.trim();
-  const date = document.getElementById('ob-date').value;
+  const name1El = document.getElementById('ob-name1');
+  const name2El = document.getElementById('ob-name2');
+  const dateEl = document.getElementById('ob-date');
+  const name1 = name1El.value.trim();
+  const name2 = name2El.value.trim();
+  const date = dateEl.value;
   const venue = document.getElementById('ob-venue').value.trim();
   if(!name1 || !name2){
     document.getElementById('ob-msg').textContent = 'Escreve pelo menos os dois nomes.';
     document.getElementById('ob-msg').classList.add('error');
+    flagRequiredField(!name1 ? name1El : name2El);
+    return;
+  }
+  if(!date){
+    document.getElementById('ob-msg').textContent = 'Escolhe a data do casamento (podes sempre mudar depois).';
+    document.getElementById('ob-msg').classList.add('error');
+    flagRequiredField(dateEl);
     return;
   }
   renderLoading('A criar o vosso espaço…');
