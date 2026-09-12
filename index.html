@@ -985,6 +985,7 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 /* ============================================================
@@ -1518,6 +1519,24 @@ function flagRequiredField(el){
 }
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
+// Ao remover um convidado de uma lista, os índices dos que vêm a seguir
+// baixam uma posição. Sem isto, o "confirmado" ficava associado ao índice
+// errado (ou perdia-se todo), depois de qualquer eliminação.
+function reindexConfirmedAfterRemoval(prefix, removedIdx, newLength){
+  const old = {};
+  Object.keys(state.confirmed).forEach(k=>{
+    if(k.startsWith(prefix)){
+      const idx = Number(k.slice(prefix.length));
+      if(!isNaN(idx)){ old[idx] = state.confirmed[k]; delete state.confirmed[k]; }
+    }
+  });
+  Object.keys(old).forEach(idxStr=>{
+    const idx = Number(idxStr);
+    if(idx === removedIdx) return; // o próprio convidado removido, não transporta
+    const newIdx = idx > removedIdx ? idx - 1 : idx;
+    if(newIdx >= 0 && newIdx < newLength) state.confirmed[prefix+newIdx] = old[idx];
+  });
+}
 const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, serpentine:{label:'Serpente', icon:'tableserpentine'} };
 function getTable(id){ return state.seating.tables.find(t=>t.id===id); }
 function nextTableId(){ return state.seating.tables.length ? Math.max(...state.seating.tables.map(t=>t.id))+1 : 1; }
@@ -2025,7 +2044,7 @@ function bindGuestGroupHandlers(scope){
     btn.addEventListener('click', e=>{
       const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
       state.guests[side][cat].splice(Number(idx),1);
-      Object.keys(state.confirmed).forEach(k=>{ if(k.startsWith(side+'|'+cat+'|')) delete state.confirmed[k]; });
+      reindexConfirmedAfterRemoval(side+'|'+cat+'|', Number(idx), state.guests[side][cat].length);
       softUpdateConvidados();
     });
   });
@@ -2055,7 +2074,9 @@ function bindGuestGroupHandlers(scope){
   });
   scope.querySelectorAll('[data-removechild]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      state.guests.criancas.splice(Number(e.currentTarget.dataset.removechild),1);
+      const idx = Number(e.currentTarget.dataset.removechild);
+      state.guests.criancas.splice(idx,1);
+      reindexConfirmedAfterRemoval('crianca|', idx, state.guests.criancas.length);
       softUpdateConvidados();
     });
   });
@@ -2556,7 +2577,8 @@ const SUPPLIER_STATUS = { considerar:{label:'A considerar', color:'var(--gold)'}
 const RECOMMENDED_SUPPLIERS = [
   { id:'rec1', name:'HappyBox - Photobooth para eventos', category:'entretenimento', catLabel:'Entretenimento', phone:'+351 918 588 120', local:'Porto & Lisboa', site:'www.happybox.pt', email:'info@happybox.pt', logo:'logo-happybox.png' },
   { id:'rec2', name:'DGPUBLICIDADE', category:'convites', catLabel:'Convites e papelaria', phone:'+351 910 661 210', local:'Porto', site:'www.dgpublicidade.com', email:'geral@dgpublicidade.com', logo:'logo-dgpublicidade.png' },
-  { id:'rec3', name:'JT Estudios', category:'foto', catLabel:'Fotografia e Vídeo', phone:'+351 935 211 420', local:'Porto', site:'www.jtestudios.com', email:'geral@jtestudios.com', logo:'logo-jtestudios.png' }
+  { id:'rec3', name:'JT Estudios', category:'foto', catLabel:'Fotografia e Vídeo', phone:'+351 935 211 420', local:'Porto', site:'www.jtestudios.com', email:'geral@jtestudios.com', logo:'logo-jtestudios.png' },
+  { id:'rec4', name:'Quinta Santo André', category:'quinta', catLabel:'Espaço e Catering', phone:'+351 965 488 896', local:'Barcelos', site:'www.quintasantoandre.com', email:'geral@quintasantoandre.com', logo:'logo-quintasantoandre.png' }
 ];
 function supplierCardHTML(opts){
   const { title, catLabel, phone, local, site, email, logo, price, badge, attrs, isAdd, clickable } = opts;
@@ -2912,6 +2934,7 @@ function viewDefinicoes(){
   if(definicoesSection==='seguranca') return viewDefSeguranca();
   if(definicoesSection==='privacidade') return viewDefPrivacidade();
   if(definicoesSection==='sobre') return viewDefSobre();
+  if(definicoesSection==='exportar') return viewDefExportar();
   if(definicoesSection==='reportar') return viewDefReportar();
   return viewDefMenu();
 }
@@ -2937,6 +2960,11 @@ function viewDefMenu(){
     ${defMenuRow('casamento', ICONS.heart, 0, 'Nomes, data e local', weddingInfo)}
     ${defMenuRow('design', ICONS.camera, 3, 'Design e foto de capa', 'Personaliza a imagem do teu casamento')}
     ${defMenuRow('categorias', ICONS.budget, 4, 'Categorias de gastos', 'Edita as categorias do teu orçamento')}
+  </div>
+
+  <div class="section-label-caps">Os teus dados</div>
+  <div class="list-group">
+    ${defMenuRow('exportar', ICONS.docnote||ICONS.checklist, 3, 'Exportar dados', 'Descarrega tudo em Excel ou PDF')}
   </div>
 
   <div class="section-label-caps">Acesso e conta</div>
@@ -3150,6 +3178,32 @@ function viewDefPrivacidade(){
     Só as pessoas com o email que tu convidares (em "Convidar"), listadas em "Segurança", conseguem ver os dados do teu casamento. Podes remover o acesso de alguém a qualquer momento.</p>
 
   </div>
+  `;
+}
+
+function viewDefExportar(){
+  return `
+  ${defSubHeader('Exportar dados')}
+  <div class="section-label">O que vai incluído</div>
+  <p style="font-size:13px; color:var(--ink-soft); margin:0 16px 18px; line-height:1.6;">
+    Orçamento por categoria, todos os gastos, a lista de convidados com confirmações, o plano de mesas e os teus fornecedores — tudo tal como está agora na app.
+  </p>
+
+  <div class="about-card" style="background:#E7EBE1;">
+    <div class="about-card-icon" style="background:var(--sage-dark); color:#fff;">${ICONS.docnote||ICONS.checklist}</div>
+    <div class="about-card-title">Ficheiro Excel</div>
+    <div class="about-card-text">Uma folha para cada área — fácil de abrir, filtrar e editar no telemóvel ou computador.</div>
+    <button class="login-btn" id="export-excel-btn" style="margin-top:12px;">Descarregar Excel (.xlsx)</button>
+    <div id="export-excel-msg" class="login-msg" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="about-card" style="background:#F3E2D6;">
+    <div class="about-card-icon" style="background:var(--gold); color:#fff;">${ICONS.camera}</div>
+    <div class="about-card-title">Documento PDF</div>
+    <div class="about-card-text">Um resumo pronto a imprimir ou a partilhar — ideal para guardar ou levar contigo no grande dia.</div>
+    <button class="login-btn" id="export-pdf-btn" style="margin-top:12px;">Ver e guardar como PDF</button>
+  </div>
+  <div style="height:10px;"></div>
   `;
 }
 
@@ -3792,6 +3846,10 @@ function bindHandlers(){
   if(defSaveSeguranca) defSaveSeguranca.addEventListener('click', ()=>saveSettingsNow('def-msg-seguranca'));
   const openDeleteAccountBtn = document.getElementById('open-delete-account-btn');
   if(openDeleteAccountBtn) openDeleteAccountBtn.addEventListener('click', openDeleteAccountSheet);
+  const exportExcelBtn = document.getElementById('export-excel-btn');
+  if(exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
+  if(exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
 
   // O grande dia
   const addEventBtn = document.getElementById('add-event-btn');
@@ -5435,6 +5493,185 @@ function showSaveToast(isError){
   clearTimeout(saveToastTimer);
   saveToastTimer = setTimeout(()=>{ el.classList.remove('show'); }, isError ? 2600 : 1500);
 }
+function exportToExcel(){
+  const msgEl = document.getElementById('export-excel-msg');
+  msgEl.textContent = '';
+  msgEl.className = 'login-msg';
+  try {
+    if(typeof XLSX === 'undefined'){
+      msgEl.textContent = 'Não foi possível carregar o gerador de Excel. Confirma que tens internet e tenta novamente.';
+      msgEl.className = 'login-msg error';
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+
+    // Orçamento
+    const orcRows = state.categories.map(c=>{
+      const val = Number(c.value)||0;
+      return {
+        'Categoria': c.name,
+        'Orçamentado (€)': val,
+        'Percentagem': state.budget.total ? Math.round((val/state.budget.total)*1000)/10 : 0
+      };
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(orcRows), 'Orçamento');
+
+    // Gastos
+    const gastosRows = state.expenses.map(e=>{
+      const cat = catById(e.category);
+      return {
+        'Descrição': e.desc||'',
+        'Data': e.date||'',
+        'Categoria': cat?cat.name:'',
+        'Valor total (€)': Number(e.value)||0,
+        'Pago (€)': Number(e.paid)||0,
+        'Falta pagar (€)': Math.max(0,(Number(e.value)||0)-(Number(e.paid)||0)),
+        'Data limite': e.dueDate||''
+      };
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gastosRows), 'Gastos');
+
+    // Convidados
+    const groupLabels = {familia:'Família', amigos:'Amigos', duvida:'Na dúvida', staff:'Staff'};
+    const guestRows = [];
+    ['noiva','noivo'].forEach(side=>{
+      ['familia','amigos','duvida','staff'].forEach(group=>{
+        (state.guests[side][group]||[]).forEach((name,idx)=>{
+          const key = guestKey(side,group,idx);
+          guestRows.push({
+            'Nome': name,
+            'Lado': side==='noiva'?'Noiva':'Noivo',
+            'Grupo': groupLabels[group],
+            'Confirmado': state.confirmed[key] ? 'Sim' : 'Não'
+          });
+        });
+      });
+    });
+    (state.guests.criancas||[]).forEach((name,idx)=>{
+      guestRows.push({
+        'Nome': name,
+        'Lado': '—',
+        'Grupo': 'Criança',
+        'Confirmado': state.confirmed['crianca|'+idx] ? 'Sim' : 'Não'
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(guestRows), 'Convidados');
+
+    // Mesas
+    const tableRows = [];
+    state.seating.tables.forEach(t=>{
+      for(let s=1; s<=t.seats; s++){
+        const key = t.id+'-'+s;
+        tableRows.push({
+          'Mesa': t.id,
+          'Forma': (TABLE_SHAPES[t.shape]||{}).label || t.shape,
+          'Lugar': s,
+          'Convidado': state.seating.assignments[key] || ''
+        });
+      }
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tableRows), 'Mesas');
+
+    // Fornecedores
+    const supRows = state.suppliers.map(s=>{
+      const cat = catById(s.category);
+      return {
+        'Nome': s.name||'',
+        'Categoria': cat?cat.name:'',
+        'Contacto': s.contact||'',
+        'Preço': s.price||'',
+        'Estado': (SUPPLIER_STATUS[s.status]||{}).label || s.status || '',
+        'Notas': s.notas||''
+      };
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(supRows), 'Fornecedores');
+
+    const coupleName = `${weddingSettings.coupleName1||''}-${weddingSettings.coupleName2||''}`.replace(/[^a-zA-Z0-9-]/g,'') || 'casamento';
+    XLSX.writeFile(wb, `weddy-${coupleName}.xlsx`);
+    msgEl.textContent = 'Descarregado com sucesso!';
+    msgEl.className = 'login-msg success';
+  } catch(err){
+    console.error('Weddy export excel error:', err);
+    msgEl.textContent = 'Não foi possível gerar o ficheiro. Tenta novamente.';
+    msgEl.className = 'login-msg error';
+  }
+}
+
+function exportToPDF(){
+  const c1 = escapeHTML(weddingSettings.coupleName1||'');
+  const c2 = escapeHTML(weddingSettings.coupleName2||'');
+  const dateStr = formatDatePT(weddingSettings.weddingDate);
+  const venue = escapeHTML(weddingSettings.venue||'Local por definir');
+
+  const orcRows = state.categories.map(c=>{
+    const val = Number(c.value)||0;
+    const pct = state.budget.total ? Math.round((val/state.budget.total)*1000)/10 : 0;
+    return `<tr><td>${escapeHTML(c.name)}</td><td style="text-align:right;">${fmtEUR(val)}</td><td style="text-align:right;">${pct}%</td></tr>`;
+  }).join('');
+
+  const gastosRows = state.expenses.map(e=>{
+    const cat = catById(e.category);
+    return `<tr><td>${escapeHTML(e.desc||'')}</td><td>${cat?escapeHTML(cat.name):''}</td><td style="text-align:right;">${fmtEUR(Number(e.value)||0)}</td><td style="text-align:right;">${fmtEUR(Number(e.paid)||0)}</td></tr>`;
+  }).join('');
+
+  const groupLabels = {familia:'Família', amigos:'Amigos', duvida:'Na dúvida', staff:'Staff'};
+  const guestRows = [];
+  ['noiva','noivo'].forEach(side=>{
+    ['familia','amigos','duvida','staff'].forEach(group=>{
+      (state.guests[side][group]||[]).forEach((name,idx)=>{
+        const key = guestKey(side,group,idx);
+        guestRows.push(`<tr><td>${escapeHTML(name)}</td><td>${side==='noiva'?'Noiva':'Noivo'} · ${groupLabels[group]}</td><td>${state.confirmed[key]?'Confirmado':'—'}</td></tr>`);
+      });
+    });
+  });
+  (state.guests.criancas||[]).forEach((name,idx)=>{
+    guestRows.push(`<tr><td>${escapeHTML(name)}</td><td>Criança</td><td>${state.confirmed['crianca|'+idx]?'Confirmado':'—'}</td></tr>`);
+  });
+
+  const supRows = state.suppliers.map(s=>{
+    const cat = catById(s.category);
+    return `<tr><td>${escapeHTML(s.name||'')}</td><td>${cat?escapeHTML(cat.name):''}</td><td>${escapeHTML(s.contact||'')}</td><td>${(SUPPLIER_STATUS[s.status]||{}).label||''}</td></tr>`;
+  }).join('');
+
+  const html = `
+  <html><head><meta charset="UTF-8"><title>Weddy — ${c1} & ${c2}</title>
+  <style>
+    body{ font-family:Georgia,serif; color:#302C29; padding:32px; max-width:800px; margin:0 auto; }
+    h1{ font-size:28px; color:#9A4F3D; margin-bottom:4px; }
+    .sub{ color:#8E8780; margin-bottom:28px; font-size:14px; }
+    h2{ font-size:18px; color:#9A4F3D; margin:28px 0 10px; border-bottom:1px solid #e0d8ce; padding-bottom:6px; }
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    td, th{ padding:6px 8px; border-bottom:1px solid #eee; text-align:left; }
+    @media print { body{ padding:12px; } }
+  </style>
+  </head><body>
+    <h1>${c1} &amp; ${c2}</h1>
+    <div class="sub">${dateStr} · ${venue}</div>
+
+    <h2>Orçamento por categoria</h2>
+    <table><tr><th>Categoria</th><th>Orçamentado</th><th>%</th></tr>${orcRows}</table>
+
+    <h2>Gastos</h2>
+    <table><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Pago</th></tr>${gastosRows||'<tr><td colspan="4">Ainda sem gastos registados.</td></tr>'}</table>
+
+    <h2>Convidados</h2>
+    <table><tr><th>Nome</th><th>Grupo</th><th>Estado</th></tr>${guestRows.join('')||'<tr><td colspan="3">Ainda sem convidados.</td></tr>'}</table>
+
+    <h2>Fornecedores</h2>
+    <table><tr><th>Nome</th><th>Categoria</th><th>Contacto</th><th>Estado</th></tr>${supRows||'<tr><td colspan="4">Ainda sem fornecedores.</td></tr>'}</table>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  if(!win){
+    alert('O teu telemóvel bloqueou a nova janela. Permite pop-ups para a Weddy e tenta novamente.');
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); }, 300);
+}
+
 function flushPendingSave(){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return Promise.resolve();
   clearTimeout(saveTimer);
