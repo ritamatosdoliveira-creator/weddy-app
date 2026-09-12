@@ -88,7 +88,7 @@ body{
 .navbar-titlewrap{ flex:1; min-width:0; }
 .navbar-botanical{ position:absolute; top:8px; right:16px; width:30px; height:auto; color:var(--dusty); opacity:.6; pointer-events:none; }
 .navbar .eyebrow{ font-size:12.5px; color:var(--rust); font-weight:600; margin-bottom:7px; }
-.navbar h1{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
+.navbar h1{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; overflow-wrap:anywhere; }
 .hm-header h1{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:29px; color:var(--heading); margin:0; letter-spacing:.002em; }
 .navbar-row{ display:flex; align-items:flex-end; justify-content:space-between; }
 .nav-back{ all:unset; cursor:pointer; width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0; line-height:1; margin-left:-6px; }
@@ -153,9 +153,9 @@ body{
 .ring-label-arrow svg{ width:10px; height:10px; }
 .ring-wrap{ position:relative; width:92px; height:92px; }
 .ring-wrap svg{ width:100%; height:100%; }
-.ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-center{ position:absolute; inset:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; text-align:center; }
 .ring-center .num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--ink); line-height:1; }
-.ring-center .sub{ font-size:8.8px; color:var(--ink-soft); margin-top:2px; }
+.ring-center .sub{ font-size:8.8px; color:var(--ink-soft); margin-top:2px; overflow-wrap:anywhere; }
 .ring-breakdown{ display:flex; gap:14px; margin-top:11px; }
 .ring-breakdown .n{ font-size:13px; font-weight:600; color:var(--ink); text-align:center; }
 .ring-breakdown .l{ font-size:8.5px; color:var(--ink-soft); text-align:center; margin-top:1px; }
@@ -206,7 +206,7 @@ body{
 .icon-chip{ width:30px; height:30px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff;  line-height:1;}
 .icon-chip svg{ width:15px; height:15px; }
 .icon-chip svg{ width:15px; height:15px; }
-.list-row .title{ flex:1; font-size:15px; color:var(--ink); min-width:0; }
+.list-row .title{ flex:1; font-size:15px; color:var(--ink); min-width:0; overflow-wrap:anywhere; }
 .list-row .title .sub{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
 .list-row .value{ font-size:14.5px; color:var(--ink-soft); flex-shrink:0; }
 .chev{ width:7px; height:12px; opacity:.32; flex-shrink:0; }
@@ -392,7 +392,7 @@ body{
 .table-head{ display:flex; align-items:center; gap:11px; padding:12px 14px; cursor:pointer; }
 .guest-group-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; margin:0 16px 12px; box-shadow:var(--shadow); overflow:hidden; }
 .guest-group-head{ display:flex; align-items:center; gap:11px; padding:13px 14px; cursor:pointer; }
-.ggtitle{ font-size:14.5px; font-weight:600; color:var(--ink); flex:1; }
+.ggtitle{ font-size:14.5px; font-weight:600; color:var(--ink); flex:1; min-width:0; overflow-wrap:anywhere; }
 .ggcount{ font-size:12px; color:var(--ink-soft); font-weight:600; margin-right:2px; }
 .guest-group-body{ border-top:1px solid var(--line); }
 .guest-group-body .list-row:last-of-type{ border-bottom:none; }
@@ -432,7 +432,7 @@ body{
 .hm-card{ position:relative; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:13px 14px; box-shadow:var(--shadow); }
 .hm-card.chosen{ border-color:var(--rust); box-shadow:0 0 0 1.5px var(--rust); }
 .hm-card-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.hm-card-name{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--ink); }
+.hm-card-name{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--ink); overflow-wrap:anywhere; }
 .hm-heart{ all:unset; box-sizing:border-box; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:#D9D4C7; cursor:pointer; flex-shrink:0; }
 .hm-heart svg{ width:17px; height:17px; }
 .hm-heart.active{ color:var(--rust); }
@@ -465,7 +465,8 @@ body{
 .hm-idea-photo{ width:52px; height:52px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
 .hm-idea-photo svg{ width:20px; height:20px; }
 .hm-idea-mid{ flex:1; min-width:0; }
-.hm-idea-name{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:16px; color:var(--ink); }
+.hm-idea-name{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:16px; color:var(--ink); overflow-wrap:anywhere; }
+.hm-idea-type{ overflow-wrap:anywhere; }
 .hm-idea-type{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
 .hm-idea-hearts{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:4px; margin-top:5px; font-size:11.5px; font-weight:600; color:var(--rust); cursor:pointer; }
 .hm-idea-hearts svg{ width:13px; height:13px; fill:var(--rust); }
@@ -505,9 +506,9 @@ body{
 .sup-thumb.is-add{ background:#F4EBE4; color:#B4A296; }
 .sup-info{ flex:1; min-width:0; }
 .sup-cat{ font-size:8.5px; font-weight:600; letter-spacing:.09em; color:#A79485; text-transform:uppercase; margin-bottom:3px; }
-.sup-name{ font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:#33302B; line-height:1.2; margin-bottom:5px; }
+.sup-name{ font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:#33302B; line-height:1.2; margin-bottom:5px; overflow-wrap:anywhere; }
 .sup-meta{ display:flex; flex-wrap:wrap; gap:4px 11px; }
-.sup-meta-item{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:#7C7268; }
+.sup-meta-item{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:#7C7268; max-width:100%; overflow-wrap:anywhere; }
 .sup-meta-item svg{ width:11px; height:11px; flex-shrink:0; color:#9C8F84; }
 .sup-meta-line{ font-size:10.5px; color:#8A8076; }
 .sup-badge{ position:absolute; top:10px; right:30px; padding:4px 9px; border-radius:12px; background:#F3E4DC; color:#A0705E; font-size:9px; font-weight:600; }
@@ -1505,6 +1506,7 @@ function escapeHTML(str){
     .replace(/'/g,'&#39;');
 }
 function fmtEUR(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+function fmtPct(n){ if(isNaN(n)||!isFinite(n)) n=0; return n>999 ? '999%+' : `${n}%`; }
 function fmtEUR2(n){ if(isNaN(n)) n=0; return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function flagRequiredField(el){
   if(!el) return;
@@ -1810,7 +1812,7 @@ function viewInicio(){
       <div class="ring-label">Orçamento gasto</div>
       <div class="ring-wrap" id="inicio-orc-ring-wrap">
         ${donutSVG(budgetTotal? totalValue/budgetTotal : 0, 'var(--blush-dark)', 92, 9)}
-        <div class="ring-center"><span class="num">${spentPct}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>
+        <div class="ring-center"><span class="num">${fmtPct(spentPct)}</span><span class="sub">${fmtEUR(totalValue)}</span></div>
       </div>
       <div class="ring-breakdown">
         <div><div class="n" id="inicio-porgastar">${fmtEUR(budgetTotal-totalValue)}</div><div class="l">Por gastar</div></div>
@@ -2206,7 +2208,7 @@ function viewGastos(){
       <div class="ring-label">Pago</div>
       <div class="ring-wrap" id="pago-ring-wrap">
         ${donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)}
-        <div class="ring-center"><span class="num">${totalValue? Math.round(totalPaid/totalValue*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
+        <div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
       </div>
       <div class="ring-breakdown">
         <div><div class="n" id="pago-porpagar">${fmtEUR(totalValue-totalPaid)}</div><div class="l">Por pagar</div></div>
@@ -2216,7 +2218,7 @@ function viewGastos(){
       <div class="ring-label">Do orçamento</div>
       <div class="ring-wrap" id="orc-ring-wrap">
         ${donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)}
-        <div class="ring-center"><span class="num">${budgetTotal? Math.round(totalPaid/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
+        <div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalPaid/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
       </div>
       <div class="ring-breakdown">
         <div><div class="n">${fmtEUR(budgetTotal)}</div><div class="l">Orçamento</div></div>
@@ -2777,7 +2779,7 @@ function viewLuademelOption(o){
     </div>
   </div>
 
-  <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nas passagens"></div>
+  <div class="sheet-field" style="margin:16px 16px 20px;"><label>Notas / ajudas de familiares e amigos</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="Ex: os padrinhos vão ajudar nos voos"></div>
 
   <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); max-width:none; margin:0 16px 12px;">${ICONS.check} Guardar</button>
   <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} Eliminar esta hipótese</button>
@@ -4053,13 +4055,13 @@ function softUpdateGastos(){
 
   const pagoWrap = document.getElementById('pago-ring-wrap');
   if(pagoWrap) pagoWrap.innerHTML = donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)
-    + `<div class="ring-center"><span class="num">${totalValue? Math.round(totalPaid/totalValue*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
+    + `<div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
   const porPagar = document.getElementById('pago-porpagar');
   if(porPagar) porPagar.textContent = fmtEUR(totalValue-totalPaid);
 
   const orcWrap = document.getElementById('orc-ring-wrap');
   if(orcWrap) orcWrap.innerHTML = donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)
-    + `<div class="ring-center"><span class="num">${budgetTotal? Math.round(totalPaid/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
+    + `<div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalPaid/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
 
   state.expenses.forEach((e,i)=>{
     const remaining = Math.max(0, Number(e.value)-Number(e.paid||0));
@@ -4087,7 +4089,7 @@ function softUpdateGastos(){
   // Início — o anel "Orçamento gasto" segue os mesmos números
   const inicioRing = document.getElementById('inicio-orc-ring-wrap');
   if(inicioRing) inicioRing.innerHTML = donutSVG(budgetTotal? totalValue/budgetTotal : 0, 'var(--blush-dark)', 92, 9)
-    + `<div class="ring-center"><span class="num">${budgetTotal? Math.round(totalValue/budgetTotal*100):0}%</span><span class="sub">${fmtEUR(totalValue)}</span></div>`;
+    + `<div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalValue/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalValue)}</span></div>`;
   const inicioPorGastar = document.getElementById('inicio-porgastar');
   if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(budgetTotal-totalValue);
 
@@ -4243,66 +4245,12 @@ function weddyBackStep(){
 }
 
 /* ============================================================
-   GESTOS — deslizar para trás nas páginas, deslizar para baixo
-   para fechar as folhas (sheets), como é hábito no iOS.
+   GESTOS — removidos a pedido (deslizar para trás e deslizar para
+   baixo para fechar as folhas causavam folhas "presas" a meio do
+   ecrã e sobrepostas). Fechar folhas é feito só por Cancelar/Guardar
+   ou ao tocar fora (sheet-backdrop). Navegar para trás é feito só
+   pelos botões de voltar.
 ============================================================ */
-function bindSheetSwipeDown(sheetEl, closeFn){
-  if(!sheetEl) return;
-  let startY=0, dragging=false;
-  sheetEl.addEventListener('touchstart', e=>{
-    const rect = sheetEl.getBoundingClientRect();
-    const t = e.touches[0];
-    if(t.clientY - rect.top < 46){
-      startY = t.clientY; dragging = true;
-      sheetEl.style.transition = 'none';
-    }
-  }, {passive:true});
-  sheetEl.addEventListener('touchmove', e=>{
-    if(!dragging) return;
-    const dy = Math.max(0, e.touches[0].clientY - startY);
-    sheetEl.style.transform = `translateY(${dy}px)`;
-  }, {passive:true});
-  function finish(e){
-    if(!dragging) return;
-    dragging = false;
-    sheetEl.style.transition = '';
-    const dy = Math.max(0, (e.changedTouches[0].clientY - startY));
-    sheetEl.style.transform = '';
-    if(dy > 85) closeFn();
-  }
-  sheetEl.addEventListener('touchend', finish, {passive:true});
-  sheetEl.addEventListener('touchcancel', finish, {passive:true});
-}
-['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
-  const el = document.getElementById(id);
-  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet, 'supplier-sheet':closeSupplierSheet, 'hm-option-sheet':closeHmOptionSheet, 'hm-payment-sheet':closeHmPaymentSheet, 'todo-notes-sheet':closeTodoNotesSheet, 'todo-cat-sheet':closeTodoCatSheet, 'delete-account-sheet':closeDeleteAccountSheet };
-  bindSheetSwipeDown(el, closers[id]);
-});
-
-function initSwipeBack(){
-  const appBody = document.getElementById('app-body');
-  if(!appBody) return;
-  let startX=0, startY=0, tracking=false;
-  appBody.addEventListener('touchstart', e=>{
-    const t = e.touches[0];
-    startX = t.clientX; startY = t.clientY;
-    tracking = t.clientX < 60;
-  }, {passive:true});
-  appBody.addEventListener('touchend', e=>{
-    if(!tracking) return;
-    tracking = false;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - startX;
-    const dy = Math.abs(t.clientY - startY);
-    if(dx > 70 && dy < 60){
-      const activePanel = document.querySelector('.tabpanel.active');
-      if(!activePanel) return;
-      const backBtn = activePanel.querySelector('#def-back, [data-defback], #insp-back, #checklist-back, #vestido-back, #fornecedores-back, #todo-back, #luademel-back, #todocat-back');
-      if(backBtn) backBtn.click();
-    }
-  }, {passive:true});
-}
-initSwipeBack();
 document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
 document.getElementById('sf-save').addEventListener('click', ()=>{
   const descEl = document.getElementById('sf-desc');
