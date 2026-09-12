@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weddy-v22';
+const CACHE_NAME = 'weddy-v23';
 const FILES_TO_CACHE = ['./','./index.html','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE)));

@@ -858,6 +858,17 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
       <button class="btn-save" id="hm-payment-save">Guardar</button>
     </div>
   </div>
+  <div class="sheet" id="delete-account-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" style="color:var(--rust-dark);">Eliminar a minha conta</div>
+    <p id="delete-account-explain" style="font-size:13px; color:var(--ink); line-height:1.6; margin:0 4px 16px;"></p>
+    <div class="sheet-field"><label>Confirma a tua password</label><input type="password" id="delete-account-pass" placeholder="A tua password atual"></div>
+    <div id="delete-account-msg" class="login-msg" style="margin:6px 4px 0;"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="delete-account-cancel">Cancelar</button>
+      <button class="btn-save" id="delete-account-confirm" style="background:var(--rust-dark);">Eliminar definitivamente</button>
+    </div>
+  </div>
   <div class="sheet" id="supplier-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="supplier-sheet-title">Novo fornecedor</div>
@@ -3084,6 +3095,19 @@ function viewDefSeguranca(){
   <div class="section-label">Quem tem acesso</div>
   <div class="list-group" style="margin-bottom:6px;">${owners}</div>
   ${defSaveBtn('def-save-seguranca','def-msg-seguranca')}
+
+  <div class="section-label" style="color:var(--rust-dark);">Zona de perigo</div>
+  <div class="list-group" style="margin-bottom:16px;">
+    <div class="list-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+      <div>
+        <div class="title">Eliminar a minha conta</div>
+        <div class="visit-detail">${currentWeddingOwners.length>1
+          ? 'A tua conta deixa de ter acesso. Os dados do casamento continuam a existir para quem mais tiver acesso.'
+          : 'Apaga definitivamente todos os dados deste casamento — convidados, orçamento, gastos, mesas, tudo. Não é possível desfazer.'}</div>
+      </div>
+      <button class="visit-action-btn danger" style="width:100%;" id="open-delete-account-btn">${ICONS.trash} Eliminar a minha conta</button>
+    </div>
+  </div>
   `;
 }
 
@@ -3764,6 +3788,8 @@ function bindHandlers(){
   });
   const defSaveSeguranca = document.getElementById('def-save-seguranca');
   if(defSaveSeguranca) defSaveSeguranca.addEventListener('click', ()=>saveSettingsNow('def-msg-seguranca'));
+  const openDeleteAccountBtn = document.getElementById('open-delete-account-btn');
+  if(openDeleteAccountBtn) openDeleteAccountBtn.addEventListener('click', openDeleteAccountSheet);
 
   // O grande dia
   const addEventBtn = document.getElementById('add-event-btn');
@@ -4168,11 +4194,12 @@ function deleteEvent(eventId){
 function closeAllSheets(){
   closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet();
   closeSupplierSheet(); closeHmOptionSheet(); closeHmPaymentSheet(); closeTodoNotesSheet(); closeTodoCatSheet();
+  closeDeleteAccountSheet();
   // Rede de segurança: se um gesto de arrastar for interrompido a meio (ex: o
   // dedo sai do ecrã sem soltar), pode ficar um "transform" preso na sheet.
   // Ao fechar tudo, limpamos sempre esse estilo para nunca ficar uma sheet
   // meio visível por cima de outra.
-  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet'].forEach(id=>{
+  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){ el.style.transform=''; el.style.transition=''; }
   });
@@ -4246,9 +4273,9 @@ function bindSheetSwipeDown(sheetEl, closeFn){
   sheetEl.addEventListener('touchend', finish, {passive:true});
   sheetEl.addEventListener('touchcancel', finish, {passive:true});
 }
-['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet'].forEach(id=>{
+['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
   const el = document.getElementById(id);
-  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet, 'supplier-sheet':closeSupplierSheet, 'hm-option-sheet':closeHmOptionSheet, 'hm-payment-sheet':closeHmPaymentSheet, 'todo-notes-sheet':closeTodoNotesSheet, 'todo-cat-sheet':closeTodoCatSheet };
+  const closers = { 'expense-sheet':closeExpenseSheet, 'event-sheet':closeEventSheet, 'guest-sheet':closeGuestSheet, 'visit-sheet':closeVisitSheet, 'seat-sheet':closeSeatSheet, 'supplier-sheet':closeSupplierSheet, 'hm-option-sheet':closeHmOptionSheet, 'hm-payment-sheet':closeHmPaymentSheet, 'todo-notes-sheet':closeTodoNotesSheet, 'todo-cat-sheet':closeTodoCatSheet, 'delete-account-sheet':closeDeleteAccountSheet };
   bindSheetSwipeDown(el, closers[id]);
 });
 
@@ -4978,6 +5005,72 @@ function closeTodoCatSheet(){
   document.getElementById('sheet-backdrop').classList.remove('show');
   editingTodoCatId = null;
 }
+
+function openDeleteAccountSheet(){
+  const isSoleOwner = currentWeddingOwners.length<=1;
+  document.getElementById('delete-account-explain').innerHTML = isSoleOwner
+    ? 'Isto vai apagar <b>definitivamente</b> todos os dados deste casamento — convidados, orçamento, gastos, mesas, tudo — e a tua conta de acesso. <b>Não é possível desfazer.</b>'
+    : 'A tua conta vai deixar de ter acesso a este casamento. Os dados continuam a existir para quem mais tiver acesso — só a tua conta é eliminada.';
+  document.getElementById('delete-account-pass').value = '';
+  document.getElementById('delete-account-msg').textContent = '';
+  document.getElementById('delete-account-msg').className = 'login-msg';
+  document.getElementById('delete-account-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closeDeleteAccountSheet(){
+  const el = document.getElementById('delete-account-sheet');
+  if(el) el.classList.remove('show');
+}
+document.getElementById('delete-account-cancel').addEventListener('click', closeDeleteAccountSheet);
+document.getElementById('delete-account-confirm').addEventListener('click', ()=>{
+  const passEl = document.getElementById('delete-account-pass');
+  const msgEl = document.getElementById('delete-account-msg');
+  const pass = passEl.value;
+  if(!pass){ flagRequiredField(passEl); return; }
+  if(!auth || !auth.currentUser){ msgEl.textContent = 'Sessão inválida. Tenta entrar de novo.'; msgEl.className='login-msg error'; return; }
+
+  const btn = document.getElementById('delete-account-confirm');
+  btn.textContent = 'A eliminar…';
+  msgEl.textContent = '';
+  msgEl.className = 'login-msg';
+
+  const user = auth.currentUser;
+  const email = user.email;
+  const credential = firebase.auth.EmailAuthProvider.credential(email, pass);
+
+  user.reauthenticateWithCredential(credential).then(()=>{
+    const isSoleOwner = currentWeddingOwners.length<=1;
+    let dataStep;
+    if(isSoleOwner){
+      dataStep = CURRENT_DOC().delete();
+    } else {
+      const uidToRemove = currentUidByEmail[sanitizeEmailKey(email.toLowerCase())] || user.uid;
+      const updates = { ownerEmails: firebase.firestore.FieldValue.arrayRemove(email.toLowerCase()) };
+      updates.ownerUids = firebase.firestore.FieldValue.arrayRemove(uidToRemove);
+      dataStep = CURRENT_DOC().update(updates);
+    }
+    return dataStep.then(()=>user.delete());
+  }).then(()=>{
+    closeDeleteAccountSheet();
+    if(unsubscribeSnapshot) unsubscribeSnapshot();
+    currentWeddingId = null;
+    document.getElementById('app-body').innerHTML = '';
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.documentElement.classList.add('login-active');
+    renderLoginForm('A tua conta e os teus dados foram eliminados. Obrigado por teres experimentado a Weddy.', false, true);
+  }).catch(err=>{
+    btn.textContent = 'Eliminar definitivamente';
+    console.error('Weddy delete account error:', err.code, err.message);
+    if(err.code==='auth/wrong-password' || err.code==='auth/invalid-credential'){
+      msgEl.textContent = 'Password incorreta.';
+    } else if(err.code==='auth/too-many-requests'){
+      msgEl.textContent = 'Muitas tentativas. Espera um pouco e tenta de novo.';
+    } else {
+      msgEl.textContent = 'Não foi possível eliminar a conta. Tenta novamente.';
+    }
+    msgEl.className = 'login-msg error';
+  });
+});
 document.getElementById('tc-cancel').addEventListener('click', closeTodoCatSheet);
 document.getElementById('tc-save').addEventListener('click', ()=>{
   const label = document.getElementById('tc-label').value.trim();
