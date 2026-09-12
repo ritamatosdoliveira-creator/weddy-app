@@ -985,7 +985,7 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 /* ============================================================
@@ -3376,6 +3376,7 @@ function bindHandlers(){
     render();
   });
   function focusAddPersonal(){
+    closeAllSheets();
     const input = document.getElementById('add-personal-item');
     if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>input.focus(), 250); }
   }
@@ -4261,7 +4262,17 @@ function closeAllSheets(){
   // meio visível por cima de outra.
   ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
     const el = document.getElementById(id);
-    if(el){ el.style.transform=''; el.style.transition=''; }
+    if(el){
+      el.style.transform=''; el.style.transition='';
+      // O Safari, por vezes, não repinta a posição da sheet depois de lhe
+      // tirarmos a classe "show" — sobretudo se a página fizer scroll logo a
+      // seguir (ex: focar um campo). Isto obriga-o a recalcular tudo do zero.
+      void el.offsetHeight;
+      const prevDisplay = el.style.display;
+      el.style.display = 'none';
+      void el.offsetHeight;
+      el.style.display = prevDisplay;
+    }
   });
 }
 document.getElementById('sheet-backdrop').addEventListener('click', closeAllSheets);
@@ -5493,6 +5504,46 @@ function showSaveToast(isError){
   clearTimeout(saveToastTimer);
   saveToastTimer = setTimeout(()=>{ el.classList.remove('show'); }, isError ? 2600 : 1500);
 }
+const XL_COLORS = { terracotaDark:'9A4F3D', terracota:'B96752', creme:'FAF3EC', cremeEscuro:'F0E4D8', tinta:'302C29', tintaSuave:'8E8780', branco:'FFFFFF', sage:'A8B39C' };
+function xlCell(v, style){
+  const isNum = typeof v === 'number';
+  return { v: (v===null||v===undefined) ? '' : v, t: isNum?'n':'s', s: style||{} };
+}
+const XL_THIN_BORDER = { top:{style:'thin',color:{rgb:'E5DDD3'}}, bottom:{style:'thin',color:{rgb:'E5DDD3'}}, left:{style:'thin',color:{rgb:'E5DDD3'}}, right:{style:'thin',color:{rgb:'E5DDD3'}} };
+const XL_STYLES = {
+  title: { font:{ name:'Calibri', sz:18, bold:true, color:{rgb:XL_COLORS.terracotaDark} } },
+  subtitle: { font:{ name:'Calibri', sz:11, italic:true, color:{rgb:XL_COLORS.tintaSuave} } },
+  sectionLabel: { font:{ name:'Calibri', sz:13, bold:true, color:{rgb:XL_COLORS.terracotaDark} } },
+  header: { font:{ name:'Calibri', sz:11, bold:true, color:{rgb:XL_COLORS.branco} }, fill:{fgColor:{rgb:XL_COLORS.terracotaDark}}, alignment:{horizontal:'center', vertical:'center', wrapText:true}, border:XL_THIN_BORDER },
+  cell: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, border:XL_THIN_BORDER, alignment:{vertical:'center'} },
+  cellAlt: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, fill:{fgColor:{rgb:XL_COLORS.creme}}, border:XL_THIN_BORDER, alignment:{vertical:'center'} },
+  cellCenter: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, border:XL_THIN_BORDER, alignment:{horizontal:'center', vertical:'center'} },
+  cellCenterAlt: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, fill:{fgColor:{rgb:XL_COLORS.creme}}, border:XL_THIN_BORDER, alignment:{horizontal:'center', vertical:'center'} },
+  money: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, border:XL_THIN_BORDER, alignment:{horizontal:'right', vertical:'center'}, numFmt:'#,##0.00" €"' },
+  moneyAlt: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tinta} }, fill:{fgColor:{rgb:XL_COLORS.creme}}, border:XL_THIN_BORDER, alignment:{horizontal:'right', vertical:'center'}, numFmt:'#,##0.00" €"' },
+  total: { font:{ name:'Calibri', sz:11, bold:true, color:{rgb:XL_COLORS.branco} }, fill:{fgColor:{rgb:XL_COLORS.terracota}}, border:XL_THIN_BORDER, alignment:{vertical:'center'} },
+  totalMoney: { font:{ name:'Calibri', sz:11, bold:true, color:{rgb:XL_COLORS.branco} }, fill:{fgColor:{rgb:XL_COLORS.terracota}}, border:XL_THIN_BORDER, alignment:{horizontal:'right', vertical:'center'}, numFmt:'#,##0.00" €"' },
+  confirmedYes: { font:{ name:'Calibri', sz:10.5, bold:true, color:{rgb:'2F5233'} }, fill:{fgColor:{rgb:'DCE8DC'}}, border:XL_THIN_BORDER, alignment:{horizontal:'center', vertical:'center'} },
+  confirmedNo: { font:{ name:'Calibri', sz:10.5, color:{rgb:XL_COLORS.tintaSuave} }, border:XL_THIN_BORDER, alignment:{horizontal:'center', vertical:'center'} }
+};
+function buildStyledSheet(title, subtitle, headers, dataRows, colWidths){
+  const aoa = [];
+  aoa.push([xlCell(title, XL_STYLES.title)]);
+  aoa.push([xlCell(subtitle, XL_STYLES.subtitle)]);
+  aoa.push([]);
+  aoa.push(headers.map(h=>xlCell(h, XL_STYLES.header)));
+  dataRows.forEach(row=> aoa.push(row));
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = colWidths.map(w=>({wch:w}));
+  ws['!merges'] = [
+    { s:{r:0,c:0}, e:{r:0,c:headers.length-1} },
+    { s:{r:1,c:0}, e:{r:1,c:headers.length-1} }
+  ];
+  ws['!freeze'] = { xSplit:0, ySplit:4 };
+  if(ws['!sheetViews']===undefined) ws['!sheetViews'] = [{ state:'frozen', ySplit:4 }];
+  return ws;
+}
+
 function exportToExcel(){
   const msgEl = document.getElementById('export-excel-msg');
   msgEl.textContent = '';
@@ -5504,87 +5555,123 @@ function exportToExcel(){
       return;
     }
     const wb = XLSX.utils.book_new();
+    const coupleTitle = `${weddingSettings.coupleName1||''} & ${weddingSettings.coupleName2||''}`.trim() || 'O nosso casamento';
+    const subInfo = `${formatDatePT(weddingSettings.weddingDate)} · ${weddingSettings.venue||'Local por definir'}`;
 
     // Orçamento
-    const orcRows = state.categories.map(c=>{
+    const orcDataRows = state.categories.map((c,i)=>{
       const val = Number(c.value)||0;
-      return {
-        'Categoria': c.name,
-        'Orçamentado (€)': val,
-        'Percentagem': state.budget.total ? Math.round((val/state.budget.total)*1000)/10 : 0
-      };
+      const pct = state.budget.total ? (val/state.budget.total) : 0;
+      const alt = i%2===1;
+      return [
+        xlCell(c.name, alt?XL_STYLES.cellAlt:XL_STYLES.cell),
+        xlCell(val, alt?XL_STYLES.moneyAlt:XL_STYLES.money),
+        xlCell(pct, { ...(alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter), numFmt:'0.0%' })
+      ];
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(orcRows), 'Orçamento');
+    const orcTotal = state.categories.reduce((s,c)=>s+(Number(c.value)||0),0);
+    orcDataRows.push([
+      xlCell('TOTAL', XL_STYLES.total),
+      xlCell(orcTotal, XL_STYLES.totalMoney),
+      xlCell(state.budget.total ? orcTotal/state.budget.total : 0, { ...XL_STYLES.total, alignment:{horizontal:'center'}, numFmt:'0.0%' })
+    ]);
+    const orcSheet = buildStyledSheet(coupleTitle, `Orçamento · ${subInfo} · Orçamento total: ${fmtEUR(state.budget.total)}`, ['Categoria','Orçamentado','%'], orcDataRows, [30,16,10]);
+    XLSX.utils.book_append_sheet(wb, orcSheet, 'Orçamento');
 
     // Gastos
-    const gastosRows = state.expenses.map(e=>{
+    const gastosDataRows = state.expenses.map((e,i)=>{
       const cat = catById(e.category);
-      return {
-        'Descrição': e.desc||'',
-        'Data': e.date||'',
-        'Categoria': cat?cat.name:'',
-        'Valor total (€)': Number(e.value)||0,
-        'Pago (€)': Number(e.paid)||0,
-        'Falta pagar (€)': Math.max(0,(Number(e.value)||0)-(Number(e.paid)||0)),
-        'Data limite': e.dueDate||''
-      };
+      const alt = i%2===1;
+      const c = alt?XL_STYLES.cellAlt:XL_STYLES.cell;
+      const m = alt?XL_STYLES.moneyAlt:XL_STYLES.money;
+      return [
+        xlCell(e.desc||'', c),
+        xlCell(e.date ? formatDateShortPT(e.date) : '', alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter),
+        xlCell(cat?cat.name:'', c),
+        xlCell(Number(e.value)||0, m),
+        xlCell(Number(e.paid)||0, m),
+        xlCell(Math.max(0,(Number(e.value)||0)-(Number(e.paid)||0)), m),
+        xlCell(e.dueDate ? formatDateShortPT(e.dueDate) : '', alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter)
+      ];
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gastosRows), 'Gastos');
+    if(gastosDataRows.length){
+      const totalValor = state.expenses.reduce((s,e)=>s+(Number(e.value)||0),0);
+      const totalPago = state.expenses.reduce((s,e)=>s+(Number(e.paid)||0),0);
+      gastosDataRows.push([
+        xlCell('TOTAL', XL_STYLES.total), xlCell('', XL_STYLES.total), xlCell('', XL_STYLES.total),
+        xlCell(totalValor, XL_STYLES.totalMoney), xlCell(totalPago, XL_STYLES.totalMoney),
+        xlCell(Math.max(0,totalValor-totalPago), XL_STYLES.totalMoney), xlCell('', XL_STYLES.total)
+      ]);
+    }
+    const gastosSheet = buildStyledSheet(coupleTitle, `Gastos · ${subInfo}`, ['Descrição','Data','Categoria','Valor total','Pago','Falta pagar','Data limite'], gastosDataRows, [28,12,20,14,14,14,14]);
+    XLSX.utils.book_append_sheet(wb, gastosSheet, 'Gastos');
 
     // Convidados
     const groupLabels = {familia:'Família', amigos:'Amigos', duvida:'Na dúvida', staff:'Staff'};
-    const guestRows = [];
+    const guestList = [];
     ['noiva','noivo'].forEach(side=>{
       ['familia','amigos','duvida','staff'].forEach(group=>{
         (state.guests[side][group]||[]).forEach((name,idx)=>{
           const key = guestKey(side,group,idx);
-          guestRows.push({
-            'Nome': name,
-            'Lado': side==='noiva'?'Noiva':'Noivo',
-            'Grupo': groupLabels[group],
-            'Confirmado': state.confirmed[key] ? 'Sim' : 'Não'
-          });
+          guestList.push({ name, side: side==='noiva'?'Noiva':'Noivo', group: groupLabels[group], confirmed: !!state.confirmed[key] });
         });
       });
     });
     (state.guests.criancas||[]).forEach((name,idx)=>{
-      guestRows.push({
-        'Nome': name,
-        'Lado': '—',
-        'Grupo': 'Criança',
-        'Confirmado': state.confirmed['crianca|'+idx] ? 'Sim' : 'Não'
-      });
+      guestList.push({ name, side:'—', group:'Criança', confirmed: !!state.confirmed['crianca|'+idx] });
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(guestRows), 'Convidados');
+    const guestDataRows = guestList.map((g,i)=>{
+      const alt = i%2===1;
+      const c = alt?XL_STYLES.cellAlt:XL_STYLES.cell;
+      const cc = alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter;
+      return [
+        xlCell(g.name, c),
+        xlCell(g.side, cc),
+        xlCell(g.group, cc),
+        xlCell(g.confirmed?'Confirmado':'Por confirmar', g.confirmed?XL_STYLES.confirmedYes:XL_STYLES.confirmedNo)
+      ];
+    });
+    const nConfirmed = guestList.filter(g=>g.confirmed).length;
+    const guestSheet = buildStyledSheet(coupleTitle, `Convidados · ${guestList.length} convidados · ${nConfirmed} confirmados`, ['Nome','Lado','Grupo','Estado'], guestDataRows, [26,12,16,18]);
+    XLSX.utils.book_append_sheet(wb, guestSheet, 'Convidados');
 
     // Mesas
-    const tableRows = [];
-    state.seating.tables.forEach(t=>{
+    const tableDataRows = [];
+    state.seating.tables.forEach((t,ti)=>{
       for(let s=1; s<=t.seats; s++){
         const key = t.id+'-'+s;
-        tableRows.push({
-          'Mesa': t.id,
-          'Forma': (TABLE_SHAPES[t.shape]||{}).label || t.shape,
-          'Lugar': s,
-          'Convidado': state.seating.assignments[key] || ''
-        });
+        const alt = ti%2===1;
+        const c = alt?XL_STYLES.cellAlt:XL_STYLES.cell;
+        const cc = alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter;
+        const guestName = state.seating.assignments[key] || '';
+        tableDataRows.push([
+          xlCell('Mesa '+t.id, cc),
+          xlCell((TABLE_SHAPES[t.shape]||{}).label || t.shape, cc),
+          xlCell(s, cc),
+          xlCell(guestName, guestName? c : { ...c, font:{...c.font, color:{rgb:XL_COLORS.tintaSuave}, italic:true} })
+        ]);
       }
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tableRows), 'Mesas');
+    const tableSheet = buildStyledSheet(coupleTitle, `Mesas e lugares · ${state.seating.tables.length} mesas`, ['Mesa','Forma','Lugar','Convidado'], tableDataRows, [14,14,10,26]);
+    XLSX.utils.book_append_sheet(wb, tableSheet, 'Mesas');
 
     // Fornecedores
-    const supRows = state.suppliers.map(s=>{
+    const supDataRows = state.suppliers.map((s,i)=>{
       const cat = catById(s.category);
-      return {
-        'Nome': s.name||'',
-        'Categoria': cat?cat.name:'',
-        'Contacto': s.contact||'',
-        'Preço': s.price||'',
-        'Estado': (SUPPLIER_STATUS[s.status]||{}).label || s.status || '',
-        'Notas': s.notas||''
-      };
+      const alt = i%2===1;
+      const c = alt?XL_STYLES.cellAlt:XL_STYLES.cell;
+      const cc = alt?XL_STYLES.cellCenterAlt:XL_STYLES.cellCenter;
+      return [
+        xlCell(s.name||'', c),
+        xlCell(cat?cat.name:'', cc),
+        xlCell(s.contact||'', cc),
+        xlCell(s.price||'', cc),
+        xlCell((SUPPLIER_STATUS[s.status]||{}).label || s.status || '', cc),
+        xlCell(s.notas||'', c)
+      ];
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(supRows), 'Fornecedores');
+    const supSheet = buildStyledSheet(coupleTitle, `Fornecedores · ${state.suppliers.length} guardados`, ['Nome','Categoria','Contacto','Preço','Estado','Notas'], supDataRows, [24,18,16,14,16,30]);
+    XLSX.utils.book_append_sheet(wb, supSheet, 'Fornecedores');
 
     const coupleName = `${weddingSettings.coupleName1||''}-${weddingSettings.coupleName2||''}`.replace(/[^a-zA-Z0-9-]/g,'') || 'casamento';
     XLSX.writeFile(wb, `weddy-${coupleName}.xlsx`);
@@ -5897,6 +5984,7 @@ if(FIREBASE_READY){
 }
 
 window.flushPendingSave = flushPendingSave;
+window.closeAllSheets = closeAllSheets;
 
 })();
 
@@ -5910,6 +5998,17 @@ if('serviceWorker' in navigator){
         if(document.visibilityState==='visible') reg.update().catch(()=>{});
       });
       setInterval(()=>reg.update().catch(()=>{}), 20*60*1000); // a cada 20 min, se a app ficar aberta
+
+      // O Safari, ao trazer a app de volta do fundo do telemóvel (em vez de a
+      // abrir de raiz), pode manter na página um estado antigo — por exemplo,
+      // um formulário que tinha ficado aberto antes de sair. Isto garante que
+      // ficamos sempre com um estado limpo assim que a pessoa volta a ver a app.
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState==='visible' && window.closeAllSheets) window.closeAllSheets();
+      });
+      window.addEventListener('pageshow', e=>{
+        if(e.persisted && window.closeAllSheets) window.closeAllSheets();
+      });
 
       reg.addEventListener('updatefound', ()=>{
         const installing = reg.installing;
