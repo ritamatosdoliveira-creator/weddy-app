@@ -5024,6 +5024,7 @@ function closeTodoCatSheet(){
 }
 
 function openDeleteAccountSheet(){
+  closeAllSheets();
   const isSoleOwner = currentWeddingOwners.length<=1;
   document.getElementById('delete-account-explain').innerHTML = isSoleOwner
     ? 'Isto vai apagar <b>definitivamente</b> todos os dados deste casamento — convidados, orçamento, gastos, mesas, tudo — e a tua conta de acesso. <b>Não é possível desfazer.</b>'
