@@ -2498,15 +2498,6 @@ function viewChecklist(){
     ${noivaOpen? `<div class="phase-card-tasks">${noivaTasksHTML}</div>` : ''}
   </div>
 
-  <div class="add-item-card" id="open-add-personal">
-    <div class="add-item-icon">${ICONS.plus}</div>
-    <div class="add-item-text">
-      <b>Adicionar novo item</b>
-      <span>Escreve aqui a tua tarefa, nota ou lembrete…</span>
-    </div>
-    <span class="task-row-chev">${ICONS.chev}</span>
-  </div>
-
   <div class="section-label">Checklist pessoal</div>
   <div class="list-group">
     ${personalHTML || `<div class="empty-note">adiciona aqui o que não pode faltar no teu dia</div>`}
@@ -3380,8 +3371,6 @@ function bindHandlers(){
     const input = document.getElementById('add-personal-item');
     if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>input.focus(), 250); }
   }
-  const openAddPersonal = document.getElementById('open-add-personal');
-  if(openAddPersonal) openAddPersonal.addEventListener('click', focusAddPersonal);
   const addPersonalToggleBtn = document.getElementById('add-personal-toggle-btn');
   if(addPersonalToggleBtn) addPersonalToggleBtn.addEventListener('click', focusAddPersonal);
 
@@ -5879,8 +5868,6 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   // do browser. Como esta app nunca muda o URL, não há nada nesse histórico
   // para "consumir" — por isso o primeiro gesto fechava a app de repente,
   // mesmo a meio de uma sub-página ou de um formulário aberto.
-  // Isto não muda nada no iOS: lá não existe um gesto de sistema equivalente
-  // ligado ao histórico do browser, por isso o comportamento fica igual.
   try{
     history.pushState({weddyGuard:true}, '', location.href);
   }catch(e){ return; }
@@ -5889,6 +5876,35 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
       try{ history.pushState({weddyGuard:true}, '', location.href); }catch(e){}
     }
   });
+})();
+
+/* ============================================================
+   GESTO DE "VOLTAR" A DESLIZAR DA MARGEM — iOS
+   O Safari/iOS TEM, sim, um gesto de sistema equivalente: deslizar
+   o dedo a partir da margem esquerda do ecrã volta à página
+   anterior, mostrando uma pré-visualização dela a deslizar por
+   baixo do dedo. Como esta app nunca muda de página a sério, não
+   há nenhuma "página anterior" real para mostrar — por isso essa
+   pré-visualização aparece em branco a meio do gesto, mesmo o
+   "popstate" acima a cancelar assim que o dedo larga o ecrã.
+   Isto impede o gesto de sequer começar: se o toque nasce mesmo
+   junto à margem (esquerda ou direita), ignoramos esse arrasto.
+   Toques que começam mais para dentro do ecrã continuam a
+   funcionar normalmente (scroll, swipe em carrosséis, etc.).
+============================================================ */
+(function preventEdgeSwipeBack(){
+  const EDGE_PX = 24;
+  let watching = false;
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1){ watching = false; return; }
+    const x = e.touches[0].clientX;
+    watching = (x <= EDGE_PX || x >= window.innerWidth - EDGE_PX);
+  }, { passive:true });
+  document.addEventListener('touchmove', function(e){
+    if(watching) e.preventDefault();
+  }, { passive:false });
+  document.addEventListener('touchend', function(){ watching = false; });
+  document.addEventListener('touchcancel', function(){ watching = false; });
 })();
 
 /* ============================================================
