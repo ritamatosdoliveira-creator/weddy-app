@@ -392,12 +392,6 @@ html{
 .task-tag-pill{ flex-shrink:0; font-size:9.5px; font-weight:600; color:var(--rust-dark); background:#F3E2D6; padding:3px 9px; border-radius:20px; }
 .task-row-chev{ display:flex; color:var(--ink-soft); flex-shrink:0; }
 .task-row-chev svg{ width:13px; height:13px; }
-.add-item-card{ display:flex; align-items:center; gap:12px; margin:6px 16px 20px; padding:14px; background:#F1E7DC; border-radius:16px; cursor:pointer; }
-.add-item-icon{ width:38px; height:38px; border-radius:50%; background:var(--rust); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.add-item-icon svg{ width:15px; height:15px; }
-.add-item-text{ flex:1; min-width:0; display:flex; flex-direction:column; }
-.add-item-text b{ font-family:'Cormorant Garamond',serif; font-size:14.5px; color:var(--ink); font-weight:600; }
-.add-item-text span{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
 .show-more-btn:active{ background:rgba(20,20,20,0.12); }
 .table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
 .shape-picker{ display:flex; gap:6px; }
@@ -693,6 +687,7 @@ html{
 .sheet-field label{ display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; }
 .sheet-field input, .sheet-field select{ width:100%; border:1px solid var(--line); background:#fff; border-radius:9px; padding:9px 10px; font-size:14.5px; color:var(--ink); font-family:inherit; outline:none; }
 .sheet-field input.field-error, .sheet-field select.field-error{ border-color:var(--rust-dark); box-shadow:0 0 0 3px rgba(193,88,62,0.13); }
+.title-input-inline.field-error{ border-radius:8px; box-shadow:0 0 0 2px var(--rust-dark); }
 .sheet-btns{ display:flex; gap:10px; margin-top:14px; }
 .btn-cancel, .btn-save{ all:unset; box-sizing:border-box; cursor:pointer; flex:1; text-align:center; padding:11px 0; border-radius:11px; font-size:14.5px; font-weight:600; }
 .btn-cancel{ background:rgba(20,20,20,0.07); color:var(--rust-dark); }
@@ -2266,13 +2261,23 @@ function bindGuestGroupHandlers(scope){
   });
   scope.querySelectorAll('[data-editguest]').forEach(inp=>{
     inp.addEventListener('input', e=>{
+      const val = e.target.value;
+      if(!val.trim()){ return; } // nunca grava um nome vazio — mantém o último válido no estado
+      e.target.classList.remove('field-error');
       const [side,cat,idx] = e.currentTarget.dataset.editguest.split('|');
       const arr = getGuestNames(side,cat);
       if(!arr) return;
       const item = arr[Number(idx)];
-      if(item && typeof item==='object') item.name = e.target.value;
-      else arr[Number(idx)] = e.target.value;
+      if(item && typeof item==='object') item.name = val;
+      else arr[Number(idx)] = val;
       pushRemote();
+    });
+    inp.addEventListener('blur', e=>{
+      // A pessoa saiu do campo com o nome apagado — o nome é obrigatório.
+      // Não repomos nada sozinhos: o campo fica só com o contorno vermelho,
+      // e o nome anterior continua guardado por trás (nunca gravámos o
+      // vazio) até a pessoa escrever um nome novo.
+      if(!e.target.value.trim()) e.target.classList.add('field-error');
     });
   });
   scope.querySelectorAll('[data-editchildage]').forEach(inp=>{
@@ -2714,7 +2719,7 @@ function viewChecklist(){
   }).join('');
 
   return `
-  ${pageHeader('checklist-back', 'Checklist', 'Pequenos passos, grandes momentos.<br>Vamos a isso?', `<button class="nav-action" id="add-personal-toggle-btn">${ICONS.plus}</button>`)}
+  ${pageHeader('checklist-back', 'Checklist', 'Pequenos passos, grandes momentos.<br>Vamos a isso?')}
 
   <div class="check-progress-card">
     <div class="ring-wrap" style="width:64px;height:64px;flex-shrink:0;">
@@ -2750,15 +2755,6 @@ function viewChecklist(){
       </div>
     </div>
     ${noivaOpen? `<div class="phase-card-tasks">${noivaTasksHTML}</div>` : ''}
-  </div>
-
-  <div class="add-item-card" id="open-add-personal">
-    <div class="add-item-icon">${ICONS.plus}</div>
-    <div class="add-item-text">
-      <b>Adicionar novo item</b>
-      <span>Escreve aqui a tua tarefa, nota ou lembrete…</span>
-    </div>
-    <span class="task-row-chev">${ICONS.chev}</span>
   </div>
 
   <div class="section-label">Checklist pessoal</div>
@@ -3457,10 +3453,6 @@ function viewDefExportar(){
     <div class="about-card-text">Um resumo pronto a imprimir ou a partilhar — ideal para guardar ou levar contigo no grande dia.</div>
     <button class="login-btn" id="export-pdf-btn" style="margin-top:12px;">Ver e guardar como PDF</button>
   </div>
-
-  <div class="empty-note" style="margin:0 16px 20px; font-style:normal; line-height:1.5;">
-    ${ICONS.warn} No iPhone, ao descarregar, pode aparecer um ecrã só com o ficheiro, sem nenhum botão visível para voltar. Se isso acontecer: desliza para cima a partir do fundo do ecrã (ou faz duplo-clique no botão lateral) para veres as apps abertas, e volta a escolher a Weddy — sem precisares de a fechar nem voltar a abrir.
-  </div>
   <div style="height:10px;"></div>
   `;
 }
@@ -3633,15 +3625,6 @@ function bindHandlers(){
     state.checklistPersonal.push({ text, status });
     render();
   });
-  function focusAddPersonal(){
-    closeAllSheets();
-    const input = document.getElementById('add-personal-item');
-    if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>input.focus(), 250); }
-  }
-  const openAddPersonal = document.getElementById('open-add-personal');
-  if(openAddPersonal) openAddPersonal.addEventListener('click', focusAddPersonal);
-  const addPersonalToggleBtn = document.getElementById('add-personal-toggle-btn');
-  if(addPersonalToggleBtn) addPersonalToggleBtn.addEventListener('click', focusAddPersonal);
 
   // Say Yes to the Dress
   const vestidoBack = document.getElementById('vestido-back');
@@ -5996,10 +5979,12 @@ function exportToPDF(){
     h2{ font-size:18px; color:#9A4F3D; margin:28px 0 10px; border-bottom:1px solid #e0d8ce; padding-bottom:6px; }
     table{ width:100%; border-collapse:collapse; font-size:13px; }
     td, th{ padding:6px 8px; border-bottom:1px solid #eee; text-align:left; }
-    @media print { body{ padding:12px; } .close-pdf-btn{ display:none; } }
+    @media print { body{ padding:12px; } .close-pdf-btn-wrap{ display:none; } }
   </style>
   </head><body>
-    <button class="close-pdf-btn" onclick="window.close()" style="position:sticky; top:0; z-index:10; float:right; background:#9A4F3D; color:#fff; border:none; border-radius:20px; padding:10px 20px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer;">✕ Fechar</button>
+    <div class="close-pdf-btn-wrap" style="text-align:right; margin-bottom:18px;">
+      <button class="close-pdf-btn" onclick="window.close()" style="background:#9A4F3D; color:#fff; border:none; border-radius:20px; padding:10px 20px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer;">✕ Fechar</button>
+    </div>
     <h1>${c1} &amp; ${c2}</h1>
     <div class="sub">${dateStr} · ${venue}</div>
 
