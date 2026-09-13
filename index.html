@@ -3457,6 +3457,10 @@ function viewDefExportar(){
     <div class="about-card-text">Um resumo pronto a imprimir ou a partilhar — ideal para guardar ou levar contigo no grande dia.</div>
     <button class="login-btn" id="export-pdf-btn" style="margin-top:12px;">Ver e guardar como PDF</button>
   </div>
+
+  <div class="empty-note" style="margin:0 16px 20px; font-style:normal; line-height:1.5;">
+    ${ICONS.warn} No iPhone, ao descarregar, pode aparecer um ecrã só com o ficheiro, sem nenhum botão visível para voltar. Se isso acontecer: desliza para cima a partir do fundo do ecrã (ou faz duplo-clique no botão lateral) para veres as apps abertas, e volta a escolher a Weddy — sem precisares de a fechar nem voltar a abrir.
+  </div>
   <div style="height:10px;"></div>
   `;
 }
@@ -5992,9 +5996,10 @@ function exportToPDF(){
     h2{ font-size:18px; color:#9A4F3D; margin:28px 0 10px; border-bottom:1px solid #e0d8ce; padding-bottom:6px; }
     table{ width:100%; border-collapse:collapse; font-size:13px; }
     td, th{ padding:6px 8px; border-bottom:1px solid #eee; text-align:left; }
-    @media print { body{ padding:12px; } }
+    @media print { body{ padding:12px; } .close-pdf-btn{ display:none; } }
   </style>
   </head><body>
+    <button class="close-pdf-btn" onclick="window.close()" style="position:sticky; top:0; z-index:10; float:right; background:#9A4F3D; color:#fff; border:none; border-radius:20px; padding:10px 20px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer;">✕ Fechar</button>
     <h1>${c1} &amp; ${c2}</h1>
     <div class="sub">${dateStr} · ${venue}</div>
 
@@ -6309,13 +6314,11 @@ if('serviceWorker' in navigator){
         });
       });
     }).catch(()=>{});
-
-    let reloadedOnce = false;
-    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-      if(reloadedOnce) return;
-      reloadedOnce = true;
-      location.reload();
-    });
+    // Nota: já não recarregamos automaticamente aqui ao mudar de controlador
+    // — isso disparava um recarregar sozinho mal a atualização instalasse,
+    // cortando o aviso "A Weddy foi atualizada" a meio antes da pessoa
+    // conseguir tocar em "Atualizar agora". Agora só recarrega quando o
+    // próprio botão é mesmo tocado (ver showUpdateBanner mais abaixo).
   });
 }
 function showUpdateBanner(){
