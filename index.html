@@ -449,6 +449,11 @@ html{
 .sup-banner-btn svg{ width:14px; height:14px; }
 .sup-banner-art{ width:64px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#B99C86; opacity:.85; }
 .sup-banner-art svg{ width:52px; height:auto; }
+.sup-notice{ display:flex; align-items:flex-start; gap:11px; margin:0 18px 14px; padding:13px 14px; border-radius:14px; background:var(--card); border:1px solid var(--line); }
+.sup-notice-icon{ width:30px; height:30px; border-radius:9px; background:#EFE3DA; color:#B08D77; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sup-notice-icon svg{ width:14px; height:14px; }
+.sup-notice-text{ flex:1; min-width:0; font-size:12px; line-height:1.5; color:var(--ink-soft); }
+.sup-notice-text b{ color:var(--ink); }
 .sup-section-head{ display:flex; align-items:center; justify-content:space-between; margin:0 18px 10px; font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); }
 .sup-list{ margin:0 18px 18px; display:flex; flex-direction:column; gap:9px; }
 .hm-list{ margin:0 16px 8px; display:flex; flex-direction:column; gap:10px; }
@@ -545,6 +550,55 @@ html{
 .visit-action-btn svg{ width:14px; height:14px; }
 .visit-action-btn.danger{ background:rgba(193,88,62,0.1); color:var(--rust-dark); }
 .visit-action-btn:active{ opacity:.75; }
+/* --- Ficha completa do fornecedor --- */
+.supd-card{ display:flex; align-items:center; gap:13px; margin:2px 16px 16px; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); }
+.supd-photo-wrap{ position:relative; width:64px; height:64px; border-radius:16px; flex-shrink:0; cursor:pointer; }
+.supd-photo, .supd-photo-fallback{ width:64px; height:64px; border-radius:16px; object-fit:cover; }
+.supd-photo-fallback{ background:#EFE3DA; color:#B08D77; display:flex; align-items:center; justify-content:center; }
+.supd-photo-fallback svg{ width:24px; height:24px; }
+.supd-photo-edit{ position:absolute; bottom:-4px; right:-4px; width:22px; height:22px; border-radius:50%; background:#C3A092; color:#fff; display:flex; align-items:center; justify-content:center; border:2px solid var(--card); }
+.supd-photo-edit svg{ width:10px; height:10px; }
+.supd-info{ flex:1; min-width:0; }
+.supd-name{ font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); line-height:1.2; margin-bottom:4px; overflow-wrap:anywhere; }
+.supd-name-input{ all:unset; box-sizing:border-box; display:block; width:100%; font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); line-height:1.2; margin-bottom:4px; padding-bottom:2px; border-bottom:1px solid transparent; }
+.supd-name-input:focus{ border-bottom:1px solid var(--line); }
+.supd-cat{ font-size:11px; color:var(--ink-soft); }
+.supd-cat-select{ all:unset; box-sizing:border-box; font-size:11px; color:var(--ink-soft); cursor:pointer; }
+.supd-status-badge{ flex-shrink:0; padding:5px 11px; border-radius:12px; font-size:10.5px; font-weight:600; align-self:flex-start; }
+.supd-status-select{ flex-shrink:0; padding:5px 9px; border-radius:12px; font-size:10.5px; font-weight:600; align-self:flex-start; border:none; font-family:inherit; cursor:pointer; }
+.supd-contact-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 16px 20px; }
+.supd-contact-btn{ all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:12px 4px; border-radius:14px; background:var(--card); border:1px solid var(--line); color:var(--ink); cursor:pointer; text-align:center; }
+.supd-contact-btn:active{ background:#FBF6F2; }
+.supd-contact-btn.disabled{ opacity:.4; cursor:default; }
+.supd-contact-btn svg{ width:18px; height:18px; color:var(--rust-dark); }
+.supd-contact-btn span{ font-size:10px; font-weight:500; }
+.supd-pay-card{ margin:0 16px 12px; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+.supd-pay-top{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:9px; }
+.supd-pay-paid{ font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:var(--ink); }
+.supd-pay-rest{ font-size:12px; color:var(--ink-soft); text-align:right; }
+.supd-pay-bar-track{ height:6px; border-radius:4px; background:var(--cream2); overflow:hidden; margin-bottom:6px; }
+.supd-pay-bar-fill{ height:100%; border-radius:4px; background:var(--sage-dark); }
+.supd-pay-pct{ font-size:10.5px; color:var(--ink-soft); }
+.supd-pay-list{ margin-top:12px; border-top:1px solid var(--line); }
+.supd-pay-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+.supd-pay-row:last-child{ border-bottom:none; }
+.supd-pay-row .amount{ font-weight:600; color:var(--ink); font-size:14px; }
+.supd-pay-addrow{ display:flex; gap:8px; margin-top:10px; align-items:center; }
+.supd-pay-addrow input{ border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 9px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; }
+.supd-pay-addrow input[type="date"]{ flex:1.2; min-width:0; }
+.supd-pay-addrow input[type="number"]{ flex:1; min-width:0; }
+.supd-field-card{ margin:0 16px 12px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+.supd-field-card label{ display:block; font-size:11px; color:var(--ink-soft); margin-bottom:6px; }
+.supd-field-card input, .supd-field-card textarea{ width:100%; border:none; background:transparent; padding:0; font-size:14.5px; font-family:inherit; color:var(--ink); outline:none; resize:none; }
+.supd-field-card textarea{ min-height:44px; }
+.supd-field-2col{ display:flex; gap:12px; }
+.supd-field-2col > div{ flex:1; min-width:0; }
+.supd-contract-row{ display:flex; align-items:center; gap:11px; margin:0 16px 12px; padding:13px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); cursor:pointer; }
+.supd-contract-icon{ width:36px; height:36px; border-radius:10px; background:#EFE3DA; color:#B08D77; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.supd-contract-icon svg{ width:16px; height:16px; }
+.supd-contract-text{ flex:1; min-width:0; }
+.supd-contract-name{ font-size:13.5px; color:var(--ink); font-weight:500; overflow-wrap:anywhere; }
+.supd-contract-sub{ font-size:11px; color:var(--ink-soft); margin-top:1px; }
 .table-head:active{ background:rgba(20,20,20,0.035); }
 .table-head .icon-chip{ width:28px; height:28px; }
 .table-head .ttitle{ flex:1; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--heading); }
@@ -892,26 +946,6 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
     <div class="sheet-btns">
       <button class="btn-cancel" id="delete-account-cancel">Cancelar</button>
       <button class="btn-save" id="delete-account-confirm" style="background:var(--rust-dark);">Eliminar definitivamente</button>
-    </div>
-  </div>
-  <div class="sheet" id="supplier-sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="supplier-sheet-title">Novo fornecedor</div>
-    <div class="sheet-field"><label>Nome</label><input type="text" id="sup-name" placeholder="Ex: Quinta da Alegria"></div>
-    <div class="sheet-field"><label>Categoria</label><select id="sup-cat"></select></div>
-    <div class="sheet-field"><label>Contacto</label><input type="text" id="sup-contact" placeholder="Telefone ou email"></div>
-    <div class="sheet-field"><label>Preço</label><input type="text" id="sup-price" placeholder="Ex: 1500€ ou a combinar"></div>
-    <div class="sheet-field"><label>Estado</label>
-      <select id="sup-status">
-        <option value="considerar">A considerar</option>
-        <option value="contactado">Contactado</option>
-        <option value="contratado">Contratado</option>
-      </select>
-    </div>
-    <div class="sheet-field"><label>Notas</label><input type="text" id="sup-notas" placeholder="Preço, disponibilidade…"></div>
-    <div class="sheet-btns">
-      <button class="btn-cancel" id="sup-cancel">Cancelar</button>
-      <button class="btn-save" id="sup-save">Guardar</button>
     </div>
   </div>
   <div class="sheet" id="visit-sheet">
@@ -1523,6 +1557,8 @@ function collapseAllSections(){
   supplierQuery = '';
   guestFilter = '';
   definicoesSection = null;
+  fornecedoresSubview = 'lista';
+  openSupplierDetailId = null;
 }
 let openDressVisit = {};
 let openSupplierCat = {};
@@ -1534,7 +1570,8 @@ let hmOpenOptionId = null;
 let hmDraftOption = null;
 let supplierFilter = 'todos';
 let supplierQuery = '';
-let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados'
+let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados' | 'detalhe'
+let openSupplierDetailId = null;
 let showFilterChips = false;
 let definicoesSection = null;
 let dressInspirations = [];
@@ -3060,6 +3097,7 @@ function viewLuademelOption(o){
 
 function viewFornecedores(){
   if(fornecedoresSubview === 'recomendados') return viewFornecedoresRecomendados();
+  if(fornecedoresSubview === 'detalhe') return viewFornecedorDetalhe();
 
   const chips = [{id:'todos', label:'Todos'}].concat(state.categories.map(c=>({id:c.id, label:c.name})));
   const chipsHTML = chips.map(c=>`
@@ -3088,9 +3126,21 @@ function viewFornecedores(){
   <div class="sup-section-head">
     <span>Os teus fornecedores</span>
   </div>
+  ${state.suppliers.length ? supplierDetailNoticeHTML() : ''}
   <div id="sup-results">${buildSupplierResults()}</div>
   <div style="height:10px;"></div>
   `;
+}
+function supplierDetailNoticeHTML(){
+  let dismissed = false;
+  try{ dismissed = localStorage.getItem('weddy-supplier-detail-notice-dismissed') === '1'; }catch(e){}
+  if(dismissed) return '';
+  return `
+  <div class="sup-notice" id="sup-detail-notice">
+    <div class="sup-notice-icon">${ICONS.docnote}</div>
+    <div class="sup-notice-text"><b>Novidade:</b> toca num fornecedor para abrires a ficha completa — dá para registares pagamentos, contrato, próximo passo e mais.</div>
+    <button class="remove-x" id="sup-detail-notice-close">✕</button>
+  </div>`;
 }
 function viewFornecedoresRecomendados(){
   const groups = state.categories.map(cat=>{
@@ -3135,8 +3185,8 @@ function buildSupplierResults(){
       phone: s.contact,
       local: '',
       price: s.price,
-      site: s.notas,
-      attrs: `data-editsupplier="${s.id}"`
+      site: s.website,
+      attrs: `data-opensupplier="${s.id}"`
     });
   }).join('');
 
@@ -3155,11 +3205,11 @@ function softUpdateFornecedores(){
 }
 function bindSupplierResultHandlers(){
   const addSupplierCard = document.getElementById('add-supplier-card');
-  if(addSupplierCard) addSupplierCard.addEventListener('click', ()=>openSupplierSheet());
-  document.querySelectorAll('[data-editsupplier]').forEach(row=>{
+  if(addSupplierCard) addSupplierCard.addEventListener('click', ()=>createSupplier());
+  document.querySelectorAll('[data-opensupplier]').forEach(row=>{
     row.addEventListener('click', e=>{
       if(e.target.closest('[data-delsupplier]')) return;
-      openSupplierSheet(e.currentTarget.dataset.editsupplier);
+      openSupplierDetail(e.currentTarget.dataset.opensupplier);
     });
   });
   document.querySelectorAll('[data-delsupplier]').forEach(btn=>{
@@ -3170,6 +3220,280 @@ function bindSupplierResultHandlers(){
         render();
       }
     });
+  });
+}
+
+/* ============================================================
+   VIEW: Ficha completa do fornecedor
+   A foto e o contrato ficam só no telemóvel (localStorage), tal
+   como as fotos de inspiração — evita encher o documento
+   partilhado na Firestore com ficheiros grandes. Os restantes
+   dados (pagamentos, notas, etc.) fazem parte do state normal.
+============================================================ */
+const SUPPLIER_STATUS_BG = { considerar:'#F3E4DC', contactado:'#EAE6E0', contratado:'#E7EBE1' };
+function supplierPhotoKey(id){ return 'weddy-sup-photo-'+id; }
+function supplierContractKey(id){ return 'weddy-sup-contract-'+id; }
+function getSupplierPhoto(id){ try{ return localStorage.getItem(supplierPhotoKey(id)); }catch(e){ return null; } }
+function setSupplierPhoto(id, dataUrl){ try{ localStorage.setItem(supplierPhotoKey(id), dataUrl); }catch(e){ showSaveToast(true); alert('Não foi possível guardar a foto — o telemóvel pode estar sem espaço de armazenamento.'); } }
+function removeSupplierPhoto(id){ try{ localStorage.removeItem(supplierPhotoKey(id)); }catch(e){} }
+function getSupplierContract(id){ try{ const raw = localStorage.getItem(supplierContractKey(id)); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
+function setSupplierContract(id, obj){ try{ localStorage.setItem(supplierContractKey(id), JSON.stringify(obj)); }catch(e){ showSaveToast(true); alert('Não foi possível guardar o contrato — o telemóvel pode estar sem espaço de armazenamento.'); } }
+function removeSupplierContract(id){ try{ localStorage.removeItem(supplierContractKey(id)); }catch(e){} }
+function supplierPaidTotal(s){ return (s.payments||[]).reduce((sum,p)=>sum+(Number(p.amount)||0),0); }
+function openSupplierDetail(id){
+  closeAllSheets();
+  openSupplierDetailId = id;
+  fornecedoresSubview = 'detalhe';
+  _origRender();
+}
+function viewFornecedorDetalhe(){
+  const s = state.suppliers.find(x=>x.id===openSupplierDetailId);
+  if(!s){ fornecedoresSubview = 'lista'; openSupplierDetailId = null; return viewFornecedores(); }
+  const statusInfo = SUPPLIER_STATUS[s.status] || SUPPLIER_STATUS.considerar;
+  const photo = getSupplierPhoto(s.id);
+  const contract = getSupplierContract(s.id);
+  const paid = supplierPaidTotal(s);
+  const total = Number(s.valorTotal)||0;
+  const rest = Math.max(0, total-paid);
+  const pct = total ? Math.min(100, Math.round(paid/total*100)) : 0;
+  const paymentsHTML = (s.payments||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>`
+    <div class="supd-pay-row">
+      <div class="title" style="flex:1; font-size:13.5px; color:var(--ink);">${p.date?formatDateShortPT(p.date):'Sem data'}</div>
+      <div class="amount">${fmtEUR(Number(p.amount)||0)}</div>
+      <button class="remove-x" data-delsuppay="${p.id}">✕</button>
+    </div>`).join('');
+
+  return `
+  ${pageHeader('fornecedor-detail-back', 'Fornecedor')}
+
+  <div class="supd-card">
+    <div class="supd-photo-wrap" id="supd-photo-btn">
+      ${photo ? `<img src="${photo}" class="supd-photo" alt="">` : `<div class="supd-photo-fallback">${ICONS.briefcase}</div>`}
+      <div class="supd-photo-edit">${ICONS.camera}</div>
+    </div>
+    <input type="file" id="supd-photo-input" accept="image/*" style="display:none;">
+    <div class="supd-info">
+      <input type="text" id="supd-name-input" class="supd-name-input" value="${escapeHTML(s.name)}" placeholder="Nome do fornecedor">
+      <select id="supd-cat-select" class="supd-cat-select">
+        ${state.categories.map(c=>`<option value="${c.id}" ${c.id===s.category?'selected':''}>${escapeHTML(c.name)}</option>`).join('')}
+      </select>
+    </div>
+    <select id="supd-status-select" class="supd-status-select" style="background:${SUPPLIER_STATUS_BG[s.status]||'#F3E4DC'}; color:${statusInfo.color};">
+      <option value="considerar" ${s.status==='considerar'?'selected':''}>A considerar</option>
+      <option value="contactado" ${s.status==='contactado'?'selected':''}>Contactado</option>
+      <option value="contratado" ${s.status==='contratado'?'selected':''}>Contratado</option>
+    </select>
+  </div>
+
+  <div class="supd-field-card">
+    <div class="supd-field-2col" style="margin-bottom:12px;">
+      <div><label>Telefone</label><input type="text" id="supd-phone" value="${escapeHTML(s.contact||'')}" placeholder="+351 912 345 678"></div>
+      <div><label>Preço</label><input type="text" id="supd-price" value="${escapeHTML(s.price||'')}" placeholder="Ex: 1500€"></div>
+    </div>
+    <div class="supd-field-2col">
+      <div><label>Email</label><input type="email" id="supd-email" value="${escapeHTML(s.email||'')}" placeholder="geral@fornecedor.pt"></div>
+      <div><label>Website</label><input type="text" id="supd-website" value="${escapeHTML(s.website||'')}" placeholder="www.fornecedor.pt"></div>
+    </div>
+  </div>
+
+  <div class="supd-contact-row">
+    <button class="supd-contact-btn ${s.contact?'':'disabled'}" ${s.contact?'data-supd-call':'disabled'}>${ICONS.phone}<span>Telefone</span></button>
+    <button class="supd-contact-btn ${s.email?'':'disabled'}" ${s.email?'data-supd-email':'disabled'}>${ICONS.mail}<span>Email</span></button>
+    <button class="supd-contact-btn ${s.website?'':'disabled'}" ${s.website?'data-supd-site':'disabled'}>${ICONS.globe}<span>Website</span></button>
+    <button class="supd-contact-btn" id="supd-contact-contract">${ICONS.docnote}<span>Contrato</span></button>
+  </div>
+
+  <div class="section-label">Pagamentos</div>
+  <div class="supd-pay-card">
+    <div class="sheet-field" style="margin-bottom:12px;"><label>Valor total contratado (€)</label><input type="number" min="0" id="supd-valortotal" value="${s.valorTotal||''}" placeholder="Ex: 2500"></div>
+    <div class="supd-pay-top">
+      <div><div class="supd-pay-paid" id="supd-paid-val">${fmtEUR(paid)}</div><div class="supd-pay-pct">pago</div></div>
+      <div class="supd-pay-rest"><span id="supd-rest-val">${fmtEUR(rest)}</span><br>por pagar</div>
+    </div>
+    <div class="supd-pay-bar-track"><div class="supd-pay-bar-fill" id="supd-pay-bar" style="width:${pct}%;"></div></div>
+    <div class="supd-pay-pct" id="supd-pay-pct-label">${pct}% pago</div>
+    <div class="supd-pay-list" id="supd-pay-list">${paymentsHTML || '<div class="empty-note" style="margin:10px 0 0;">Ainda sem pagamentos registados.</div>'}</div>
+    <div class="supd-pay-addrow">
+      <input type="date" id="supd-pay-date">
+      <input type="number" min="0" id="supd-pay-amount" placeholder="Valor €">
+      <button class="add-circle" id="supd-pay-add">${ICONS.plus}</button>
+    </div>
+  </div>
+
+  <div class="supd-field-card">
+    <div class="supd-field-2col">
+      <div><label>Próximo pagamento</label><input type="date" id="supd-nextpaydate" value="${s.nextPaymentDate||''}"></div>
+      <div><label>Valor (€)</label><input type="number" min="0" id="supd-nextpayamount" value="${s.nextPaymentAmount||''}" placeholder="Ex: 600"></div>
+    </div>
+  </div>
+
+  <div class="section-label">Contrato</div>
+  <div class="supd-contract-row" id="supd-contract-row">
+    <div class="supd-contract-icon">${ICONS.docnote}</div>
+    <div class="supd-contract-text">
+      <div class="supd-contract-name">${contract? escapeHTML(contract.name) : 'Adicionar contrato'}</div>
+      <div class="supd-contract-sub">${contract? 'Toca para ver' : 'PDF ou foto do contrato'}</div>
+    </div>
+    ${contract? `<button class="remove-x" id="supd-contract-remove">✕</button>` : ICONS.chev}
+  </div>
+  <input type="file" id="supd-contract-input" accept="application/pdf,image/*" style="display:none;">
+
+  <div class="section-label">Notas</div>
+  <div class="supd-field-card"><label>Notas</label><textarea id="supd-notas" placeholder="Ex: pedir orçamento atualizado, confirmar disponibilidade…">${escapeHTML(s.notas||'')}</textarea></div>
+
+  <div class="section-label">Próximo passo</div>
+  <div class="supd-field-card"><label>O que falta tratar</label><input type="text" id="supd-nextstep" value="${escapeHTML(s.nextStep||'')}" placeholder="Ex: Enviar horário da cerimónia"></div>
+
+  <div class="section-label">Última conversa</div>
+  <div class="supd-field-card"><label>Data do último contacto</label><input type="date" id="supd-lastcontact" value="${s.lastContact||''}"></div>
+
+  <div style="display:flex; gap:9px; margin:20px 16px 30px;">
+    <button class="visit-action-btn danger" id="supd-delete-btn" style="flex:none; width:100%;">${ICONS.trash} Eliminar fornecedor</button>
+  </div>
+  `;
+}
+function softUpdateSupplierPayments(){
+  const s = state.suppliers.find(x=>x.id===openSupplierDetailId);
+  if(!s) return;
+  const paid = supplierPaidTotal(s);
+  const total = Number(s.valorTotal)||0;
+  const rest = Math.max(0, total-paid);
+  const pct = total ? Math.min(100, Math.round(paid/total*100)) : 0;
+  const paidEl = document.getElementById('supd-paid-val'); if(paidEl) paidEl.textContent = fmtEUR(paid);
+  const restEl = document.getElementById('supd-rest-val'); if(restEl) restEl.textContent = fmtEUR(rest);
+  const barEl = document.getElementById('supd-pay-bar'); if(barEl) barEl.style.width = pct+'%';
+  const pctEl = document.getElementById('supd-pay-pct-label'); if(pctEl) pctEl.textContent = pct+'% pago';
+  pushRemote();
+}
+function bindFornecedorDetalheHandlers(){
+  const backBtn = document.getElementById('fornecedor-detail-back');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ fornecedoresSubview = 'lista'; openSupplierDetailId = null; _origRender(); });
+
+  const s = state.suppliers.find(x=>x.id===openSupplierDetailId);
+  if(!s) return;
+
+  const photoBtn = document.getElementById('supd-photo-btn');
+  const photoInput = document.getElementById('supd-photo-input');
+  if(photoBtn && photoInput){
+    photoBtn.addEventListener('click', ()=>photoInput.click());
+    photoInput.addEventListener('change', async (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      try{
+        const dataUrl = await resizeImageFile(file, 500, 0.8);
+        setSupplierPhoto(s.id, dataUrl);
+        _origRender();
+      }catch(err){}
+    });
+  }
+
+  document.querySelectorAll('[data-supd-call]').forEach(b=>b.addEventListener('click', ()=>{ window.location.href = 'tel:'+s.contact.replace(/\s+/g,''); }));
+  document.querySelectorAll('[data-supd-email]').forEach(b=>b.addEventListener('click', ()=>{ window.location.href = 'mailto:'+s.email; }));
+  document.querySelectorAll('[data-supd-site]').forEach(b=>b.addEventListener('click', ()=>{
+    let url = s.website.trim();
+    if(!/^https?:\/\//i.test(url)) url = 'https://'+url;
+    window.open(url, '_blank');
+  }));
+
+  const nameInput = document.getElementById('supd-name-input');
+  if(nameInput) nameInput.addEventListener('change', e=>{
+    const val = e.target.value.trim();
+    s.name = val || 'Novo fornecedor';
+    e.target.value = s.name;
+    pushRemote(true);
+  });
+  const catSelect = document.getElementById('supd-cat-select');
+  if(catSelect) catSelect.addEventListener('change', e=>{ s.category = e.target.value; pushRemote(true); });
+  const statusSelect = document.getElementById('supd-status-select');
+  if(statusSelect) statusSelect.addEventListener('change', e=>{
+    s.status = e.target.value;
+    const info = SUPPLIER_STATUS[s.status] || SUPPLIER_STATUS.considerar;
+    e.target.style.background = SUPPLIER_STATUS_BG[s.status] || '#F3E4DC';
+    e.target.style.color = info.color;
+    pushRemote(true);
+  });
+  const softUpdateSupplierContactButtons = ()=>{ render(); };
+  const phoneInput = document.getElementById('supd-phone');
+  if(phoneInput) phoneInput.addEventListener('change', e=>{ s.contact = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+  const priceInput = document.getElementById('supd-price');
+  if(priceInput) priceInput.addEventListener('change', e=>{ s.price = e.target.value.trim(); pushRemote(true); });
+  const emailInput = document.getElementById('supd-email');
+  if(emailInput) emailInput.addEventListener('change', e=>{ s.email = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+  const websiteInput = document.getElementById('supd-website');
+  if(websiteInput) websiteInput.addEventListener('change', e=>{ s.website = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+
+  const contractRow = document.getElementById('supd-contract-row');
+  const contractInput = document.getElementById('supd-contract-input');
+  const contractQuickBtn = document.getElementById('supd-contact-contract');
+  const openOrPickContract = ()=>{
+    const c = getSupplierContract(s.id);
+    if(c && c.dataUrl) window.open(c.dataUrl, '_blank');
+    else if(contractInput) contractInput.click();
+  };
+  if(contractRow) contractRow.addEventListener('click', (e)=>{ if(e.target.closest('#supd-contract-remove')) return; openOrPickContract(); });
+  if(contractQuickBtn) contractQuickBtn.addEventListener('click', openOrPickContract);
+  const contractRemove = document.getElementById('supd-contract-remove');
+  if(contractRemove) contractRemove.addEventListener('click', e=>{
+    e.stopPropagation();
+    if(confirm('Remover o contrato guardado?')){ removeSupplierContract(s.id); _origRender(); }
+  });
+  if(contractInput) contractInput.addEventListener('change', async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    try{
+      let dataUrl;
+      if(file.type && file.type.startsWith('image/')) dataUrl = await resizeImageFile(file, 1400, 0.82);
+      else dataUrl = await new Promise((resolve,reject)=>{ const r = new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); });
+      setSupplierContract(s.id, { name:file.name, dataUrl });
+      _origRender();
+    }catch(err){}
+    e.target.value = '';
+  });
+
+  const valorTotalInp = document.getElementById('supd-valortotal');
+  if(valorTotalInp) valorTotalInp.addEventListener('input', e=>{ s.valorTotal = Math.max(0, Number(e.target.value)||0); softUpdateSupplierPayments(); });
+
+  const payAddBtn = document.getElementById('supd-pay-add');
+  if(payAddBtn) payAddBtn.addEventListener('click', ()=>{
+    const dateEl = document.getElementById('supd-pay-date');
+    const amountEl = document.getElementById('supd-pay-amount');
+    const amount = Number(amountEl.value);
+    if(!amount || amount<=0){ flagRequiredField(amountEl); return; }
+    if(!s.payments) s.payments = [];
+    s.payments.push({ id:'suppay'+Date.now()+Math.random().toString(36).slice(2,6), date:dateEl.value, amount });
+    render();
+    pushRemote(true);
+  });
+  document.querySelectorAll('[data-delsuppay]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      s.payments = (s.payments||[]).filter(p=>p.id!==e.currentTarget.dataset.delsuppay);
+      render();
+      pushRemote(true);
+    });
+  });
+
+  const nextPayDate = document.getElementById('supd-nextpaydate');
+  if(nextPayDate) nextPayDate.addEventListener('change', e=>{ s.nextPaymentDate = e.target.value; pushRemote(true); });
+  const nextPayAmount = document.getElementById('supd-nextpayamount');
+  if(nextPayAmount) nextPayAmount.addEventListener('change', e=>{ s.nextPaymentAmount = Math.max(0, Number(e.target.value)||0); pushRemote(true); });
+
+  const notasEl = document.getElementById('supd-notas');
+  if(notasEl) notasEl.addEventListener('change', e=>{ s.notas = e.target.value; pushRemote(true); });
+  const nextStepEl = document.getElementById('supd-nextstep');
+  if(nextStepEl) nextStepEl.addEventListener('change', e=>{ s.nextStep = e.target.value.trim(); pushRemote(true); });
+  const lastContactEl = document.getElementById('supd-lastcontact');
+  if(lastContactEl) lastContactEl.addEventListener('change', e=>{ s.lastContact = e.target.value; pushRemote(true); });
+
+  const deleteBtn = document.getElementById('supd-delete-btn');
+  if(deleteBtn) deleteBtn.addEventListener('click', ()=>{
+    if(confirm('Eliminar este fornecedor? Esta ação não pode ser desfeita.')){
+      state.suppliers = state.suppliers.filter(x=>x.id!==s.id);
+      removeSupplierPhoto(s.id);
+      removeSupplierContract(s.id);
+      fornecedoresSubview = 'lista';
+      openSupplierDetailId = null;
+      render();
+    }
   });
 }
 
@@ -3921,7 +4245,7 @@ function bindHandlers(){
   const fornecedoresBack = document.getElementById('fornecedores-back');
   if(fornecedoresBack) fornecedoresBack.addEventListener('click', ()=>{ closeAllSheets(); activeTab='inicio'; fornecedoresSubview='lista'; _origRender(); });
   const addSupplierBtn = document.getElementById('add-supplier-btn');
-  if(addSupplierBtn) addSupplierBtn.addEventListener('click', ()=>openSupplierSheet());
+  if(addSupplierBtn) addSupplierBtn.addEventListener('click', ()=>createSupplier());
   document.querySelectorAll('[data-supfilter]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       supplierFilter = e.currentTarget.dataset.supfilter;
@@ -3937,7 +4261,14 @@ function bindHandlers(){
   if(recomendadosBack) recomendadosBack.addEventListener('click', ()=>{ fornecedoresSubview = 'lista'; render(); });
   const supSearch = document.getElementById('sup-search');
   if(supSearch) supSearch.addEventListener('input', e=>{ supplierQuery = e.target.value; softUpdateFornecedores(); });
+  const supNoticeClose = document.getElementById('sup-detail-notice-close');
+  if(supNoticeClose) supNoticeClose.addEventListener('click', ()=>{
+    try{ localStorage.setItem('weddy-supplier-detail-notice-dismissed', '1'); }catch(e){}
+    const el = document.getElementById('sup-detail-notice');
+    if(el) el.remove();
+  });
   bindSupplierResultHandlers();
+  if(fornecedoresSubview === 'detalhe') bindFornecedorDetalheHandlers();
 
   // Definições — menu
   document.querySelectorAll('[data-defgoto]').forEach(el=>{
@@ -4497,13 +4828,13 @@ function deleteEvent(eventId){
 }
 function closeAllSheets(){
   closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet();
-  closeSupplierSheet(); closeHmOptionSheet(); closeHmPaymentSheet(); closeTodoNotesSheet(); closeTodoCatSheet();
+  closeHmOptionSheet(); closeHmPaymentSheet(); closeTodoNotesSheet(); closeTodoCatSheet();
   closeDeleteAccountSheet();
   // Rede de segurança: se um gesto de arrastar for interrompido a meio (ex: o
   // dedo sai do ecrã sem soltar), pode ficar um "transform" preso na sheet.
   // Ao fechar tudo, limpamos sempre esse estilo para nunca ficar uma sheet
   // meio visível por cima de outra.
-  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','supplier-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
+  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','hm-option-sheet','hm-payment-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){
       el.style.transform=''; el.style.transition='';
@@ -4550,6 +4881,7 @@ function weddyBackStep(){
     closeAllSheets();
     activeTab = 'inicio';
     if(typeof fornecedoresSubview !== 'undefined') fornecedoresSubview = 'lista';
+    if(typeof openSupplierDetailId !== 'undefined') openSupplierDetailId = null;
     _origRender();
     return true;
   }
@@ -5242,7 +5574,6 @@ document.getElementById('vf-save').addEventListener('click', ()=>{
   pushRemote(true);
 });
 
-let editingSupplierId = null;
 function closeTodoNotesSheet(){
   document.getElementById('todo-notes-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
@@ -5449,48 +5780,24 @@ document.getElementById('hm-payment-save').addEventListener('click', ()=>{
   pushRemote(true);
 });
 
-function openSupplierSheet(supplierId, presetCat){
+// Criar fornecedor: já não há sheet — cria-se logo o registo (com um nome
+// por omitir) e abre-se a ficha completa, onde a pessoa escreve o nome real
+// e o resto dos dados diretamente. Contas antigas continuam a funcionar
+// normalmente: os fornecedores já guardados só têm os campos de sempre
+// (name, category, contact, price, status, notas) e todos os campos novos
+// (email, website, valorTotal, payments, etc.) têm "|| valor por omissão"
+// em todo o código, para não rebentar com dados já sincronizados.
+function createSupplier(presetCat){
   closeAllSheets();
-  editingSupplierId = supplierId || null;
-  const s = supplierId ? state.suppliers.find(x=>x.id===supplierId) : null;
-  document.getElementById('supplier-sheet-title').textContent = s ? 'Editar fornecedor' : 'Novo fornecedor';
-  document.getElementById('sup-name').value = s ? s.name : '';
-  document.getElementById('sup-cat').innerHTML = state.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
-  document.getElementById('sup-cat').value = s ? s.category : (presetCat || state.categories[0].id);
-  document.getElementById('sup-contact').value = s ? s.contact : '';
-  document.getElementById('sup-price').value = s ? (s.price||'') : '';
-  document.getElementById('sup-status').value = s ? s.status : 'considerar';
-  document.getElementById('sup-notas').value = s ? s.notas : '';
-  document.getElementById('supplier-sheet').classList.add('show');
-  document.getElementById('sheet-backdrop').classList.add('show');
-}
-function closeSupplierSheet(){
-  document.getElementById('supplier-sheet').classList.remove('show');
-  document.getElementById('sheet-backdrop').classList.remove('show');
-  editingSupplierId = null;
-}
-document.getElementById('sup-cancel').addEventListener('click', closeSupplierSheet);
-document.getElementById('sup-save').addEventListener('click', ()=>{
-  const nameEl = document.getElementById('sup-name');
-  const name = nameEl.value.trim();
-  const category = document.getElementById('sup-cat').value;
-  const contact = document.getElementById('sup-contact').value.trim();
-  const price = document.getElementById('sup-price').value.trim();
-  const status = document.getElementById('sup-status').value;
-  const notas = document.getElementById('sup-notas').value.trim();
-  if(!name){ flagRequiredField(nameEl); return; }
-  if(editingSupplierId){
-    const s = state.suppliers.find(x=>x.id===editingSupplierId);
-    if(s){ s.name=name; s.category=category; s.contact=contact; s.price=price; s.status=status; s.notas=notas; }
-  } else {
-    const id = 'sup'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.suppliers.push({ id, name, category, contact, price, status, notas });
-    openSupplierCat[category] = true;
-  }
-  closeSupplierSheet();
-  render();
+  const category = presetCat || (state.categories[0] ? state.categories[0].id : '');
+  const id = 'sup'+Date.now()+Math.random().toString(36).slice(2,6);
+  state.suppliers.push({ id, name:'Novo fornecedor', category, contact:'', email:'', website:'', price:'', status:'considerar', notas:'', valorTotal:0, payments:[], nextPaymentDate:'', nextPaymentAmount:0, nextStep:'', lastContact:'' });
+  openSupplierCat[category] = true;
+  openSupplierDetail(id);
   pushRemote(true);
-});
+  const nameInput = document.getElementById('supd-name-input');
+  if(nameInput){ nameInput.focus(); nameInput.select(); }
+}
 
 let lightboxZoom = 1, lightboxPanX = 0, lightboxPanY = 0;
 function applyLightboxTransform(){
