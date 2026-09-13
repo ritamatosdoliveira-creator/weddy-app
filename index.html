@@ -1398,7 +1398,7 @@ function migrateCategoryDescriptions(){
    entre os dois lados (state.guests.criancas), sem se saber de quem
    eram "responsabilidade". Agora "Crianças" é uma categoria como
    Família/Amigos, existente dentro de cada lado (noiva e noivo), e
-   dá para criar outras categorias à parte (ex: "Pagam metade").
+   dá para criar outras categorias à parte (ex: "Amigos da família").
    Esta função só corre uma vez por conta: junta a lista antiga
    completa dentro da categoria "Crianças" da noiva (escolha
    arbitrária, mas não perde ninguém), e garante que ambos os lados
@@ -2342,7 +2342,7 @@ function buildGuestBody(){
   ).join('');
   body += `
   <div class="add-row" style="margin:0 16px 16px; background:var(--card); border:1px dashed var(--line); border-radius:14px;">
-    <input type="text" placeholder="Nova categoria (ex: Pagam metade)…" id="add-guestcat-name">
+    <input type="text" placeholder="Nova categoria (ex: Amigos da família)…" id="add-guestcat-name">
     <button class="add-circle" id="addbtn-guestcat">${ICONS.plus}</button>
   </div>`;
   return body;
