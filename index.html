@@ -248,12 +248,28 @@ body{
 .pct-stepper .pctval{ width:38px; text-align:center; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums; }
 
 /* Guest rows */
+.guest-row.child-row{ flex-wrap:wrap; row-gap:8px; }
+.child-extra-row{ flex-basis:100%; display:flex; align-items:center; gap:8px; padding-left:32px; }
+.child-age-input{ width:100px; border:1px solid var(--line); background:#fff; border-radius:8px; padding:5px 8px; font-size:12.5px; color:var(--ink); font-family:inherit; outline:none; }
+.child-age-input::placeholder{ color:#ABA7A0; }
+.paying-chip{ all:unset; box-sizing:border-box; cursor:pointer; font-size:11px; font-weight:600; padding:5px 11px; border-radius:20px; background:rgba(20,20,20,0.07); color:var(--ink-soft); }
+.paying-chip.paying{ background:rgba(124,138,110,0.18); color:var(--sage-dark); }
 .guest-row .check{ width:22px; height:22px; border-radius:50%; border:1.6px solid #D6D2C9; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .guest-row.confirmed .check{ background:var(--sage); border-color:var(--sage); }
 .guest-row.confirmed .title{ color:var(--sage-dark); font-weight:600; }
 .guest-row .check svg{ width:12px; height:12px; color:#fff; opacity:0; }
 .guest-row.confirmed .check svg{ opacity:1; }
 .remove-x{ all:unset; cursor:pointer; color:#B4AFA6; font-size:15px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0;  line-height:1;}
+.reorder-btn{ all:unset; cursor:pointer; color:#B4AFA6; width:20px; height:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; }
+.drag-handle{ all:unset; cursor:grab; color:#C7C2B8; width:20px; height:26px; display:flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1; touch-action:none; }
+.drag-handle svg{ width:11px; height:18px; }
+.drag-handle:active{ color:var(--rust); cursor:grabbing; }
+.guest-row.dragging{ position:relative; z-index:30; background:var(--card); box-shadow:0 10px 24px rgba(48,44,41,0.18); border-radius:12px; }
+.guest-row.drag-target-above{ box-shadow:inset 0 2px 0 var(--rust); }
+.guest-row.drag-target-below{ box-shadow:inset 0 -2px 0 var(--rust); }
+.reorder-btn svg{ width:13px; height:13px; }
+.reorder-btn:active{ color:var(--rust); }
+.reorder-btn:disabled{ opacity:.25; pointer-events:none; }
 .cat-edit-btn{ all:unset; cursor:pointer; color:var(--ink-soft); width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0;  line-height:1;}
 .cat-edit-btn svg{ width:15px; height:15px; }
 .theme-swatch-row{ display:flex; gap:14px; padding:2px 16px 20px; }
@@ -912,17 +928,11 @@ html.rotate-blocked .rotate-lock-overlay{ display:flex; }
       <div class="segmented" id="gf-side-seg">
         <button data-gfside="noiva" class="active">Noiva</button>
         <button data-gfside="noivo">Noivo</button>
-        <button data-gfside="criancas">Criança</button>
       </div>
     </div>
     <div class="sheet-field" id="gf-cat-wrap">
       <label>Categoria</label>
-      <select id="gf-cat">
-        <option value="familia">Família</option>
-        <option value="amigos">Amigos</option>
-        <option value="duvida">Na dúvida</option>
-        <option value="staff">Staff / fornecedores</option>
-      </select>
+      <select id="gf-cat"></select>
     </div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="gf-cancel">Cancelar</button>
@@ -1133,6 +1143,9 @@ const ICONS = {
   seat:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 3h11a1.5 1.5 0 0 1 1.5 1.5v7.3H5V4.5A1.5 1.5 0 0 1 6.5 3Z" opacity=".55"/><path d="M4.3 11.8h15.4a1.2 1.2 0 0 1 1.2 1.35l-.65 5.2a1.6 1.6 0 0 1-1.6 1.4H5.35a1.6 1.6 0 0 1-1.6-1.4l-.65-5.2a1.2 1.2 0 0 1 1.2-1.35Z"/><rect x="4.6" y="19.6" width="2" height="2.1" rx=".6"/><rect x="17.4" y="19.6" width="2" height="2.1" rx=".6"/></svg>',
   /* --- pequenos, estilo outline/regular --- */
   chev:'<svg class="chev" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevup:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 9l4.5-5 4.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  draghandle:'<svg viewBox="0 0 14 22" fill="currentColor"><circle cx="4" cy="4" r="1.6"/><circle cx="10" cy="4" r="1.6"/><circle cx="4" cy="11" r="1.6"/><circle cx="10" cy="11" r="1.6"/><circle cx="4" cy="18" r="1.6"/><circle cx="10" cy="18" r="1.6"/></svg>',
+  chevdown:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 5l4.5 5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   chevleft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-7.5 7.5 7.5 7.5"/></svg>',
   check:'<svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v4.2"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke-width="1.8"/></svg>',
@@ -1380,6 +1393,48 @@ function migrateCategoryDescriptions(){
   });
 }
 
+/* ============================================================
+   Migração: as crianças costumavam ser uma lista única, partilhada
+   entre os dois lados (state.guests.criancas), sem se saber de quem
+   eram "responsabilidade". Agora "Crianças" é uma categoria como
+   Família/Amigos, existente dentro de cada lado (noiva e noivo), e
+   dá para criar outras categorias à parte (ex: "Pagam metade").
+   Esta função só corre uma vez por conta: junta a lista antiga
+   completa dentro da categoria "Crianças" da noiva (escolha
+   arbitrária, mas não perde ninguém), e garante que ambos os lados
+   já têm essa categoria pronta a usar, mesmo quem nunca teve
+   crianças na lista antiga.
+============================================================ */
+function migrateGuestCategories(){
+  if(!state || !state.guests) return;
+  ['noiva','noivo'].forEach(side=>{
+    if(!state.guests[side].custom) state.guests[side].custom = [];
+    if(!state.guests[side].custom.some(c=>c.id==='criancas')){
+      state.guests[side].custom.push({ id:'criancas', label:'Crianças', names:[] });
+    }
+  });
+  if(Array.isArray(state.guests.criancas)){
+    const oldList = state.guests.criancas;
+    const noivaCriancas = state.guests.noiva.custom.find(c=>c.id==='criancas');
+    const startIdx = noivaCriancas.names.length;
+    oldList.forEach((name,i)=>{
+      noivaCriancas.names.push({ name, age:'', paying:false });
+      if(state.confirmed['crianca|'+i]!==undefined){
+        state.confirmed['noiva|criancas|'+(startIdx+i)] = state.confirmed['crianca|'+i];
+        delete state.confirmed['crianca|'+i];
+      }
+    });
+    delete state.guests.criancas;
+  }
+  // Quem já tinha usado a versão anterior (crianças só com nome, sem idade
+  // nem pagante) fica com strings simples aqui — transforma-as em objetos,
+  // sem perder o nome que já lá estava.
+  ['noiva','noivo'].forEach(side=>{
+    const cat = state.guests[side].custom.find(c=>c.id==='criancas');
+    if(cat) cat.names = cat.names.map(n => (typeof n==='string') ? { name:n, age:'', paying:false } : n);
+  });
+}
+
 function seedData(){
   return {
     budget:{ total:20000, guestsEstimate:80 },
@@ -1394,9 +1449,8 @@ function seedData(){
       { id:'extras', name:'Extras e Logística', value:600, desc:['Pequenas lembranças para levar para casa','Apoio de wedding planner ou coordenador no dia','Licenças necessárias e seguro do evento','Ensaio geral antes do grande dia','Kit de emergência para os noivos','Margem para taxas e imprevistos'] }
     ],
     guests:{
-      noiva:{ familia:[], amigos:[], duvida:[], staff:[] },
-      noivo:{ familia:[], amigos:[], duvida:[], staff:[] },
-      criancas:[]
+      noiva:{ familia:[], amigos:[], duvida:[], staff:[], custom:[{id:'criancas', label:'Crianças', names:[]}] },
+      noivo:{ familia:[], amigos:[], duvida:[], staff:[], custom:[{id:'criancas', label:'Crianças', names:[]}] }
     },
     confirmed:{},
     expenses:[],
@@ -1436,6 +1490,7 @@ function defaultSettings(name1, name2, dateStr, venue){
 let state = seedData();
 normalizeCategories();
 migrateCategoryDescriptions();
+migrateGuestCategories();
 let weddingSettings = defaultSettings();
 let activeTab = 'inicio';
 let guestSeg = 'noiva';
@@ -1519,6 +1574,33 @@ function flagRequiredField(el){
 }
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
+const FIXED_GUEST_CATS = [
+  { id:'familia', label:'Família', icon:'home', colorIdx:0 },
+  { id:'amigos', label:'Amigos', icon:'guests', colorIdx:7 },
+  { id:'duvida', label:'Na dúvida', icon:'question', colorIdx:3 },
+  { id:'staff', label:'Staff / fornecedores', icon:'briefcase', colorIdx:5 }
+];
+// Lista, para um lado (noiva/noivo), TODAS as categorias — as 4 fixas mais
+// as que a pessoa foi criando (Crianças, por defeito, e quaisquer outras
+// que adicione, ex: "Pagam metade" ou por faixa etária).
+function allGuestCategoriesOf(side){
+  const fixed = FIXED_GUEST_CATS.map(c=>({ id:c.id, label:c.label, icon:ICONS[c.icon], colorIdx:c.colorIdx, isCustom:false }));
+  const custom = (state.guests[side].custom||[]).map((c,i)=>({ id:c.id, label:c.label, icon:ICONS.guests, colorIdx:2+(i%6), isCustom:true }));
+  return fixed.concat(custom);
+}
+// Devolve a referência direta ao array de nomes de uma categoria (fixa ou
+// custom) — permite fazer push/splice diretamente nela.
+function getGuestNames(side, catId){
+  if(FIXED_GUEST_CATS.some(c=>c.id===catId)) return state.guests[side][catId];
+  const custom = (state.guests[side].custom||[]).find(c=>c.id===catId);
+  return custom ? custom.names : null;
+}
+function getGuestCatLabel(side, catId){
+  const fixed = FIXED_GUEST_CATS.find(c=>c.id===catId);
+  if(fixed) return fixed.label;
+  const custom = (state.guests[side].custom||[]).find(c=>c.id===catId);
+  return custom ? custom.label : catId;
+}
 // Ao remover um convidado de uma lista, os índices dos que vêm a seguir
 // baixam uma posição. Sem isto, o "confirmado" ficava associado ao índice
 // errado (ou perdia-se todo), depois de qualquer eliminação.
@@ -1536,6 +1618,44 @@ function reindexConfirmedAfterRemoval(prefix, removedIdx, newLength){
     const newIdx = idx > removedIdx ? idx - 1 : idx;
     if(newIdx >= 0 && newIdx < newLength) state.confirmed[prefix+newIdx] = old[idx];
   });
+}
+// Ao mover um convidado de uma posição para outra dentro da mesma lista, a
+// confirmação (guardada por índice) tem de "andar" junto com ele — senão a
+// pessoa errada ficava com a marca de confirmado depois de reordenar.
+function reindexConfirmedAfterMove(prefix, fromIdx, toIdx){
+  if(fromIdx===toIdx) return;
+  const old = {};
+  Object.keys(state.confirmed).forEach(k=>{
+    if(k.startsWith(prefix)){
+      const idx = Number(k.slice(prefix.length));
+      if(!isNaN(idx)){ old[idx] = state.confirmed[k]; delete state.confirmed[k]; }
+    }
+  });
+  function mapIndex(idx){
+    if(idx===fromIdx) return toIdx;
+    if(fromIdx<toIdx){
+      if(idx>fromIdx && idx<=toIdx) return idx-1;
+    } else {
+      if(idx>=toIdx && idx<fromIdx) return idx+1;
+    }
+    return idx;
+  }
+  Object.keys(old).forEach(idxStr=>{
+    const idx = Number(idxStr);
+    state.confirmed[prefix+mapIndex(idx)] = old[idx];
+  });
+}
+function moveGuestToIndex(side, cat, fromIdx, toIdx){
+  const arr = getGuestNames(side, cat);
+  if(!arr) return;
+  toIdx = Math.max(0, Math.min(arr.length-1, toIdx));
+  if(toIdx===fromIdx) return;
+  const [item] = arr.splice(fromIdx,1);
+  arr.splice(toIdx,0,item);
+  reindexConfirmedAfterMove(side+'|'+cat+'|', fromIdx, toIdx);
+}
+function moveGuest(side, cat, fromIdx, dir){
+  moveGuestToIndex(side, cat, fromIdx, fromIdx+dir);
 }
 const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, serpentine:{label:'Serpente', icon:'tableserpentine'} };
 function getTable(id){ return state.seating.tables.find(t=>t.id===id); }
@@ -1555,15 +1675,34 @@ function clearAllSeatsForTable(tableId){
   });
 }
 function isConfirmed(side,cat,idx){ return !!state.confirmed[guestKey(side,cat,idx)]; }
-function countGuests(side){ const g=state.guests[side]; return g.familia.length+g.amigos.length+g.duvida.length+g.staff.length; }
-function countConfirmed(side){ const g=state.guests[side]; let n=0; ['familia','amigos','duvida','staff'].forEach(cat=>{ g[cat].forEach((name,idx)=>{ if(isConfirmed(side,cat,idx)) n++; }); }); return n; }
+function countGuests(side){
+  return allGuestCategoriesOf(side).reduce((s,c)=>s+(getGuestNames(side,c.id)||[]).length,0);
+}
+function countConfirmed(side){
+  let n=0;
+  allGuestCategoriesOf(side).forEach(c=>{
+    (getGuestNames(side,c.id)||[]).forEach((name,idx)=>{ if(isConfirmed(side,c.id,idx)) n++; });
+  });
+  return n;
+}
 function totalExpenseValue(){ return state.expenses.reduce((s,e)=>s+(Number(e.value)||0),0); }
 function totalExpensePaid(){ return state.expenses.reduce((s,e)=>s+(Number(e.paid)||0),0); }
 function spentByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+(Number(e.value)||0),0); }
 function paidByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+(Number(e.paid)||0),0); }
+// Usada para atribuir lugares às mesas — inclui todos os convidados de
+// todas as categorias, incluindo Crianças (pagantes ou não, têm lugar à
+// mesa na mesma). As crianças são guardadas como objeto {name,age,paying},
+// por isso o nome tem de ser sempre extraído com cuidado.
 function allAdultGuests(){
   const out=[];
-  ['noiva','noivo'].forEach(side=>{ ['familia','amigos','duvida','staff'].forEach(cat=>{ (state.guests[side][cat]||[]).forEach((name,idx)=>{ out.push({side,cat,idx,name,key:guestKey(side,cat,idx)}); }); }); });
+  ['noiva','noivo'].forEach(side=>{
+    allGuestCategoriesOf(side).forEach(c=>{
+      (getGuestNames(side,c.id)||[]).forEach((n,idx)=>{
+        const name = (typeof n==='object' && n!==null) ? (n.name||'') : n;
+        out.push({side,cat:c.id,idx,name,key:guestKey(side,c.id,idx)});
+      });
+    });
+  });
   return out;
 }
 function daysUntil(dateStr){
@@ -1989,42 +2128,98 @@ function viewOrcamento(){
 /* ============================================================
    VIEW: Convidados
 ============================================================ */
-function guestGroupHTML(side, catKey, catLabel, icon, colorIdx){
-  const items = state.guests[side][catKey];
+function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
+  const items = getGuestNames(side, catKey) || [];
   const key = side+'|'+catKey;
   const isSearching = !!guestFilter;
   const open = isSearching || !!openGuestGroup[key];
-  const confirmedCount = items.filter((name,idx)=>isConfirmed(side,catKey,idx)).length;
-  const rows = items.map((name,idx)=>{
+  const isChildren = catKey==='criancas';
+  const nameOf = n => (typeof n==='string') ? n : (n.name||'');
+  const confirmedCount = items.filter((n,idx)=>isConfirmed(side,catKey,idx)).length;
+  const rows = items.map((n,idx)=>{
+    const name = nameOf(n);
     if(guestFilter && !name.toLowerCase().includes(guestFilter.toLowerCase())) return '';
     const conf = isConfirmed(side,catKey,idx);
+    const age = isChildren ? (n.age||'') : '';
+    const paying = isChildren ? !!n.paying : false;
     return `
-    <div class="list-row guest-row ${conf?'confirmed':''}">
+    <div class="list-row guest-row ${isChildren?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
+      ${!isSearching ? `<button class="drag-handle" data-draghandle="${side}|${catKey}">${ICONS.draghandle}</button>` : '<span style="width:20px;flex-shrink:0;"></span>'}
       <div class="check tappable" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
-      <div class="title tappable" data-confirm="${side}|${catKey}|${idx}">${escapeHTML(name)}</div>
+      <input type="text" class="title-input-inline" style="flex:1; min-width:0;" data-editguest="${side}|${catKey}|${idx}" value="${escapeHTML(name)}">
       <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
+      ${isChildren ? `
+      <div class="child-extra-row">
+        <input type="number" min="0" max="17" class="child-age-input" placeholder="Inserir idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">
+        <button class="paying-chip ${paying?'paying':''}" data-togglepaying="${side}|${catKey}|${idx}">${paying?'Pagante':'Não pagante'}</button>
+      </div>` : ''}
     </div>`;
   }).join('');
   return `
   <div class="guest-group-card">
     <div class="guest-group-head" data-togglegroup="${key}">
       <div class="icon-chip" style="${chipStyle(colorIdx)}">${icon}</div>
-      <div class="ggtitle">${catLabel}</div>
+      <div class="ggtitle">${escapeHTML(catLabel)}</div>
       <span class="ggcount">${confirmedCount}/${items.length}</span>
       <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
     </div>
     ${open? `
-    <div class="guest-group-body">
+    <div class="guest-group-body" data-draglist="${side}|${catKey}">
       ${rows || `<div class="empty-note">sem convidados nesta categoria</div>`}
       <div class="add-row">
-        <input type="text" placeholder="Adicionar a ${catLabel.toLowerCase()}…" data-addname="${side}|${catKey}">
+        <input type="text" placeholder="Adicionar a ${escapeHTML(catLabel.toLowerCase())}…" data-addname="${side}|${catKey}">
         <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
       </div>
+      ${isCustom ? `<div style="padding:0 14px 12px;"><button class="visit-action-btn danger" style="width:100%;" data-delguestcat="${side}|${catKey}">${ICONS.trash} Eliminar esta categoria</button></div>` : ''}
     </div>` : ''}
   </div>`;
 }
 
+function initDragReorder(list, onDrop){
+  // "list" é o container (.guest-group-body) que tem TODAS as linhas
+  // irmãs deste grupo. Cada linha sabe o seu próprio índice via
+  // data-rowidx — arrastar move-a fisicamente com o dedo e, ao soltar,
+  // calcula quantas posições andou (com base na altura das linhas) e
+  // chama onDrop(fromIdx, toIdx) para atualizar os dados a sério.
+  list.querySelectorAll('[data-draghandle], [data-draghandlechild]').forEach(handle=>{
+    handle.addEventListener('pointerdown', e=>{
+      const row = handle.closest('.guest-row');
+      if(!row) return;
+      e.preventDefault();
+      const rows = Array.from(list.querySelectorAll('.guest-row'));
+      const fromIdx = Number(row.dataset.rowidx);
+      const rowHeight = row.offsetHeight;
+      const startY = e.clientY;
+      let currentTarget = fromIdx;
+      handle.setPointerCapture(e.pointerId);
+      row.classList.add('dragging');
+
+      function onMove(ev){
+        const dy = ev.clientY - startY;
+        row.style.transform = `translateY(${dy}px)`;
+        const rawTarget = Math.round(fromIdx + dy/rowHeight);
+        currentTarget = Math.max(0, Math.min(rows.length-1, rawTarget));
+      }
+      function onUp(){
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        row.classList.remove('dragging');
+        row.style.transform = '';
+        if(currentTarget !== fromIdx) onDrop(fromIdx, currentTarget);
+      }
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  });
+}
 function bindGuestGroupHandlers(scope){
+  scope.querySelectorAll('[data-draglist]').forEach(list=>{
+    const [side,cat] = list.dataset.draglist.split('|');
+    initDragReorder(list, (fromIdx,toIdx)=>{
+      moveGuestToIndex(side, cat, fromIdx, toIdx);
+      softUpdateConvidados();
+    });
+  });
   scope.querySelectorAll('[data-togglegroup]').forEach(el=>{
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.togglegroup;
@@ -2043,9 +2238,43 @@ function bindGuestGroupHandlers(scope){
   scope.querySelectorAll('[data-remove]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
-      state.guests[side][cat].splice(Number(idx),1);
-      reindexConfirmedAfterRemoval(side+'|'+cat+'|', Number(idx), state.guests[side][cat].length);
+      const arr = getGuestNames(side,cat);
+      if(!arr) return;
+      arr.splice(Number(idx),1);
+      reindexConfirmedAfterRemoval(side+'|'+cat+'|', Number(idx), arr.length);
       softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-editguest]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.editguest.split('|');
+      const arr = getGuestNames(side,cat);
+      if(!arr) return;
+      const item = arr[Number(idx)];
+      if(item && typeof item==='object') item.name = e.target.value;
+      else arr[Number(idx)] = e.target.value;
+      pushRemote();
+    });
+  });
+  scope.querySelectorAll('[data-editchildage]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.editchildage.split('|');
+      const arr = getGuestNames(side,cat);
+      if(arr && arr[Number(idx)]) arr[Number(idx)].age = e.target.value;
+      pushRemote();
+    });
+    // Só mostra o "Guardado" quando a pessoa termina de escrever (sai do
+    // campo), não a cada tecla — para não aparecer o aviso constantemente.
+    inp.addEventListener('blur', ()=>{ pushRemote(true); });
+  });
+  scope.querySelectorAll('[data-togglepaying]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.togglepaying.split('|');
+      const arr = getGuestNames(side,cat);
+      if(!arr || !arr[Number(idx)]) return;
+      arr[Number(idx)].paying = !arr[Number(idx)].paying;
+      softUpdateConvidados(false);
+      pushRemote(true);
     });
   });
   scope.querySelectorAll('[data-addbtn]').forEach(btn=>{
@@ -2053,7 +2282,8 @@ function bindGuestGroupHandlers(scope){
       const [side,cat] = e.currentTarget.dataset.addbtn.split('|');
       const input = scope.querySelector(`[data-addname="${side}|${cat}"]`) || document.querySelector(`[data-addname="${side}|${cat}"]`);
       const name = input.value.trim();
-      if(name){ state.guests[side][cat].push(name); softUpdateConvidados(); }
+      const arr = getGuestNames(side,cat);
+      if(name && arr){ arr.push(cat==='criancas' ? {name, age:'', paying:false} : name); softUpdateConvidados(); }
     });
   });
   scope.querySelectorAll('[data-addname]').forEach(inp=>{
@@ -2061,63 +2291,60 @@ function bindGuestGroupHandlers(scope){
       if(e.key==='Enter'){
         const [side,cat] = e.currentTarget.dataset.addname.split('|');
         const name = e.currentTarget.value.trim();
-        if(name){ state.guests[side][cat].push(name); softUpdateConvidados(); }
+        const arr = getGuestNames(side,cat);
+        if(name && arr){ arr.push(cat==='criancas' ? {name, age:'', paying:false} : name); softUpdateConvidados(); }
       }
     });
   });
-  scope.querySelectorAll('[data-confirmchild]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      const idx = e.currentTarget.dataset.confirmchild;
-      state.confirmed['crianca|'+idx] = !state.confirmed['crianca|'+idx];
-      softUpdateConvidados();
-    });
-  });
-  scope.querySelectorAll('[data-removechild]').forEach(btn=>{
+  scope.querySelectorAll('[data-delguestcat]').forEach(btn=>{
     btn.addEventListener('click', e=>{
-      const idx = Number(e.currentTarget.dataset.removechild);
-      state.guests.criancas.splice(idx,1);
-      reindexConfirmedAfterRemoval('crianca|', idx, state.guests.criancas.length);
-      softUpdateConvidados();
+      const [side,cat] = e.currentTarget.dataset.delguestcat.split('|');
+      const label = getGuestCatLabel(side,cat);
+      const arr = getGuestNames(side,cat) || [];
+      const msg = arr.length
+        ? `Eliminar "${label}"? Os ${arr.length} convidado(s) lá dentro perdem-se também.`
+        : `Eliminar a categoria "${label}"?`;
+      if(!confirm(msg)) return;
+      state.guests[side].custom = state.guests[side].custom.filter(c=>c.id!==cat);
+      const prefix = side+'|'+cat+'|';
+      Object.keys(state.confirmed).forEach(k=>{ if(k.startsWith(prefix)) delete state.confirmed[k]; });
+      render();
     });
   });
-  const addCrianca = scope.querySelector('#addbtn-crianca');
-  if(addCrianca) addCrianca.addEventListener('click', ()=>{
-    const input = document.getElementById('add-crianca');
-    const name = input.value.trim();
-    if(name){ state.guests.criancas.push(name); softUpdateConvidados(); }
+  const addGuestCatBtn = scope.querySelector('#addbtn-guestcat');
+  if(addGuestCatBtn) addGuestCatBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('add-guestcat-name');
+    const label = input.value.trim();
+    if(!label) return;
+    const id = 'gcat'+Date.now()+Math.random().toString(36).slice(2,6);
+    if(!state.guests[guestSeg].custom) state.guests[guestSeg].custom = [];
+    state.guests[guestSeg].custom.push({ id, label, names:[] });
+    openGuestGroup[guestSeg+'|'+id] = true;
+    render();
+  });
+  const addGuestCatInput = scope.querySelector('#add-guestcat-name');
+  if(addGuestCatInput) addGuestCatInput.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      const label = e.currentTarget.value.trim();
+      if(!label) return;
+      const id = 'gcat'+Date.now()+Math.random().toString(36).slice(2,6);
+      if(!state.guests[guestSeg].custom) state.guests[guestSeg].custom = [];
+      state.guests[guestSeg].custom.push({ id, label, names:[] });
+      openGuestGroup[guestSeg+'|'+id] = true;
+      render();
+    }
   });
 }
 function buildGuestBody(){
   let body = '';
-  if(guestSeg==='criancas'){
-    const rows = state.guests.criancas.map((n,idx)=>{
-      if(guestFilter && !n.toLowerCase().includes(guestFilter.toLowerCase())) return '';
-      const conf = !!state.confirmed['crianca|'+idx];
-      return `
-      <div class="list-row guest-row ${conf?'confirmed':''}">
-        <div class="check tappable" data-confirmchild="${idx}">${ICONS.check}</div>
-        <div class="title tappable" data-confirmchild="${idx}">${escapeHTML(n)}</div>
-        <button class="remove-x" data-removechild="${idx}">✕</button>
-      </div>`;
-    }).join('');
-    body = `
-    <div class="guest-group-card">
-      <div class="guest-group-head" style="cursor:default;">
-        <div class="icon-chip" style="${chipStyle(1)}">${ICONS.guests}</div>
-        <div class="ggtitle">Crianças não pagantes</div>
-        <span class="ggcount">${state.guests.criancas.length}</span>
-      </div>
-      <div class="guest-group-body">
-        ${rows || `<div class="empty-note">sem crianças</div>`}
-        <div class="add-row"><input type="text" id="add-crianca" placeholder="Adicionar criança…"><button class="add-circle" id="addbtn-crianca">${ICONS.plus}</button></div>
-      </div>
-    </div>`;
-  } else {
-    body = guestGroupHTML(guestSeg,'familia','Família', ICONS.home, 0)
-      + guestGroupHTML(guestSeg,'amigos','Amigos', ICONS.guests, 7)
-      + guestGroupHTML(guestSeg,'duvida','Na dúvida', ICONS.question, 3)
-      + guestGroupHTML(guestSeg,'staff','Staff / fornecedores', ICONS.briefcase, 5);
-  }
+  body = allGuestCategoriesOf(guestSeg).map(c=>
+    guestGroupHTML(guestSeg, c.id, c.label, c.icon, c.colorIdx, c.isCustom)
+  ).join('');
+  body += `
+  <div class="add-row" style="margin:0 16px 16px; background:var(--card); border:1px dashed var(--line); border-radius:14px;">
+    <input type="text" placeholder="Nova categoria (ex: Pagam metade)…" id="add-guestcat-name">
+    <button class="add-circle" id="addbtn-guestcat">${ICONS.plus}</button>
+  </div>`;
   return body;
 }
 function buildConvidadosDynamic(){
@@ -2151,7 +2378,6 @@ function viewConvidados(){
   <div class="segmented">
     <button data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">Noiva</button>
     <button data-seg="noivo" class="${guestSeg==='noivo'?'active':''}">Noivo</button>
-    <button data-seg="criancas" class="${guestSeg==='criancas'?'active':''}">Crianças</button>
   </div>
 
   <div class="search-bar">${ICONS.search}<input type="text" id="guest-search" placeholder="Procurar convidado" value="${guestFilter}"></div>
@@ -2496,6 +2722,15 @@ function viewChecklist(){
       </div>
     </div>
     ${noivaOpen? `<div class="phase-card-tasks">${noivaTasksHTML}</div>` : ''}
+  </div>
+
+  <div class="add-item-card" id="open-add-personal">
+    <div class="add-item-icon">${ICONS.plus}</div>
+    <div class="add-item-text">
+      <b>Adicionar novo item</b>
+      <span>Escreve aqui a tua tarefa, nota ou lembrete…</span>
+    </div>
+    <span class="task-row-chev">${ICONS.chev}</span>
   </div>
 
   <div class="section-label">Checklist pessoal</div>
@@ -3371,6 +3606,8 @@ function bindHandlers(){
     const input = document.getElementById('add-personal-item');
     if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>input.focus(), 250); }
   }
+  const openAddPersonal = document.getElementById('open-add-personal');
+  if(openAddPersonal) openAddPersonal.addEventListener('click', focusAddPersonal);
   const addPersonalToggleBtn = document.getElementById('add-personal-toggle-btn');
   if(addPersonalToggleBtn) addPersonalToggleBtn.addEventListener('click', focusAddPersonal);
 
@@ -4181,13 +4418,16 @@ function closeEventSheet(){
   editingEventId = null;
 }
 let guestSheetSide = 'noiva';
+function fillGfCatSelect(side){
+  const sel = document.getElementById('gf-cat');
+  sel.innerHTML = allGuestCategoriesOf(side).map(c=>`<option value="${c.id}">${escapeHTML(c.label)}</option>`).join('');
+}
 function openGuestSheet(){
   closeAllSheets();
   guestSheetSide = 'noiva';
   document.getElementById('gf-name').value = '';
   document.querySelectorAll('#gf-side-seg button').forEach(b=>b.classList.toggle('active', b.dataset.gfside==='noiva'));
-  document.getElementById('gf-cat-wrap').style.display = '';
-  document.getElementById('gf-cat').value = 'familia';
+  fillGfCatSelect('noiva');
   document.getElementById('guest-sheet').classList.add('show');
   document.getElementById('sheet-backdrop').classList.add('show');
 }
@@ -4201,18 +4441,17 @@ document.querySelectorAll('#gf-side-seg button').forEach(b=>{
   b.addEventListener('click', ()=>{
     guestSheetSide = b.dataset.gfside;
     document.querySelectorAll('#gf-side-seg button').forEach(x=>x.classList.toggle('active', x===b));
-    document.getElementById('gf-cat-wrap').style.display = guestSheetSide==='criancas' ? 'none' : '';
+    fillGfCatSelect(guestSheetSide);
   });
 });
 document.getElementById('gf-save').addEventListener('click', ()=>{
   const nameEl = document.getElementById('gf-name');
   const name = nameEl.value.trim();
   if(!name){ flagRequiredField(nameEl); return; }
-  if(guestSheetSide==='criancas'){
-    state.guests.criancas.push(name);
-  } else {
-    const cat = document.getElementById('gf-cat').value;
-    state.guests[guestSheetSide][cat].push(name);
+  const cat = document.getElementById('gf-cat').value;
+  const arr = getGuestNames(guestSheetSide, cat);
+  if(arr){
+    arr.push(cat==='criancas' ? {name, age:'', paying:false} : name);
     openGuestGroup[guestSheetSide+'|'+cat] = true;
     guestSeg = guestSheetSide;
   }
@@ -4371,9 +4610,11 @@ function renderSeatPickerList(){
     if(q && !g.name.toLowerCase().includes(q)) return;
     const val = g.key+'::'+g.name;
     const elsewhere = findGuestSeatKey(g.key, editingSeatKey);
+    const childInfo = g.cat==='criancas' ? getGuestNames(g.side,'criancas')[g.idx] : null;
+    const childTag = childInfo ? `<span class="pname-hint">Criança${childInfo.age?' · '+escapeHTML(String(childInfo.age))+' anos':''}</span>` : '';
     rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${escapeHTML(val)}">
       <span class="side-tag" style="background:${g.side==='noiva'?'var(--blush-dark)':'var(--dusty-dark)'};">${g.side==='noiva'?'Noiva':'Noivo'}</span>
-      <span class="pname">${escapeHTML(g.name)}${elsewhere?`<span class="pname-hint">já em ${seatLabel(elsewhere)}</span>`:''}</span>
+      <span class="pname">${escapeHTML(g.name)}${elsewhere?`<span class="pname-hint">já em ${seatLabel(elsewhere)}</span>`:childTag}</span>
     </div>`;
   });
   list.innerHTML = rows;
@@ -5013,7 +5254,6 @@ function closeTodoCatSheet(){
 }
 
 function openDeleteAccountSheet(){
-  closeAllSheets();
   const isSoleOwner = currentWeddingOwners.length<=1;
   document.getElementById('delete-account-explain').innerHTML = isSoleOwner
     ? 'Isto vai apagar <b>definitivamente</b> todos os dados deste casamento — convidados, orçamento, gastos, mesas, tudo — e a tua conta de acesso. <b>Não é possível desfazer.</b>'
@@ -5597,18 +5837,22 @@ function exportToExcel(){
     XLSX.utils.book_append_sheet(wb, gastosSheet, 'Gastos');
 
     // Convidados
-    const groupLabels = {familia:'Família', amigos:'Amigos', duvida:'Na dúvida', staff:'Staff'};
     const guestList = [];
     ['noiva','noivo'].forEach(side=>{
-      ['familia','amigos','duvida','staff'].forEach(group=>{
-        (state.guests[side][group]||[]).forEach((name,idx)=>{
-          const key = guestKey(side,group,idx);
-          guestList.push({ name, side: side==='noiva'?'Noiva':'Noivo', group: groupLabels[group], confirmed: !!state.confirmed[key] });
+      allGuestCategoriesOf(side).forEach(c=>{
+        (getGuestNames(side,c.id)||[]).forEach((n,idx)=>{
+          const key = guestKey(side,c.id,idx);
+          const isChild = typeof n==='object';
+          guestList.push({
+            name: isChild ? (n.name||'') : n,
+            side: side==='noiva'?'Noiva':'Noivo',
+            group: c.label,
+            confirmed: !!state.confirmed[key],
+            age: isChild ? (n.age||'') : '',
+            paying: isChild ? (n.paying?'Sim':'Não') : ''
+          });
         });
       });
-    });
-    (state.guests.criancas||[]).forEach((name,idx)=>{
-      guestList.push({ name, side:'—', group:'Criança', confirmed: !!state.confirmed['crianca|'+idx] });
     });
     const guestDataRows = guestList.map((g,i)=>{
       const alt = i%2===1;
@@ -5618,11 +5862,13 @@ function exportToExcel(){
         xlCell(g.name, c),
         xlCell(g.side, cc),
         xlCell(g.group, cc),
-        xlCell(g.confirmed?'Confirmado':'Por confirmar', g.confirmed?XL_STYLES.confirmedYes:XL_STYLES.confirmedNo)
+        xlCell(g.confirmed?'Confirmado':'Por confirmar', g.confirmed?XL_STYLES.confirmedYes:XL_STYLES.confirmedNo),
+        xlCell(g.age, cc),
+        xlCell(g.paying, cc)
       ];
     });
     const nConfirmed = guestList.filter(g=>g.confirmed).length;
-    const guestSheet = buildStyledSheet(coupleTitle, `Convidados · ${guestList.length} convidados · ${nConfirmed} confirmados`, ['Nome','Lado','Grupo','Estado'], guestDataRows, [26,12,16,18]);
+    const guestSheet = buildStyledSheet(coupleTitle, `Convidados · ${guestList.length} convidados · ${nConfirmed} confirmados`, ['Nome','Lado','Grupo','Estado','Idade','Pagante'], guestDataRows, [26,12,16,18,10,12]);
     XLSX.utils.book_append_sheet(wb, guestSheet, 'Convidados');
 
     // Mesas
@@ -5691,18 +5937,17 @@ function exportToPDF(){
     return `<tr><td>${escapeHTML(e.desc||'')}</td><td>${cat?escapeHTML(cat.name):''}</td><td style="text-align:right;">${fmtEUR(Number(e.value)||0)}</td><td style="text-align:right;">${fmtEUR(Number(e.paid)||0)}</td></tr>`;
   }).join('');
 
-  const groupLabels = {familia:'Família', amigos:'Amigos', duvida:'Na dúvida', staff:'Staff'};
   const guestRows = [];
   ['noiva','noivo'].forEach(side=>{
-    ['familia','amigos','duvida','staff'].forEach(group=>{
-      (state.guests[side][group]||[]).forEach((name,idx)=>{
-        const key = guestKey(side,group,idx);
-        guestRows.push(`<tr><td>${escapeHTML(name)}</td><td>${side==='noiva'?'Noiva':'Noivo'} · ${groupLabels[group]}</td><td>${state.confirmed[key]?'Confirmado':'—'}</td></tr>`);
+    allGuestCategoriesOf(side).forEach(c=>{
+      (getGuestNames(side,c.id)||[]).forEach((n,idx)=>{
+        const key = guestKey(side,c.id,idx);
+        const isChild = typeof n==='object';
+        const name = isChild ? (n.name||'') : n;
+        const extra = isChild ? [n.age?`${n.age} anos`:'', n.paying?'Pagante':'Não pagante'].filter(Boolean).join(' · ') : '';
+        guestRows.push(`<tr><td>${escapeHTML(name)}</td><td>${side==='noiva'?'Noiva':'Noivo'} · ${escapeHTML(c.label)}${extra?' · '+escapeHTML(extra):''}</td><td>${state.confirmed[key]?'Confirmado':'—'}</td></tr>`);
       });
     });
-  });
-  (state.guests.criancas||[]).forEach((name,idx)=>{
-    guestRows.push(`<tr><td>${escapeHTML(name)}</td><td>Criança</td><td>${state.confirmed['crianca|'+idx]?'Confirmado':'—'}</td></tr>`);
   });
 
   const supRows = state.suppliers.map(s=>{
@@ -5796,6 +6041,7 @@ function attachFirestoreSync(){
         if(state.budget && state.budget.total === undefined) state.budget.total = 20000;
         normalizeCategories();
         migrateCategoryDescriptions();
+        migrateGuestCategories();
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
@@ -5868,6 +6114,8 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   // do browser. Como esta app nunca muda o URL, não há nada nesse histórico
   // para "consumir" — por isso o primeiro gesto fechava a app de repente,
   // mesmo a meio de uma sub-página ou de um formulário aberto.
+  // Isto não muda nada no iOS: lá não existe um gesto de sistema equivalente
+  // ligado ao histórico do browser, por isso o comportamento fica igual.
   try{
     history.pushState({weddyGuard:true}, '', location.href);
   }catch(e){ return; }
@@ -5876,60 +6124,6 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
       try{ history.pushState({weddyGuard:true}, '', location.href); }catch(e){}
     }
   });
-})();
-
-/* ============================================================
-   GESTO DE "VOLTAR" A DESLIZAR DA MARGEM — iOS
-   O Safari/iOS TEM, sim, um gesto de sistema equivalente: deslizar
-   o dedo a partir da margem esquerda do ecrã volta à página
-   anterior, mostrando uma pré-visualização dela a deslizar por
-   baixo do dedo. Como esta app nunca muda de página a sério, não
-   há nenhuma "página anterior" real para mostrar — por isso essa
-   pré-visualização aparece em branco a meio do gesto, mesmo o
-   "popstate" acima a cancelar assim que o dedo larga o ecrã.
-   Isto impede o gesto de sequer começar: se o toque nasce mesmo
-   junto à margem (esquerda ou direita), ignoramos esse arrasto.
-   Toques que começam mais para dentro do ecrã continuam a
-   funcionar normalmente (scroll, swipe em carrosséis, etc.).
-============================================================ */
-(function preventEdgeSwipeBack(){
-  const EDGE_PX = 24;
-  let watching = false;
-  document.addEventListener('touchstart', function(e){
-    if(e.touches.length !== 1){ watching = false; return; }
-    const x = e.touches[0].clientX;
-    watching = (x <= EDGE_PX || x >= window.innerWidth - EDGE_PX);
-  }, { passive:true });
-  document.addEventListener('touchmove', function(e){
-    if(watching) e.preventDefault();
-  }, { passive:false });
-  document.addEventListener('touchend', function(){ watching = false; });
-  document.addEventListener('touchcancel', function(){ watching = false; });
-})();
-
-/* ============================================================
-   TRAVA DE SCROLL DO ".screen" — bug raro mas grave
-   As "sheets" (Atribuir lugar, Novo movimento, etc.) ficam escondidas
-   ao serem empurradas para BAIXO do ecrã com transform (translateY).
-   Isso faz o ".screen" (que devia estar sempre fixo, nunca ter scroll
-   próprio) achar que "tem mais conteúdo para baixo" do que o ecrã
-   mostra — mesmo essas sheets estando escondidas e sem estarem
-   "abertas". O browser não deixa arrastar esse scroll à mão (por
-   causa do overflow:hidden), mas QUALQUER scrollIntoView()/focus()
-   num campo (ex: tocar em "Adicionar novo item" na checklist) pode
-   *programaticamente* empurrar esse scroll escondido — e nessa
-   altura tudo o que estava escondido cá em baixo (sheets, barra de
-   navegação) aparece no meio do ecrã, por cima do conteúdo. Isto
-   trava esse scroll do ".screen" para 0 sempre, para nunca mais
-   poder acontecer, em nenhuma página.
-============================================================ */
-(function lockScreenScroll(){
-  const screenEl = document.querySelector('.screen');
-  if(!screenEl) return;
-  screenEl.addEventListener('scroll', function(){
-    screenEl.scrollTop = 0;
-    screenEl.scrollLeft = 0;
-  }, { passive:true });
 })();
 
 (function lockOrientation(){
