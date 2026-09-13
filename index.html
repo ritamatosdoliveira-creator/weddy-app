@@ -49,6 +49,14 @@ body{
   /* O tamanho é definido em pixels fixos por JavaScript, uma única vez, e nunca
      mais é atualizado — por isso rodar o telemóvel não muda literalmente nada
      aqui, a app fica exatamente com o mesmo aspeto e tamanho de sempre. */
+  /* Impede o gesto nativo de "deslizar da margem para voltar" (o que causava
+     o ecrã a ficar branco a meio da transição). overscroll-behavior é feito
+     especificamente para isto — mais fiável do que só bloquear com JS. */
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+html{
+  overscroll-behavior-x: none;
 }
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 4px); flex-shrink:0; }
@@ -81,7 +89,7 @@ body{
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
 .tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
 .tabpanel.active{ display:flex; }
-.scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; }
+.scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; touch-action:pan-y; }
 .scroll::-webkit-scrollbar{ display:none; }
 
 .navbar{ padding:4px 18px 10px; flex-shrink:0; position:sticky; top:0; z-index:15; background:var(--cream); display:flex; align-items:center; gap:12px; }
@@ -252,8 +260,13 @@ body{
 .child-extra-row{ flex-basis:100%; display:flex; align-items:center; gap:8px; padding-left:32px; }
 .child-age-input{ width:100px; border:1px solid var(--line); background:#fff; border-radius:8px; padding:5px 8px; font-size:12.5px; color:var(--ink); font-family:inherit; outline:none; }
 .child-age-input::placeholder{ color:#ABA7A0; }
-.paying-chip{ all:unset; box-sizing:border-box; cursor:pointer; font-size:11px; font-weight:600; padding:5px 11px; border-radius:20px; background:rgba(20,20,20,0.07); color:var(--ink-soft); }
-.paying-chip.paying{ background:rgba(124,138,110,0.18); color:var(--sage-dark); }
+.paying-toggle-row{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:7px; }
+.paying-toggle-label{ font-size:11.5px; font-weight:600; color:var(--ink-soft); }
+.paying-switch{ position:relative; width:34px; height:20px; border-radius:20px; background:rgba(20,20,20,0.15); flex-shrink:0; transition:background .18s ease; }
+.paying-switch::after{ content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.25); transition:transform .18s ease; }
+.paying-toggle-row.paying .paying-switch{ background:var(--sage-dark); }
+.paying-toggle-row.paying .paying-switch::after{ transform:translateX(14px); }
+.paying-toggle-row.paying .paying-toggle-label{ color:var(--sage-dark); }
 .guest-row .check{ width:22px; height:22px; border-radius:50%; border:1.6px solid #D6D2C9; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .guest-row.confirmed .check{ background:var(--sage); border-color:var(--sage); }
 .guest-row.confirmed .title{ color:var(--sage-dark); font-weight:600; }
@@ -1398,7 +1411,7 @@ function migrateCategoryDescriptions(){
    entre os dois lados (state.guests.criancas), sem se saber de quem
    eram "responsabilidade". Agora "Crianças" é uma categoria como
    Família/Amigos, existente dentro de cada lado (noiva e noivo), e
-   dá para criar outras categorias à parte (ex: "Amigos da família").
+   dá para criar outras categorias à parte (ex: "Pagam metade").
    Esta função só corre uma vez por conta: junta a lista antiga
    completa dentro da categoria "Crianças" da noiva (escolha
    arbitrária, mas não perde ninguém), e garante que ambos os lados
@@ -2151,7 +2164,10 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
       ${isChildren ? `
       <div class="child-extra-row">
         <input type="number" min="0" max="17" class="child-age-input" placeholder="Idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">
-        <button class="paying-chip ${paying?'paying':''}" data-togglepaying="${side}|${catKey}|${idx}">${paying?'Pagante':'Não pagante'}</button>
+        <button class="paying-toggle-row ${paying?'paying':''}" data-togglepaying="${side}|${catKey}|${idx}">
+          <span class="paying-switch"></span>
+          <span class="paying-toggle-label">Pagante</span>
+        </button>
       </div>` : ''}
     </div>`;
   }).join('');
@@ -2170,7 +2186,10 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
         <input type="text" placeholder="Adicionar a ${escapeHTML(catLabel.toLowerCase())}…" data-addname="${side}|${catKey}">
         <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
       </div>
-      ${isCustom ? `<div style="padding:0 14px 12px;"><button class="visit-action-btn danger" style="width:100%;" data-delguestcat="${side}|${catKey}">${ICONS.trash} Eliminar esta categoria</button></div>` : ''}
+      ${isCustom ? `<div style="display:flex; gap:9px; padding:0 14px 12px;">
+        <button class="visit-action-btn" data-renameguestcat="${side}|${catKey}">${ICONS.pencil} Editar nome</button>
+        <button class="visit-action-btn danger" data-delguestcat="${side}|${catKey}">${ICONS.trash} Eliminar</button>
+      </div>` : ''}
     </div>` : ''}
   </div>`;
 }
@@ -2294,6 +2313,15 @@ function bindGuestGroupHandlers(scope){
         const arr = getGuestNames(side,cat);
         if(name && arr){ arr.push(cat==='criancas' ? {name, age:'', paying:false} : name); softUpdateConvidados(); }
       }
+    });
+  });
+  scope.querySelectorAll('[data-renameguestcat]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat] = e.currentTarget.dataset.renameguestcat.split('|');
+      const entry = (state.guests[side].custom||[]).find(c=>c.id===cat);
+      if(!entry) return;
+      const novo = prompt('Novo nome da categoria:', entry.label);
+      if(novo && novo.trim()){ entry.label = novo.trim(); render(); }
     });
   });
   scope.querySelectorAll('[data-delguestcat]').forEach(btn=>{
@@ -6124,6 +6152,30 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
       try{ history.pushState({weddyGuard:true}, '', location.href); }catch(e){}
     }
   });
+})();
+
+/* ============================================================
+   BLOQUEAR "DESLIZAR DA MARGEM PARA VOLTAR" — reforço por JavaScript
+   O CSS (overscroll-behavior-x) já trata da maior parte dos casos, mas em
+   versões mais antigas do Safari esse CSS pode não chegar. Isto impede que
+   o gesto sequer comece: se o toque nasce mesmo junto à margem (esquerda ou
+   direita), ignoramos esse arrasto por completo. Toques que começam mais
+   para dentro do ecrã continuam a funcionar normalmente (scroll, arrastar
+   para reordenar convidados, etc.).
+============================================================ */
+(function preventEdgeSwipeBack(){
+  const EDGE_PX = 14;
+  let watching = false;
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1){ watching = false; return; }
+    const x = e.touches[0].clientX;
+    watching = (x <= EDGE_PX || x >= window.innerWidth - EDGE_PX);
+  }, { passive:true });
+  document.addEventListener('touchmove', function(e){
+    if(watching) e.preventDefault();
+  }, { passive:false });
+  document.addEventListener('touchend', function(){ watching = false; });
+  document.addEventListener('touchcancel', function(){ watching = false; });
 })();
 
 (function lockOrientation(){
