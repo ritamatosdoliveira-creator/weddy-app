@@ -326,7 +326,9 @@ html{
 .exp-adddue-row:active{ opacity:.6; }
 .exp-adddue-input{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
 .exp-due-input{ all:unset; font-size:11.5px; color:inherit; }
-.todo-item-due{ display:flex; align-items:center; gap:5px; width:100%; padding-left:33px; margin-top:-2px; font-size:11px; color:var(--ink-soft); }
+.todo-item-due{ display:flex; flex-wrap:wrap; align-items:center; gap:5px; width:100%; padding-left:33px; margin-top:-2px; font-size:11px; color:var(--ink-soft); }
+.todo-item-due input[type=time]{ width:76px; }
+.todo-item-due.nodate{ color:var(--rust-dark); font-weight:600; }
 .todo-item-due input[type=date]{ all:unset; font-size:11px; color:inherit; }
 .todo-item-due.soon{ color:var(--gold); }
 .todo-item-due.soon input{ color:var(--gold); font-weight:600; }
@@ -334,6 +336,9 @@ html{
 .todo-item-due.overdue input{ color:var(--rust-dark); font-weight:600; }
 .todo-item-due-clear{ all:unset; cursor:pointer; color:inherit; opacity:.6; font-size:11px; line-height:1; padding:0 2px; }
 .todo-item-time{ all:unset; font-size:11px; color:inherit; }
+.add-catitem-due-label{ font-size:10px; color:var(--ink-soft); flex-shrink:0; align-self:center; }
+.exp-date-label{ font-size:10px; color:var(--ink-soft); flex-shrink:0; }
+.supd-pay-date-label{ font-size:10px; color:var(--ink-soft); flex-shrink:0; align-self:center; }
 .todo-cat-due-pill{ font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:rgba(20,20,20,0.06); color:var(--ink-soft); white-space:nowrap; }
 .todo-cat-due-pill.soon{ background:rgba(201,164,128,0.18); color:var(--gold); }
 .todo-cat-due-pill.overdue{ background:rgba(154,79,61,0.12); color:var(--rust-dark); }
@@ -622,7 +627,7 @@ html{
 .picker-row:last-child{ border-bottom:none; }
 .picker-row:active{ background:rgba(20,20,20,0.04); }
 .picker-row .side-tag{ font-size:10px; color:#fff; padding:2px 7px; border-radius:20px; font-weight:600; flex-shrink:0; }
-.picker-row .pname{ flex:1; font-size:14.5px; color:var(--ink); }
+.picker-row .pname{ flex:1; min-width:0; overflow-wrap:anywhere; font-size:14.5px; color:var(--ink); }
 .picker-row.is-selected .pname{ color:var(--heading); font-weight:600; }
 .pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .privacy-text{ padding:0 16px 30px; font-size:13px; color:var(--ink); line-height:1.6; }
@@ -756,7 +761,7 @@ html{
 .agenda-check:active{ background:var(--cream2); }
 .agenda-check svg{ width:11px; height:11px; }
 .agenda-mid{ flex:1; min-width:0; }
-.agenda-text{ font-size:13px; color:var(--ink); font-weight:500; line-height:1.3; }
+.agenda-text{ font-size:13px; color:var(--ink); font-weight:500; line-height:1.3; overflow-wrap:anywhere; }
 .agenda-cat-row{ margin-top:4px; display:flex; align-items:center; gap:7px; }
 .agenda-cat-chip{ font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
 .agenda-time{ font-size:10.5px; font-weight:600; color:var(--ink-soft); }
@@ -2591,6 +2596,7 @@ function viewGastos(){
         <button class="exp-del" data-delexp="${i}">✕</button>
       </div>
       <div class="exp-meta">
+        <span class="exp-date-label">Data</span>
         <input class="exp-date-input" type="date" data-exp="date|${i}" value="${e.date||''}">
         <span class="tag-pill" style="background:${pair.bg}; color:${pair.fg};">${cat?cat.name:'—'}</span>
       </div>
@@ -3073,13 +3079,14 @@ function viewTodoCategory(cat){
   const {total,done} = todoCatProgress(cat);
   const rows = cat.items.map((item,i)=>{
     const urgency = item.done ? '' : dueUrgency(item.due);
+    const dueClass = (!item.done && !item.due) ? 'nodate' : urgency;
     return `
     <div class="list-row guest-row ${item.done?'confirmed':''}" style="flex-wrap:wrap; row-gap:3px;">
       <div class="check tappable" data-catitemcheck="${cat.id}|${i}">${ICONS.check}</div>
       <div class="title tappable" data-catitemcheck="${cat.id}|${i}">${escapeHTML(item.text)}</div>
       <button class="remove-x" data-catitemdel="${cat.id}|${i}">✕</button>
-      <div class="todo-item-due ${urgency}">
-        <span>até</span>
+      <div class="todo-item-due ${dueClass}">
+        <span>${item.due ? 'até' : (item.done ? 'até' : 'sem data — insere uma')}</span>
         <input type="date" data-catitemdue="${cat.id}|${i}" value="${item.due||''}">
         ${item.due ? `<input type="time" class="todo-item-time" data-catitemtime="${cat.id}|${i}" value="${item.time||''}">` : ''}
         ${item.due ? `<button class="todo-item-due-clear" data-catitemdueclear="${cat.id}|${i}" title="Remover prazo">✕</button>` : ''}
@@ -3093,7 +3100,8 @@ function viewTodoCategory(cat){
     ${rows || `<div class="empty-note">ainda sem itens</div>`}
     <div class="add-row" style="flex-wrap:wrap; row-gap:8px;">
       <input type="text" placeholder="Adicionar…" id="add-catitem-name" style="flex:1; min-width:110px;">
-      <input type="date" id="add-catitem-due" title="Prazo (opcional)" style="flex:0 0 auto; width:132px; border:none; background:rgba(20,20,20,0.06); border-radius:9px; padding:8px 10px; font-size:12.5px; font-family:inherit; color:var(--ink); outline:none;">
+      <span class="add-catitem-due-label">até</span>
+      <input type="date" id="add-catitem-due" style="flex:0 0 auto; width:132px; border:none; background:rgba(20,20,20,0.06); border-radius:9px; padding:8px 10px; font-size:12.5px; font-family:inherit; color:var(--ink); outline:none;">
       <button class="add-circle" id="addbtn-catitem" data-forcat="${cat.id}">${ICONS.plus}</button>
     </div>
   </div>
@@ -3423,6 +3431,7 @@ function viewFornecedorDetalhe(){
     <div class="supd-pay-pct" id="supd-pay-pct-label">${pct}% pago</div>
     <div class="supd-pay-list" id="supd-pay-list">${paymentsHTML || '<div class="empty-note" style="margin:10px 0 0;">Ainda sem pagamentos registados.</div>'}</div>
     <div class="supd-pay-addrow">
+      <span class="supd-pay-date-label">Data</span>
       <input type="date" id="supd-pay-date">
       <input type="number" min="0" id="supd-pay-amount" placeholder="Valor €">
       <button class="add-circle" id="supd-pay-add">${ICONS.plus}</button>
