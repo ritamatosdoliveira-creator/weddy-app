@@ -333,6 +333,7 @@ html{
 .todo-item-due.overdue{ color:var(--rust-dark); }
 .todo-item-due.overdue input{ color:var(--rust-dark); font-weight:600; }
 .todo-item-due-clear{ all:unset; cursor:pointer; color:inherit; opacity:.6; font-size:11px; line-height:1; padding:0 2px; }
+.todo-item-time{ all:unset; font-size:11px; color:inherit; }
 .todo-cat-due-pill{ font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:rgba(20,20,20,0.06); color:var(--ink-soft); white-space:nowrap; }
 .todo-cat-due-pill.soon{ background:rgba(201,164,128,0.18); color:var(--gold); }
 .todo-cat-due-pill.overdue{ background:rgba(154,79,61,0.12); color:var(--rust-dark); }
@@ -729,6 +730,39 @@ html{
 .day-card-date{ font-size:13.5px; font-weight:600; color:var(--ink); }
 .day-card-venue{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
 .day-card-botanical{ width:36px; height:auto; color:var(--dusty); opacity:.55; flex-shrink:0; }
+
+/* Início — "Calendário da semana" (mini calendário + agenda do dia) */
+.week-agenda{ margin:0 16px 20px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 14px 8px; box-shadow:var(--shadow); }
+.week-agenda-head{ display:flex; align-items:center; justify-content:space-between; margin:0 2px 12px; }
+.week-agenda-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:17px; color:var(--ink); display:flex; align-items:center; gap:8px; }
+.week-agenda-icon{ width:18px; height:18px; color:var(--ink); flex-shrink:0; }
+.week-agenda-icon svg{ width:18px; height:18px; }
+.week-agenda-link{ all:unset; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--rust-dark); display:flex; align-items:center; gap:2px; }
+.week-agenda-link svg{ width:13px; height:13px; }
+.week-strip{ display:flex; gap:4px; margin-bottom:10px; }
+.week-day{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:7px 0 8px; border-radius:12px; cursor:pointer; }
+.week-day.today{ background:var(--cream2); }
+.week-day-name{ font-size:9.5px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.02em; }
+.week-day-num{ font-size:13.5px; font-weight:600; color:var(--ink); }
+.week-day.today .week-day-num{ color:var(--rust-dark); }
+.week-day-dot{ width:5px; height:5px; border-radius:50%; background:var(--rust); }
+.week-day-dot.none{ background:transparent; }
+.agenda-overdue{ font-size:11.5px; color:var(--rust-dark); font-weight:600; margin:0 2px 10px; }
+.agenda-list{ border-top:1px solid var(--line); }
+.agenda-item{ display:flex; align-items:center; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line); cursor:pointer; }
+.agenda-item:last-child{ border-bottom:none; }
+.agenda-item:active{ opacity:.7; }
+.agenda-check{ all:unset; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:transparent; cursor:pointer; }
+.agenda-check:active{ background:var(--cream2); }
+.agenda-check svg{ width:11px; height:11px; }
+.agenda-mid{ flex:1; min-width:0; }
+.agenda-text{ font-size:13px; color:var(--ink); font-weight:500; line-height:1.3; }
+.agenda-cat-row{ margin-top:4px; display:flex; align-items:center; gap:7px; }
+.agenda-cat-chip{ font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+.agenda-time{ font-size:10.5px; font-weight:600; color:var(--ink-soft); }
+.agenda-chevron{ width:15px; height:15px; color:var(--ink-soft); flex-shrink:0; opacity:.6; }
+.agenda-chevron svg{ width:15px; height:15px; }
+.agenda-empty{ padding:16px 2px 10px; font-size:12px; color:var(--ink-soft); text-align:center; }
 
 /* Sheet (add expense) */
 .sheet-backdrop{ position:absolute; inset:0; background:rgba(20,18,14,0.42); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s ease; }
@@ -1775,6 +1809,78 @@ function dueUrgency(dateStr){
   if(days<=7) return 'soon';
   return '';
 }
+/* Início — "Calendário da semana": junta os itens de to-do com prazo, de todas as categorias */
+function getDuedTodoItems(){
+  const out = [];
+  (state.todoCategories||[]).forEach((cat,catIdx)=>{
+    (cat.items||[]).forEach((item,i)=>{
+      if(item.done || !item.due) return;
+      out.push({ catId:cat.id, catLabel:cat.label, catIcon:cat.icon, catIdx, i, text:item.text, due:item.due, time:item.time||'', days:daysUntil(item.due) });
+    });
+  });
+  out.sort((a,b)=> a.days-b.days || (a.time||'').localeCompare(b.time||''));
+  return out;
+}
+function toLocalISODate(d){
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+/* Segunda a domingo da semana atual, como datas locais */
+function currentWeekDates(){
+  const now = new Date();
+  const dow = now.getDay();
+  const mondayOffset = dow===0 ? -6 : 1-dow;
+  const monday = new Date(now); monday.setDate(now.getDate()+mondayOffset);
+  const dates = [];
+  for(let i=0;i<7;i++){ const d=new Date(monday); d.setDate(monday.getDate()+i); dates.push(d); }
+  return dates;
+}
+let weekAgendaSelectedDate = null;
+function weekStripHTML(duedItems, selectedISO){
+  const dayNames = ['seg','ter','qua','qui','sex','sáb','dom'];
+  return currentWeekDates().map((d,i)=>{
+    const iso = toLocalISODate(d);
+    const isSelected = iso===selectedISO;
+    const hasTask = duedItems.some(it=>it.due===iso);
+    return `<div class="week-day ${isSelected?'today':''}" data-weekday="${iso}">
+      <div class="week-day-name">${dayNames[i]}</div>
+      <div class="week-day-num">${d.getDate()}</div>
+      <div class="week-day-dot ${hasTask?'':'none'}"></div>
+    </div>`;
+  }).join('');
+}
+function weekAgendaHTML(){
+  const allDued = getDuedTodoItems();
+  if(!weekAgendaSelectedDate) weekAgendaSelectedDate = toLocalISODate(new Date());
+  const weekISOs = currentWeekDates().map(toLocalISODate);
+  if(!weekISOs.includes(weekAgendaSelectedDate)) weekAgendaSelectedDate = toLocalISODate(new Date());
+  const selected = weekAgendaSelectedDate;
+  const overdueCount = allDued.filter(it=>it.days<0).length;
+  const dayItems = allDued.filter(it=>it.due===selected);
+  const rows = dayItems.length ? dayItems.map(it=>{
+    return `<div class="agenda-item" data-catgoto="${it.catId}">
+      <div class="agenda-check" data-catitemcheck="${it.catId}|${it.i}">${ICONS.check}</div>
+      <div class="agenda-mid">
+        <div class="agenda-text">${escapeHTML(it.text)}</div>
+        <div class="agenda-cat-row">
+          <span class="agenda-cat-chip" style="${chipStyle(it.catIdx)}">${escapeHTML(it.catLabel)}</span>
+          ${it.time ? `<span class="agenda-time">${it.time}</span>` : ''}
+        </div>
+      </div>
+      <div class="agenda-chevron">${ICONS.chev}</div>
+    </div>`;
+  }).join('') : `<div class="agenda-empty">Sem tarefas neste dia</div>`;
+  return `
+  <div class="week-agenda">
+    <div class="week-agenda-head">
+      <div class="week-agenda-title"><span class="week-agenda-icon">${ICONS.calendar||ICONS.checklist}</span>Calendário da semana</div>
+      <button class="week-agenda-link" data-goto="todo">Ver todas ${ICONS.chev}</button>
+    </div>
+    <div class="week-strip">${weekStripHTML(allDued, selected)}</div>
+    ${overdueCount ? `<div class="agenda-overdue">${overdueCount} tarefa${overdueCount>1?'s':''} atrasada${overdueCount>1?'s':''}</div>` : ''}
+    <div class="agenda-list">${rows}</div>
+  </div>`;
+}
 function donutSVG(pct, color, size, stroke){
   const r = (size-stroke)/2, c = size/2;
   const circ = 2*Math.PI*r;
@@ -1962,6 +2068,8 @@ function viewInicio(){
       <div class="hero-venue">${venue}</div>
     </div>
   </div>
+
+  ${weekAgendaHTML()}
 
   <div class="quicklink-grid quicklink-grid-top">
     <button class="quicklink-card ql-peach" data-goto="vestido">
@@ -2973,6 +3081,7 @@ function viewTodoCategory(cat){
       <div class="todo-item-due ${urgency}">
         <span>até</span>
         <input type="date" data-catitemdue="${cat.id}|${i}" value="${item.due||''}">
+        ${item.due ? `<input type="time" class="todo-item-time" data-catitemtime="${cat.id}|${i}" value="${item.time||''}">` : ''}
         ${item.due ? `<button class="todo-item-due-clear" data-catitemdueclear="${cat.id}|${i}" title="Remover prazo">✕</button>` : ''}
       </div>
     </div>`;
@@ -3853,6 +3962,22 @@ function bindHandlers(){
       _origRender();
     });
   });
+  document.querySelectorAll('[data-catgoto]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const catId = e.currentTarget.dataset.catgoto;
+      collapseAllSections();
+      closeAllSheets();
+      todoOpenCategoryId = catId;
+      activeTab = 'todo';
+      _origRender();
+    });
+  });
+  document.querySelectorAll('[data-weekday]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      weekAgendaSelectedDate = e.currentTarget.dataset.weekday;
+      _origRender();
+    });
+  });
   document.querySelectorAll('[data-scrollto]').forEach(el=>{
     el.addEventListener('click', e=>{
       const target = document.getElementById(e.currentTarget.dataset.scrollto);
@@ -4023,6 +4148,7 @@ function bindHandlers(){
   });
   document.querySelectorAll('[data-catitemcheck]').forEach(el=>{
     el.addEventListener('click', e=>{
+      e.stopPropagation();
       const [catId,i] = e.currentTarget.dataset.catitemcheck.split('|');
       const cat = state.todoCategories.find(c=>c.id===catId);
       cat.items[i].done = !cat.items[i].done;
@@ -4045,11 +4171,20 @@ function bindHandlers(){
       render();
     });
   });
+  document.querySelectorAll('[data-catitemtime]').forEach(el=>{
+    el.addEventListener('change', e=>{
+      const [catId,i] = e.currentTarget.dataset.catitemtime.split('|');
+      const cat = state.todoCategories.find(c=>c.id===catId);
+      cat.items[i].time = e.currentTarget.value || '';
+      render();
+    });
+  });
   document.querySelectorAll('[data-catitemdueclear]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const [catId,i] = e.currentTarget.dataset.catitemdueclear.split('|');
       const cat = state.todoCategories.find(c=>c.id===catId);
       cat.items[i].due = '';
+      cat.items[i].time = '';
       render();
     });
   });
@@ -4060,7 +4195,7 @@ function bindHandlers(){
     const input = document.getElementById('add-catitem-name');
     const dueInput = document.getElementById('add-catitem-due');
     const text = input.value.trim();
-    if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : ''}); render(); }
+    if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : '', time:''}); render(); }
   });
   const addCatItemInput = document.getElementById('add-catitem-name');
   if(addCatItemInput) addCatItemInput.addEventListener('keydown', e=>{
@@ -4069,7 +4204,7 @@ function bindHandlers(){
       const cat = state.todoCategories.find(c=>c.id===catId);
       const dueInput = document.getElementById('add-catitem-due');
       const text = e.currentTarget.value.trim();
-      if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : ''}); render(); }
+      if(text){ cat.items.push({text, done:false, due: dueInput ? dueInput.value : '', time:''}); render(); }
     }
   });
   const openTodoNotes = document.getElementById('open-todo-notes');
