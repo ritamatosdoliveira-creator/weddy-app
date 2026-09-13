@@ -2150,7 +2150,7 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
       <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
       ${isChildren ? `
       <div class="child-extra-row">
-        <input type="number" min="0" max="17" class="child-age-input" placeholder="Inserir idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">
+        <input type="number" min="0" max="17" class="child-age-input" placeholder="Idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">
         <button class="paying-chip ${paying?'paying':''}" data-togglepaying="${side}|${catKey}|${idx}">${paying?'Pagante':'Não pagante'}</button>
       </div>` : ''}
     </div>`;
