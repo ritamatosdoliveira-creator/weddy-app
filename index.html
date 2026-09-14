@@ -6188,6 +6188,7 @@ const _origRender = render;
 let saveTimer = null;
 let firstSyncDone = false;
 let unsubscribeSnapshot = null;
+let dataLossGuardTripped = false;
 
 let saveToastTimer = null;
 function showSaveToast(isError){
@@ -6489,6 +6490,33 @@ function pushRemote(confirmToast){
 }
 render = function(){ _origRender(); pushRemote(); };
 
+/* Rede de segurança: nunca aceitar um snapshot do Firestore que pareça uma
+   perda de dados. Se o que está guardado localmente tem uma quantidade
+   substancial de convidados/tarefas e o que chega agora do Firestore está
+   subitamente vazio nos dois ao mesmo tempo, é muito mais provável ser uma
+   leitura corrompida (rede, cache antiga, bug) do que uma pessoa a apagar
+   tudo de propósito — nesse caso, ignora o snapshot e mantém o que já lá
+   está, em vez de aceitar cegamente e arriscar gravar por cima dos dados
+   reais na próxima interação. */
+function countMeaningfulData(s){
+  let guests = 0, todos = 0;
+  try{
+    ['noiva','noivo'].forEach(side=>{
+      const g = s.guests && s.guests[side];
+      if(!g) return;
+      ['familia','amigos','duvida','staff'].forEach(k=>{ if(Array.isArray(g[k])) guests += g[k].length; });
+      if(Array.isArray(g.custom)) g.custom.forEach(cc=>{ guests += (cc.names||[]).length; });
+    });
+  }catch(e){}
+  try{ (s.todoCategories||[]).forEach(cat=>{ todos += (cat.items||[]).length; }); }catch(e){}
+  return { guests, todos };
+}
+function looksLikeDataLoss(before, after){
+  const b = countMeaningfulData(before), a = countMeaningfulData(after);
+  const wasPopulated = (b.guests + b.todos) >= 5;
+  const nowEmpty = (a.guests + a.todos) === 0;
+  return wasPopulated && nowEmpty;
+}
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) unsubscribeSnapshot();
   unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
@@ -6497,7 +6525,27 @@ function attachFirestoreSync(){
       const data = snap.data();
       if(data.json){
         const incoming = JSON.parse(data.json);
-        if(JSON.stringify(incoming) !== JSON.stringify(state)){ state = incoming; changed = true; }
+        if(JSON.stringify(incoming) !== JSON.stringify(state)){
+          if(looksLikeDataLoss(state, incoming)){
+            console.error('[Weddy] Snapshot recebido do Firestore parece ter perdido dados (convidados/tarefas foram todos a zero) — a IGNORAR este snapshot para não gravar por cima dos dados reais.', { local: countMeaningfulData(state), recebido: countMeaningfulData(incoming) });
+            if(!dataLossGuardTripped){
+              dataLossGuardTripped = true;
+              try{
+                firebase.firestore().collection('_incident_log').add({
+                  weddingId: currentWeddingId,
+                  type: 'possible_data_loss_snapshot_blocked',
+                  local: countMeaningfulData(state),
+                  recebido: countMeaningfulData(incoming),
+                  at: firebase.firestore.FieldValue.serverTimestamp(),
+                  userAgent: (typeof navigator!=='undefined' ? navigator.userAgent : '')
+                }).catch(()=>{});
+              }catch(e){}
+              setTimeout(()=>{ alert('A Weddy detetou uma leitura estranha dos teus dados (pareciam ter desaparecido) e evitou gravar por cima do que já tens. Fecha e volta a abrir a app numa boa ligação à internet para confirmar que está tudo bem. Se o aviso voltar a aparecer, contacta o suporte antes de continuares a usar a app.'); }, 300);
+            }
+          } else {
+            state = incoming; changed = true;
+          }
+        }
         // Contas criadas antes de existirem certos campos podem não os ter guardado — preenche em falta
         const defaults = seedData();
         Object.keys(defaults).forEach(key=>{
