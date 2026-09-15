@@ -1522,6 +1522,21 @@ function migrateGuestCategories(){
       });
     }
   });
+  // Por fim, dá um identificador fixo (id) a QUALQUER convidado que ainda
+  // não tenha — em qualquer categoria, fixa ou criada pela pessoa. Nomes
+  // simples (ainda em texto) ganham também a forma de objeto, sem perder o
+  // nome. Isto é o que permite, por exemplo, que um link de RSVP aponte
+  // sempre à mesma pessoa, mesmo que a lista seja reordenada depois.
+  ['noiva','noivo'].forEach(side=>{
+    allGuestCategoriesOf(side).forEach(c=>{
+      const arr = getGuestNames(side, c.id);
+      if(!Array.isArray(arr)) return;
+      arr.forEach((n,idx)=>{
+        if(typeof n==='string'){ arr[idx] = { name:n, id:generateGuestId() }; }
+        else if(n && typeof n==='object' && !n.id){ n.id = generateGuestId(); }
+      });
+    });
+  });
 }
 
 function seedData(){
@@ -1575,6 +1590,14 @@ function defaultSettings(name1, name2, dateStr, venue){
     heroPhotoZoom: 100
   };
 }
+
+const FIXED_GUEST_CATS = [
+  { id:'familia', label:'Família', icon:'home', colorIdx:0 },
+  { id:'amigos', label:'Amigos', icon:'guests', colorIdx:7 },
+  { id:'duvida', label:'Na dúvida', icon:'question', colorIdx:3 },
+  { id:'staff', label:'Staff / fornecedores', icon:'briefcase', colorIdx:5 }
+];
+const PAYMENT_TRACKING_CATS = ['criancas','staff'];
 
 let state = seedData();
 normalizeCategories();
@@ -1666,17 +1689,10 @@ function flagRequiredField(el){
 }
 function catById(id){ return state.categories.find(c=>c.id===id); }
 function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
-const FIXED_GUEST_CATS = [
-  { id:'familia', label:'Família', icon:'home', colorIdx:0 },
-  { id:'amigos', label:'Amigos', icon:'guests', colorIdx:7 },
-  { id:'duvida', label:'Na dúvida', icon:'question', colorIdx:3 },
-  { id:'staff', label:'Staff / fornecedores', icon:'briefcase', colorIdx:5 }
-];
 // Categorias onde o "peso" de cada convidado para efeitos de contagem pode
 // não ser 1 inteiro — crianças e staff/fornecedores muitas vezes pagam
 // meio-preço ou nada. As mesas continuam a dar-lhes sempre um lugar inteiro;
 // isto só afeta os NÚMEROS de convidados mostrados na app.
-const PAYMENT_TRACKING_CATS = ['criancas','staff'];
 function isPaymentTrackingCat(catId){ return PAYMENT_TRACKING_CATS.includes(catId); }
 // Peso de UM convidado para efeitos de contagem: 1 para a generalidade dos
 // convidados (guardados só como nome/string), ou 0 / 0.5 / 1 consoante a
@@ -1688,13 +1704,21 @@ function guestWeight(entry){
   }
   return 1;
 }
+// Identificador único e permanente por convidado — gerado uma vez, quando o
+// convidado é criado, e nunca muda depois disso (mesmo reordenando ou
+// apagando outras pessoas da lista). É a "morada fixa" de cada convidado,
+// necessária para, por exemplo, um link de RSVP apontar sempre à pessoa
+// certa, independentemente da posição dela na lista.
+function generateGuestId(){
+  return 'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
 // Cria a entrada certa consoante a categoria: crianças ganham idade e
 // percentagem de pagamento; staff/fornecedores só a percentagem; o resto
-// continua a ser um simples nome (string).
+// só o nome — mas TODOS ganham sempre um identificador fixo (id).
 function newGuestEntry(catId, name){
-  if(catId==='criancas') return { name, age:'', payingPct:0 };
-  if(catId==='staff') return { name, payingPct:1 };
-  return name;
+  if(catId==='criancas') return { name, id:generateGuestId(), age:'', payingPct:0 };
+  if(catId==='staff') return { name, id:generateGuestId(), payingPct:1 };
+  return { name, id:generateGuestId() };
 }
 // Arredonda para 1 casa decimal e mostra sem ".0" quando é um número inteiro
 // (ex: 3 em vez de "3.0", mas 1.5 continua "1.5").
@@ -1781,7 +1805,12 @@ function moveGuest(side, cat, fromIdx, dir){
 }
 const TABLE_SHAPES = { round:{label:'Redonda', icon:'tableround'}, long:{label:'Longa', icon:'tablelong'}, serpentine:{label:'Serpente', icon:'tableserpentine'} };
 function getTable(id){ return state.seating.tables.find(t=>t.id===id); }
-function nextTableId(){ return state.seating.tables.length ? Math.max(...state.seating.tables.map(t=>t.id))+1 : 1; }
+function nextTableId(){
+  const usedIds = new Set(state.seating.tables.map(t=>t.id));
+  let candidate = 1;
+  while(usedIds.has(candidate)) candidate++;
+  return candidate;
+}
 function totalSeatsCount(){ return state.seating.tables.reduce((s,t)=>s+t.seats,0); }
 function assignedSeatsCount(){ return Object.keys(state.seating.assignments).filter(k=>state.seating.assignments[k]).length; }
 function clearSeatsAbove(tableId, fromSeat){
@@ -2710,7 +2739,7 @@ function viewGastos(){
    VIEW: Mesas
 ============================================================ */
 function viewMesas(){
-  const tables = state.seating.tables;
+  const tables = [...state.seating.tables].sort((a,b)=>a.id-b.id);
   const totalSeats = totalSeatsCount();
   const assignedCount = assignedSeatsCount();
 
@@ -2740,7 +2769,11 @@ function viewMesas(){
         <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">Lugares</span>
         <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
       </div>
-      <div style="padding:2px 14px 12px;">
+      <div style="padding:8px 14px 4px;">
+        <label style="display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px;">Notas (ex: não sentar a Ana perto do Bruno)</label>
+        <textarea data-tablenote="${t}" rows="2" placeholder="Escreve aqui…" style="all:unset; box-sizing:border-box; width:100%; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-family:inherit; font-size:13px; color:var(--ink); resize:vertical;">${escapeHTML(table.notes||'')}</textarea>
+      </div>
+      <div style="padding:8px 14px 12px;">
         <button class="del-table-btn" data-deltable="${t}">${ICONS.trash} Eliminar mesa</button>
       </div>
       <div class="seat-list">${seatsHTML}</div>`;
@@ -2750,6 +2783,7 @@ function viewMesas(){
       <div class="table-head" data-toggletable="${t}">
         <div class="icon-chip" style="${chipStyle(ti)}">${ICONS[TABLE_SHAPES[table.shape].icon]}</div>
         <div class="ttitle">Mesa ${t}<span class="phase-desc">${TABLE_SHAPES[table.shape].label}</span></div>
+        ${table.notes ? `<span title="Tem notas" style="color:var(--gold); display:flex; align-items:center; width:15px; height:15px; flex-shrink:0;">${ICONS.docnote.replace('<svg ', '<svg style="width:100%;height:100%;" ')}</span>` : ''}
         <span class="fillcount">${filled}/${table.seats}</span>
         <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
       </div>
@@ -2843,6 +2877,19 @@ function guessTaskTag(text){
   return 'Geral';
 }
 const ROMAN_NUM = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+// Quantas semanas antes do casamento cada fase devia estar concluída —
+// usado para sugerir um prazo automático a cada fase, com base na data real
+// do casamento. Vai ficando mais apertado perto do grande dia, tal como o
+// ritmo natural de organizar um casamento.
+const CHECKLIST_PHASE_WEEKS_BEFORE = [52, 44, 36, 30, 26, 22, 18, 14, 10, 6, 3, 1];
+function checklistPhaseDeadline(phaseIndex){
+  if(!weddingSettings.weddingDate) return null;
+  const weeks = CHECKLIST_PHASE_WEEKS_BEFORE[phaseIndex];
+  if(weeks===undefined) return null;
+  const wedding = new Date(weddingSettings.weddingDate+'T00:00:00');
+  const deadline = new Date(wedding.getTime() - weeks*7*86400000);
+  return deadline.toISOString().slice(0,10);
+}
 function viewChecklist(){
   const totalTasks = CHECKLIST_PHASES.reduce((s,p)=>s+p.tasks.length,0) + WEDDING_DAY_CHECKLIST.length;
   const doneTasks = Object.values(state.checklistDone).filter(Boolean).length + Object.values(state.dressChecklistDone).filter(Boolean).length;
@@ -2860,6 +2907,8 @@ function viewChecklist(){
     const pi = CHECKLIST_PHASES.indexOf(p);
     const doneCount = p.tasks.filter((task,i)=>state.checklistDone[p.id+'-'+i]).length;
     const open = openChecklistPhaseId===p.id;
+    const deadline = checklistPhaseDeadline(pi);
+    const deadlineUrgency = (deadline && doneCount<p.tasks.length) ? dueUrgency(deadline) : '';
     const tasksHTML = p.tasks.map((task,i)=>{
       const key = p.id+'-'+i;
       const done = !!state.checklistDone[key];
@@ -2878,6 +2927,7 @@ function viewChecklist(){
         <div class="phase-card-mid">
           <div class="phase-card-title">Fase ${pi+1}</div>
           <div class="phase-card-desc">${p.desc}</div>
+          ${deadline ? `<div style="margin-top:6px;"><span class="todo-cat-due-pill ${deadlineUrgency}">${doneCount<p.tasks.length ? 'até '+formatDateShortPT(deadline) : 'prazo era '+formatDateShortPT(deadline)}</span></div>` : ''}
         </div>
         <div class="phase-card-right">
           <span class="phase-card-count">${doneCount}/${p.tasks.length}</span>
@@ -4766,6 +4816,14 @@ function bindHandlers(){
       render();
     });
   });
+  document.querySelectorAll('[data-tablenote]').forEach(el=>{
+    el.addEventListener('input', e=>{
+      const table = getTable(Number(e.currentTarget.dataset.tablenote));
+      if(table) table.notes = e.target.value;
+      pushRemote();
+    });
+    el.addEventListener('blur', ()=>{ pushRemote(true); });
+  });
   document.querySelectorAll('[data-toggletable]').forEach(el=>{
     el.addEventListener('click', e=>{
       const t = e.currentTarget.dataset.toggletable;
@@ -5203,7 +5261,7 @@ function ensureMesa3DHeader(){
 function renderMesa3DChips(){
   const el = document.getElementById('mesa3d-chips');
   let chips = '';
-  state.seating.tables.forEach(table=>{
+  [...state.seating.tables].sort((a,b)=>a.id-b.id).forEach(table=>{
     const t = table.id;
     chips += `<button class="table-chip ${t===mesa3dSelectedTable?'active':''}" data-mesa3dsel="${t}">${t}</button>`;
   });
