@@ -259,14 +259,8 @@ html{
 .guest-row.child-row{ flex-wrap:wrap; row-gap:8px; }
 .child-extra-row{ flex-basis:100%; display:flex; align-items:center; gap:8px; padding-left:32px; }
 .child-age-input{ width:100px; border:1px solid var(--line); background:#fff; border-radius:8px; padding:5px 8px; font-size:12.5px; color:var(--ink); font-family:inherit; outline:none; }
+.payment-pct-select{ border:1px solid var(--line); background:#fff; border-radius:8px; padding:5px 8px; font-size:12.5px; color:var(--ink); font-family:inherit; outline:none; }
 .child-age-input::placeholder{ color:#ABA7A0; }
-.paying-toggle-row{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:7px; }
-.paying-toggle-label{ font-size:11.5px; font-weight:600; color:var(--ink-soft); }
-.paying-switch{ position:relative; width:34px; height:20px; border-radius:20px; background:rgba(20,20,20,0.15); flex-shrink:0; transition:background .18s ease; }
-.paying-switch::after{ content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.25); transition:transform .18s ease; }
-.paying-toggle-row.paying .paying-switch{ background:var(--sage-dark); }
-.paying-toggle-row.paying .paying-switch::after{ transform:translateX(14px); }
-.paying-toggle-row.paying .paying-toggle-label{ color:var(--sage-dark); }
 .guest-row .check{ width:22px; height:22px; border-radius:50%; border:1.6px solid #D6D2C9; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .guest-row.confirmed .check{ background:var(--sage); border-color:var(--sage); }
 .guest-row.confirmed .title{ color:var(--sage-dark); font-weight:600; }
@@ -1496,7 +1490,7 @@ function migrateGuestCategories(){
     const noivaCriancas = state.guests.noiva.custom.find(c=>c.id==='criancas');
     const startIdx = noivaCriancas.names.length;
     oldList.forEach((name,i)=>{
-      noivaCriancas.names.push({ name, age:'', paying:false });
+      noivaCriancas.names.push({ name, age:'', payingPct:0 });
       if(state.confirmed['crianca|'+i]!==undefined){
         state.confirmed['noiva|criancas|'+(startIdx+i)] = state.confirmed['crianca|'+i];
         delete state.confirmed['crianca|'+i];
@@ -1504,12 +1498,29 @@ function migrateGuestCategories(){
     });
     delete state.guests.criancas;
   }
-  // Quem já tinha usado a versão anterior (crianças só com nome, sem idade
-  // nem pagante) fica com strings simples aqui — transforma-as em objetos,
-  // sem perder o nome que já lá estava.
+  // Quem já tinha usado uma versão anterior (crianças só com nome; ou já com
+  // idade e um "paying" verdadeiro/falso, em vez da percentagem) fica com
+  // formatos antigos aqui — converte tudo para o formato atual, sem perder
+  // nome nem idade já preenchidos.
   ['noiva','noivo'].forEach(side=>{
     const cat = state.guests[side].custom.find(c=>c.id==='criancas');
-    if(cat) cat.names = cat.names.map(n => (typeof n==='string') ? { name:n, age:'', paying:false } : n);
+    if(cat) cat.names = cat.names.map(n=>{
+      if(typeof n==='string') return { name:n, age:'', payingPct:0 };
+      if(n && n.payingPct===undefined) return { name:n.name, age:n.age||'', payingPct: n.paying ? 1 : 0 };
+      return n;
+    });
+  });
+  // Staff/fornecedores era só uma lista de nomes (strings) — passa a ter,
+  // tal como as crianças, uma percentagem de pagamento por pessoa (por
+  // defeito 100%, já que normalmente são convidados como os outros).
+  ['noiva','noivo'].forEach(side=>{
+    if(Array.isArray(state.guests[side].staff)){
+      state.guests[side].staff = state.guests[side].staff.map(n=>{
+        if(typeof n==='string') return { name:n, payingPct:1 };
+        if(n && n.payingPct===undefined) return { name:n.name, payingPct:1 };
+        return n;
+      });
+    }
   });
 }
 
@@ -1661,6 +1672,36 @@ const FIXED_GUEST_CATS = [
   { id:'duvida', label:'Na dúvida', icon:'question', colorIdx:3 },
   { id:'staff', label:'Staff / fornecedores', icon:'briefcase', colorIdx:5 }
 ];
+// Categorias onde o "peso" de cada convidado para efeitos de contagem pode
+// não ser 1 inteiro — crianças e staff/fornecedores muitas vezes pagam
+// meio-preço ou nada. As mesas continuam a dar-lhes sempre um lugar inteiro;
+// isto só afeta os NÚMEROS de convidados mostrados na app.
+const PAYMENT_TRACKING_CATS = ['criancas','staff'];
+function isPaymentTrackingCat(catId){ return PAYMENT_TRACKING_CATS.includes(catId); }
+// Peso de UM convidado para efeitos de contagem: 1 para a generalidade dos
+// convidados (guardados só como nome/string), ou 0 / 0.5 / 1 consoante a
+// percentagem de pagamento escolhida, para crianças e staff/fornecedores.
+function guestWeight(entry){
+  if(entry && typeof entry==='object'){
+    const p = entry.payingPct;
+    return (p===0 || p===0.5 || p===1) ? p : 0;
+  }
+  return 1;
+}
+// Cria a entrada certa consoante a categoria: crianças ganham idade e
+// percentagem de pagamento; staff/fornecedores só a percentagem; o resto
+// continua a ser um simples nome (string).
+function newGuestEntry(catId, name){
+  if(catId==='criancas') return { name, age:'', payingPct:0 };
+  if(catId==='staff') return { name, payingPct:1 };
+  return name;
+}
+// Arredonda para 1 casa decimal e mostra sem ".0" quando é um número inteiro
+// (ex: 3 em vez de "3.0", mas 1.5 continua "1.5").
+function fmtGuestCount(n){
+  const r = Math.round(n*10)/10;
+  return Number.isInteger(r) ? String(r) : String(r);
+}
 // Lista, para um lado (noiva/noivo), TODAS as categorias — as 4 fixas mais
 // as que a pessoa foi criando (Crianças, por defeito, e quaisquer outras
 // que adicione, ex: "Pagam metade" ou por faixa etária).
@@ -1757,12 +1798,16 @@ function clearAllSeatsForTable(tableId){
 }
 function isConfirmed(side,cat,idx){ return !!state.confirmed[guestKey(side,cat,idx)]; }
 function countGuests(side){
-  return allGuestCategoriesOf(side).reduce((s,c)=>s+(getGuestNames(side,c.id)||[]).length,0);
+  let total = 0;
+  allGuestCategoriesOf(side).forEach(c=>{
+    (getGuestNames(side,c.id)||[]).forEach(n=>{ total += guestWeight(n); });
+  });
+  return total;
 }
 function countConfirmed(side){
   let n=0;
   allGuestCategoriesOf(side).forEach(c=>{
-    (getGuestNames(side,c.id)||[]).forEach((name,idx)=>{ if(isConfirmed(side,c.id,idx)) n++; });
+    (getGuestNames(side,c.id)||[]).forEach((n2,idx)=>{ if(isConfirmed(side,c.id,idx)) n += guestWeight(n2); });
   });
   return n;
 }
@@ -2114,11 +2159,11 @@ function viewInicio(){
       <div class="ring-label">Confirmados</div>
       <div class="ring-wrap">
         ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--sage-dark)', 92, 9)}
-        <div class="ring-center"><span class="num">${totalConfirmed}</span><span class="sub">de ${totalGuests}</span></div>
+        <div class="ring-center"><span class="num">${fmtGuestCount(totalConfirmed)}</span><span class="sub">de ${fmtGuestCount(totalGuests)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n">${countConfirmed('noiva')}</div><div class="l">Noiva</div></div>
-        <div><div class="n">${countConfirmed('noivo')}</div><div class="l">Noivo</div></div>
+        <div><div class="n">${fmtGuestCount(countConfirmed('noiva'))}</div><div class="l">Noiva</div></div>
+        <div><div class="n">${fmtGuestCount(countConfirmed('noivo'))}</div><div class="l">Noivo</div></div>
       </div>
     </div>
     <div class="ring-card tappable" data-goto="orcamento" style="cursor:pointer;">
@@ -2274,27 +2319,31 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
   const isSearching = !!guestFilter;
   const open = isSearching || !!openGuestGroup[key];
   const isChildren = catKey==='criancas';
+  const hasPayment = isPaymentTrackingCat(catKey);
   const nameOf = n => (typeof n==='string') ? n : (n.name||'');
-  const confirmedCount = items.filter((n,idx)=>isConfirmed(side,catKey,idx)).length;
+  const weightOf = n => hasPayment ? guestWeight(n) : 1;
+  const confirmedWeight = items.reduce((s,n,idx)=> s + (isConfirmed(side,catKey,idx) ? weightOf(n) : 0), 0);
+  const totalWeight = items.reduce((s,n)=> s + weightOf(n), 0);
   const rows = items.map((n,idx)=>{
     const name = nameOf(n);
     if(guestFilter && !name.toLowerCase().includes(guestFilter.toLowerCase())) return '';
     const conf = isConfirmed(side,catKey,idx);
-    const age = isChildren ? (n.age||'') : '';
-    const paying = isChildren ? !!n.paying : false;
+    const age = isChildren ? ((n&&n.age)||'') : '';
+    const payingPct = hasPayment ? guestWeight(n) : 1;
     return `
-    <div class="list-row guest-row ${isChildren?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
+    <div class="list-row guest-row ${hasPayment?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
       ${!isSearching ? `<button class="drag-handle" data-draghandle="${side}|${catKey}">${ICONS.draghandle}</button>` : '<span style="width:20px;flex-shrink:0;"></span>'}
       <div class="check tappable" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
       <input type="text" class="title-input-inline" style="flex:1; min-width:0;" data-editguest="${side}|${catKey}|${idx}" value="${escapeHTML(name)}">
       <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
-      ${isChildren ? `
+      ${hasPayment ? `
       <div class="child-extra-row">
-        <input type="number" min="0" max="17" class="child-age-input" placeholder="Idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">
-        <button class="paying-toggle-row ${paying?'paying':''}" data-togglepaying="${side}|${catKey}|${idx}">
-          <span class="paying-switch"></span>
-          <span class="paying-toggle-label">Pagante</span>
-        </button>
+        ${isChildren ? `<input type="number" min="0" max="17" class="child-age-input" placeholder="Idade" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">` : ''}
+        <select class="payment-pct-select" data-editpaypct="${side}|${catKey}|${idx}">
+          <option value="0" ${payingPct===0?'selected':''}>Não pagante</option>
+          <option value="0.5" ${payingPct===0.5?'selected':''}>Pagante 50%</option>
+          <option value="1" ${payingPct===1?'selected':''}>Pagante 100%</option>
+        </select>
       </div>` : ''}
     </div>`;
   }).join('');
@@ -2303,7 +2352,7 @@ function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
     <div class="guest-group-head" data-togglegroup="${key}">
       <div class="icon-chip" style="${chipStyle(colorIdx)}">${icon}</div>
       <div class="ggtitle">${escapeHTML(catLabel)}</div>
-      <span class="ggcount">${confirmedCount}/${items.length}</span>
+      <span class="ggcount">${hasPayment ? `${fmtGuestCount(confirmedWeight)}/${fmtGuestCount(totalWeight)}` : `${confirmedWeight}/${totalWeight}`}</span>
       <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
     </div>
     ${open? `
@@ -2423,12 +2472,12 @@ function bindGuestGroupHandlers(scope){
     // campo), não a cada tecla — para não aparecer o aviso constantemente.
     inp.addEventListener('blur', ()=>{ pushRemote(true); });
   });
-  scope.querySelectorAll('[data-togglepaying]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const [side,cat,idx] = e.currentTarget.dataset.togglepaying.split('|');
+  scope.querySelectorAll('[data-editpaypct]').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.editpaypct.split('|');
       const arr = getGuestNames(side,cat);
       if(!arr || !arr[Number(idx)]) return;
-      arr[Number(idx)].paying = !arr[Number(idx)].paying;
+      arr[Number(idx)].payingPct = Number(e.currentTarget.value);
       softUpdateConvidados(false);
       pushRemote(true);
     });
@@ -2439,7 +2488,7 @@ function bindGuestGroupHandlers(scope){
       const input = scope.querySelector(`[data-addname="${side}|${cat}"]`) || document.querySelector(`[data-addname="${side}|${cat}"]`);
       const name = input.value.trim();
       const arr = getGuestNames(side,cat);
-      if(name && arr){ arr.push(cat==='criancas' ? {name, age:'', paying:false} : name); softUpdateConvidados(); }
+      if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); }
     });
   });
   scope.querySelectorAll('[data-addname]').forEach(inp=>{
@@ -2448,7 +2497,7 @@ function bindGuestGroupHandlers(scope){
         const [side,cat] = e.currentTarget.dataset.addname.split('|');
         const name = e.currentTarget.value.trim();
         const arr = getGuestNames(side,cat);
-        if(name && arr){ arr.push(cat==='criancas' ? {name, age:'', paying:false} : name); softUpdateConvidados(); }
+        if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); }
       }
     });
   });
@@ -2520,10 +2569,10 @@ function buildConvidadosDynamic(){
   <div class="ring-stat-card">
     <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
       ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--dusty-dark)', 78, 8)}
-      <div class="ring-center"><span class="num" style="font-size:17px;">${totalConfirmed}</span></div>
+      <div class="ring-center"><span class="num" style="font-size:17px;">${fmtGuestCount(totalConfirmed)}</span></div>
     </div>
     <div class="ring-stat-list">
-      <div class="ring-stat-item"><span class="n">${totalGuests}</span><span class="l">convidados no total</span></div>
+      <div class="ring-stat-item"><span class="n">${fmtGuestCount(totalGuests)}</span><span class="l">convidados no total</span></div>
       <div class="ring-stat-item"><span class="n">${fmtEUR(perGuest)}</span><span class="l">€ / convidado (pago)</span></div>
     </div>
   </div>
@@ -4921,7 +4970,7 @@ document.getElementById('gf-save').addEventListener('click', ()=>{
   const cat = document.getElementById('gf-cat').value;
   const arr = getGuestNames(guestSheetSide, cat);
   if(arr){
-    arr.push(cat==='criancas' ? {name, age:'', paying:false} : name);
+    arr.push(newGuestEntry(cat, name));
     openGuestGroup[guestSheetSide+'|'+cat] = true;
     guestSeg = guestSheetSide;
   }
@@ -6255,14 +6304,15 @@ function exportToExcel(){
       allGuestCategoriesOf(side).forEach(c=>{
         (getGuestNames(side,c.id)||[]).forEach((n,idx)=>{
           const key = guestKey(side,c.id,idx);
-          const isChild = typeof n==='object';
+          const isObj = n && typeof n==='object';
+          const hasPay = isPaymentTrackingCat(c.id);
           guestList.push({
-            name: isChild ? (n.name||'') : n,
+            name: isObj ? (n.name||'') : n,
             side: side==='noiva'?'Noiva':'Noivo',
             group: c.label,
             confirmed: !!state.confirmed[key],
-            age: isChild ? (n.age||'') : '',
-            paying: isChild ? (n.paying?'Sim':'Não') : ''
+            age: (isObj && c.id==='criancas') ? (n.age||'') : '',
+            paying: hasPay ? fmtGuestCount(guestWeight(n)*100)+'%' : ''
           });
         });
       });
@@ -6403,9 +6453,13 @@ function exportToPDF(){
     allGuestCategoriesOf(side).forEach(c=>{
       (getGuestNames(side,c.id)||[]).forEach((n,idx)=>{
         const key = guestKey(side,c.id,idx);
-        const isChild = typeof n==='object';
-        const name = isChild ? (n.name||'') : n;
-        const extra = isChild ? [n.age?`${n.age} anos`:'', n.paying?'Pagante':'Não pagante'].filter(Boolean).join(' · ') : '';
+        const isObj = n && typeof n==='object';
+        const hasPay = isPaymentTrackingCat(c.id);
+        const name = isObj ? (n.name||'') : n;
+        const extra = [
+          (isObj && c.id==='criancas' && n.age) ? `${n.age} anos` : '',
+          hasPay ? `${fmtGuestCount(guestWeight(n)*100)}%` : ''
+        ].filter(Boolean).join(' · ');
         guestBody.push([name, `${side==='noiva'?'Noiva':'Noivo'} · ${c.label}${extra?' · '+extra:''}`, state.confirmed[key]?'Confirmado':'—']);
       });
     });
