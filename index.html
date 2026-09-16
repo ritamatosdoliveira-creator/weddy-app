@@ -1698,9 +1698,9 @@ function isPaymentTrackingCat(catId){ return PAYMENT_TRACKING_CATS.includes(catI
 // convidados (guardados só como nome/string), ou 0 / 0.5 / 1 consoante a
 // percentagem de pagamento escolhida, para crianças e staff/fornecedores.
 function guestWeight(entry){
-  if(entry && typeof entry==='object'){
+  if(entry && typeof entry==='object' && entry.payingPct!==undefined){
     const p = entry.payingPct;
-    return (p===0 || p===0.5 || p===1) ? p : 0;
+    return (p===0 || p===0.5 || p===1) ? p : 1;
   }
   return 1;
 }
