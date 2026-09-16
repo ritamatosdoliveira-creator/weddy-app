@@ -5614,12 +5614,26 @@ function tableSVG(table){
   return `<svg viewBox="0 0 160 176" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
 }
 function ensureTablePositions(){
-  const spacing = 132, perRow = 3, startX = 16, startY = 16;
+  const spacing = 132, perRow = 3, startX = 16, startY = 16, tol = 20;
   let changed = false;
-  state.seating.tables.forEach((t,i)=>{
+  function isOccupied(x, y, skipTable){
+    return state.seating.tables.some(other =>
+      other!==skipTable && typeof other.x==='number' && typeof other.y==='number' &&
+      Math.abs(other.x-x)<tol && Math.abs(other.y-y)<tol
+    );
+  }
+  state.seating.tables.forEach(t=>{
     if(typeof t.x !== 'number' || typeof t.y !== 'number'){
-      t.x = startX + (i % perRow) * spacing;
-      t.y = startY + Math.floor(i / perRow) * spacing;
+      // Procura a primeira posição da grelha que ainda não esteja ocupada
+      // por outra mesa — nunca duas mesas ficam exatamente sobrepostas,
+      // escondendo uma a outra.
+      let gi = 0, x, y;
+      do {
+        x = startX + (gi % perRow) * spacing;
+        y = startY + Math.floor(gi / perRow) * spacing;
+        gi++;
+      } while(isOccupied(x, y, t) && gi < 500);
+      t.x = x; t.y = y;
       changed = true;
     }
   });
