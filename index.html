@@ -1164,6 +1164,7 @@ html{
 .mini-toggle.on .knob{ left:19.5px; }
 .memories-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 16px 20px; }
 .memory-tile{ position:relative; aspect-ratio:1; border-radius:12px; overflow:hidden; background:var(--line); }
+.memory-tile > a{ display:block; width:100%; height:100%; }
 .memory-tile img, .memory-tile video{ width:100%; height:100%; object-fit:cover; display:block; }
 .memory-del{ all:unset; box-sizing:border-box; position:absolute; top:5px; right:5px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
 .memory-del svg{ width:13px; height:13px; }
@@ -3836,7 +3837,7 @@ const APP_I18N = {
     btnSendWhatsappInvite:'WhatsApp',
     rsvpInviteMsgLabel:'Mensagem do convite (WhatsApp)',
     rsvpInviteMsgHint:'Usada no botão de WhatsApp de cada convidado. Marcadores: [nome], [noivos], [link].',
-    rsvpInviteMsgDefault:'Olá, [nome]! 🤍\nÉ com muita alegria que queremos partilhar contigo um dos dias mais especiais das nossas vidas. ✨\nPreparamos o nosso convite com muito carinho e gostaríamos muito de celebrar este momento contigo. 🥂💍\nConfirma a tua presença através deste link:\n[link]\nMal podemos esperar para viver este dia contigo! 🤍\nCom carinho,\n[noivos]',
+    rsvpInviteMsgDefault:'Olá, [nome]! 🤍\nÉ com muita alegria que queremos partilhar contigo um dos dias mais especiais das nossas vidas. ✨\nPreparamos o nosso dia com muito carinho e gostaríamos muito de celebrar este momento contigo. 🥂💍\nConfirma a tua presença através deste link:\n[link]\nMal podemos esperar para viver este dia contigo! 🤍\nCom carinho,\n[noivos]',
     titleRemoveInvite:'Remover convite (apaga a resposta e desativa o link)',
     labelChildrenColon:'Crianças:',
     yearsOldSuffix:(a)=>` (${a} anos)`,
@@ -11698,15 +11699,19 @@ function viewDefMemories(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('memoriesTitle'));
   if(!memoriesLoaded && !memoriesLoading) loadMemories();
   // Pedido da Rita (Out 2026): dar para ver/guardar o original de cada
-  // foto, sem ficar limitado à miniatura cortada em quadrado — abre o
-  // ficheiro original numa nova aba (daí basta premir/botão direito →
-  // guardar). Fica só para imagens — vídeo foi avaliado e descartado.
+  // foto, sem ficar limitado à miniatura cortada em quadrado. Em vez de um
+  // pequeno ícone pouco óbvio por cima da foto, a foto INTEIRA passa a ser
+  // clicável — abre o ficheiro original numa nova aba (basta depois
+  // premir/botão direito → guardar). O ícone de download fica só como
+  // reforço visual no canto, não é o único sítio onde se pode tocar.
   const gridHtml = weddingMemories.length ? `
     <div class="memories-grid">
       ${weddingMemories.map(m=>`
         <div class="memory-tile">
-          <img src="${escapeHTML(m.url||'')}" loading="lazy">
-          ${m.url ? `<a class="memory-view" href="${escapeHTML(m.url)}" target="_blank" rel="noopener" title="${ta('btnViewSaveMemory')}">${ICONS.download}</a>` : ''}
+          ${m.url ? `<a href="${escapeHTML(m.url)}" target="_blank" rel="noopener" title="${ta('btnViewSaveMemory')}">
+            <img src="${escapeHTML(m.url)}" loading="lazy">
+            <span class="memory-view">${ICONS.download}</span>
+          </a>` : `<img src="" loading="lazy">`}
           <button class="memory-del" data-memorydel="${m.id}" data-memorypath="${escapeHTML(m.storagePath||'')}">${ICONS.trash}</button>
           ${m.guestName ? `<div class="memory-caption">${escapeHTML(m.guestName)}</div>` : ''}
         </div>
@@ -14546,7 +14551,7 @@ async function openRSVPQRModal(link, name){
       <div class="rsvp-qr-name">${escapeHTML(name||'')}</div>
       ${qrImg ? `<img src="${qrImg}" alt="${ta('qrCodeAltText')}" width="220" height="220"/>` : `<div class="rsvp-qr-link" style="margin:12px 0;">${ta('qrCodeGenErrorText')}</div>`}
       <div class="rsvp-qr-link">${escapeHTML(link)}</div>
-      <button class="rsvp-copy-btn" id="rsvp-qr-print" style="flex:none; width:100%; padding:11px 20px; margin-top:4px;">${ICONS.download||''} ${ta('btnPrint')}</button>
+      <button class="rsvp-copy-btn" id="rsvp-qr-print" style="flex:none; width:100%; padding:14px 24px; margin-top:12px; gap:9px;">${ICONS.download||''} ${ta('btnPrint')}</button>
     </div>
   `;
   document.body.appendChild(wrap);
