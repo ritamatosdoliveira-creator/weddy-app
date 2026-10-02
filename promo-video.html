@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<title>Weddy — promo</title>
+<meta name="description" content="Sequência animada de motion graphics para gravares o ecrã e montares o vídeo de lançamento da Weddy.">
+</head>
+<body>
+<style>
+/* ============================================================
+   DESIGN PLAN
+   Cor: paleta exata da Weddy (mesmos tokens do app em produção) —
+        cream (fundo), ink (texto), rust/rust-dark (destaque principal),
+        gold (acento secundário quente), sage (acento frio pontual).
+   Tipo: Cormorant Garamond (display, para os momentos de impacto) +
+        Manrope (corpo/legendas, para o resto).
+   Layout: um "ecrã" fixo (9:16, como um Story/Reel) com cenas empilhadas
+        que entram e saem sozinhas, com barra de progresso tipo Stories
+        no topo — pensado para ser gravado com o ecrã do telemóvel.
+   Nota: esta página assume deliberadamente UM único visual (o da marca
+        Weddy, sempre creme/terracota) independentemente do tema do
+        telemóvel de quem grava — é conteúdo de marca para gravação,
+        não deve mudar de aspeto consoante o modo claro/escuro do visor.
+============================================================ */
+:root{
+  --cream:#FAF8F5;
+  --card:#FFFDFC;
+  --ink:#302C29;
+  --ink-soft:#8E8780;
+  --rust:#B96752;
+  --rust-dark:#9A4F3D;
+  --gold:#C9A480;
+  --blush:#E7C5BB;
+  --sage:#A8B39C;
+  --line:rgba(48,44,41,0.1);
+  color-scheme: light;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; height:100%; background:var(--ink); }
+body{
+  font-family:'Manrope',-apple-system,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.stage{
+  position:relative;
+  width:100%;
+  max-width:420px;
+  aspect-ratio:9/16;
+  max-height:100%;
+  background:var(--cream);
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);
+}
+@media (min-aspect-ratio: 9/16){
+  .stage{ height:100%; width:auto; }
+}
+
+/* Barra de progresso tipo Stories */
+.progress-row{
+  position:absolute; top:0; left:0; right:0;
+  display:flex; gap:5px;
+  padding:14px 14px 0;
+  z-index:20;
+}
+.progress-row .seg{
+  flex:1; height:3px; border-radius:3px;
+  background:rgba(48,44,41,0.18);
+  overflow:hidden;
+}
+.progress-row .seg i{
+  display:block; height:100%; width:0%;
+  background:var(--rust-dark);
+  border-radius:3px;
+}
+.progress-row .seg.done i{ width:100%; }
+.progress-row .seg.active i{ animation:fillbar linear forwards; }
+@keyframes fillbar{ from{width:0%;} to{width:100%;} }
+
+.wm{
+  position:absolute; top:34px; left:18px; z-index:20;
+  font-family:'Cormorant Garamond',serif; font-weight:600;
+  font-size:15px; color:var(--rust-dark); letter-spacing:.02em;
+}
+
+.scene{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:60px 30px 40px;
+  opacity:0; pointer-events:none;
+  transition:opacity .45s ease;
+}
+.scene.active{ opacity:1; pointer-events:auto; }
+
+.eyebrow{
+  font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--rust); margin-bottom:14px;
+}
+h1.big{
+  font-family:'Cormorant Garamond',serif; font-weight:600;
+  font-size:clamp(30px,8vw,42px); line-height:1.12; color:var(--rust-dark);
+  margin:0 0 14px;
+}
+p.sub{
+  font-size:15.5px; line-height:1.55; color:var(--ink-soft); margin:0;
+  max-width:300px;
+}
+
+/* Cena 1 — gancho */
+#s1{ background:linear-gradient(160deg,var(--cream),var(--blush) 140%); }
+#s1 .chaos{
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:26px;
+  max-width:280px;
+}
+#s1 .chip{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:7px 12px; font-size:12.5px; color:var(--ink-soft); font-weight:600;
+  box-shadow:0 2px 8px rgba(48,44,41,0.06);
+  animation:wobble 2.6s ease-in-out infinite;
+}
+#s1 .chip:nth-child(2){ animation-delay:.3s; }
+#s1 .chip:nth-child(3){ animation-delay:.6s; }
+#s1 .chip:nth-child(4){ animation-delay:.9s; }
+@keyframes wobble{ 0%,100%{ transform:rotate(-1.5deg);} 50%{ transform:rotate(1.5deg);} }
+
+/* Cena 2 — problema */
+#s2{ background:var(--cream); }
+#s2 .msgline{
+  display:flex; align-items:center; gap:10px; background:var(--card);
+  border:1px solid var(--line); border-radius:14px; padding:12px 16px;
+  margin-bottom:10px; width:100%; max-width:300px; text-align:left;
+  font-size:13.5px; color:var(--ink); font-weight:600;
+  box-shadow:0 2px 10px rgba(48,44,41,0.06);
+  opacity:0; transform:translateY(10px);
+  animation:popin .5s ease forwards;
+}
+#s2 .msgline b{ color:var(--rust-dark); }
+#s2 .msgline:nth-child(2){ animation-delay:.2s; }
+#s2 .msgline:nth-child(3){ animation-delay:.5s; }
+#s2 .msgline:nth-child(4){ animation-delay:.8s; }
+@keyframes popin{ to{ opacity:1; transform:translateY(0); } }
+
+/* Cena 3 — reveal da marca */
+#s3{ background:var(--rust-dark); }
+#s3 .logo{
+  font-family:'Cormorant Garamond',serif; font-weight:700; font-style:italic;
+  font-size:clamp(46px,13vw,64px); color:var(--cream); margin:0 0 16px;
+  letter-spacing:.01em;
+}
+#s3 p.sub{ color:var(--blush); }
+#s3 .eyebrow{ color:var(--gold); }
+
+/* Cena 4 — funcionalidades */
+#s4{ background:var(--cream); justify-content:flex-start; padding-top:110px; }
+#s4 .feat{
+  display:flex; align-items:center; gap:12px; width:100%; max-width:300px;
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:13px 16px; margin-bottom:10px; text-align:left;
+  box-shadow:0 2px 10px rgba(48,44,41,0.06);
+  opacity:0; transform:translateX(-16px);
+  animation:slidein .5s ease forwards;
+}
+#s4 .feat:nth-child(2){ animation-delay:.12s; }
+#s4 .feat:nth-child(3){ animation-delay:.3s; }
+#s4 .feat:nth-child(4){ animation-delay:.48s; }
+#s4 .feat:nth-child(5){ animation-delay:.66s; }
+@keyframes slidein{ to{ opacity:1; transform:translateX(0); } }
+#s4 .feat .ic{
+  flex:0 0 auto; width:34px; height:34px; border-radius:10px;
+  background:var(--blush); display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+#s4 .feat .tx{ font-size:14px; font-weight:700; color:var(--ink); }
+
+/* Cena 5 — prova social */
+#s5{ background:linear-gradient(160deg,var(--cream),var(--gold) 160%); }
+#s5 .count{
+  font-family:'Cormorant Garamond',serif; font-weight:700;
+  font-size:clamp(56px,16vw,78px); color:var(--rust-dark); line-height:1;
+  margin-bottom:6px;
+}
+
+/* Cena 6 — CTA final */
+#s6{ background:var(--rust-dark); }
+#s6 .logo{
+  font-family:'Cormorant Garamond',serif; font-weight:700; font-style:italic;
+  font-size:clamp(40px,11vw,54px); color:var(--cream); margin:0 0 20px;
+}
+#s6 .cta-btn{
+  margin-top:22px; background:var(--cream); color:var(--rust-dark);
+  font-weight:800; font-size:15px; padding:14px 28px; border-radius:14px;
+  letter-spacing:.01em;
+}
+#s6 p.sub{ color:var(--blush); }
+
+.replay{
+  position:absolute; bottom:16px; right:16px; z-index:30;
+  background:rgba(48,44,41,0.55); color:#fff; border:none; border-radius:10px;
+  padding:9px 14px; font-size:12px; font-weight:700; font-family:'Manrope',sans-serif;
+  cursor:pointer; opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.replay.show{ opacity:1; pointer-events:auto; }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600,700;1,600,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<div class="stage" id="stage">
+  <div class="progress-row" id="progressRow"></div>
+  <div class="wm">weddy</div>
+
+  <div class="scene" id="s1" data-dur="3.2">
+    <div class="eyebrow">Sê honesta…</div>
+    <h1 class="big">Organizar o casamento<br>em 5 apps diferentes?</h1>
+    <div class="chaos">
+      <div class="chip">📋 Excel</div>
+      <div class="chip">💬 WhatsApp</div>
+      <div class="chip">📝 Notas soltas</div>
+      <div class="chip">📎 Emails perdidos</div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2" data-dur="3.4">
+    <div class="eyebrow">O caos de sempre</div>
+    <div class="msgline">Orçamento <b>aqui</b></div>
+    <div class="msgline">Convidados <b>ali</b></div>
+    <div class="msgline">RSVP <b>por mensagem</b></div>
+  </div>
+
+  <div class="scene" id="s3" data-dur="2.8">
+    <div class="eyebrow">A solução</div>
+    <div class="logo">weddy</div>
+    <p class="sub">Tudo num só sítio. E grátis.</p>
+  </div>
+
+  <div class="scene" id="s4" data-dur="4.2">
+    <div class="feat"><div class="ic">💶</div><div class="tx">Orçamento sempre atualizado</div></div>
+    <div class="feat"><div class="ic">👥</div><div class="tx">Convidados organizados</div></div>
+    <div class="feat"><div class="ic">✅</div><div class="tx">RSVP com um link</div></div>
+    <div class="feat"><div class="ic">🪑</div><div class="tx">Lugares à mesa, sem stress</div></div>
+    <div class="feat"><div class="ic">📸</div><div class="tx">Fotos dos convidados num sítio só</div></div>
+  </div>
+
+  <div class="scene" id="s5" data-dur="3">
+    <div class="eyebrow">Já é realidade</div>
+    <div class="count">+20</div>
+    <p class="sub">casais já organizam<br>o dia deles na Weddy</p>
+  </div>
+
+  <div class="scene" id="s6" data-dur="4">
+    <div class="eyebrow">É grátis</div>
+    <div class="logo">weddy</div>
+    <p class="sub">Instala e organiza o teu<br>casamento sem stress.</p>
+    <div class="cta-btn">weddy.pt</div>
+  </div>
+
+  <button class="replay" id="replayBtn">↻ Repetir</button>
+</div>
+
+<script>
+(function(){
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('.scene'));
+  var row = document.getElementById('progressRow');
+  var replayBtn = document.getElementById('replayBtn');
+  var timer = null;
+  var idx = 0;
+
+  scenes.forEach(function(){
+    var seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = '<i></i>';
+    row.appendChild(seg);
+  });
+  var segs = Array.prototype.slice.call(row.children);
+
+  function showScene(i){
+    scenes.forEach(function(s,si){ s.classList.toggle('active', si===i); });
+    segs.forEach(function(seg,si){
+      seg.classList.remove('active');
+      if(si < i){ seg.classList.add('done'); seg.querySelector('i').style.animation='none'; }
+      else if(si === i){
+        seg.classList.remove('done');
+        var dur = parseFloat(scenes[i].dataset.dur || '3');
+        var bar = seg.querySelector('i');
+        bar.style.animation = 'none';
+        // reflow para reiniciar a animação sempre que a cena repete
+        void bar.offsetWidth;
+        bar.style.animation = 'fillbar '+dur+'s linear forwards';
+        seg.classList.add('active');
+      } else {
+        seg.querySelector('i').style.animation='none';
+        seg.querySelector('i').style.width='0%';
+      }
+    });
+  }
+
+  function next(){
+    if(idx >= scenes.length - 1){
+      replayBtn.classList.add('show');
+      return;
+    }
+    idx++;
+    showScene(idx);
+    var dur = parseFloat(scenes[idx].dataset.dur || '3') * 1000;
+    timer = setTimeout(next, dur);
+  }
+
+  function start(){
+    idx = 0;
+    replayBtn.classList.remove('show');
+    showScene(0);
+    var dur = parseFloat(scenes[0].dataset.dur || '3') * 1000;
+    clearTimeout(timer);
+    timer = setTimeout(next, dur);
+  }
+
+  replayBtn.addEventListener('click', start);
+  start();
+})();
+</script>
+</body>
+</html>
