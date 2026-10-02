@@ -809,7 +809,7 @@ html{
    width/height próprios) usava o tamanho intrínseco por omissão do browser
    (300x150) dentro de uma caixa de 32x32 — ficava cortado pelo overflow do
    ".list-group" à volta e, na prática, invisível. */
-.autopilot-row-icon svg{ width:18px; height:18px; display:block; }
+.autopilot-row-icon svg{ width:21px; height:21px; display:block; }
 /* Editor de "Perguntas personalizadas" (Concierge FAQ) — lista de cartões
    com interruptor on/off por pergunta. */
 .faq-card{ margin:0 16px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); }
@@ -3836,7 +3836,7 @@ const APP_I18N = {
     btnSendWhatsappInvite:'WhatsApp',
     rsvpInviteMsgLabel:'Mensagem do convite (WhatsApp)',
     rsvpInviteMsgHint:'Usada no botão de WhatsApp de cada convidado. Marcadores: [nome], [noivos], [link].',
-    rsvpInviteMsgDefault:'Olá [nome]! 💛 Aqui está o nosso convite — confirma a tua presença por aqui: [link] — [noivos]',
+    rsvpInviteMsgDefault:'Olá, [nome]! 🤍\nÉ com muita alegria que queremos partilhar contigo um dos dias mais especiais das nossas vidas. ✨\nPreparamos o nosso convite com muito carinho e gostaríamos muito de celebrar este momento contigo. 🥂💍\nConfirma a tua presença através deste link:\n[link]\nMal podemos esperar para viver este dia contigo! 🤍\nCom carinho,\n[noivos]',
     titleRemoveInvite:'Remover convite (apaga a resposta e desativa o link)',
     labelChildrenColon:'Crianças:',
     yearsOldSuffix:(a)=>` (${a} anos)`,
@@ -4949,7 +4949,7 @@ const APP_I18N = {
     btnSendWhatsappInvite:'WhatsApp',
     rsvpInviteMsgLabel:'Invite message (WhatsApp)',
     rsvpInviteMsgHint:'Used by each guest\'s WhatsApp button. Placeholders: [name], [couple], [link].',
-    rsvpInviteMsgDefault:'Hi [name]! 💛 Here\'s our invite — please confirm your attendance here: [link] — [couple]',
+    rsvpInviteMsgDefault:'Hi, [name]! 🤍\nWe\'re overjoyed to share one of the most special days of our lives with you. ✨\nWe prepared our invite with a lot of love, and we\'d really love to celebrate this moment with you. 🥂💍\nPlease confirm your attendance through this link:\n[link]\nWe can\'t wait to live this day with you! 🤍\nWith love,\n[couple]',
     titleRemoveInvite:'Remove invite (deletes the response and disables the link)',
     labelChildrenColon:'Children:',
     yearsOldSuffix:(a)=>` (${a} years old)`,
@@ -14546,7 +14546,7 @@ async function openRSVPQRModal(link, name){
       <div class="rsvp-qr-name">${escapeHTML(name||'')}</div>
       ${qrImg ? `<img src="${qrImg}" alt="${ta('qrCodeAltText')}" width="220" height="220"/>` : `<div class="rsvp-qr-link" style="margin:12px 0;">${ta('qrCodeGenErrorText')}</div>`}
       <div class="rsvp-qr-link">${escapeHTML(link)}</div>
-      <button class="rsvp-copy-btn" id="rsvp-qr-print">${ICONS.download||''} ${ta('btnPrint')}</button>
+      <button class="rsvp-copy-btn" id="rsvp-qr-print" style="flex:none; width:100%; padding:11px 20px; margin-top:4px;">${ICONS.download||''} ${ta('btnPrint')}</button>
     </div>
   `;
   document.body.appendChild(wrap);
@@ -14619,7 +14619,7 @@ function autopilotReviewCardHtml(){
         ? `<span class="autopilot-row-icon" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--ink-soft);">${ICONS.check}</span>`
         : `<span style="width:32px; height:32px; flex-shrink:0;"></span>`;
     return `
-    <div class="list-row" style="padding:8px 0;" data-autopilot-row="${escapeHTML(token||'')}">
+    <div class="list-row" style="padding:8px 14px;" data-autopilot-row="${escapeHTML(token||'')}">
       <div style="flex:1;">${escapeHTML(item.name)}</div>
       ${rowIcon}
     </div>`;
@@ -17481,13 +17481,21 @@ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isN
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js').then(reg=>{
+    // Pedido da Rita (Out 2026): as atualizações demoravam a aparecer mesmo
+    // com o código já publicado — o browser podia estar a responder ao
+    // pedido de "há alguma versão nova de sw.js?" com uma cópia do próprio
+    // sw.js guardada na cache HTTP normal (não a cache da app, a cache do
+    // browser), em vez de ir mesmo perguntar ao servidor. "updateViaCache:
+    // 'none'" obriga esse pedido a ir sempre à rede, para a verificação de
+    // versão nova nunca ficar ela própria presa em cache.
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg=>{
       // Verifica logo se há uma versão nova, e volta a verificar sempre
       // que a pessoa reabre a app (ex: vem do fundo do telemóvel).
       reg.update().catch(()=>{});
       document.addEventListener('visibilitychange', ()=>{
         if(document.visibilityState==='visible') reg.update().catch(()=>{});
       });
+      window.addEventListener('focus', ()=> reg.update().catch(()=>{}));
       setInterval(()=>reg.update().catch(()=>{}), 20*60*1000); // a cada 20 min, se a app ficar aberta
 
       // O Safari, ao trazer a app de volta do fundo do telemóvel (em vez de a
