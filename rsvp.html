@@ -398,6 +398,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       updateBtn: 'Atualizar resposta',
       sending: 'A enviar…',
       chooseMealError: 'Escolhe uma refeição antes de enviar.',
+      childDetailsRequired: 'Preenche o nome e a idade de cada criança antes de enviar.',
       sendError: 'Não foi possível enviar. Verifica a internet e tenta novamente.',
       faqTitle: 'Perguntas frequentes',
       faqWhere: 'Onde é?',
@@ -529,6 +530,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       updateBtn: 'Update response',
       sending: 'Sending…',
       chooseMealError: 'Choose a meal before sending.',
+      childDetailsRequired: 'Fill in each child\'s name and age before sending.',
       sendError: 'Could not send. Check your connection and try again.',
       faqTitle: 'Frequently asked questions',
       faqWhere: 'Where is it?',
@@ -1104,6 +1106,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         msgEl.className = 'msg error';
         return;
       }
+      // Mesma regra do convidado individual: uma criança adicionada tem de
+      // ficar com nome e idade preenchidos antes de poder enviar.
+      if(st.attend==='yes' && (st.children||[]).some(c => !(c.name||'').trim() || c.age==='' || c.age===undefined || c.age===null)){
+        msgEl.textContent = t('childDetailsRequired');
+        msgEl.className = 'msg error';
+        return;
+      }
     }
     btn.disabled = true;
     msgEl.textContent = t('sending');
@@ -1327,6 +1336,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       : [];
     if(attending && !meal){
       msgEl.textContent = t('chooseMealError');
+      msgEl.className = 'msg error';
+      return;
+    }
+    // Uma criança adicionada (o subcampo foi ativado) tem de ficar com nome
+    // e idade preenchidos — não pode ser enviada em branco.
+    if(attending && children.some(c => !(c.name||'').trim() || c.age==='' || c.age===undefined || c.age===null)){
+      msgEl.textContent = t('childDetailsRequired');
       msgEl.className = 'msg error';
       return;
     }
