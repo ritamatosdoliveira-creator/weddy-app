@@ -421,6 +421,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesNotImage: name => `"${name}" não é uma imagem.`,
       memoriesTooLarge: name => `"${name}" é grande demais (máx. 8MB).`,
       memoriesSending: name => `A enviar ${name}…`,
+      memoriesUploading: (n)=> n>1 ? `A carregar ${n} fotos… não feches esta página.` : 'A carregar a foto… não feches esta página.',
       memoriesThanks: 'Obrigado por partilhar! 💛',
       memoriesError: 'Não foi possível enviar esta foto. Verifica a internet e tenta novamente.',
       privacyToggle: 'Como tratamos os teus dados',
@@ -553,6 +554,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesNotImage: name => `"${name}" is not an image.`,
       memoriesTooLarge: name => `"${name}" is too large (max 8MB).`,
       memoriesSending: name => `Uploading ${name}…`,
+      memoriesUploading: (n)=> n>1 ? `Uploading ${n} photos… don't close this page.` : 'Uploading photo… don\'t close this page.',
       memoriesThanks: 'Thanks for sharing! 💛',
       memoriesError: 'Could not upload this photo. Check your connection and try again.',
       privacyToggle: 'How we handle your data',
@@ -1174,6 +1176,22 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // convite (weddingId/token/ficheiro) e cria SÓ um registo de criação em
   // "memories" (o convidado nunca consegue ler nem listar fotos, nem as
   // suas nem as de outros — só o casal, em Definições → Weddy Memories).
+  // Contador de uploads em curso — mostra um aviso fixo enquanto há pelo
+  // menos uma foto a enviar, e impede que o convidado feche ou saia da
+  // página a meio (o que cortaria o envio e deixava a foto em falta do
+  // lado do casal, sem qualquer aviso de erro).
+  let activeMemoryUploads = 0;
+  function updateMemoriesLoadingState(){
+    const statusEl = document.getElementById('memories-status');
+    if(activeMemoryUploads > 0){
+      statusEl.textContent = t('memoriesUploading')(activeMemoryUploads);
+      statusEl.className = 'msg';
+    }
+  }
+  window.addEventListener('beforeunload', e=>{
+    if(activeMemoryUploads > 0){ e.preventDefault(); e.returnValue = ''; }
+  });
+
   document.getElementById('memory-file-input').addEventListener('change', e=>{
     const files = Array.from(e.target.files || []);
     if(!files.length) return;
@@ -1208,6 +1226,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       wrap.appendChild(spin);
       previewEl.appendChild(wrap);
 
+      activeMemoryUploads++;
+      updateMemoriesLoadingState();
       const path = `memories/${guestData.weddingId}/${guestToken}/${Date.now()}_${file.name}`;
       const ref = storage.ref(path);
       ref.put(file).then(()=>{
@@ -1227,18 +1247,30 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       }).then(()=>{
         wrap.classList.remove('is-uploading');
         anySuccess = true;
-        statusEl.textContent = t('memoriesThanks');
-        statusEl.className = 'msg success';
-      }).catch(()=>{
+        activeMemoryUploads--;
+        if(activeMemoryUploads > 0){
+          updateMemoriesLoadingState();
+        } else {
+          statusEl.textContent = t('memoriesThanks');
+          statusEl.className = 'msg success';
+        }
+      }).catch(err=>{
+        // Registar o erro real (ex: permissão negada, rede) — antes isto
+        // falhava em silêncio, o que tornava impossível perceber porque é
+        // que uma foto nunca mais saía do estado "a carregar".
+        console.error('Weddy memories upload error:', err && err.code, err && err.message);
         wrap.classList.remove('is-uploading');
         wrap.classList.add('is-error');
-        const err = document.createElement('div');
-        err.className = 'memories-thumb-err';
-        err.textContent = '!';
-        err.title = t('memoriesError');
-        wrap.appendChild(err);
+        const errIcon = document.createElement('div');
+        errIcon.className = 'memories-thumb-err';
+        errIcon.textContent = '!';
+        errIcon.title = t('memoriesError');
+        wrap.appendChild(errIcon);
         anyError = true;
-        if(!anySuccess){
+        activeMemoryUploads--;
+        if(activeMemoryUploads > 0){
+          updateMemoriesLoadingState();
+        } else if(!anySuccess){
           statusEl.textContent = t('memoriesError');
           statusEl.className = 'msg error';
         }
