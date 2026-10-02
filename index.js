@@ -189,9 +189,24 @@ async function sendReminderEmail(transporter, job) {
 exports.sendRsvpReminders = onSchedule(
   { schedule: '0 9 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS] },
   async () => {
-    const snap = await db.collection('guests').get();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    // Auditoria Out 2026 (achado MÉDIO): isto costumava ler a coleção
+    // "guests" INTEIRA todos os dias, para todos os casamentos de todos os
+    // clientes da Weddy, só para descartar no código quase todos os
+    // documentos (só interessam os que têm rsvpDeadline a cair exatamente
+    // daqui a 7, 3 ou 1 dias). Isso cresce sem limite o custo de leitura à
+    // medida que a Weddy ganha casamentos. Como REMINDER_DAYS_BEFORE é uma
+    // lista curta e fixa, dá para pedir ao Firestore só os documentos cujo
+    // "rsvpDeadline" seja exatamente uma dessas 3 datas (where...in) — o
+    // filtro corre no servidor, não aqui, e só paga as leituras que
+    // realmente interessam.
+    const targetDeadlines = REMINDER_DAYS_BEFORE.map((d) => {
+      const dt = new Date(today);
+      dt.setDate(dt.getDate() + d);
+      return dt.toISOString().slice(0, 10);
+    });
+    const snap = await db.collection('guests').where('rsvpDeadline', 'in', targetDeadlines).get();
     const jobs = [];
 
     snap.forEach((doc) => {
