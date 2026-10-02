@@ -1467,6 +1467,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
   <div class="sheet" id="guest-phone-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" data-t="sheetTitleGuestPhone">Telefone e comunicações</div>
+    <div class="login-msg" id="gp-wa-context-note" style="display:none; margin:-4px 0 8px; color:var(--rust-dark);" data-t="gpWaContextNote">Vais abrir o WhatsApp a seguir. Queres guardar aqui o número deste convidado, para a próxima vez ser mais rápido?</div>
     <div class="sheet-field">
       <label data-t="labelPhoneOptional">Telefone (opcional)</label>
       <div style="display:flex; gap:8px;">
@@ -3835,6 +3836,8 @@ const APP_I18N = {
     btnCopyLink:'Copiar link',
     btnGenerateLink:'Gerar link',
     btnSendWhatsappInvite:'WhatsApp',
+    gpWaContextNote:'Vais abrir o WhatsApp a seguir. Queres guardar aqui o número deste convidado, para a próxima vez ser mais rápido?',
+    btnSkipAndOpenWhatsapp:'Saltar e abrir WhatsApp',
     rsvpInviteMsgLabel:'Mensagem do convite (WhatsApp)',
     rsvpInviteMsgHint:'Usada no botão de WhatsApp de cada convidado. Marcadores: [nome], [noivos], [link].',
     rsvpInviteMsgDefault:'Olá, [nome]! 🤍\nÉ com muita alegria que queremos partilhar contigo um dos dias mais especiais das nossas vidas. ✨\nPreparamos o nosso dia com muito carinho e gostaríamos muito de celebrar este momento contigo. 🥂💍\nConfirma a tua presença através deste link:\n[link]\nMal podemos esperar para viver este dia contigo! 🤍\nCom carinho,\n[noivos]',
@@ -4948,6 +4951,8 @@ const APP_I18N = {
     btnCopyLink:'Copy link',
     btnGenerateLink:'Generate link',
     btnSendWhatsappInvite:'WhatsApp',
+    gpWaContextNote:'You\'re about to open WhatsApp. Want to save this guest\'s number here, to make it quicker next time?',
+    btnSkipAndOpenWhatsapp:'Skip and open WhatsApp',
     rsvpInviteMsgLabel:'Invite message (WhatsApp)',
     rsvpInviteMsgHint:'Used by each guest\'s WhatsApp button. Placeholders: [name], [couple], [link].',
     rsvpInviteMsgDefault:'Hi, [name]! 🤍\nWe\'re overjoyed to share one of the most special days of our lives with you. ✨\nWe prepared our invite with a lot of love, and we\'d really love to celebrate this moment with you. 🥂💍\nPlease confirm your attendance through this link:\n[link]\nWe can\'t wait to live this day with you! 🤍\nWith love,\n[couple]',
@@ -6402,6 +6407,7 @@ function bindGuestGroupHandlers(scope){
   scope.querySelectorAll('[data-editphone]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const [side,cat,idx] = e.currentTarget.dataset.editphone.split('|');
+      resetWhatsAppInvitePhonePrompt();
       openGuestPhoneSheet(side, cat, Number(idx));
     });
   });
@@ -11108,7 +11114,7 @@ function viewRSVPRespostas(){
       actionsHtml = `<div class="rsvp-actions-inline">
         <button class="rsvp-copy-btn" data-rsvpcopy="${escapeHTML(link)}">${ICONS.mail} ${ta('btnCopyLink')}</button>
         <button class="rsvp-qr-btn" data-rsvpqr="${escapeHTML(link)}" data-rsvpqrname="${escapeHTML(item.name)}">${ICONS.qrcode||''} QR</button>
-        <button class="rsvp-qr-btn" data-rsvpwalink="${escapeHTML(link)}" data-rsvpwaname="${escapeHTML(item.name)}" data-rsvpwaphone="${escapeHTML(item.entry.phone||'')}" style="color:#25D366;">${ICONS.whatsapp} ${ta('btnSendWhatsappInvite')}</button>
+        <button class="rsvp-qr-btn" data-rsvpwalink="${escapeHTML(link)}" data-rsvpwaname="${escapeHTML(item.name)}" data-rsvpwaphone="${escapeHTML(item.entry.phone||'')}" data-rsvpwaside="${escapeHTML(item.side)}" data-rsvpwacat="${escapeHTML(item.catId)}" data-rsvpwaidx="${item.idx}" style="color:#25D366;">${ICONS.whatsapp} ${ta('btnSendWhatsappInvite')}</button>
         <button class="rsvp-qr-btn rsvp-revoke-btn" data-rsvprevoke="${item.side}|${item.catId}|${item.idx}" data-rsvprevokename="${escapeHTML(item.name)}" title="${ta('titleRemoveInvite')}">${ICONS.trash}</button>
       </div>`;
     } else {
@@ -13128,7 +13134,24 @@ function bindHandlers(){
       const template = weddingSettings.rsvpInviteMessage || ta('rsvpInviteMsgDefault');
       const texto = fillReminderPlaceholders(template, name, couple, link);
       const digits = phone.replace(/[^\d]/g, '');
-      openWhatsAppLink(digits, texto);
+      if(digits){
+        openWhatsAppLink(digits, texto);
+        return;
+      }
+      // Pedido da Rita (Out 2026): sem número gravado para este convidado, o
+      // wa.me vai abrir o seletor de contactos do próprio WhatsApp — e daí
+      // não há forma de sabermos qual contacto a pessoa escolheu (o WhatsApp
+      // não devolve essa informação à página). Em vez disso, perguntamos ANTES
+      // de abrir o WhatsApp se quer aproveitar e já guardar o número deste
+      // convidado aqui (reutilizando a mesma ficha "Telefone e comunicações").
+      // Seja qual for a resposta, o convite segue sempre em frente.
+      const { side, cat, idx } = { side: el.dataset.rsvpwaside, cat: el.dataset.rsvpwacat, idx: Number(el.dataset.rsvpwaidx) };
+      openGuestPhoneSheet(side, cat, idx);
+      pendingWhatsAppInviteAfterPhone = { texto };
+      const noteEl = document.getElementById('gp-wa-context-note');
+      if(noteEl) noteEl.style.display = '';
+      const cancelBtn = document.getElementById('gp-cancel');
+      if(cancelBtn) cancelBtn.textContent = ta('btnSkipAndOpenWhatsapp');
     });
   });
   document.querySelectorAll('[data-rsvprevoke]').forEach(btn=>{
@@ -14094,6 +14117,18 @@ document.getElementById('ef-guestvisible').addEventListener('click', e=>{
 // nunca é feita diretamente — passa sempre por GuestCommsService
 // (updateGuestPhone), nunca por pushRemote().
 let editingGuestPhoneRef = null; // { side, cat, idx, guestId }
+// Preenchido só quando a ficha "Telefone e comunicações" é aberta a partir do
+// botão "Enviar convite WhatsApp" sem número gravado (ver clique em
+// [data-rsvpwalink]) — guarda o texto do convite para, assim que a pessoa
+// guardar (ou saltar) o número, abrirmos o WhatsApp a seguir.
+let pendingWhatsAppInviteAfterPhone = null; // { texto }
+function resetWhatsAppInvitePhonePrompt(){
+  pendingWhatsAppInviteAfterPhone = null;
+  const noteEl = document.getElementById('gp-wa-context-note');
+  if(noteEl) noteEl.style.display = 'none';
+  const cancelBtn = document.getElementById('gp-cancel');
+  if(cancelBtn) cancelBtn.textContent = ta('btnCancel');
+}
 // Pedido (Set 2026): nem todos os convidados são portugueses — a app
 // assumia sempre +351. Isto dá um seletor de indicativo (os mais comuns
 // para casamentos com convidados internacionais, mais "Outro" para
@@ -14211,7 +14246,16 @@ function closeGuestPhoneSheet(){
   document.getElementById('sheet-backdrop').classList.remove('show');
   editingGuestPhoneRef = null;
 }
-document.getElementById('gp-cancel').addEventListener('click', closeGuestPhoneSheet);
+document.getElementById('gp-cancel').addEventListener('click', ()=>{
+  if(pendingWhatsAppInviteAfterPhone){
+    const { texto } = pendingWhatsAppInviteAfterPhone;
+    closeGuestPhoneSheet();
+    resetWhatsAppInvitePhonePrompt();
+    openWhatsAppLink('', texto); // sem número gravado: o WhatsApp deixa escolher o contacto à mão
+    return;
+  }
+  closeGuestPhoneSheet();
+});
 document.getElementById('gp-phone').addEventListener('input', e=>{
   e.target.classList.remove('field-error');
   document.getElementById('gp-consent-row').style.display = e.target.value.trim() ? '' : 'none';
@@ -14259,6 +14303,12 @@ document.getElementById('gp-save').addEventListener('click', async ()=>{
   // Function (updateGuestPhone), diretamente no Firestore. O listener em
   // tempo real (attachFirestoreSync) traz o valor novo em breve; nada
   // mais a fazer aqui.
+  if(pendingWhatsAppInviteAfterPhone){
+    const savedPhone = res.phone || phone;
+    const digits = (savedPhone||'').replace(/[^\d]/g, '');
+    openWhatsAppLink(digits, pendingWhatsAppInviteAfterPhone.texto);
+    resetWhatsAppInvitePhonePrompt();
+  }
 });
 document.getElementById('ef-save').addEventListener('click', ()=>{
   const labelEl = document.getElementById('ef-label');
