@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Confirma a tua presença</title>
+<!-- Auditoria/pedido Out 2026 ("título do WhatsApp"): sem estas tags Open
+     Graph, uma pessoa a partilhar este link por WhatsApp (ex: lembrete de
+     RSVP) via wa.me não tinha pré-visualização nenhuma — só um link cru,
+     sem título, sem descrição, sem imagem. Isto dá-lhe uma pré-visualização
+     com cara da Weddy em vez de parecer um link suspeito. O título/descrição
+     são genéricos de propósito (este ficheiro é partilhado por TODOS os
+     casamentos, não só o de quem o está a ler agora). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Weddy">
+<meta property="og:title" content="💛 Confirma a tua presença">
+<meta property="og:description" content="Confirma se vais e a tua refeição em menos de um minuto.">
+<meta property="og:image" content="https://www.weddy.pt/icon-512.png">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -716,7 +729,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     }
     list.innerHTML = children.map((c,i)=>`
       <div class="child-row" data-childrow="${i}">
-        <input class="child-name" type="text" placeholder="${t('childNamePlaceholder')}" data-childfield="name" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
+        <input class="child-name" type="text" maxlength="80" placeholder="${t('childNamePlaceholder')}" data-childfield="name" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
         <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-childfield="age" data-idx="${i}" value="${c.age===undefined||c.age===null?'':c.age}">
         <div class="child-seg">
           <button type="button" data-childattend="yes" data-idx="${i}" class="${c.attending===true?'active':''}">${t('childYes')}</button>
@@ -948,7 +961,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     if(!kids.length) return '';
     return kids.map((c,i)=>`
       <div class="child-row">
-        <input class="child-name" type="text" placeholder="${t('childNamePlaceholder')}" data-mchildfield="name" data-mid="${mid}" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
+        <input class="child-name" type="text" maxlength="80" placeholder="${t('childNamePlaceholder')}" data-mchildfield="name" data-mid="${mid}" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
         <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-mchildfield="age" data-mid="${mid}" data-idx="${i}" value="${c.age===undefined||c.age===null?'':c.age}">
         <div class="child-seg">
           <button type="button" data-mchildattend="yes" data-mid="${mid}" data-idx="${i}" class="${c.attending===true?'active':''}">${t('childYes')}</button>
@@ -1133,10 +1146,14 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         children: attending ? st.children.filter(c=>(c.name||'').trim()).map(c=>({ name:c.name.trim(), age:c.age===''||c.age===undefined?null:Number(c.age), attending:c.attending!==false })) : []
       };
     });
-    db.collection('guests').doc(guestToken).update({
-      responses: responses,
-      respondedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(()=>{
+    // Grava cada membro no seu próprio caminho ("responses.<id>"), em vez de
+    // substituir o mapa "responses" inteiro. Isto evita que, se outra pessoa
+    // da família estiver a responder ao mesmo tempo noutro telemóvel, uma
+    // das respostas apague silenciosamente a da outra: cada escrita só toca
+    // nos campos dos membros que este dispositivo está mesmo a enviar.
+    const familyUpdatePayload = { respondedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    members.forEach(m=>{ familyUpdatePayload['responses.' + m.guestId] = responses[m.guestId]; });
+    db.collection('guests').doc(guestToken).update(familyUpdatePayload).then(()=>{
       guestData.responses = responses;
       updateDeleteLinkVisibility();
       const anyYes = members.some(m=>responses[m.guestId].attending===true);
@@ -1186,14 +1203,26 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // (ligação muito lenta, pedido perdido, etc.), força um erro explícito
   // em vez de ficar ali indefinidamente sem o convidado saber o que
   // aconteceu.
-  function withUploadTimeout(promise, fileSizeBytes){
+  // Auditoria Out 2026 (achado ALTO): o timeout só decidia qual resultado
+  // mostrar à pessoa — não cancelava o upload/gravação verdadeiros, que
+  // continuavam em segundo plano. Se depois tivessem sucesso, a foto
+  // aparecia "do nada" mais tarde sem o convidado saber; se falhassem, o
+  // erro ficava sem ninguém a apanhar (unhandled rejection). onLateSettle
+  // deixa quem chamou saber o resultado verdadeiro assim que ele chegar,
+  // mesmo depois do timeout já ter "desistido" visualmente.
+  function withUploadTimeout(promise, fileSizeBytes, onLateSettle){
     // Vídeos demoram muito mais a enviar do que fotos — a margem cresce
     // com o tamanho do ficheiro (~1.5s por MB, mínimo 25s, até 3 minutos),
     // em vez de um valor fixo que seria demasiado curto para um vídeo.
     const ms = Math.min(180000, Math.max(25000, 20000 + (fileSizeBytes||0)/1024/1024*1500));
+    let timedOut = false;
+    promise.then(
+      res=>{ if(timedOut && onLateSettle) onLateSettle(true, res); },
+      err=>{ if(timedOut && onLateSettle) onLateSettle(false, err); }
+    );
     return Promise.race([
       promise,
-      new Promise((_, reject)=> setTimeout(()=> reject(new Error('weddy-upload-timeout')), ms))
+      new Promise((_, reject)=> setTimeout(()=>{ timedOut = true; reject(new Error('weddy-upload-timeout')); }, ms))
     ]);
   }
   function updateMemoriesLoadingState(){
@@ -1243,7 +1272,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
 
       activeMemoryUploads++;
       updateMemoriesLoadingState();
-      const path = `memories/${guestData.weddingId}/${guestToken}/${Date.now()}_${file.name}`;
+      // Auditoria Out 2026 (achado MÉDIO): file.name vinha direto para o
+      // caminho do Storage sem limpeza — nomes com "/", caracteres de
+      // controlo ou muito compridos (alguns exportadores de fotos geram
+      // nomes enormes com emoji) podiam criar subpastas inesperadas ou
+      // exceder limites de path, falhando o upload com um erro confuso.
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_').slice(-100);
+      const path = `memories/${guestData.weddingId}/${guestToken}/${Date.now()}_${safeFileName}`;
       const ref = storage.ref(path);
       withUploadTimeout(ref.put(file).then(()=>{
         // Nota: propositadamente NÃO chamamos getDownloadURL() aqui — as
@@ -1259,7 +1294,18 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
           storagePath: path,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-      }), file.size).then(()=>{
+      }), file.size, (success)=>{
+        // Chegou depois do timeout já ter desistido visualmente. Se a
+        // pessoa ainda estiver nesta página, corrige o que se vê em vez de
+        // deixar um estado enganador (ex: ícone de erro numa foto que afinal
+        // foi enviada com sucesso).
+        if(!wrap.isConnected) return;
+        if(success){
+          wrap.classList.remove('is-error');
+          const errEl = wrap.querySelector('.memories-thumb-err');
+          if(errEl) errEl.remove();
+        }
+      }).then(()=>{
         wrap.classList.remove('is-uploading');
         // O spinner é sempre acrescentado no DOM, independentemente da classe
         // "is-uploading" — essa classe só baixava a opacidade da foto por

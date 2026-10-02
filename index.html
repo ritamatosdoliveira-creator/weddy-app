@@ -2083,6 +2083,8 @@ function whatsappSendErrorMessage(err){
   if(code==='failed-precondition' && reason==='no_phone') return ta('waErrNoPhone');
   if(code==='failed-precondition' && reason==='no_consent') return ta('waErrNoConsent');
   if(code==='failed-precondition' && reason==='no_token') return ta('waErrNoToken');
+  if(code==='resource-exhausted' && reason==='too_soon_for_guest') return ta('waErrTooSoon');
+  if(code==='resource-exhausted' && reason==='daily_limit') return ta('waErrDailyLimit');
   if(code==='not-found') return ta('gpErrNotFound');
   if(code==='unavailable') return ta('waErrUnavailable');
   if(code==='permission-denied') return ta('waErrNoPremium');
@@ -3448,6 +3450,7 @@ const APP_I18N = {
     subscriptionFeatureGuests:'Convidados ilimitados', subscriptionFeatureAISeating:'AI Seating', subscriptionFeatureWeddingHealth:'Wedding Health',
     subscriptionFeatureMemories:'Memórias', subscriptionFeatureRSVP:'RSVP avançado', subscriptionFeatureMore:'E muito mais…',
     subscriptionCurrentPlanLabel:'Plano atual', subscriptionDefaultPlanName:'Premium — 12 meses', subscriptionPriceText:'30€ / 12 meses',
+    premiumPriceYearNote:'30€ por ano (válido durante 12 meses)',
     subscriptionRenewsOnLabel:(d)=>`Renova a ${d}`,
     subscriptionNeedHelpTitle:'Precisas de ajuda?', subscriptionNeedHelpDesc:'Fala com a nossa equipa de suporte.',
     confirmCancelSubscriptionText:'Isto cancela já a subscrição Weddy Premium — todas as funcionalidades Premium (RSVP, Wedding Health, Memórias, Documentos, Google Calendar, Assistente) ficam bloqueadas de imediato. Confirmas?',
@@ -3464,6 +3467,7 @@ const APP_I18N = {
     premiumTileDocumentosDesc:'Consulta os teus contratos e documentos.',
     premiumTileGoogleCalDesc:'Sincroniza o teu calendário do casamento.',
     rsvpTitle:'Convites RSVP', rsvpDesc:'Envia e acompanha as respostas dos convidados',
+    rsvpHubTitle:'Convites e respostas dos convidados',
     rsvpRespostasNavTitle:'Respostas dos convidados', rsvpRespostasNavDesc:'Vê, pesquisa e agrupa quem já respondeu',
     rsvpLembretesNavTitle:'Lembretes automáticos', rsvpLembretesNavDesc:'Prazo de resposta e lembretes para quem falta responder',
     rsvpLembretesIntro:'Define o prazo de resposta e deixa a Weddy tratar de lembrar quem ainda não respondeu.',
@@ -3950,6 +3954,8 @@ const APP_I18N = {
     confirmDeleteMemory:'Apagar esta fotografia? Não é possível desfazer.',
     alertDeleteMemoryError:'Não foi possível apagar esta fotografia. Tenta novamente.',
     confirmRemoveRSVPInvite: name=>`Remover o convite RSVP de "${name}"? Isto apaga a resposta dada e desativa o link — deixa de ser possível responder através dele. O convidado continua na tua lista, mas sem link de RSVP.`,
+    confirmRemoveGuestEntry: name=> name ? `Remover "${name}" da lista de convidados? Esta ação não pode ser desfeita.` : 'Remover este convidado da lista? Esta ação não pode ser desfeita.',
+    confirmDeleteExpense:'Apagar este gasto/pagamento? Esta ação não pode ser desfeita.',
     alertRemoveInviteError:'Não foi possível remover o convite. Tenta novamente.',
     alertSaveNoConnection:'Não foi possível guardar (sem ligação).',
     alertSaveError:'Não foi possível guardar. Tenta novamente.',
@@ -3988,6 +3994,7 @@ const APP_I18N = {
     confirmDeleteNotes:'Apagar as notas?',
     confirmDeleteHmIdea:'Eliminar esta ideia?',
     alertDataAnomaly:'A Weddy detetou uma leitura estranha dos teus dados (pareciam ter desaparecido) e evitou gravar por cima do que já tens. Fecha e volta a abrir a app numa boa ligação à internet para confirmar que está tudo bem. Se o aviso voltar a aparecer, contacta o suporte antes de continuares a usar a app.',
+    alertSyncLost:'A ligação em tempo real com o servidor foi interrompida. As alterações que fizeres agora podem não ficar guardadas — verifica a tua internet e, se possível, atualiza a página antes de continuar.',
     btnSavingEllipsis:'A guardar…',
     btnSavedCheck:'Guardado ✓',
     savedSuccessMsg:'Guardado com sucesso.',
@@ -4480,6 +4487,8 @@ const APP_I18N = {
     waErrNoToken:'Este convidado ainda não tem link de RSVP gerado.',
     waErrUnavailable:'Não foi possível contactar o WhatsApp agora. Tenta outra vez daqui a pouco.',
     waErrNoPremium:'O envio de lembretes por WhatsApp faz parte do Weddy Premium.',
+    waErrTooSoon:'Já foi enviado um lembrete a este convidado recentemente. Tenta novamente mais tarde.',
+    waErrDailyLimit:'Foi atingido o limite diário de lembretes por WhatsApp. Tenta novamente amanhã.',
     waErrGeneric:'Não foi possível enviar. Tenta novamente.',
     // Fase 9.3 (Set 2026): deixámos de usar a API paga da Meta para isto —
     // este botão agora só abre o WhatsApp pessoal do casal (via wa.me) com
@@ -4567,6 +4576,7 @@ const APP_I18N = {
     subscriptionFeatureGuests:'Unlimited guests', subscriptionFeatureAISeating:'AI Seating', subscriptionFeatureWeddingHealth:'Wedding Health',
     subscriptionFeatureMemories:'Memories', subscriptionFeatureRSVP:'Advanced RSVP', subscriptionFeatureMore:'And much more…',
     subscriptionCurrentPlanLabel:'Current plan', subscriptionDefaultPlanName:'Premium — 12 months', subscriptionPriceText:'€30 / 12 months',
+    premiumPriceYearNote:'€30 per year (valid for 12 months)',
     subscriptionRenewsOnLabel:(d)=>`Renews on ${d}`,
     subscriptionNeedHelpTitle:'Need help?', subscriptionNeedHelpDesc:'Get in touch with our support team.',
     confirmCancelSubscriptionText:'This cancels your Weddy Premium subscription right away — every Premium feature (RSVP, Wedding Health, Memories, Documents, Google Calendar, Assistant) is locked immediately. Confirm?',
@@ -4583,6 +4593,7 @@ const APP_I18N = {
     premiumTileDocumentosDesc:'Check your contracts and documents.',
     premiumTileGoogleCalDesc:'Sync your wedding calendar.',
     rsvpTitle:'RSVP invitations', rsvpDesc:"Send and track your guests' responses",
+    rsvpHubTitle:"Invitations & guest responses",
     rsvpRespostasNavTitle:'Guest responses', rsvpRespostasNavDesc:"See, search and group who's already replied",
     rsvpLembretesNavTitle:'Automatic reminders', rsvpLembretesNavDesc:'Response deadline and reminders for anyone yet to reply',
     rsvpLembretesIntro:'Set the response deadline and let Weddy handle reminding anyone who hasn\'t answered yet.',
@@ -5058,6 +5069,8 @@ const APP_I18N = {
     confirmDeleteMemory:"Delete this photo? This can't be undone.",
     alertDeleteMemoryError:'Could not delete this photo. Please try again.',
     confirmRemoveRSVPInvite: name=>`Remove ${name}'s RSVP invite? This deletes the response they gave and disables the link — it will no longer be possible to respond through it. The guest stays on your list, just without an RSVP link.`,
+    confirmRemoveGuestEntry: name=> name ? `Remove "${name}" from the guest list? This can't be undone.` : "Remove this guest from the list? This can't be undone.",
+    confirmDeleteExpense:"Delete this expense/payment? This can't be undone.",
     alertRemoveInviteError:'Could not remove the invite. Please try again.',
     alertSaveNoConnection:'Could not save (no connection).',
     alertSaveError:'Could not save. Please try again.',
@@ -5096,6 +5109,7 @@ const APP_I18N = {
     confirmDeleteNotes:'Delete the notes?',
     confirmDeleteHmIdea:'Delete this idea?',
     alertDataAnomaly:"Weddy detected an unusual read of your data (it looked like it had disappeared) and avoided overwriting what you already have. Close and reopen the app on a good internet connection to confirm everything is fine. If the warning appears again, contact support before continuing to use the app.",
+    alertSyncLost:'The real-time connection to the server was interrupted. Changes you make now might not be saved — check your internet and, if possible, refresh the page before continuing.',
     btnSavingEllipsis:'Saving…',
     btnSavedCheck:'Saved ✓',
     savedSuccessMsg:'Saved successfully.',
@@ -5566,6 +5580,8 @@ const APP_I18N = {
     waErrNoToken:'This guest doesn\'t have an RSVP link generated yet.',
     waErrUnavailable:'Couldn\'t reach WhatsApp right now. Try again shortly.',
     waErrNoPremium:'Sending WhatsApp reminders is a Weddy Premium feature.',
+    waErrTooSoon:'A reminder was already sent to this guest recently. Try again later.',
+    waErrDailyLimit:'The daily WhatsApp reminder limit was reached. Try again tomorrow.',
     waErrGeneric:'Couldn\'t send. Try again.',
     gcalErrSyncTooSoon:'You just synced — wait a bit before trying again.',
     gcalErrSyncRunning:'A sync is already running — wait for it to finish.',
@@ -6118,6 +6134,7 @@ function premiumFeatureGrid(){
       <div class="premium-hub-cta-text">
         <div class="premium-hub-cta-title">${ta('premiumHubCtaTitle')}</div>
         <div class="premium-hub-cta-desc">${ta('premiumHubCtaDesc')}</div>
+        <div class="premium-hub-cta-desc" style="font-weight:700; margin-top:2px;">${ta('premiumPriceYearNote')}</div>
       </div>
       <button class="premium-hub-cta-btn js-premium-subscribe">${ta('btnSubscribePremium')} ${ICONS.chev}</button>
     </div>`}
@@ -6386,12 +6403,16 @@ function bindGuestGroupHandlers(scope){
     });
   });
   scope.querySelectorAll('[data-remove]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
+    btn.addEventListener('click', async e=>{
       const [side,cat,idx] = e.currentTarget.dataset.remove.split('|');
       const arr = getGuestNames(side,cat);
       if(!arr) return;
       const removedEntry = arr[Number(idx)];
       if(!removedEntry || typeof removedEntry!=='object' || !removedEntry.guestId) return;
+      // Auditoria Out 2026 (achado MÉDIO): apagar um convidado não pedia
+      // nenhuma confirmação — um toque a mais (fácil em ecrãs de telemóvel)
+      // apagava-o logo, sem hipótese de desfazer.
+      if(!await weddyConfirm(ta('confirmRemoveGuestEntry')(removedEntry.name || ''))) return;
       // Fase 8.0 (Set 2026): remover um convidado passa a ser sempre feito
       // pela operação central deleteGuest(guestId) — resolve sozinha o
       // array local, o RSVP no Firestore, o estado de confirmação e o
@@ -8275,7 +8296,11 @@ function bindFornecedorDetalheHandlers(){
     pushRemote(true);
   });
   document.querySelectorAll('[data-delsuppay]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
+    btn.addEventListener('click', async e=>{
+      // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
+      // confirmação — um toque a mais apagava o pagamento sem hipótese de
+      // desfazer.
+      if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
       const idx = Number(e.currentTarget.dataset.delsuppay);
       const exp = state.expenses[idx];
       // Se esta despesa veio da migração de um pagamento antigo, remove
@@ -10686,6 +10711,7 @@ function viewDefPremiumLocked(title){
     <div class="premium-upsell-title">Weddy Premium</div>
     <div class="premium-upsell-text">${ta('premiumLockedText')(title)}</div>
     <ul class="premium-upsell-list">${listHtml}</ul>
+    <div class="l" style="margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600;">${ta('premiumPriceYearNote')}</div>
     <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
     <div class="empty-note" style="margin:10px 0 0;">${ta('testAccountNote')}</div>
   </div>
@@ -10936,15 +10962,15 @@ function viewRSVPHome(){
       <span class="rsvp-nav-row-chev">${ICONS.chev}</span>
     </div>`;
   return `
-  ${defSubHeader(ta('rsvpTitle'))}
+  ${defSubHeader(ta('rsvpHubTitle'))}
   <div class="stats-row" style="margin:0 16px 14px;">
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('tabGuests')}</div><div class="n">${fmtGuestCount(totalGuests)}</div></div>
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('respondedLabel')}</div><div class="n">${fmtGuestCount(responded)}</div></div>
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('lblConfirmed')}</div><div class="n">${fmtGuestCount(confirmedYes)}</div></div>
   </div>
   ${hubNavRow('deadline', ICONS.sparkle, ta('rsvpLembretesNavTitle'), ta('rsvpLembretesNavDesc'))}
-  ${hubNavRow('respostas', ICONS.guests, ta('rsvpRespostasNavTitle'), ta('rsvpRespostasNavDesc'))}
   ${hubNavRow('info', ICONS.pencil, ta('guestInfoLabel'), ta('guestInfoSubLabel'))}
+  ${hubNavRow('respostas', ICONS.guests, ta('rsvpRespostasNavTitle'), ta('rsvpRespostasNavDesc'))}
   <div style="margin:16px 16px 28px; padding:16px; border-radius:16px; background:linear-gradient(135deg, rgba(193,88,62,0.1), rgba(216,166,87,0.12)); text-align:center;">
     <div class="l" style="margin:0 0 4px; font-size:14.5px; color:var(--ink); font-weight:600;">${ta('rsvpNoteAutoFreeTitle')}</div>
     <div style="font-size:12px; color:var(--ink-soft); line-height:1.5;">${ta('rsvpNoteAutoFree')}</div>
@@ -13639,7 +13665,13 @@ function bindHandlers(){
     });
   });
   document.querySelectorAll('[data-delexp]').forEach(btn=>{
-    btn.addEventListener('click', e=>{ state.expenses.splice(Number(e.currentTarget.dataset.delexp),1); render(); });
+    btn.addEventListener('click', async e=>{
+      // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
+      // confirmação — um toque a mais apagava a despesa sem hipótese de
+      // desfazer.
+      if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
+      state.expenses.splice(Number(e.currentTarget.dataset.delexp),1); render();
+    });
   });
   const openSheetBtn = document.getElementById('open-sheet');
   if(openSheetBtn) openSheetBtn.addEventListener('click', openExpenseSheet);
@@ -16762,6 +16794,11 @@ function logMassPropagationFailures(type, failedTokens){
     }).catch(()=>{});
   }catch(e){}
 }
+// pendingSaveDirty fica "true" enquanto houver uma alteração só agendada
+// (dentro dos 500ms do debounce) e ainda não realmente enviada ao Firestore.
+// É o que permite a flushPendingSaveOnExit() (abaixo) saber que há mesmo
+// algo por gravar quando a pessoa fecha a app de repente.
+var pendingSaveDirty = false;
 function pushRemote(confirmToast){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return;
   // Ver o comentário em flushPendingSave(): nunca gravar "state" antes da
@@ -16769,12 +16806,14 @@ function pushRemote(confirmToast){
   // com o casamento em branco (seedData()) que "state" começa por ser.
   if(!firstSyncDone) return;
   clearTimeout(saveTimer);
+  pendingSaveDirty = true;
   saveTimer = setTimeout(()=>{
     CURRENT_DOC().set({
       settings: weddingSettings,
       json: JSON.stringify(state),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge:true }).then(()=>{
+      pendingSaveDirty = false;
       if(confirmToast) showSaveToast(false);
       // Fase 9.2 — depois de QUALQUER gravação bem sucedida, agenda uma
       // sincronização silenciosa do Google Calendar (só faz alguma coisa
@@ -16786,6 +16825,31 @@ function pushRemote(confirmToast){
   }, confirmToast ? 0 : 500);
 }
 render = function(){ _origRender(); pushRemote(); };
+
+// Auditoria Out 2026 (achado CRÍTICO): o debounce de 500ms acima significa
+// que, se a pessoa fechar o separador/app mesmo depois de editar algo, essa
+// última alteração podia perder-se sem aviso nenhum — nunca chegava a ser
+// enviada ao Firestore. Isto força o envio imediato (sem esperar os 500ms)
+// assim que a app vai para segundo plano ou o separador começa a fechar.
+// Não há garantia 100% (o browser pode mesmo assim matar o processo a meio
+// do pedido de rede), mas cobre o caso comum: sair da app logo a seguir a
+// escrever, com o telemóvel a passar a app para segundo plano primeiro.
+function flushPendingSaveOnExit(){
+  if(!pendingSaveDirty) return;
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !firstSyncDone) return;
+  clearTimeout(saveTimer);
+  pendingSaveDirty = false;
+  CURRENT_DOC().set({
+    settings: weddingSettings,
+    json: JSON.stringify(state),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true }).catch(()=>{});
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden') flushPendingSaveOnExit();
+});
+window.addEventListener('pagehide', flushPendingSaveOnExit);
+window.addEventListener('beforeunload', flushPendingSaveOnExit);
 
 /* ============================================================
    HISTÓRICO DO CASAMENTO — cópias de segurança e restauro
@@ -16991,7 +17055,29 @@ function attachFirestoreSync(){
     if(snap.exists){
       const data = snap.data();
       if(data.json){
-        const incoming = JSON.parse(data.json);
+        // Auditoria Out 2026 (achado ALTO): isto rebentava sem apanhar se o
+        // "json" guardado alguma vez viesse corrompido/truncado (raro, mas
+        // possível — ex: uma escrita cortada a meio por perda de rede) e
+        // deixava de sincronizar o casamento inteiro em tempo real, com um
+        // erro não tratado na consola. Agora ignora esse snapshot (mantém o
+        // estado local, que continua válido) e deixa um registo para dar
+        // para investigar, em vez de partir a app.
+        let incoming;
+        try{
+          incoming = JSON.parse(data.json);
+        }catch(parseErr){
+          console.error('[Weddy] Snapshot do Firestore com "json" inválido/corrompido — a ignorar.', parseErr);
+          try{
+            firebase.firestore().collection('_incident_log').add({
+              weddingId: currentWeddingId,
+              type: 'corrupt_json_snapshot',
+              errorMessage: parseErr && parseErr.message,
+              at: firebase.firestore.FieldValue.serverTimestamp(),
+              userAgent: (typeof navigator!=='undefined' ? navigator.userAgent : '')
+            }).catch(()=>{});
+          }catch(e){}
+          incoming = state;
+        }
         if(JSON.stringify(incoming) !== JSON.stringify(state)){
           if(looksLikeDataLoss(state, incoming)){
             console.error('[Weddy] Snapshot recebido do Firestore parece ter perdido dados (convidados/tarefas foram todos a zero) — a IGNORAR este snapshot para não gravar por cima dos dados reais.', { local: countMeaningfulData(state), recebido: countMeaningfulData(incoming) });
@@ -17106,7 +17192,17 @@ function attachFirestoreSync(){
       firstSyncDone = false;
       document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm(ta('loginErrorAccessData'), true);
+      return;
     }
+    // Auditoria Out 2026 (achado ALTO): qualquer outro erro da ligação em
+    // tempo real (ex: "unavailable" por perda de rede prolongada) ficava
+    // completamente sem tratamento — a pessoa continuava a ver a app como
+    // se estivesse tudo bem, sem saber que deixou de sincronizar. Isto não
+    // tenta adivinhar uma solução (a própria biblioteca do Firestore já
+    // volta a tentar ligar sozinha quando a rede voltar); só avisa, para
+    // não editar dados às cegas sem saber se vão mesmo ser guardados.
+    console.error('[Weddy] Erro na sincronização em tempo real com o Firestore:', err && err.code, err && err.message);
+    if(firstSyncDone) weddyAlert(ta('alertSyncLost'));
   });
 }
 

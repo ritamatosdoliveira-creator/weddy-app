@@ -596,6 +596,40 @@ async function checkAndIncrementAiUsage(weddingId) {
   });
 }
 
+// Auditoria Out 2026 (achado ALTO): sendWhatsappRsvpReminder não tinha
+// nenhum limite — nada impedia o casal (ou um script com as credenciais
+// deles) de chamar isto em loop para o mesmo convidado, gerando custo na
+// Graph API e, mais grave, risco real do número da Weddy ser marcado como
+// spam pela Meta. Dois limites, cada um resolvendo um risco diferente:
+// 1) por convidado — nunca mais que 1 lembrete a cada 20h, para o mesmo
+//    número nunca poder ser martelado repetidamente;
+// 2) por casamento/dia — um teto diário generoso (bem acima do que um
+//    casamento real alguma vez precisa num só dia) só para limitar o
+//    estrago máximo de um uso automatizado/abusivo das credenciais.
+const WHATSAPP_REMINDER_MIN_HOURS_PER_GUEST = 20;
+const WHATSAPP_REMINDER_DAILY_LIMIT_PER_WEDDING = 150;
+async function checkWhatsappReminderRateLimit(weddingId, guestId) {
+  const now = Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+  const guestRef = db.collection('whatsappReminderRateLimit').doc(`${weddingId}_${guestId}`);
+  const dailyRef = db.collection('whatsappReminderDailyUsage').doc(weddingId);
+  return db.runTransaction(async (tx) => {
+    const [guestSnap, dailySnap] = await Promise.all([tx.get(guestRef), tx.get(dailyRef)]);
+    const lastSentAtMs = guestSnap.exists && guestSnap.data().lastSentAtMs;
+    if (lastSentAtMs && (now - lastSentAtMs) < WHATSAPP_REMINDER_MIN_HOURS_PER_GUEST * 3600 * 1000) {
+      return { allowed: false, reason: 'too_soon_for_guest' };
+    }
+    const dailyData = dailySnap.exists ? dailySnap.data() : {};
+    const dailyCount = dailyData.day === today ? (dailyData.count || 0) : 0;
+    if (dailyCount >= WHATSAPP_REMINDER_DAILY_LIMIT_PER_WEDDING) {
+      return { allowed: false, reason: 'daily_limit' };
+    }
+    tx.set(guestRef, { lastSentAtMs: now, weddingId }, { merge: true });
+    tx.set(dailyRef, { day: today, count: dailyCount + 1, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return { allowed: true };
+  });
+}
+
 exports.classifyWeddyIntent = onCall({ region: 'europe-west1' }, async (request) => {
   const question = request.data && request.data.question;
   const requestedRole = request.data && request.data.role;
@@ -2787,6 +2821,14 @@ exports.sendWhatsappRsvpReminder = onCall(
       throw new HttpsError('failed-precondition', 'Este convidado ainda não tem link de RSVP gerado.', { reason: 'no_token' });
     }
 
+    const rateLimit = await checkWhatsappReminderRateLimit(weddingId, guestId);
+    if (!rateLimit.allowed) {
+      const msg = rateLimit.reason === 'daily_limit'
+        ? 'Foi atingido o limite diário de lembretes por WhatsApp. Tenta novamente amanhã.'
+        : 'Já foi enviado um lembrete a este convidado recentemente. Tenta novamente mais tarde.';
+      throw new HttpsError('resource-exhausted', msg, { reason: rateLimit.reason });
+    }
+
     const accessToken = WHATSAPP_ACCESS_TOKEN.value();
     const phoneNumberId = WHATSAPP_PHONE_NUMBER_ID.value();
     if (!accessToken || !phoneNumberId) {
@@ -2976,23 +3018,38 @@ exports.stripeWebhook = onRequest(
         const weddingId = session.metadata && session.metadata.weddingId;
         if (!weddingId) {
           logger.error(`stripeWebhook: ${event.type} sem weddingId nos metadados.`);
+          await logStripeWebhookIncident('sem-weddingId', null, event, session);
         } else {
           const weddingRef = db.collection('weddings').doc(weddingId);
           const snap = await weddingRef.get();
           if (!snap.exists) {
             logger.error(`stripeWebhook: casamento ${weddingId} não encontrado.`);
+            await logStripeWebhookIncident('casamento-nao-encontrado', weddingId, event, session);
           } else {
             const existing = snap.data().subscription || {};
-            await weddingRef.update({
-              subscription: {
-                active: true,
-                plan: 'premium-12meses',
-                startedAt: existing.startedAt || new Date().toISOString(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                stripeCheckoutSessionId: session.id,
-              },
-            });
-            logger.info(`stripeWebhook: subscrição ativada para o casamento ${weddingId} (${event.type}).`);
+            // Pagamento já confirmado pelo Stripe — isto NUNCA deve ficar por
+            // gravar sem ninguém saber (achado CRÍTICO da auditoria: se esta
+            // escrita falhasse, respondíamos sempre 200 ao Stripe na mesma,
+            // por isso ele nunca mais voltava a tentar, e o casal pagava sem
+            // a conta ficar Premium, sem ninguém ser avisado). Por isso este
+            // update tem o seu próprio try/catch: se falhar, fica um registo
+            // em "_incident_log" (consultável, ao contrário de só um log),
+            // além do erro continuar a subir para o catch geral de baixo.
+            try {
+              await weddingRef.update({
+                subscription: {
+                  active: true,
+                  plan: 'premium-12meses',
+                  startedAt: existing.startedAt || new Date().toISOString(),
+                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                  stripeCheckoutSessionId: session.id,
+                },
+              });
+              logger.info(`stripeWebhook: subscrição ativada para o casamento ${weddingId} (${event.type}).`);
+            } catch (writeErr) {
+              logger.error(`stripeWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
+              await logStripeWebhookIncident('falha-ao-ativar', weddingId, event, session, writeErr);
+            }
           }
         }
       } else if (event.type === 'checkout.session.async_payment_failed') {
@@ -3016,8 +3073,32 @@ exports.stripeWebhook = onRequest(
       }
     } catch (err) {
       logger.error(`stripeWebhook: erro a processar evento. ${err.message || err}`);
+      await logStripeWebhookIncident('erro-geral', (event.data.object.metadata && event.data.object.metadata.weddingId) || null, event, event.data.object, err);
     }
 
     res.status(200).send('OK');
   }
 );
+
+// Registo durável (fora dos logs do Cloud Run, que a Rita não tem como
+// consultar) de qualquer falha no webhook do Stripe que possa significar um
+// pagamento confirmado que NÃO ficou ativo na Weddy. É só isto que permite
+// encontrar e corrigir manualmente um caso destes mais tarde — sem isto, a
+// única forma de descobrir seria o casal a queixar-se. Nunca deixa um erro
+// aqui (best-effort) derrubar a resposta 200 ao Stripe.
+async function logStripeWebhookIncident(reason, weddingId, event, session, err) {
+  try {
+    await db.collection('_incident_log').add({
+      type: 'stripeWebhook',
+      reason,
+      weddingId: weddingId || null,
+      stripeEventId: (event && event.id) || null,
+      stripeEventType: (event && event.type) || null,
+      stripeCheckoutSessionId: (session && session.id) || null,
+      errorMessage: (err && (err.message || String(err))) || null,
+      at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (logErr) {
+    logger.error(`logStripeWebhookIncident: falhou a gravar o próprio incidente. ${logErr.message || logErr}`);
+  }
+}

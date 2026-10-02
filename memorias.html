@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Weddy Memories</title>
+<!-- Mesmo motivo do rsvp.html: sem tags Open Graph, partilhar este link
+     (QR code/link público de fotos) por WhatsApp aparecia sem qualquer
+     pré-visualização. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Weddy">
+<meta property="og:title" content="💛 Weddy Memories — Partilha as tuas fotos!">
+<meta property="og:description" content="Tens fotos deste casamento? Os noivos adoravam vê-las.">
+<meta property="og:image" content="https://www.weddy.pt/icon-512.png">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -66,7 +75,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
 
       <div class="field">
         <label data-t="nameLabel">O teu nome</label>
-        <input type="text" id="guest-name-input" data-t-placeholder="namePlaceholder" placeholder="Como te chamas?" autocomplete="name">
+        <input type="text" id="guest-name-input" maxlength="80" data-t-placeholder="namePlaceholder" placeholder="Como te chamas?" autocomplete="name">
       </div>
 
       <label class="memories-upload-btn" for="memory-file-input" id="memory-upload-label">
@@ -116,7 +125,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       tooLarge:(n)=>`"${n}" é maior que 8MB.`,
       uploading:(n)=> n>1 ? `A carregar ${n} fotos… não feches esta página.` : 'A carregar a foto… não feches esta página.',
       thanks:'Obrigado por partilhar! 💛',
-      uploadError:'Não foi possível enviar esta foto. Verifica a internet e tenta novamente.'
+      uploadError:'Não foi possível enviar esta foto. Verifica a internet e tenta novamente.',
+      // Mostrado quando o Firestore recusa a gravação por o "w" do link não
+      // corresponder a nenhum casamento real (link/QR errado ou já apagado) —
+      // distinto do erro genérico de rede, para a pessoa saber que não vale a
+      // pena "tentar novamente" e deve antes confirmar o link com os noivos.
+      linkInvalidUpload:'Este link não é válido. Confirma com os noivos se copiaste bem o link ou o QR code.'
     },
     en: {
       loadingText:'Loading…',
@@ -134,7 +148,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       tooLarge:(n)=>`"${n}" is larger than 8MB.`,
       uploading:(n)=> n>1 ? `Uploading ${n} photos… don't close this page.` : 'Uploading photo… don\'t close this page.',
       thanks:'Thanks for sharing! 💛',
-      uploadError:'Could not upload this photo. Check your connection and try again.'
+      uploadError:'Could not upload this photo. Check your connection and try again.',
+      linkInvalidUpload:'This link isn\'t valid. Check with the couple that you copied the right link or QR code.'
     }
   };
   let currentLang = 'pt';
@@ -197,11 +212,23 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
   // Nunca deixar um envio preso em "a carregar" para sempre — a margem
   // cresce com o tamanho do ficheiro (vídeos demoram muito mais que
   // fotos), em vez de um valor fixo demasiado curto para um vídeo.
-  function withUploadTimeout(promise, fileSizeBytes){
+  // Auditoria Out 2026 (achado ALTO): o timeout só decidia qual resultado
+  // mostrar à pessoa — não cancelava o upload/gravação verdadeiros, que
+  // continuavam em segundo plano. Se depois tivessem sucesso, a foto
+  // aparecia "do nada" mais tarde sem o convidado saber; se falhassem, o
+  // erro ficava sem ninguém a apanhar (unhandled rejection). onLateSettle
+  // deixa quem chamou saber o resultado verdadeiro assim que ele chegar,
+  // mesmo depois do timeout já ter "desistido" visualmente.
+  function withUploadTimeout(promise, fileSizeBytes, onLateSettle){
     const ms = Math.min(180000, Math.max(25000, 20000 + (fileSizeBytes||0)/1024/1024*1500));
+    let timedOut = false;
+    promise.then(
+      res=>{ if(timedOut && onLateSettle) onLateSettle(true, res); },
+      err=>{ if(timedOut && onLateSettle) onLateSettle(false, err); }
+    );
     return Promise.race([
       promise,
-      new Promise((_, reject)=> setTimeout(()=> reject(new Error('weddy-upload-timeout')), ms))
+      new Promise((_, reject)=> setTimeout(()=>{ timedOut = true; reject(new Error('weddy-upload-timeout')); }, ms))
     ]);
   }
   function updateLoadingState(){
@@ -221,7 +248,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
     const statusEl = document.getElementById('form-msg');
     const previewEl = document.getElementById('memories-preview');
     const nameInput = document.getElementById('guest-name-input');
-    const guestName = nameInput.value.trim();
+    const guestName = nameInput.value.trim().slice(0, 80);
     if(!guestName){
       statusEl.textContent = t('nameRequired');
       statusEl.className = 'msg error';
@@ -256,7 +283,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
 
       activeUploads++;
       updateLoadingState();
-      const path = `memories/${weddingId}/publico/${Date.now()}_${file.name}`;
+      // Auditoria Out 2026 (achado MÉDIO): file.name vinha direto para o
+      // caminho do Storage sem limpeza — nomes com "/", caracteres de
+      // controlo ou muito compridos podiam criar subpastas inesperadas ou
+      // exceder limites de path, falhando o upload com um erro confuso.
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_').slice(-100);
+      const path = `memories/${weddingId}/publico/${Date.now()}_${safeFileName}`;
       const ref = storage.ref(path);
       withUploadTimeout(ref.put(file).then(()=>{
         return db.collection('memories').add({
@@ -266,7 +298,18 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
           storagePath: path,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-      }), file.size).then(()=>{
+      }), file.size, (success)=>{
+        // Chegou depois do timeout já ter desistido visualmente. Se a
+        // pessoa ainda estiver nesta página, corrige o que se vê em vez de
+        // deixar um estado enganador (ex: ícone de erro numa foto que afinal
+        // foi enviada com sucesso).
+        if(!wrap.isConnected) return;
+        if(success){
+          wrap.classList.remove('is-error');
+          const errEl = wrap.querySelector('.memories-thumb-err');
+          if(errEl) errEl.remove();
+        }
+      }).then(()=>{
         wrap.classList.remove('is-uploading');
         // O spinner é sempre acrescentado no DOM, independentemente da classe
         // "is-uploading" — essa classe só baixava a opacidade da foto por
@@ -294,7 +337,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
           // O código do erro (ex: "storage/unauthorized", "permission-denied")
           // aparece junto da mensagem para dar para diagnosticar à distância.
           const code = err && (err.code || err.message);
-          statusEl.textContent = t('uploadError') + (code ? ` (${code})` : '');
+          // "permission-denied" aqui (token sempre 'publico', nunca mudado
+          // pelo utilizador) só pode significar uma coisa: a regra do
+          // Firestore recusou porque este weddingId não existe mesmo. Dar
+          // uma mensagem específica em vez do genérico "tenta novamente",
+          // que não ia resolver nada neste caso.
+          statusEl.textContent = (code==='permission-denied' ? t('linkInvalidUpload') : t('uploadError')) + (code ? ` (${code})` : '');
           statusEl.className = 'msg error';
         }
       });
