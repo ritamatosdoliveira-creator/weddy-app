@@ -3,16 +3,43 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /weddings/{weddingId} {
-      allow read, update: if request.auth != null
+      allow read: if request.auth != null
         && request.auth.token.email_verified == true
         && (
           request.auth.token.email in resource.data.ownerEmails
           || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
         );
 
+      // CRÍTICO (Out 2026, achado ao investigar a conta demo da Rita ficar
+      // Premium sem pagar): esta regra só verificava QUEM podia escrever no
+      // documento, nunca O QUÊ podia escrever. Como "update"/"create" sem
+      // mais nada dão acesso de escrita a QUALQUER campo, qualquer pessoa
+      // com sessão iniciada (não precisa de ser programadora: basta abrir a
+      // consola do browser) podia fazer
+      //   firebase.firestore().collection('weddings').doc(ID).update({subscription:{active:true,...}})
+      // e ficar Premium para sempre, de borla, sem passar pelo Stripe. A
+      // única escrita legítima que ATIVA "subscription" é a stripeWebhook
+      // (Cloud Function, usa a Admin SDK, que ignora estas regras) depois de
+      // o Stripe confirmar o pagamento — por isso o cliente nunca pode pôr
+      // "active" a true. Mas o botão "Cancelar subscrição" (ver index.html,
+      // subscription-cancel-btn) escreve subscription.active=false
+      // diretamente do browser, de propósito — essa escrita continua
+      // permitida, é só a ativação que fica fechada ao cliente.
+      allow update: if request.auth != null
+        && request.auth.token.email_verified == true
+        && (
+          request.auth.token.email in resource.data.ownerEmails
+          || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['subscription'])
+          || request.resource.data.subscription.active == false
+        );
+
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in request.resource.data.ownerEmails;
+        && request.auth.token.email in request.resource.data.ownerEmails
+        && !('subscription' in request.resource.data);
 
       allow delete: if request.auth != null
         && request.auth.token.email_verified == true
