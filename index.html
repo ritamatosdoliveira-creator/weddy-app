@@ -16464,6 +16464,20 @@ let saveTimer = null;
 let firstSyncDone = false;
 let unsubscribeSnapshot = null;
 let dataLossGuardTripped = false;
+// Auditoria Out 2026 (achado ALTO, confirmado em orçamento/convidados/mesas/
+// fornecedores): até aqui, QUALQUER snapshot novo do Firestore substituía
+// "state" por inteiro ("state = incoming"), mesmo que este dispositivo
+// tivesse alterações próprias ainda não gravadas (ex: a pessoa estava a
+// escrever um valor de orçamento quando chegou uma atualização de outro
+// dispositivo a mexer nas mesas) — essas alterações locais perdiam-se sem
+// aviso. "lastSyncedState" guarda a última versão conhecida do Firestore
+// (não a versão local, que pode ter alterações por gravar) e serve só para
+// uma coisa: em attachFirestoreSync, saber quais secções de topo do "state"
+// (guests, budget, seating, suppliers, categories...) têm alterações locais
+// ainda não confirmadas no servidor, para as preservar em vez de as
+// substituir às cegas por uma atualização que chegou de outro dispositivo a
+// mexer noutra secção qualquer. Ver mergeIncomingWeddingState() abaixo.
+let lastSyncedState = null;
 
 let saveToastTimer = null;
 function showSaveToast(isError){
@@ -17104,6 +17118,55 @@ function looksLikeDataLoss(before, after){
   const nowEmpty = (a.guests + a.todos) === 0;
   return wasPopulated && nowEmpty;
 }
+// Auditoria Out 2026 (achado ALTO — "dois dispositivos a editar secções
+// diferentes ao mesmo tempo, um apaga o trabalho do outro"): antes desta
+// função, QUALQUER snapshot novo do Firestore substituía "state" por
+// inteiro, mesmo quando este dispositivo tinha uma alteração local (ex:
+// orçamento) ainda por gravar e o snapshot só trazia uma alteração de outro
+// dispositivo numa secção completamente diferente (ex: mesas) — a alteração
+// local perdia-se sem aviso nenhum.
+//
+// Esta função faz merge ao nível das secções de topo do "state" (guests,
+// budget, seating, suppliers, categories, todoCategories, ...): para cada
+// secção, compara o valor local com "baseline" (a última versão QUE SABEMOS
+// que está no Firestore, guardada em "lastSyncedState") — se forem iguais,
+// não há alteração local por gravar nessa secção, por isso é seguro adotar
+// o que veio do servidor; se forem diferentes, há uma alteração local ainda
+// não confirmada, por isso mantém-se a versão local dessa secção inteira,
+// ignorando o que veio no snapshot só para essa secção.
+//
+// O que isto NÃO resolve (continua a ser "quem gravar por último ganha"):
+// duas alterações DENTRO da mesma secção ao mesmo tempo (ex: dois
+// dispositivos a editar o orçamento, os dois ao mesmo tempo) — resolver
+// isso a sério exigiria deixar de guardar tudo num único campo "json" e
+// passar a gravar cada secção em separado no Firestore, uma mudança bem
+// maior de estrutura de dados. Isto cobre o caso mais comum e descrito
+// (secções DIFERENTES ao mesmo tempo), que é a esmagadora maioria dos casos
+// reais — um casal normalmente não tem os dois ao mesmo tempo a mexer
+// exatamente na mesma lista.
+function mergeIncomingWeddingState(localState, incoming, baseline){
+  // Sem baseline (1ª sincronização desta sessão): não há nada para comparar
+  // ainda, aceita o que vem do servidor tal como sempre se fez.
+  if(!baseline || typeof baseline!=='object') return incoming;
+  const merged = {};
+  const allKeys = new Set([
+    ...Object.keys(localState||{}),
+    ...Object.keys(incoming||{})
+  ]);
+  allKeys.forEach(key=>{
+    let localDirty;
+    try{
+      localDirty = JSON.stringify(localState[key]) !== JSON.stringify(baseline[key]);
+    }catch(e){
+      // Nunca assumir "sem alterações" só por um erro a comparar (ex:
+      // referência circular improvável) — mais vale preservar a versão
+      // local de mais do que precisava do que arriscar perder trabalho.
+      localDirty = true;
+    }
+    merged[key] = localDirty ? localState[key] : incoming[key];
+  });
+  return merged;
+}
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) unsubscribeSnapshot();
   unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
@@ -17152,8 +17215,21 @@ function attachFirestoreSync(){
               setTimeout(()=>{ weddyAlert(ta('alertDataAnomaly')); }, 300);
             }
           } else {
-            state = incoming; changed = true;
+            const merged = mergeIncomingWeddingState(state, incoming, lastSyncedState);
+            changed = JSON.stringify(merged) !== JSON.stringify(state);
+            state = merged;
+            // "incoming" (não o merge) é que passa a ser a baseline — é o
+            // que SABEMOS que está realmente no Firestore agora. A próxima
+            // vez que este dispositivo gravar com sucesso, o Firestore vai
+            // ecoar essa escrita de volta através de outro onSnapshot, essa
+            // secção deixa de parecer "suja" nessa altura, e passa a aceitar
+            // atualizações normalmente — não é preciso fazer nada mais aqui.
+            lastSyncedState = incoming;
           }
+        } else {
+          // Nenhuma diferença aparente entre o que veio e o que já temos —
+          // seguro para servir de baseline também (nada para preservar).
+          lastSyncedState = incoming;
         }
         // Contas criadas antes de existirem certos campos podem não os ter guardado — preenche em falta
         const defaults = seedData();
@@ -17246,6 +17322,7 @@ function attachFirestoreSync(){
   }, err=>{
     if(err.code === 'permission-denied'){
       firstSyncDone = false;
+      lastSyncedState = null; // próxima sincronização volta a ser tratada como a 1ª (sem baseline antiga a comparar)
       document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm(ta('loginErrorAccessData'), true);
       return;
@@ -17646,6 +17723,7 @@ if(FIREBASE_READY){
       user.getIdToken(true).finally(()=>{ findOrCreateFlow(user); });
     } else {
       firstSyncDone = false;
+      lastSyncedState = null; // logout: a próxima conta não deve herdar a baseline de merge da anterior
       currentWeddingId = null;
       activeTab = 'inicio';
       // Pedido (Set 2026): a conversa do Assistente Weddy deve recomeçar
