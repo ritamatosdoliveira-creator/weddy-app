@@ -1286,7 +1286,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         if(activeMemoryUploads > 0){
           updateMemoriesLoadingState();
         } else if(!anySuccess){
-          statusEl.textContent = t('memoriesError');
+          // O código do erro (ex: "storage/unauthorized", "permission-denied")
+          // aparece junto da mensagem para ser possível diagnosticar à
+          // distância, sem precisar de aceder à consola do telemóvel de quem
+          // está a enviar a foto.
+          const code = err && (err.code || err.message);
+          statusEl.textContent = t('memoriesError') + (code ? ` (${code})` : '');
           statusEl.className = 'msg error';
         }
       });

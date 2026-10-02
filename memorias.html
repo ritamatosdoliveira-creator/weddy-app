@@ -282,7 +282,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
         wrap.appendChild(errIcon);
         activeUploads--;
         if(activeUploads > 0){ updateLoadingState(); }
-        else if(!anySuccess){ statusEl.textContent = t('uploadError'); statusEl.className = 'msg error'; }
+        else if(!anySuccess){
+          // O código do erro (ex: "storage/unauthorized", "permission-denied")
+          // aparece junto da mensagem para dar para diagnosticar à distância.
+          const code = err && (err.code || err.message);
+          statusEl.textContent = t('uploadError') + (code ? ` (${code})` : '');
+          statusEl.className = 'msg error';
+        }
       });
     });
     e.target.value = '';
