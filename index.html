@@ -11697,29 +11697,20 @@ function viewDefSeguranca(){
 function viewDefMemories(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('memoriesTitle'));
   if(!memoriesLoaded && !memoriesLoading) loadMemories();
-  // Fase "Memories 2" (Out 2026): a Rita pediu para dar para ver e guardar
-  // as fotos E vídeos enviados pelos convidados — antes só havia fotos e
-  // nenhuma forma de abrir o ficheiro original (só a miniatura cortada em
-  // quadrado). "mediaType" é novo (gravado a partir de agora pelo
-  // rsvp.html/memorias.html); memórias antigas não têm o campo, por isso
-  // também olhamos para a extensão do storagePath como reserva.
-  const isVideoMemory = m => m.mediaType==='video' || /\.(mp4|mov|webm|m4v|avi)$/i.test(m.storagePath||'');
+  // Pedido da Rita (Out 2026): dar para ver/guardar o original de cada
+  // foto, sem ficar limitado à miniatura cortada em quadrado — abre o
+  // ficheiro original numa nova aba (daí basta premir/botão direito →
+  // guardar). Fica só para imagens — vídeo foi avaliado e descartado.
   const gridHtml = weddingMemories.length ? `
     <div class="memories-grid">
-      ${weddingMemories.map(m=>{
-        const isVideo = isVideoMemory(m);
-        const mediaHtml = isVideo
-          ? `<video src="${escapeHTML(m.url||'')}" muted preload="metadata"></video>
-             <div class="memory-play-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></div>`
-          : `<img src="${escapeHTML(m.url||'')}" loading="lazy">`;
-        return `
+      ${weddingMemories.map(m=>`
         <div class="memory-tile">
-          ${mediaHtml}
+          <img src="${escapeHTML(m.url||'')}" loading="lazy">
           ${m.url ? `<a class="memory-view" href="${escapeHTML(m.url)}" target="_blank" rel="noopener" title="${ta('btnViewSaveMemory')}">${ICONS.download}</a>` : ''}
           <button class="memory-del" data-memorydel="${m.id}" data-memorypath="${escapeHTML(m.storagePath||'')}">${ICONS.trash}</button>
           ${m.guestName ? `<div class="memory-caption">${escapeHTML(m.guestName)}</div>` : ''}
         </div>
-      `;}).join('')}
+      `).join('')}
     </div>
   ` : `
     <div class="empty-note" style="margin:24px 16px;">${memoriesLoading ? ta('memoriesLoadingText') : ta('memoriesEmptyText')}</div>

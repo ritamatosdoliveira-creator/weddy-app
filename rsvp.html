@@ -265,7 +265,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M8 6l1.6-2.5h4.8L16 6"/><circle cx="12" cy="13" r="3.4"/></svg>
         <span data-t="memoriesUploadBtn">Adicionar fotografia</span>
       </label>
-      <input type="file" id="memory-file-input" accept="image/*,video/*" multiple style="display:none;">
+      <input type="file" id="memory-file-input" accept="image/*" multiple style="display:none;">
       <div class="msg" id="memories-status"></div>
       <div class="memories-preview-grid" id="memories-preview"></div>
     </div>
@@ -417,10 +417,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       tableAlone: 'Ainda sem mais ninguém atribuído a esta mesa.',
       memoriesTitle: 'Weddy Memories',
       memoriesSub: 'Tens fotos deste casamento? Partilha-as com os noivos — só eles conseguem ver a galeria.',
-      memoriesUploadBtn: 'Adicionar fotografia ou vídeo',
-      memoriesNotImage: name => `"${name}" não é uma foto nem um vídeo.`,
-      memoriesTooLarge: name => `"${name}" é grande demais (máx. 8MB para fotos).`,
-      memoriesVideoTooLarge: name => `"${name}" é grande demais (máx. 50MB para vídeos).`,
+      memoriesUploadBtn: 'Adicionar fotografia',
+      memoriesNotImage: name => `"${name}" não é uma imagem.`,
+      memoriesTooLarge: name => `"${name}" é grande demais (máx. 8MB).`,
       memoriesSending: name => `A enviar ${name}…`,
       memoriesUploading: (n)=> n>1 ? `A carregar ${n} fotos… não feches esta página.` : 'A carregar a foto… não feches esta página.',
       memoriesThanks: 'Obrigado por partilhar! 💛',
@@ -551,10 +550,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       tableAlone: "No one else assigned to this table yet.",
       memoriesTitle: 'Weddy Memories',
       memoriesSub: 'Got photos from this wedding? Share them with the couple — only they can see the gallery.',
-      memoriesUploadBtn: 'Add photo or video',
-      memoriesNotImage: name => `"${name}" is not a photo or video.`,
-      memoriesTooLarge: name => `"${name}" is too large (max 8MB for photos).`,
-      memoriesVideoTooLarge: name => `"${name}" is too large (max 50MB for videos).`,
+      memoriesUploadBtn: 'Add photo',
+      memoriesNotImage: name => `"${name}" is not an image.`,
+      memoriesTooLarge: name => `"${name}" is too large (max 8MB).`,
       memoriesSending: name => `Uploading ${name}…`,
       memoriesUploading: (n)=> n>1 ? `Uploading ${n} photos… don't close this page.` : 'Uploading photo… don\'t close this page.',
       memoriesThanks: 'Thanks for sharing! 💛',
@@ -1216,16 +1214,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     const previewEl = document.getElementById('memories-preview');
     let anySuccess = false, anyError = false;
     files.forEach(file=>{
-      const isVideo = file.type.startsWith('video/');
-      const isImage = file.type.startsWith('image/');
-      if(!isVideo && !isImage){
+      if(!file.type.startsWith('image/')){
         statusEl.textContent = t('memoriesNotImage')(file.name);
         statusEl.className = 'msg error';
         return;
       }
-      const maxSize = isVideo ? 50*1024*1024 : 8*1024*1024;
-      if(file.size > maxSize){
-        statusEl.textContent = isVideo ? t('memoriesVideoTooLarge')(file.name) : t('memoriesTooLarge')(file.name);
+      if(file.size > 8*1024*1024){
+        statusEl.textContent = t('memoriesTooLarge')(file.name);
         statusEl.className = 'msg error';
         return;
       }
@@ -1236,17 +1231,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       const wrap = document.createElement('div');
       wrap.className = 'memories-thumb-wrap is-uploading';
       const objectUrl = URL.createObjectURL(file);
-      let img;
-      if(isVideo){
-        img = document.createElement('video');
-        img.src = objectUrl;
-        img.muted = true;
-        img.playsInline = true;
-        img.preload = 'metadata';
-      } else {
-        img = document.createElement('img');
-        img.src = objectUrl;
-      }
+      const img = document.createElement('img');
+      img.src = objectUrl;
       img.className = 'memories-thumb';
       wrap.appendChild(img);
       const spin = document.createElement('div');
@@ -1271,7 +1257,6 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
           token: guestToken,
           guestName: guestData.name || '',
           storagePath: path,
-          mediaType: isVideo ? 'video' : 'photo',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       }), file.size).then(()=>{
