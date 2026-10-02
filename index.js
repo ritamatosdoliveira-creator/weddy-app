@@ -2884,7 +2884,7 @@ exports.sendWhatsappRsvpReminder = onCall(
 //      Stripe (stripe.webhooks.constructEvent, com req.rawBody — a
 //      Firebase Functions dá sempre isto em onRequest, mesmo padrão já
 //      usado em isValidMetaSignature/whatsappWebhook acima).
-const WEDDY_PREMIUM_PRICE_CENTS = 2299; // 22,99€
+const WEDDY_PREMIUM_PRICE_CENTS = 3000; // 30€
 
 exports.createSubscriptionCheckout = onCall(
   { region: 'europe-west1', secrets: [STRIPE_SECRET_KEY] },
