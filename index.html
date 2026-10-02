@@ -10969,7 +10969,7 @@ function viewRSVPHome(){
       <span class="rsvp-nav-row-chev">${ICONS.chev}</span>
     </div>`;
   return `
-  ${defSubHeader(ta('rsvpHubTitle'))}
+  ${defSubHeader(ta('rsvpTitle'))}
   <div class="stats-row" style="margin:0 16px 14px;">
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('tabGuests')}</div><div class="n">${fmtGuestCount(totalGuests)}</div></div>
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('respondedLabel')}</div><div class="n">${fmtGuestCount(responded)}</div></div>
@@ -10977,7 +10977,7 @@ function viewRSVPHome(){
   </div>
   ${hubNavRow('deadline', ICONS.sparkle, ta('rsvpLembretesNavTitle'), ta('rsvpLembretesNavDesc'))}
   ${hubNavRow('info', ICONS.pencil, ta('guestInfoLabel'), ta('guestInfoSubLabel'))}
-  ${hubNavRow('respostas', ICONS.guests, ta('rsvpRespostasNavTitle'), ta('rsvpRespostasNavDesc'))}
+  ${hubNavRow('respostas', ICONS.guests, ta('rsvpHubTitle'), ta('rsvpRespostasNavDesc'))}
   <div style="margin:16px 16px 28px; padding:16px; border-radius:16px; background:linear-gradient(135deg, rgba(193,88,62,0.1), rgba(216,166,87,0.12)); text-align:center;">
     <div class="l" style="margin:0 0 4px; font-size:14.5px; color:var(--ink); font-weight:600;">${ta('rsvpNoteAutoFreeTitle')}</div>
     <div style="font-size:12px; color:var(--ink-soft); line-height:1.5;">${ta('rsvpNoteAutoFree')}</div>
