@@ -1164,9 +1164,13 @@ html{
 .mini-toggle.on .knob{ left:19.5px; }
 .memories-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 16px 20px; }
 .memory-tile{ position:relative; aspect-ratio:1; border-radius:12px; overflow:hidden; background:var(--line); }
-.memory-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+.memory-tile img, .memory-tile video{ width:100%; height:100%; object-fit:cover; display:block; }
 .memory-del{ all:unset; box-sizing:border-box; position:absolute; top:5px; right:5px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
 .memory-del svg{ width:13px; height:13px; }
+.memory-view{ all:unset; box-sizing:border-box; position:absolute; top:5px; left:5px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
+.memory-view svg{ width:13px; height:13px; }
+.memory-play-badge{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.memory-play-badge svg{ width:30px; height:30px; color:#fff; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5)); }
 .memory-caption{ position:absolute; left:0; right:0; bottom:0; padding:4px 7px; font-size:10.5px; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,0.65)); }
 
 .empty-note{ padding:14px; font-size:12.5px; color:var(--ink-soft); font-style:italic; text-align:center; }
@@ -4065,6 +4069,7 @@ const APP_I18N = {
     btnMemoriesPublicLink:'Link para o dia do casamento',
     memoriesPublicLinkHint:'Um único link/QR code para todos — sem precisar de convite individual. Ideal para colar no local do evento.',
     memoriesPublicLinkName:'Weddy Memories — dia do casamento',
+    btnViewSaveMemory:'Ver/guardar original',
     memoriesIntroText:'Fotos que os teus convidados foram partilhando pelo próprio link de RSVP. Só tu consegues vê-las.',
     memoriesPrivateTitle:'As tuas memórias são privadas.', memoriesPrivateDesc:'Só tu consegues vê-las.',
     btnRefresh:'Atualizar',
@@ -5170,6 +5175,7 @@ const APP_I18N = {
     btnMemoriesPublicLink:'Link for the wedding day',
     memoriesPublicLinkHint:'One single link/QR code for everyone — no individual invite needed. Great to display at the venue.',
     memoriesPublicLinkName:'Weddy Memories — wedding day',
+    btnViewSaveMemory:'View/save original',
     memoriesIntroText:'Photos your guests have shared through their own RSVP link. Only you can see them.',
     memoriesPrivateTitle:'Your memories are private.', memoriesPrivateDesc:'Only you can see them.',
     btnRefresh:'Refresh',
@@ -11691,15 +11697,29 @@ function viewDefSeguranca(){
 function viewDefMemories(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('memoriesTitle'));
   if(!memoriesLoaded && !memoriesLoading) loadMemories();
+  // Fase "Memories 2" (Out 2026): a Rita pediu para dar para ver e guardar
+  // as fotos E vídeos enviados pelos convidados — antes só havia fotos e
+  // nenhuma forma de abrir o ficheiro original (só a miniatura cortada em
+  // quadrado). "mediaType" é novo (gravado a partir de agora pelo
+  // rsvp.html/memorias.html); memórias antigas não têm o campo, por isso
+  // também olhamos para a extensão do storagePath como reserva.
+  const isVideoMemory = m => m.mediaType==='video' || /\.(mp4|mov|webm|m4v|avi)$/i.test(m.storagePath||'');
   const gridHtml = weddingMemories.length ? `
     <div class="memories-grid">
-      ${weddingMemories.map(m=>`
+      ${weddingMemories.map(m=>{
+        const isVideo = isVideoMemory(m);
+        const mediaHtml = isVideo
+          ? `<video src="${escapeHTML(m.url||'')}" muted preload="metadata"></video>
+             <div class="memory-play-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></div>`
+          : `<img src="${escapeHTML(m.url||'')}" loading="lazy">`;
+        return `
         <div class="memory-tile">
-          <img src="${escapeHTML(m.url||'')}" loading="lazy">
+          ${mediaHtml}
+          ${m.url ? `<a class="memory-view" href="${escapeHTML(m.url)}" target="_blank" rel="noopener" title="${ta('btnViewSaveMemory')}">${ICONS.download}</a>` : ''}
           <button class="memory-del" data-memorydel="${m.id}" data-memorypath="${escapeHTML(m.storagePath||'')}">${ICONS.trash}</button>
           ${m.guestName ? `<div class="memory-caption">${escapeHTML(m.guestName)}</div>` : ''}
         </div>
-      `).join('')}
+      `;}).join('')}
     </div>
   ` : `
     <div class="empty-note" style="margin:24px 16px;">${memoriesLoading ? ta('memoriesLoadingText') : ta('memoriesEmptyText')}</div>
@@ -11724,11 +11744,11 @@ function viewDefMemories(){
   </div>
   ${weddingMemories.length ? '' : emptyIllustration}
   ${gridHtml}
-  <div style="margin:16px 16px 14px; padding:12px 14px; border-radius:14px; background:rgba(193,88,62,0.1); display:flex; align-items:center; gap:12px;">
+  <div style="margin:16px 16px 14px; padding:12px 14px; border-radius:14px; background:rgba(193,88,62,0.1); display:flex; align-items:center; justify-content:center; gap:12px; text-align:center;">
     <div class="svg-fill" style="width:18px; height:18px; color:var(--rust-dark); flex-shrink:0;">${ICONS.lock}</div>
-    <div>
-      <div class="l" style="margin:0 0 2px; font-size:13.5px; color:var(--ink); font-weight:600;">${ta('memoriesPrivateTitle')}</div>
-      <div class="empty-note" style="margin:0; padding:0;">${ta('memoriesPrivateDesc')}</div>
+    <div style="text-align:center;">
+      <div class="l" style="margin:0 0 2px; font-size:13.5px; color:var(--ink); font-weight:600; text-align:center;">${ta('memoriesPrivateTitle')}</div>
+      <div class="empty-note" style="margin:0; padding:0; text-align:center;">${ta('memoriesPrivateDesc')}</div>
     </div>
   </div>
   <div style="display:flex; justify-content:center; margin:0 16px 16px;"><button class="rsvp-copy-btn" id="memories-refresh" style="padding:10px 24px; flex:none;">${ICONS.refresh} ${ta('btnRefresh')}</button></div>
@@ -14592,13 +14612,16 @@ function autopilotReviewCardHtml(){
     const already = token && sentTokens.has(token);
     const waReady = canWa && !already && !!(entry.phone && token && entry.communicationPreferences && entry.communicationPreferences.whatsapp && entry.communicationPreferences.whatsapp.optedIn);
     // Pedido direto da Rita (Set 2026): tirar o pontinho colorido antes do
-    // nome e deixar só o ícone do WhatsApp, agora à FRENTE do nome (antes
-    // era depois) — e sem a caixa cinzenta à volta (essa caixa vinha da
-    // classe "btn-cancel", partilhada com os botões de cancelar, que tem
-    // sempre fundo cinzento; aqui passa a ser só o ícone, sem fundo
-    // nenhum). Quando não há nem WhatsApp pronto nem "já enviado", fica um
-    // espaço reservado do mesmo tamanho (sem ícone lá dentro) para o nome
-    // continuar sempre alinhado com o das linhas que têm ícone.
+    // nome e deixar só o ícone do WhatsApp — sem a caixa cinzenta à volta
+    // (essa caixa vinha da classe "btn-cancel", partilhada com os botões de
+    // cancelar, que tem sempre fundo cinzento; aqui passa a ser só o
+    // ícone, sem fundo nenhum). Quando não há nem WhatsApp pronto nem "já
+    // enviado", fica um espaço reservado do mesmo tamanho (sem ícone lá
+    // dentro) para o nome continuar sempre alinhado com o das linhas que
+    // têm ícone.
+    // Pedido direto da Rita (Out 2026): voltou a pedir o ícone no FIM da
+    // linha (depois do nome), não antes — já tinha estado assim antes de
+    // uma mudança anterior ter passado para a frente.
     const rowIcon = waReady
       ? `<button type="button" class="autopilot-row-icon" data-autopilot-wa-send="${escapeHTML(token)}" aria-label="WhatsApp" style="all:unset; box-sizing:border-box; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#25D366; cursor:pointer;">${ICONS.whatsapp}</button>`
       : already
@@ -14606,8 +14629,8 @@ function autopilotReviewCardHtml(){
         : `<span style="width:32px; height:32px; flex-shrink:0;"></span>`;
     return `
     <div class="list-row" style="padding:8px 0;" data-autopilot-row="${escapeHTML(token||'')}">
-      ${rowIcon}
       <div style="flex:1;">${escapeHTML(item.name)}</div>
+      ${rowIcon}
     </div>`;
   }).join('');
   return `
