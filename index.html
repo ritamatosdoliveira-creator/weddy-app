@@ -1623,8 +1623,8 @@ if(typeof emailjs !== 'undefined'){
    Formato livre (aqui: AAAA-MM-DD), só precisa de mudar para já não
    bater certo com o que ficou gravado em weddings/{weddingId}.consent.
 ============================================================ */
-const CURRENT_TERMS_VERSION = '2026-09-24';
-const CURRENT_PRIVACY_VERSION = '2026-09-24';
+const CURRENT_TERMS_VERSION = '2026-10-02';
+const CURRENT_PRIVACY_VERSION = '2026-10-02';
 </script>
 <script>
 (function(){
@@ -4124,7 +4124,7 @@ const APP_I18N = {
 
     termsTitle:'Termos e Condições',
     termsDesc:'Consulta os nossos Termos e Condições',
-    termsDraftNotice:'Rascunho de trabalho — ainda por rever antes de entrar em produção com pagamentos reais.',
+    termsDraftNotice:'',
     termsUpdatedLabel:(dateStr,version)=>`Última atualização: ${dateStr} (versão ${version}).`,
     termsIntro:'Estes Termos e Condições regulam a utilização da Weddy. Ao criares uma conta, ou ao continuares a usá-la depois de os termos serem atualizados, confirmas que os leste e que aceitas.',
     termsScopeTitle:'1. Âmbito e destinatários',
@@ -4134,9 +4134,9 @@ const APP_I18N = {
     termsAccountTitle:'3. A tua conta',
     termsAccountText:'És responsável por manteres a password da tua conta em segurança e por tudo o que acontece através dela. O registo exige a confirmação do teu email através de um link de verificação. Podes convidar outras pessoas (por exemplo, o teu par) a aceder ao mesmo casamento, em "Segurança" — cada uma passa a ter acesso total aos dados desse casamento.',
     termsSubscriptionTitle:'4. Weddy Premium e pagamentos',
-    termsSubscriptionText:'Algumas funcionalidades fazem parte do plano Weddy Premium, com um período de acesso de 12 meses a partir da data de ativação. Os detalhes exatos — funcionalidades incluídas, duração e preço — são sempre mostrados dentro da app antes de subscreveres, e podem ser revistos ao longo do tempo, sem efeito retroativo sobre períodos já pagos. Podes cancelar a subscrição a qualquer momento em Definições — o acesso Premium mantém-se até ao fim do período já pago. Nota: à data destes termos, a Weddy ainda não tem nenhum meio de pagamento real ligado — esta secção descreve como o plano vai funcionar quando isso acontecer.',
+    termsSubscriptionText:'Algumas funcionalidades fazem parte do plano Weddy Premium, com um período de acesso de 12 meses a partir da data de ativação. Os detalhes exatos — funcionalidades incluídas, duração e preço — são sempre mostrados dentro da app antes de subscreveres, e podem ser revistos ao longo do tempo, sem efeito retroativo sobre períodos já pagos. Podes cancelar a subscrição a qualquer momento em Definições — o acesso Premium mantém-se até ao fim do período já pago. O pagamento é processado pela Stripe (ver Política de Privacidade).',
     termsWithdrawalTitle:'5. Direito de livre resolução',
-    termsWithdrawalText:'Quando existirem pagamentos reais, e enquanto consumidor, terás um prazo de 14 dias para resolver a compra sem indicar motivo (Decreto-Lei n.º 24/2014). Como o acesso Premium é ativado de imediato, ao concluíres a compra vais poder pedir esse acesso imediato — sendo um conteúdo digital fornecido de imediato com o teu consentimento expresso, isso faz cessar o direito de livre resolução assim que o acesso for ativado, tal como a lei prevê.',
+    termsWithdrawalText:'Enquanto consumidor, tens um prazo de 14 dias para resolver a compra sem indicar motivo (Decreto-Lei n.º 24/2014). Como o acesso Premium é ativado de imediato, ao concluíres a compra vais poder pedir esse acesso imediato — sendo um conteúdo digital fornecido de imediato com o teu consentimento expresso, isso faz cessar o direito de livre resolução assim que o acesso for ativado, tal como a lei prevê.',
     termsContentTitle:'6. O teu conteúdo',
     termsContentText:'Os dados que introduzes (convidados, orçamento, mesas, fotografias, documentos) são teus. A Weddy só os usa para te prestar o serviço — para isso, alojamo-los e processamo-los nos nossos servidores (ver Política de Privacidade), mas nunca os vendemos nem os usamos para publicidade. Podes exportar ou apagar os teus dados a qualquer momento, em "Exportar dados" e "Eliminar conta".',
     termsIPTitle:'7. Propriedade intelectual',
@@ -5218,7 +5218,7 @@ const APP_I18N = {
 
     termsTitle:'Terms and Conditions',
     termsDesc:'Read our Terms and Conditions',
-    termsDraftNotice:'Working draft — still to be reviewed before going live with real payments.',
+    termsDraftNotice:'',
     termsUpdatedLabel:(dateStr,version)=>`Last updated: ${dateStr} (version ${version}).`,
     termsIntro:'These Terms and Conditions govern the use of Weddy. By creating an account, or by continuing to use it after the terms are updated, you confirm that you have read them and that you accept them.',
     termsScopeTitle:'1. Scope and who this is for',
@@ -5228,9 +5228,9 @@ const APP_I18N = {
     termsAccountTitle:'3. Your account',
     termsAccountText:'You are responsible for keeping your account password secure and for everything that happens through it. Signing up requires confirming your email through a verification link. You can invite other people (for example, your partner) to access the same wedding, under "Security" — each one gets full access to that wedding\'s data.',
     termsSubscriptionTitle:'4. Weddy Premium and payments',
-    termsSubscriptionText:'Some features are part of the Weddy Premium plan, with a 12-month access period from the activation date. The exact details — features included, duration and price — are always shown inside the app before you subscribe, and may be revised over time, with no retroactive effect on periods already paid for. You can cancel your subscription at any time in Settings — Premium access stays active until the end of the period already paid for. Note: as of these terms, Weddy does not yet have any real payment method connected — this section describes how the plan will work once that happens.',
+    termsSubscriptionText:'Some features are part of the Weddy Premium plan, with a 12-month access period from the activation date. The exact details — features included, duration and price — are always shown inside the app before you subscribe, and may be revised over time, with no retroactive effect on periods already paid for. You can cancel your subscription at any time in Settings — Premium access stays active until the end of the period already paid for. Payment is processed by Stripe (see Privacy Policy).',
     termsWithdrawalTitle:'5. Right of withdrawal',
-    termsWithdrawalText:'Once real payments exist, and as a consumer, you will have a 14-day period to withdraw from the purchase without giving a reason (Decree-Law no. 24/2014, Portugal). Since Premium access is activated immediately, completing the purchase will let you request that immediate access — being digital content supplied immediately with your express consent, this ends the right of withdrawal as soon as access is activated, as the law provides.',
+    termsWithdrawalText:'As a consumer, you have a 14-day period to withdraw from the purchase without giving a reason (Decree-Law no. 24/2014, Portugal). Since Premium access is activated immediately, completing the purchase will let you request that immediate access — being digital content supplied immediately with your express consent, this ends the right of withdrawal as soon as access is activated, as the law provides.',
     termsContentTitle:'6. Your content',
     termsContentText:'The data you enter (guests, budget, tables, photos, documents) is yours. Weddy only uses it to provide you the service — to do that, we host and process it on our servers (see Privacy Policy), but we never sell it or use it for advertising. You can export or delete your data at any time, under "Export data" and "Delete account".',
     termsIPTitle:'7. Intellectual property',
@@ -11864,7 +11864,7 @@ function viewDefPrivacidade(){
 // não texto copiado nem aconselhamento jurídico.
 function termsBodyHtml(){
   return `
-    <p class="privacy-note" style="margin-bottom:4px; color:var(--rust-dark); font-weight:600;">${ta('termsDraftNotice')}</p>
+    ${ta('termsDraftNotice') ? `<p class="privacy-note" style="margin-bottom:4px; color:var(--rust-dark); font-weight:600;">${ta('termsDraftNotice')}</p>` : ''}
     <p class="privacy-note" style="margin-bottom:16px; font-size:12px;">${ta('termsUpdatedLabel')(formatDatePT(CURRENT_TERMS_VERSION), CURRENT_TERMS_VERSION)}</p>
     <p class="privacy-note" style="margin-bottom:16px;">${ta('termsIntro')}</p>
 
