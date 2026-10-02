@@ -1261,6 +1261,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         });
       }), file.size).then(()=>{
         wrap.classList.remove('is-uploading');
+        // O spinner é sempre acrescentado no DOM, independentemente da classe
+        // "is-uploading" — essa classe só baixava a opacidade da foto por
+        // baixo. Sem isto, a roda ficava sempre a girar por cima da foto já
+        // carregada com sucesso, parecendo presa em "a carregar".
+        const spinEl = wrap.querySelector('.memories-thumb-spin');
+        if(spinEl) spinEl.remove();
         anySuccess = true;
         activeMemoryUploads--;
         if(activeMemoryUploads > 0){
@@ -1275,6 +1281,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         // que uma foto nunca mais saía do estado "a carregar".
         console.error('Weddy memories upload error:', err && err.code, err && err.message);
         wrap.classList.remove('is-uploading');
+        const spinEl = wrap.querySelector('.memories-thumb-spin');
+        if(spinEl) spinEl.remove();
         wrap.classList.add('is-error');
         const errIcon = document.createElement('div');
         errIcon.className = 'memories-thumb-err';
