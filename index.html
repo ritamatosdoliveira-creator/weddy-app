@@ -2333,7 +2333,7 @@ const ICONS = {
   // Ícone genérico "bolha de chat + telefone" para representar o WhatsApp
   // nos botões de lembrete — não é o logótipo oficial (evitamos reproduzir
   // a marca registada), só uma alusão visual reconhecível em verde.
-  whatsapp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5l1.2-4.2A8.5 8.5 0 1 1 8.4 19Z"/><path d="M9 10.3c0 3 2.4 5.4 5.4 5.4 0-.8-.1-1.4-.4-1.7l-1.9-.6-.7.9c-1-.5-1.8-1.3-2.3-2.3l.9-.7-.6-1.9c-.3-.3-.9-.4-1.7-.4Z" fill="currentColor" stroke="none"/></svg>',
+  whatsapp:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#111b21"/><circle cx="12" cy="12" r="9.6" fill="#25D366"/><path d="M9 10.3c0 3 2.4 5.4 5.4 5.4 0-.8-.1-1.4-.4-1.7l-1.9-.6-.7.9c-1-.5-1.8-1.3-2.3-2.3l.9-.7-.6-1.9c-.3-.3-.9-.4-1.7-.4Z" fill="#fff"/></svg>',
   send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 3.5 3 10.7l6.7 2.8L12.5 20l8-16.5Z"/><path d="M9.7 13.5 20.5 3.5"/></svg>',
   clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2"/></svg>'
 };
@@ -11746,11 +11746,11 @@ function viewDefMemories(){
   </div>
   ${weddingMemories.length ? '' : emptyIllustration}
   ${gridHtml}
-  <div style="margin:16px 16px 14px; padding:12px 14px; border-radius:14px; background:rgba(193,88,62,0.1); display:flex; align-items:center; justify-content:center; gap:12px; text-align:center;">
+  <div style="margin:16px 16px 14px; padding:0; display:flex; align-items:center; gap:12px;">
     <div class="svg-fill" style="width:18px; height:18px; color:var(--rust-dark); flex-shrink:0;">${ICONS.lock}</div>
-    <div style="text-align:center;">
-      <div class="l" style="margin:0 0 2px; font-size:13.5px; color:var(--ink); font-weight:600; text-align:center;">${ta('memoriesPrivateTitle')}</div>
-      <div class="empty-note" style="margin:0; padding:0; text-align:center;">${ta('memoriesPrivateDesc')}</div>
+    <div>
+      <div class="l" style="margin:0 0 2px; font-size:13.5px; color:var(--ink); font-weight:600;">${ta('memoriesPrivateTitle')}</div>
+      <div class="empty-note" style="margin:0; padding:0;">${ta('memoriesPrivateDesc')}</div>
     </div>
   </div>
   <div style="display:flex; justify-content:center; margin:0 16px 16px;"><button class="rsvp-copy-btn" id="memories-refresh" style="padding:10px 24px; flex:none;">${ICONS.refresh} ${ta('btnRefresh')}</button></div>
