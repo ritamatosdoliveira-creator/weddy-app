@@ -311,7 +311,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     <div class="concierge-log" id="concierge-log"></div>
     <div class="concierge-suggestions" id="concierge-suggestions"></div>
     <div class="concierge-input-row">
-      <input type="text" id="concierge-input" data-t-placeholder="conciergeInputPlaceholder" placeholder="Escreve a tua pergunta…">
+      <input type="text" id="concierge-input" maxlength="500" data-t-placeholder="conciergeInputPlaceholder" placeholder="Escreve a tua pergunta…">
       <button type="button" class="concierge-send-btn" id="concierge-send" aria-label="Enviar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       </button>
@@ -1667,8 +1667,17 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       return db.collection('guests').doc(context.guestToken).update(updates).then(()=>updates);
     },
     setDietaryRestriction(text, context){
+      // Defesa extra (Auditoria Out 2026): um "text" undefined/vazio aqui
+      // fazia o Firestore (SDK compat, sem ignoreUndefinedProperties)
+      // rebentar de forma síncrona em .update({dietary: undefined}),
+      // travando o chat do convidado. Já está bloqueado mais acima (nunca
+      // deixar a IA chegar aqui sem value), mas fica também aqui, no único
+      // sítio que escreve no Firestore, para nunca mais depender só do
+      // chamador se lembrar de validar.
+      const safeText = (typeof text === 'string' ? text : '').trim();
+      if(!safeText) return Promise.reject(new Error('weddy-empty-dietary-text'));
       const existing = (context.guestData.dietary||'').trim();
-      const dietary = existing ? existing + '; ' + text : text;
+      const dietary = existing ? existing + '; ' + safeText : safeText;
       return db.collection('guests').doc(context.guestToken).update({ dietary }).then(()=>({ dietary }));
     }
   };
@@ -1684,7 +1693,17 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     let classified = classifyIntent(pergunta);
     if(classified.intent === WEDDY_INTENTS.UNKNOWN){
       const aiGuess = await AIService.classify(pergunta, 'guest');
-      if(aiGuess && aiGuess.intent && aiGuess.intent!==WEDDY_INTENTS.UNKNOWN && WEDDY_INTENTS[aiGuess.intent]){
+      // Auditoria Out 2026 (achado ALTO): a Cloud Function só exige "intent"
+      // na resposta da IA — "value" é opcional no schema. SET_DIETARY_RESTRICTION
+      // e GET_FAQ aqui em baixo (switch) ASSUMEM que "value" vem sempre
+      // preenchido (classified.value.a, por exemplo) — sem esta validação,
+      // uma classificação da IA sem "value" rebentava o chat a meio da
+      // conversa (TypeError não apanhado). Estas duas intenções só fazem
+      // sentido quando vêm das regex locais (que preenchem sempre "value"),
+      // nunca da IA — por isso, vindas da IA sem valor, tratam-se como
+      // UNKNOWN em vez de executar às cegas.
+      const aiNeedsValueButMissing = aiGuess && (aiGuess.intent===WEDDY_INTENTS.SET_DIETARY_RESTRICTION || aiGuess.intent===WEDDY_INTENTS.GET_FAQ) && !aiGuess.value;
+      if(aiGuess && aiGuess.intent && aiGuess.intent!==WEDDY_INTENTS.UNKNOWN && WEDDY_INTENTS[aiGuess.intent] && !aiNeedsValueButMissing){
         classified = aiGuess;
       }
     }

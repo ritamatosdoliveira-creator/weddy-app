@@ -3812,6 +3812,7 @@ const APP_I18N = {
     errStoragePhoto:'Não foi possível guardar a foto — o telemóvel pode estar sem espaço de armazenamento.',
     errStorageContract:'Não foi possível guardar o contrato — o telemóvel pode estar sem espaço de armazenamento.',
     errContractUnsupportedType:'Tipo de ficheiro não suportado. Usa um PDF ou uma imagem.',
+    errFileTooLarge15MB:'Este ficheiro é maior que 15MB. Escolhe um ficheiro mais pequeno.',
     defaultNewSupplierName:'Novo fornecedor',
     labelSupplierOptional:'Fornecedor (opcional)',
     noSupplierOption:'Sem fornecedor',
@@ -4898,6 +4899,7 @@ const APP_I18N = {
     errStoragePhoto:'Could not save the photo — your phone may be out of storage space.',
     errStorageContract:'Could not save the contract — your phone may be out of storage space.',
     errContractUnsupportedType:'Unsupported file type. Use a PDF or an image.',
+    errFileTooLarge15MB:'This file is larger than 15MB. Choose a smaller file.',
     defaultNewSupplierName:'New supplier',
     labelSupplierOptional:'Supplier (optional)',
     noSupplierOption:'No supplier',
@@ -7834,11 +7836,34 @@ function bindSupplierResultHandlers(){
     btn.addEventListener('click', async e=>{
       e.stopPropagation();
       if(await weddyConfirm(ta('confirmDeleteSupplier'))){
-        state.suppliers = state.suppliers.filter(s=>s.id!==e.currentTarget.dataset.delsupplier);
+        const supplierId = e.currentTarget.dataset.delsupplier;
+        state.suppliers = state.suppliers.filter(s=>s.id!==supplierId);
+        // Auditoria Out 2026 (achado MÉDIO): este botão (o "✕" rápido na
+        // lista) só removia o fornecedor da lista — ao contrário do botão
+        // de apagar na ficha completa (ver supd-delete-btn), nunca limpava
+        // a foto/contrato, que ficavam órfãos (Storage e localStorage) e
+        // invisíveis para sempre (o contrato deixa de aparecer em
+        // Documentos assim que o supplierId deixa de existir).
+        cleanupDeletedSupplierLeftovers(supplierId);
         render();
+        pushRemote(true);
       }
     });
   });
+}
+// Partilhada pelos dois sítios onde um fornecedor pode ser apagado (o "✕"
+// rápido na lista e o botão na ficha completa) — nenhum dos dois apaga as
+// despesas já ligadas a este fornecedor (ficam no histórico do orçamento de
+// propósito), só a foto/contrato que ficavam sem dono e sem forma de serem
+// vistos ou removidos pela UI.
+function cleanupDeletedSupplierLeftovers(supplierId){
+  removeSupplierPhoto(supplierId);
+  removeSupplierContract(supplierId);
+  const synced = supplierContractDoc(supplierId);
+  if(synced){
+    if(synced.storagePath && storage) storage.ref(synced.storagePath).delete().catch(()=>{});
+    state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>d!==synced);
+  }
 }
 
 /* ============================================================
@@ -7964,6 +7989,14 @@ async function uploadSupplierContract(supplierId, file){
   const isPdf = file.type === 'application/pdf';
   const isImage = file.type && file.type.startsWith('image/');
   if(!isPdf && !isImage) return null;
+  // Auditoria Out 2026 (achado ALTO): ao contrário de uploadHoneymoonAttachment
+  // (limite 15MB) e dos Documentos gerais, isto não tinha NENHUM limite de
+  // tamanho — um ficheiro grande podia falhar silenciosamente no upload ao
+  // Storage (storagePath ficava null) e, mesmo assim, o código continuava e
+  // gravava um "contrato" sem ficheiro nenhum lá dentro, parecendo sucesso
+  // ao casal. Mesmo limite dos outros sítios (15MB), com um valor de retorno
+  // à parte para o chamador poder mostrar a mensagem certa.
+  if(file.size > 15*1024*1024) return 'too-large';
   let text = '';
   try{ if(isPdf) text = await extractPdfText(file); }catch(e){ text = ''; }
   let storagePath = null;
@@ -8256,6 +8289,13 @@ function bindFornecedorDetalheHandlers(){
     if(contractRow) contractRow.style.cssText += 'pointer-events:none; opacity:.6;';
     try{
       const doc = await uploadSupplierContract(s.id, file);
+      if(doc==='too-large'){
+        weddyAlert(ta('errFileTooLarge15MB') || 'Este ficheiro é maior que 15MB. Escolhe um ficheiro mais pequeno.');
+        if(contractStatusEl) contractStatusEl.textContent = '';
+        if(contractRow) contractRow.style.cssText = contractRow.style.cssText.replace('pointer-events:none; opacity:.6;','');
+        e.target.value = '';
+        return;
+      }
       if(!doc){
         // Fix 6 da auditoria RGPD/Segurança (Set 2026): antes, aqui,
         // guardava-se o contrato em localStorage — fora do Firestore/
@@ -8340,16 +8380,9 @@ function bindFornecedorDetalheHandlers(){
   if(deleteBtn) deleteBtn.addEventListener('click', async ()=>{
     if(await weddyConfirm(ta('confirmDeleteSupplier'))){
       state.suppliers = state.suppliers.filter(x=>x.id!==s.id);
-      removeSupplierPhoto(s.id);
-      removeSupplierContract(s.id);
-      // Também remove o contrato sincronizado no Firestore, se existir.
       // As despesas já ligadas a este fornecedor (Budget) não são
       // apagadas — continuam a fazer parte do histórico do orçamento.
-      const synced = supplierContractDoc(s.id);
-      if(synced){
-        if(synced.storagePath && storage) storage.ref(synced.storagePath).delete().catch(()=>{});
-        state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>d!==synced);
-      }
+      cleanupDeletedSupplierLeftovers(s.id);
       fornecedoresSubview = 'lista';
       openSupplierDetailId = null;
       render();
@@ -9334,7 +9367,15 @@ function saveAssistChatHistory(){
   if(assistChatHistory.length > ASSIST_CHAT_HISTORY_LIMIT){
     assistChatHistory = assistChatHistory.slice(-ASSIST_CHAT_HISTORY_LIMIT);
   }
-  CURRENT_DOC().set({ assistantChatHistory: assistChatHistory }, { merge:true }).catch(err=>{
+  // Auditoria Out 2026 (achado ALTO): isto grava no MESMO documento
+  // Firestore (weddings/{weddingId}) onde também vive todo o resto do
+  // casamento (orçamento, convidados, mesas...) — um texto muito grande
+  // colado no chat (ex: um contrato inteiro) podia aproximar o documento
+  // do limite de 1MB do Firestore e fazer TODAS as gravações futuras
+  // falharem, não só o chat. O input já tem maxlength=500, mas isto fica
+  // aqui como última linha de defesa, para nunca depender só disso.
+  const safeHistory = assistChatHistory.map(m=> (m && typeof m.text==='string' && m.text.length>2000) ? { ...m, text: m.text.slice(0,2000) } : m);
+  CURRENT_DOC().set({ assistantChatHistory: safeHistory }, { merge:true }).catch(err=>{
     console.error('Weddy assistant history save error:', err.code, err.message);
   });
 }
@@ -10286,9 +10327,16 @@ const WeddyActions = {
     // confirmar que a gravação chegou ao Firestore — se falhar, a Promise
     // rejeita e quem chamou sabe que a tarefa NÃO foi persistida.
     createTask(texto){
+      // Auditoria Out 2026 (achado MÉDIO): quando a classificação vinha da
+      // IA sem "value" preenchido (o schema da Cloud Function não o exige),
+      // isto criava uma tarefa "fantasma" sem texto nenhum, sem o casal
+      // perceber de onde tinha vindo — não rebentava, mas corrompia dados
+      // silenciosamente.
+      const safeTexto = (typeof texto === 'string' ? texto : '').trim();
+      if(!safeTexto) return Promise.reject(new Error('weddy-empty-task-text'));
       const cat = state.todoCategories.find(c=>c.id==='tc3') || state.todoCategories[0];
       if(!cat) return Promise.resolve(null);
-      cat.items.push({ text: texto, done:false, due:'', time:'' });
+      cat.items.push({ text: safeTexto, done:false, due:'', time:'' });
       _origRender(); // atualiza o ecrã já, mas sem agendar o autosave debounced (fazemos a gravação imediata a seguir)
       return pushRemoteImmediate().then(()=> cat);
     }
@@ -11307,7 +11355,7 @@ function buildChatPanelBody(){
   <div class="assist-chat-log" id="assist-chat-log">${bubbles}</div>
   ${chipsHtml}
   <div class="assist-input-row">
-    <input type="text" id="assist-chat-input" placeholder="${ta('assistInputPlaceholder')}" autocomplete="off">
+    <input type="text" id="assist-chat-input" maxlength="500" placeholder="${ta('assistInputPlaceholder')}" autocomplete="off">
     <button id="assist-chat-send" aria-label="${ta('assistSendLabel')}">${ICONS.arrowright}</button>
   </div>
   `;
