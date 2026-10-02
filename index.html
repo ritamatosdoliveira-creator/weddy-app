@@ -3829,6 +3829,10 @@ const APP_I18N = {
     rsvpStatusPending:'Por responder',
     btnCopyLink:'Copiar link',
     btnGenerateLink:'Gerar link',
+    btnSendWhatsappInvite:'WhatsApp',
+    rsvpInviteMsgLabel:'Mensagem do convite (WhatsApp)',
+    rsvpInviteMsgHint:'Usada no botão de WhatsApp de cada convidado. Marcadores: [nome], [noivos], [link].',
+    rsvpInviteMsgDefault:'Olá [nome]! 💛 Aqui está o nosso convite — confirma a tua presença por aqui: [link] — [noivos]',
     titleRemoveInvite:'Remover convite (apaga a resposta e desativa o link)',
     labelChildrenColon:'Crianças:',
     yearsOldSuffix:(a)=>` (${a} anos)`,
@@ -4058,6 +4062,9 @@ const APP_I18N = {
     btnDeleteMyAccount:'Eliminar a minha conta',
     memoriesLoadingText:'A carregar fotos…',
     memoriesEmptyText:'Ainda não há fotos partilhadas. Assim que um convidado adicionar uma no link de RSVP, aparece aqui.',
+    btnMemoriesPublicLink:'Link para o dia do casamento',
+    memoriesPublicLinkHint:'Um único link/QR code para todos — sem precisar de convite individual. Ideal para colar no local do evento.',
+    memoriesPublicLinkName:'Weddy Memories — dia do casamento',
     memoriesIntroText:'Fotos que os teus convidados foram partilhando pelo próprio link de RSVP. Só tu consegues vê-las.',
     memoriesPrivateTitle:'As tuas memórias são privadas.', memoriesPrivateDesc:'Só tu consegues vê-las.',
     btnRefresh:'Atualizar',
@@ -4934,6 +4941,10 @@ const APP_I18N = {
     rsvpStatusPending:'Awaiting reply',
     btnCopyLink:'Copy link',
     btnGenerateLink:'Generate link',
+    btnSendWhatsappInvite:'WhatsApp',
+    rsvpInviteMsgLabel:'Invite message (WhatsApp)',
+    rsvpInviteMsgHint:'Used by each guest\'s WhatsApp button. Placeholders: [name], [couple], [link].',
+    rsvpInviteMsgDefault:'Hi [name]! 💛 Here\'s our invite — please confirm your attendance here: [link] — [couple]',
     titleRemoveInvite:'Remove invite (deletes the response and disables the link)',
     labelChildrenColon:'Children:',
     yearsOldSuffix:(a)=>` (${a} years old)`,
@@ -5156,6 +5167,9 @@ const APP_I18N = {
     btnDeleteMyAccount:'Delete my account',
     memoriesLoadingText:'Loading photos…',
     memoriesEmptyText:'No photos shared yet. As soon as a guest adds one through the RSVP link, it will appear here.',
+    btnMemoriesPublicLink:'Link for the wedding day',
+    memoriesPublicLinkHint:'One single link/QR code for everyone — no individual invite needed. Great to display at the venue.',
+    memoriesPublicLinkName:'Weddy Memories — wedding day',
     memoriesIntroText:'Photos your guests have shared through their own RSVP link. Only you can see them.',
     memoriesPrivateTitle:'Your memories are private.', memoriesPrivateDesc:'Only you can see them.',
     btnRefresh:'Refresh',
@@ -11087,6 +11101,7 @@ function viewRSVPRespostas(){
       actionsHtml = `<div class="rsvp-actions-inline">
         <button class="rsvp-copy-btn" data-rsvpcopy="${escapeHTML(link)}">${ICONS.mail} ${ta('btnCopyLink')}</button>
         <button class="rsvp-qr-btn" data-rsvpqr="${escapeHTML(link)}" data-rsvpqrname="${escapeHTML(item.name)}">${ICONS.qrcode||''} QR</button>
+        <button class="rsvp-qr-btn" data-rsvpwalink="${escapeHTML(link)}" data-rsvpwaname="${escapeHTML(item.name)}" data-rsvpwaphone="${escapeHTML(item.entry.phone||'')}" style="color:#25D366;">${ICONS.whatsapp} ${ta('btnSendWhatsappInvite')}</button>
         <button class="rsvp-qr-btn rsvp-revoke-btn" data-rsvprevoke="${item.side}|${item.catId}|${item.idx}" data-rsvprevokename="${escapeHTML(item.name)}" title="${ta('titleRemoveInvite')}">${ICONS.trash}</button>
       </div>`;
     } else {
@@ -11170,6 +11185,12 @@ function viewRSVPRespostas(){
       <span style="font-size:11.5px; color:var(--rust-dark);">${ta('rsvpRefreshErrorNote')}</span>
       <button type="button" class="tappable" data-defgoto="reportar" style="all:unset; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--rust-dark); text-decoration:underline;">${ta('btnReportProblem')}</button>
     </div>` : ''}
+  </div>
+  <div class="stat-card" style="margin:0 16px 14px; text-align:left;">
+    <div class="l" style="margin-bottom:2px;">${ta('rsvpInviteMsgLabel')}</div>
+    <div class="empty-note" style="margin:0 0 8px; padding:0; font-style:normal; text-align:left;">${ta('rsvpInviteMsgHint')}</div>
+    <textarea class="reminder-msg-textarea" id="rsvp-invite-msg">${escapeHTML(weddingSettings.rsvpInviteMessage || ta('rsvpInviteMsgDefault'))}</textarea>
+    <button class="rsvp-deadline-save" id="rsvp-invite-msg-save" style="margin-top:8px; width:100%;">${ta('btnSave')}</button>
   </div>
   <div class="search-bar" style="display:flex; gap:8px;">
     ${ICONS.search}<input type="text" id="rsvp-search" placeholder="${ta('phSearchGuestEllipsis')}" value="${escapeHTML(rsvpSearchQuery)}">
@@ -11697,6 +11718,10 @@ function viewDefMemories(){
   </div>`;
   return `
   ${defSubHeader(ta('memoriesTitle'), ta('memoriesIntroText'))}
+  <div style="margin:0 16px 16px;">
+    <button class="rsvp-copy-btn" id="memories-public-link-btn" style="width:100%;">${ICONS.qrcode||''} ${ta('btnMemoriesPublicLink')}</button>
+    <div class="empty-note" style="margin:6px 0 0; padding:0; font-style:normal;">${ta('memoriesPublicLinkHint')}</div>
+  </div>
   ${weddingMemories.length ? '' : emptyIllustration}
   ${gridHtml}
   <div style="margin:16px 16px 14px; padding:12px 14px; border-radius:14px; background:rgba(193,88,62,0.1); display:flex; align-items:center; gap:12px;">
@@ -13028,6 +13053,16 @@ function bindHandlers(){
   const exportPdfBtn = document.getElementById('export-pdf-btn');
   if(exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
 
+  const rsvpInviteMsgSave = document.getElementById('rsvp-invite-msg-save');
+  if(rsvpInviteMsgSave) rsvpInviteMsgSave.addEventListener('click', ()=>{
+    const input = document.getElementById('rsvp-invite-msg');
+    weddingSettings.rsvpInviteMessage = input ? input.value : '';
+    const original = rsvpInviteMsgSave.textContent;
+    rsvpInviteMsgSave.textContent = ta('btnSavedCheck');
+    pushRemote(false);
+    setTimeout(()=>{ rsvpInviteMsgSave.textContent = original; }, 1600);
+  });
+
   // Weddy Premium — Convites RSVP
   document.querySelectorAll('[data-rsvpgerar]').forEach(btn=>{
     btn.addEventListener('click', e=>{
@@ -13063,6 +13098,23 @@ function bindHandlers(){
       openRSVPQRModal(e.currentTarget.dataset.rsvpqr, e.currentTarget.dataset.rsvpqrname);
     });
   });
+  // Botão de WhatsApp junto a "Copiar link"/"QR" — abre o WhatsApp pessoal
+  // do casal (via wa.me, mesmo mecanismo já usado nos lembretes) com o
+  // convite já escrito. Se o convidado tiver telefone gravado, abre direto
+  // nessa conversa; sem telefone, o wa.me deixa escolher o contacto à mão.
+  document.querySelectorAll('[data-rsvpwalink]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const el = e.currentTarget;
+      const link = el.dataset.rsvpwalink;
+      const name = el.dataset.rsvpwaname || '';
+      const phone = el.dataset.rsvpwaphone || '';
+      const couple = [weddingSettings.coupleName1, weddingSettings.coupleName2].filter(Boolean).join(' & ');
+      const template = weddingSettings.rsvpInviteMessage || ta('rsvpInviteMsgDefault');
+      const texto = fillReminderPlaceholders(template, name, couple, link);
+      const digits = phone.replace(/[^\d]/g, '');
+      openWhatsAppLink(digits, texto);
+    });
+  });
   document.querySelectorAll('[data-rsvprevoke]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const [side,catId,idx] = e.currentTarget.dataset.rsvprevoke.split('|');
@@ -13074,6 +13126,14 @@ function bindHandlers(){
   if(rsvpRefreshBtn) rsvpRefreshBtn.addEventListener('click', ()=>{ loadRSVPResponses(); });
   const memoriesRefreshBtn = document.getElementById('memories-refresh');
   if(memoriesRefreshBtn) memoriesRefreshBtn.addEventListener('click', ()=>{ loadMemories(); });
+  // Link/QR público do Weddy Memories (sem convite individual) — um único
+  // link por casamento, pensado para ser colado/impresso no local do
+  // evento. Reaproveita o mesmo modal de QR já usado nos convites de RSVP.
+  const memoriesPublicLinkBtn = document.getElementById('memories-public-link-btn');
+  if(memoriesPublicLinkBtn) memoriesPublicLinkBtn.addEventListener('click', ()=>{
+    const link = `https://www.weddy.pt/memorias.html?w=${currentWeddingId}`;
+    openRSVPQRModal(link, ta('memoriesPublicLinkName'));
+  });
   document.querySelectorAll('[data-memorydel]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       deleteMemory(e.currentTarget.dataset.memorydel, e.currentTarget.dataset.memorypath);
