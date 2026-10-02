@@ -11746,12 +11746,8 @@ function viewDefMemories(){
   </div>
   ${weddingMemories.length ? '' : emptyIllustration}
   ${gridHtml}
-  <div style="margin:16px 16px 14px; padding:0; display:flex; align-items:center; gap:12px;">
-    <div class="svg-fill" style="width:18px; height:18px; color:var(--rust-dark); flex-shrink:0;">${ICONS.lock}</div>
-    <div>
-      <div class="l" style="margin:0 0 2px; font-size:13.5px; color:var(--ink); font-weight:600;">${ta('memoriesPrivateTitle')}</div>
-      <div class="empty-note" style="margin:0; padding:0;">${ta('memoriesPrivateDesc')}</div>
-    </div>
+  <div style="margin:16px 16px 14px; padding:0; text-align:left;">
+    <span class="l" style="font-size:13.5px; color:var(--ink); font-weight:600;">${ta('memoriesPrivateTitle')} ${ta('memoriesPrivateDesc')}</span>
   </div>
   <div style="display:flex; justify-content:center; margin:0 16px 16px;"><button class="rsvp-copy-btn" id="memories-refresh" style="padding:10px 24px; flex:none;">${ICONS.refresh} ${ta('btnRefresh')}</button></div>
   `;
