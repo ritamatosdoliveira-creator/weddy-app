@@ -48,5 +48,44 @@ service cloud.firestore {
           || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
         );
     }
+
+    // ACHADO (Out 2026, reportado pela Rita: app "toda lenta" e menus/
+    // Assistente sem abrir depois de abrir "Convites RSVP"): a coleção
+    // "guests" NUNCA teve aqui nenhuma regra — e sem "match", o Firestore
+    // nega tudo por omissão. Ou seja, loadRSVPResponses() (index.html),
+    // que faz GUESTS().where('weddingId','==',currentWeddingId).get()
+    // para mostrar a lista de convidados/respostas, falhava SEMPRE com
+    // "permission-denied", para toda a gente, desde sempre — não é uma
+    // regressão de hoje. O código reagia a essa falha voltando a
+    // renderizar o ecrã, que por sua vez tentava logo outra vez (ver fix
+    // em loadRSVPResponses), criando um ciclo sem fim de pedidos ao
+    // Firestore — isso sim era novo/raro de acontecer (só quando se
+    // visita esse ecrã específico), e foi isso que trancou a app.
+    //
+    // Esta regra corrige a causa raiz (a falta de permissão em si),
+    // mantendo o mesmo modelo de confiança já usado no resto da app:
+    // - rsvp.html (lado do convidado) NUNCA tem sessão iniciada — a
+    //   "segurança" do link é o próprio token (o ID do documento) ser
+    //   único e impossível de adivinhar, tal como o resto do fluxo de
+    //   convite já assume. Por isso só pode ler/escrever UM documento se
+    //   já souber o ID exato (allow get/update), e nunca pode listar a
+    //   coleção toda (isso exporia nomes/contactos de convidados de
+    //   QUALQUER casamento a quem quer que fosse).
+    // - index.html (lado do casal, sempre autenticado) só pode listar e
+    //   gerir os convidados do(s) casamento(s) de que é mesmo dono —
+    //   confirmado via o próprio documento weddings/{weddingId}, tal como
+    //   as regras acima.
+    match /guests/{guestId} {
+      allow get: if true;
+      allow update: if true;
+
+      allow read, update, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId)).data.ownerEmails;
+    }
   }
 }

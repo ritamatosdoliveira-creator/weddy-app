@@ -9266,6 +9266,22 @@ function loadRSVPResponses(){
     console.error('Weddy RSVP load error:', err.code, err.message);
     rsvpLoadingResponses = false;
     rsvpRefreshError = true;
+    // Bug crítico encontrado (Out 2026, reportado pela Rita: app "toda
+    // lenta" e menus/Assistente sem abrir depois de visitar "Convites
+    // RSVP"): esta função só marcava rsvpResponsesLoaded=true quando
+    // tinha SUCESSO. Em erro, ficava false para sempre — e viewDefRSVP()
+    // (ecrã de Convites RSVP) chama loadRSVPResponses() de novo sempre
+    // que renderiza enquanto rsvpResponsesLoaded for false. Como o
+    // render() aqui em baixo volta a renderizar esse ecrã, e esse render
+    // volta a chamar loadRSVPResponses(), um erro persistente (ex.: a
+    // coleção "guests" não tinha regra no Firestore e dava sempre
+    // "permission-denied") criava um ciclo sem fim — centenas de pedidos
+    // por segundo, a trancar a thread principal da app (por isso nada
+    // respondia: nem menus, nem o Assistente). Agora marca-se sempre como
+    // "carregado", mesmo em erro, para o ciclo parar; rsvpRefreshError
+    // fica true e o botão "atualizar" (rsvpRefreshBtn) continua a permitir
+    // tentar outra vez manualmente quando a pessoa quiser.
+    rsvpResponsesLoaded = true;
     render();
   });
 }
@@ -14114,16 +14130,12 @@ function softUpdateBudget(){
 function saveSettingsNow(msgId){
   const msgEl = document.getElementById(msgId);
   if(msgEl){ msgEl.textContent = ta('btnSavingEllipsis'); msgEl.className = 'login-msg'; }
-  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId){
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !firstSyncDone){
     if(msgEl){ msgEl.textContent = ta('alertSaveNoConnection'); msgEl.className = 'login-msg error'; }
     return;
   }
   clearTimeout(saveTimer);
-  CURRENT_DOC().set({
-    settings: weddingSettings,
-    json: JSON.stringify(state),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true }).then(()=>{
+  CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
     if(msgEl){ msgEl.textContent = ta('savedSuccessMsg'); msgEl.className = 'login-msg success'; }
     showSaveToast(false);
   }).catch(()=>{
@@ -16650,6 +16662,16 @@ let dataLossGuardTripped = false;
 // substituir às cegas por uma atualização que chegou de outro dispositivo a
 // mexer noutra secção qualquer. Ver mergeIncomingWeddingState() abaixo.
 let lastSyncedState = null;
+// Rede de segurança (Out 2026, incidente real — duas contas afetadas,
+// "json" ficou em branco numa, "settings" voltou ao molde noutra, ambas
+// ~3min depois do ecrã de reaceitação dos termos): equivalente a
+// "lastSyncedState" mas para "weddingSettings" — a última versão de
+// "settings" que sabemos que está mesmo no Firestore. Usado por
+// buildSafeWeddingWritePayload() para nunca deixar uma gravação substituir
+// dados reais conhecidos por um molde em branco/genérico, mesmo que "state"
+// ou "weddingSettings" estejam, por alguma razão ainda não identificada,
+// com o valor inicial em vez dos dados sincronizados nesse momento.
+let lastSyncedSettings = null;
 
 let saveToastTimer = null;
 function showSaveToast(isError){
@@ -16966,11 +16988,7 @@ function flushPendingSave(){
   // para os dados que SAEM — esta linha fecha essa lacuna.
   if(!firstSyncDone) return Promise.resolve();
   clearTimeout(saveTimer);
-  return CURRENT_DOC().set({
-    settings: weddingSettings,
-    json: JSON.stringify(state),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true }).catch((err)=>{
+  return CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).catch((err)=>{
     // Fase 4B da auditoria (LOG-01, P1): antes, uma falha aqui era 100%
     // silenciosa — nem aviso ao utilizador, nem registo nenhum. Esta
     // função é chamada sobretudo mesmo antes de recarregar a página (ver
@@ -17005,11 +17023,7 @@ function pushRemoteImmediate(){
   // com o casamento em branco (seedData()) que "state" começa por ser.
   if(!firstSyncDone) return Promise.reject(new Error('first-sync-pending'));
   clearTimeout(saveTimer);
-  return CURRENT_DOC().set({
-    settings: weddingSettings,
-    json: JSON.stringify(state),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true }).then(()=>{
+  return CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
     scheduleGoogleCalendarAutoSync();
   });
 }
@@ -17050,11 +17064,7 @@ function pushRemote(confirmToast){
   clearTimeout(saveTimer);
   pendingSaveDirty = true;
   saveTimer = setTimeout(()=>{
-    CURRENT_DOC().set({
-      settings: weddingSettings,
-      json: JSON.stringify(state),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true }).then(()=>{
+    CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
       pendingSaveDirty = false;
       if(confirmToast) showSaveToast(false);
       // Fase 9.2 — depois de QUALQUER gravação bem sucedida, agenda uma
@@ -17081,11 +17091,7 @@ function flushPendingSaveOnExit(){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !firstSyncDone) return;
   clearTimeout(saveTimer);
   pendingSaveDirty = false;
-  CURRENT_DOC().set({
-    settings: weddingSettings,
-    json: JSON.stringify(state),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true }).catch(()=>{});
+  CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).catch(()=>{});
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='hidden') flushPendingSaveOnExit();
@@ -17290,6 +17296,67 @@ function looksLikeDataLoss(before, after){
   const nowEmpty = (a.guests + a.todos) === 0;
   return wasPopulated && nowEmpty;
 }
+// Rede de segurança (Out 2026, incidente real — ver nota em
+// "lastSyncedSettings" acima): o mesmo princípio de looksLikeDataLoss(),
+// mas para "settings" em vez de "json". Um "settings" parece ter voltado ao
+// molde em branco quando os nomes passam a ser os genéricos ("Nome 1"/
+// "Nome 2"/"Name 1"/"Name 2") E antes havia nomes reais e diferentes
+// destes — nunca dispara numa conta que é mesmo nova (nesse caso "before"
+// é null/vazio, não "reais").
+const GENERIC_COUPLE_NAMES = new Set(['Nome 1','Nome 2','Name 1','Name 2']);
+function looksLikeSettingsLoss(before, after){
+  if(!before || !after) return false;
+  const hadRealNames = before.coupleName1 && before.coupleName2
+    && !GENERIC_COUPLE_NAMES.has(before.coupleName1)
+    && !GENERIC_COUPLE_NAMES.has(before.coupleName2);
+  const nowGeneric = GENERIC_COUPLE_NAMES.has(after.coupleName1) && GENERIC_COUPLE_NAMES.has(after.coupleName2);
+  return hadRealNames && nowGeneric;
+}
+function logOutgoingWriteGuardTripped(kind, before, after){
+  try{
+    firebase.firestore().collection('_incident_log').add({
+      weddingId: currentWeddingId,
+      type: 'outgoing_write_blocked_' + kind,
+      before, after,
+      at: firebase.firestore.FieldValue.serverTimestamp(),
+      userAgent: (typeof navigator!=='undefined' ? navigator.userAgent : '')
+    }).catch(()=>{});
+  }catch(e){}
+}
+// Rede de segurança (Out 2026, incidente real — duas contas de clientes
+// reais, uma com o "json" em branco, outra com o "settings" em branco,
+// ambas ~3 minutos depois de reaceitarem os termos): até aqui, as 4 funções
+// que gravam no Firestore (flushPendingSave, pushRemoteImmediate,
+// pushRemote, flushPendingSaveOnExit) confiavam cegamente em "state" e
+// "weddingSettings" estarem corretos sempre que "firstSyncDone" fosse
+// verdadeiro — e já tínhamos uma proteção equivalente para dados a
+// CHEGAR do Firestore (looksLikeDataLoss, acima) mas nenhuma para dados a
+// SAIR. Esta função centraliza a construção do payload de gravação: se
+// "state" ou "weddingSettings" parecerem ter voltado ao molde em branco
+// (comparado com a última versão que SABEMOS que é real, "lastSyncedState"/
+// "lastSyncedSettings"), esse campo específico fica de fora da gravação
+// (nunca grava nada — Firestore com merge:true simplesmente não lhe mexe,
+// preservando o que já lá está) e fica um registo em "_incident_log" para
+// investigar depois. A causa exata que leva "state"/"weddingSettings" a
+// ficarem com o molde em branco a meio de uma sessão já sincronizada ainda
+// está a ser investigada — isto impede o SINTOMA (perda de dados) enquanto
+// isso não for encontrado.
+function buildSafeWeddingWritePayload(){
+  const payload = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  if(looksLikeDataLoss(lastSyncedState || {}, state)){
+    console.error('[Weddy] Gravação de "json" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedState, agora: state });
+    logOutgoingWriteGuardTripped('json', lastSyncedState, state);
+  } else {
+    payload.json = JSON.stringify(state);
+  }
+  if(looksLikeSettingsLoss(lastSyncedSettings, weddingSettings)){
+    console.error('[Weddy] Gravação de "settings" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedSettings, agora: weddingSettings });
+    logOutgoingWriteGuardTripped('settings', lastSyncedSettings, weddingSettings);
+  } else {
+    payload.settings = weddingSettings;
+  }
+  return payload;
+}
 // Auditoria Out 2026 (achado ALTO — "dois dispositivos a editar secções
 // diferentes ao mesmo tempo, um apaga o trabalho do outro"): antes desta
 // função, QUALQUER snapshot novo do Firestore substituía "state" por
@@ -17444,6 +17511,7 @@ function attachFirestoreSync(){
         }
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
+      if(data.settings) lastSyncedSettings = data.settings;
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
       if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
