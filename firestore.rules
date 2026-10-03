@@ -47,6 +47,53 @@ service cloud.firestore {
           request.auth.token.email in resource.data.ownerEmails
           || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
         );
+
+      // ACHADO (Out 2026, ao investigar a Rita ver "Não foi possível
+      // carregar o histórico" em Histórico do casamento): esta subcoleção
+      // nunca teve regra nenhuma — o comentário ao pé de SNAPSHOTS() em
+      // index.html dizia que "as regras de posse já existentes em
+      // weddings/{weddingId} cobrem-na automaticamente", mas isso não é
+      // verdade no Firestore: um match num documento NUNCA se estende
+      // sozinho às subcoleções dentro dele, cada uma precisa da sua
+      // própria regra. Sem ela, createSnapshot() (index.html) — tanto o
+      // backup automático diário como o botão "Criar cópia de segurança
+      // agora" — falhava SEMPRE com permission-denied, silenciosamente
+      // (só ia para a consola, nunca mostrava erro à pessoa). Ou seja:
+      // nenhuma cópia de segurança deste tipo foi alguma vez guardada,
+      // para ninguém, desde que esta funcionalidade existe — a "rede de
+      // segurança" prometida no ecrã nunca esteve realmente ativa. (Isto
+      // é distinto da recuperação via Point-in-Time Recovery do próprio
+      // Firestore, que é do lado da infraestrutura e não depende destas
+      // regras — essa continuou a funcionar e foi o que permitiu recuperar
+      // as contas afetadas pelo incidente de perda de dados.)
+      match /snapshots/{snapshotId} {
+        allow read, write: if request.auth != null
+          && request.auth.token.email_verified == true
+          && (
+            request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+            || (
+              ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+              && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+            )
+          );
+      }
+
+      // Mesmo problema, mesma causa: integrations/googleCalendar (ver
+      // loadGoogleCalendarIntegration em index.html) também nunca teve
+      // regra. Nunca escreve nada sensível aqui (o refresh token fica à
+      // parte, em privateIntegrations, nunca lido pelo cliente — ver
+      // comentário em index.html) — só o estado "ligado/desligado".
+      match /integrations/{integrationId} {
+        allow read, write: if request.auth != null
+          && request.auth.token.email_verified == true
+          && (
+            request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+            || (
+              ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+              && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+            )
+          );
+      }
     }
 
     // ACHADO (Out 2026, reportado pela Rita: app "toda lenta" e menus/
@@ -86,6 +133,34 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
         && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId)).data.ownerEmails;
+    }
+
+    // Mesma causa, mesmo padrão: "memories" (Weddy Memories — fotos que os
+    // convidados enviam pelo link do convite ou pelo QR code público, ver
+    // rsvp.html/memorias.html) também nunca teve regra. O envio de fotos
+    // (MEMORIES().add em memorias.html/rsvp.html) é feito SEM sessão
+    // iniciada, tal como os convites — por isso "create" fica aberto, igual
+    // ao resto deste fluxo de convidado. Ver/apagar a galeria completa
+    // (index.html: carregarMemories/deleteMemory) só pode ser feito pelo(s)
+    // dono(s) autenticados do casamento a que essas fotos pertencem.
+    match /memories/{memoryId} {
+      allow create: if true;
+
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+    }
+
+    // "feedback" (botão "Reporta um problema" em Definições) também nunca
+    // teve regra. Só o próprio casal, autenticado, pode criar o seu
+    // relatório — nunca ler, atualizar nem apagar os reportados (nem os
+    // próprios, nem de outros: não existe ainda nenhum ecrã na app para os
+    // rever, só a consola do Firebase — ver comentário junto de FEEDBACK()
+    // em index.html).
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.userId == request.auth.uid;
     }
   }
 }
