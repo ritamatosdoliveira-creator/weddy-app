@@ -126,6 +126,13 @@ const GOOGLE_TOKEN_ENCRYPTION_KEY = defineSecret('GOOGLE_TOKEN_ENCRYPTION_KEY');
 //   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
 const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
+
+// RevenueCat — compra In-App (iOS) da Weddy Premium (Out 2026, resposta à
+// rejeição da App Store por causa da guideline 3.1.1). O "Authorization
+// header value" é definido no dashboard da RevenueCat (Project settings →
+// Integrations → Webhooks) e tem de ser EXATAMENTE o mesmo valor aqui.
+// Nunca em texto simples — vive no Secret Manager como os outros acima.
+const REVENUECAT_WEBHOOK_AUTH = defineSecret('REVENUECAT_WEBHOOK_AUTH');
 // Este não é secreto (é só um URL), por isso continua a ser defineString
 // — mas tem de corresponder EXATAMENTE ao URI autorizado configurado no
 // Google Cloud Console, ou o OAuth falha com redirect_uri_mismatch. Para
@@ -3117,3 +3124,144 @@ async function logStripeWebhookIncident(reason, weddingId, event, session, err) 
     logger.error(`logStripeWebhookIncident: falhou a gravar o próprio incidente. ${logErr.message || logErr}`);
   }
 }
+
+// ============================================================
+// REVENUECAT — Compra In-App da Weddy Premium no iOS (Out 2026)
+// ============================================================
+// A App Store rejeitou a Weddy (guideline 3.1.1) por o Premium só se poder
+// comprar via Stripe, fora da app. Em vez de integrar a StoreKit diretamente
+// (muito mais código nativo e muito mais superfície para bugs de
+// faturação), usamos a RevenueCat: ela trata da compra nativa, dos recibos
+// e de validar tudo com a Apple, e manda-nos este webhook já confirmado.
+//
+// O produto na App Store Connect é uma "Non-Renewing Subscription" (não
+// uma subscrição com renovação automática) — porque a Weddy Premium SEMPRE
+// foi um pagamento único válido por 12 meses (ver WEDDY_PREMIUM_PRICE_CENTS
+// e stripeWebhook acima), nunca uma subscrição recorrente. Isso faz a
+// RevenueCat mandar o evento "NON_RENEWING_PURCHASE" (não "INITIAL_PURCHASE"
+// nem "RENEWAL", que são só para subscrições automáticas) — por isso só
+// tratamos desse tipo de evento aqui, exatamente como o stripeWebhook só
+// ativa e nunca desativa sozinho.
+//
+// DE ONDE VEM O weddingId: ao contrário do Stripe (onde metemos o
+// weddingId nos metadata da sessão de Checkout, porque nós criamos essa
+// sessão), aqui é o cliente (app iOS) que configura a RevenueCat com
+// Purchases.configure({ appUserID: <uid do Firebase Auth> }) — nunca o
+// weddingId diretamente, para um utilizador nunca poder "ativar" o
+// casamento de outra pessoa só por adivinhar o weddingId dela. A RevenueCat
+// manda-nos esse appUserID como app_user_id no evento, e procuramos o
+// casamento pelo MESMO padrão de resolveWeddingId (array-contains), só que
+// por ownerUids em vez de ownerEmails.
+async function resolveWeddingIdByUid(uid) {
+  if (!uid) return null;
+  try {
+    const snap = await db.collection('weddings')
+      .where('ownerUids', 'array-contains', uid)
+      .orderBy(admin.firestore.FieldPath.documentId())
+      .limit(1)
+      .get();
+    return snap.empty ? null : snap.docs[0].id;
+  } catch (err) {
+    logger.error(`resolveWeddingIdByUid: erro a procurar o casamento. ${err.message || err}`);
+    return null;
+  }
+}
+
+async function logRevenueCatWebhookIncident(reason, weddingId, event, err) {
+  try {
+    await db.collection('_incident_log').add({
+      type: 'revenueCatWebhook',
+      reason,
+      weddingId: weddingId || null,
+      rcEventType: (event && event.type) || null,
+      rcAppUserId: (event && event.app_user_id) || null,
+      rcTransactionId: (event && event.transaction_id) || null,
+      errorMessage: (err && (err.message || String(err))) || null,
+      at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (logErr) {
+    logger.error(`logRevenueCatWebhookIncident: falhou a gravar o próprio incidente. ${logErr.message || logErr}`);
+  }
+}
+
+exports.revenueCatWebhook = onRequest(
+  { region: 'europe-west1', secrets: [REVENUECAT_WEBHOOK_AUTH] },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
+    // A RevenueCat manda "Authorization: Bearer <valor-secreto>" — tem de
+    // bater certo com o que está configurado no dashboard dela. Sem isto,
+    // qualquer pessoa que descobrisse o URL desta função podia ativar
+    // Premium em qualquer casamento só mandando um POST fabricado.
+    const authHeader = req.headers['authorization'] || '';
+    const expected = `Bearer ${REVENUECAT_WEBHOOK_AUTH.value()}`;
+    if (authHeader !== expected) {
+      logger.error('revenueCatWebhook: cabeçalho Authorization inválido ou em falta.');
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const event = req.body && req.body.event;
+    if (!event || !event.type) {
+      res.status(400).send('Bad Request');
+      return;
+    }
+
+    try {
+      // NON_RENEWING_PURCHASE = compra confirmada do produto "Non-Renewing
+      // Subscription" (ver nota acima sobre porquê este é o tipo de produto
+      // certo para a Weddy Premium). TEST = pedido de teste enviado pelo
+      // botão "Send test webhook" da RevenueCat — respondemos 200 sem fazer
+      // nada, só para confirmar que o endpoint e o Authorization estão bem
+      // configurados.
+      if (event.type === 'TEST') {
+        logger.info('revenueCatWebhook: evento de teste recebido com sucesso.');
+      } else if (event.type === 'NON_RENEWING_PURCHASE') {
+        const uid = event.app_user_id;
+        const weddingId = await resolveWeddingIdByUid(uid);
+        if (!weddingId) {
+          logger.error(`revenueCatWebhook: nenhum casamento encontrado para o app_user_id ${uid}.`);
+          await logRevenueCatWebhookIncident('casamento-nao-encontrado', null, event);
+        } else {
+          const weddingRef = db.collection('weddings').doc(weddingId);
+          const snap = await weddingRef.get();
+          if (!snap.exists) {
+            logger.error(`revenueCatWebhook: casamento ${weddingId} não encontrado no Firestore.`);
+            await logRevenueCatWebhookIncident('casamento-nao-encontrado', weddingId, event);
+          } else {
+            const existing = snap.data().subscription || {};
+            try {
+              await weddingRef.update({
+                subscription: {
+                  active: true,
+                  plan: 'premium-12meses',
+                  startedAt: existing.startedAt || new Date().toISOString(),
+                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                  revenueCatTransactionId: event.transaction_id || null,
+                  revenueCatProductId: event.product_id || null,
+                },
+              });
+              logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
+            } catch (writeErr) {
+              logger.error(`revenueCatWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
+              await logRevenueCatWebhookIncident('falha-ao-ativar', weddingId, event, writeErr);
+            }
+          }
+        }
+      } else {
+        // Outros tipos (CANCELLATION, REFUND, EXPIRATION, etc.) só ficam
+        // registados — mesma decisão do stripeWebhook: nunca desativamos a
+        // Premium automaticamente, isso trata-se manualmente se alguma vez
+        // for preciso.
+        logger.info(`revenueCatWebhook: evento ${event.type} recebido e ignorado de propósito (app_user_id=${event.app_user_id || '?'}).`);
+      }
+    } catch (err) {
+      logger.error(`revenueCatWebhook: erro a processar evento. ${err.message || err}`);
+      await logRevenueCatWebhookIncident('erro-geral', null, event, err);
+    }
+
+    res.status(200).send('OK');
+  }
+);

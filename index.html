@@ -2200,7 +2200,76 @@ function buildSubscriptionActivatePayload(){
 // returnUrl é o URL exato para onde o Stripe deve trazer a pessoa de
 // volta depois de pagar (ou cancelar) — a própria página atual, sem
 // parâmetros antigos, para o Stripe poder acrescentar "?weddyCheckout=…".
+// Chave pública (não secreta — é suposto ir dentro do código, tal como a
+// publishable key do Stripe) do projeto iOS na RevenueCat. Fica vazia até a
+// Rita criar o projeto/app na RevenueCat (dashboard → Project → Apps → App
+// Store) e colar aqui a "Public API Key" dessa app. Sem isto preenchido, o
+// fluxo nativo de compra simplesmente não arranca (erro claro na consola,
+// nunca falha silenciosamente).
+const REVENUECAT_IOS_API_KEY = '';
+let revenueCatConfigured = false;
+function getRevenueCatPlugin(){
+  return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.RevenueCatPurchases) || null;
+}
+// Liga o SDK nativo da RevenueCat à conta Firebase já autenticada: o
+// appUserID é o UID do Firebase Auth (nunca o weddingId diretamente — ver
+// comentário completo junto a resolveWeddingIdByUid, na Cloud Function
+// revenueCatWebhook, sobre porquê). Idempotente: chamar configure() outra
+// vez com o mesmo appUserID não tem efeito secundário, por isso o guard
+// "revenueCatConfigured" é só para evitar chamadas repetidas desnecessárias.
+async function ensureRevenueCatConfigured(){
+  if(revenueCatConfigured) return true;
+  const Purchases = getRevenueCatPlugin();
+  if(!Purchases || !REVENUECAT_IOS_API_KEY || !auth || !auth.currentUser) return false;
+  await Purchases.configure({ apiKey: REVENUECAT_IOS_API_KEY, appUserID: auth.currentUser.uid });
+  revenueCatConfigured = true;
+  return true;
+}
+// Fase In-App Purchase (Out 2026, resposta à rejeição da App Store,
+// guideline 3.1.1 — na app nativa iOS o Premium TEM de se poder comprar
+// com In-App Purchase, não só com o Stripe). Em vez de implementar a
+// StoreKit diretamente, usamos a RevenueCat (ver nota completa junto à
+// Cloud Function revenueCatWebhook): ela trata da compra nativa e manda-nos
+// o webhook já confirmado, que é quem ativa "subscription.active" a sério
+// — exatamente o mesmo papel que o stripeWebhook já tem para o Stripe.
+// Esta função nunca escreve no Firestore: só dispara a compra nativa e
+// deixa o onSnapshot já existente (tempo real) atualizar a app sozinha
+// assim que o webhook confirmar, tal como já acontece ao voltar do Stripe.
+async function startPremiumIAPPurchase(){
+  const Purchases = getRevenueCatPlugin();
+  if(!Purchases) throw new Error('revenuecat-plugin-unavailable');
+  const ready = await ensureRevenueCatConfigured();
+  if(!ready) throw new Error('revenuecat-not-configured');
+  const offeringsRes = await Purchases.getOfferings();
+  const offerings = offeringsRes && offeringsRes.offerings;
+  const current = offerings && offerings.current;
+  const pkg = current && current.availablePackages && current.availablePackages[0];
+  if(!pkg) throw new Error('no-revenuecat-package');
+  // Pode lançar com userCancelled:true (a pessoa fechou a folha nativa da
+  // Apple) — tratado em quem chama esta função, tal como o
+  // "auth/popup-closed-by-user" da Google acima.
+  await Purchases.purchasePackage({ aPackage: pkg });
+  return { native: true };
+}
+// Ponto único chamado pelos 2 botões "Subscrever" (janela do Assistente e
+// página de upsell). Já não escreve nada no Firestore diretamente — só a
+// Cloud Function stripeWebhook (web/Android) ou revenueCatWebhook (iOS
+// nativo) podem marcar "active:true" (ver subscription-logic.js), porque
+// só elas sabem que o pagamento foi mesmo recebido. Dentro da app nativa
+// iOS, a guideline 3.1.1 da Apple obriga a comprar por In-App Purchase —
+// por isso aqui é só isso que acontece, nunca o Checkout do Stripe. Fora
+// da app nativa (navegador normal, Android), continua tudo exatamente como
+// antes: pedimos à Cloud Function createSubscriptionCheckout uma sessão de
+// Checkout do Stripe e levamos a pessoa até lá; o weddingId nunca é
+// enviado por nós — a função deriva-o sempre da sessão (ver
+// resolveWeddingId no index.js), tal como todas as outras chamadas.
+// returnUrl é o URL exato para onde o Stripe deve trazer a pessoa de
+// volta depois de pagar (ou cancelar) — a própria página atual, sem
+// parâmetros antigos, para o Stripe poder acrescentar "?weddyCheckout=…".
 async function startPremiumCheckout(){
+  if(isNativeIOSApp()){
+    return startPremiumIAPPurchase();
+  }
   if(!cloudFunctions) throw new Error('cloud-functions-unavailable');
   const returnUrl = window.location.origin + window.location.pathname;
   const call = cloudFunctions.httpsCallable('createSubscriptionCheckout');
@@ -2266,6 +2335,9 @@ const SNAPSHOT_AUTO_KEEP = 15;
 // usa fill próprio por caminho (não currentColor), ao contrário de todos os
 // outros ícones aqui, que são monocromáticos e herdam a cor do texto.
 const GOOGLE_G_ICON = '<svg viewBox="0 0 18 18" width="18" height="18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.03l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>';
+// Logótipo oficial da Apple (maçã), monocromático — usado só no botão
+// "Continuar com a Apple" dentro da app nativa iOS (guideline 4.8).
+const APPLE_LOGO_ICON = '<svg viewBox="0 0 170 170" width="18" height="18"><path fill="currentColor" d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.197-2.12-9.973-3.17-14.34-3.17-4.58 0-9.492 1.05-14.746 3.17-5.262 2.13-9.501 3.24-12.742 3.35-4.929.21-9.842-1.96-14.746-6.52-3.13-2.73-7.045-7.41-11.735-14.04-5.032-7.08-9.169-15.29-12.41-24.65-3.471-10.11-5.211-19.9-5.211-29.378 0-10.857 2.346-20.221 7.045-28.068 3.693-6.303 8.606-11.275 14.755-14.925s12.793-5.51 19.948-5.629c3.915 0 9.049 1.211 15.429 3.591 6.362 2.388 10.447 3.599 12.238 3.599 1.339 0 5.877-1.416 13.57-4.239 7.275-2.618 13.415-3.702 18.445-3.275 13.63 1.1 23.87 6.473 30.68 16.153-12.19 7.386-18.22 17.731-18.1 31.002.11 10.336 3.86 18.939 11.23 25.769 3.34 3.17 7.07 5.62 11.22 7.36-.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.102-2.96 15.667-8.86 22.669-7.12 8.324-15.732 13.134-25.071 12.375a25.21 25.21 0 0 1-.188-3.07c0-7.78 3.386-16.102 9.399-22.908 3.002-3.446 6.82-6.311 11.45-8.597 4.62-2.254 8.99-3.5 13.1-3.722.12 1.088.17 2.177.17 3.253z"/></svg>';
 const ICONS = {
   todo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2.3"/><path d="M8 8.3l1.3 1.3L11.5 7.4M8 13.6l1.3 1.3 2.2-2.2"/><path d="M14 8.3h5.5M14 13.6h5.5M8 18.2h11.5"/></svg>',
   honeymoon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 16.5 12 5.5l9.5 11"/><path d="M6.3 12.1 12 5.5l5.7 6.6"/><path d="M4.4 14.4h15.2M8 20.5c1.2-1.3 2.7-1.3 4-.2 1.3 1.1 2.8 1.1 4-.2"/></svg>',
@@ -3568,6 +3640,7 @@ const APP_I18N = {
     authErrAccountExistsDifferentCred:'Já existe uma conta com este email, criada de outra forma (ex.: com password). Entra com essa opção.',
     authErrPopupBlocked:'O teu navegador bloqueou a janela de login da Google. Permite pop-ups para este site e tenta novamente.',
     btnContinueGoogle:'Continuar com a Google',
+    btnContinueApple:'Continuar com a Apple',
     orSeparatorLabel:'ou',
     authErrGeneric: code => `Não foi possível continuar (${code}).`,
     obTitle:'Vamos configurar o vosso casamento', obName1:'Nome noiva (ex: Rita)', obName2:'Nome noivo (ex: Tiago)',
@@ -3973,6 +4046,7 @@ const APP_I18N = {
     stripeCheckoutSuccessText:'Pagamento recebido! A tua subscrição Weddy Premium fica ativa em poucos instantes — não precisas de fazer mais nada.',
     stripeCheckoutCancelledText:'Pagamento cancelado — não te foi cobrado nada. Podes tentar subscrever outra vez quando quiseres.',
     alertCheckoutStartError:'Não foi possível iniciar o pagamento. Verifica a ligação e tenta novamente.',
+    btnPurchaseConfirmedWaiting:'Compra confirmada — a ativar…',
     confirmDeleteVisit:'Eliminar esta visita?',
     confirmDeleteTodoCategory: title=>`Eliminar "${title}"? Os itens lá dentro perdem-se.`,
     confirmDeleteHoneymoonOption:'Eliminar esta hipótese de lua-de-mel?',
@@ -4946,6 +5020,7 @@ const APP_I18N = {
     authErrAccountExistsDifferentCred:'An account already exists with this email, created a different way (e.g. with a password). Sign in with that option instead.',
     authErrPopupBlocked:'Your browser blocked the Google sign-in window. Allow pop-ups for this site and try again.',
     btnContinueGoogle:'Continue with Google',
+    btnContinueApple:'Continue with Apple',
     orSeparatorLabel:'or',
     authErrGeneric: code => `We could not continue (${code}).`,
     obTitle:"Let's set up your wedding", obName1:"Bride's name (e.g. Rita)", obName2:"Groom's name (e.g. Tiago)",
@@ -5089,6 +5164,7 @@ const APP_I18N = {
     stripeCheckoutSuccessText:'Payment received! Your Weddy Premium subscription will be active in a few moments — nothing else to do.',
     stripeCheckoutCancelledText:'Payment cancelled — you were not charged. You can try subscribing again anytime.',
     alertCheckoutStartError:'Could not start the payment. Check your connection and try again.',
+    btnPurchaseConfirmedWaiting:'Purchase confirmed — activating…',
     confirmDeleteVisit:'Delete this visit?',
     confirmDeleteTodoCategory: title=>`Delete "${title}"? The items inside will be lost.`,
     confirmDeleteHoneymoonOption:'Delete this honeymoon option?',
@@ -11406,7 +11482,22 @@ function bindChatPanelHandlers(){
     // pessoa ao Checkout do Stripe (ver startPremiumCheckout). Se correr
     // bem, o próprio window.location.href muda de página, por isso não
     // há um "then" de sucesso aqui para repor o botão.
-    startPremiumCheckout().catch(err=>{
+    startPremiumCheckout().then(result=>{
+      // Só entra aqui na compra nativa (RevenueCat) — o Checkout do Stripe
+      // nunca chega a resolver, porque window.location.href já mudou de
+      // página. Fica "a ativar…" e é o onSnapshot (tempo real) que troca
+      // este ecrã assim que o revenueCatWebhook confirmar, tal como já
+      // acontece ao voltar do Stripe.
+      if(result && result.native) subscribeBtn.textContent = ta('btnPurchaseConfirmedWaiting');
+    }).catch(err=>{
+      // userCancelled: a pessoa fechou a folha nativa da Apple a meio —
+      // não é um erro real, mesmo tratamento do popup-closed-by-user da
+      // Google acima.
+      if(err && err.userCancelled){
+        subscribeBtn.disabled = false;
+        subscribeBtn.textContent = ta('btnSubscribePremium');
+        return;
+      }
       console.error('Weddy subscribe checkout error:', err && err.message);
       subscribeBtn.disabled = false;
       subscribeBtn.textContent = ta('btnSubscribePremium');
@@ -12282,7 +12373,14 @@ function bindHandlers(){
       // Fase Pagamentos (Set 2026): idem ao botão do Assistente (ver
       // bindChatPanelHandlers) — leva a pessoa ao Checkout do Stripe em
       // vez de ativar diretamente.
-      startPremiumCheckout().catch(err=>{
+      startPremiumCheckout().then(result=>{
+        if(result && result.native) subscribeBtn.textContent = ta('btnPurchaseConfirmedWaiting');
+      }).catch(err=>{
+        if(err && err.userCancelled){
+          subscribeBtn.disabled = false;
+          subscribeBtn.textContent = ta('btnSubscribePremium');
+          return;
+        }
         console.error('Weddy subscribe checkout error:', err && err.message);
         subscribeBtn.disabled = false;
         subscribeBtn.textContent = ta('btnSubscribePremium');
@@ -16145,6 +16243,7 @@ function renderLoginForm(msg, isError, isSuccess){
       <div style="flex:1; height:1px; background:var(--line);"></div>
     </div>
     <button type="button" class="login-btn" id="login-google" style="margin-top:0; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${ta('btnContinueGoogle')}</span></button>
+    ${isNativeIOSApp()? `<button type="button" class="login-btn" id="login-apple" style="margin-top:10px; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; gap:10px;">${APPLE_LOGO_ICON}<span>${ta('btnContinueApple')}</span></button>` : ''}
   `;
   document.getElementById('login-send').addEventListener('click', handleAuthSubmit);
   document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
@@ -16168,6 +16267,8 @@ function renderLoginForm(msg, isError, isSuccess){
   const forgotLink = document.getElementById('login-forgot');
   if(forgotLink) forgotLink.addEventListener('click', handleForgotPassword);
   document.getElementById('login-google').addEventListener('click', handleGoogleSignIn);
+  const appleBtn = document.getElementById('login-apple');
+  if(appleBtn) appleBtn.addEventListener('click', handleAppleSignIn);
 }
 function handleForgotPassword(){
   const email = document.getElementById('login-email').value.trim();
@@ -16342,6 +16443,77 @@ function handleGoogleSignIn(){
     }
     showError(err);
   });
+}
+
+// Fase "Sign in with Apple" (Out 2026, resposta à rejeição da App Store,
+// guideline 4.8 — a Apple exige um login alternativo que não recolha mais
+// do que nome/email, permita escondê-lo, e não colete dados para
+// publicidade sem consentimento; "Sign in with Apple" é o que a própria
+// Apple aponta como solução). Só aparece dentro da app nativa iOS: é lá
+// que a Apple revê a guideline, e é lá que o plugin nativo existe — dentro
+// do browser normal (app.weddy.pt no Safari/Chrome) continua a haver só
+// email/password e Google, como sempre.
+function isNativeIOSApp(){
+  try{
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.getPlatform && window.Capacitor.getPlatform()==='ios');
+  }catch(e){ return false; }
+}
+// Gera o "nonce" aleatório exigido pelo fluxo de segurança da Apple: a app
+// manda o HASH (SHA-256) à Apple, a Apple devolve esse hash embutido no
+// identityToken, e depois mandamos o valor ORIGINAL (por hashear) à
+// Firebase, que confirma que o hash bate certo — isto impede um
+// identityToken intercetado de ser reutilizado noutro pedido de login
+// (replay attack). Ver docs da Firebase sobre "Apple nonce".
+function appleSignInRandomNonce(length=32){
+  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+  let result = '';
+  const randoms = new Uint8Array(length);
+  (window.crypto || window.msCrypto).getRandomValues(randoms);
+  randoms.forEach(r=>{ result += charset[r % charset.length]; });
+  return result;
+}
+async function appleSignInSha256Hex(str){
+  const data = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function handleAppleSignIn(){
+  if(!FIREBASE_READY || !auth){ renderLoginForm(ta('firebaseNotReadyFile'), true); return; }
+  const btn = document.getElementById('login-apple');
+  if(btn) btn.disabled = true;
+  // Plugin @capacitor-community/apple-sign-in, registado pelo cap sync como
+  // window.Capacitor.Plugins.SignInWithApple — mesmo padrão de acesso já
+  // usado acima para o StatusBar.
+  const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
+  if(!SignInWithApple){
+    console.error('Weddy Apple sign-in: plugin SignInWithApple não encontrado.');
+    renderLoginForm(ta('authErrGeneric')('Sign in with Apple indisponível'), true);
+    return;
+  }
+  try{
+    const rawNonce = appleSignInRandomNonce();
+    const hashedNonce = await appleSignInSha256Hex(rawNonce);
+    const result = await SignInWithApple.authorize({
+      clientId: 'pt.weddy.ios',
+      redirectURI: 'https://app.weddy.pt/__/auth/handler',
+      scopes: 'email name',
+      nonce: hashedNonce,
+    });
+    const identityToken = result && result.response && result.response.identityToken;
+    if(!identityToken) throw new Error('Resposta da Apple sem identityToken.');
+    const provider = new firebase.auth.OAuthProvider('apple.com');
+    const credential = provider.credential({ idToken: identityToken, rawNonce });
+    await auth.signInWithCredential(credential);
+    // onAuthStateChanged (mais abaixo) trata da navegação a seguir — igual
+    // ao que já acontece depois do signInWithPopup da Google.
+  }catch(err){
+    // Código "1001" é o cancelamento nativo (ASAuthorizationError.canceled)
+    // — a pessoa desistiu a meio, não é um erro real.
+    const cancelled = err && (err.code==='1001' || err.code===1001 || /cancel/i.test((err && err.message)||''));
+    if(cancelled){ if(btn) btn.disabled = false; return; }
+    console.error('Weddy Apple sign-in error:', err);
+    renderLoginForm(ta('authErrGeneric')((err && (err.code||err.message))||'unknown error'), true);
+  }
 }
 // Recolhe o resultado de signInWithRedirect (PWA instalada) ao recarregar a
 // página depois do login na Google. Em caso de sucesso não há nada a fazer
