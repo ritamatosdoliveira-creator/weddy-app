@@ -13158,12 +13158,41 @@ function bindHandlers(){
   // Casamento
   const defSaveCasamento = document.getElementById('def-save-casamento');
   if(defSaveCasamento) defSaveCasamento.addEventListener('click', ()=>{
+    // CAUSA RAIZ encontrada (Out 2026, ao investigar a perda de dados real
+    // de duas contas): este ecrã desenha os 4 campos com o valor de
+    // weddingSettings QUE HAVIA no momento em que renderizou (ver
+    // viewDefCasamento, value="${s.coupleNameX||''}"). Se o utilizador
+    // abrir este ecrã antes da 1ª sincronização real do Firestore chegar
+    // (ou mesmo depois, mas com ALGUM campo de texto focado algures na
+    // app — isEditingTextField() não é específico deste formulário), o
+    // próximo render fica "em espera" (pendingRenderAfterEdit) até a
+    // pessoa sair do campo (evento "focusout", mais acima). O problema:
+    // clicar em "Guardar" também dispara esse "focusout" (o foco sai do
+    // campo), mas o render adiado só corre num setTimeout(0) a seguir —
+    // ou seja, DEPOIS deste próprio clique já ter lido os valores do DOM.
+    // Resultado: se os campos ainda estavam em branco na página (mesmo
+    // que weddingSettings, a variável, já tivesse os dados reais
+    // entretanto sincronizados), este código gravava os campos em branco
+    // por cima dos reais — foi exatamente isto que aconteceu com a conta
+    // da Rita & Sérgio (nome dos noivos apagado, ~3 min depois de aceitar
+    // os termos, com o "json"/orçamento intacto, porque só este
+    // formulário lê do DOM — o resto da app lê sempre de weddingSettings).
+    // Correção: nunca aceitar um campo vazio como "a pessoa quer apagar
+    // isto" — só substitui o valor já guardado quando o campo tem mesmo
+    // texto novo. Isto não impede apagar de propósito um campo que já
+    // estava vazio (continua vazio), só deixa de ser possível apagar um
+    // valor REAL só porque o formulário ainda não tinha acabado de
+    // carregar esse valor no ecrã.
+    const name1Val = document.getElementById('def-name1').value.trim();
+    const name2Val = document.getElementById('def-name2').value.trim();
+    const dateVal = document.getElementById('def-date').value;
+    const venueVal = document.getElementById('def-venue').value.trim();
     weddingSettings = {
       ...weddingSettings,
-      coupleName1: document.getElementById('def-name1').value.trim() || ta('genericName1'),
-      coupleName2: document.getElementById('def-name2').value.trim() || ta('genericName2'),
-      weddingDate: document.getElementById('def-date').value,
-      venue: document.getElementById('def-venue').value.trim()
+      coupleName1: name1Val || weddingSettings.coupleName1 || ta('genericName1'),
+      coupleName2: name2Val || weddingSettings.coupleName2 || ta('genericName2'),
+      weddingDate: dateVal || weddingSettings.weddingDate || '',
+      venue: venueVal || weddingSettings.venue || ''
     };
     saveSettingsNow('def-msg-casamento');
   });
