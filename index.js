@@ -386,7 +386,8 @@ const OPENAI_MODEL = 'gpt-5.6-luna';
 // Ajusta este número à vontade — é só esta constante que precisas de
 // mudar. Serve para nunca teres uma surpresa na fatura da OpenAI se
 // alguém (ou um script) martelar perguntas sem parar.
-const AI_DAILY_LIMIT_PER_WEDDING = 60;
+const AI_DAILY_LIMIT_PER_WEDDING = 60; // casal
+const AI_DAILY_LIMIT_GUESTS_PER_WEDDING = 30; // todos os convidados do casamento, em conjunto
 
 // Intenções que o CONVIDADO (rsvp.html / Weddy Concierge) pode pedir.
 // Tem de bater certo com WEDDY_INTENTS em clone-app/rsvp.html.
@@ -601,20 +602,28 @@ async function resolveWeddingId(request, isCouple) {
 // weddingId, não há chamada à OpenAI. Isto não é uma proteção de acesso a
 // dados (isso nunca dependeu disto), é só para nenhum caminho conseguir
 // gerar custo ilimitado de API.
-async function checkAndIncrementAiUsage(weddingId) {
+// Quotas separadas (Out 2026): o casal e os convidados do mesmo casamento
+// têm contadores próprios no mesmo documento (count = casal, guestCount =
+// convidados), para os convidados nunca esgotarem a quota do casal.
+async function checkAndIncrementAiUsage(weddingId, isCouple = true) {
   if (!weddingId || typeof weddingId !== 'string') return { allowed: false };
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
   const ref = db.collection('aiUsage').doc(weddingId);
+  const field = isCouple ? 'count' : 'guestCount';
+  const limit = isCouple ? AI_DAILY_LIMIT_PER_WEDDING : AI_DAILY_LIMIT_GUESTS_PER_WEDDING;
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const data = snap.exists ? snap.data() : {};
-    const count = data.day === today ? (data.count || 0) : 0;
-    if (count >= AI_DAILY_LIMIT_PER_WEDDING) {
+    const sameDay = data.day === today;
+    const count = sameDay ? (data[field] || 0) : 0;
+    if (count >= limit) {
       return { allowed: false };
     }
     tx.set(ref, {
       day: today,
-      count: count + 1,
+      // novo dia: o contador do outro papel também recomeça a zero
+      count: isCouple ? count + 1 : (sameDay ? (data.count || 0) : 0),
+      guestCount: isCouple ? (sameDay ? (data.guestCount || 0) : 0) : count + 1,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
     return { allowed: true };
@@ -682,7 +691,7 @@ exports.classifyWeddyIntent = onCall({ region: 'europe-west1' }, async (request)
     if (isCouple) {
       await assertPremiumWedding(weddingId);
     }
-    const usage = await checkAndIncrementAiUsage(weddingId);
+    const usage = await checkAndIncrementAiUsage(weddingId, isCouple);
     if (!usage.allowed) {
       logger.info(`classifyWeddyIntent: limite diário atingido para o casamento ${weddingId}.`);
       return { intent: 'UNKNOWN' };
