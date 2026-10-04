@@ -2290,6 +2290,14 @@ async function startPremiumCheckout(){
 // com persisted:true é como se deteta que a página voltou do bfcache em
 // vez de carregar de novo — sempre que isso acontece, repomos qualquer
 // botão de subscrever que tenha ficado preso neste estado.
+// Mesmo problema nos botões de login (Google/Apple): ao voltar atrás desde
+// o ecrã da Google, a página é restaurada do bfcache com o botão ainda
+// desativado. Repõe-os sempre que a página volta a ser mostrada.
+function resetLoginButtonsAfterReturn(){
+  ['login-google','login-apple'].forEach(id=>{ const b = document.getElementById(id); if(b && b.disabled) b.disabled = false; });
+}
+window.addEventListener('pageshow', ()=>{ resetLoginButtonsAfterReturn(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') resetLoginButtonsAfterReturn(); });
 window.addEventListener('pageshow', (event)=>{
   if(!event.persisted) return;
   document.querySelectorAll('#chat-premium-subscribe-btn, .js-premium-subscribe').forEach(btn=>{
@@ -16464,6 +16472,14 @@ function handleGoogleSignIn(){
   if(!FIREBASE_READY || !auth){ renderLoginForm(ta('firebaseNotReadyFile'), true); return; }
   const btn = document.getElementById('login-google');
   if(btn) btn.disabled = true;
+  // Rede de segurança (Out 2026, bug da Rita): se a pessoa seguir para a
+  // Google e voltar atrás para a app (seta "voltar", ou fechar o popup sem
+  // que o browser avise), nenhum código nosso corre — o botão ficava preso
+  // em "desativado" e não deixava tentar outra vez. Passado algum tempo, se
+  // este botão ainda existir (ou seja, o login não avançou), volta a ficar
+  // ativo. Se o login entretanto avançou, o ecrã já foi substituído e o
+  // botão deixou de existir no DOM, por isso isto não faz nada.
+  setTimeout(()=>{ const b = document.getElementById('login-google'); if(b) b.disabled = false; }, 15000);
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
   const showError = (err)=>{
