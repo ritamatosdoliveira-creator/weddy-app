@@ -491,9 +491,13 @@ async function callOpenAI(question, allowedIntents) {
     type: 'object',
     properties: {
       intent: { type: 'string', enum: [...allowedIntents, 'UNKNOWN'] },
-      value: { type: 'string' },
+      // Modo "strict" da OpenAI exige que TODAS as propriedades estejam em
+      // "required" — um campo opcional tem de ser obrigatório mas aceitar
+      // null. Antes, "value" ficava de fora e a OpenAI recusava SEMPRE o
+      // pedido com HTTP 400 (Out 2026), por isso a AI nunca respondia.
+      value: { type: ['string', 'null'] },
     },
-    required: ['intent'],
+    required: ['intent', 'value'],
     additionalProperties: false,
   };
   const body = {
@@ -507,7 +511,6 @@ async function callOpenAI(question, allowedIntents) {
         strict: true,
       },
     },
-    temperature: 0,
   };
   // Usa a Responses API da OpenAI (POST /v1/responses). Se a forma exata
   // do pedido/resposta tiver mudado entretanto, confirma na documentação
@@ -1257,7 +1260,6 @@ async function callOpenAIStructured(prompt, schemaName, schema) {
         model: OPENAI_MODEL,
         input: [{ role: 'user', content: prompt }],
         text: { format: { type: 'json_schema', name: schemaName, schema, strict: true } },
-        temperature: 0,
       }),
     });
     if (!res.ok) throw new Error(`OpenAI respondeu ${res.status}`);
