@@ -9228,6 +9228,13 @@ function saveAndSyncWeddingSettingsToGuests(btn, fields){
     weddyAlert(ta('alertSaveNoConnection'));
     return;
   }
+  // Mesma regra de buildSafeWeddingWritePayload: sem dados reais já recebidos
+  // do servidor, "weddingSettings" pode ser só o molde em branco.
+  if(!lastSyncedSettings){
+    btn.textContent = original;
+    weddyAlert(ta('alertSaveNoConnection'));
+    return;
+  }
   CURRENT_DOC().set({ settings: weddingSettings, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }).then(()=>{
     const tokens = flattenAllGuestsForRSVP().map(g=>g.entry.rsvpToken).filter(Boolean);
     // Fase 4E (LOG-02): cada update() devolve o próprio token quando falha
@@ -17372,13 +17379,33 @@ function logOutgoingWriteGuardTripped(kind, before, after){
 // isso não for encontrado.
 function buildSafeWeddingWritePayload(){
   const payload = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-  if(looksLikeDataLoss(lastSyncedState || {}, state)){
+  // CAUSA ENCONTRADA (Out 2026, conta "Ana & João", perda de dados real): a
+  // cópia de segurança automática tirada no momento em que a Ana entrou pela
+  // 1ª vez estava TODA em branco (até "Nome 1"/"Nome 2"), ou seja, nesse
+  // instante "state"/"weddingSettings" ainda eram o molde vazio e
+  // "firstSyncDone" já era true — só acontece se o 1º evento do onSnapshot
+  // não trouxe o documento (ex.: "exists=false" vindo da cache, quando a
+  // ligação ainda não estava estabelecida). Daí até chegar o documento
+  // verdadeiro, qualquer gravação enviava o molde em branco, e as proteções
+  // abaixo NÃO disparavam: comparavam com "{}" (sem baseline) e, mesmo com
+  // baseline, só param contas com 5+ convidados/tarefas (esta tinha só
+  // orçamento e um fornecedor). Regra nova, mais simples e mais forte: sem
+  // uma baseline vinda REALMENTE do servidor (lastSyncedState/
+  // lastSyncedSettings), "state"/"weddingSettings" não são de confiança e
+  // nunca se gravam.
+  if(!lastSyncedState){
+    console.error('[Weddy] Gravação de "json" bloqueada — ainda não há dados reais recebidos do servidor.');
+    logOutgoingWriteGuardTripped('json_no_baseline', null, state);
+  } else if(looksLikeDataLoss(lastSyncedState, state)){
     console.error('[Weddy] Gravação de "json" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedState, agora: state });
     logOutgoingWriteGuardTripped('json', lastSyncedState, state);
   } else {
     payload.json = JSON.stringify(state);
   }
-  if(looksLikeSettingsLoss(lastSyncedSettings, weddingSettings)){
+  if(!lastSyncedSettings){
+    console.error('[Weddy] Gravação de "settings" bloqueada — ainda não há dados reais recebidos do servidor.');
+    logOutgoingWriteGuardTripped('settings_no_baseline', null, weddingSettings);
+  } else if(looksLikeSettingsLoss(lastSyncedSettings, weddingSettings)){
     console.error('[Weddy] Gravação de "settings" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedSettings, agora: weddingSettings });
     logOutgoingWriteGuardTripped('settings', lastSyncedSettings, weddingSettings);
   } else {
@@ -17592,6 +17619,7 @@ function attachFirestoreSync(){
     if(err.code === 'permission-denied'){
       firstSyncDone = false;
       lastSyncedState = null; // próxima sincronização volta a ser tratada como a 1ª (sem baseline antiga a comparar)
+      lastSyncedSettings = null;
       document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm(ta('loginErrorAccessData'), true);
       return;
@@ -17993,6 +18021,7 @@ if(FIREBASE_READY){
     } else {
       firstSyncDone = false;
       lastSyncedState = null; // logout: a próxima conta não deve herdar a baseline de merge da anterior
+      lastSyncedSettings = null;
       currentWeddingId = null;
       activeTab = 'inicio';
       // Pedido (Set 2026): a conversa do Assistente Weddy deve recomeçar
