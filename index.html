@@ -17178,6 +17178,23 @@ function maybeCreateAutoSnapshot(){
   const last = currentLastAutoSnapshotAt && currentLastAutoSnapshotAt.toDate ? currentLastAutoSnapshotAt.toDate() : null;
   const MIN_INTERVAL_MS = 20 * 60 * 60 * 1000;
   if(last && (Date.now() - last.getTime()) < MIN_INTERVAL_MS) return;
+  // Out 2026: nunca tirar um backup automático de um estado vazio ou ainda
+  // sem dados confirmados pelo servidor. Foi exatamente o que aconteceu nas
+  // contas que perderam dados (o backup do primeiro login estava em branco),
+  // e como só se guardam os últimos SNAPSHOT_AUTO_KEEP automáticos, backups
+  // vazios iam empurrando os bons para fora. Não atualiza lastAutoSnapshotAt,
+  // por isso volta a tentar na sessão seguinte, quando já houver dados reais.
+  // (Só aqui — não em createSnapshot, para o "restaurar" nunca ficar
+  // bloqueado precisamente quando os dados atuais estão vazios.)
+  if(!lastSyncedState || !lastSyncedSettings){
+    console.warn('[Weddy] Backup automático adiado — ainda sem dados confirmados pelo servidor.');
+    return;
+  }
+  const _m = countMeaningfulData(state);
+  if((_m.guests + _m.todos) === 0 && !((state.expenses||[]).length) && !((state.suppliers||[]).length)){
+    console.warn('[Weddy] Backup automático ignorado — o casamento está vazio.');
+    return;
+  }
   createSnapshot('auto', ta('snapshotAutoLabel')).then(()=>{
     CURRENT_DOC().update({ lastAutoSnapshotAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
   }).catch(err=>{ console.error('Weddy auto snapshot error:', err && err.code, err && err.message); });
