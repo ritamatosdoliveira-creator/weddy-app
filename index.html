@@ -6597,7 +6597,7 @@ function bindGuestGroupHandlers(scope){
       const input = scope.querySelector(`[data-addname="${side}|${cat}"]`) || document.querySelector(`[data-addname="${side}|${cat}"]`);
       const name = input.value.trim();
       const arr = getGuestNames(side,cat);
-      if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); }
+      if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); refocusGuestAddInput(side, cat); }
     });
   });
   scope.querySelectorAll('[data-addname]').forEach(inp=>{
@@ -6606,7 +6606,7 @@ function bindGuestGroupHandlers(scope){
         const [side,cat] = e.currentTarget.dataset.addname.split('|');
         const name = e.currentTarget.value.trim();
         const arr = getGuestNames(side,cat);
-        if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); }
+        if(name && arr){ arr.push(newGuestEntry(cat, name)); softUpdateConvidados(); refocusGuestAddInput(side, cat); }
       }
     });
   });
@@ -6698,6 +6698,17 @@ function buildConvidadosDynamic(){
     </div>
   </div>
   <div id="guest-groups-container">${buildGuestBody()}</div>`;
+}
+// Out 2026 (pedido da Rita): depois de adicionar um convidado, o campo era
+// recriado sem foco — no telemóvel o teclado fechava, a página saltava e era
+// preciso voltar a procurar o sítio para escrever o seguinte. Volta a pôr o
+// foco no mesmo campo (sem fazer scroll), pronto para o próximo nome. Com o
+// foco num campo de texto, o render vindo da sincronização fica em espera
+// (pendingRenderAfterEdit) em vez de reconstruir a página por baixo.
+function refocusGuestAddInput(side, cat){
+  const inp = document.querySelector(`[data-addname="${side}|${cat}"]`);
+  if(!inp) return;
+  try{ inp.focus({ preventScroll:true }); }catch(e){ inp.focus(); }
 }
 function softUpdateConvidados(save){
   const el = document.getElementById('convidados-dynamic');
