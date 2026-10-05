@@ -144,9 +144,9 @@ const GOOGLE_CALENDAR_REDIRECT_URI = defineString('GOOGLE_CALENDAR_REDIRECT_URI'
 // Para onde o browser volta depois do OAuth (sucesso ou erro), como
 // query params — nunca com tokens. Ajusta se a app não estiver nesta
 // pasta/URL.
-const APP_BASE_URL = 'https://ritamatosdoliveira-creator.github.io/weddy-premium-app-teste/index.html';
+const APP_BASE_URL = 'https://www.weddy.pt/index.html';
 
-const RSVP_BASE_URL = 'https://ritamatosdoliveira-creator.github.io/weddy-premium-app-teste/rsvp.html';
+const RSVP_BASE_URL = 'https://www.weddy.pt/rsvp.html';
 
 // Dias antes do prazo em que se tenta um lembrete (ajusta à vontade).
 const REMINDER_DAYS_BEFORE = [7, 3, 1];
@@ -162,7 +162,19 @@ function buildTransporter() {
   });
 }
 
+// Os nomes e o prazo vêm de documentos que o próprio convidado consegue
+// escrever (RSVP sem sessão) — escapar sempre, senão dá para injetar HTML/
+// links de phishing em emails enviados com o remetente da Weddy.
+function escapeHtmlServer(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 function reminderEmailHtml({ guestName, coupleName1, coupleName2, deadline, link, daysLeft }) {
+  guestName = escapeHtmlServer(guestName);
+  coupleName1 = escapeHtmlServer(coupleName1);
+  coupleName2 = escapeHtmlServer(coupleName2);
+  deadline = escapeHtmlServer(deadline);
   const prazoTxt = deadline ? `até ${deadline}` : 'brevemente';
   const diasTxt = daysLeft === 0 ? 'hoje' : daysLeft === 1 ? 'amanhã' : `daqui a ${daysLeft} dias`;
   return `
@@ -186,7 +198,7 @@ async function sendReminderEmail(transporter, job) {
   await transporter.sendMail({
     from: SMTP_FROM.value(),
     to: job.email,
-    subject: `Lembrete: confirma a tua presença — ${job.data.coupleName1 || ''} & ${job.data.coupleName2 || ''}`,
+    subject: `Lembrete: confirma a tua presença — ${String(job.data.coupleName1 || '').slice(0, 60)} & ${String(job.data.coupleName2 || '').slice(0, 60)}`.replace(/[\r\n]+/g, ' '),
     html,
   });
 }
@@ -558,6 +570,20 @@ async function callOpenAI(question, allowedIntents) {
 // weddingId" no comentário grande acima. Devolve null quando não é
 // possível derivar (sessão inválida, casamento não encontrado, guestToken
 // em falta ou inválido) — nesse caso simplesmente não há limite aplicado.
+// Out 2026 (auditoria de segurança): escolher "o" casamento de uma conta só
+// pelo menor id permitia a alguém criar um casamento com um id baixo e o
+// email da vítima na lista de donos, fazendo a app/Cloud Functions da
+// vítima passarem a usar o casamento do atacante. Agora um casamento que a
+// própria pessoa criou (creatorEmail = o seu email) ganha sempre; só depois
+// vale o menor id (convidados/parceiros sem casamento próprio). TEM de ser
+// idêntico ao que index.html faz em findOrCreateFlow.
+function pickPrimaryWeddingId(docs, email) {
+  if (!docs || !docs.length) return null;
+  const mail = String(email || '').toLowerCase();
+  const sorted = docs.slice().sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const own = sorted.find((d) => String((d.data() || {}).creatorEmail || '').toLowerCase() === mail);
+  return (own || sorted[0]).id;
+}
 async function resolveWeddingId(request, isCouple) {
   if (isCouple) {
     const email = request.auth && request.auth.token && request.auth.token.email;
@@ -565,10 +591,8 @@ async function resolveWeddingId(request, isCouple) {
     try {
       const snap = await db.collection('weddings')
         .where('ownerEmails', 'array-contains', email.toLowerCase())
-        .orderBy(admin.firestore.FieldPath.documentId())
-        .limit(1)
         .get();
-      return snap.empty ? null : snap.docs[0].id;
+      return pickPrimaryWeddingId(snap.docs, email);
     } catch (err) {
       // Fix 6 da auditoria RGPD/Segurança (Set 2026): logar só a mensagem,
       // nunca o objeto de erro completo (podia incluir paths/queries com
@@ -1490,9 +1514,9 @@ exports.generateSeatingProposal = onCall({ region: 'europe-west1' }, async (requ
   // (ver FIXED_GUEST_CATS/allGuestCategoriesOf em index.html).
   const FIXED_CAT_LABELS = { familia: 'Família', amigos: 'Amigos', duvida: 'Na dúvida', staff: 'Staff/fornecedores' };
   const FIXED_CATS = ['familia', 'amigos', 'duvida', 'staff'];
-  const SIDE_LABELS = { noiva: 'noiva', noivo: 'noivo' };
+  const SIDE_LABELS = { noiva: 'noiva', noivo: 'noivo', conjunto: 'conjunto' };
   const guests = [];
-  ['noiva', 'noivo'].forEach((side) => {
+  ['noiva', 'noivo', 'conjunto'].forEach((side) => {
     const guestsRoot = clientState?.guests?.[side];
     if (!guestsRoot) return;
     const nameArrays = [
@@ -1626,13 +1650,47 @@ const GOOGLE_SYNC_MIN_INTERVAL_MS = 30 * 1000; // não deixa sincronizar mais do
 // clone-app/index.html), mas isso é só cosmético — quem decide a sério é
 // isto aqui, do lado do servidor, lendo o mesmo campo
 // weddings/{weddingId}.subscription.active que o cliente sincroniza.
+// Validade da subscrição — mesma regra do cliente (hasActiveSubscription em
+// index.html): 12 meses a partir de startedAt; sem startedAt (contas antigas
+// ou de teste) conta como válida. Out 2026: antes, o servidor só olhava para
+// "active", por isso a IA/WhatsApp/Calendar continuavam grátis para sempre
+// depois dos 12 meses (nada desativa "active" sozinho).
+const SUBSCRIPTION_MAX_MONTHS = 12;
+function subscriptionExpiryDate(sub) {
+  if (!sub || !sub.startedAt) return null;
+  const started = new Date(sub.startedAt);
+  if (isNaN(started.getTime())) return null;
+  const expiry = new Date(started);
+  expiry.setMonth(expiry.getMonth() + SUBSCRIPTION_MAX_MONTHS);
+  return expiry;
+}
+function isSubscriptionStillValid(sub) {
+  if (!sub || sub.active !== true) return false;
+  const expiry = subscriptionExpiryDate(sub);
+  if (!expiry) return true;
+  return new Date() < expiry;
+}
+// Novo "startedAt" ao registar um pagamento. Antes mantinha-se SEMPRE o
+// startedAt antigo (existing.startedAt || agora), por isso quem pagava uma
+// 2.ª vez depois de a 1.ª expirar (ou de cancelar) ficava cobrado mas sem
+// acesso: o cliente calcula a validade a partir de startedAt. Agora:
+//  - subscrição ainda válida -> estende 12 meses (novo startedAt = fim do
+//    período atual, o cliente passa a calcular fim + 12 meses);
+//  - expirada, cancelada ou inexistente -> começa agora.
+function nextSubscriptionStartedAt(existing) {
+  if (isSubscriptionStillValid(existing)) {
+    const expiry = subscriptionExpiryDate(existing);
+    if (expiry) return expiry.toISOString();
+  }
+  return new Date().toISOString();
+}
 async function assertPremiumWedding(weddingId) {
   const snap = await db.collection('weddings').doc(weddingId).get();
   if (!snap.exists) {
     throw new HttpsError('not-found', 'Casamento não encontrado.');
   }
   const sub = snap.data().subscription;
-  if (!sub || sub.active !== true) {
+  if (!isSubscriptionStillValid(sub)) {
     throw new HttpsError('permission-denied', 'Esta funcionalidade faz parte do Weddy Premium.');
   }
   return snap;
@@ -2436,7 +2494,7 @@ function normalizePhoneE164(raw) {
 function findGuestEntryByGuestId(state, guestId) {
   const guests = state && state.guests;
   if (!guests) return null;
-  for (const side of ['noiva', 'noivo']) {
+  for (const side of ['noiva', 'noivo', 'conjunto']) {
     const sideData = guests[side];
     if (!sideData) continue;
     for (const catId of ['familia', 'amigos', 'duvida', 'staff']) {
@@ -3060,6 +3118,14 @@ exports.stripeWebhook = onRequest(
             await logStripeWebhookIncident('casamento-nao-encontrado', weddingId, event, session);
           } else {
             const existing = snap.data().subscription || {};
+            // Idempotência: o Stripe pode reenviar o mesmo evento; com a
+            // extensão de período abaixo, processar duas vezes estenderia
+            // duas vezes.
+            if (existing.stripeCheckoutSessionId && existing.stripeCheckoutSessionId === session.id) {
+              logger.info(`stripeWebhook: sessão ${session.id} já processada para o casamento ${weddingId}, ignorada.`);
+              res.status(200).send('ok');
+              return;
+            }
             // Pagamento já confirmado pelo Stripe — isto NUNCA deve ficar por
             // gravar sem ninguém saber (achado CRÍTICO da auditoria: se esta
             // escrita falhasse, respondíamos sempre 200 ao Stripe na mesma,
@@ -3073,7 +3139,7 @@ exports.stripeWebhook = onRequest(
                 subscription: {
                   active: true,
                   plan: 'premium-12meses',
-                  startedAt: existing.startedAt || new Date().toISOString(),
+                  startedAt: nextSubscriptionStartedAt(existing),
                   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                   stripeCheckoutSessionId: session.id,
                 },
@@ -3229,6 +3295,9 @@ exports.revenueCatWebhook = onRequest(
       // configurados.
       if (event.type === 'TEST') {
         logger.info('revenueCatWebhook: evento de teste recebido com sucesso.');
+      } else if (event.environment && event.environment !== 'PRODUCTION') {
+        // Compras de TestFlight/sandbox nunca ativam Premium real em produção.
+        logger.info(`revenueCatWebhook: evento ${event.type} de ambiente ${event.environment} ignorado.`);
       } else if (event.type === 'NON_RENEWING_PURCHASE') {
         const uid = event.app_user_id;
         const weddingId = await resolveWeddingIdByUid(uid);
@@ -3243,12 +3312,14 @@ exports.revenueCatWebhook = onRequest(
             await logRevenueCatWebhookIncident('casamento-nao-encontrado', weddingId, event);
           } else {
             const existing = snap.data().subscription || {};
-            try {
+            if (event.transaction_id && existing.revenueCatTransactionId === event.transaction_id) {
+              logger.info(`revenueCatWebhook: transação ${event.transaction_id} já processada, ignorada.`);
+            } else try {
               await weddingRef.update({
                 subscription: {
                   active: true,
                   plan: 'premium-12meses',
-                  startedAt: existing.startedAt || new Date().toISOString(),
+                  startedAt: nextSubscriptionStartedAt(existing),
                   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                   revenueCatTransactionId: event.transaction_id || null,
                   revenueCatProductId: event.product_id || null,
@@ -3261,8 +3332,20 @@ exports.revenueCatWebhook = onRequest(
             }
           }
         }
+      } else if (event.type === 'REFUND') {
+        // Reembolso da Apple: o acesso Premium acaba (antes ficava ativo).
+        const refundWeddingId = await resolveWeddingIdByUid(event.app_user_id);
+        if (refundWeddingId) {
+          await db.collection('weddings').doc(refundWeddingId).update({
+            'subscription.active': false,
+            'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
+          }).catch((e) => logger.error(`revenueCatWebhook: falhou a desativar após REFUND. ${e.message || e}`));
+          logger.info(`revenueCatWebhook: REFUND — Premium desativado no casamento ${refundWeddingId}.`);
+        } else {
+          await logRevenueCatWebhookIncident('refund-sem-casamento', null, event);
+        }
       } else {
-        // Outros tipos (CANCELLATION, REFUND, EXPIRATION, etc.) só ficam
+        // Outros tipos (CANCELLATION, EXPIRATION, etc.) só ficam
         // registados — mesma decisão do stripeWebhook: nunca desativamos a
         // Premium automaticamente, isso trata-se manualmente se alguma vez
         // for preciso.

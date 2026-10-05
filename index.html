@@ -10999,7 +10999,11 @@ function rsvpSyncSummaryText(s){
 // não precisa de nenhuma biblioteca nem ligação, corre inteiramente no
 // browser (útil para partilhar com o catering, por exemplo).
 function csvEscape(v){
-  const s = (v===undefined || v===null) ? '' : String(v);
+  let s = (v===undefined || v===null) ? '' : String(v);
+  // Out 2026 (auditoria): texto que o Excel interpretaria como fórmula
+  // (começa por = + - @) escrito por convidados (ex.: restrições alimentares)
+  // era exportado tal e qual. Prefixa com apóstrofo, exceto números a sério.
+  if(typeof v==='string' && /^[=+\-@\t\r]/.test(s) && isNaN(Number(s))) s = "'" + s;
   return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
 }
 function exportRSVPToCSV(){
@@ -15795,12 +15799,54 @@ async function exportMyDataAsJson(btn){
     btn.textContent = original;
   }
 }
+let accountDeletionInProgress = false;
+function accountDeletionUsesPassword(){
+  const u = auth && auth.currentUser;
+  if(!u) return true;
+  const ids = (u.providerData||[]).map(p=>p && p.providerId);
+  // Sem providerData fiável, assume password (comportamento anterior).
+  return ids.length === 0 || ids.includes('password');
+}
+async function reauthenticateForAccountDeletion(user, pass){
+  const ids = (user.providerData||[]).map(p=>p && p.providerId);
+  if(ids.length === 0 || ids.includes('password')){
+    return user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, pass));
+  }
+  if(ids.includes('google.com')){
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ login_hint: user.email || '' });
+    return user.reauthenticateWithPopup(provider);
+  }
+  if(ids.includes('apple.com')){
+    const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
+    if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+    const rawNonce = appleSignInRandomNonce();
+    const hashedNonce = await appleSignInSha256Hex(rawNonce);
+    const result = await SignInWithApple.authorize({
+      clientId: 'pt.weddy.ios',
+      redirectURI: 'https://app.weddy.pt/__/auth/handler',
+      scopes: 'email name',
+      nonce: hashedNonce,
+    });
+    const identityToken = result && result.response && result.response.identityToken;
+    if(!identityToken) throw new Error('Resposta da Apple sem identityToken.');
+    const credential = new firebase.auth.OAuthProvider('apple.com').credential({ idToken: identityToken, rawNonce });
+    return user.reauthenticateWithCredential(credential);
+  }
+  throw new Error('Fornecedor de login não suportado para reautenticação.');
+}
 function openDeleteAccountSheet(){
   const isSoleOwner = currentWeddingOwners.length<=1;
   document.getElementById('delete-account-explain').innerHTML = isSoleOwner
     ? ta('deleteAccountSoleOwnerHtml')
     : ta('deleteAccountSharedHtml');
   document.getElementById('delete-account-pass').value = '';
+  // Contas Google/Apple não têm password: o campo é escondido e a
+  // reautenticação é feita com o próprio fornecedor (ver
+  // reauthenticateForAccountDeletion). Antes ficavam presas aqui, com
+  // "password errada" para sempre.
+  const _passField = document.getElementById('delete-account-pass').closest('.sheet-field');
+  if(_passField) _passField.style.display = accountDeletionUsesPassword() ? '' : 'none';
   document.getElementById('delete-account-msg').textContent = '';
   document.getElementById('delete-account-msg').className = 'login-msg';
   document.getElementById('delete-account-sheet').classList.add('show');
@@ -15815,7 +15861,7 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
   const passEl = document.getElementById('delete-account-pass');
   const msgEl = document.getElementById('delete-account-msg');
   const pass = passEl.value;
-  if(!pass){ flagRequiredField(passEl); return; }
+  if(!pass && accountDeletionUsesPassword()){ flagRequiredField(passEl); return; }
   if(!auth || !auth.currentUser){ msgEl.textContent = ta('msgInvalidSession'); msgEl.className='login-msg error'; return; }
 
   const btn = document.getElementById('delete-account-confirm');
@@ -15825,9 +15871,8 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
 
   const user = auth.currentUser;
   const email = user.email;
-  const credential = firebase.auth.EmailAuthProvider.credential(email, pass);
-
-  user.reauthenticateWithCredential(credential).then(()=>{
+  accountDeletionInProgress = true;
+  reauthenticateForAccountDeletion(user, pass).then(()=>{
     // Fix 2 da auditoria RGPD/Segurança (Set 2026): o apagamento já não é
     // feito diretamente daqui. A Firestore Rule bloqueia de propósito o
     // delete direto de "weddings" (allow delete: if false), porque apagar
@@ -15852,6 +15897,7 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
     document.documentElement.classList.add('login-active');
     renderLoginForm(ta('msgAccountDeletedSuccess'), false, true);
   }).catch(err=>{
+    accountDeletionInProgress = false;
     btn.textContent = ta('btnDeletePermanently');
     console.error('Weddy delete account error:', err.code, err.message);
     if(err.code==='auth/wrong-password' || err.code==='auth/invalid-credential'){
@@ -16713,6 +16759,12 @@ let dataLossGuardTripped = false;
 // ainda não confirmadas no servidor, para as preservar em vez de as
 // substituir às cegas por uma atualização que chegou de outro dispositivo a
 // mexer noutra secção qualquer. Ver mergeIncomingWeddingState() abaixo.
+// As baselines TÊM de ser cópias profundas: o merge devolve secções por
+// referência ("state.guests" pode ser o mesmo objeto que
+// "lastSyncedState.guests"), e a app edita "state" no sítio. Sem cópia, uma
+// edição local alterava também a baseline, a secção deixava de parecer
+// "suja" e podia ser substituída/ignorada na gravação seguinte.
+function cloneForBaseline(v){ try{ return JSON.parse(JSON.stringify(v)); }catch(e){ return v; } }
 let lastSyncedState = null;
 // Rede de segurança (Out 2026, incidente real — duas contas afetadas,
 // "json" ficou em branco numa, "settings" voltou ao molde noutra, ambas
@@ -17433,7 +17485,14 @@ function buildSafeWeddingWritePayload(){
     console.error('[Weddy] Gravação de "json" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedState, agora: state });
     logOutgoingWriteGuardTripped('json', lastSyncedState, state);
   } else {
-    payload.json = JSON.stringify(state);
+    // Out 2026 (auditoria, dois dispositivos): só envia o "json" se houver
+    // mesmo uma alteração local face ao que o servidor tem. Como cada
+    // render() agenda uma gravação, antes um dispositivo que acabava de voltar
+    // do segundo plano (listener ainda a religar, com dados antigos)
+    // regravava o estado antigo por cima do trabalho do outro dispositivo,
+    // sem a pessoa ter mudado nada.
+    const _stateJson = JSON.stringify(state);
+    if(_stateJson !== JSON.stringify(lastSyncedState)) payload.json = _stateJson;
   }
   if(!lastSyncedSettings){
     console.error('[Weddy] Gravação de "settings" bloqueada — ainda não há dados reais recebidos do servidor.');
@@ -17441,7 +17500,7 @@ function buildSafeWeddingWritePayload(){
   } else if(looksLikeSettingsLoss(lastSyncedSettings, weddingSettings)){
     console.error('[Weddy] Gravação de "settings" bloqueada — parecia estar a voltar ao molde em branco.', { antes: lastSyncedSettings, agora: weddingSettings });
     logOutgoingWriteGuardTripped('settings', lastSyncedSettings, weddingSettings);
-  } else {
+  } else if(JSON.stringify(weddingSettings) !== JSON.stringify(lastSyncedSettings)){
     payload.settings = weddingSettings;
   }
   return payload;
@@ -17552,12 +17611,12 @@ function attachFirestoreSync(){
             // ecoar essa escrita de volta através de outro onSnapshot, essa
             // secção deixa de parecer "suja" nessa altura, e passa a aceitar
             // atualizações normalmente — não é preciso fazer nada mais aqui.
-            lastSyncedState = incoming;
+            lastSyncedState = cloneForBaseline(incoming);
           }
         } else {
           // Nenhuma diferença aparente entre o que veio e o que já temos —
           // seguro para servir de baseline também (nada para preservar).
-          lastSyncedState = incoming;
+          lastSyncedState = cloneForBaseline(incoming);
         }
         // Contas criadas antes de existirem certos campos podem não os ter guardado — preenche em falta
         const defaults = seedData();
@@ -17600,7 +17659,7 @@ function attachFirestoreSync(){
         }
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
-      if(data.settings) lastSyncedSettings = data.settings;
+      if(data.settings) lastSyncedSettings = cloneForBaseline(data.settings);
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
       if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
@@ -17653,6 +17712,15 @@ function attachFirestoreSync(){
       firstSyncDone = false;
       lastSyncedState = null; // próxima sincronização volta a ser tratada como a 1ª (sem baseline antiga a comparar)
       lastSyncedSettings = null;
+      if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+      // Out 2026 (auditoria): um parceiro a quem o acesso foi retirado ficava
+      // preso num ecrã de login sem sessão terminada e sem saída. Agora volta
+      // a procurar o casamento desta conta (o seu, ou o onboarding).
+      if(auth && auth.currentUser && !permissionDeniedRecoveryTried){
+        permissionDeniedRecoveryTried = true;
+        findOrCreateFlow(auth.currentUser);
+        return;
+      }
       document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
       renderLoginForm(ta('loginErrorAccessData'), true);
       return;
@@ -17804,9 +17872,16 @@ function findOrCreateFlow(user, isRetry){
   // orderBy (idêntico ao que também foi acrescentado em resolveWeddingId, do
   // lado da Cloud Function) torna a escolha determinística: as duas partes
   // concordam sempre em qual é "o" casamento desta conta.
-  WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).orderBy(firebase.firestore.FieldPath.documentId()).limit(1).get().then(qs=>{
+  // Out 2026 (auditoria): (1) pede ao SERVIDOR — com a cache, uma rede fraca
+  // devolvia "vazio" e a app mandava uma conta que já tinha casamento para o
+  // onboarding, criando um casamento duplicado. (2) escolhe o casamento que a
+  // própria pessoa criou (creatorEmail) antes de qualquer outro — ver
+  // pickPrimaryWeddingId em index.js (a regra TEM de ser a mesma).
+  WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).get({ source:'server' }).then(qs=>{
     if(!qs.empty){
-      const weddingDoc = qs.docs[0];
+      const _mail = user.email.toLowerCase();
+      const _sorted = qs.docs.slice().sort((a,b)=> a.id<b.id ? -1 : a.id>b.id ? 1 : 0);
+      const weddingDoc = _sorted.find(d=> String((d.data()||{}).creatorEmail||'').toLowerCase()===_mail) || _sorted[0];
       currentWeddingId = weddingDoc.id;
       const consent = weddingDoc.data().consent;
       const needsReconsent = !consent || consent.termsVersion !== CURRENT_TERMS_VERSION || consent.privacyVersion !== CURRENT_PRIVACY_VERSION;
@@ -18040,9 +18115,12 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   }
 })();
 
+let hadAuthenticatedUser = false;
+let permissionDeniedRecoveryTried = false;
 if(FIREBASE_READY){
   auth.onAuthStateChanged(user=>{
     if(user){
+      hadAuthenticatedUser = true;
       activeTab = 'inicio';
       collapseAllSections();
       if(!user.emailVerified){
@@ -18052,6 +18130,19 @@ if(FIREBASE_READY){
       }
       user.getIdToken(true).finally(()=>{ findOrCreateFlow(user); });
     } else {
+      // Out 2026 (auditoria): ao terminar sessão e entrar logo noutra conta
+      // SEM recarregar, a app mantinha em memória os dados da conta anterior
+      // (convidados/RSVP/memórias/estado Premium...) — a nova conta via-os, e
+      // o guard de perda de dados chegava a rejeitar os dados reais da nova
+      // conta. Recarregar a página é a forma mais segura de garantir que
+      // nada da sessão anterior sobrevive. (Não recarrega quando é a própria
+      // eliminação de conta a terminar a sessão — essa mostra a sua mensagem.)
+      if(hadAuthenticatedUser && !accountDeletionInProgress){
+        clearTimeout(saveTimer);
+        pendingSaveDirty = false;
+        location.reload();
+        return;
+      }
       firstSyncDone = false;
       lastSyncedState = null; // logout: a próxima conta não deve herdar a baseline de merge da anterior
       lastSyncedSettings = null;

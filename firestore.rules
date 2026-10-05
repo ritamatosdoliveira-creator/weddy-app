@@ -36,9 +36,19 @@ service cloud.firestore {
           || request.resource.data.subscription.active == false
         );
 
+      // Out 2026 (auditoria de segurança): antes bastava o email de quem cria
+      // estar na lista — dava para criar um casamento com ownerEmails:
+      // [atacante, vítima] e "plantar" a vítima como co-dona (a app escolhe
+      // o casamento pelo menor id, por isso podia abrir o do atacante).
+      // Agora, ao criar, a lista tem de ter SÓ o próprio, e creatorEmail/
+      // ownerUids têm de ser os dele (convidar o parceiro/a continua a ser
+      // feito depois, pelo update com arrayUnion, como sempre).
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in request.resource.data.ownerEmails
+        && request.resource.data.ownerEmails.size() == 1
+        && request.resource.data.ownerEmails[0] == request.auth.token.email
+        && (!('creatorEmail' in request.resource.data) || request.resource.data.creatorEmail == request.auth.token.email)
+        && (!('ownerUids' in request.resource.data) || request.resource.data.ownerUids == [request.auth.uid])
         && !('subscription' in request.resource.data);
 
       allow delete: if request.auth != null
@@ -124,7 +134,19 @@ service cloud.firestore {
     //   as regras acima.
     match /guests/{guestId} {
       allow get: if true;
-      allow update: if true;
+      // Out 2026 (auditoria de segurança): era "allow update: if true" — quem
+      // tivesse um link de convite podia reescrever QUALQUER campo do
+      // documento (email, nomes, prazo, weddingId...), o que permitia usar o
+      // envio de lembretes da Weddy como relay de spam/phishing e injetar
+      // HTML na página do convidado. Sem sessão, só se podem alterar os
+      // campos que o rsvp.html realmente escreve (a resposta do convidado).
+      // O casal (autenticado) continua a poder alterar tudo, pela regra
+      // abaixo.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'openedAt', 'respondedAt', 'responses',
+        'attending', 'rsvpStatus', 'meal', 'dietary',
+        'transporte', 'alojamento', 'children'
+      ]);
 
       allow read, update, delete: if request.auth != null
         && request.auth.token.email_verified == true
@@ -144,7 +166,16 @@ service cloud.firestore {
     // (index.html: carregarMemories/deleteMemory) só pode ser feito pelo(s)
     // dono(s) autenticados do casamento a que essas fotos pertencem.
     match /memories/{memoryId} {
-      allow create: if true;
+      // Out 2026 (auditoria de segurança): era "create: if true" sem validar
+      // campos — dava para criar documentos com um "url" arbitrário (ex.:
+      // javascript:...) que a galeria do casal renderizava. Agora só os
+      // campos que memorias.html/rsvp.html escrevem, e o ficheiro tem de
+      // estar na pasta deste casamento.
+      allow create: if request.resource.data.keys().hasOnly(['weddingId', 'token', 'guestName', 'storagePath', 'createdAt'])
+        && request.resource.data.weddingId is string
+        && request.resource.data.storagePath is string
+        && request.resource.data.storagePath.matches('memories/' + request.resource.data.weddingId + '/.*')
+        && (!('guestName' in request.resource.data) || (request.resource.data.guestName is string && request.resource.data.guestName.size() <= 120));
 
       allow read, delete: if request.auth != null
         && request.auth.token.email_verified == true

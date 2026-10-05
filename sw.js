@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weddy-v153-login-google-voltar';
+const CACHE_NAME = 'weddy-v154-auditoria-seguranca-contas';
 const FILES_TO_CACHE = ['./','./index.html','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png','./logo-quintasantoandre.png'];
 const EXTERNAL_FILES_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
@@ -21,7 +21,16 @@ self.addEventListener('install', (event) => {
       // temporariamente em baixo, bloqueado, ou instável na rede da pessoa —
       // isso NUNCA deve impedir o resto da app de atualizar. Por isso tenta
       // cada um à parte, sem deixar uma falha travar tudo o resto.
-      return cache.addAll(FILES_TO_CACHE).then(() =>
+      // Out 2026 (auditoria): cache.addAll() passa pela cache HTTP do
+      // browser — uma versão nova instalada pouco depois de publicar podia
+      // guardar o index.html ANTIGO sob o nome de cache novo, e ninguém o
+      // voltava a atualizar até ao próximo bump. Pede sempre à rede
+      // (cache:'reload') e só guarda respostas válidas.
+      return Promise.all(FILES_TO_CACHE.map(async (u) => {
+        const r = await fetch(new Request(u, { cache: 'reload' }));
+        if (!r.ok) throw new Error('Falhou a obter ' + u + ' (' + r.status + ')');
+        await cache.put(u, r);
+      })).then(() =>
         Promise.allSettled(EXTERNAL_FILES_TO_CACHE.map(url => cache.add(url).catch(()=>{})))
       );
     })
@@ -46,8 +55,12 @@ self.addEventListener('fetch', (event) => {
   if (isGoogleOrFirebase) return;
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(()=>{});
+      // Só guarda respostas válidas (antes guardava também 404/5xx, que
+      // depois eram servidos para sempre a partir da cache).
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(()=>{});
+      }
       return response;
     }).catch(() => cached))
   );
