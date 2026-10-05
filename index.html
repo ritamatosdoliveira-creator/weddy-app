@@ -9531,21 +9531,14 @@ const ASSIST_CHAT_HISTORY_LIMIT = 30;
 let lastCopilotContext = null;
 function resetCopilotContext(){ lastCopilotContext = null; }
 function saveAssistChatHistory(){
-  if(!FIREBASE_READY || !currentWeddingId) return;
+  // Out 2026: o histórico do chat deixou de ser gravado no Firestore. Era
+  // escrita sem nenhuma leitura (nunca era carregado de volta), guardava
+  // conversas privadas no documento do casamento e acrescentava escritas
+  // desnecessárias que sincronizavam com os outros dispositivos. Fica só em
+  // memória durante a sessão (limitado ao ASSIST_CHAT_HISTORY_LIMIT).
   if(assistChatHistory.length > ASSIST_CHAT_HISTORY_LIMIT){
     assistChatHistory = assistChatHistory.slice(-ASSIST_CHAT_HISTORY_LIMIT);
   }
-  // Auditoria Out 2026 (achado ALTO): isto grava no MESMO documento
-  // Firestore (weddings/{weddingId}) onde também vive todo o resto do
-  // casamento (orçamento, convidados, mesas...) — um texto muito grande
-  // colado no chat (ex: um contrato inteiro) podia aproximar o documento
-  // do limite de 1MB do Firestore e fazer TODAS as gravações futuras
-  // falharem, não só o chat. O input já tem maxlength=500, mas isto fica
-  // aqui como última linha de defesa, para nunca depender só disso.
-  const safeHistory = assistChatHistory.map(m=> (m && typeof m.text==='string' && m.text.length>2000) ? { ...m, text: m.text.slice(0,2000) } : m);
-  CURRENT_DOC().set({ assistantChatHistory: safeHistory }, { merge:true }).catch(err=>{
-    console.error('Weddy assistant history save error:', err.code, err.message);
-  });
 }
 // Respostas simuladas: usam sempre os dados reais deste casamento
 // (guardados em `state`/`weddingSettings`), só o "cérebro" que escreve a
