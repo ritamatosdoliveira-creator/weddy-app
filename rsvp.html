@@ -1703,7 +1703,15 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       // nunca da IA — por isso, vindas da IA sem valor, tratam-se como
       // UNKNOWN em vez de executar às cegas.
       const aiNeedsValueButMissing = aiGuess && (aiGuess.intent===WEDDY_INTENTS.SET_DIETARY_RESTRICTION || aiGuess.intent===WEDDY_INTENTS.GET_FAQ) && !aiGuess.value;
-      if(aiGuess && aiGuess.intent && aiGuess.intent!==WEDDY_INTENTS.UNKNOWN && WEDDY_INTENTS[aiGuess.intent] && !aiNeedsValueButMissing){
+      if(aiGuess && aiGuess.intent===WEDDY_INTENTS.GET_FAQ){
+        // Out 2026 (auditoria): com a IA, "value" de GET_FAQ é só texto, mas
+        // a resposta abaixo usa classified.value.a (um objeto {q,a} vindo
+        // das regex locais) — ficava undefined e o convidado recebia "não
+        // percebi" mesmo havendo uma FAQ do casal. Procura a FAQ certa pela
+        // própria pergunta; se não houver, trata como não percebido.
+        const faq = matchCustomFaq(pergunta);
+        if(faq) classified = { intent: WEDDY_INTENTS.GET_FAQ, value: faq };
+      } else if(aiGuess && aiGuess.intent && aiGuess.intent!==WEDDY_INTENTS.UNKNOWN && WEDDY_INTENTS[aiGuess.intent] && !aiNeedsValueButMissing){
         classified = aiGuess;
       }
     }
@@ -1864,9 +1872,18 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     conciergeAppend('bot', t('conciergeActionCancelled'));
   }
 
+  let conciergeRequestSeq = 0;
   function conciergeHandleUserMessage(text){
     const trimmed = (text||'').trim();
     if(!trimmed) return;
+    // Out 2026 (auditoria): uma mensagem nova substitui qualquer proposta
+    // ainda por confirmar. Antes só se removiam os botões da ÚLTIMA proposta,
+    // por isso o "Sim" de uma proposta antiga ("vais recusar?") executava a
+    // ação da mais recente ("vais confirmar?") — o convidado via uma coisa e
+    // acabava com a resposta contrária gravada.
+    conciergePendingAction = null;
+    document.querySelectorAll('#concierge-log .concierge-confirm-row').forEach(r=>r.remove());
+    const myRequest = ++conciergeRequestSeq;
     conciergeAppend('user', trimmed);
     // Só mostra "a pensar…" quando as regex não reconheceram nada
     // localmente e vai mesmo haver uma chamada de rede ao AIService — uma
@@ -1876,6 +1893,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     if(needsAI) thinkingEl = conciergeAppend('bot', t('conciergeThinking'));
     respondeConcierge(trimmed).then(result=>{
       if(thinkingEl) thinkingEl.remove();
+      // Resposta de uma pergunta antiga (entretanto houve outra): ignora, para
+      // não mostrar/armar uma ação que já não corresponde à última mensagem.
+      if(myRequest !== conciergeRequestSeq) return;
       if(result && result.action){
         conciergePendingAction = result.action;
         conciergeAppend('bot', result.text, true);

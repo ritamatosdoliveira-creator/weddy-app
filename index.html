@@ -3346,6 +3346,9 @@ function moneyNum(v){
 }
 function totalExpenseValue(){ return state.expenses.reduce((s,e)=>s+moneyNum(e.value),0); }
 function totalExpensePaid(){ return state.expenses.reduce((s,e)=>s+moneyNum(e.paid),0); }
+// "Por pagar" soma o que falta LINHA A LINHA: um pagamento acima do valor numa
+// despesa não pode abater a dívida de outra (antes: Σvalor − Σpago).
+function totalExpenseRemaining(){ return state.expenses.reduce((s,e)=>s+Math.max(0, moneyNum(e.value)-moneyNum(e.paid)),0); }
 function spentByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+moneyNum(e.value),0); }
 function paidByCategory(id){ return state.expenses.filter(e=>e.category===id).reduce((s,e)=>s+moneyNum(e.paid),0); }
 // Usada para atribuir lugares às mesas — inclui todos os convidados de
@@ -4456,7 +4459,8 @@ const APP_I18N = {
     cpRSVPInfoExplain:(n)=>`Em Definições → Convites RSVP consegues gerar um link individual para cada convidado — ele responde lá se vai, a refeição e restrições, sem ver a lista toda nem o orçamento. Neste momento tens ${n} convidado${n===1?'':'s'} por responder.`,
     cpGuestCount:(total,confirmed)=>`Tens ${total} convidados na lista, dos quais ${confirmed} já confirmaram presença (contando pelo peso de cada um — crianças e staff podem contar meio ou nada, consoante o que definiste).`,
     cpBudgetSummary:(orc,gasto,pago)=>`O orçamento definido é de ${orc}. Já tens ${gasto} em despesas registadas, das quais ${pago} já foram pagas.`,
-    cpCountdownFuture:(dias,date)=>`Faltam ${dias} dias para o grande dia (${date}).`,
+    cpCountdownFuture:(dias,date)=>dias===1?`Falta 1 dia para o grande dia (${date}).`:`Faltam ${dias} dias para o grande dia (${date}).`,
+    cpCountdownNoDate:'Ainda não definiste a data do casamento. Podes fazê-lo em Definições.',
     cpCountdownPast:(date)=>`O casamento foi a ${date}. Espero que tenha corrido tudo lindamente!`,
     cpTableCount:(n)=>`Tens ${n} mesas configuradas na secção de Mesas.`,
     cpDocFound:(doc,snippet)=>`Encontrei isto em "${doc}":\n\n"${snippet}"`,
@@ -5570,7 +5574,8 @@ const APP_I18N = {
     cpRSVPInfoExplain:(n)=>`In Settings → RSVP Invites you can generate an individual link for each guest — they respond there whether they're coming, their meal and restrictions, without seeing the full list or the budget. Right now you have ${n} guest${n===1?'':'s'} yet to respond.`,
     cpGuestCount:(total,confirmed)=>`You have ${total} guests on the list, of which ${confirmed} have already confirmed attendance (counted by each one's weight — children and staff can count as half or nothing, depending on what you set).`,
     cpBudgetSummary:(orc,gasto,pago)=>`The budget you set is ${orc}. You already have ${gasto} in recorded expenses, of which ${pago} have been paid.`,
-    cpCountdownFuture:(dias,date)=>`${dias} days left until the big day (${date}).`,
+    cpCountdownFuture:(dias,date)=>dias===1?`1 day left until the big day (${date}).`:`${dias} days left until the big day (${date}).`,
+    cpCountdownNoDate:"You haven't set the wedding date yet. You can do it in Settings.",
     cpCountdownPast:(date)=>`The wedding was on ${date}. I hope it all went beautifully!`,
     cpTableCount:(n)=>`You have ${n} tables set up in the Tables section.`,
     cpDocFound:(doc,snippet)=>`I found this in "${doc}":\n\n"${snippet}"`,
@@ -5900,8 +5905,13 @@ function getUpcomingPayments(){
   state.expenses.forEach((e,i)=>{
     const remaining = Math.max(0, moneyNum(e.value)-moneyNum(e.paid));
     if(remaining>0 && e.dueDate){
-      const days = Math.ceil((new Date(e.dueDate+'T00:00:00')-now)/86400000);
-      if(days>=0 && days<=15) list.push({ label:e.desc||ta('defaultExpenseLabel'), amount:remaining, days, overdue:false });
+      // Math.round (não ceil): ambas as datas são meia-noite local, e na
+      // mudança de hora de outubro o intervalo tem 1h a mais (dava +1 dia).
+      const days = Math.round((new Date(e.dueDate+'T00:00:00')-now)/86400000);
+      // Out 2026 (auditoria): antes só entrava days>=0 e overdue era sempre
+      // false — um pagamento em atraso desaparecia do aviso e do Wedding
+      // Health exatamente quando devia ser mais visível.
+      if(days<=15) list.push({ label:e.desc||ta('defaultExpenseLabel'), amount:remaining, days, overdue:days<0 });
     }
   });
   return list.sort((a,b)=>a.days-b.days);
@@ -6823,7 +6833,7 @@ function viewGastos(){
         <div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n" id="pago-porpagar">${fmtEUR(Math.max(0, totalValue-totalPaid))}</div><div class="l">${ta('lblToPay')}</div></div>
+        <div><div class="n" id="pago-porpagar">${fmtEUR(totalExpenseRemaining())}</div><div class="l">${ta('lblToPay')}</div></div>
       </div>
     </div>
     <div class="ring-card">
@@ -7372,8 +7382,11 @@ function checklistPhaseDeadline(phaseIndex){
   const weeks = CHECKLIST_PHASE_WEEKS_BEFORE[phaseIndex];
   if(weeks===undefined) return null;
   const wedding = new Date(weddingSettings.weddingDate+'T00:00:00');
-  const deadline = new Date(wedding.getTime() - weeks*7*86400000);
-  return deadline.toISOString().slice(0,10);
+  // Data LOCAL (antes: getTime()-N*86400000 + toISOString dava a data em UTC,
+  // um dia antes em casamentos de verão em Portugal).
+  const deadline = new Date(wedding);
+  deadline.setDate(deadline.getDate() - weeks*7);
+  return toLocalISODate(deadline);
 }
 function viewChecklist(){
   const CHECKLIST_PHASES = CHECKLIST_PHASES_LIST();
@@ -10237,7 +10250,7 @@ const WeddyActions = {
     getRemainingPayments(){
       const gasto = totalExpenseValue();
       const pago = totalExpensePaid();
-      return { totalRemaining: Math.max(0, gasto-pago), upcoming: getUpcomingPayments() };
+      return { totalRemaining: totalExpenseRemaining(), upcoming: getUpcomingPayments() };
     },
     // Fase 5 — RSVP Autopilot: mesma classificação usada no ecrã de RSVP
     // (rsvpAutopilotList), só filtrada por urgência.
@@ -10591,6 +10604,7 @@ async function respondeAssistente(pergunta){
       return ta('cpBudgetSummary')(fmtEUR(orcamento), fmtEUR(gasto), fmtEUR(pago));
     }
     case I.GET_COUNTDOWN: {
+      if(!weddingSettings.weddingDate) return ta('cpCountdownNoDate');
       const dias = daysUntil(weddingSettings.weddingDate);
       return dias>=0 ? ta('cpCountdownFuture')(dias, formatDatePT(weddingSettings.weddingDate)) : ta('cpCountdownPast')(formatDatePT(weddingSettings.weddingDate));
     }
@@ -14239,7 +14253,7 @@ function softUpdateGastos(){
   if(pagoWrap) pagoWrap.innerHTML = donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)
     + `<div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
   const porPagar = document.getElementById('pago-porpagar');
-  if(porPagar) porPagar.textContent = fmtEUR(Math.max(0, totalValue-totalPaid));
+  if(porPagar) porPagar.textContent = fmtEUR(totalExpenseRemaining());
 
   const orcWrap = document.getElementById('orc-ring-wrap');
   if(orcWrap) orcWrap.innerHTML = donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)
@@ -17502,8 +17516,24 @@ function buildSafeWeddingWritePayload(){
     // do segundo plano (listener ainda a religar, com dados antigos)
     // regravava o estado antigo por cima do trabalho do outro dispositivo,
     // sem a pessoa ter mudado nada.
-    const _stateJson = JSON.stringify(state);
-    if(_stateJson !== JSON.stringify(lastSyncedState)) payload.json = _stateJson;
+    let _stateJson = JSON.stringify(state);
+    if(_stateJson !== JSON.stringify(lastSyncedState)){
+      // Out 2026 (auditoria): o documento do casamento tem um limite de 1 MiB
+      // no Firestore. O texto extraído dos PDFs (contratos, anexos, até 60 000
+      // caracteres cada) vive aqui dentro; depois de algumas dezenas, TODAS as
+      // gravações passavam a falhar e o trabalho novo perdia-se ao recarregar.
+      // Perto do limite, grava sem o texto extraído (só serve para a pesquisa
+      // do Assistente — os ficheiros em si estão no Storage, intactos).
+      if(_stateJson.length > 800000){
+        try{
+          const slim = JSON.parse(_stateJson);
+          (slim.weddingDocuments||[]).forEach(d=>{ if(d && d.text) d.text = ''; });
+          _stateJson = JSON.stringify(slim);
+          console.warn('[Weddy] Documento perto do limite do Firestore — a gravar sem o texto extraído dos PDFs.');
+        }catch(e){}
+      }
+      payload.json = _stateJson;
+    }
   }
   if(!lastSyncedSettings){
     console.error('[Weddy] Gravação de "settings" bloqueada — ainda não há dados reais recebidos do servidor.');

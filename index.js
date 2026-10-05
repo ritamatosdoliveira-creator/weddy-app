@@ -848,9 +848,24 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
       await Promise.all([
         deleteStoragePrefix(`documents/${weddingId}/`),
         deleteStoragePrefix(`memories/${weddingId}/`),
+        // Out 2026 (auditoria RGPD): capturas de ecrã de "Reporta um problema"
+        // também ficavam para trás.
+        deleteStoragePrefix(`feedback/${weddingId}/`),
       ]);
       await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
-      await weddingRef.delete();
+      // Registos de incidente com cópias do estado do casamento, e relatórios
+      // de feedback desta conta — dados pessoais que ficavam órfãos.
+      await deleteAllByWeddingId('_incident_log', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de _incident_log falhou. ${e.message || e}`));
+      await deleteAllByWeddingId('feedback', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de feedback falhou. ${e.message || e}`));
+      // Out 2026 (auditoria RGPD): weddingRef.delete() só apaga o documento —
+      // as subcoleções (snapshots = cópias completas do casamento, integrations,
+      // privateIntegrations = token do Google) ficavam para trás. recursiveDelete
+      // apaga tudo.
+      if (typeof db.recursiveDelete === 'function') {
+        await db.recursiveDelete(weddingRef);
+      } else {
+        await weddingRef.delete();
+      }
       logger.info(`deleteWeddingAccount: casamento ${weddingId} apagado por completo (${guestsDeleted} convidados, ${memoriesDeleted} memórias).`);
     } else {
       const ownerUids = weddingSnap.data().ownerUids || [];
@@ -1954,10 +1969,28 @@ function loadWeddyCalendarItems(weddingData) {
   // --- Eventos: Programa do dia (hora marcada) ---------------------------
   const daySchedule = Array.isArray(state.daySchedule) ? state.daySchedule : [];
   daySchedule
-    .filter((ev) => ev && ev.id && ev.time && weddingDate)
+    .filter((ev) => ev && ev.id && ev.time && weddingDate && /^\d{1,2}:\d{2}$/.test(String(ev.time).trim()))
     .forEach((ev) => {
-      const start = new Date(`${weddingDate}T${ev.time}:00`);
-      const end = new Date(start.getTime() + 60 * 60 * 1000); // 1h por omissão — a Weddy não guarda duração
+      // Out 2026 (auditoria): antes fazia new Date(`${data}T${hora}:00`) e
+      // toISOString(). As Cloud Functions correm em UTC, por isso "16:00"
+      // era enviado como 16:00Z e o Google (que dá prioridade ao instante)
+      // mostrava 17:00 em Lisboa no verão. Agora enviamos a hora "de
+      // parede" SEM offset, e o Google aplica o timeZone do casamento. Hora
+      // inválida (ex.: "9h") deixa de rebentar a sincronização inteira.
+      const [hh, mm] = String(ev.time).trim().split(':').map(Number);
+      const startH = Math.min(23, Math.max(0, hh));
+      const pad = (n) => String(n).padStart(2, '0');
+      const endH = startH + 1;
+      const startISO = `${weddingDate}T${pad(startH)}:${pad(Math.min(59, mm))}:00`;
+      let endISO;
+      if (endH <= 23) {
+        endISO = `${weddingDate}T${pad(endH)}:${pad(Math.min(59, mm))}:00`;
+      } else {
+        // passa da meia-noite: usa o dia seguinte (aritmética só de datas, sem fusos)
+        const d = new Date(`${weddingDate}T12:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + 1);
+        endISO = `${d.toISOString().slice(0, 10)}T00:${pad(Math.min(59, mm))}:00`;
+      }
       items.push({
         kind: 'event',
         weddyEventId: `sched:${ev.id}`,
@@ -1965,8 +1998,8 @@ function loadWeddyCalendarItems(weddingData) {
         description: 'Evento do teu casamento criado pela Weddy.\n\nConsulta todos os detalhes na aplicação Weddy.',
         location: ev.place || venue || '',
         allDay: false,
-        startISO: start.toISOString(),
-        endISO: end.toISOString(),
+        startISO,
+        endISO,
         timeZone,
       });
     });
@@ -2557,7 +2590,27 @@ exports.updateGuestPhone = onCall({ region: 'europe-west1' }, async (request) =>
       if (existingIndexSnap.exists) {
         const owner = existingIndexSnap.data();
         if (owner.weddingId !== weddingId || owner.guestId !== guestId) {
-          throw new HttpsError('already-exists', 'Este número já está associado a outro convidado.');
+          // Out 2026 (auditoria): apagar um convidado no cliente não limpa
+          // este índice, e o número ficava bloqueado para sempre ("já
+          // associado a outro convidado") mesmo sem esse convidado existir.
+          // Só bloqueia se o dono do índice ainda existir e ainda tiver este
+          // número; senão o índice está obsoleto e é simplesmente reescrito.
+          let stale = false;
+          try {
+            const ownerWeddingSnap = owner.weddingId === weddingId
+              ? weddingSnap
+              : await tx.get(db.collection('weddings').doc(String(owner.weddingId)));
+            if (!ownerWeddingSnap.exists) {
+              stale = true;
+            } else {
+              const ownerState = JSON.parse(ownerWeddingSnap.data().json || '{}');
+              const ownerEntry = findGuestEntryByGuestId(ownerState, owner.guestId);
+              stale = !ownerEntry || ownerEntry.phone !== normalizedPhone;
+            }
+          } catch (e) { stale = false; }
+          if (!stale) {
+            throw new HttpsError('already-exists', 'Este número já está associado a outro convidado.');
+          }
         }
       }
     }
