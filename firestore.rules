@@ -51,12 +51,10 @@ service cloud.firestore {
         && (!('ownerUids' in request.resource.data) || request.resource.data.ownerUids == [request.auth.uid])
         && !('subscription' in request.resource.data);
 
-      allow delete: if request.auth != null
-        && request.auth.token.email_verified == true
-        && (
-          request.auth.token.email in resource.data.ownerEmails
-          || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
-        );
+      // Out 2026 (auditoria): o delete direto do casamento passa a ser recusado
+      // (como o comentário e a Cloud Function deleteWeddingAccount já assumiam).
+      // Apagar deixava convidados/memórias/ficheiros órfãos e inacessíveis.
+      allow delete: if false;
 
       // ACHADO (Out 2026, ao investigar a Rita ver "Não foi possível
       // carregar o histórico" em Histórico do casamento): esta subcoleção
@@ -192,6 +190,15 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
         && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Registos de incidente escritos pelo cliente (rede de segurança contra
+    // perda de dados). Antes não havia regra e todas as escritas falhavam em
+    // silêncio. Só criar; nunca ler/alterar/apagar a partir da app.
+    match /_incident_log/{logId} {
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.size() <= 12;
     }
   }
 }

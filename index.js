@@ -268,6 +268,26 @@ exports.sendRsvpReminders = onSchedule(
       }
     });
 
+    // Out 2026 (auditoria): só casamentos Premium recebem lembretes (as outras
+    // funções Premium já eram verificadas no servidor; esta não).
+    const premiumCache = new Map();
+    const eligibleJobs = [];
+    for (const job of jobs) {
+      const wid = job.data && job.data.weddingId;
+      if (!wid) continue;
+      if (!premiumCache.has(wid)) {
+        let ok = false;
+        try {
+          const ws = await db.collection('weddings').doc(wid).get();
+          ok = ws.exists && isSubscriptionStillValid(ws.data().subscription);
+        } catch (e) { ok = false; }
+        premiumCache.set(wid, ok);
+      }
+      if (premiumCache.get(wid)) eligibleJobs.push(job);
+    }
+    jobs.length = 0;
+    eligibleJobs.forEach((j) => jobs.push(j));
+
     if (!jobs.length) {
       logger.info('Lembretes de RSVP: nada para enviar hoje.');
       return;
@@ -699,7 +719,10 @@ exports.classifyWeddyIntent = onCall({ region: 'europe-west1' }, async (request)
   // quem tiver mesmo uma sessão Firebase Auth válida neste pedido — o
   // rsvp.html (lado do convidado) nunca inicia sessão, por isso não há
   // forma de um convidado se fazer passar pelo casal só mudando "role".
-  const isCouple = !!request.auth && requestedRole === 'couple';
+  // Out 2026 (auditoria): exige email verificado (como as outras callables) —
+  // senão uma conta com email não verificado, igual ao de um dono convidado,
+  // gastava a quota de IA do casal.
+  const isCouple = !!request.auth && requestedRole === 'couple' && !!(request.auth.token && request.auth.token.email_verified === true);
   const allowedIntents = isCouple ? COUPLE_INTENTS : GUEST_INTENTS;
 
   try {
@@ -834,10 +857,6 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
       // se a revogação falhar, os dados da Weddy são apagados na mesma.
       await revokeGoogleCalendarForWedding(weddingId);
 
-      const [guestsDeleted, memoriesDeleted] = await Promise.all([
-        deleteAllByWeddingId('guests', weddingId),
-        deleteAllByWeddingId('memories', weddingId),
-      ]);
       // Fix 3.2 da auditoria pós-fixes (Set 2026): a limpeza do Storage
       // agora tem de suceder ANTES de apagarmos o documento weddings/{id}
       // — se falhar, deleteStoragePrefix relança o erro, o catch abaixo
@@ -852,6 +871,24 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
         // também ficavam para trás.
         deleteStoragePrefix(`feedback/${weddingId}/`),
       ]);
+      // Só depois do Storage: se este falhasse, os convites RSVP e as memórias
+      // já tinham sido apagados com o casamento ainda existente.
+      const [guestsDeleted, memoriesDeleted] = await Promise.all([
+        deleteAllByWeddingId('guests', weddingId),
+        deleteAllByWeddingId('memories', weddingId),
+      ]);
+      // Números de telefone e mensagens de WhatsApp deste casamento (RGPD).
+      for (const col of ['guestPhoneIndex', 'whatsappInbox', 'whatsappMessageStatus']) {
+        await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou. ${e.message || e}`));
+      }
+      await db.collection('whatsappReminderDailyUsage').doc(weddingId).delete().catch(() => {});
+      try {
+        const rl = await db.collection('whatsappReminderRateLimit')
+          .where(admin.firestore.FieldPath.documentId(), '>=', `${weddingId}_`)
+          .where(admin.firestore.FieldPath.documentId(), '<', `${weddingId}_\uf8ff`)
+          .get();
+        for (const d of rl.docs) await d.ref.delete().catch(() => {});
+      } catch (e) { logger.error(`deleteWeddingAccount: limpeza de whatsappReminderRateLimit falhou. ${e.message || e}`); }
       await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
       // Registos de incidente com cópias do estado do casamento, e relatórios
       // de feedback desta conta — dados pessoais que ficavam órfãos.
@@ -2783,7 +2820,7 @@ async function handleIncomingWhatsappMessage(msg, contacts) {
     raw: msg,
   });
 
-  if (owner && text && WHATSAPP_STOP_WORDS.includes(text.toLowerCase())) {
+  if (owner && text && WHATSAPP_STOP_WORDS.includes(String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').trim().split(/\s+/)[0])) {
     await recordWhatsappOptOut(owner.weddingId, owner.guestId);
     logger.info(`whatsappWebhook: opt-out registado via STOP (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
   }
@@ -3288,9 +3325,15 @@ async function resolveWeddingIdByUid(uid) {
     const snap = await db.collection('weddings')
       .where('ownerUids', 'array-contains', uid)
       .orderBy(admin.firestore.FieldPath.documentId())
-      .limit(1)
+      .limit(20)
       .get();
-    return snap.empty ? null : snap.docs[0].id;
+    if (snap.empty) return null;
+    // Out 2026 (auditoria): tem de escolher o MESMO casamento que a app
+    // (pickPrimaryWeddingId: o que a pessoa criou ganha). Antes escolhia
+    // sempre o de menor id e uma compra iOS podia ativar o casamento errado.
+    let email = '';
+    try { email = (await admin.auth().getUser(uid)).email || ''; } catch (e) { /* sem email: cai no menor id */ }
+    return pickPrimaryWeddingId(snap.docs, email);
   } catch (err) {
     logger.error(`resolveWeddingIdByUid: erro a procurar o casamento. ${err.message || err}`);
     return null;
