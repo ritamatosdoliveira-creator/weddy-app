@@ -34,6 +34,17 @@ service cloud.firestore {
         && (
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['subscription'])
           || request.resource.data.subscription.active == false
+        )
+        // Out 2026 (auditoria): o criador do casamento não pode ser mudado nem
+        // retirado dos donos por um parceiro (antes só a interface o impedia).
+        // O próprio criador pode sair (mantém-se a opção "sair do casamento").
+        && (!('creatorEmail' in resource.data) || request.resource.data.creatorEmail == resource.data.creatorEmail)
+        && (
+          !('creatorEmail' in resource.data)
+          // criador que já não está na lista (saiu antes): nada a proteger
+          || !(resource.data.creatorEmail in resource.data.ownerEmails)
+          || request.auth.token.email.lower() == resource.data.creatorEmail.lower()
+          || request.resource.data.ownerEmails.hasAny([resource.data.creatorEmail, resource.data.creatorEmail.lower()])
         );
 
       // Out 2026 (auditoria de segurança): antes bastava o email de quem cria
