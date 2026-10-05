@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Weddy Memories — fotos partilhadas pelos convidados (rsvp.html) ou pela
+    // página pública (memorias.html, token "publico").
+    // Leitura: só o casal (dono deste casamento). Escrita sem login, mas
+    // (Out 2026) o weddingId e o token têm de corresponder a um convidado
+    // real (documento guests/{token} com esse weddingId) — antes qualquer
+    // pessoa podia criar ficheiros em caminhos inventados.
+    match /memories/{weddingId}/{token}/{fileName} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow create: if request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*')
+        && (token == 'publico'
+            ? firestore.exists(/databases/(default)/documents/weddings/$(weddingId))
+            : firestore.get(/databases/(default)/documents/guests/$(token)).data.weddingId == weddingId);
+      allow delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow update: if false;
+    }
+
+    // Documentos do casamento (contratos, anexos) — só o casal dono.
+    match /documents/{weddingId}/{fileName} {
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow write: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
+        && request.resource.size < 15 * 1024 * 1024
+        && (request.resource.contentType == 'application/pdf'
+            || request.resource.contentType.matches('image/.*'));
+    }
+
+    // Capturas de ecrã do "Reportar problema" (index.html). Em falta até
+    // Out 2026: sem esta regra, TODOS os uploads eram recusados e as
+    // imagens perdiam-se em silêncio. Só o casal dono carrega; ninguém lê
+    // pelo cliente (a equipa vê pela consola / Admin SDK).
+    match /feedback/{weddingId}/{feedbackId}/{fileName} {
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow read, update, delete: if false;
+    }
+  }
+}
