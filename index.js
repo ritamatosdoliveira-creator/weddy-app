@@ -860,98 +860,115 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
     throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
   }
 
-  const weddingRef = db.collection('weddings').doc(weddingId);
-  const weddingSnap = await weddingRef.get();
-  if (!weddingSnap.exists) {
-    throw new HttpsError('not-found', 'Casamento não encontrado.');
-  }
-  const ownerEmails = weddingSnap.data().ownerEmails || [];
-  const isSoleOwner = ownerEmails.length <= 1;
+  // Out 2026: com vários casamentos por conta, apagar a conta trata de TODOS os
+  // casamentos desta pessoa — os que só ela possui são apagados por completo
+  // (nada fica órfão com dados pessoais) e nos partilhados ela só é removida.
+  const processOne = async (weddingId, isPrimary) => {
+    const weddingRef = db.collection('weddings').doc(weddingId);
+    const weddingSnap = await weddingRef.get();
+    if (!weddingSnap.exists) {
+      if (!isPrimary) return false;
+      throw new HttpsError('not-found', 'Casamento não encontrado.');
+    }
+    const ownerEmails = weddingSnap.data().ownerEmails || [];
+    // Só apaga por completo se esta pessoa for MESMO a única dona (o email dela está
+    // na lista); um uid antigo noutro casamento nunca apaga o casamento de outros.
+    const isSoleOwner = ownerEmails.length <= 1 && ownerEmails.some((e) => String(e || '').toLowerCase() === email);
 
-  try {
-    if (isSoleOwner) {
-      // Fase 9.1: revoga o Google Calendar (se estiver ligado) ANTES de
-      // apagar o documento do casamento — depois de apagado já não temos
-      // onde ler o refresh token para o revogar. Nunca bloqueia o
-      // apagamento por causa disto (ver comentário na própria função):
-      // se a revogação falhar, os dados da Weddy são apagados na mesma.
-      await revokeGoogleCalendarForWedding(weddingId);
+    try {
+      if (isSoleOwner) {
+        // Fase 9.1: revoga o Google Calendar (se estiver ligado) ANTES de
+        // apagar o documento do casamento — depois de apagado já não temos
+        // onde ler o refresh token para o revogar. Nunca bloqueia o
+        // apagamento por causa disto (ver comentário na própria função):
+        // se a revogação falhar, os dados da Weddy são apagados na mesma.
+        await revokeGoogleCalendarForWedding(weddingId);
 
-      // Fix 3.2 da auditoria pós-fixes (Set 2026): a limpeza do Storage
-      // agora tem de suceder ANTES de apagarmos o documento weddings/{id}
-      // — se falhar, deleteStoragePrefix relança o erro, o catch abaixo
-      // apanha-o, e nem o documento do Firestore nem a conta de Auth são
-      // tocados. Isto garante que uma falha de Storage nunca deixa
-      // ficheiros órfãos e inacessíveis: o casal continua com a conta
-      // ativa e pode simplesmente tentar apagar de novo.
-      await Promise.all([
-        deleteStoragePrefix(`documents/${weddingId}/`),
-        deleteStoragePrefix(`memories/${weddingId}/`),
-        // Out 2026 (auditoria RGPD): capturas de ecrã de "Reporta um problema"
-        // também ficavam para trás.
-        deleteStoragePrefix(`feedback/${weddingId}/`),
-      ]);
-      // Só depois do Storage: se este falhasse, os convites RSVP e as memórias
-      // já tinham sido apagados com o casamento ainda existente.
-      const [guestsDeleted, memoriesDeleted] = await Promise.all([
-        deleteAllByWeddingId('guests', weddingId),
-        deleteAllByWeddingId('memories', weddingId),
-      ]);
-      // Números de telefone e mensagens de WhatsApp deste casamento (RGPD).
-      for (const col of ['guestPhoneIndex', 'whatsappInbox', 'whatsappMessageStatus']) {
-        await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou. ${e.message || e}`));
-      }
-      await db.collection('whatsappReminderDailyUsage').doc(weddingId).delete().catch(() => {});
-      try {
-        const rl = await db.collection('whatsappReminderRateLimit')
-          .where(admin.firestore.FieldPath.documentId(), '>=', `${weddingId}_`)
-          .where(admin.firestore.FieldPath.documentId(), '<', `${weddingId}_\uf8ff`)
-          .get();
-        for (const d of rl.docs) await d.ref.delete().catch(() => {});
-      } catch (e) { logger.error(`deleteWeddingAccount: limpeza de whatsappReminderRateLimit falhou. ${e.message || e}`); }
-      await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
-      // Registos de incidente com cópias do estado do casamento, e relatórios
-      // de feedback desta conta — dados pessoais que ficavam órfãos.
-      await deleteAllByWeddingId('_incident_log', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de _incident_log falhou. ${e.message || e}`));
-      await deleteAllByWeddingId('feedback', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de feedback falhou. ${e.message || e}`));
-      // Out 2026 (auditoria RGPD): weddingRef.delete() só apaga o documento —
-      // as subcoleções (snapshots = cópias completas do casamento, integrations,
-      // privateIntegrations = token do Google) ficavam para trás. recursiveDelete
-      // apaga tudo.
-      if (typeof db.recursiveDelete === 'function') {
-        await db.recursiveDelete(weddingRef);
+        // Fix 3.2 da auditoria pós-fixes (Set 2026): a limpeza do Storage
+        // agora tem de suceder ANTES de apagarmos o documento weddings/{id}
+        // — se falhar, deleteStoragePrefix relança o erro, o catch abaixo
+        // apanha-o, e nem o documento do Firestore nem a conta de Auth são
+        // tocados. Isto garante que uma falha de Storage nunca deixa
+        // ficheiros órfãos e inacessíveis: o casal continua com a conta
+        // ativa e pode simplesmente tentar apagar de novo.
+        await Promise.all([
+          deleteStoragePrefix(`documents/${weddingId}/`),
+          deleteStoragePrefix(`memories/${weddingId}/`),
+          // Out 2026 (auditoria RGPD): capturas de ecrã de "Reporta um problema"
+          // também ficavam para trás.
+          deleteStoragePrefix(`feedback/${weddingId}/`),
+        ]);
+        // Só depois do Storage: se este falhasse, os convites RSVP e as memórias
+        // já tinham sido apagados com o casamento ainda existente.
+        const [guestsDeleted, memoriesDeleted] = await Promise.all([
+          deleteAllByWeddingId('guests', weddingId),
+          deleteAllByWeddingId('memories', weddingId),
+        ]);
+        // Números de telefone e mensagens de WhatsApp deste casamento (RGPD).
+        for (const col of ['guestPhoneIndex', 'whatsappInbox', 'whatsappMessageStatus']) {
+          await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou. ${e.message || e}`));
+        }
+        await db.collection('whatsappReminderDailyUsage').doc(weddingId).delete().catch(() => {});
+        try {
+          const rl = await db.collection('whatsappReminderRateLimit')
+            .where(admin.firestore.FieldPath.documentId(), '>=', `${weddingId}_`)
+            .where(admin.firestore.FieldPath.documentId(), '<', `${weddingId}_\uf8ff`)
+            .get();
+          for (const d of rl.docs) await d.ref.delete().catch(() => {});
+        } catch (e) { logger.error(`deleteWeddingAccount: limpeza de whatsappReminderRateLimit falhou. ${e.message || e}`); }
+        await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
+        // Registos de incidente com cópias do estado do casamento, e relatórios
+        // de feedback desta conta — dados pessoais que ficavam órfãos.
+        await deleteAllByWeddingId('_incident_log', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de _incident_log falhou. ${e.message || e}`));
+        await deleteAllByWeddingId('feedback', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de feedback falhou. ${e.message || e}`));
+        // Out 2026 (auditoria RGPD): weddingRef.delete() só apaga o documento —
+        // as subcoleções (snapshots = cópias completas do casamento, integrations,
+        // privateIntegrations = token do Google) ficavam para trás. recursiveDelete
+        // apaga tudo.
+        if (typeof db.recursiveDelete === 'function') {
+          await db.recursiveDelete(weddingRef);
+        } else {
+          await weddingRef.delete();
+        }
+        logger.info(`deleteWeddingAccount: casamento ${weddingId} apagado por completo (${guestsDeleted} convidados, ${memoriesDeleted} memórias).`);
       } else {
-        await weddingRef.delete();
+        const ownerUids = weddingSnap.data().ownerUids || [];
+        await weddingRef.update({
+          ownerEmails: admin.firestore.FieldValue.arrayRemove(email),
+          ownerUids: admin.firestore.FieldValue.arrayRemove(uid),
+        });
+        logger.info(`deleteWeddingAccount: ${email} removido dos donos do casamento ${weddingId} (continua a existir para os restantes donos).`);
       }
-      logger.info(`deleteWeddingAccount: casamento ${weddingId} apagado por completo (${guestsDeleted} convidados, ${memoriesDeleted} memórias).`);
-    } else {
-      const ownerUids = weddingSnap.data().ownerUids || [];
-      await weddingRef.update({
-        ownerEmails: admin.firestore.FieldValue.arrayRemove(email),
-        ownerUids: admin.firestore.FieldValue.arrayRemove(uid),
-      });
-      logger.info(`deleteWeddingAccount: ${email} removido dos donos do casamento ${weddingId} (continua a existir para os restantes donos).`);
+    } catch (err) {
+      logger.error('deleteWeddingAccount: erro durante o apagamento/remoção.', err.message || err);
+      throw new HttpsError('internal', 'Falha a apagar os dados (pode ter sido só a limpeza de ficheiros). A tua conta continua ativa e nenhum dado do Firestore foi removido — tenta novamente.');
     }
-  } catch (err) {
-    logger.error('deleteWeddingAccount: erro durante o apagamento/remoção.', err.message || err);
-    throw new HttpsError('internal', 'Falha a apagar os dados (pode ter sido só a limpeza de ficheiros). A tua conta continua ativa e nenhum dado do Firestore foi removido — tenta novamente.');
+    return isSoleOwner;
+  };
+
+  const allIds = new Set();
+  try {
+    const [byUid, byEmail] = await Promise.all([
+      db.collection('weddings').where('ownerUids', 'array-contains', uid).get(),
+      email ? db.collection('weddings').where('ownerEmails', 'array-contains', email).get() : Promise.resolve({ docs: [] }),
+    ]);
+    byUid.docs.concat(byEmail.docs).forEach((d) => allIds.add(d.id));
+  } catch (e) {
+    logger.error(`deleteWeddingAccount: não consegui listar os casamentos da conta. ${e.message || e}`);
+  }
+  allIds.delete(weddingId);
+
+  const isSoleOwner = await processOne(weddingId, true);
+  for (const otherId of allIds) {
+    await processOne(otherId, false);
   }
 
-  // Out 2026: com vários casamentos por conta, apagar a conta também tira esta
-  // pessoa dos OUTROS casamentos onde é dona (sem os apagar) e limpa as suas
-  // preferências. Best-effort: nunca impede o apagamento da conta.
+  // Preferências da conta (casamento ativo e registo de "já criou casamento").
   try {
-    const others = await db.collection('weddings').where('ownerUids', 'array-contains', uid).get();
-    for (const d of others.docs) {
-      await d.ref.update({
-        ownerEmails: admin.firestore.FieldValue.arrayRemove(email),
-        ownerUids: admin.firestore.FieldValue.arrayRemove(uid),
-      }).catch(() => {});
-    }
     await db.collection('userPrefs').doc(uid).delete().catch(() => {});
     await db.collection('creators').doc(uid).delete().catch(() => {});
   } catch (e) {
-    logger.error(`deleteWeddingAccount: limpeza de outros casamentos/preferências falhou. ${e.message || e}`);
+    logger.error(`deleteWeddingAccount: limpeza de preferências falhou. ${e.message || e}`);
   }
 
   // Só apaga a conta de autenticação DEPOIS dos dados terem sido tratados
