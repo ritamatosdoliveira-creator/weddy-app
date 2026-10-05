@@ -4083,6 +4083,7 @@ const APP_I18N = {
     alertCategoryInUse: name=>`A categoria "${name}" tem gastos associados. Remove ou muda esses gastos primeiro.`,
     confirmDeleteCategory: name=>`Eliminar a categoria "${name}"?`,
     confirmDeleteTable:'Eliminar esta mesa? Os lugares atribuídos ficam livres.',
+    confirmReduceSeatsOccupied:'O último lugar desta mesa está ocupado por um convidado. Se reduzires os lugares, esse convidado fica sem lugar. Continuar?',
     alertSyncNoConnection:'Não foi possível sincronizar (sem ligação).',
     alertPhotoSaveError:'Não foi possível guardar a foto — o telemóvel pode estar sem espaço de armazenamento. Tenta apagar alguma foto antiga.',
     confirmDeleteNotes:'Apagar as notas?',
@@ -5202,6 +5203,7 @@ const APP_I18N = {
     alertCategoryInUse: name=>`The category "${name}" has expenses linked to it. Remove or move those expenses first.`,
     confirmDeleteCategory: name=>`Delete the category "${name}"?`,
     confirmDeleteTable:'Delete this table? Assigned seats will be freed.',
+    confirmReduceSeatsOccupied:'The last seat at this table is taken by a guest. If you reduce the seats, that guest loses their seat. Continue?',
     alertSyncNoConnection:'Could not sync (no connection).',
     alertPhotoSaveError:'Could not save the photo — your phone may be low on storage. Try deleting an old photo.',
     confirmDeleteNotes:'Delete the notes?',
@@ -8442,12 +8444,30 @@ function bindFornecedorDetalheHandlers(){
     const amountEl = document.getElementById('supd-pay-amount');
     const amount = Number(amountEl.value);
     if(!amount || amount<=0){ flagRequiredField(amountEl); return; }
-    const date = dateEl.value || new Date().toISOString().slice(0,10);
-    state.expenses.unshift({
-      id: 'exp'+Date.now()+Math.random().toString(36).slice(2,6),
-      date, desc: ta('autoPaymentDesc')(s.name), value: amount, paid: amount,
-      category: s.category, dueDate:'', method:'', supplierId: s.id
-    });
+    const date = dateEl.value || toLocalISODate(new Date());
+    // Out 2026 (auditoria): sempre criava uma despesa NOVA com valor = pago,
+    // por isso um fornecedor que já tinha uma despesa por pagar (ex.: Quinta,
+    // 10 000 €, pago 0) passava a contar o pagamento DUAS vezes (total 13 000
+    // com 3 000 pagos) e o orçamento mostrava gastos a mais. Agora o
+    // pagamento abate primeiro as despesas deste fornecedor que ainda têm
+    // valor por pagar; só o que sobrar vira uma despesa nova.
+    let restante = amount;
+    state.expenses
+      .filter(e=>e.supplierId===s.id && moneyNum(e.value) > moneyNum(e.paid))
+      .forEach(e=>{
+        if(restante <= 0) return;
+        const falta = moneyNum(e.value) - moneyNum(e.paid);
+        const abate = Math.min(falta, restante);
+        e.paid = moneyNum(e.paid) + abate;
+        restante -= abate;
+      });
+    if(restante > 0.005){
+      state.expenses.unshift({
+        id: 'exp'+Date.now()+Math.random().toString(36).slice(2,6),
+        date, desc: ta('autoPaymentDesc')(s.name), value: restante, paid: restante,
+        category: s.category, dueDate:'', method:'', supplierId: s.id
+      });
+    }
     render();
     pushRemote(true);
   });
@@ -9373,6 +9393,21 @@ function applyRSVPResponsesToState(){
     const resp = memberRSVPResponse(item);
     if(!resp) return;
 
+    // Out 2026 (pedido da Rita): um convidado que já estava confirmado e passa
+    // a "talvez" deixa de contar como confirmado. Só se aplica UMA vez por
+    // mudança de estado (marca no próprio convidado), para a casal poder
+    // voltar a confirmar à mão sem a app desfazer isso a cada sincronização.
+    if(resp.rsvpStatus==='maybe' && resp.attending!==true && resp.attending!==false){
+      if(item.entry.rsvpStatusApplied !== 'maybe'){
+        const gkMaybe = liveGuestKeyFor(item.side, item.catId, item.entry);
+        if(gkMaybe && state.confirmed[gkMaybe]){ delete state.confirmed[gkMaybe]; summary.confirmedChanged++; }
+        item.entry.rsvpStatusApplied = 'maybe';
+        changed = true;
+      }
+    } else if(item.entry.rsvpStatusApplied === 'maybe'){
+      delete item.entry.rsvpStatusApplied;
+      changed = true;
+    }
     if(resp.attending===true || resp.attending===false){
       const gk = liveGuestKeyFor(item.side, item.catId, item.entry);
       if(gk){
@@ -13935,10 +13970,15 @@ function bindHandlers(){
     });
   });
   document.querySelectorAll('[data-tableseat]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
+    btn.addEventListener('click', async e=>{
       const [id,dir] = e.currentTarget.dataset.tableseat.split('|');
       const table = getTable(Number(id));
       const newSeats = Math.max(2, Math.min(24, table.seats+Number(dir)));
+      // Out 2026 (auditoria): reduzir os lugares apagava, sem avisar, o
+      // convidado sentado no último lugar.
+      if(newSeats < table.seats && state.seating.assignments['t'+table.id+'-s'+table.seats]){
+        if(!await weddyConfirm(ta('confirmReduceSeatsOccupied'))) return;
+      }
       if(newSeats < table.seats) clearSeatsAbove(table.id, newSeats);
       table.seats = newSeats;
       render();
@@ -14214,7 +14254,7 @@ function saveSettingsNow(msgId){
   // emails de lembrete) continuavam a ver a data/local antigos. Guarda o que
   // estava antes de gravar para só propagar se algum destes campos mudou.
   const _metaKeys = GUEST_META_KEYS;
-  CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
+  writeWeddingPayloadSafely().then(()=>{
     if(msgEl){ msgEl.textContent = ta('savedSuccessMsg'); msgEl.className = 'login-msg success'; }
     showSaveToast(false);
     try{
@@ -17147,7 +17187,7 @@ function flushPendingSave(){
   // para os dados que SAEM — esta linha fecha essa lacuna.
   if(!firstSyncDone) return Promise.resolve();
   clearTimeout(saveTimer);
-  return CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).catch((err)=>{
+  return writeWeddingPayloadSafely().catch((err)=>{
     // Fase 4B da auditoria (LOG-01, P1): antes, uma falha aqui era 100%
     // silenciosa — nem aviso ao utilizador, nem registo nenhum. Esta
     // função é chamada sobretudo mesmo antes de recarregar a página (ver
@@ -17182,7 +17222,7 @@ function pushRemoteImmediate(){
   // com o casamento em branco (seedData()) que "state" começa por ser.
   if(!firstSyncDone) return Promise.reject(new Error('first-sync-pending'));
   clearTimeout(saveTimer);
-  return CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
+  return writeWeddingPayloadSafely().then(()=>{
     scheduleGoogleCalendarAutoSync();
   });
 }
@@ -17223,7 +17263,7 @@ function pushRemote(confirmToast){
   clearTimeout(saveTimer);
   pendingSaveDirty = true;
   saveTimer = setTimeout(()=>{
-    CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
+    writeWeddingPayloadSafely().then(()=>{
       pendingSaveDirty = false;
       if(confirmToast) showSaveToast(false);
       // Fase 9.2 — depois de QUALQUER gravação bem sucedida, agenda uma
@@ -17624,6 +17664,47 @@ function mergeIncomingWeddingState(localState, incoming, baseline){
     merged[key] = localDirty ? localState[key] : incoming[key];
   });
   return merged;
+}
+// Gravação "à prova de dois dispositivos" (Out 2026, auditoria — o achado mais
+// grave de sincronização): antes, cada gravação enviava o "json" inteiro tal
+// como ESTE dispositivo o conhecia, sem olhar ao que o servidor tinha entretanto.
+// Se o telemóvel da Rita estivesse com dados de há uns minutos e o Tiago
+// tivesse mudado as mesas, a gravação seguinte da Rita apagava as mesas do
+// Tiago, sem aviso. Agora a gravação corre numa transação: lê o documento
+// atual e, se o servidor mudou desde a última versão que este dispositivo
+// conhece (lastSyncedState), junta as alterações dos dois por secção (a nossa
+// onde mexemos, a do servidor no resto) antes de gravar. A transação é
+// repetida automaticamente pelo Firestore se alguém gravar a meio.
+function writeWeddingPayloadSafely(){
+  const payload = buildSafeWeddingWritePayload();
+  if(!payload.json && !payload.settings) return CURRENT_DOC().set(payload, { merge:true });
+  const ref = CURRENT_DOC();
+  return firebase.firestore().runTransaction(async tx=>{
+    const snap = await tx.get(ref);
+    const out = { ...payload };
+    if(snap.exists){
+      const data = snap.data() || {};
+      if(payload.json && lastSyncedState){
+        try{
+          const serverState = JSON.parse(data.json || 'null');
+          if(serverState && typeof serverState==='object' && JSON.stringify(serverState) !== JSON.stringify(lastSyncedState)){
+            out.json = JSON.stringify(mergeIncomingWeddingState(state, serverState, lastSyncedState));
+          }
+        }catch(e){ /* json do servidor ilegível: grava o nosso, como antes */ }
+      }
+      if(payload.settings && lastSyncedSettings && data.settings && typeof data.settings==='object'){
+        if(JSON.stringify(data.settings) !== JSON.stringify(lastSyncedSettings)){
+          const mergedSettings = {};
+          new Set([...Object.keys(weddingSettings||{}), ...Object.keys(data.settings)]).forEach(k=>{
+            const localDirty = JSON.stringify(weddingSettings[k]) !== JSON.stringify(lastSyncedSettings[k]);
+            mergedSettings[k] = localDirty ? weddingSettings[k] : data.settings[k];
+          });
+          out.settings = mergedSettings;
+        }
+      }
+    }
+    tx.set(ref, out, { merge:true });
+  });
 }
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) unsubscribeSnapshot();
