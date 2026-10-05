@@ -3002,6 +3002,15 @@ exports.sendWhatsappRsvpReminder = onCall(
       throw new HttpsError('failed-precondition', 'Este convidado ainda não tem link de RSVP gerado.', { reason: 'no_token' });
     }
 
+    // Out 2026 (auditoria): o telefone e o consentimento vêm do "json" do
+    // casamento, que o cliente consegue escrever. Só enviamos se o índice de
+    // telefones (escrito apenas pelo servidor, em updateGuestPhone, depois de
+    // validar o número) confirmar que este número pertence a ESTE convidado.
+    const phoneIdx = await db.collection('guestPhoneIndex').doc(phone).get();
+    if (!phoneIdx.exists || phoneIdx.data().weddingId !== weddingId || phoneIdx.data().guestId !== guestId) {
+      throw new HttpsError('failed-precondition', 'O telefone deste convidado não está validado. Volta a guardá-lo.', { reason: 'no_phone' });
+    }
+
     const rateLimit = await checkWhatsappReminderRateLimit(weddingId, guestId);
     if (!rateLimit.allowed) {
       const msg = rateLimit.reason === 'daily_limit'
@@ -3207,33 +3216,37 @@ exports.stripeWebhook = onRequest(
             logger.error(`stripeWebhook: casamento ${weddingId} não encontrado.`);
             await logStripeWebhookIncident('casamento-nao-encontrado', weddingId, event, session);
           } else {
-            const existing = snap.data().subscription || {};
             // Idempotência: o Stripe pode reenviar o mesmo evento; com a
-            // extensão de período abaixo, processar duas vezes estenderia
-            // duas vezes.
-            if (existing.stripeCheckoutSessionId && existing.stripeCheckoutSessionId === session.id) {
-              logger.info(`stripeWebhook: sessão ${session.id} já processada para o casamento ${weddingId}, ignorada.`);
-              res.status(200).send('ok');
-              return;
-            }
+            // extensão de período abaixo, processar duas vezes estenderia duas
+            // vezes. Out 2026 (auditoria): feito numa transação (duas entregas
+            // simultâneas já não passam as duas) e com a lista de todas as
+            // sessões processadas, não só a última.
             // Pagamento já confirmado pelo Stripe — isto NUNCA deve ficar por
-            // gravar sem ninguém saber (achado CRÍTICO da auditoria: se esta
-            // escrita falhasse, respondíamos sempre 200 ao Stripe na mesma,
-            // por isso ele nunca mais voltava a tentar, e o casal pagava sem
-            // a conta ficar Premium, sem ninguém ser avisado). Por isso este
-            // update tem o seu próprio try/catch: se falhar, fica um registo
-            // em "_incident_log" (consultável, ao contrário de só um log),
-            // além do erro continuar a subir para o catch geral de baixo.
+            // gravar sem ninguém saber: se a escrita falhar, fica um registo em
+            // "_incident_log" além de o erro subir para o catch geral.
             try {
-              await weddingRef.update({
-                subscription: {
-                  active: true,
-                  plan: 'premium-12meses',
-                  startedAt: nextSubscriptionStartedAt(existing),
-                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                  stripeCheckoutSessionId: session.id,
-                },
+              const outcome = await db.runTransaction(async (tx) => {
+                const fresh = await tx.get(weddingRef);
+                const sub = (fresh.data() || {}).subscription || {};
+                const seen = Array.isArray(sub.stripeCheckoutSessionIds) ? sub.stripeCheckoutSessionIds : [];
+                if (sub.stripeCheckoutSessionId === session.id || seen.includes(session.id)) return 'dup';
+                tx.update(weddingRef, {
+                  subscription: {
+                    active: true,
+                    plan: 'premium-12meses',
+                    startedAt: nextSubscriptionStartedAt(sub),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    stripeCheckoutSessionId: session.id,
+                    stripeCheckoutSessionIds: seen.concat([session.id]).slice(-50),
+                  },
+                });
+                return 'ok';
               });
+              if (outcome === 'dup') {
+                logger.info(`stripeWebhook: sessão ${session.id} já processada para o casamento ${weddingId}, ignorada.`);
+                res.status(200).send('ok');
+                return;
+              }
               logger.info(`stripeWebhook: subscrição ativada para o casamento ${weddingId} (${event.type}).`);
             } catch (writeErr) {
               logger.error(`stripeWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
@@ -3407,21 +3420,34 @@ exports.revenueCatWebhook = onRequest(
             logger.error(`revenueCatWebhook: casamento ${weddingId} não encontrado no Firestore.`);
             await logRevenueCatWebhookIncident('casamento-nao-encontrado', weddingId, event);
           } else {
-            const existing = snap.data().subscription || {};
-            if (event.transaction_id && existing.revenueCatTransactionId === event.transaction_id) {
-              logger.info(`revenueCatWebhook: transação ${event.transaction_id} já processada, ignorada.`);
-            } else try {
-              await weddingRef.update({
-                subscription: {
-                  active: true,
-                  plan: 'premium-12meses',
-                  startedAt: nextSubscriptionStartedAt(existing),
-                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                  revenueCatTransactionId: event.transaction_id || null,
-                  revenueCatProductId: event.product_id || null,
-                },
+            try {
+              // Out 2026 (auditoria): leitura + verificação + escrita numa
+              // transação (duas entregas simultâneas do mesmo evento já não
+              // estendem 12 meses duas vezes), e guarda-se a lista de todas as
+              // transações processadas (não só a última) para ignorar reenvios
+              // de eventos antigos.
+              const outcome = await db.runTransaction(async (tx) => {
+                const fresh = await tx.get(weddingRef);
+                const sub = (fresh.data() || {}).subscription || {};
+                const seen = Array.isArray(sub.revenueCatTransactionIds) ? sub.revenueCatTransactionIds : [];
+                if (event.transaction_id && (sub.revenueCatTransactionId === event.transaction_id || seen.includes(event.transaction_id))) {
+                  return 'dup';
+                }
+                tx.update(weddingRef, {
+                  subscription: {
+                    active: true,
+                    plan: 'premium-12meses',
+                    startedAt: nextSubscriptionStartedAt(sub),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    revenueCatTransactionId: event.transaction_id || null,
+                    revenueCatTransactionIds: event.transaction_id ? seen.concat([event.transaction_id]).slice(-50) : seen,
+                    revenueCatProductId: event.product_id || null,
+                  },
+                });
+                return 'ok';
               });
-              logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
+              if (outcome === 'dup') logger.info(`revenueCatWebhook: transação ${event.transaction_id} já processada, ignorada.`);
+              else logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
             } catch (writeErr) {
               logger.error(`revenueCatWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
               await logRevenueCatWebhookIncident('falha-ao-ativar', weddingId, event, writeErr);
@@ -3432,11 +3458,21 @@ exports.revenueCatWebhook = onRequest(
         // Reembolso da Apple: o acesso Premium acaba (antes ficava ativo).
         const refundWeddingId = await resolveWeddingIdByUid(event.app_user_id);
         if (refundWeddingId) {
-          await db.collection('weddings').doc(refundWeddingId).update({
-            'subscription.active': false,
-            'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
-          }).catch((e) => logger.error(`revenueCatWebhook: falhou a desativar após REFUND. ${e.message || e}`));
-          logger.info(`revenueCatWebhook: REFUND — Premium desativado no casamento ${refundWeddingId}.`);
+          // Out 2026 (auditoria): reembolsar uma compra ANTIGA não pode cancelar
+          // uma compra mais recente ainda válida — só desativa se o reembolso
+          // for da última transação (ou se o evento não indicar qual é).
+          const refRef = db.collection('weddings').doc(refundWeddingId);
+          const refSnap = await refRef.get();
+          const refSub = (refSnap.data() || {}).subscription || {};
+          if (event.transaction_id && refSub.revenueCatTransactionId && refSub.revenueCatTransactionId !== event.transaction_id) {
+            logger.info(`revenueCatWebhook: REFUND de uma transação antiga (${event.transaction_id}) ignorado — há uma compra mais recente.`);
+          } else {
+            await refRef.update({
+              'subscription.active': false,
+              'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
+            }).catch((e) => logger.error(`revenueCatWebhook: falhou a desativar após REFUND. ${e.message || e}`));
+            logger.info(`revenueCatWebhook: REFUND — Premium desativado no casamento ${refundWeddingId}.`);
+          }
         } else {
           await logRevenueCatWebhookIncident('refund-sem-casamento', null, event);
         }

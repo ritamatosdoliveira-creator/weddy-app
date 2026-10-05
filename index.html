@@ -8019,6 +8019,9 @@ function migrateLegacySupplierPayments(){
   let migrated = false;
   state.suppliers.forEach(s=>{
     (s.payments||[]).forEach(p=>{
+      // Out 2026 (auditoria): um pagamento antigo sem id fazia "already" dar sempre
+      // true (undefined===undefined) e nunca era migrado nem contado.
+      if(!p.id) p.id = 'lp'+Date.now()+Math.random().toString(36).slice(2,6);
       const already = state.expenses.some(e=>e.legacyPaymentId===p.id);
       if(already) return;
       state.expenses.unshift({
@@ -17314,8 +17317,19 @@ function flushPendingSaveOnExit(){
   pendingSaveDirty = false;
   CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).catch(()=>{});
 }
+// Out 2026 (auditoria): ao passar para segundo plano (a app ainda fica viva uns
+// instantes) usa-se a gravação segura com transação, que junta as alterações do
+// outro dispositivo em vez de as pisar. Só se o separador estiver mesmo a
+// fechar (pagehide/beforeunload, abaixo) é que sobra o envio imediato simples
+// — se a transação ainda não terminou, pendingSaveDirty continua true.
+let exitSafeSaveRunning = false;
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='hidden') flushPendingSaveOnExit();
+  if(document.visibilityState!=='hidden') return;
+  if(!pendingSaveDirty || exitSafeSaveRunning) return;
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !firstSyncDone) return;
+  clearTimeout(saveTimer);
+  exitSafeSaveRunning = true;
+  writeWeddingPayloadSafely().then(()=>{ pendingSaveDirty = false; }).catch(()=>{}).then(()=>{ exitSafeSaveRunning = false; });
 });
 window.addEventListener('pagehide', flushPendingSaveOnExit);
 window.addEventListener('beforeunload', flushPendingSaveOnExit);
