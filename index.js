@@ -597,12 +597,32 @@ async function callOpenAI(question, allowedIntents) {
 // própria pessoa criou (creatorEmail = o seu email) ganha sempre; só depois
 // vale o menor id (convidados/parceiros sem casamento próprio). TEM de ser
 // idêntico ao que index.html faz em findOrCreateFlow.
-function pickPrimaryWeddingId(docs, email) {
+function pickPrimaryWeddingId(docs, email, preferredId) {
   if (!docs || !docs.length) return null;
+  // Casamento ativo escolhido pela pessoa (seletor "Mudar de casamento").
+  // Só é respeitado se ela for mesmo dona dele (está em "docs", que vem de uma
+  // pesquisa por ownerEmails/ownerUids); senão cai na regra normal.
+  if (preferredId) {
+    const chosen = docs.find((d) => d.id === preferredId);
+    if (chosen) return chosen.id;
+  }
   const mail = String(email || '').toLowerCase();
   const sorted = docs.slice().sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const own = sorted.find((d) => String((d.data() || {}).creatorEmail || '').toLowerCase() === mail);
   return (own || sorted[0]).id;
+}
+// Casamento ativo escolhido pela pessoa — guardado pelo cliente em
+// userPrefs/{uid}.activeWeddingId (ver firestore.rules). Nunca é confiado
+// às cegas: pickPrimaryWeddingId só o usa se a pessoa for dona desse casamento.
+async function getActiveWeddingPref(uid) {
+  if (!uid) return null;
+  try {
+    const s = await db.collection('userPrefs').doc(uid).get();
+    const v = s.exists ? s.data().activeWeddingId : null;
+    return typeof v === 'string' && v ? v : null;
+  } catch (e) {
+    return null;
+  }
 }
 async function resolveWeddingId(request, isCouple) {
   if (isCouple) {
@@ -612,7 +632,7 @@ async function resolveWeddingId(request, isCouple) {
       const snap = await db.collection('weddings')
         .where('ownerEmails', 'array-contains', email.toLowerCase())
         .get();
-      return pickPrimaryWeddingId(snap.docs, email);
+      return pickPrimaryWeddingId(snap.docs, email, await getActiveWeddingPref(request.auth.uid));
     } catch (err) {
       // Fix 6 da auditoria RGPD/Segurança (Set 2026): logar só a mensagem,
       // nunca o objeto de erro completo (podia incluir paths/queries com
@@ -915,6 +935,23 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
   } catch (err) {
     logger.error('deleteWeddingAccount: erro durante o apagamento/remoção.', err.message || err);
     throw new HttpsError('internal', 'Falha a apagar os dados (pode ter sido só a limpeza de ficheiros). A tua conta continua ativa e nenhum dado do Firestore foi removido — tenta novamente.');
+  }
+
+  // Out 2026: com vários casamentos por conta, apagar a conta também tira esta
+  // pessoa dos OUTROS casamentos onde é dona (sem os apagar) e limpa as suas
+  // preferências. Best-effort: nunca impede o apagamento da conta.
+  try {
+    const others = await db.collection('weddings').where('ownerUids', 'array-contains', uid).get();
+    for (const d of others.docs) {
+      await d.ref.update({
+        ownerEmails: admin.firestore.FieldValue.arrayRemove(email),
+        ownerUids: admin.firestore.FieldValue.arrayRemove(uid),
+      }).catch(() => {});
+    }
+    await db.collection('userPrefs').doc(uid).delete().catch(() => {});
+    await db.collection('creators').doc(uid).delete().catch(() => {});
+  } catch (e) {
+    logger.error(`deleteWeddingAccount: limpeza de outros casamentos/preferências falhou. ${e.message || e}`);
   }
 
   // Só apaga a conta de autenticação DEPOIS dos dados terem sido tratados
@@ -3346,7 +3383,7 @@ async function resolveWeddingIdByUid(uid) {
     // sempre o de menor id e uma compra iOS podia ativar o casamento errado.
     let email = '';
     try { email = (await admin.auth().getUser(uid)).email || ''; } catch (e) { /* sem email: cai no menor id */ }
-    return pickPrimaryWeddingId(snap.docs, email);
+    return pickPrimaryWeddingId(snap.docs, email, await getActiveWeddingPref(uid));
   } catch (err) {
     logger.error(`resolveWeddingIdByUid: erro a procurar o casamento. ${err.message || err}`);
     return null;

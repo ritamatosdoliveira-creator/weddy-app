@@ -3621,6 +3621,8 @@ const APP_I18N = {
     aboutTitle:'Sobre a Weddy', aboutDesc:'Versão 1.0.0',
     reportTitle:'Reporta um problema', reportDesc:'Encontraste um bug? Conta-nos',
     signOut:'Terminar sessão',
+    switchWeddingTitle:'Os meus casamentos', switchWeddingDesc:'Mudar de casamento ou criar o teu', switchWeddingHeading:'Escolhe o casamento', switchWeddingCurrent:'Ativo', switchWeddingCreateOwn:'Criar o meu casamento', switchWeddingLoading:'A carregar…', switchWeddingError:'Não foi possível carregar os teus casamentos. Tenta novamente.', switchWeddingUnnamed:'Casamento sem nome', switchWeddingClose:'Fechar', switchWeddingCreatorTag:'criado por ti', switchWeddingCreateOwnNote:'Só podes criar um casamento por conta.',
+
     confirmDialogCancel:'Cancelar', confirmDialogConfirm:'Confirmar',
     languageLabel:'Idioma',
     catFamilia:'Família', catFriends:'Amigos', catMaybe:'Na dúvida', catStaff:'Staff / fornecedores',
@@ -4753,6 +4755,8 @@ const APP_I18N = {
     aboutTitle:'About Weddy', aboutDesc:'Version 1.0.0',
     reportTitle:'Report a problem', reportDesc:'Found a bug? Tell us',
     signOut:'Sign out',
+    switchWeddingTitle:'My weddings', switchWeddingDesc:'Switch wedding or create your own', switchWeddingHeading:'Choose a wedding', switchWeddingCurrent:'Active', switchWeddingCreateOwn:'Create my wedding', switchWeddingLoading:'Loading…', switchWeddingError:'Could not load your weddings. Please try again.', switchWeddingUnnamed:'Unnamed wedding', switchWeddingClose:'Close', switchWeddingCreatorTag:'created by you', switchWeddingCreateOwnNote:'You can only create one wedding per account.',
+
     confirmDialogCancel:'Cancel', confirmDialogConfirm:'Confirm',
     languageLabel:'Language',
     catFamilia:'Family', catFriends:'Friends', catMaybe:'Maybe', catStaff:'Staff / vendors',
@@ -11785,6 +11789,7 @@ function viewDefMenu(){
 
   <div class="section-label-caps">${ta('sectionAccess')}</div>
   <div class="list-group">
+    ${defMenuRow('casamentos', ICONS.heart, 1, ta('switchWeddingTitle'), ta('switchWeddingDesc'))}
     ${defMenuRow('convidar', ICONS.guests, 1, ta('inviteTitle'), ta('inviteDesc'))}
     ${defMenuRow('seguranca', ICONS.lock, 5, ta('accessTitle'), ta('accessDesc'))}
   </div>
@@ -12984,6 +12989,7 @@ function bindHandlers(){
   document.querySelectorAll('[data-defgoto]').forEach(el=>{
     el.addEventListener('click', e=>{
       const key = e.currentTarget.dataset.defgoto;
+      if(key==='casamentos'){ openWeddingSwitcher(); return; }
       definicoesSection = key;
       rsvpSubScreen = null;
       rsvpSubScreenReturnTo = null;
@@ -16317,6 +16323,75 @@ function openLegalOverlay(titleKey, bodyHtml){
 // window.confirm devolve um boolean, mas desenhada como o resto da app e
 // sem depender de nenhuma funcionalidade nativa do browser que possa
 // estar bloqueada.
+// Seletor de casamento (Out 2026). Uma conta (email) só pode CRIAR um casamento,
+// mas pode ser adicionada como dona a vários. A escolha fica em
+// userPrefs/{uid}.activeWeddingId — lida por esta app (findOrCreateFlow) E pelas
+// Cloud Functions (getActiveWeddingPref/pickPrimaryWeddingId em index.js), para
+// os dois lados concordarem sempre em qual é o casamento ativo.
+async function openWeddingSwitcher(){
+  if(!auth || !auth.currentUser) return;
+  let el = document.getElementById('weddy-switch-overlay');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'weddy-switch-overlay';
+    el.style.cssText = 'position:fixed; inset:0; background:rgba(30,26,23,0.55); z-index:10000; display:flex; align-items:flex-end; justify-content:center;';
+    document.body.appendChild(el);
+  }
+  const close = ()=>{ el.style.display='none'; el.innerHTML=''; el.onclick=null; };
+  el.style.display = 'flex';
+  el.onclick = (e)=>{ if(e.target===el) close(); };
+  const shell = (inner)=>`<div style="background:var(--card,#fff); width:100%; max-width:420px; max-height:80vh; overflow:auto; border-radius:20px 20px 0 0; padding:22px 18px 18px;">
+    <div style="font-size:16px; font-weight:700; color:var(--ink); margin-bottom:14px; text-align:center;">${ta('switchWeddingHeading')}</div>${inner}
+    <button type="button" id="wsw-close" class="login-btn" style="margin-top:12px; background:rgba(60,51,43,0.08); color:var(--ink);">${ta('switchWeddingClose')}</button></div>`;
+  el.innerHTML = shell(`<div style="text-align:center; padding:18px 0; color:var(--ink-soft);">${ta('switchWeddingLoading')}</div>`);
+  document.getElementById('wsw-close').addEventListener('click', close);
+  try{
+    const mail = auth.currentUser.email.toLowerCase();
+    const qs = await WEDDINGS().where('ownerEmails','array-contains', mail).get({ source:'server' });
+    const docs = qs.docs.slice().sort((a,b)=> a.id<b.id ? -1 : a.id>b.id ? 1 : 0);
+    const createdOwn = docs.some(d=> String((d.data()||{}).creatorEmail||'').toLowerCase()===mail);
+    const rows = docs.map(d=>{
+      const st = (d.data()||{}).settings || {};
+      const name = [st.coupleName1, st.coupleName2].filter(Boolean).join(' & ') || ta('switchWeddingUnnamed');
+      const mine = String((d.data()||{}).creatorEmail||'').toLowerCase()===mail;
+      const active = d.id===currentWeddingId;
+      return `<button type="button" data-wswid="${escapeHTML(d.id)}" style="all:unset; box-sizing:border-box; display:flex; width:100%; justify-content:space-between; align-items:center; gap:10px; padding:13px 14px; margin-bottom:8px; border-radius:14px; background:${active?'#F3E2DC':'rgba(60,51,43,0.05)'}; cursor:pointer;">
+        <span><span style="display:block; font-size:14.5px; font-weight:600; color:var(--ink);">${escapeHTML(name)}</span>
+        <span style="display:block; font-size:12px; color:var(--ink-soft);">${escapeHTML(st.weddingDate||'')}${mine?' · '+ta('switchWeddingCreatorTag'):''}</span></span>
+        ${active?`<span style="font-size:12px; font-weight:700; color:var(--rust-dark);">${ta('switchWeddingCurrent')}</span>`:''}</button>`;
+    }).join('');
+    const createBtn = createdOwn ? '' : `<button type="button" id="wsw-create" class="login-btn" style="margin-top:6px;">${ta('switchWeddingCreateOwn')}</button><div style="font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:6px;">${ta('switchWeddingCreateOwnNote')}</div>`;
+    el.innerHTML = shell(rows + createBtn);
+    document.getElementById('wsw-close').addEventListener('click', close);
+    el.querySelectorAll('[data-wswid]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-wswid');
+        if(id===currentWeddingId){ close(); return; }
+        b.disabled = true;
+        try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
+        try{
+          await db.collection('userPrefs').doc(auth.currentUser.uid).set({ activeWeddingId:id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          // Recarrega: garante que NADA do casamento anterior (estado em memória,
+          // baselines, ligações em tempo real) fica misturado com o novo.
+          location.reload();
+        }catch(err){
+          console.error('Weddy switch wedding error:', err && err.code, err && err.message);
+          b.disabled = false;
+        }
+      });
+    });
+    const cb = document.getElementById('wsw-create');
+    if(cb) cb.addEventListener('click', async ()=>{
+      try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
+      try{ sessionStorage.setItem('weddy-create-own','1'); }catch(_){}
+      location.reload();
+    });
+  }catch(err){
+    console.error('Weddy switcher error:', err && err.code, err && err.message);
+    el.innerHTML = shell(`<div style="text-align:center; padding:14px 0; color:var(--ink);">${ta('switchWeddingError')}</div>`);
+    document.getElementById('wsw-close').addEventListener('click', close);
+  }
+}
 function weddyConfirm(message){
   return new Promise(resolve=>{
     let el = document.getElementById('weddy-confirm-overlay');
@@ -16837,7 +16912,12 @@ function handleOnboardingSubmit(){
     acceptedAt: firebase.firestore.Timestamp.fromDate(isNaN(acceptedAtDate.getTime()) ? new Date() : acceptedAtDate)
   };
   try{ localStorage.removeItem('weddy-signup-consent'); }catch(e){}
-  WEDDINGS().add({
+  // Out 2026: um email só pode CRIAR um casamento. O documento creators/{uid}
+  // é escrito no mesmo lote e as regras só deixam criar o casamento se ainda
+  // não existir (ver firestore.rules). Define também o casamento ativo.
+  const newRef = WEDDINGS().doc();
+  const batch = db.batch();
+  batch.set(newRef, {
     ownerEmails: [email],
     ownerUids: [auth.currentUser.uid],
     creatorEmail: email,
@@ -16845,8 +16925,11 @@ function handleOnboardingSubmit(){
     json: JSON.stringify(state),
     consent,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(docRef=>{
-    currentWeddingId = docRef.id;
+  });
+  batch.set(db.collection('creators').doc(auth.currentUser.uid), { weddingId:newRef.id, email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  batch.set(db.collection('userPrefs').doc(auth.currentUser.uid), { activeWeddingId:newRef.id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  batch.commit().then(()=>{
+    currentWeddingId = newRef.id;
     attachFirestoreSync();
   }).catch(()=>{
     renderOnboarding();
@@ -18075,11 +18158,29 @@ function findOrCreateFlow(user, isRetry){
   // onboarding, criando um casamento duplicado. (2) escolhe o casamento que a
   // própria pessoa criou (creatorEmail) antes de qualquer outro — ver
   // pickPrimaryWeddingId em index.js (a regra TEM de ser a mesma).
-  WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).get({ source:'server' }).then(qs=>{
+  // Casamento ativo escolhido no seletor (userPrefs) — só vale se a pessoa
+  // ainda for dona dele; senão, regra normal (o que criou, depois o menor id).
+  const prefPromise = db.collection('userPrefs').doc(user.uid).get({ source:'server' }).then(sn=> sn.exists ? (sn.data().activeWeddingId||null) : null).catch(()=>null);
+  Promise.all([ WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).get({ source:'server' }), prefPromise ]).then(([qs, prefId])=>{
+    // "Criar o meu casamento" (seletor): mostra o onboarding mesmo já havendo
+    // casamentos, mas só se esta conta ainda não criou nenhum.
+    let wantsCreateOwn = false;
+    try{ wantsCreateOwn = sessionStorage.getItem('weddy-create-own')==='1'; sessionStorage.removeItem('weddy-create-own'); }catch(_){}
+    if(wantsCreateOwn){
+      const _m = user.email.toLowerCase();
+      const alreadyCreated = qs.docs.some(d=> String((d.data()||{}).creatorEmail||'').toLowerCase()===_m);
+      if(!alreadyCreated){
+        currentWeddingId = null;
+        inspirations = [];
+        dressInspirations = [];
+        renderOnboarding();
+        return;
+      }
+    }
     if(!qs.empty){
       const _mail = user.email.toLowerCase();
       const _sorted = qs.docs.slice().sort((a,b)=> a.id<b.id ? -1 : a.id>b.id ? 1 : 0);
-      const weddingDoc = _sorted.find(d=> String((d.data()||{}).creatorEmail||'').toLowerCase()===_mail) || _sorted[0];
+      const weddingDoc = (prefId && _sorted.find(d=> d.id===prefId)) || _sorted.find(d=> String((d.data()||{}).creatorEmail||'').toLowerCase()===_mail) || _sorted[0];
       currentWeddingId = weddingDoc.id;
       const consent = weddingDoc.data().consent;
       const needsReconsent = !consent || consent.termsVersion !== CURRENT_TERMS_VERSION || consent.privacyVersion !== CURRENT_PRIVACY_VERSION;

@@ -60,7 +60,11 @@ service cloud.firestore {
         && request.resource.data.ownerEmails[0] == request.auth.token.email
         && (!('creatorEmail' in request.resource.data) || request.resource.data.creatorEmail == request.auth.token.email)
         && (!('ownerUids' in request.resource.data) || request.resource.data.ownerUids == [request.auth.uid])
-        && !('subscription' in request.resource.data);
+        && !('subscription' in request.resource.data)
+        // Um email só pode CRIAR um casamento: o documento creators/{uid} (escrito
+        // no mesmo lote pela app) tem de ainda não existir e apontar para este.
+        && !exists(/databases/$(database)/documents/creators/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/creators/$(request.auth.uid)).data.weddingId == weddingId;
 
       // Out 2026 (auditoria): o delete direto do casamento passa a ser recusado
       // (como o comentário e a Cloud Function deleteWeddingAccount já assumiam).
@@ -201,6 +205,27 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
         && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Um email só cria um casamento (ver regra de create em weddings). Só criar,
+    // só pelo próprio, nunca alterar nem apagar a partir da app.
+    match /creators/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['weddingId', 'email', 'createdAt'])
+        && request.resource.data.weddingId is string;
+    }
+
+    // Casamento ativo escolhido no seletor — também lido pelas Cloud Functions.
+    // As funções só o respeitam se a pessoa for mesmo dona desse casamento.
+    match /userPrefs/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['activeWeddingId', 'updatedAt'])
+        && request.resource.data.activeWeddingId is string
+        && request.resource.data.activeWeddingId.size() <= 40;
     }
 
     // Registos de incidente escritos pelo cliente (rede de segurança contra
