@@ -14208,9 +14208,34 @@ function saveSettingsNow(msgId){
     return;
   }
   clearTimeout(saveTimer);
+  // Out 2026 (auditoria): data, local e nomes dos noivos são copiados para
+  // cada convite no momento em que o link é criado — mudá-los depois em
+  // "Casamento" só alterava o documento do casamento, e os convidados (e os
+  // emails de lembrete) continuavam a ver a data/local antigos. Guarda o que
+  // estava antes de gravar para só propagar se algum destes campos mudou.
+  const _metaKeys = GUEST_META_KEYS;
   CURRENT_DOC().set(buildSafeWeddingWritePayload(), { merge:true }).then(()=>{
     if(msgEl){ msgEl.textContent = ta('savedSuccessMsg'); msgEl.className = 'login-msg success'; }
     showSaveToast(false);
+    try{
+      // Compara com o que JÁ foi propagado aos convites (não com a baseline
+      // do servidor, que a gravação automática atualiza antes do "Guardar").
+      const _prevMeta = guestMetaPropagated || {};
+      const changed = {};
+      _metaKeys.forEach(k=>{ if((weddingSettings[k]||'') !== (_prevMeta[k]||'')) changed[k] = weddingSettings[k] || ''; });
+      if(Object.keys(changed).length){
+        guestMetaPropagated = {}; _metaKeys.forEach(k=>{ guestMetaPropagated[k] = weddingSettings[k] || ''; });
+        const tokens = flattenAllGuestsForRSVP().map(g=>g.entry.rsvpToken).filter(Boolean);
+        Promise.all(tokens.map(t=>GUESTS().doc(t).update(changed).then(()=>null).catch(()=>t))).then(results=>{
+          const failedTokens = results.filter(Boolean);
+          if(failedTokens.length){
+            guestMetaPropagated = _prevMeta; // volta a tentar no próximo "Guardar"
+            logMassPropagationFailures('sync_wedding_meta_to_guests_failed', failedTokens);
+            if(msgEl){ msgEl.textContent = ta('alertSettingsSyncPartialFailure')(failedTokens.length, tokens.length); msgEl.className = 'login-msg error'; }
+          }
+        });
+      }
+    }catch(e){ console.error('Weddy: falha a propagar dados do casamento aos convites.', e); }
   }).catch(()=>{
     if(msgEl){ msgEl.textContent = ta('alertSaveError'); msgEl.className = 'login-msg error'; }
   });
@@ -16801,6 +16826,11 @@ let lastSyncedState = null;
 // ou "weddingSettings" estejam, por alguma razão ainda não identificada,
 // com o valor inicial em vez dos dados sincronizados nesse momento.
 let lastSyncedSettings = null;
+// Data/local/nomes tal como já estão nos convites (ver saveSettingsNow). Fica
+// "null" até à 1ª sincronização; aí assume o que o servidor tem, e só muda
+// quando propagamos de facto uma alteração aos convites.
+const GUEST_META_KEYS = ['coupleName1','coupleName2','weddingDate','venue'];
+let guestMetaPropagated = null;
 
 let saveToastTimer = null;
 function showSaveToast(isError){
@@ -17701,6 +17731,9 @@ function attachFirestoreSync(){
       }
       if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
       if(data.settings) lastSyncedSettings = cloneForBaseline(data.settings);
+      if(data.settings && guestMetaPropagated === null){
+        guestMetaPropagated = {}; GUEST_META_KEYS.forEach(k=>{ guestMetaPropagated[k] = data.settings[k] || ''; });
+      }
       if(data.ownerEmails) currentWeddingOwners = data.ownerEmails;
       if(data.creatorEmail) currentWeddingCreator = data.creatorEmail;
       if(data.lastLoginByEmail) currentLastLogins = data.lastLoginByEmail;
@@ -17753,6 +17786,7 @@ function attachFirestoreSync(){
       firstSyncDone = false;
       lastSyncedState = null; // próxima sincronização volta a ser tratada como a 1ª (sem baseline antiga a comparar)
       lastSyncedSettings = null;
+      guestMetaPropagated = null;
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
       // Out 2026 (auditoria): um parceiro a quem o acesso foi retirado ficava
       // preso num ecrã de login sem sessão terminada e sem saída. Agora volta
