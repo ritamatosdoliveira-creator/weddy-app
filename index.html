@@ -8478,8 +8478,15 @@ function bindFornecedorDetalheHandlers(){
       // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
       // confirmação — um toque a mais apagava o pagamento sem hipótese de
       // desfazer.
-      const idx = Number(e.currentTarget.dataset.delsuppay);
+      const idx0 = Number(e.currentTarget.dataset.delsuppay);
+      const exp0 = state.expenses[idx0];
+      const expId0 = exp0 && exp0.id;
       if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
+      // Enquanto o diálogo estava aberto, uma sincronização do outro
+      // dispositivo pode ter mudado a lista: volta a encontrar a despesa
+      // pelo id (nunca pelo índice antigo) para não apagar a errada.
+      const idx = expId0 ? state.expenses.findIndex(x=>x.id===expId0) : (state.expenses[idx0]===exp0 ? idx0 : -1);
+      if(idx<0) return;
       const exp = state.expenses[idx];
       // Se esta despesa veio da migração de um pagamento antigo, remove
       // também esse pagamento de s.payments — senão a próxima migração
@@ -13132,6 +13139,9 @@ function bindHandlers(){
   const defSignout = document.getElementById('def-signout');
   if(defSignout) defSignout.addEventListener('click', async ()=>{
     if(await weddyConfirm(ta('confirmSignOut'))){
+      // Grava primeiro o que ainda estava pendente (≤500 ms de edições), senão
+      // o reload do logout descartava-o.
+      try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
       if(typeof auth!=='undefined' && auth) auth.signOut();
     }
   });
@@ -13953,8 +13963,13 @@ function bindHandlers(){
       // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
       // confirmação — um toque a mais apagava a despesa sem hipótese de
       // desfazer.
-      const expIdx = Number(e.currentTarget.dataset.delexp);
+      const expIdx0 = Number(e.currentTarget.dataset.delexp);
+      const expObj0 = state.expenses[expIdx0];
+      const expId0 = expObj0 && expObj0.id;
       if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
+      // Procura de novo pelo id: o índice pode ter mudado entretanto (sync).
+      const expIdx = expId0 ? state.expenses.findIndex(x=>x.id===expId0) : (state.expenses[expIdx0]===expObj0 ? expIdx0 : -1);
+      if(expIdx<0) return;
       state.expenses.splice(expIdx,1); render();
     });
   });
@@ -17876,6 +17891,9 @@ function attachFirestoreSync(){
       lastSyncedSettings = null;
       guestMetaPropagated = null;
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+      // Apagar conta em curso: o casamento deixa de existir de propósito, não
+      // tentar recuperar (senão aparecia o onboarding por cima da mensagem de sucesso).
+      if(accountDeletionInProgress) return;
       // Out 2026 (auditoria): um parceiro a quem o acesso foi retirado ficava
       // preso num ecrã de login sem sessão terminada e sem saída. Agora volta
       // a procurar o casamento desta conta (o seu, ou o onboarding).
@@ -18022,6 +18040,9 @@ function renderReconsentGate(user, onAccept){
 }
 function findOrCreateFlow(user, isRetry){
   renderLoading(ta('verifyingAccount'));
+  // Out 2026 (auditoria): estado do casamento ANTERIOR não pode ficar para o
+  // novo (ex.: Premium de um casamento a que já não temos acesso).
+  currentSubscription = null; currentWeddingCreator = null; currentUidByEmail = {};
   // Correção (Out 2026, achada ao investigar um bug real com a Rita): esta
   // consulta não tinha nenhum .orderBy(), e a Cloud Function resolveWeddingId
   // (usada por createSubscriptionCheckout/stripeWebhook e outras) faz

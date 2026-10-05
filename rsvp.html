@@ -677,7 +677,10 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       try{ localStorage.setItem('weddy_rsvp_lang', currentLang); }catch(e){}
       applyStaticTranslations();
       renderChildren();
-      if(guestData) renderForm();
+      // keep=true: só volta a escrever os textos; nunca repõe as respostas
+      // guardadas por cima do que a pessoa já escolheu e ainda não enviou, nem
+      // tira o convidado do ecrã de "Obrigado".
+      if(guestData) renderForm({ keep:true });
     });
   });
   applyStaticTranslations();
@@ -730,7 +733,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     list.innerHTML = children.map((c,i)=>`
       <div class="child-row" data-childrow="${i}">
         <input class="child-name" type="text" maxlength="80" placeholder="${t('childNamePlaceholder')}" data-childfield="name" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
-        <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-childfield="age" data-idx="${i}" value="${c.age===undefined||c.age===null?'':c.age}">
+        <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-childfield="age" data-idx="${i}" value="${c.age===undefined||c.age===null||isNaN(Number(c.age))?'':Number(c.age)}">
         <div class="child-seg">
           <button type="button" data-childattend="yes" data-idx="${i}" class="${c.attending===true?'active':''}">${t('childYes')}</button>
           <button type="button" data-childattend="no" data-idx="${i}" class="${c.attending===false?'active':''}">${t('childNo')}</button>
@@ -805,7 +808,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     }).catch(()=>{ show('error-state'); });
   }
 
-  function renderForm(){
+  function renderForm(opts){
+    const keep = !!(opts && opts.keep);
     document.getElementById('wedding-dateline').textContent = formatDatePT(guestData.weddingDate);
     document.getElementById('wedding-names').textContent = `${guestData.coupleName1 || ''} & ${guestData.coupleName2 || ''}`;
     document.getElementById('wedding-venue').textContent = guestData.venue || '';
@@ -898,16 +902,18 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
 
     if(guestData.isFamily){
       document.getElementById('single-flow').classList.add('state-hidden');
-      renderFamilyForm();
+      renderFamilyForm(keep);
     } else {
       document.getElementById('family-flow').classList.add('state-hidden');
       document.getElementById('single-flow').classList.remove('state-hidden');
+      if(!keep){
       document.getElementById('toggle-transporte').classList.toggle('on', !!guestData.transporte);
       document.getElementById('toggle-alojamento').classList.toggle('on', !!guestData.alojamento);
+      }
 
       // se a pessoa já tinha respondido antes, mostra logo a resposta guardada
       const savedStatus = guestData.attending===true ? 'yes' : guestData.attending===false ? 'no' : (guestData.rsvpStatus==='maybe' ? 'maybe' : null);
-      if(savedStatus){
+      if(savedStatus && !keep){
         selectedAttend = savedStatus;
         document.querySelectorAll('#attend-seg button').forEach(b=>{
           b.classList.toggle('active', b.dataset.attend===selectedAttend);
@@ -926,7 +932,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     }
 
     updateDeleteLinkVisibility();
-    show('form-state');
+    if(!keep) show('form-state');
   }
 
   // ============================================================
@@ -935,10 +941,11 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // restrições, crianças, transporte, alojamento), tudo guardado
   // dentro do mesmo documento guests/{token}, no campo "responses".
   // ============================================================
-  function renderFamilyForm(){
+  function renderFamilyForm(keep){
     const members = Array.isArray(guestData.members) ? guestData.members : [];
     const responses = guestData.responses || {};
     members.forEach(m=>{
+      if(keep && familyMemberState[m.guestId]) return;
       const r = responses[m.guestId] || {};
       familyMemberState[m.guestId] = {
         attend: r.attending===true ? 'yes' : r.attending===false ? 'no' : (r.rsvpStatus==='maybe' ? 'maybe' : null),
@@ -962,7 +969,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     return kids.map((c,i)=>`
       <div class="child-row">
         <input class="child-name" type="text" maxlength="80" placeholder="${t('childNamePlaceholder')}" data-mchildfield="name" data-mid="${mid}" data-idx="${i}" value="${(c.name||'').replace(/"/g,'&quot;')}">
-        <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-mchildfield="age" data-mid="${mid}" data-idx="${i}" value="${c.age===undefined||c.age===null?'':c.age}">
+        <input class="child-age" type="number" min="0" max="17" placeholder="${t('childAgePlaceholder')}" data-mchildfield="age" data-mid="${mid}" data-idx="${i}" value="${c.age===undefined||c.age===null||isNaN(Number(c.age))?'':Number(c.age)}">
         <div class="child-seg">
           <button type="button" data-mchildattend="yes" data-mid="${mid}" data-idx="${i}" class="${c.attending===true?'active':''}">${t('childYes')}</button>
           <button type="button" data-mchildattend="no" data-mid="${mid}" data-idx="${i}" class="${c.attending===false?'active':''}">${t('childNo')}</button>
@@ -1278,7 +1285,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       // nomes enormes com emoji) podiam criar subpastas inesperadas ou
       // exceder limites de path, falhando o upload com um erro confuso.
       const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_').slice(-100);
-      const path = `memories/${guestData.weddingId}/${guestToken}/${Date.now()}_${safeFileName}`;
+      const path = `memories/${guestData.weddingId}/${guestToken}/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${safeFileName}`;
       const ref = storage.ref(path);
       withUploadTimeout(ref.put(file).then(()=>{
         // Nota: propositadamente NÃO chamamos getDownloadURL() aqui — as
@@ -1902,6 +1909,10 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       } else {
         conciergeAppend('bot', (result && result.text) || t('conciergeDidntUnderstand'));
       }
+    }).catch(()=>{
+      if(thinkingEl) thinkingEl.remove();
+      if(myRequest !== conciergeRequestSeq) return;
+      conciergeAppend('bot', t('conciergeDidntUnderstand'));
     });
   }
 

@@ -288,7 +288,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       // controlo ou muito compridos podiam criar subpastas inesperadas ou
       // exceder limites de path, falhando o upload com um erro confuso.
       const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_').slice(-100);
-      const path = `memories/${weddingId}/publico/${Date.now()}_${safeFileName}`;
+      const path = `memories/${weddingId}/publico/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${safeFileName}`;
       const ref = storage.ref(path);
       withUploadTimeout(ref.put(file).then(()=>{
         return db.collection('memories').add({
