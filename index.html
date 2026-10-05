@@ -4472,6 +4472,7 @@ const APP_I18N = {
     // resposta é sempre curada à mão (as ferramentas reais do ecrã
     // "Ferramentas Weddy"), nunca inventada pela IA — se uma ferramenta
     // nova for adicionada à app, este texto tem de ser atualizado à mão.
+    cpAppHelp:'Claro, diz-me qual é a dúvida! Podes perguntar, por exemplo, "como envio os convites RSVP?", "quantos convidados já confirmaram?", "quanto falta pagar?" ou "quantos dias faltam para o casamento?".',
     cpAppFeatures:'As funcionalidades mais recentes da Weddy: Convites RSVP (um link individual para cada convidado confirmar presença e restrições), Wedding Health (um raio-x rápido ao estado do casamento), Weddy Memories (para reviver os melhores momentos do grande dia), Documentos do casamento (guarda e consulta contratos) e sincronização com o Google Calendar — encontras tudo isto em "Ferramentas Weddy", no ecrã principal. E este assistente: pergunta-me sobre convidados, orçamento, mesas, pagamentos, tarefas ou fornecedores.',
     cpSupplierPaymentNotFound:'Não encontrei nenhum fornecedor que corresponda a essa pergunta — tenta usar o nome dele ou a categoria (ex: "fotógrafo", "espaço").',
     // Achado (Set 2026): o chip sugerido "Quero saber sobre fornecedores"
@@ -5582,6 +5583,7 @@ const APP_I18N = {
     cpTableCount:(n)=>`You have ${n} tables set up in the Tables section.`,
     cpDocFound:(doc,snippet)=>`I found this in "${doc}":\n\n"${snippet}"`,
     cpDemoFallback:'I couldn\'t quite understand that (or the daily limit of smart replies was reached). I can answer about guests, budget, dates, tables, payments, this week\'s tasks, and search the documents you\'ve uploaded — ask me, for example, "how many guests have confirmed?".',
+    cpAppHelp:'Of course, tell me what you\'d like to know! You can ask, for example, "how do I send RSVP invites?", "how many guests have confirmed?", "how much is left to pay?" or "how many days until the wedding?".',
     cpAppFeatures:'Weddy\'s most recent tools: RSVP Invites (an individual link for each guest to confirm attendance and dietary restrictions), Wedding Health (a quick check-up on your wedding\'s status), Weddy Memories (to relive the big day\'s best moments), Wedding Documents (store and search your contracts) and Google Calendar sync — you\'ll find all of these under "Weddy Tools" on the home screen. And this assistant: ask me about guests, budget, tables, payments, tasks or suppliers.',
     cpSupplierPaymentNotFound:'I couldn\'t find a supplier matching that question — try using their name or category (e.g. "photographer", "venue").',
     cpSupplierOverview:(total,contracted,toContract,budgeted,paid)=>`You have ${total} supplier${total===1?'':'s'}: ${contracted} already contracted and ${toContract} still to contract. In total you've budgeted ${budgeted}, of which you've already paid ${paid}. Ask me about a specific one — e.g. "how much have I paid the photographer?" — for more detail.`,
@@ -9638,6 +9640,7 @@ const WEDDY_COPILOT_INTENTS = {
   // intents de fornecedor já existentes (pagamento, por contratar,
   // contrato, discrepâncias).
   GET_APP_FEATURES:'GET_APP_FEATURES',
+  GET_APP_HELP:'GET_APP_HELP',
   GET_SUPPLIER_OVERVIEW:'GET_SUPPLIER_OVERVIEW',
   UNKNOWN:'UNKNOWN'
 };
@@ -10096,6 +10099,12 @@ function classifyCopilotIntent(pergunta, context){
   // pagamentos).
   if(/^escreve(-me)?\s+(uma\s+)?(mensagem|texto|algo)/.test(p) || /^prepara(-me)?\s+(uma\s+)?mensagem/.test(p) || /^write\s+(me\s+)?(a\s+)?(message|text|something)/.test(p) || /^draft\s+(me\s+)?(a\s+)?message/.test(p)){
     return { intent: WEDDY_COPILOT_INTENTS.DRAFT_MESSAGE, value: pergunta };
+  }
+
+  // Chip "Tenho uma dúvida sobre a app" — era uma frase solta sem resposta
+  // (caía no fallback genérico). Responde a convidar a pessoa a perguntar.
+  if(/(tenho|tinha|com) (uma )?(d[uú]vida|pergunta|quest[aã]o)s? (sobre|na|da|com) (a )?(app|weddy|aplica[cç][aã]o)|i have a (question|doubt) about (the )?(app|weddy)/.test(p)){
+    return { intent: WEDDY_COPILOT_INTENTS.GET_APP_HELP };
   }
 
   // "Quero ver novas funcionalidades" / "o que é que a app faz" / "o que
@@ -10784,6 +10793,8 @@ async function respondeAssistente(pergunta){
       return ta('cpNeedsClarification');
     case I.GET_APP_FEATURES:
       return ta('cpAppFeatures');
+    case I.GET_APP_HELP:
+      return ta('cpAppHelp');
     case I.GET_SUPPLIER_OVERVIEW: {
       const info = WeddyActions.read.getSupplierOverview();
       if(!info.total) return ta('cpNoSuppliers');
