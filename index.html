@@ -7945,8 +7945,8 @@ function bindSupplierResultHandlers(){
   document.querySelectorAll('[data-delsupplier]').forEach(btn=>{
     btn.addEventListener('click', async e=>{
       e.stopPropagation();
+      const supplierId = e.currentTarget.dataset.delsupplier;
       if(await weddyConfirm(ta('confirmDeleteSupplier'))){
-        const supplierId = e.currentTarget.dataset.delsupplier;
         state.suppliers = state.suppliers.filter(s=>s.id!==supplierId);
         // Auditoria Out 2026 (achado MÉDIO): este botão (o "✕" rápido na
         // lista) só removia o fornecedor da lista — ao contrário do botão
@@ -8476,8 +8476,8 @@ function bindFornecedorDetalheHandlers(){
       // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
       // confirmação — um toque a mais apagava o pagamento sem hipótese de
       // desfazer.
-      if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
       const idx = Number(e.currentTarget.dataset.delsuppay);
+      if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
       const exp = state.expenses[idx];
       // Se esta despesa veio da migração de um pagamento antigo, remove
       // também esse pagamento de s.payments — senão a próxima migração
@@ -12598,8 +12598,9 @@ function bindHandlers(){
   document.querySelectorAll('[data-delvisit]').forEach(btn=>{
     btn.addEventListener('click', async e=>{
       e.stopPropagation();
+      const visitId = e.currentTarget.dataset.delvisit;
       if(await weddyConfirm(ta('confirmDeleteVisit'))){
-        state.dressVisits = state.dressVisits.filter(v=>v.id!==e.currentTarget.dataset.delvisit);
+        state.dressVisits = state.dressVisits.filter(v=>v.id!==visitId);
         render();
       }
     });
@@ -13823,7 +13824,8 @@ function bindHandlers(){
   document.querySelectorAll('[data-delevent]').forEach(btn=>{
     btn.addEventListener('click', async e=>{
       e.stopPropagation();
-      if(await weddyConfirm(ta('confirmDeleteMoment'))) deleteEvent(e.currentTarget.dataset.delevent);
+      const evId = e.currentTarget.dataset.delevent;
+      if(await weddyConfirm(ta('confirmDeleteMoment'))) deleteEvent(evId);
     });
   });
 
@@ -13947,8 +13949,9 @@ function bindHandlers(){
       // Auditoria Out 2026 (achado MÉDIO): apagava logo ao clicar, sem
       // confirmação — um toque a mais apagava a despesa sem hipótese de
       // desfazer.
+      const expIdx = Number(e.currentTarget.dataset.delexp);
       if(!await weddyConfirm(ta('confirmDeleteExpense'))) return;
-      state.expenses.splice(Number(e.currentTarget.dataset.delexp),1); render();
+      state.expenses.splice(expIdx,1); render();
     });
   });
   const openSheetBtn = document.getElementById('open-sheet');
