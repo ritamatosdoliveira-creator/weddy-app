@@ -12506,6 +12506,7 @@ function bindHandlers(){
   document.querySelectorAll('[data-goto]').forEach(el=>{
     el.addEventListener('click', ()=>{
       const target = el.dataset.goto;
+      const prevTabForScroll = activeTab;
       if(target !== activeTab) collapseAllSections();
       closeAllSheets();
       activeTab = target;
@@ -12515,7 +12516,11 @@ function bindHandlers(){
       // lembretes" tinha de ser tocado de novo para refletir o telefone/
       // consentimento recém-adicionados. Fechar aqui garante esse refresh.
       rsvpAutopilotReview = null;
+      const changedTab = target !== prevTabForScroll;
       _origRender();
+      // Ao mudar de menu, a página de destino abre sempre no topo (e não
+      // onde tinha ficado a última vez que se deu scroll nela).
+      if(changedTab) document.querySelectorAll('.tabpanel.active .scroll, .tabpanel.active').forEach(sc=>{ sc.scrollTop = 0; });
     });
   });
   document.querySelectorAll('[data-catgoto]').forEach(el=>{
