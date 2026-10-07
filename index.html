@@ -4089,6 +4089,7 @@ const APP_I18N = {
     btnOpenInNewTab:'Abrir noutro separador',
     confirmDeleteHoneymoonAttachment:'Eliminar este anexo?',
     confirmSignOut:'Tens a certeza que queres sair da conta?',
+    confirmLeaveUnsaved:'Não foi possível guardar as últimas alterações (sem ligação?). Se saíres agora, podes perdê-las. Sair mesmo assim?',
     alertOnlyCreatorCanRemoveAccess:'Só quem criou o casamento pode remover o próprio acesso.',
     confirmRemoveAccess: email=>`Remover o acesso de ${email}?`,
     alertRemoveAccessError:'Não foi possível remover. Tenta novamente.',
@@ -5212,6 +5213,7 @@ const APP_I18N = {
     btnOpenInNewTab:'Open in a new tab',
     confirmDeleteHoneymoonAttachment:'Delete this attachment?',
     confirmSignOut:'Are you sure you want to sign out?',
+    confirmLeaveUnsaved:"The latest changes couldn't be saved (no connection?). If you leave now, you may lose them. Leave anyway?",
     alertOnlyCreatorCanRemoveAccess:'Only the person who created the wedding can remove their own access.',
     confirmRemoveAccess: email=>`Remove ${email}'s access?`,
     alertRemoveAccessError:'Could not remove. Please try again.',
@@ -8333,6 +8335,10 @@ function bindFornecedorDetalheHandlers(){
 
   const s = state.suppliers.find(x=>x.id===openSupplierDetailId);
   if(!s) return;
+  // Auditoria Out 2026: um snapshot do parceiro pode substituir "state" enquanto
+  // este campo está em edição; resolve sempre o fornecedor ATUAL pelo id ao gravar,
+  // senão a alteração ia para um objeto já descartado e perdia-se.
+  const curSup = ()=> state.suppliers.find(x=>x.id===s.id) || s;
 
   const photoBtn = document.getElementById('supd-photo-btn');
   const photoInput = document.getElementById('supd-photo-input');
@@ -8360,7 +8366,7 @@ function bindFornecedorDetalheHandlers(){
   const nameInput = document.getElementById('supd-name-input');
   if(nameInput) nameInput.addEventListener('change', e=>{
     const val = e.target.value.trim();
-    s.name = val || ta('defaultNewSupplierName');
+    curSup().name = val || ta('defaultNewSupplierName');
     e.target.value = s.name;
     pushRemote(true);
   });
@@ -8368,7 +8374,7 @@ function bindFornecedorDetalheHandlers(){
   if(catSelect) catSelect.addEventListener('change', e=>{ s.category = e.target.value; pushRemote(true); });
   const statusSelect = document.getElementById('supd-status-select');
   if(statusSelect) statusSelect.addEventListener('change', e=>{
-    s.status = e.target.value;
+    curSup().status = e.target.value;
     const info = SUPPLIER_STATUS[s.status] || SUPPLIER_STATUS.considerar;
     e.target.style.background = SUPPLIER_STATUS_BG[s.status] || '#F3E4DC';
     e.target.style.color = info.color;
@@ -8376,13 +8382,13 @@ function bindFornecedorDetalheHandlers(){
   });
   const softUpdateSupplierContactButtons = ()=>{ render(); };
   const phoneInput = document.getElementById('supd-phone');
-  if(phoneInput) phoneInput.addEventListener('change', e=>{ s.contact = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+  if(phoneInput) phoneInput.addEventListener('change', e=>{ curSup().contact = e.target.value.trim(); softUpdateSupplierContactButtons(); });
   const priceInput = document.getElementById('supd-price');
-  if(priceInput) priceInput.addEventListener('change', e=>{ s.price = e.target.value.trim(); pushRemote(true); });
+  if(priceInput) priceInput.addEventListener('change', e=>{ curSup().price = e.target.value.trim(); pushRemote(true); });
   const emailInput = document.getElementById('supd-email');
-  if(emailInput) emailInput.addEventListener('change', e=>{ s.email = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+  if(emailInput) emailInput.addEventListener('change', e=>{ curSup().email = e.target.value.trim(); softUpdateSupplierContactButtons(); });
   const websiteInput = document.getElementById('supd-website');
-  if(websiteInput) websiteInput.addEventListener('change', e=>{ s.website = e.target.value.trim(); softUpdateSupplierContactButtons(); });
+  if(websiteInput) websiteInput.addEventListener('change', e=>{ curSup().website = e.target.value.trim(); softUpdateSupplierContactButtons(); });
 
   const contractRow = document.getElementById('supd-contract-row');
   const contractInput = document.getElementById('supd-contract-input');
@@ -8530,11 +8536,11 @@ function bindFornecedorDetalheHandlers(){
   if(nextPayAmount) nextPayAmount.addEventListener('change', e=>{ s.nextPaymentAmount = Math.max(0, Number(e.target.value)||0); pushRemote(true); });
 
   const notasEl = document.getElementById('supd-notas');
-  if(notasEl) notasEl.addEventListener('change', e=>{ s.notas = e.target.value; pushRemote(true); });
+  if(notasEl) notasEl.addEventListener('change', e=>{ curSup().notas = e.target.value; pushRemote(true); });
   const nextStepEl = document.getElementById('supd-nextstep');
-  if(nextStepEl) nextStepEl.addEventListener('change', e=>{ s.nextStep = e.target.value.trim(); pushRemote(true); });
+  if(nextStepEl) nextStepEl.addEventListener('change', e=>{ curSup().nextStep = e.target.value.trim(); pushRemote(true); });
   const lastContactEl = document.getElementById('supd-lastcontact');
-  if(lastContactEl) lastContactEl.addEventListener('change', e=>{ s.lastContact = e.target.value; pushRemote(true); });
+  if(lastContactEl) lastContactEl.addEventListener('change', e=>{ curSup().lastContact = e.target.value; pushRemote(true); });
 
   const deleteBtn = document.getElementById('supd-delete-btn');
   if(deleteBtn) deleteBtn.addEventListener('click', async ()=>{
@@ -13209,7 +13215,7 @@ function bindHandlers(){
     if(await weddyConfirm(ta('confirmSignOut'))){
       // Grava primeiro o que ainda estava pendente (≤500 ms de edições), senão
       // o reload do logout descartava-o.
-      try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
+      if(!await flushBeforeLeave()) return;
       if(typeof auth!=='undefined' && auth) auth.signOut();
     }
   });
@@ -16463,7 +16469,7 @@ async function openWeddingSwitcher(){
         const id = b.getAttribute('data-wswid');
         if(id===currentWeddingId){ close(); return; }
         b.disabled = true;
-        try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
+        if(!await flushBeforeLeave()){ b.disabled = false; return; }
         try{
           await db.collection('userPrefs').doc(auth.currentUser.uid).set({ activeWeddingId:id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
           // Recarrega: garante que NADA do casamento anterior (estado em memória,
@@ -16477,7 +16483,7 @@ async function openWeddingSwitcher(){
     });
     const cb = document.getElementById('wsw-create');
     if(cb) cb.addEventListener('click', async ()=>{
-      try{ await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(r,4000))]); }catch(_){}
+      if(!await flushBeforeLeave()) return;
       try{ sessionStorage.setItem('weddy-create-own','1'); }catch(_){}
       location.reload();
     });
@@ -17377,7 +17383,7 @@ function exportToPDF(){
 }
 
 function flushPendingSave(){
-  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return Promise.resolve();
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return Promise.resolve(true);
   // Rede de segurança (Set 2026, incidente de perda de dados real): "state"
   // começa sempre como seedData() (casamento em branco) enquanto a 1ª
   // sincronização com o Firestore (attachFirestoreSync/onSnapshot) ainda não
@@ -17388,9 +17394,9 @@ function flushPendingSave(){
   // existia uma rede assim para os dados que CHEGAM do Firestore
   // (looksLikeDataLoss, em attachFirestoreSync), mas faltava o equivalente
   // para os dados que SAEM — esta linha fecha essa lacuna.
-  if(!firstSyncDone) return Promise.resolve();
+  if(!firstSyncDone) return Promise.resolve(true);
   clearTimeout(saveTimer);
-  return writeWeddingPayloadSafely().catch((err)=>{
+  return writeWeddingPayloadSafely().then(()=>true).catch((err)=>{
     // Fase 4B da auditoria (LOG-01, P1): antes, uma falha aqui era 100%
     // silenciosa — nem aviso ao utilizador, nem registo nenhum. Esta
     // função é chamada sobretudo mesmo antes de recarregar a página (ver
@@ -17409,7 +17415,17 @@ function flushPendingSave(){
         userAgent: (typeof navigator!=='undefined' ? navigator.userAgent : '')
       }).catch(()=>{});
     }catch(e){}
+    return false;
   });
+}
+// Auditoria Out 2026 (achado ALTO): sair/trocar de casamento com a gravação a
+// falhar (ex.: sem rede) descartava as edições em silêncio. Agora, se não foi
+// possível gravar, pergunta antes de continuar. Devolve true = pode avançar.
+async function flushBeforeLeave(){
+  let ok = true;
+  try{ ok = await Promise.race([flushPendingSave(), new Promise(r=>setTimeout(()=>r(false),4000))]); }catch(_){ ok = false; }
+  if(ok === false) return await weddyConfirm(ta('confirmLeaveUnsaved'));
+  return true;
 }
 // Fase 4A da auditoria (COPILOT-01, P1): grava imediatamente (sem o
 // debounce de 500ms do pushRemote normal) e devolve a Promise da escrita,
@@ -17890,11 +17906,18 @@ function mergeIncomingWeddingState(localState, incoming, baseline){
 // onde mexemos, a do servidor no resto) antes de gravar. A transação é
 // repetida automaticamente pelo Firestore se alguém gravar a meio.
 function writeWeddingPayloadSafely(){
-  const payload = buildSafeWeddingWritePayload();
-  if(!payload.json && !payload.settings) return CURRENT_DOC().set(payload, { merge:true });
+  const firstPayload = buildSafeWeddingWritePayload();
+  if(!firstPayload.json && !firstPayload.settings) return CURRENT_DOC().set(firstPayload, { merge:true });
   const ref = CURRENT_DOC();
   return firebase.firestore().runTransaction(async tx=>{
     const snap = await tx.get(ref);
+    // Auditoria Out 2026 (achado ALTO): o payload era construído ANTES desta
+    // leitura. Se um snapshot do parceiro chegasse durante a leitura (e fosse
+    // fundido em "state"/"lastSyncedState"), o servidor já coincidia com a
+    // baseline e a gravação enviava o "json" antigo, apagando a alteração do
+    // parceiro. Reconstruir aqui (e a cada repetição da transação) garante
+    // que parte sempre do estado mais recente.
+    const payload = buildSafeWeddingWritePayload();
     const out = { ...payload };
     if(snap.exists){
       const data = snap.data() || {};
