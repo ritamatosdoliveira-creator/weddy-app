@@ -211,6 +211,13 @@ service cloud.firestore {
         && request.resource.data.weddingId is string
         && request.resource.data.storagePath is string
         && request.resource.data.storagePath.matches('memories/' + request.resource.data.weddingId + '/.*')
+        // Auditoria Out 2026: o casamento tem de existir e o token tem de ser
+        // o do QR público ou um convite real DESTE casamento (antes dava para
+        // encher a galeria de qualquer casamento com entradas falsas).
+        && exists(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId))
+        && request.resource.data.token is string
+        && (request.resource.data.token == 'publico'
+            || get(/databases/$(database)/documents/guests/$(request.resource.data.token)).data.weddingId == request.resource.data.weddingId)
         && (!('guestName' in request.resource.data) || (request.resource.data.guestName is string && request.resource.data.guestName.size() <= 120));
 
       allow read, delete: if request.auth != null

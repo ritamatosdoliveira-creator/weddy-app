@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weddy-v165-seletor-casamento';
+const CACHE_NAME = 'weddy-v166-seguranca-sync';
 const FILES_TO_CACHE = ['./','./index.html','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png','./logo-quintasantoandre.png'];
 const EXTERNAL_FILES_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
@@ -53,6 +53,21 @@ self.addEventListener('fetch', (event) => {
   // pedidos vão SEMPRE diretos à rede, nunca passam pela cache.
   const isGoogleOrFirebase = /(^|\.)googleapis\.com$|(^|\.)firebaseio\.com$|(^|\.)gstatic\.com$|(^|\.)google\.com$|(^|\.)firebaseapp\.com$/.test(new URL(url).hostname);
   if (isGoogleOrFirebase) return;
+  // Auditoria Out 2026: as páginas públicas dos convidados (rsvp.html/memorias.html)
+  // passam a ir primeiro à rede — assim uma correção de segurança chega logo,
+  // sem ficar presa numa cópia antiga em cache. Sem rede, usa a cópia guardada.
+  if (/\/(rsvp|memorias)\.html$/.test(new URL(url).pathname)) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(()=>{});
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
       // Só guarda respostas válidas (antes guardava também 404/5xx, que

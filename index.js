@@ -190,6 +190,7 @@ function reminderEmailHtml({ guestName, coupleName1, coupleName2, deadline, link
   </div>`;
 }
 
+const MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN = 150;
 async function sendReminderEmail(transporter, job) {
   const html = reminderEmailHtml({
     guestName: job.name,
@@ -275,10 +276,18 @@ exports.sendRsvpReminders = onSchedule(
     // Out 2026 (auditoria): só casamentos Premium recebem lembretes (as outras
     // funções Premium já eram verificadas no servidor; esta não).
     const premiumCache = new Map();
+    const emailsPerWedding = new Map();
     const eligibleJobs = [];
     for (const job of jobs) {
       const wid = job.data && job.data.weddingId;
       if (!wid) continue;
+      // Auditoria Out 2026 (achado ALTO): sem tetos nem validação, um casal
+      // podia criar milhares de convidados com emails de terceiros e usar o
+      // remetente da Weddy como relay de spam. Valida o formato do email e
+      // limita a MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN por casamento e dia.
+      if (!/^[^\s@<>"',;]{1,64}@[^\s@<>"',;]{1,190}\.[A-Za-z]{2,}$/.test(String(job.email || ''))) continue;
+      emailsPerWedding.set(wid, (emailsPerWedding.get(wid) || 0) + 1);
+      if (emailsPerWedding.get(wid) > MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN) continue;
       if (!premiumCache.has(wid)) {
         let ok = false;
         try {
@@ -3084,9 +3093,26 @@ exports.sendWhatsappRsvpReminder = onCall(
       throw new HttpsError('unavailable', 'O envio por WhatsApp ainda não está configurado.');
     }
 
-    const guestName = (typeof entry.name === 'string' && entry.name) ? entry.name : '';
-    const coupleName1 = (state.settings && state.settings.coupleName1) || '';
-    const coupleName2 = (state.settings && state.settings.coupleName2) || '';
+    // Auditoria Out 2026 (achado ALTO): o nome do convidado e os nomes do casal
+    // vêm do "json" que o cliente escreve e iam tal e qual para o WhatsApp
+    // (podiam levar links de phishing). Remove links e caracteres de controlo e
+    // limita o tamanho. O token tem de ser um id de convite deste casamento.
+    const waClean = (v) => String(v == null ? '' : v)
+      .replace(/https?:\/\/\S+|www\.\S+/gi, '')
+      .replace(/[\u0000-\u001f\u007f]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 40);
+    if (!/^[A-Za-z0-9_-]{8,64}$/.test(rsvpToken)) {
+      throw new HttpsError('failed-precondition', 'O link de RSVP deste convidado não é válido.', { reason: 'no_token' });
+    }
+    const tokenDoc = await db.collection('guests').doc(rsvpToken).get();
+    if (!tokenDoc.exists || tokenDoc.data().weddingId !== weddingId) {
+      throw new HttpsError('failed-precondition', 'O link de RSVP deste convidado não é válido.', { reason: 'no_token' });
+    }
+    const guestName = waClean((typeof entry.name === 'string' && entry.name) ? entry.name : '');
+    const coupleName1 = waClean((state.settings && state.settings.coupleName1) || '');
+    const coupleName2 = waClean((state.settings && state.settings.coupleName2) || '');
     const coupleNames = [coupleName1, coupleName2].filter(Boolean).join(' & ');
 
     let waMessageId = null;
