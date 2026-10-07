@@ -16207,7 +16207,17 @@ async function openDocLightbox(url){
   document.getElementById('doc-lightbox').classList.add('show');
   try{
     if(typeof pdfjsLib === 'undefined') throw new Error('pdfjsLib not loaded');
-    const pdf = await pdfjsLib.getDocument(url).promise;
+    let pdf;
+    try{
+      pdf = await pdfjsLib.getDocument(url).promise;
+    }catch(firstErr){
+      // 2.ª tentativa (Android/PWA): descarregar o ficheiro primeiro e dá-lo
+      // ao pdf.js já em memória — evita falhas do pedido direto feito pelo
+      // próprio pdf.js (CORS/streaming por intervalos).
+      const resp = await fetch(url);
+      if(!resp.ok) throw firstErr;
+      pdf = await pdfjsLib.getDocument({ data: await resp.arrayBuffer() }).promise;
+    }
     if(myToken !== docLightboxToken) return; // entretanto fechou/trocou de documento
     pagesEl.innerHTML = '';
     const targetWidth = Math.min(pagesEl.clientWidth || 340, 700);
@@ -16248,8 +16258,8 @@ async function openDocLightbox(url){
     // algum motivo (ex.: ficheiro corrompido), ainda se consegue abrir o
     // PDF fora da app como último recurso.
     pagesEl.innerHTML = `
-      <div class="empty-note" style="color:#fff; margin-top:40px; text-align:center; padding:0 20px;">${ta('errOpenAttachmentFailed')}</div>
-      <a href="${escapeHTML(url)}" target="_blank" rel="noopener" class="rsvp-copy-btn" style="margin-top:12px;">${ta('btnOpenInNewTab')}</a>`;
+      <div class="empty-note" style="color:#fff; margin-top:40px; text-align:center; padding:0 20px;">${ta('errOpenAttachmentFailed')}<div style="font-size:10px; opacity:.55; margin-top:6px; word-break:break-word;">${escapeHTML(String((err&&err.message)||err||'').slice(0,140))}</div></div>
+      <a href="${escapeHTML(url)}" target="_blank" rel="noopener" class="rsvp-copy-btn" style="margin-top:12px; flex:none; width:auto; min-width:200px; align-self:center; justify-content:center; padding:12px 22px; white-space:nowrap;">${ta('btnOpenInNewTab')}</a>`;
   }
 }
 function closeDocLightbox(){
