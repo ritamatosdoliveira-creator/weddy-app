@@ -14985,10 +14985,34 @@ async function openRSVPQRModal(link, name){
   document.body.appendChild(wrap);
   document.getElementById('rsvp-qr-close').addEventListener('click', closeRSVPQRModal);
   wrap.addEventListener('click', e=>{ if(e.target===wrap) closeRSVPQRModal(); });
-  document.getElementById('rsvp-qr-print').addEventListener('click', ()=>{
-    const w = window.open('', '_blank');
-    if(!w) return;
-    w.document.write(`<html><head><title>${escapeHTML(name||ta('inviteWordLabel'))}</title><style>
+  document.getElementById('rsvp-qr-print').addEventListener('click', async ()=>{
+    // Imprime sem sair da app: antes abria uma janela/aba nova (window.open)
+    // e na app instalada (Android/iOS) não havia como voltar atrás. Agora:
+    //  - app iOS: abre a folha de partilha nativa com a imagem do QR (tem
+    //    "Imprimir" lá dentro) — o WKWebView não imprime com window.print();
+    //  - restantes: imprime a partir de uma moldura invisível na própria
+    //    página, por isso o ecrã da app nunca muda.
+    try{
+      if(qrImg && isNativeIOSApp() && navigator.canShare && navigator.share){
+        const blob = await (await fetch(qrImg)).blob();
+        const file = new File([blob], 'weddy-qr.png', { type:'image/png' });
+        if(navigator.canShare({ files:[file] })){
+          await navigator.share({ files:[file], title: name||'' });
+          return;
+        }
+      }
+    }catch(err){
+      if(err && err.name==='AbortError') return; // a pessoa fechou a folha de partilha
+    }
+    const old = document.getElementById('rsvp-qr-print-frame');
+    if(old) old.remove();
+    const fr = document.createElement('iframe');
+    fr.id = 'rsvp-qr-print-frame';
+    fr.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0; visibility:hidden;';
+    document.body.appendChild(fr);
+    const d = fr.contentWindow.document;
+    d.open();
+    d.write(`<html><head><title>${escapeHTML(name||ta('inviteWordLabel'))}</title><style>
       body{font-family:Georgia,serif; text-align:center; padding:40px;}
       img{margin:24px 0;}
       p{font-size:13px; color:#555; word-break:break-all;}
@@ -14997,9 +15021,11 @@ async function openRSVPQRModal(link, name){
       ${qrImg ? `<img src="${qrImg}" width="260" height="260"/>` : ''}
       <p>${escapeHTML(link)}</p>
     </body></html>`);
-    w.document.close();
-    w.focus();
-    setTimeout(()=>{ w.print(); }, 400);
+    d.close();
+    setTimeout(()=>{
+      try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){}
+      setTimeout(()=>{ if(fr.parentNode) fr.remove(); }, 60000);
+    }, 300);
   });
 }
 function closeRSVPQRModal(){
