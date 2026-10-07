@@ -465,7 +465,9 @@ html{
 .exp-adddue-input{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
 .exp-due-input{ all:unset; font-size:11.5px; color:inherit; }
 .todo-item-due{ display:flex; flex-wrap:wrap; align-items:center; gap:5px; width:100%; padding-left:33px; margin-top:-2px; font-size:11px; color:var(--ink-soft); }
-.todo-item-due input[type=time]{ width:76px; }
+.todo-item-due input[type=time]{ all:unset; font-size:11px; color:inherit; font-family:inherit; min-width:44px; background:transparent; }
+.todo-item-due input[type=time]::-webkit-datetime-edit{ padding:0; }
+.todo-item-due input[type=time]::-webkit-date-and-time-value{ text-align:left; margin:0; }
 .todo-item-due.nodate{ color:var(--rust-dark); font-weight:600; }
 .todo-item-due input[type=date]{ all:unset; font-size:11px; color:inherit; }
 .todo-item-due.soon{ color:var(--gold); }
@@ -800,7 +802,7 @@ html{
 .rsvp-row-chev{ color:var(--ink-soft); flex-shrink:0; opacity:.6; }
 .rsvp-deadline-card{ margin:0 16px 12px; padding:12px 14px; display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
 .rsvp-deadline-card .l{ font-size:10.8px; color:var(--ink-soft); margin:0 0 4px; }
-.rsvp-deadline-card input[type="date"]{ border:none; outline:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:inherit; padding:0; width:100%; }
+.rsvp-deadline-card input[type="date"]{ border:none; outline:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:inherit; padding:0; width:auto; max-width:100%; }
 .rsvp-deadline-save{ all:unset; box-sizing:border-box; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; gap:6px; text-align:center; padding:9px 14px; border-radius:11px; background:var(--rust); color:#fff; font-size:12.5px; font-weight:600; cursor:pointer; }
 /* Corrigido (Set 2026): este botão é reutilizado com um ícone à frente do
    texto (ex: "Preparar lembrete" no RSVP Autopilot) — sem "display:flex"
@@ -1271,6 +1273,7 @@ html{
 .login-lang-switch{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 44px); right:14px; z-index:2; display:flex; background:rgba(255,255,255,0.85); border-radius:10px; padding:3px; gap:2px; backdrop-filter:blur(4px); }
 .login-lang-switch button{ all:unset; box-sizing:border-box; padding:5px 11px; font-size:12px; font-weight:700; border-radius:7px; cursor:pointer; color:#9a8b83; }
 .login-lang-switch button.active{ background:var(--rust-dark); color:#fff; }
+.login-screen:has(.gate-wrap){ justify-content:flex-start; padding-top:27vh; overflow-y:auto; }
 .login-screen.hidden{ display:none; }
 .login-tag{ color:var(--ink-soft); font-size:12.5px; margin-bottom:26px; letter-spacing:.01em; }
 .login-field{ width:100%; max-width:280px; margin-left:auto; margin-right:auto; position:relative; }
@@ -18415,6 +18418,7 @@ function proceedIntoExistingWedding(user){
 function renderReconsentGate(user, onAccept){
   lastLoginRender = ()=>renderReconsentGate(user, onAccept);
   document.getElementById('login-inner').innerHTML = `
+    <div class="gate-wrap"></div>
     <h1 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:30px; line-height:1.2; color:var(--heading); text-align:center; margin:0 0 14px;">${ta('reconsentTitle')}</h1>
     <div class="login-msg" style="margin:16px auto 20px;">${ta('reconsentIntro')}</div>
     <div style="display:flex; flex-direction:column; gap:10px; max-width:320px; margin:0 auto 18px; text-align:left;">
