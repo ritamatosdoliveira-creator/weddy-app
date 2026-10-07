@@ -847,7 +847,8 @@ html{
 .rsvp-actions-row{ display:flex; gap:8px; margin:0 16px 10px; }
 .rsvp-actions-row .rsvp-copy-btn{ background:var(--card); }
 .rsvp-actions-inline{ display:flex; gap:8px; width:100%; }
-.rsvp-actions-inline .rsvp-copy-btn{ flex:1; }
+.rsvp-actions-inline .rsvp-copy-btn{ flex:1 0 auto; white-space:nowrap; padding:10px 14px; }
+.rsvp-actions-inline .rsvp-qr-btn{ flex:0 0 auto; white-space:nowrap; padding:10px 13px; }
 .rsvp-qr-btn{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--cream); color:var(--rust-dark); font-size:12.5px; font-weight:600; cursor:pointer; }
 .rsvp-qr-btn svg{ width:14px; height:14px; }
 .rsvp-qr-btn:active{ opacity:.75; }
