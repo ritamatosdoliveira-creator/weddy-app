@@ -14064,12 +14064,6 @@ function bindHandlers(){
     state.seating.tables.push({ id, shape:'round', seats:8, x:null, y:null });
     openTable[id] = true;
     render();
-    // Vai até à mesa nova (fica no fim da lista) para a pessoa a ver logo.
-    setTimeout(()=>{
-      const head = document.querySelector('[data-toggletable="'+id+'"]');
-      const card = head && (head.closest('.table-card') || head.parentElement || head);
-      if(card && card.scrollIntoView) card.scrollIntoView({ behavior:'smooth', block:'center' });
-    }, 60);
   });
   document.querySelectorAll('[data-setshape]').forEach(btn=>{
     btn.addEventListener('click', e=>{
