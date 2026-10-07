@@ -101,6 +101,41 @@ service cloud.firestore {
           );
       }
 
+      // Atividade recente (quem alterou o quê, últimos 30 dias). Só os donos do
+      // casamento leem e criam; cada pessoa só cria/atualiza registos em seu
+      // nome, com campos fixos e tamanhos limitados. Ninguém apaga a partir da
+      // app — a função agendada cleanupActivityLog apaga o que passar de 30 dias.
+      match /activity/{activityId} {
+        function isWeddingOwner() {
+          return request.auth != null
+            && request.auth.token.email_verified == true
+            && (
+              request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+              || (
+                ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+                && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+              )
+            );
+        }
+        function validActivity() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['at','uid','by','s','add','del','mod','sample'])
+            && d.keys().hasAll(['at','uid','by','s','add','del','mod','sample'])
+            && d.at == request.time
+            && d.uid == request.auth.uid
+            && d.by is string && d.by.size() <= 80
+            && d.s is string && d.s.size() <= 40
+            && d.sample is string && d.sample.size() <= 80
+            && d.add is int && d.add >= 0 && d.add <= 100000
+            && d.del is int && d.del >= 0 && d.del <= 100000
+            && d.mod is int && d.mod >= 0 && d.mod <= 100000;
+        }
+        allow read: if isWeddingOwner();
+        allow create: if isWeddingOwner() && validActivity();
+        allow update: if isWeddingOwner() && resource.data.uid == request.auth.uid && validActivity();
+        allow delete: if false;
+      }
+
       // Mesmo problema, mesma causa: integrations/googleCalendar (ver
       // loadGoogleCalendarIntegration em index.html) também nunca teve
       // regra. Nunca escreve nada sensível aqui (o refresh token fica à

@@ -12400,6 +12400,7 @@ function viewDefHistorico(){
     <button class="login-btn" id="hist-manual-backup-btn" ${historicoCreatingBackup?'disabled':''} style="margin-top:12px;">${historicoCreatingBackup? ta('creatingBackupLabel') : ta('btnCreateManualSnapshot')}</button>
   </div>
 
+  ${activitySectionHTML()}
   <div class="section-label">${ta('historicoListLabel')}</div>
   ${listHtml}
   <div style="height:10px;"></div>
@@ -17529,6 +17530,154 @@ window.addEventListener('pagehide', flushPendingSaveOnExit);
 window.addEventListener('beforeunload', flushPendingSaveOnExit);
 
 /* ============================================================
+   ATIVIDADE RECENTE — quem alterou o quê (últimos 30 dias)
+   Cada gravação bem-sucedida compara o que mudou nesta sessão (state vs.
+   lastSyncedState) e deixa um registo curto em weddings/{id}/activity:
+   secção, quantos itens foram adicionados/alterados/removidos e um nome de
+   exemplo. Registos da mesma pessoa e secção a menos de 10 min são juntos.
+   Uma função agendada apaga o que tiver mais de 30 dias (ver index.js).
+============================================================ */
+const ACTIVITY = () => CURRENT_DOC().collection('activity');
+const ACTIVITY_DAYS = 30;
+let activityRecent = {};
+let activityItems = [], activityLoading = false, activityLoaded = false, activityError = false;
+function actLabel(x){
+  if(x===null || x===undefined) return '';
+  if(typeof x!=='object') return String(x).slice(0,80);
+  return String(x.name || x.title || x.label || x.text || x.desc || '').slice(0,80);
+}
+function actKey(x){
+  if(x && typeof x==='object'){
+    if(x.id!==undefined && x.id!==null) return 'id:'+x.id;
+    if(x.guestId) return 'g:'+x.guestId;
+  }
+  return null;
+}
+function actFlatGuests(st){
+  const out = []; const g = st && st.guests;
+  if(!g || typeof g!=='object') return out;
+  ['noiva','noivo','conjunto'].forEach(side=>{
+    const sd = g[side]; if(!sd) return;
+    ['familia','amigos','duvida','staff'].forEach(c=>{ (Array.isArray(sd[c])?sd[c]:[]).forEach(e=>out.push(e)); });
+    (Array.isArray(sd.custom)?sd.custom:[]).forEach(c=>{ (c && Array.isArray(c.names)?c.names:[]).forEach(e=>out.push(e)); });
+  });
+  return out;
+}
+function actDiffList(a,b){
+  a = Array.isArray(a)?a:[]; b = Array.isArray(b)?b:[];
+  const mapA = new Map(), mapB = new Map(), noA = [], noB = [];
+  a.forEach(x=>{ const k=actKey(x); if(k===null) noA.push(x); else mapA.set(k,x); });
+  b.forEach(x=>{ const k=actKey(x); if(k===null) noB.push(x); else mapB.set(k,x); });
+  let add=0, del=0, mod=0, sAdd='', sMod='', sDel='';
+  mapB.forEach((x,k)=>{
+    if(!mapA.has(k)){ add++; sAdd = sAdd || actLabel(x); }
+    else if(JSON.stringify(mapA.get(k)) !== JSON.stringify(x)){ mod++; sMod = sMod || actLabel(x); }
+  });
+  mapA.forEach((x,k)=>{ if(!mapB.has(k)){ del++; sDel = sDel || actLabel(x); } });
+  const pool = new Map();
+  noA.forEach(x=>{ const j=JSON.stringify(x); pool.set(j,(pool.get(j)||0)+1); });
+  noB.forEach(x=>{ const j=JSON.stringify(x); if((pool.get(j)||0)>0) pool.set(j,pool.get(j)-1); else { add++; sAdd = sAdd || actLabel(x); } });
+  pool.forEach((n,j)=>{ if(n>0){ del += n; if(!sDel){ try{ sDel = actLabel(JSON.parse(j)); }catch(e){} } } });
+  return { add, del, mod, sample: sAdd || sMod || sDel };
+}
+function computeActivityEvents(prev, next){
+  const ev = [];
+  if(!prev || !next) return ev;
+  const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
+  keys.forEach(k=>{
+    const a = prev[k], b = next[k];
+    let same = true;
+    try{ same = JSON.stringify(a) === JSON.stringify(b); }catch(e){ same = false; }
+    if(same) return;
+    let r;
+    if(k==='guests') r = actDiffList(actFlatGuests(prev), actFlatGuests(next));
+    else if(k==='honeymoon') r = actDiffList(a && a.options, b && b.options);
+    else if(Array.isArray(a) || Array.isArray(b)) r = actDiffList(a, b);
+    else if(a && b && typeof a==='object' && typeof b==='object'){
+      let n = 0;
+      new Set([...Object.keys(a), ...Object.keys(b)]).forEach(x=>{ if(JSON.stringify(a[x]) !== JSON.stringify(b[x])) n++; });
+      r = { add:0, del:0, mod:n, sample:'' };
+    } else r = { add:0, del:0, mod:1, sample:'' };
+    if(!r.add && !r.del && !r.mod) r.mod = 1;
+    ev.push({ s:String(k).slice(0,40), ...r });
+  });
+  return ev;
+}
+function computeSettingsActivity(prev, next){
+  if(!prev || !next) return [];
+  let n = 0;
+  new Set([...Object.keys(prev), ...Object.keys(next)]).forEach(x=>{ if(JSON.stringify(prev[x]) !== JSON.stringify(next[x])) n++; });
+  return n ? [{ s:'settings', add:0, del:0, mod:n, sample:'' }] : [];
+}
+function logActivity(events){
+  try{
+    if(!events || !events.length || !FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return;
+    const u = auth.currentUser;
+    const by = String(u.displayName || (u.email||'').split('@')[0] || '').slice(0,80);
+    const now = Date.now();
+    events.forEach(e=>{
+      const sample = String(e.sample||'').slice(0,80);
+      const rec = activityRecent[e.s];
+      if(rec && rec.wid===currentWeddingId && (now - rec.at) < 10*60*1000){
+        rec.add += e.add; rec.del += e.del; rec.mod = Math.max(rec.mod, e.mod); rec.sample = sample || rec.sample; rec.at = now;
+        ACTIVITY().doc(rec.id).update({ at: firebase.firestore.FieldValue.serverTimestamp(), uid:u.uid, by, s:e.s, add:rec.add, del:rec.del, mod:rec.mod, sample:rec.sample })
+          .catch(()=>{ delete activityRecent[e.s]; });
+      } else {
+        const ref = ACTIVITY().doc();
+        activityRecent[e.s] = { id:ref.id, wid:currentWeddingId, at:now, add:e.add, del:e.del, mod:e.mod, sample };
+        ref.set({ at: firebase.firestore.FieldValue.serverTimestamp(), uid:u.uid, by, s:e.s, add:e.add, del:e.del, mod:e.mod, sample })
+          .catch(()=>{ delete activityRecent[e.s]; });
+      }
+    });
+    activityLoaded = false;
+  }catch(err){ /* o registo de atividade nunca pode atrapalhar a gravação */ }
+}
+function loadActivity(){
+  if(!FIREBASE_READY || !currentWeddingId) return;
+  activityLoading = true; activityError = false;
+  const cutoff = new Date(Date.now() - ACTIVITY_DAYS*24*60*60*1000);
+  ACTIVITY().where('at','>=',cutoff).orderBy('at','desc').limit(100).get().then(qs=>{
+    activityItems = qs.docs.map(d=>({ id:d.id, ...d.data() }));
+    activityLoading = false; activityLoaded = true; _origRender();
+  }).catch(err=>{
+    console.error('Weddy load activity error:', err && err.code, err && err.message);
+    activityLoading = false; activityError = true; _origRender();
+  });
+}
+const ACT_TXT = {
+  pt:{ title:'Atividade recente', intro:'Quem alterou o quê nos últimos 30 dias.', empty:'Ainda não há alterações registadas.', error:'Não foi possível carregar a atividade.',
+    add:n=>n===1?'1 adicionado':`${n} adicionados`, mod:n=>n===1?'1 alterado':`${n} alterados`, del:n=>n===1?'1 removido':`${n} removidos`,
+    sec:{ guests:'Convidados', expenses:'Gastos', suppliers:'Fornecedores', budget:'Orçamento', categories:'Orçamento', seating:'Mesas', todos:'Tarefas', todoCategories:'Listas', todoNotes:'Notas', daySchedule:'Dia do casamento', honeymoon:'Lua de mel', payments:'Pagamentos', weddingDocuments:'Documentos', settings:'Definições', confirmed:'Confirmações', checklistDone:'Checklist', checklistPersonal:'Checklist', dressChecklistDone:'Vestido', dressVisits:'Vestido', favoriteVisitId:'Vestido' } },
+  en:{ title:'Recent activity', intro:'Who changed what in the last 30 days.', empty:'No changes recorded yet.', error:'Could not load the activity.',
+    add:n=>`${n} added`, mod:n=>`${n} changed`, del:n=>`${n} removed`,
+    sec:{ guests:'Guests', expenses:'Expenses', suppliers:'Suppliers', budget:'Budget', categories:'Budget', seating:'Tables', todos:'Tasks', todoCategories:'Lists', todoNotes:'Notes', daySchedule:'Wedding day', honeymoon:'Honeymoon', payments:'Payments', weddingDocuments:'Documents', settings:'Settings', confirmed:'Confirmations', checklistDone:'Checklist', checklistPersonal:'Checklist', dressChecklistDone:'Dress', dressVisits:'Dress', favoriteVisitId:'Dress' } }
+};
+function activitySectionHTML(){
+  if(!activityLoaded && !activityLoading && !activityError) loadActivity();
+  const T = ACT_TXT[appLang==='en'?'en':'pt'];
+  let body;
+  if(activityLoading && !activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px;">${ta('loadingLabel')}</div>`;
+  else if(activityError) body = `<div class="empty-note" style="margin:0 16px 12px;">${T.error}</div>`;
+  else if(!activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px;">${T.empty}</div>`;
+  else body = `<div class="list-group">` + activityItems.map(a=>{
+    const parts = [];
+    if(a.add) parts.push(T.add(a.add));
+    if(a.mod) parts.push(T.mod(a.mod));
+    if(a.del) parts.push(T.del(a.del));
+    const sec = escapeHTML(T.sec[a.s] || a.s || '');
+    const sample = a.sample ? ` · “${escapeHTML(a.sample)}”` : '';
+    return `<div class="list-row" style="align-items:flex-start; flex-direction:column; gap:2px; padding:10px 16px;">
+      <div class="def-row-title" style="font-size:13.5px;">${sec} — ${parts.join(', ')}${sample}</div>
+      <div class="def-row-desc">${escapeHTML(a.by||'')} · ${formatSnapshotDate(a.at)}</div>
+    </div>`;
+  }).join('') + `</div>`;
+  return `<div class="section-label">${T.title}</div>
+  <div class="empty-note" style="margin:0 16px 8px;">${T.intro}</div>
+  ${body}
+  <div style="height:14px;"></div>`;
+}
+
+/* ============================================================
    HISTÓRICO DO CASAMENTO — cópias de segurança e restauro
    (Fase Histórico, Set 2026, pedido direto da Rita). Ver SNAPSHOTS() para o
    porquê de viver como subcoleção do próprio casamento.
@@ -17909,6 +18058,13 @@ function writeWeddingPayloadSafely(){
   const firstPayload = buildSafeWeddingWritePayload();
   if(!firstPayload.json && !firstPayload.settings) return CURRENT_DOC().set(firstPayload, { merge:true });
   const ref = CURRENT_DOC();
+  // Atividade recente: o que ESTE dispositivo alterou, calculado antes da
+  // gravação (state vs. baseline) e só registado depois de ela ter sucesso.
+  let activityEvents = [];
+  try{
+    if(firstPayload.json && lastSyncedState) activityEvents = activityEvents.concat(computeActivityEvents(lastSyncedState, state));
+    if(firstPayload.settings && lastSyncedSettings) activityEvents = activityEvents.concat(computeSettingsActivity(lastSyncedSettings, weddingSettings));
+  }catch(e){ activityEvents = []; }
   return firebase.firestore().runTransaction(async tx=>{
     const snap = await tx.get(ref);
     // Auditoria Out 2026 (achado ALTO): o payload era construído ANTES desta
@@ -17941,7 +18097,7 @@ function writeWeddingPayloadSafely(){
       }
     }
     tx.set(ref, out, { merge:true });
-  });
+  }).then((r)=>{ logActivity(activityEvents); return r; });
 }
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) unsubscribeSnapshot();

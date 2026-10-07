@@ -208,8 +208,39 @@ async function sendReminderEmail(transporter, job) {
   });
 }
 
+// Atividade recente (índice "quem alterou o quê", ver index.html): apaga todos os
+// dias, às 04:00, os registos com mais de 30 dias. Percorre os casamentos (só os
+// ids) e, em cada um, apaga em lotes — a consulta usa só o campo "at" (índice
+// simples automático do Firestore).
+exports.cleanupActivityLog = onSchedule(
+  { schedule: '0 4 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1' },
+  async () => {
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const weddings = await db.collection('weddings').select().get();
+    let deleted = 0;
+    for (const w of weddings.docs) {
+      try {
+        for (let i = 0; i < 20; i++) {
+          const old = await w.ref.collection('activity').where('at', '<', cutoff).limit(400).get();
+          if (old.empty) break;
+          const batch = db.batch();
+          old.docs.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+          deleted += old.size;
+          if (old.size < 400) break;
+        }
+      } catch (err) {
+        logger.error(`cleanupActivityLog: falhou no casamento ${w.id}. ${err.message || err}`);
+      }
+    }
+    logger.info(`cleanupActivityLog: ${deleted} registos antigos apagados.`);
+  }
+);
+
+
 // Corre todos os dias às 09:00 (hora de Lisboa). Ajusta a expressão cron
 // se quiseres outra hora/frequência.
+
 exports.sendRsvpReminders = onSchedule(
   { schedule: '0 9 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS] },
   async () => {
