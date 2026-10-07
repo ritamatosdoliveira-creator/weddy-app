@@ -2225,7 +2225,7 @@ function buildSubscriptionActivatePayload(){
 const REVENUECAT_IOS_API_KEY = 'appl_rnhEseyHyCAlbXYMNuMIdtwEXZs';
 let revenueCatConfigured = false;
 function getRevenueCatPlugin(){
-  return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.RevenueCatPurchases) || null;
+  return (window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.Purchases || window.Capacitor.Plugins.RevenueCatPurchases)) || null;
 }
 // Liga o SDK nativo da RevenueCat à conta Firebase já autenticada: o
 // appUserID é o UID do Firebase Auth (nunca o weddingId diretamente — ver
