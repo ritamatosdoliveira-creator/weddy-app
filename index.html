@@ -17667,8 +17667,8 @@ function activitySectionHTML(){
     const sec = escapeHTML(T.sec[a.s] || a.s || '');
     const sample = a.sample ? ` · “${escapeHTML(a.sample)}”` : '';
     return `<div class="list-row" style="align-items:flex-start; flex-direction:column; gap:2px; padding:10px 16px;">
-      <div class="def-row-title" style="font-size:13.5px;">${sec} — ${parts.join(', ')}${sample}</div>
-      <div class="def-row-desc">${escapeHTML(a.by||'')} · ${formatSnapshotDate(a.at)}</div>
+      <div class="def-row-title" style="font-size:13.5px; text-align:left;">${sec} — ${parts.join(', ')}${sample}</div>
+      <div class="def-row-desc" style="text-align:left;">${escapeHTML(a.by||'')} · ${formatSnapshotDate(a.at)}</div>
     </div>`;
   }).join('') + `</div>`;
   return `<div class="section-label">${T.title}</div>
