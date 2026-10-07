@@ -17656,9 +17656,9 @@ function activitySectionHTML(){
   if(!activityLoaded && !activityLoading && !activityError) loadActivity();
   const T = ACT_TXT[appLang==='en'?'en':'pt'];
   let body;
-  if(activityLoading && !activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px;">${ta('loadingLabel')}</div>`;
-  else if(activityError) body = `<div class="empty-note" style="margin:0 16px 12px;">${T.error}</div>`;
-  else if(!activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px;">${T.empty}</div>`;
+  if(activityLoading && !activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${ta('loadingLabel')}</div>`;
+  else if(activityError) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${T.error}</div>`;
+  else if(!activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${T.empty}</div>`;
   else body = `<div class="list-group">` + activityItems.map(a=>{
     const parts = [];
     if(a.add) parts.push(T.add(a.add));
@@ -17671,10 +17671,10 @@ function activitySectionHTML(){
       <div class="def-row-desc" style="text-align:left;">${escapeHTML(a.by||'')} · ${formatSnapshotDate(a.at)}</div>
     </div>`;
   }).join('') + `</div>`;
-  return `<div class="section-label">${T.title}</div>
-  <div class="empty-note" style="margin:0 16px 8px;">${T.intro}</div>
+  return `<div style="text-align:left;"><div class="section-label">${T.title}</div>
+  <div class="empty-note" style="margin:0 16px 8px; text-align:left;">${T.intro}</div>
   ${body}
-  <div style="height:14px;"></div>`;
+  <div style="height:14px;"></div></div>`;
 }
 
 /* ============================================================
