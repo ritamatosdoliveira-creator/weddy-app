@@ -18574,6 +18574,43 @@ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isN
   }catch(e){}
 }
 
+// Weddy Memories: tocar numa foto abre-a em grande por cima da própria
+// página (setas/deslizar para passar à seguinte, ✕ ou fora para fechar),
+// em vez de abrir outra aba. O link para o original continua disponível.
+(function(){
+  let lb=null, list=[], idx=0, touchX=null;
+  function close(){ if(lb){ lb.remove(); lb=null; document.removeEventListener('keydown', onKey); } }
+  function onKey(e){ if(e.key==='Escape') close(); else if(e.key==='ArrowRight') step(1); else if(e.key==='ArrowLeft') step(-1); }
+  function step(d){ if(list.length<2) return; idx=(idx+d+list.length)%list.length; render(); }
+  function render(){
+    const a=list[idx]; const url=a.getAttribute('href'); const cap=a.parentElement.querySelector('.memory-caption');
+    lb.querySelector('img').src=url;
+    lb.querySelector('.mem-lb-orig').href=url;
+    lb.querySelector('.mem-lb-cap').textContent=(cap?cap.textContent+'  ·  ':'')+(idx+1)+' / '+list.length;
+    lb.querySelectorAll('.mem-lb-nav').forEach(b=>b.style.display=list.length>1?'flex':'none');
+  }
+  function open(a){
+    list=Array.from(document.querySelectorAll('.memory-tile > a')); idx=Math.max(0,list.indexOf(a));
+    close();
+    lb=document.createElement('div'); lb.className='mem-lb';
+    lb.innerHTML='<button class="mem-lb-x" type="button" aria-label="Fechar">✕</button><button class="mem-lb-nav mem-lb-prev" type="button">‹</button><img alt=""><button class="mem-lb-nav mem-lb-next" type="button">›</button><div class="mem-lb-bar"><div class="mem-lb-cap"></div><a class="mem-lb-orig" target="_blank" rel="noopener"></a></div>';
+    lb.querySelector('.mem-lb-orig').textContent=ta('btnViewSaveMemory');
+    lb.addEventListener('click',e=>{
+      if(e.target.closest('.mem-lb-x')||e.target===lb) close();
+      else if(e.target.closest('.mem-lb-prev')) step(-1);
+      else if(e.target.closest('.mem-lb-next')) step(1);
+    });
+    lb.addEventListener('touchstart',e=>{ touchX=e.touches[0].clientX; },{passive:true});
+    lb.addEventListener('touchend',e=>{ if(touchX==null) return; const dx=e.changedTouches[0].clientX-touchX; touchX=null; if(Math.abs(dx)>50) step(dx<0?1:-1); },{passive:true});
+    document.body.appendChild(lb); document.addEventListener('keydown', onKey); render();
+  }
+  document.addEventListener('click',e=>{
+    const a=e.target.closest && e.target.closest('.memory-tile > a');
+    if(!a || e.target.closest('.memory-del')) return;
+    e.preventDefault(); e.stopPropagation(); open(a);
+  }, true);
+})();
+
 })();
 
 if('serviceWorker' in navigator){
@@ -18643,42 +18680,6 @@ function showUpdateBanner(){
   });
 }
 
-// Weddy Memories: tocar numa foto abre-a em grande por cima da própria
-// página (setas/deslizar para passar à seguinte, ✕ ou fora para fechar),
-// em vez de abrir outra aba. O link para o original continua disponível.
-(function(){
-  let lb=null, list=[], idx=0, touchX=null;
-  function close(){ if(lb){ lb.remove(); lb=null; document.removeEventListener('keydown', onKey); } }
-  function onKey(e){ if(e.key==='Escape') close(); else if(e.key==='ArrowRight') step(1); else if(e.key==='ArrowLeft') step(-1); }
-  function step(d){ if(list.length<2) return; idx=(idx+d+list.length)%list.length; render(); }
-  function render(){
-    const a=list[idx]; const url=a.getAttribute('href'); const cap=a.parentElement.querySelector('.memory-caption');
-    lb.querySelector('img').src=url;
-    lb.querySelector('.mem-lb-orig').href=url;
-    lb.querySelector('.mem-lb-cap').textContent=(cap?cap.textContent+'  ·  ':'')+(idx+1)+' / '+list.length;
-    lb.querySelectorAll('.mem-lb-nav').forEach(b=>b.style.display=list.length>1?'flex':'none');
-  }
-  function open(a){
-    list=Array.from(document.querySelectorAll('.memory-tile > a')); idx=Math.max(0,list.indexOf(a));
-    close();
-    lb=document.createElement('div'); lb.className='mem-lb';
-    lb.innerHTML='<button class="mem-lb-x" type="button" aria-label="Fechar">✕</button><button class="mem-lb-nav mem-lb-prev" type="button">‹</button><img alt=""><button class="mem-lb-nav mem-lb-next" type="button">›</button><div class="mem-lb-bar"><div class="mem-lb-cap"></div><a class="mem-lb-orig" target="_blank" rel="noopener"></a></div>';
-    lb.querySelector('.mem-lb-orig').textContent=ta('btnViewSaveMemory');
-    lb.addEventListener('click',e=>{
-      if(e.target.closest('.mem-lb-x')||e.target===lb) close();
-      else if(e.target.closest('.mem-lb-prev')) step(-1);
-      else if(e.target.closest('.mem-lb-next')) step(1);
-    });
-    lb.addEventListener('touchstart',e=>{ touchX=e.touches[0].clientX; },{passive:true});
-    lb.addEventListener('touchend',e=>{ if(touchX==null) return; const dx=e.changedTouches[0].clientX-touchX; touchX=null; if(Math.abs(dx)>50) step(dx<0?1:-1); },{passive:true});
-    document.body.appendChild(lb); document.addEventListener('keydown', onKey); render();
-  }
-  document.addEventListener('click',e=>{
-    const a=e.target.closest && e.target.closest('.memory-tile > a');
-    if(!a || e.target.closest('.memory-del')) return;
-    e.preventDefault(); e.stopPropagation(); open(a);
-  }, true);
-})();
 </script>
 </body>
 </html>
