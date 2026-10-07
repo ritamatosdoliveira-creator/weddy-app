@@ -257,6 +257,24 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       return;
     }
     let anySuccess = false;
+    function shrinkImage(file){
+      return new Promise(resolve=>{
+        if(/gif/i.test(file.type)) return resolve(file);
+        const url = URL.createObjectURL(file); const im = new Image();
+        im.onload = ()=>{
+          try{
+            const MAX=2400; let w=im.naturalWidth, h=im.naturalHeight;
+            if(!w||!h){ URL.revokeObjectURL(url); return resolve(file); }
+            const k=Math.min(1, MAX/Math.max(w,h)); w=Math.round(w*k); h=Math.round(h*k);
+            const c=document.createElement('canvas'); c.width=w; c.height=h;
+            c.getContext('2d').drawImage(im,0,0,w,h); URL.revokeObjectURL(url);
+            c.toBlob(b=> resolve(b && b.size < file.size ? b : file), 'image/jpeg', 0.85);
+          }catch(e){ resolve(file); }
+        };
+        im.onerror = ()=>{ URL.revokeObjectURL(url); resolve(file); };
+        im.src = url;
+      });
+    }
     files.forEach(file=>{
       if(!file.type.startsWith('image/')){
         statusEl.textContent = t('notImage')(file.name);
@@ -287,10 +305,16 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       // caminho do Storage sem limpeza — nomes com "/", caracteres de
       // controlo ou muito compridos podiam criar subpastas inesperadas ou
       // exceder limites de path, falhando o upload com um erro confuso.
+      // Reduz a foto antes de enviar (máx. 2400px, JPEG): fotos de telemóvel
+      // têm vários MB e tornavam o envio e a grelha de Memórias muito lentas.
+      // Se não for possível reduzir (ex: HEIC fora do Safari), envia o original.
+      const prep = shrinkImage(file);
       const safeFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_').slice(-100);
-      const path = `memories/${weddingId}/publico/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${safeFileName}`;
-      const ref = storage.ref(path);
-      withUploadTimeout(ref.put(file).then(()=>{
+      withUploadTimeout(prep.then(up=>{
+        const nm = up===file ? safeFileName : safeFileName.replace(/\.[a-zA-Z0-9]+$/,'')+'.jpg';
+        const path = `memories/${weddingId}/publico/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${nm}`;
+        return storage.ref(path).put(up).then(()=>path);
+      }).then((path)=>{
         return db.collection('memories').add({
           weddingId: weddingId,
           token: 'publico',
