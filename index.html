@@ -17636,7 +17636,7 @@ function loadActivity(){
   if(!FIREBASE_READY || !currentWeddingId) return;
   activityLoading = true; activityError = false;
   const cutoff = new Date(Date.now() - ACTIVITY_DAYS*24*60*60*1000);
-  ACTIVITY().where('at','>=',cutoff).orderBy('at','desc').limit(100).get().then(qs=>{
+  ACTIVITY().where('at','>=',cutoff).orderBy('at','desc').limit(300).get().then(qs=>{
     activityItems = qs.docs.map(d=>({ id:d.id, ...d.data() }));
     activityLoading = false; activityLoaded = true; _origRender();
   }).catch(err=>{
@@ -17659,7 +17659,7 @@ function activitySectionHTML(){
   if(activityLoading && !activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${ta('loadingLabel')}</div>`;
   else if(activityError) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${T.error}</div>`;
   else if(!activityItems.length) body = `<div class="empty-note" style="margin:0 16px 12px; text-align:left;">${T.empty}</div>`;
-  else body = `<div class="list-group">` + activityItems.map(a=>{
+  else body = `<div class="list-group" style="max-height:min(420px,55vh); overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;">` + activityItems.map(a=>{
     const parts = [];
     if(a.add) parts.push(T.add(a.add));
     if(a.mod) parts.push(T.mod(a.mod));
