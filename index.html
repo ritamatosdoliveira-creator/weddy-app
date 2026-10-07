@@ -47,6 +47,10 @@
   --shadow:0 2px 12px rgba(48,44,41,0.055), 0 1px 2px rgba(48,44,41,0.04);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+/* Anti-cópia: o texto da app não se seleciona nem se copia (nem long-press no Android/iOS),
+   exceto dentro de campos de texto, onde a pessoa tem de poder escrever, selecionar e colar. */
+html,body{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+input, textarea, select, [contenteditable="true"], [contenteditable=""]{ -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; }
 b, strong{ font-weight:600; }
 html{background:#FAF8F5;}
 html.login-active{ background:#FBF1E7 url('login-bg.jpg') center/cover no-repeat; }
