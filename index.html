@@ -4030,7 +4030,7 @@ const APP_I18N = {
     reminderDefaultGreeting:'Olá [nome]! É só um lembrete simpático de [noivos] — ainda não recebemos a tua confirmação de presença. Podes confirmar aqui: [link]',
     autopilotBadgeLate:'Atrasado — o prazo já passou',
     autopilotBadgeDue:'Precisa de um lembrete',
-    btnExportCSV:'Exportar CSV',
+    btnExportCSV:'Exportar para Excel',
     phSearchGuestEllipsis:'Pesquisar convidado…',
     emptyNoMatchSearch:'Nenhum convidado corresponde à pesquisa/filtro.',
     emptyNoGuestsSaved:'Ainda não tens convidados guardados em "Convidados".',
@@ -5153,7 +5153,7 @@ const APP_I18N = {
     reminderDefaultGreeting:"Hi [name]! Just a friendly reminder from [couple] — we haven't received your RSVP yet. You can confirm here: [link]",
     autopilotBadgeLate:'Late — the deadline has passed',
     autopilotBadgeDue:'Needs a reminder',
-    btnExportCSV:'Export CSV',
+    btnExportCSV:'Export to Excel',
     phSearchGuestEllipsis:'Search guest…',
     emptyNoMatchSearch:'No guest matches the search/filter.',
     emptyNoGuestsSaved:'You don\'t have any guests saved in "Guests" yet.',
@@ -11100,12 +11100,13 @@ function csvEscape(v){
   if(typeof v==='string' && /^[=+\-@\t\r]/.test(s) && isNaN(Number(s))) s = "'" + s;
   return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
 }
-function exportRSVPToCSV(){
+async function exportRSVPToCSV(){
   const guests = flattenAllGuestsForRSVP();
   const header = appLang==='en'
     ? ['Name','Side','Category','Status','Meal','Dietary restrictions','Transport','Accommodation','Declared children']
     : ['Nome','Lado','Categoria','Estado','Refeição','Restrições alimentares','Transporte','Alojamento','Crianças declaradas'];
   const linhas = [header.map(csvEscape).join(';')];
+  const xlsxRows = [header];
   const estadoLabel = { yes:ta('rsvpStatusGoing'), no:ta('rsvpStatusNotGoing'), maybe:ta('rsvpStatusMaybe'), pending:ta('rsvpStatusPending') };
   const simTxt = appLang==='en' ? 'Yes' : 'Sim';
   guests.forEach(item=>{
@@ -11113,22 +11114,64 @@ function exportRSVPToCSV(){
     const estado = estadoLabel[rsvpStatusOf(resp)];
     const declaredChildren = (resp && Array.isArray(resp.children)) ? resp.children : [];
     const criancasTxt = declaredChildren.map(c=>`${c.name||'?'}${c.age!==undefined&&c.age!==null&&c.age!==''?ta('yearsOldSuffix')(c.age):''}${c.attending===false?ta('notGoingSuffix'):''}`).join(', ');
-    linhas.push([
+    const rowVals = [
       item.name, sideLabel(item.side), item.catLabel, estado,
       (resp&&resp.meal)||'', (resp&&resp.dietary)||'', (resp&&resp.transporte)?simTxt:'', (resp&&resp.alojamento)?simTxt:'', criancasTxt
-    ].map(csvEscape).join(';'));
+    ];
+    xlsxRows.push(rowVals);
+    linhas.push(rowVals.map(csvEscape).join(';'));
   });
-  const csv = '﻿' + linhas.join('\r\n'); // BOM para acentos abrirem bem no Excel
-  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
   const coupleSlug = `${weddingSettings.coupleName1||'casamento'}-${weddingSettings.coupleName2||''}`.trim().replace(/\s+/g,'-').toLowerCase();
-  a.href = url;
-  a.download = `rsvp-${coupleSlug || 'convidados'}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  const baseName = `rsvp-${coupleSlug || 'convidados'}`;
+  function saveBlob(blob, fileName){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+  // Ficheiro Excel a sério (.xlsx): abre direto no Excel, sem problemas de
+  // separador ou acentos. Nos telemóveis abre a folha de partilha (escolhe-se
+  // "Excel" e o ficheiro abre logo); no computador descarrega o .xlsx (o
+  // browser não deixa nenhuma página abrir o Excel sozinha). Se a biblioteca
+  // não carregar (sem rede), cai para o CSV de antes.
+  try{
+    await loadXlsxLib();
+    const ws = XLSX.utils.aoa_to_sheet(xlsxRows);
+    ws['!cols'] = [26,10,18,16,16,30,12,12,30].map(w=>({ wch:w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'RSVP');
+    const out = XLSX.write(wb, { type:'array', bookType:'xlsx' });
+    const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const fileName = baseName + '.xlsx';
+    if(navigator.canShare && navigator.share){
+      try{
+        const file = new File([out], fileName, { type:mime });
+        if(navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:fileName }); return; }
+      }catch(err){
+        if(err && err.name==='AbortError') return; // a pessoa fechou a folha de partilha
+      }
+    }
+    saveBlob(new Blob([out], { type:mime }), fileName);
+    return;
+  }catch(err){
+    console.error('Weddy: falha a gerar o .xlsx, a exportar CSV.', err && err.message);
+  }
+  const csv = '\ufeff' + linhas.join('\r\n'); // BOM para acentos abrirem bem no Excel
+  saveBlob(new Blob([csv], { type:'text/csv;charset=utf-8;' }), baseName + '.csv');
+}
+let _xlsxLibPromise = null;
+function loadXlsxLib(){
+  if(window.XLSX) return Promise.resolve();
+  if(_xlsxLibPromise) return _xlsxLibPromise;
+  _xlsxLibPromise = new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = ()=>resolve();
+    s.onerror = ()=>{ _xlsxLibPromise = null; reject(new Error('Falha a carregar a biblioteca Excel.')); };
+    document.head.appendChild(s);
+  });
+  return _xlsxLibPromise;
 }
 function viewDefWeddingHealth(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('healthTitle'));
