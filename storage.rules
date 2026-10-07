@@ -14,7 +14,7 @@ service firebase.storage {
         && request.auth.token.email in
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
       allow create: if request.resource.size < 8 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*')
+        && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)')
         && (token == 'publico'
             ? firestore.exists(/databases/(default)/documents/weddings/$(weddingId))
             : firestore.get(/databases/(default)/documents/guests/$(token)).data.weddingId == weddingId);
@@ -37,7 +37,7 @@ service firebase.storage {
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
         && request.resource.size < 15 * 1024 * 1024
         && (request.resource.contentType == 'application/pdf'
-            || request.resource.contentType.matches('image/.*'));
+            || request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)'));
     }
 
     // Capturas de ecrã do "Reportar problema" (index.html). Em falta até
@@ -50,7 +50,7 @@ service firebase.storage {
         && request.auth.token.email in
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
         && request.resource.size < 8 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)');
       allow read, update, delete: if false;
     }
   }

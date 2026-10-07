@@ -146,6 +146,17 @@ service cloud.firestore {
     //   confirmado via o próprio documento weddings/{weddingId}, tal como
     //   as regras acima.
     match /guests/{guestId} {
+      function validGuestFieldTypes(keys) {
+        let d = request.resource.data;
+        return (!keys.hasAny(['meal'])        || d.meal == null        || (d.meal is string && d.meal.size() <= 200))
+            && (!keys.hasAny(['dietary'])     || d.dietary == null     || (d.dietary is string && d.dietary.size() <= 1000))
+            && (!keys.hasAny(['rsvpStatus'])  || d.rsvpStatus == null  || (d.rsvpStatus is string && d.rsvpStatus.size() <= 10))
+            && (!keys.hasAny(['attending'])   || d.attending == null   || d.attending is bool)
+            && (!keys.hasAny(['transporte'])  || d.transporte == null  || d.transporte is bool)
+            && (!keys.hasAny(['alojamento'])  || d.alojamento == null  || d.alojamento is bool)
+            && (!keys.hasAny(['children'])    || d.children == null    || (d.children is list && d.children.size() <= 20))
+            && (!keys.hasAny(['responses'])   || d.responses == null   || (d.responses is map && d.responses.size() <= 40));
+      }
       allow get: if true;
       // Out 2026 (auditoria de segurança): era "allow update: if true" — quem
       // tivesse um link de convite podia reescrever QUALQUER campo do
@@ -155,15 +166,27 @@ service cloud.firestore {
       // campos que o rsvp.html realmente escreve (a resposta do convidado).
       // O casal (autenticado) continua a poder alterar tudo, pela regra
       // abaixo.
+      // Out 2026 (auditoria): além de só poderem mudar estes campos, cada um
+      // tem de ter o tipo certo e um tamanho razoável (antes dava para
+      // gravar texto gigante). Só se valida o campo que está mesmo a mudar,
+      // para nunca bloquear respostas de documentos antigos.
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'openedAt', 'respondedAt', 'responses',
         'attending', 'rsvpStatus', 'meal', 'dietary',
         'transporte', 'alojamento', 'children'
-      ]);
+      ])
+        && validGuestFieldTypes(request.resource.data.diff(resource.data).affectedKeys());
 
-      allow read, update, delete: if request.auth != null
+      allow read, delete: if request.auth != null
         && request.auth.token.email_verified == true
         && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+
+      // Auditoria Out 2026: o casal pode alterar o convidado, mas nunca mudar
+      // o weddingId (senão podia "plantar" convidados noutro casamento).
+      allow update: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails
+        && request.resource.data.weddingId == resource.data.weddingId;
 
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
