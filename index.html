@@ -598,7 +598,8 @@ html{
 .mem-lb-nav{ top:50%; margin-top:-22px; }
 .mem-lb-prev{ left:10px; } .mem-lb-next{ right:10px; }
 .mem-lb-bar{ position:absolute; left:0; right:0; bottom:max(14px, env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:center; gap:8px; color:#fff; font-size:13px; }
-.mem-lb-bar a{ color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:20px; padding:8px 16px; font-size:12.5px; text-decoration:none; }
+.mem-lb-bar a, .mem-lb-bar button{ font-family:inherit; background:rgba(255,255,255,.14); cursor:pointer; }
+.mem-lb-bar a, .mem-lb-bar button.mem-lb-orig{ color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:20px; padding:8px 16px; font-size:12.5px; text-decoration:none; }
 
 .guestinfo-field{ margin-bottom:12px; }
 .guestinfo-field-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
@@ -1182,8 +1183,11 @@ html{
 .memory-tile{ position:relative; aspect-ratio:1; border-radius:12px; overflow:hidden; background:var(--line); }
 .memory-tile > a{ display:block; width:100%; height:100%; }
 .memory-tile img, .memory-tile video{ width:100%; height:100%; object-fit:cover; display:block; }
-.memory-del{ all:unset; box-sizing:border-box; position:absolute; top:5px; right:5px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
-.memory-del svg{ width:13px; height:13px; }
+.memory-del{ all:unset; box-sizing:border-box; position:absolute; top:4px; right:4px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
+.memory-del svg{ width:18px; height:18px; }
+.memory-dl{ all:unset; box-sizing:border-box; position:absolute; top:4px; left:4px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.memory-dl svg{ width:20px; height:20px; }
+.memory-dl[disabled]{ opacity:.5; }
 .memory-view{ all:unset; box-sizing:border-box; position:absolute; top:5px; left:5px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; cursor:pointer; }
 .memory-view svg{ width:13px; height:13px; }
 .memory-play-badge{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
@@ -4195,6 +4199,7 @@ const APP_I18N = {
     memoriesPublicLinkHint:'Um único link/QR code para todos — sem precisar de convite individual. Ideal para colar no local do evento.',
     memoriesPublicLinkName:'Weddy Memories — dia do casamento',
     btnViewSaveMemory:'Ver/guardar original',
+    btnDownloadPhoto:'Descarregar foto',
     memoriesIntroText:'Fotos que os teus convidados foram partilhando pelo próprio link de RSVP. Só tu consegues vê-las.',
     memoriesPrivateTitle:'As tuas memórias são privadas.', memoriesPrivateDesc:'Só tu consegues vê-las.',
     btnRefresh:'Atualizar',
@@ -5319,6 +5324,7 @@ const APP_I18N = {
     memoriesPublicLinkHint:'One single link/QR code for everyone — no individual invite needed. Great to display at the venue.',
     memoriesPublicLinkName:'Weddy Memories — wedding day',
     btnViewSaveMemory:'View/save original',
+    btnDownloadPhoto:'Download photo',
     memoriesIntroText:'Photos your guests have shared through their own RSVP link. Only you can see them.',
     memoriesPrivateTitle:'Your memories are private.', memoriesPrivateDesc:'Only you can see them.',
     btnRefresh:'Refresh',
@@ -12068,8 +12074,8 @@ function viewDefMemories(){
         <div class="memory-tile">
           ${m.url ? `<a href="${escapeHTML(m.url)}" target="_blank" rel="noopener" title="${ta('btnViewSaveMemory')}">
             <img src="${escapeHTML(m.url)}" loading="lazy">
-            <span class="memory-view">${ICONS.download}</span>
-          </a>` : `<img src="" loading="lazy">`}
+          </a>
+          <button class="memory-dl" type="button" data-memorydl="${escapeHTML(m.url)}" aria-label="${ta('btnDownloadPhoto')}">${ICONS.download}</button>` : `<img src="" loading="lazy">`}
           <button class="memory-del" data-memorydel="${m.id}" data-memorypath="${escapeHTML(m.storagePath||'')}">${ICONS.trash}</button>
           ${m.guestName ? `<div class="memory-caption">${escapeHTML(m.guestName)}</div>` : ''}
         </div>
@@ -18764,7 +18770,7 @@ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isN
   function render(){
     const a=list[idx]; const url=a.getAttribute('href'); const cap=a.parentElement.querySelector('.memory-caption');
     lb.querySelector('img').src=url;
-    lb.querySelector('.mem-lb-orig').href=url;
+    lb.querySelector('.mem-lb-orig').dataset.url=url;
     lb.querySelector('.mem-lb-cap').textContent=(cap?cap.textContent+'  ·  ':'')+(idx+1)+' / '+list.length;
     lb.querySelectorAll('.mem-lb-nav').forEach(b=>b.style.display=list.length>1?'flex':'none');
   }
@@ -18772,10 +18778,11 @@ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isN
     list=Array.from(document.querySelectorAll('.memory-tile > a')); idx=Math.max(0,list.indexOf(a));
     close();
     lb=document.createElement('div'); lb.className='mem-lb';
-    lb.innerHTML='<button class="mem-lb-x" type="button" aria-label="Fechar">✕</button><button class="mem-lb-nav mem-lb-prev" type="button">‹</button><img alt=""><button class="mem-lb-nav mem-lb-next" type="button">›</button><div class="mem-lb-bar"><div class="mem-lb-cap"></div><a class="mem-lb-orig" target="_blank" rel="noopener"></a></div>';
-    lb.querySelector('.mem-lb-orig').textContent=ta('btnViewSaveMemory');
+    lb.innerHTML='<button class="mem-lb-x" type="button" aria-label="Fechar">✕</button><button class="mem-lb-nav mem-lb-prev" type="button">‹</button><img alt=""><button class="mem-lb-nav mem-lb-next" type="button">›</button><div class="mem-lb-bar"><div class="mem-lb-cap"></div><button type="button" class="mem-lb-orig"></button></div>';
+    lb.querySelector('.mem-lb-orig').textContent=ta('btnDownloadPhoto');
     lb.addEventListener('click',e=>{
-      if(e.target.closest('.mem-lb-x')||e.target===lb) close();
+      if(e.target.closest('.mem-lb-orig')) dl(e.target.closest('.mem-lb-orig').dataset.url, e.target.closest('.mem-lb-orig'));
+      else if(e.target.closest('.mem-lb-x')||e.target===lb) close();
       else if(e.target.closest('.mem-lb-prev')) step(-1);
       else if(e.target.closest('.mem-lb-next')) step(1);
     });
@@ -18783,7 +18790,30 @@ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isN
     lb.addEventListener('touchend',e=>{ if(touchX==null) return; const dx=e.changedTouches[0].clientX-touchX; touchX=null; if(Math.abs(dx)>50) step(dx<0?1:-1); },{passive:true});
     document.body.appendChild(lb); document.addEventListener('keydown', onKey); render();
   }
+  // Descarregar a foto original: vai buscar o ficheiro e guarda-o. No
+  // telemóvel abre a folha de partilha (Guardar imagem); no computador
+  // descarrega. Se falhar, abre o original noutra aba como último recurso.
+  async function dl(url, btn){
+    if(!url) return;
+    if(btn) btn.disabled=true;
+    try{
+      const r=await fetch(url); if(!r.ok) throw new Error('http');
+      const blob=await r.blob();
+      const ext=(blob.type.split('/')[1]||'jpg').replace('jpeg','jpg').replace(/[^a-z0-9]/gi,'')||'jpg';
+      const name='weddy-memoria-'+Date.now()+'.'+ext;
+      const file=new File([blob], name, {type:blob.type||'image/jpeg'});
+      if(/iPhone|iPad|Android/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file]}); return; }catch(err){ if(err && err.name==='AbortError') return; }
+      }
+      const u=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(u),3000);
+    }catch(err){ window.open(url,'_blank','noopener'); }
+    finally{ if(btn) btn.disabled=false; }
+  }
   document.addEventListener('click',e=>{
+    const d=e.target.closest && e.target.closest('.memory-dl');
+    if(d){ e.preventDefault(); e.stopPropagation(); dl(d.getAttribute('data-memorydl'), d); return; }
     const a=e.target.closest && e.target.closest('.memory-tile > a');
     if(!a || e.target.closest('.memory-del')) return;
     e.preventDefault(); e.stopPropagation(); open(a);
