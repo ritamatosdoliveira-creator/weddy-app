@@ -133,6 +133,10 @@ const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 // Integrations → Webhooks) e tem de ser EXATAMENTE o mesmo valor aqui.
 // Nunca em texto simples — vive no Secret Manager como os outros acima.
 const REVENUECAT_WEBHOOK_AUTH = defineSecret('REVENUECAT_WEBHOOK_AUTH');
+// Contas de revisão da Apple: as compras de teste (sandbox) só ativam Premium
+// para estes UIDs, para o revisor poder testar o In-App Purchase. Todas as
+// outras compras sandbox continuam ignoradas.
+const REVIEW_SANDBOX_UIDS = ['gAC4JaBRfJPS1Z4TURluYHsPWCn2'];
 // Este não é secreto (é só um URL), por isso continua a ser defineString
 // — mas tem de corresponder EXATAMENTE ao URI autorizado configurado no
 // Google Cloud Console, ou o OAuth falha com redirect_uri_mismatch. Para
@@ -3458,7 +3462,8 @@ exports.revenueCatWebhook = onRequest(
       // configurados.
       if (event.type === 'TEST') {
         logger.info('revenueCatWebhook: evento de teste recebido com sucesso.');
-      } else if (event.environment && event.environment !== 'PRODUCTION') {
+      } else if (event.environment && event.environment !== 'PRODUCTION'
+                 && !(REVIEW_SANDBOX_UIDS.includes(event.app_user_id) && event.type === 'NON_RENEWING_PURCHASE')) {
         // Compras de TestFlight/sandbox nunca ativam Premium real em produção.
         logger.info(`revenueCatWebhook: evento ${event.type} de ambiente ${event.environment} ignorado.`);
       } else if (event.type === 'NON_RENEWING_PURCHASE') {
