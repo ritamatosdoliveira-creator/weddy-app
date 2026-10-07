@@ -3470,7 +3470,6 @@ function weekAgendaHTML(){
   const weekISOs = currentWeekDates().map(toLocalISODate);
   if(!weekISOs.includes(weekAgendaSelectedDate)) weekAgendaSelectedDate = toLocalISODate(new Date());
   const selected = weekAgendaSelectedDate;
-  const overdueCount = allDued.filter(it=>it.days<0).length;
   const dayItems = allDued.filter(it=>it.due===selected);
   const rowHTML = (it, showDate)=>{
     return `<div class="agenda-item" data-catgoto="${it.catId}">
@@ -3495,7 +3494,6 @@ function weekAgendaHTML(){
       <button class="week-agenda-link" data-goto="todo">${ta('weekAgendaSeeAll')} ${ICONS.chev}</button>
     </div>
     <div class="week-strip">${weekStripHTML(allDued, selected)}</div>
-    ${overdueCount ? `<div class="agenda-overdue">${overdueCount} tarefa${overdueCount>1?'s':''} atrasada${overdueCount>1?'s':''}</div>` : ''}
     <div class="agenda-list">${rows}</div>
     ${overdueRows ? `<div class="agenda-overdue" style="margin:14px 2px 2px;">${appLang==='en'?'Overdue':'Atrasadas'}</div><div class="agenda-list">${overdueRows}</div>` : ''}
   </div>`;
