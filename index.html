@@ -3472,19 +3472,22 @@ function weekAgendaHTML(){
   const selected = weekAgendaSelectedDate;
   const overdueCount = allDued.filter(it=>it.days<0).length;
   const dayItems = allDued.filter(it=>it.due===selected);
-  const rows = dayItems.length ? dayItems.map(it=>{
+  const rowHTML = (it, showDate)=>{
     return `<div class="agenda-item" data-catgoto="${it.catId}">
       <div class="agenda-check" data-catitemcheck="${it.catId}|${it.i}">${ICONS.check}</div>
       <div class="agenda-mid">
         <div class="agenda-text">${escapeHTML(it.text)}</div>
         <div class="agenda-cat-row">
           <span class="agenda-cat-chip" style="${chipStyle(it.catIdx)}">${escapeHTML(it.catLabel)}</span>
-          ${it.time ? `<span class="agenda-time">${it.time}</span>` : ''}
+          ${showDate ? `<span class="agenda-time">${escapeHTML(String(it.due).split('-').reverse().slice(0,2).join('/'))}</span>` : (it.time ? `<span class="agenda-time">${it.time}</span>` : '')}
         </div>
       </div>
       <div class="agenda-chevron">${ICONS.chev}</div>
     </div>`;
-  }).join('') : `<div class="agenda-empty">${ta('agendaEmptyDay')}</div>`;
+  };
+  const rows = dayItems.length ? dayItems.map(it=>rowHTML(it,false)).join('') : `<div class="agenda-empty">${ta('agendaEmptyDay')}</div>`;
+  const overdueItems = allDued.filter(it=>it.days<0 && it.due!==selected);
+  const overdueRows = overdueItems.map(it=>rowHTML(it,true)).join('');
   return `
   <div class="week-agenda">
     <div class="week-agenda-head">
@@ -3494,6 +3497,7 @@ function weekAgendaHTML(){
     <div class="week-strip">${weekStripHTML(allDued, selected)}</div>
     ${overdueCount ? `<div class="agenda-overdue">${overdueCount} tarefa${overdueCount>1?'s':''} atrasada${overdueCount>1?'s':''}</div>` : ''}
     <div class="agenda-list">${rows}</div>
+    ${overdueRows ? `<div class="agenda-overdue" style="margin:14px 2px 2px;">${appLang==='en'?'Overdue':'Atrasadas'}</div><div class="agenda-list">${overdueRows}</div>` : ''}
   </div>`;
 }
 function donutSVG(pct, color, size, stroke){
