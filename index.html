@@ -2267,8 +2267,10 @@ async function startPremiumIAPPurchase(){
   const ready = await ensureRevenueCatConfigured();
   if(!ready) throw new Error('revenuecat-not-configured');
   const offeringsRes = await Purchases.getOfferings();
-  const offerings = offeringsRes && offeringsRes.offerings;
-  const current = offerings && offerings.current;
+  // O plugin devolve {current, all} directamente (versões antigas: dentro de
+  // .offerings). Aceita as duas formas e, sem "current", usa o offering "default".
+  const offerings = (offeringsRes && offeringsRes.offerings) || offeringsRes;
+  const current = (offerings && offerings.current) || (offerings && offerings.all && (offerings.all.default || Object.values(offerings.all)[0]));
   const pkg = current && current.availablePackages && current.availablePackages[0];
   if(!pkg) throw new Error('no-revenuecat-package');
   // Pode lançar com userCancelled:true (a pessoa fechou a folha nativa da
