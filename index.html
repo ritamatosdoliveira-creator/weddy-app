@@ -17001,7 +17001,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
   document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
   document.getElementById('login-inner').innerHTML = `
     <div class="login-tag" style="font-weight:600; font-size:15px; color:var(--ink);">${T('Já tens conta na Weddy?','Do you already have a Weddy account?')}</div>
-    <div class="login-msg" style="margin:8px auto 14px;">${T('A Apple escondeu o teu email, por isso não conseguimos encontrar a tua conta sozinhos. Entra na conta que já tens para a associar à Apple.','Apple hid your email, so we could not find your account automatically. Sign in to your existing account to link it to Apple.')}</div>
+    <div class="login-msg" style="margin:8px auto 14px;">${knownEmail ? T('O email '+escapeHTML(knownEmail)+' já tem conta na Weddy. Confirma que és tu (com a Google ou a palavra-passe) e a Apple fica associada ao teu casamento.','The email '+escapeHTML(knownEmail)+' already has a Weddy account. Confirm it is you (Google or password) and Apple will be linked to your wedding.') : T('A Apple escondeu o teu email, por isso não conseguimos encontrar a tua conta sozinhos. Entra na conta que já tens para a associar à Apple.','Apple hid your email, so we could not find your account automatically. Sign in to your existing account to link it to Apple.')}</div>
     <div class="login-field">
       <span class="login-field-icon">${ICONS.mail}</span>
       <input type="email" class="has-icon" id="al-email" placeholder="${ta('emailPlaceholder')}" value="${escapeHTML(knownEmail||'')}" autocomplete="email" autocapitalize="none" autocorrect="off">
@@ -17013,7 +17013,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     <button class="login-btn" id="al-pass-btn">${T('Entrar e associar','Sign in and link')}</button>
     <button type="button" class="login-btn" id="al-google" style="margin-top:10px; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${T('Entrar com a Google e associar','Sign in with Google and link')}</span></button>
     <div class="login-msg ${msg?'error':''}" id="al-msg">${msg||''}</div>
-    <div class="login-note" style="cursor:pointer;" id="al-new">${T('Não tenho conta — criar um casamento novo','I have no account — create a new wedding')}</div>
+    <div class="login-note" style="cursor:pointer;${knownEmail?' display:none;':''}" id="al-new">${T('Não tenho conta — criar um casamento novo','I have no account — create a new wedding')}</div>
     <div class="login-note" style="cursor:pointer; margin-top:10px;" id="al-cancel">${T('Cancelar','Cancel')}</div>
   `;
   const setMsg = (t)=>{ const m=document.getElementById('al-msg'); if(m){ m.textContent=t; m.className='login-msg error'; } };
