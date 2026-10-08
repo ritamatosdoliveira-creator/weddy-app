@@ -18633,7 +18633,7 @@ function findOrCreateFlow(user, isRetry){
       inspirations = [];
       dressInspirations = [];
       const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
-      if(_isApple && isAppleRelayEmail(user.email)) renderAppleLinkChoice(user);
+      if(_isApple) renderAppleLinkChoice(user, isAppleRelayEmail(user.email) ? null : user.email);
       else renderOnboarding();
     }
   }).catch(err=>{
