@@ -16943,32 +16943,36 @@ async function appleSignInSha256Hex(str){
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+let pendingAppleCredential = null;
+function isAppleRelayEmail(email){ return /@privaterelay\.appleid\.com$/i.test(String(email||'')); }
+// Pede à Apple (folha nativa) e devolve a credencial Firebase, sem iniciar sessão.
+async function acquireAppleCredential(){
+  const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
+  if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+  const rawNonce = appleSignInRandomNonce();
+  const hashedNonce = await appleSignInSha256Hex(rawNonce);
+  const result = await SignInWithApple.authorize({
+    clientId: 'pt.weddy.ios',
+    redirectURI: 'https://app.weddy.pt/__/auth/handler',
+    scopes: 'email name',
+    nonce: hashedNonce,
+  });
+  const identityToken = result && result.response && result.response.identityToken;
+  if(!identityToken) throw new Error('Resposta da Apple sem identityToken.');
+  const provider = new firebase.auth.OAuthProvider('apple.com');
+  return provider.credential({ idToken: identityToken, rawNonce });
+}
 async function handleAppleSignIn(){
   if(!FIREBASE_READY || !auth){ renderLoginForm(ta('firebaseNotReadyFile'), true); return; }
   const btn = document.getElementById('login-apple');
   if(btn) btn.disabled = true;
-  // Plugin @capacitor-community/apple-sign-in, registado pelo cap sync como
-  // window.Capacitor.Plugins.SignInWithApple — mesmo padrão de acesso já
-  // usado acima para o StatusBar.
-  const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
-  if(!SignInWithApple){
-    console.error('Weddy Apple sign-in: plugin SignInWithApple não encontrado.');
-    renderLoginForm(ta('authErrGeneric')('Sign in with Apple indisponível'), true);
-    return;
-  }
+  let credential = null;
   try{
-    const rawNonce = appleSignInRandomNonce();
-    const hashedNonce = await appleSignInSha256Hex(rawNonce);
-    const result = await SignInWithApple.authorize({
-      clientId: 'pt.weddy.ios',
-      redirectURI: 'https://app.weddy.pt/__/auth/handler',
-      scopes: 'email name',
-      nonce: hashedNonce,
-    });
-    const identityToken = result && result.response && result.response.identityToken;
-    if(!identityToken) throw new Error('Resposta da Apple sem identityToken.');
-    const provider = new firebase.auth.OAuthProvider('apple.com');
-    const credential = provider.credential({ idToken: identityToken, rawNonce });
+    credential = await acquireAppleCredential();
+    pendingAppleCredential = credential;
+    // A Apple já respondeu: mostra logo que estamos a entrar, para o ecrã de
+    // login não parecer "parado" enquanto a Firebase confirma a conta.
+    renderLoading(ta('verifyingAccount'));
     await auth.signInWithCredential(credential);
     // onAuthStateChanged (mais abaixo) trata da navegação a seguir — igual
     // ao que já acontece depois do signInWithPopup da Google.
@@ -16977,9 +16981,103 @@ async function handleAppleSignIn(){
     // — a pessoa desistiu a meio, não é um erro real.
     const cancelled = err && (err.code==='1001' || err.code===1001 || /\b1001\b/.test(String((err && err.message)||'')));
     if(cancelled){ if(btn) btn.disabled = false; return; }
+    // Já existe uma conta (Google/email) com o mesmo email: em vez de erro,
+    // oferece associar a Apple a essa conta.
+    if(err && err.code==='auth/account-exists-with-different-credential' && credential){
+      renderAppleLinkChoice(null, err.customData && err.customData.email);
+      return;
+    }
     console.error('Weddy Apple sign-in error:', err);
     renderLoginForm(ta('authErrGeneric')((err && (err.code||err.message))||'unknown error'), true);
   }
+}
+// A Apple deu um email escondido (ou o email já existe noutro método de
+// login): em vez de criar um casamento novo, deixa a pessoa entrar na conta
+// que já tem e associa-lhe a Apple. Daí em diante "Continuar com a Apple"
+// entra sempre nessa conta (e no casamento que já existe).
+function renderAppleLinkChoice(orphanUser, knownEmail, msg){
+  const T = (pt,en)=> appLang==='en' ? en : pt;
+  lastLoginRender = ()=>renderAppleLinkChoice(orphanUser, knownEmail, msg);
+  document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
+  document.getElementById('login-inner').innerHTML = `
+    <div class="login-tag" style="font-weight:600; font-size:15px; color:var(--ink);">${T('Já tens conta na Weddy?','Do you already have a Weddy account?')}</div>
+    <div class="login-msg" style="margin:8px auto 14px;">${T('A Apple escondeu o teu email, por isso não conseguimos encontrar a tua conta sozinhos. Entra na conta que já tens para a associar à Apple.','Apple hid your email, so we could not find your account automatically. Sign in to your existing account to link it to Apple.')}</div>
+    <div class="login-field">
+      <span class="login-field-icon">${ICONS.mail}</span>
+      <input type="email" class="has-icon" id="al-email" placeholder="${ta('emailPlaceholder')}" value="${escapeHTML(knownEmail||'')}" autocomplete="email" autocapitalize="none" autocorrect="off">
+    </div>
+    <div class="login-field" style="margin-top:10px;">
+      <span class="login-field-icon">${ICONS.lock}</span>
+      <input type="password" class="has-icon" id="al-pass" placeholder="${ta('passPlaceholder')}" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="al-pass-btn">${T('Entrar e associar','Sign in and link')}</button>
+    <button type="button" class="login-btn" id="al-google" style="margin-top:10px; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${T('Entrar com a Google e associar','Sign in with Google and link')}</span></button>
+    <div class="login-msg ${msg?'error':''}" id="al-msg">${msg||''}</div>
+    <div class="login-note" style="cursor:pointer;" id="al-new">${T('Não tenho conta — criar um casamento novo','I have no account — create a new wedding')}</div>
+    <div class="login-note" style="cursor:pointer; margin-top:10px;" id="al-cancel">${T('Cancelar','Cancel')}</div>
+  `;
+  const setMsg = (t)=>{ const m=document.getElementById('al-msg'); if(m){ m.textContent=t; m.className='login-msg error'; } };
+  async function doLink(signInExisting){
+    const msgEl = document.getElementById('al-msg'); if(msgEl){ msgEl.textContent=''; msgEl.className='login-msg'; }
+    document.querySelectorAll('#login-inner button').forEach(b=>b.disabled=true);
+    try{
+      // 1) A conta Apple "vazia" que acabou de ser criada tem de sair do
+      //    caminho, senão a Apple fica presa a ela e não se associa à conta real.
+      if(auth.currentUser){
+        accountDeletionInProgress = true;
+        try{ await auth.currentUser.delete(); }
+        catch(e){ accountDeletionInProgress = false; throw e; }
+      }
+      // 2) Entra na conta que já existe.
+      let cred = pendingAppleCredential;
+      let user;
+      try{ user = await signInExisting(); }
+      finally{ accountDeletionInProgress = false; }
+      // 3) Associa a Apple a essa conta (com credencial nova se a anterior falhar).
+      try{
+        if(!cred) throw new Error('no-cred');
+        await user.linkWithCredential(cred);
+      }catch(e1){
+        if(e1 && e1.code==='auth/credential-already-in-use') throw e1;
+        cred = await acquireAppleCredential();
+        await user.linkWithCredential(cred);
+      }
+      pendingAppleCredential = null;
+    }catch(err){
+      accountDeletionInProgress = false;
+      console.error('Weddy link Apple error:', err && err.code, err && err.message);
+      const cancelled = err && (err.code==='1001' || err.code===1001 || err.code==='auth/popup-closed-by-user' || err.code==='auth/cancelled-popup-request');
+      let m;
+      if(cancelled) m = '';
+      else if(err && (err.code==='auth/wrong-password' || err.code==='auth/invalid-credential' || err.code==='auth/user-not-found')) m = ta('msgWrongPassword');
+      else if(err && err.code==='auth/requires-recent-login') m = T('Por segurança, volta a escolher “Continuar com a Apple” e tenta outra vez.','For security, tap “Continue with Apple” again and retry.');
+      else if(err && err.code==='auth/credential-already-in-use') m = T('Esta conta Apple já está associada a outra conta Weddy.','This Apple account is already linked to another Weddy account.');
+      else m = ta('authErrGeneric')((err && (err.code||err.message))||'unknown error');
+      if(auth.currentUser && auth.currentUser.providerData && auth.currentUser.providerData.some(p=>p.providerId==='apple.com') && !(auth.currentUser.providerData.length>1)){
+        renderAppleLinkChoice(auth.currentUser, knownEmail, m);
+      } else if(!auth.currentUser){
+        renderLoginForm(m, !!m);
+      } else {
+        // Entrou na conta existente mas a associação falhou: segue para a app.
+        if(m) console.warn('Apple link failed after sign-in:', m);
+      }
+    }
+  }
+  document.getElementById('al-pass-btn').addEventListener('click', ()=>{
+    const email = (document.getElementById('al-email').value||'').trim();
+    const pass = document.getElementById('al-pass').value||'';
+    if(!email || !pass){ setMsg(T('Escreve o email e a palavra-passe.','Enter your email and password.')); return; }
+    doLink(async ()=>{ const r = await auth.signInWithEmailAndPassword(email, pass); return r.user; });
+  });
+  document.getElementById('al-google').addEventListener('click', ()=>{
+    doLink(async ()=>{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt:'select_account' });
+      const r = await auth.signInWithPopup(provider); return r.user;
+    });
+  });
+  document.getElementById('al-new').addEventListener('click', ()=>{ if(auth.currentUser) renderOnboarding(); else renderLoginForm(); });
+  document.getElementById('al-cancel').addEventListener('click', ()=>{ if(auth.currentUser) auth.signOut(); else renderLoginForm(); });
 }
 // Recolhe o resultado de signInWithRedirect (PWA instalada) ao recarregar a
 // página depois do login na Google. Em caso de sucesso não há nada a fazer
@@ -17028,8 +17126,10 @@ function renderOnboarding(){
     </label>` : ''}
     <button class="login-btn" id="ob-save">${ta('obStart')}</button>
     <div class="login-msg" id="ob-msg"></div>
+    <div class="login-note" style="cursor:pointer; margin-top:14px;" id="ob-cancel">${appLang==='en' ? 'Cancel and sign out' : 'Cancelar e sair'}</div>
   `;
   document.getElementById('ob-save').addEventListener('click', handleOnboardingSubmit);
+  document.getElementById('ob-cancel').addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
 }
 function handleOnboardingSubmit(){
   const name1El = document.getElementById('ob-name1');
@@ -18532,7 +18632,9 @@ function findOrCreateFlow(user, isRetry){
       currentWeddingId = null;
       inspirations = [];
       dressInspirations = [];
-      renderOnboarding();
+      const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
+      if(_isApple && isAppleRelayEmail(user.email)) renderAppleLinkChoice(user);
+      else renderOnboarding();
     }
   }).catch(err=>{
     // O "bilhete de acesso" (token) pode estar desatualizado — por exemplo logo depois
