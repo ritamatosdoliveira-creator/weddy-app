@@ -11693,7 +11693,7 @@ function bindChatPanelHandlers(){
       console.error('Weddy subscribe checkout error:', err && err.message);
       subscribeBtn.disabled = false;
       subscribeBtn.textContent = ta('btnSubscribePremium');
-      weddyAlert(ta('alertCheckoutStartError'));
+      weddyAlert(ta('alertCheckoutStartError') + (isNativeIOSApp() ? ' ['+String((err && (err.message||err.code))||'erro').slice(0,160)+']' : ''));
     });
   });
   const assistInput = document.getElementById('assist-chat-input');
@@ -12583,7 +12583,7 @@ function bindHandlers(){
         console.error('Weddy subscribe checkout error:', err && err.message);
         subscribeBtn.disabled = false;
         subscribeBtn.textContent = ta('btnSubscribePremium');
-        weddyAlert(ta('alertCheckoutStartError'));
+        weddyAlert(ta('alertCheckoutStartError') + (isNativeIOSApp() ? ' ['+String((err && (err.message||err.code))||'erro').slice(0,160)+']' : ''));
       });
     });
   });
