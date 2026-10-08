@@ -16062,6 +16062,9 @@ async function reauthenticateForAccountDeletion(user, pass){
     });
     const identityToken = result && result.response && result.response.identityToken;
     if(!identityToken) throw new Error('Resposta da Apple sem identityToken.');
+    // A Apple já respondeu: mostra logo que estamos a entrar, para o ecrã de
+    // login não parecer "parado" enquanto a Firebase confirma a conta.
+    renderLoading(ta('verifyingAccount'));
     const credential = new firebase.auth.OAuthProvider('apple.com').credential({ idToken: identityToken, rawNonce });
     return user.reauthenticateWithCredential(credential);
   }
@@ -16972,7 +16975,7 @@ async function handleAppleSignIn(){
   }catch(err){
     // Código "1001" é o cancelamento nativo (ASAuthorizationError.canceled)
     // — a pessoa desistiu a meio, não é um erro real.
-    const cancelled = err && (err.code==='1001' || err.code===1001 || /cancel/i.test((err && err.message)||''));
+    const cancelled = err && (err.code==='1001' || err.code===1001 || /\b1001\b/.test(String((err && err.message)||'')));
     if(cancelled){ if(btn) btn.disabled = false; return; }
     console.error('Weddy Apple sign-in error:', err);
     renderLoginForm(ta('authErrGeneric')((err && (err.code||err.message))||'unknown error'), true);
@@ -18758,12 +18761,24 @@ if(FIREBASE_READY){
       hadAuthenticatedUser = true;
       activeTab = 'inicio';
       collapseAllSections();
-      if(!user.emailVerified){
+      // Contas Apple: a Apple já verificou o email (real ou "Esconder o meu
+      // email"), por isso nunca se pede para confirmar por email.
+      const isAppleUser = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
+      if(!user.emailVerified && !isAppleUser){
         document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
         renderVerifyEmail(user);
         return;
       }
-      user.getIdToken(true).finally(()=>{ findOrCreateFlow(user); });
+      user.getIdToken(true).catch(()=>{}).then(()=>{
+        try{
+          if(!user.email) throw new Error('Conta sem email (Apple não partilhou o email).');
+          findOrCreateFlow(user);
+        }catch(e){
+          console.error('Weddy login flow error:', e && e.message);
+          document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
+          renderLoginForm(ta('authErrGeneric')((e && e.message)||'unknown error'), true);
+        }
+      });
     } else {
       // Out 2026 (auditoria): ao terminar sessão e entrar logo noutra conta
       // SEM recarregar, a app mantinha em memória os dados da conta anterior
