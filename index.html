@@ -17015,7 +17015,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     <button class="login-btn" id="al-pass-btn">${T('Entrar e associar','Sign in and link')}</button>
     <button type="button" class="login-btn" id="al-google" style="margin-top:10px; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${T('Entrar com a Google e associar','Sign in with Google and link')}</span></button>
     <div class="login-msg ${msg?'error':''}" id="al-msg">${msg||''}</div>
-    <div class="login-note" style="cursor:pointer;${knownEmail?' display:none;':''}" id="al-new">${T('Não tenho conta — criar um casamento novo','I have no account — create a new wedding')}</div>
+    <button type="button" class="login-btn" id="al-new" style="margin-top:10px; background:transparent; color:var(--ink); border:1px solid var(--line);${knownEmail?' display:none;':''}">${T('Sou novo — criar um casamento novo','I am new — create a new wedding')}</button>
     <div class="login-note" style="cursor:pointer; margin-top:10px;" id="al-cancel">${T('Cancelar','Cancel')}</div>
   `;
   const setMsg = (t)=>{ const m=document.getElementById('al-msg'); if(m){ m.textContent=t; m.className='login-msg error'; } };
