@@ -17069,12 +17069,52 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     if(!email || !pass){ setMsg(T('Escreve o email e a palavra-passe.','Enter your email and password.')); return; }
     doLink(async ()=>{ const r = await auth.signInWithEmailAndPassword(email, pass); return r.user; });
   });
-  document.getElementById('al-google').addEventListener('click', ()=>{
-    doLink(async ()=>{
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt:'select_account' });
-      const r = await auth.signInWithPopup(provider); return r.user;
-    });
+  document.getElementById('al-google').addEventListener('click', async ()=>{
+    // O popup da Google tem de abrir directamente no toque (senão o iOS bloqueia),
+    // por isso tenta-se ligar a Google à conta Apple actual; se essa Google já
+    // pertencer a uma conta Weddy (o caso normal), usamos essa credencial para
+    // entrar na conta existente e passamos-lhe a Apple.
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt:'select_account' });
+    const msgEl = document.getElementById('al-msg'); if(msgEl){ msgEl.textContent=''; msgEl.className='login-msg'; }
+    document.querySelectorAll('#login-inner button').forEach(b=>b.disabled=true);
+    try{
+      if(!auth.currentUser) throw new Error('sem sessão');
+      let gcred = null;
+      try{
+        await auth.currentUser.linkWithPopup(provider);
+        // A Google ainda não existia noutra conta: esta conta Apple passa a ter a Google.
+        pendingAppleCredential = null;
+        findOrCreateFlow(auth.currentUser);
+        return;
+      }catch(e){
+        if(e && e.code==='auth/credential-already-in-use' && e.credential) gcred = e.credential;
+        else throw e;
+      }
+      accountDeletionInProgress = true;
+      try{ await auth.currentUser.delete(); }
+      catch(e){ accountDeletionInProgress = false; throw e; }
+      let user;
+      try{ user = (await auth.signInWithCredential(gcred)).user; }
+      finally{ accountDeletionInProgress = false; }
+      let cred = pendingAppleCredential;
+      try{
+        if(!cred) throw new Error('no-cred');
+        await user.linkWithCredential(cred);
+      }catch(e1){
+        if(e1 && e1.code==='auth/credential-already-in-use') throw e1;
+        cred = await acquireAppleCredential();
+        await user.linkWithCredential(cred);
+      }
+      pendingAppleCredential = null;
+    }catch(err){
+      accountDeletionInProgress = false;
+      console.error('Weddy link Google error:', err && err.code, err && err.message);
+      const cancelled = err && (err.code==='1001' || err.code===1001 || err.code==='auth/popup-closed-by-user' || err.code==='auth/cancelled-popup-request');
+      let m = cancelled ? '' : (err && err.code==='auth/popup-blocked') ? ta('authErrPopupBlocked') : ta('authErrGeneric')((err && (err.code||err.message))||'unknown error');
+      if(auth.currentUser && (auth.currentUser.providerData||[]).some(p=>p.providerId==='apple.com') && auth.currentUser.providerData.length===1) renderAppleLinkChoice(auth.currentUser, knownEmail, m);
+      else if(!auth.currentUser) renderLoginForm(m, !!m);
+    }
   });
   document.getElementById('al-new').addEventListener('click', ()=>{ if(auth.currentUser) renderOnboarding(); else renderLoginForm(); });
   document.getElementById('al-cancel').addEventListener('click', ()=>{ if(auth.currentUser) auth.signOut(); else renderLoginForm(); });
