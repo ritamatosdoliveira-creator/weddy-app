@@ -11873,6 +11873,7 @@ function viewDefMenu(){
     ${defMenuRow('casamentos', ICONS.heart, 1, ta('switchWeddingTitle'), ta('switchWeddingDesc'))}
     ${defMenuRow('convidar', ICONS.guests, 1, ta('inviteTitle'), ta('inviteDesc'))}
     ${defMenuRow('seguranca', ICONS.lock, 5, ta('accessTitle'), ta('accessDesc'))}
+    ${defMenuRow('seguranca', ICONS.trash, 2, ta('deleteMyAccountTitle'), appLang==='en' ? 'Permanently delete your account and data (at the end of the Security page)' : 'Apaga a tua conta e os teus dados (no fim da página Segurança)')}
   </div>
 
   <div class="section-label-caps">${ta('sectionInfo')}</div>
@@ -11885,6 +11886,14 @@ function viewDefMenu(){
   <div class="section-label-caps">${ta('sectionHelp')}</div>
   <div class="list-group">
     ${defMenuRow('reportar', ICONS.warn, 2, ta('reportTitle'), ta('reportDesc'))}
+    <a class="list-row tappable" href="https://www.weddy.pt/suporte.html" target="_blank" rel="noopener" style="cursor:pointer; text-decoration:none; color:inherit;">
+      <div class="def-row-icon" style="${chipStyle(6)}">${ICONS.heart}</div>
+      <div class="def-row-mid">
+        <div class="def-row-title">${appLang==='en' ? 'Support' : 'Suporte'}</div>
+        <div class="def-row-desc">${appLang==='en' ? 'Questions and contact' : 'Perguntas frequentes e contacto'}</div>
+      </div>
+      ${ICONS.chev}
+    </a>
   </div>
 
   <button class="def-signout-btn" id="def-signout">${ICONS.logout} ${ta('signOut')}</button>
