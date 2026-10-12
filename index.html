@@ -17012,19 +17012,10 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
   document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
   document.getElementById('login-inner').innerHTML = `
     <div class="login-tag" style="font-weight:600; font-size:15px; color:var(--ink);">${T('Já tens conta na Weddy?','Do you already have a Weddy account?')}</div>
-    <div class="login-msg" style="margin:8px auto 14px;">${knownEmail ? T('O email '+escapeHTML(knownEmail)+' já tem conta na Weddy. Confirma que és tu (com a Google ou a palavra-passe) e a Apple fica associada ao teu casamento.','The email '+escapeHTML(knownEmail)+' already has a Weddy account. Confirm it is you (Google or password) and Apple will be linked to your wedding.') : T('A Apple escondeu o teu email, por isso não conseguimos encontrar a tua conta sozinhos. Entra na conta que já tens para a associar à Apple.','Apple hid your email, so we could not find your account automatically. Sign in to your existing account to link it to Apple.')}</div>
-    <div class="login-field">
-      <span class="login-field-icon">${ICONS.mail}</span>
-      <input type="email" class="has-icon" id="al-email" placeholder="${ta('emailPlaceholder')}" value="${escapeHTML(knownEmail||'')}" autocomplete="email" autocapitalize="none" autocorrect="off">
-    </div>
-    <div class="login-field" style="margin-top:10px;">
-      <span class="login-field-icon">${ICONS.lock}</span>
-      <input type="password" class="has-icon" id="al-pass" placeholder="${ta('passPlaceholder')}" autocomplete="current-password">
-    </div>
-    <button class="login-btn" id="al-pass-btn">${T('Entrar e associar','Sign in and link')}</button>
-    <button type="button" class="login-btn" id="al-google" style="margin-top:10px; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${T('Entrar com a Google e associar','Sign in with Google and link')}</span></button>
+    <div class="login-msg" style="margin:8px auto 14px;">${knownEmail ? T('O email '+escapeHTML(knownEmail)+' já tem conta na Weddy. Confirma que és tu com a Google e a Apple fica associada ao teu casamento.','The email '+escapeHTML(knownEmail)+' already has a Weddy account. Confirm it is you with Google and Apple will be linked to your wedding.') : T('A Apple escondeu o teu email, por isso não conseguimos encontrar a tua conta sozinhos. Entra com a Google na conta que já tens para a associar à Apple.','Apple hid your email, so we could not find your account automatically. Sign in with Google to your existing account to link it to Apple.')}</div>
+    <button type="button" class="login-btn" id="al-google" style="margin-top:6px; background:#fff; color:#3c4043; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_ICON}<span>${T('Entrar com a Google e associar','Sign in with Google and link')}</span></button>
     <div class="login-msg ${msg?'error':''}" id="al-msg">${msg||''}</div>
-    <button type="button" class="login-btn" id="al-new" style="margin-top:10px; background:transparent; color:var(--ink); border:1px solid var(--line);${knownEmail?' display:none;':''}">${T('Sou novo — criar um casamento novo','I am new — create a new wedding')}</button>
+    <button type="button" class="login-btn" id="al-new" style="margin-top:10px; background:transparent; color:var(--ink); border:1px solid var(--line);${knownEmail?' display:none;':''}">${T('Voltar e criar um casamento novo','Go back and create a new wedding')}</button>
     <div class="login-note" style="cursor:pointer; margin-top:10px;" id="al-cancel">${T('Cancelar','Cancel')}</div>
   `;
   const setMsg = (t)=>{ const m=document.getElementById('al-msg'); if(m){ m.textContent=t; m.className='login-msg error'; } };
@@ -17074,12 +17065,6 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
       }
     }
   }
-  document.getElementById('al-pass-btn').addEventListener('click', ()=>{
-    const email = (document.getElementById('al-email').value||'').trim();
-    const pass = document.getElementById('al-pass').value||'';
-    if(!email || !pass){ setMsg(T('Escreve o email e a palavra-passe.','Enter your email and password.')); return; }
-    doLink(async ()=>{ const r = await auth.signInWithEmailAndPassword(email, pass); return r.user; });
-  });
   document.getElementById('al-google').addEventListener('click', async ()=>{
     // O popup da Google tem de abrir directamente no toque (senão o iOS bloqueia),
     // por isso tenta-se ligar a Google à conta Apple actual; se essa Google já
@@ -17177,9 +17162,11 @@ function renderOnboarding(){
     </label>` : ''}
     <button class="login-btn" id="ob-save">${ta('obStart')}</button>
     <div class="login-msg" id="ob-msg"></div>
+    ${(typeof auth!=='undefined' && auth && auth.currentUser && (auth.currentUser.providerData||[]).some(p=>p.providerId==='apple.com') && auth.currentUser.providerData.length===1) ? `<div class="login-note" style="cursor:pointer; margin-top:14px; text-decoration:underline;" id="ob-link">${appLang==='en' ? 'Already have a Weddy account? Link it to Apple' : 'Já tens conta na Weddy? Associa à Apple'}</div>` : ''}
     <div class="login-note" style="cursor:pointer; margin-top:14px;" id="ob-cancel">${appLang==='en' ? 'Cancel and sign out' : 'Cancelar e sair'}</div>
   `;
   document.getElementById('ob-save').addEventListener('click', handleOnboardingSubmit);
+  { const l=document.getElementById('ob-link'); if(l) l.addEventListener('click', ()=>renderAppleLinkChoice(auth.currentUser, isAppleRelayEmail(auth.currentUser.email)?null:auth.currentUser.email)); }
   document.getElementById('ob-cancel').addEventListener('click', ()=>{ if(typeof auth!=='undefined' && auth) auth.signOut(); });
 }
 function handleOnboardingSubmit(){
@@ -18684,8 +18671,7 @@ function findOrCreateFlow(user, isRetry){
       inspirations = [];
       dressInspirations = [];
       const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
-      if(_isApple) renderAppleLinkChoice(user, isAppleRelayEmail(user.email) ? null : user.email);
-      else renderOnboarding();
+      renderOnboarding();
     }
   }).catch(err=>{
     // O "bilhete de acesso" (token) pode estar desatualizado — por exemplo logo depois
