@@ -11,6 +11,7 @@
      copiar. Ver também /robots.txt, mesmo motivo. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<script>try{ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) document.documentElement.classList.add('native-app'); }catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -121,6 +122,31 @@ html{
     height:min(920px, 94vh);
     border-radius:44px;
     box-shadow:0 40px 90px rgba(48,44,41,0.32), 0 0 0 10px #fff, 0 0 0 11px rgba(48,44,41,0.08);
+  }
+}
+
+
+/* ===================== APP NATIVA NO iPAD (Apple Guideline 4) =====================
+   Na app iOS, em ecrãs largos (iPad), a app ocupa o ecrã todo em vez de
+   aparecer dentro da moldura de telemóvel. O conteúdo fica centrado com uma
+   largura de leitura confortável. */
+@media (min-width:760px){
+  html.native-app.login-active{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
+  html.native-app .login-screen{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
+  html.native-app .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
+  html.native-app body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
+  html.native-app .screen{
+    width:100%; height:100%; flex:1; border-radius:0; box-shadow:none;
+  }
+  html.native-app .scroll,
+  html.native-app .navbar,
+  html.native-app .hm-header{
+    padding-left:max(18px, calc((100% - 820px) / 2));
+    padding-right:max(18px, calc((100% - 820px) / 2));
+  }
+  html.native-app .tabbar{
+    padding-left:max(0px, calc((100% - 820px) / 2));
+    padding-right:max(0px, calc((100% - 820px) / 2));
   }
 }
 
