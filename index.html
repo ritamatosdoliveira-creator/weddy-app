@@ -101,50 +101,24 @@ html{
 .screen{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; overscroll-behavior-x:none; touch-action:pan-y; }
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 4px); flex-shrink:0; }
 
-/* ===================== PC / ECRÃS LARGOS ===================== */
-/* A partir daqui a app fica dentro de uma "moldura" de telemóvel,
-   centrada no ecrã — quase tudo dentro de .screen já usa
-   position:absolute relativo a .screen, por isso basta dar-lhe um
-   tamanho e cantos arredondados para os ecrãs, sheets, tabbar, etc.
-   ficarem automaticamente dentro da moldura. */
-@media (min-width:760px){
-  body{
-    align-items:center;
-    justify-content:center;
-    background:
-      radial-gradient(circle at 18% 15%, rgba(185,103,82,0.16), transparent 55%),
-      radial-gradient(circle at 82% 88%, rgba(168,179,156,0.16), transparent 55%),
-      var(--cream2);
-  }
-  .screen{
-    flex:none;
-    width:430px;
-    height:min(920px, 94vh);
-    border-radius:44px;
-    box-shadow:0 40px 90px rgba(48,44,41,0.32), 0 0 0 10px #fff, 0 0 0 11px rgba(48,44,41,0.08);
-  }
-}
-
-
-/* ===================== APP NATIVA NO iPAD (Apple Guideline 4) =====================
-   Na app iOS, em ecrãs largos (iPad), a app ocupa o ecrã todo em vez de
-   aparecer dentro da moldura de telemóvel. O conteúdo fica centrado com uma
+/* ===================== ECRÃS LARGOS (iPad, PC) =====================
+   Em ecrãs largos a app ocupa o ecrã todo (sem moldura de telemóvel). O conteúdo fica centrado com uma
    largura de leitura confortável. */
 @media (min-width:760px){
-  html.native-app.login-active{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
-  html.native-app .login-screen{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
-  html.native-app .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
-  html.native-app body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
-  html.native-app .screen{
+  html.login-active{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
+  html .login-screen{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
+  html .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
+  html body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
+  html .screen{
     width:100%; height:100%; flex:1; border-radius:0; box-shadow:none;
   }
-  html.native-app .scroll,
-  html.native-app .navbar,
-  html.native-app .hm-header{
+  html .scroll,
+  html .navbar,
+  html .hm-header{
     padding-left:max(18px, calc((100% - 820px) / 2));
     padding-right:max(18px, calc((100% - 820px) / 2));
   }
-  html.native-app .tabbar{
+  html .tabbar{
     padding-left:max(0px, calc((100% - 820px) / 2));
     padding-right:max(0px, calc((100% - 820px) / 2));
   }
