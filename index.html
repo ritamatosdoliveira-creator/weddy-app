@@ -148,7 +148,7 @@ html{
   html .sheet.show{ margin-bottom:24px; }
   /* Início: grelha em vez de coluna */
   html [data-panel="inicio"] .scroll{
-    display:grid; grid-template-columns:repeat(10, 1fr); column-gap:10px; align-content:start;
+    display:grid; grid-template-columns:repeat(10, 1fr); grid-auto-rows:max-content; column-gap:10px; align-content:start;
   }
   html [data-panel="inicio"] .scroll > *{ grid-column:1 / -1; min-width:0; margin-left:0 !important; margin-right:0 !important; }
   html [data-panel="inicio"] .home-header-v2{ padding-left:0; padding-right:0; justify-content:flex-end; }
