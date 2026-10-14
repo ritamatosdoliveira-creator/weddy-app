@@ -112,10 +112,10 @@ html{
   html .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
   html body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
   html .screen{ width:100%; height:100%; flex:1; border-radius:0; box-shadow:none; padding-left:232px; box-sizing:border-box; }
-  html .scroll{ padding-bottom:48px; }
+  html .scroll{ padding-bottom:0; }
   /* Espaço extra no fim (o padding sozinho é ignorado por alguns WebKit em
      contentores com scroll) para o último cartão nunca ficar escondido. */
-  html .scroll::after{ content:''; display:block; flex:none; height:140px; grid-column:1 / -1; }
+  html .scroll::after{ content:''; display:block; flex:none; height:56px; grid-column:1 / -1; }
   html .scroll,
   html .navbar,
   html .hm-header{
