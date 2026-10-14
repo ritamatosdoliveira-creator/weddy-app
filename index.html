@@ -102,26 +102,74 @@ html{
 .statusbar-spacer{ height:calc(env(safe-area-inset-top) + 4px); flex-shrink:0; }
 
 /* ===================== ECRÃS LARGOS (iPad, PC) =====================
-   Em ecrãs largos a app ocupa o ecrã todo (sem moldura de telemóvel). O conteúdo fica centrado com uma
-   largura de leitura confortável. */
-@media (min-width:760px){
+   Em ecrãs largos a app deixa de ser uma "coluna de telemóvel": a barra de
+   separadores passa a barra lateral (como nas apps nativas do iPad), o
+   conteúdo ocupa o resto do ecrã com uma largura de leitura confortável e
+   a página Início passa a grelha de várias colunas. */
+@media (min-width:700px) and (min-height:560px){
   html.login-active{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
   html .login-screen{ background:#FBF1E7 url('login-bg.jpg') center top/cover no-repeat; }
   html .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
   html body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
-  html .screen{
-    width:100%; height:100%; flex:1; border-radius:0; box-shadow:none;
-  }
+  html .screen{ width:100%; height:100%; flex:1; border-radius:0; box-shadow:none; padding-left:232px; box-sizing:border-box; }
+  html .scroll{ padding-bottom:48px; }
   html .scroll,
   html .navbar,
   html .hm-header{
-    padding-left:max(18px, calc((100% - 820px) / 2));
-    padding-right:max(18px, calc((100% - 820px) / 2));
+    padding-left:max(22px, calc((100% - 960px) / 2));
+    padding-right:max(22px, calc((100% - 960px) / 2));
   }
+  /* Barra lateral */
   html .tabbar{
-    padding-left:max(0px, calc((100% - 820px) / 2));
-    padding-right:max(0px, calc((100% - 820px) / 2));
+    top:0; bottom:0; right:auto; left:0; width:232px; box-sizing:border-box;
+    flex-direction:column; justify-content:flex-start; gap:4px;
+    padding:calc(env(safe-area-inset-top,0px) + 76px) 14px 24px;
+    border-top:none; border-right:1px solid var(--line);
+    background:var(--cream2);
+    backdrop-filter:none; -webkit-backdrop-filter:none;
   }
+  html .tabbar::before{
+    content:'weddy'; position:absolute; top:calc(env(safe-area-inset-top,0px) + 26px); left:26px;
+    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:34px; color:var(--rust); letter-spacing:.01em;
+  }
+  html .tabbar button{
+    flex:none; flex-direction:row; align-items:center; justify-content:flex-start; gap:12px;
+    padding:12px 14px; border-radius:12px; color:var(--ink-soft);
+  }
+  html .tabbar button:hover{ background:rgba(0,0,0,0.035); }
+  html .tabbar button .tab-icon-wrap{ width:24px; height:24px; }
+  html .tabbar button svg{ width:21px; height:21px; }
+  html .tabbar button span:not(.tab-icon-wrap){ font-size:15px; font-weight:600; letter-spacing:0; }
+  html .tabbar button.active{ background:rgba(185,103,82,0.12); color:var(--rust); }
+  html .tabbar button.active::after{ display:none; }
+  html .chat-fab{ bottom:calc(24px + env(safe-area-inset-bottom,0px)); right:24px; }
+  /* Janelas que sobem de baixo: centradas, com largura de cartão */
+  html .sheet{ left:0; right:0; margin-left:auto; margin-right:auto; width:560px; max-width:calc(100% - 32px); border-radius:24px; bottom:0; }
+  html .sheet.show{ margin-bottom:24px; }
+  /* Início: grelha em vez de coluna */
+  html [data-panel="inicio"] .scroll{
+    display:grid; grid-template-columns:repeat(10, 1fr); column-gap:10px; align-content:start;
+  }
+  html [data-panel="inicio"] .scroll > *{ grid-column:1 / -1; min-width:0; margin-left:0 !important; margin-right:0 !important; }
+  html [data-panel="inicio"] .home-header-v2{ padding-left:0; padding-right:0; justify-content:flex-end; }
+  html [data-panel="inicio"] .home-header-v2 > div:first-child{ display:none; }
+  html [data-panel="inicio"] .section-label-v2, html [data-panel="inicio"] .section-label-row-v2{ margin-left:0 !important; margin-right:0 !important; }
+  html [data-panel="inicio"] .quicklink-grid{ display:contents; }
+  html [data-panel="inicio"] .quicklink-card,
+  html [data-panel="inicio"] .quicklink-card-lg{
+    grid-column:span 2; aspect-ratio:auto; min-height:104px; margin:0 0 8px; padding:16px 10px;
+  }
+  html [data-panel="inicio"] .quicklink-label{ font-size:13.5px; text-align:center; }
+  html [data-panel="inicio"] .quicklink-icon, html [data-panel="inicio"] .quicklink-icon svg{ width:27px; height:27px; }
+}
+
+@media (min-width:700px) and (min-height:560px) and (max-width:900px){
+  html .screen{ padding-left:204px; }
+  html .tabbar{ width:204px; }
+  html .tabbar::before{ left:22px; }
+  html .tabbar button{ padding:11px 12px; }
+  html [data-panel="inicio"] .quicklink-card, html [data-panel="inicio"] .quicklink-card-lg{ padding:14px 4px; }
+  html [data-panel="inicio"] .quicklink-label{ font-size:12px; }
 }
 
 /* ===================== NAV / CONTENT ===================== */
