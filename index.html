@@ -2000,9 +2000,25 @@ let pendingStripeCheckoutReturn = null;
 // Se um dia trocarmos de fornecedor, ou tivermos mais do que uma chamada
 // de IA na app, é só este bloco que muda.
 // ============================================================
+// Apple 5.1.2(i): antes de enviar texto a uma IA de terceiros (OpenAI) é
+// preciso dizer onde vão os dados e obter permissão explícita. Pede-se uma vez
+// por conta neste dispositivo; se a pessoa recusar, nada é enviado.
+let aiConsentSession = false;
+function aiConsentKey(){ return 'weddyAIConsent_' + ((typeof auth!=='undefined' && auth && auth.currentUser && auth.currentUser.uid) || 'anon'); }
+async function ensureAIConsent(){
+  if(aiConsentSession) return true;
+  try{ if(localStorage.getItem(aiConsentKey())==='1'){ aiConsentSession = true; return true; } }catch(e){}
+  const msg = appLang==='en'
+    ? 'To understand free-text questions and seating requests, Weddy sends the text you write to our AI provider, OpenAI (United States), which processes it only to reply to you. Do not include sensitive data. Do you agree?'
+    : 'Para perceber perguntas em texto livre e pedidos de lugares, a Weddy envia o texto que escreves ao nosso fornecedor de IA, a OpenAI (Estados Unidos), que o processa só para te responder. Não incluas dados sensíveis. Aceitas?';
+  const ok = await weddyConfirm(msg);
+  if(ok){ aiConsentSession = true; try{ localStorage.setItem(aiConsentKey(),'1'); }catch(e){} }
+  return !!ok;
+}
 const AIService = {
   async classify(question, role){
     if(!cloudFunctions) return { intent:'UNKNOWN' };
+    if(!(await ensureAIConsent())) return { intent:'UNKNOWN' };
     try{
       const call = cloudFunctions.httpsCallable('classifyWeddyIntent');
       // Não envia weddingId: a função deriva sempre o casamento a partir
@@ -2026,6 +2042,9 @@ const AIService = {
   // Cloud Function que interpreta esse texto, nunca o cliente.
   async generateSeatingProposal(constraints, freeText){
     if(!cloudFunctions) return { ok:false, reason:'NO_BACKEND', message:ta('svcNoConnectionAI') };
+    if(freeText && String(freeText).trim() && !(await ensureAIConsent())){
+      return { ok:false, reason:'NO_CONSENT', message: appLang==='en' ? 'Without your permission to use the AI provider, free-text requests cannot be processed.' : 'Sem a tua permissão para usar o fornecedor de IA, não é possível processar pedidos em texto livre.' };
+    }
     try{
       const call = cloudFunctions.httpsCallable('generateSeatingProposal');
       const res = await call({ constraints, freeText: freeText||'' });
@@ -3701,8 +3720,8 @@ const APP_I18N = {
     subscriptionFeatureGuests:'Convidados ilimitados', subscriptionFeatureAISeating:'AI Seating', subscriptionFeatureWeddingHealth:'Wedding Health',
     subscriptionFeatureMemories:'Memórias', subscriptionFeatureRSVP:'RSVP avançado', subscriptionFeatureMore:'E muito mais…',
     subscriptionCurrentPlanLabel:'Plano atual', subscriptionDefaultPlanName:'Premium — 12 meses', subscriptionPriceText:'30€ / 12 meses',
-    premiumPriceYearNote:'30€ por ano (válido durante 12 meses)',
-    subscriptionRenewsOnLabel:(d)=>`Renova a ${d}`,
+    premiumPriceYearNote:'30€ · pagamento único, válido durante 12 meses (sem renovação automática)',
+    subscriptionRenewsOnLabel:(d)=>`Válido até ${d}`,
     subscriptionNeedHelpTitle:'Precisas de ajuda?', subscriptionNeedHelpDesc:'Fala com a nossa equipa de suporte.',
     confirmCancelSubscriptionText:'Isto cancela já a subscrição Weddy Premium — todas as funcionalidades Premium (RSVP, Wedding Health, Memórias, Documentos, Google Calendar, Assistente) ficam bloqueadas de imediato. Confirmas?',
     alertSubscriptionCancelError:'Não foi possível cancelar a subscrição agora — verifica a ligação e tenta de novo.',
@@ -4071,7 +4090,7 @@ const APP_I18N = {
     premiumLockedText:(title)=>`"${title}" e as restantes funcionalidades Premium ficam disponíveis assim que teres uma subscrição ativa.`,
     premiumFeatureRSVP:'Convites RSVP com link individual por convidado',
     premiumFeatureAssistant:'Assistente Weddy para tirar dúvidas sobre o teu casamento',
-    btnSubscribePremium:'Subscrever Weddy Premium',
+    btnSubscribePremium:'Desbloquear Weddy Premium',
     assistLockedText:'O Assistente Weddy e os Convites RSVP ficam disponíveis assim que tiveres uma subscrição ativa.',
     assistGreeting1: name => `Olá${name}! 👋 Sou a assistente da Weddy e estou aqui para ajudar-te com tudo o que precisares sobre o teu casamento.`,
     assistGreeting2:'Podes perguntar-me sobre fornecedores, listas de convidados, orçamento, checklist, funcionalidades da app e muito mais!\n\nComo posso ajudar-te hoje?',
@@ -4837,8 +4856,8 @@ const APP_I18N = {
     subscriptionFeatureGuests:'Unlimited guests', subscriptionFeatureAISeating:'AI Seating', subscriptionFeatureWeddingHealth:'Wedding Health',
     subscriptionFeatureMemories:'Memories', subscriptionFeatureRSVP:'Advanced RSVP', subscriptionFeatureMore:'And much more…',
     subscriptionCurrentPlanLabel:'Current plan', subscriptionDefaultPlanName:'Premium — 12 months', subscriptionPriceText:'€30 / 12 months',
-    premiumPriceYearNote:'€30 per year (valid for 12 months)',
-    subscriptionRenewsOnLabel:(d)=>`Renews on ${d}`,
+    premiumPriceYearNote:'€30 · one-time payment, valid for 12 months (no automatic renewal)',
+    subscriptionRenewsOnLabel:(d)=>`Valid until ${d}`,
     subscriptionNeedHelpTitle:'Need help?', subscriptionNeedHelpDesc:'Get in touch with our support team.',
     confirmCancelSubscriptionText:'This cancels your Weddy Premium subscription right away — every Premium feature (RSVP, Wedding Health, Memories, Documents, Google Calendar, Assistant) is locked immediately. Confirm?',
     alertSubscriptionCancelError:'Could not cancel the subscription right now — check your connection and try again.',
@@ -5166,7 +5185,7 @@ const APP_I18N = {
     premiumLockedText:(title)=>`"${title}" and the remaining Premium features become available once you have an active subscription.`,
     premiumFeatureRSVP:'RSVP invitations with an individual link per guest',
     premiumFeatureAssistant:'Weddy Assistant to answer questions about your wedding',
-    btnSubscribePremium:'Subscribe to Weddy Premium',
+    btnSubscribePremium:'Unlock Weddy Premium',
     assistLockedText:'The Weddy Assistant and RSVP invitations become available once you have an active subscription.',
     assistGreeting1: name => `Hi${name}! 👋 I'm the Weddy assistant and I'm here to help you with anything about your wedding.`,
     assistGreeting2:"You can ask me about suppliers, guest lists, budget, checklist, app features and much more!\n\nHow can I help you today?",
@@ -11125,7 +11144,6 @@ function viewDefPremiumLocked(title){
     <div class="l" style="margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600;">${ta('premiumPriceYearNote')}</div>
     <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
     ${restorePurchasesLinkHTML()}
-    <div class="empty-note" style="margin:10px 0 0;">${ta('testAccountNote')}</div>
   </div>
   `;
 }
@@ -11715,7 +11733,6 @@ function buildChatPanelBody(){
       <div class="premium-upsell-text">${ta('assistLockedText')}</div>
       <button class="login-btn" id="chat-premium-subscribe-btn" style="max-width:200px; font-size:12.5px; padding:8px 0;">${ta('btnSubscribePremium')}</button>
       ${restorePurchasesLinkHTML()}
-      <div class="empty-note" style="margin:10px 0 0;">${ta('testAccountNote')}</div>
     </div>`;
   }
   const nowHHMM = new Date().toTimeString().slice(0,5);
@@ -11943,7 +11960,9 @@ function viewDefSubscricao(){
       </div>
       ${expiryLabel ? `<span class="rsvp-pill" style="background:var(--cream); color:var(--rust-dark); white-space:nowrap;">${ta('subscriptionRenewsOnLabel')(expiryLabel)}</span>` : ''}
     </div>
-    <button class="login-btn" id="subscription-cancel-btn" style="margin-top:10px;">${ta('btnCancelSubscription')}</button>
+    ${isNativeIOSApp()
+      ? `<div class="empty-note" style="margin:10px 0 0; text-align:center;">${appLang==='en' ? 'One-time payment for 12 months. It does not renew automatically, so there is nothing to cancel.' : 'Pagamento único para 12 meses. Não renova automaticamente, por isso não há nada para cancelar.'}</div>`
+      : `<button class="login-btn" id="subscription-cancel-btn" style="margin-top:10px;">${ta('btnCancelSubscription')}</button>`}
   </div>
   <div class="list-group" style="margin-bottom:30px;">
     <div class="list-row tappable" data-defgoto="reportar" style="cursor:pointer;">
