@@ -2367,6 +2367,16 @@ function restorePurchasesLinkHTML(){
   const label = appLang==='en' ? 'Restore purchases' : 'Restaurar compras';
   return `<div style="text-align:center; margin-top:10px;"><button type="button" class="js-restore-purchases" style="all:unset; cursor:pointer; font-size:13px; color:var(--rust-dark); text-decoration:underline; padding:6px 10px;">${label}</button></div>`;
 }
+let restoreBtnInFlight = null;
+// Ao voltar à app (ex.: depois de ir às Definições do telemóvel) a janela da
+// Apple já não existe: repõe o botão se tiver ficado preso em "A restaurar…".
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState!=='visible') return;
+  setTimeout(()=>{
+    const f = restoreBtnInFlight;
+    if(f && f.btn){ f.btn.disabled = false; f.btn.textContent = f.original; }
+  }, 2500);
+});
 async function restorePremiumPurchases(btn){
   const T = (pt,en)=> appLang==='en' ? en : pt;
   if(typeof hasActiveSubscription==='function' && hasActiveSubscription()){
@@ -2375,12 +2385,18 @@ async function restorePremiumPurchases(btn){
   }
   const original = btn ? btn.textContent : '';
   if(btn){ btn.disabled = true; btn.textContent = T('A restaurar…','Restoring…'); }
+  restoreBtnInFlight = btn ? { btn, original } : null;
   try{
     const Purchases = getRevenueCatPlugin();
     if(!Purchases) throw new Error('revenuecat-plugin-unavailable');
     const ready = await ensureRevenueCatConfigured();
     if(!ready) throw new Error('revenuecat-not-configured');
-    const res = await Purchases.restorePurchases();
+    // Sem resposta em 25 s (ex.: a pessoa saiu da app a meio da janela da Apple)
+    // não fica "a restaurar…" para sempre.
+    const res = await Promise.race([
+      Purchases.restorePurchases(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('restore-timeout')), 25000))
+    ]);
     const info = (res && res.customerInfo) || res || {};
     const active = info.entitlements && info.entitlements.active ? Object.keys(info.entitlements.active) : [];
     const subs = info.activeSubscriptions || [];
@@ -2394,6 +2410,7 @@ async function restorePremiumPurchases(btn){
     weddyAlert(T('Não foi possível restaurar as compras agora. Tenta outra vez dentro de instantes.','Could not restore purchases right now. Please try again in a moment.'));
   }finally{
     if(btn){ btn.disabled = false; btn.textContent = original; }
+    restoreBtnInFlight = null;
   }
 }
 document.addEventListener('click', (e)=>{
