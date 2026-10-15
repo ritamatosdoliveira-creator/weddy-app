@@ -2357,6 +2357,45 @@ async function startPremiumCheckout(){
   if(!url) throw new Error('no-checkout-url');
   window.location.href = url;
 }
+// Guideline 3.1.1 (Apple): a app tem de ter um "Restaurar compras". O Premium
+// fica sempre ligado à conta Weddy (o appUserID da RevenueCat é o UID do
+// Firebase), por isso entrar com a mesma conta noutro dispositivo já o
+// ativa; este botão pede também à App Store/RevenueCat para voltarem a
+// verificar as compras feitas com o Apple ID deste dispositivo.
+function restorePurchasesLinkHTML(){
+  if(!isNativeIOSApp()) return '';
+  const label = appLang==='en' ? 'Restore purchases' : 'Restaurar compras';
+  return `<div style="text-align:center; margin-top:10px;"><button type="button" class="js-restore-purchases" style="all:unset; cursor:pointer; font-size:13px; color:var(--rust-dark); text-decoration:underline; padding:6px 10px;">${label}</button></div>`;
+}
+async function restorePremiumPurchases(btn){
+  const T = (pt,en)=> appLang==='en' ? en : pt;
+  const original = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = T('A restaurar…','Restoring…'); }
+  try{
+    const Purchases = getRevenueCatPlugin();
+    if(!Purchases) throw new Error('revenuecat-plugin-unavailable');
+    const ready = await ensureRevenueCatConfigured();
+    if(!ready) throw new Error('revenuecat-not-configured');
+    const res = await Purchases.restorePurchases();
+    const info = (res && res.customerInfo) || res || {};
+    const active = info.entitlements && info.entitlements.active ? Object.keys(info.entitlements.active) : [];
+    const subs = info.activeSubscriptions || [];
+    if(active.length || subs.length){
+      weddyAlert(T('Compra restaurada! O Weddy Premium fica ativo em instantes nesta conta. Se não ficar, volta a abrir a app.','Purchase restored! Weddy Premium will be active on this account in a moment. If it is not, reopen the app.'));
+    }else{
+      weddyAlert(T('Não encontrámos nenhuma compra para restaurar neste Apple ID. Se compraste o Premium com outra conta Weddy, entra com essa conta: o Premium está ligado à conta com que foi comprado.','We did not find any purchase to restore for this Apple ID. If you bought Premium with another Weddy account, sign in with that account: Premium is tied to the account it was bought with.'));
+    }
+  }catch(err){
+    console.error('Weddy restore purchases error:', err && (err.message||err.code));
+    weddyAlert(T('Não foi possível restaurar as compras agora. Tenta outra vez dentro de instantes.','Could not restore purchases right now. Please try again in a moment.'));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = original; }
+  }
+}
+document.addEventListener('click', (e)=>{
+  const b = e.target && e.target.closest && e.target.closest('.js-restore-purchases');
+  if(b){ e.preventDefault(); restorePremiumPurchases(b); }
+});
 // Bug reportado pela Rita (Set 2026): ao clicar em "Cancelar" na própria
 // página do Stripe (a seta/link de voltar, não o nosso cancel_url), o
 // Stripe usa o HISTÓRICO do browser para voltar — e o Chrome/Safari
@@ -6334,7 +6373,8 @@ function premiumFeatureGrid(){
         <div class="premium-hub-cta-desc" style="font-weight:700; margin-top:2px;">${ta('premiumPriceYearNote')}</div>
       </div>
       <button class="premium-hub-cta-btn js-premium-subscribe">${ta('btnSubscribePremium')} ${ICONS.chev}</button>
-    </div>`}
+    </div>
+    ${restorePurchasesLinkHTML()}`}
   </div>`;
 }
 
@@ -7065,6 +7105,7 @@ function viewAISeatingLocked(){
     <div class="premium-upsell-title">Weddy Premium</div>
     <div class="premium-upsell-text">${ta('premiumLockedText')(ta('aiSeatingTitle'))}</div>
     <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
+    ${restorePurchasesLinkHTML()}
   </div>
   `;
 }
@@ -11043,6 +11084,7 @@ function viewDefPremiumLocked(title){
     <ul class="premium-upsell-list">${listHtml}</ul>
     <div class="l" style="margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600;">${ta('premiumPriceYearNote')}</div>
     <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
+    ${restorePurchasesLinkHTML()}
     <div class="empty-note" style="margin:10px 0 0;">${ta('testAccountNote')}</div>
   </div>
   `;
@@ -11632,6 +11674,7 @@ function buildChatPanelBody(){
       <div class="premium-upsell-title" style="font-size:19px;">Weddy Premium</div>
       <div class="premium-upsell-text">${ta('assistLockedText')}</div>
       <button class="login-btn" id="chat-premium-subscribe-btn" style="max-width:200px; font-size:12.5px; padding:8px 0;">${ta('btnSubscribePremium')}</button>
+      ${restorePurchasesLinkHTML()}
       <div class="empty-note" style="margin:10px 0 0;">${ta('testAccountNote')}</div>
     </div>`;
   }
