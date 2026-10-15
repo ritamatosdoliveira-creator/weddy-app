@@ -2394,17 +2394,25 @@ async function restorePremiumPurchases(btn){
     step = 'configure';
     const ready = await withTimeout(ensureRevenueCatConfigured(), 'configure');
     if(!ready) throw new Error('revenuecat-not-configured');
-    step = 'restorePurchases';
-    let res;
-    try{
-      res = await Promise.race([Purchases.restorePurchases(), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout em restorePurchases')), 12000))]);
-    }catch(e1){
-      // A App Store pode não responder a um restauro para este tipo de produto
-      // (pagamento único): pergunta então diretamente à RevenueCat o que existe
-      // para esta conta Weddy (o restauro é por conta).
-      console.warn('Weddy restorePurchases sem resposta, a consultar a conta:', e1 && e1.message);
-      step = 'getCustomerInfo';
-      res = await withTimeout(Purchases.getCustomerInfo(), 'getCustomerInfo');
+    // 1) Pergunta primeiro à RevenueCat o que existe para esta conta (não abre
+    //    nenhuma janela da Apple e não depende da App Store).
+    step = 'getCustomerInfo';
+    let res = await withTimeout(Purchases.getCustomerInfo(), 'getCustomerInfo');
+    const hasPurchase = (r)=>{
+      const i0 = (r && r.customerInfo) || r || {};
+      return !!((i0.entitlements && i0.entitlements.active && Object.keys(i0.entitlements.active).length) || (i0.activeSubscriptions||[]).length || (i0.nonSubscriptionTransactions||[]).length);
+    };
+    // 2) Se não houver nada, pede também à App Store que volte a verificar.
+    if(!hasPurchase(res)){
+      step = 'restorePurchases';
+      try{
+        const r2 = await Promise.race([Purchases.restorePurchases(), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout em restorePurchases')), 12000))]);
+        if(r2) res = r2;
+      }catch(e1){
+        // A App Store pode não responder para este tipo de produto: o restauro
+        // é por conta, e a conta já foi consultada acima.
+        console.warn('Weddy restorePurchases sem resposta:', e1 && e1.message);
+      }
     }
     step = 'resultado';
     const info = (res && res.customerInfo) || res || {};
