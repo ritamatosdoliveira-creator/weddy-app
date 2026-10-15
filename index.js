@@ -133,6 +133,39 @@ const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 // Integrations → Webhooks) e tem de ser EXATAMENTE o mesmo valor aqui.
 // Nunca em texto simples — vive no Secret Manager como os outros acima.
 const REVENUECAT_WEBHOOK_AUTH = defineSecret('REVENUECAT_WEBHOOK_AUTH');
+
+// Sign in with Apple — revogação de tokens ao apagar a conta (exigido pela Apple).
+// A chave .p8 vive no Secret Manager: firebase functions:secrets:set APPLE_SIGNIN_PRIVATE_KEY
+const APPLE_SIGNIN_PRIVATE_KEY = defineSecret('APPLE_SIGNIN_PRIVATE_KEY');
+const APPLE_TEAM_ID = '53BSXHFB54';
+const APPLE_KEY_ID = 'GQNJQP373J';
+const APPLE_CLIENT_ID = 'pt.weddy.ios';
+
+function appleClientSecret(privateKeyPem) {
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const now = Math.floor(Date.now() / 1000);
+  const head = b64({ alg: 'ES256', kid: APPLE_KEY_ID, typ: 'JWT' });
+  const body = b64({ iss: APPLE_TEAM_ID, iat: now, exp: now + 300, aud: 'https://appleid.apple.com', sub: APPLE_CLIENT_ID });
+  const sig = crypto.sign('sha256', Buffer.from(head + '.' + body), { key: privateKeyPem, dsaEncoding: 'ieee-p1363' }).toString('base64url');
+  return head + '.' + body + '.' + sig;
+}
+
+// Nunca bloqueia o apagamento da conta: se falhar, só regista o erro.
+async function revokeAppleSignIn(authorizationCode) {
+  try {
+    if (!authorizationCode) return false;
+    const secret = appleClientSecret(APPLE_SIGNIN_PRIVATE_KEY.value());
+    const form = (o) => new URLSearchParams(o).toString();
+    const post = (url, o) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form(o) });
+    const tokRes = await post('https://appleid.apple.com/auth/token', { client_id: APPLE_CLIENT_ID, client_secret: secret, code: authorizationCode, grant_type: 'authorization_code' });
+    const tok = await tokRes.json();
+    if (!tokRes.ok || !(tok.refresh_token || tok.access_token)) { logger.error('revokeAppleSignIn: troca de código falhou.', JSON.stringify(tok)); return false; }
+    const useRefresh = !!tok.refresh_token;
+    const revRes = await post('https://appleid.apple.com/auth/revoke', { client_id: APPLE_CLIENT_ID, client_secret: secret, token: useRefresh ? tok.refresh_token : tok.access_token, token_type_hint: useRefresh ? 'refresh_token' : 'access_token' });
+    if (!revRes.ok) { logger.error('revokeAppleSignIn: revogação falhou.', await revRes.text()); return false; }
+    return true;
+  } catch (e) { logger.error('revokeAppleSignIn: erro.', e.message || e); return false; }
+}
 // Contas de revisão da Apple: as compras de teste (sandbox) só ativam Premium
 // para estes UIDs, para o revisor poder testar o In-App Purchase. Todas as
 // outras compras sandbox continuam ignoradas.
@@ -892,7 +925,7 @@ async function deleteStoragePrefix(prefix) {
   }
 }
 
-exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE_TOKEN_ENCRYPTION_KEY] }, async (request) => {
+exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE_TOKEN_ENCRYPTION_KEY, APPLE_SIGNIN_PRIVATE_KEY] }, async (request) => {
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
@@ -1018,6 +1051,10 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
   // Só apaga a conta de autenticação DEPOIS dos dados terem sido tratados
   // com sucesso, para nunca ficar uma conta órfã sem dados a apagar mas
   // também sem forma de voltar a entrar para tentar de novo.
+  try {
+    const ac = request.data && request.data.appleAuthorizationCode;
+    if (typeof ac === 'string' && ac.length < 2000) await revokeAppleSignIn(ac);
+  } catch (e) { logger.error('deleteWeddingAccount: revogação Apple falhou.', e.message || e); }
   try {
     await admin.auth().deleteUser(uid);
   } catch (err) {

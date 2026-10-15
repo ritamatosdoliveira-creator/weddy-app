@@ -16196,6 +16196,7 @@ async function exportMyDataAsJson(btn){
   }
 }
 let accountDeletionInProgress = false;
+let pendingAppleAuthCode = null;
 function accountDeletionUsesPassword(){
   const u = auth && auth.currentUser;
   if(!u) return true;
@@ -16229,6 +16230,8 @@ async function reauthenticateForAccountDeletion(user, pass){
     // A Apple já respondeu: mostra logo que estamos a entrar, para o ecrã de
     // login não parecer "parado" enquanto a Firebase confirma a conta.
     renderLoading(ta('verifyingAccount'));
+    // Código de uso único, enviado à função para revogar o token da Apple (exigido pela Apple ao apagar conta).
+    pendingAppleAuthCode = (result && result.response && result.response.authorizationCode) || null;
     const credential = new firebase.auth.OAuthProvider('apple.com').credential({ idToken: identityToken, rawNonce });
     return user.reauthenticateWithCredential(credential);
   }
@@ -16286,7 +16289,8 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
       return Promise.reject(new Error('Função de eliminação de conta não disponível (Cloud Functions não configuradas).'));
     }
     const call = cloudFunctions.httpsCallable('deleteWeddingAccount');
-    return call({});
+    const codeForRevoke = pendingAppleAuthCode; pendingAppleAuthCode = null;
+    return call(codeForRevoke ? { appleAuthorizationCode: codeForRevoke } : {});
   }).then(()=>{
     closeDeleteAccountSheet();
     if(unsubscribeSnapshot) unsubscribeSnapshot();
