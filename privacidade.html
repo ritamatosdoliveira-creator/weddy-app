@@ -63,7 +63,7 @@
   <h2>2. Que dados recolhemos</h2>
   <p><strong>Conta e autenticação</strong></p>
   <ul>
-    <li>Email (usado para criar e aceder à tua conta, através do Firebase Authentication). A palavra-passe nunca é vista nem guardada por nós em texto simples — é gerida diretamente pelo Firebase.</li>
+    <li>Email e nome (usados para criar e aceder à tua conta, através do Firebase Authentication, com email e palavra-passe, Google ou Apple). A palavra-passe nunca é vista nem guardada por nós em texto simples — é gerida diretamente pelo Firebase.</li>
   </ul>
   <p><strong>Dados do casamento que introduzes na app</strong></p>
   <ul>
@@ -75,11 +75,11 @@
   </ul>
   <p><strong>Pagamento da subscrição Weddy Premium</strong></p>
   <ul>
-    <li>O pagamento é processado inteiramente pela <strong>Stripe</strong>. Nunca vemos, recebemos nem guardamos o número do teu cartão — apenas o resultado (pago/não pago) e um identificador da transação.</li>
+    <li>Na app iPhone/iPad, a compra é feita pela <strong>Apple</strong> (In-App Purchase) e validada pela <strong>RevenueCat</strong>, que recebe o identificador da tua conta Weddy e o registo da compra. Na versão web, o pagamento é processado inteiramente pela <strong>Stripe</strong>. Nunca vemos, recebemos nem guardamos o número do teu cartão — apenas o resultado (pago/não pago) e um identificador da transação.</li>
   </ul>
   <p><strong>Assistente de IA</strong></p>
   <ul>
-    <li>As perguntas que escreves ao Assistente Weddy são enviadas à OpenAI apenas para identificar do que estás a falar. A resposta em si é sempre gerada com os teus próprios dados guardados na app — nunca enviamos dados de pagamento ou de outros casamentos.</li>
+    <li>As perguntas ou pedidos que escreves em texto livre (Assistente Weddy e sugestão de lugares) são enviados à OpenAI apenas para identificar do que estás a falar. A resposta em si é sempre gerada com os teus próprios dados guardados na app — nunca enviamos dados de pagamento ou de outros casamentos.</li>
   </ul>
   <p><strong>Integração opcional com o Google Calendar</strong></p>
   <ul>
@@ -103,8 +103,10 @@
   <p>Usamos os seguintes prestadores de serviços (subprocessadores), cada um com o seu próprio compromisso de proteção de dados:</p>
   <ul>
     <li><strong>Google Firebase / Google Cloud</strong> — alojamento da base de dados, autenticação e funções do servidor</li>
-    <li><strong>Stripe</strong> — processamento de pagamentos</li>
-    <li><strong>OpenAI</strong> — classificação de perguntas do Assistente de IA</li>
+    <li><strong>Stripe</strong> — processamento de pagamentos na versão web</li>
+    <li><strong>Apple</strong> — início de sessão com Apple e compras na App Store (o pagamento é feito com o teu Apple ID; nunca vemos dados de cartão)</li>
+    <li><strong>RevenueCat</strong> — validação das compras feitas na App Store (recebe o identificador da tua conta Weddy e o registo da compra)</li>
+    <li><strong>OpenAI</strong> (Estados Unidos) — interpretação de perguntas e pedidos em texto livre no Assistente de IA e na sugestão de lugares; só enviamos o texto escrito, depois de a pessoa o autorizar na app</li>
     <li><strong>Meta (WhatsApp Business API)</strong> — apenas para convidados que optem por receber mensagens por WhatsApp</li>
     <li><strong>GitHub Pages</strong> — alojamento do site da aplicação</li>
   </ul>
