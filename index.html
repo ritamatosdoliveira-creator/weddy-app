@@ -2369,6 +2369,10 @@ function restorePurchasesLinkHTML(){
 }
 async function restorePremiumPurchases(btn){
   const T = (pt,en)=> appLang==='en' ? en : pt;
+  if(typeof hasActiveSubscription==='function' && hasActiveSubscription()){
+    weddyAlert(T('O teu Weddy Premium já está ativo nesta conta. Se entrares com a mesma conta noutro dispositivo, fica logo ativo também.','Your Weddy Premium is already active on this account. If you sign in with the same account on another device, it is active there too.'));
+    return;
+  }
   const original = btn ? btn.textContent : '';
   if(btn){ btn.disabled = true; btn.textContent = T('A restaurar…','Restoring…'); }
   try{
