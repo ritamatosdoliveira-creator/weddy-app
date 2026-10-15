@@ -2386,17 +2386,17 @@ async function restorePremiumPurchases(btn){
   const original = btn ? btn.textContent : '';
   if(btn){ btn.disabled = true; btn.textContent = T('A restaurar…','Restoring…'); }
   restoreBtnInFlight = btn ? { btn, original } : null;
+  let step = 'inicio';
+  const withTimeout = (p, label)=> Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout em '+label)), 20000))]);
   try{
     const Purchases = getRevenueCatPlugin();
     if(!Purchases) throw new Error('revenuecat-plugin-unavailable');
-    const ready = await ensureRevenueCatConfigured();
+    step = 'configure';
+    const ready = await withTimeout(ensureRevenueCatConfigured(), 'configure');
     if(!ready) throw new Error('revenuecat-not-configured');
-    // Sem resposta em 25 s (ex.: a pessoa saiu da app a meio da janela da Apple)
-    // não fica "a restaurar…" para sempre.
-    const res = await Promise.race([
-      Purchases.restorePurchases(),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('restore-timeout')), 25000))
-    ]);
+    step = 'restorePurchases';
+    const res = await withTimeout(Purchases.restorePurchases(), 'restorePurchases');
+    step = 'resultado';
     const info = (res && res.customerInfo) || res || {};
     const active = info.entitlements && info.entitlements.active ? Object.keys(info.entitlements.active) : [];
     const subs = info.activeSubscriptions || [];
@@ -2407,7 +2407,7 @@ async function restorePremiumPurchases(btn){
     }
   }catch(err){
     console.error('Weddy restore purchases error:', err && (err.message||err.code));
-    weddyAlert(T('Não foi possível restaurar as compras agora. Tenta outra vez dentro de instantes.','Could not restore purchases right now. Please try again in a moment.'));
+    weddyAlert(T('Não foi possível restaurar as compras agora. Tenta outra vez dentro de instantes.','Could not restore purchases right now. Please try again in a moment.') + ' ['+step+': '+String((err && (err.message||err.code))||'erro').slice(0,140)+']');
   }finally{
     if(btn){ btn.disabled = false; btn.textContent = original; }
     restoreBtnInFlight = null;
