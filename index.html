@@ -2395,12 +2395,23 @@ async function restorePremiumPurchases(btn){
     const ready = await withTimeout(ensureRevenueCatConfigured(), 'configure');
     if(!ready) throw new Error('revenuecat-not-configured');
     step = 'restorePurchases';
-    const res = await withTimeout(Purchases.restorePurchases(), 'restorePurchases');
+    let res;
+    try{
+      res = await Promise.race([Purchases.restorePurchases(), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout em restorePurchases')), 12000))]);
+    }catch(e1){
+      // A App Store pode não responder a um restauro para este tipo de produto
+      // (pagamento único): pergunta então diretamente à RevenueCat o que existe
+      // para esta conta Weddy (o restauro é por conta).
+      console.warn('Weddy restorePurchases sem resposta, a consultar a conta:', e1 && e1.message);
+      step = 'getCustomerInfo';
+      res = await withTimeout(Purchases.getCustomerInfo(), 'getCustomerInfo');
+    }
     step = 'resultado';
     const info = (res && res.customerInfo) || res || {};
     const active = info.entitlements && info.entitlements.active ? Object.keys(info.entitlements.active) : [];
     const subs = info.activeSubscriptions || [];
-    if(active.length || subs.length){
+    const oneOff = info.nonSubscriptionTransactions || [];
+    if(active.length || subs.length || oneOff.length){
       weddyAlert(T('Compra restaurada! O Weddy Premium fica ativo em instantes nesta conta. Se não ficar, volta a abrir a app.','Purchase restored! Weddy Premium will be active on this account in a moment. If it is not, reopen the app.'));
     }else{
       weddyAlert(T('Não encontrámos nenhuma compra para restaurar neste Apple ID. Se compraste o Premium com outra conta Weddy, entra com essa conta: o Premium está ligado à conta com que foi comprado.','We did not find any purchase to restore for this Apple ID. If you bought Premium with another Weddy account, sign in with that account: Premium is tied to the account it was bought with.'));
