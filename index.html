@@ -4542,6 +4542,10 @@ const APP_I18N = {
     iabWarningP1:'Estás a abrir a Weddy dentro do Instagram, e por aqui não é possível instalar a app no teu telemóvel.',
     iabWarningP2:'<b>Toca nos "•••" ou "⋮" no canto superior direito</b> e escolhe <b>"Abrir no navegador"</b> (Safari ou Chrome).',
     iabWarningNote:'Depois, no Safari, toca no ícone de partilha e em "Adicionar ao ecrã principal" — fica com um atalho como uma app a sério.',
+    iabIosTitle:'A Weddy já está na App Store! ✨',
+    iabIosP1:'Estás a abrir a Weddy dentro do Instagram. No iPhone e no iPad, a melhor forma de usares a Weddy é a app oficial.',
+    iabIosP2:'<b>Abre a App Store</b>, procura por <b>"Weddy"</b> e toca em <b>Obter</b>.',
+    iabIosNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "•••" e escolher "Abrir no navegador".',
     btnOk:'Ok',
     paymentAlertTitle:(n)=>`${n} pagamento${n>1?'s':''} a terminar o prazo`,
     paymentOverdueSuffix:(d)=>`(atrasado ${d}d)`,
@@ -5663,6 +5667,10 @@ const APP_I18N = {
     iabWarningP1:"You're opening Weddy inside Instagram, and from here it isn't possible to install the app on your phone.",
     iabWarningP2:'<b>Tap the "•••" or "⋮" in the top-right corner</b> and choose <b>"Open in browser"</b> (Safari or Chrome).',
     iabWarningNote:'Then, in Safari, tap the share icon and "Add to Home Screen" — you\'ll get a shortcut just like a real app.',
+    iabIosTitle:'Weddy is now on the App Store! ✨',
+    iabIosP1:"You're opening Weddy inside Instagram. On iPhone and iPad, the best way to use Weddy is the official app.",
+    iabIosP2:'<b>Open the App Store</b>, search for <b>"Weddy"</b> and tap <b>Get</b>.',
+    iabIosNote:'Already have the app? Open it and sign in. You can also tap "•••" and choose "Open in browser".',
     btnOk:'Ok',
     paymentAlertTitle:(n)=>`${n} payment${n>1?'s':''} coming due`,
     paymentOverdueSuffix:(d)=>`(${d}d overdue)`,
@@ -19045,6 +19053,18 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   const ua = navigator.userAgent || '';
   const isInApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|MicroMessenger/i.test(ua);
   if(isInApp){
+    // Em iPhone/iPad a Weddy já existe na App Store: sugere a app em vez de "instalar no ecrã principal".
+    if(/iPhone|iPad|iPod/i.test(ua)){
+      const box = document.getElementById('iab-warning');
+      const sw = (sel, key)=>{ const el = box.querySelector(sel); if(el){ el.setAttribute(el.hasAttribute('data-t-html') ? 'data-t-html' : 'data-t', key); } };
+      sw('.iab-warning-title','iabIosTitle'); sw('p[data-t="iabWarningP1"]','iabIosP1'); sw('p[data-t-html="iabWarningP2"]','iabIosP2'); sw('.iab-warning-note','iabIosNote');
+      try{
+        box.querySelector('.iab-warning-title').textContent = ta('iabIosTitle');
+        box.querySelector('p[data-t="iabIosP1"]').textContent = ta('iabIosP1');
+        box.querySelector('p[data-t-html="iabIosP2"]').innerHTML = ta('iabIosP2');
+        box.querySelector('.iab-warning-note').textContent = ta('iabIosNote');
+      }catch(e){}
+    }
     document.getElementById('iab-warning').classList.add('show');
   }
 })();
