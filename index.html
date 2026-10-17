@@ -4546,6 +4546,10 @@ const APP_I18N = {
     iabIosP1:'Estás a abrir a Weddy dentro do Instagram. No iPhone e no iPad, a melhor forma de usares a Weddy é a app oficial.',
     iabIosP2:'<b>Abre a App Store</b>, procura por <b>"Weddy"</b> e toca em <b>Obter</b>.',
     iabIosNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "•••" e escolher "Abrir no navegador".',
+    iabAndTitle:'A Weddy já está na Google Play! ✨',
+    iabAndP1:'Estás a abrir a Weddy dentro do Instagram. No Android, a melhor forma de usares a Weddy é a app oficial.',
+    iabAndP2:'<b>Abre a Google Play</b>, procura por <b>"Weddy"</b> e toca em <b>Instalar</b>.',
+    iabAndNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "⋮" e escolher "Abrir no navegador".',
     btnOk:'Ok',
     paymentAlertTitle:(n)=>`${n} pagamento${n>1?'s':''} a terminar o prazo`,
     paymentOverdueSuffix:(d)=>`(atrasado ${d}d)`,
@@ -5671,6 +5675,10 @@ const APP_I18N = {
     iabIosP1:"You're opening Weddy inside Instagram. On iPhone and iPad, the best way to use Weddy is the official app.",
     iabIosP2:'<b>Open the App Store</b>, search for <b>"Weddy"</b> and tap <b>Get</b>.',
     iabIosNote:'Already have the app? Open it and sign in. You can also tap "•••" and choose "Open in browser".',
+    iabAndTitle:'Weddy is now on Google Play! ✨',
+    iabAndP1:"You're opening Weddy inside Instagram. On Android, the best way to use Weddy is the official app.",
+    iabAndP2:'<b>Open Google Play</b>, search for <b>"Weddy"</b> and tap <b>Install</b>.',
+    iabAndNote:'Already have the app? Open it and sign in. You can also tap "⋮" and choose "Open in browser".',
     btnOk:'Ok',
     paymentAlertTitle:(n)=>`${n} payment${n>1?'s':''} coming due`,
     paymentOverdueSuffix:(d)=>`(${d}d overdue)`,
@@ -19053,16 +19061,17 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   const ua = navigator.userAgent || '';
   const isInApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|MicroMessenger/i.test(ua);
   if(isInApp){
-    // Em iPhone/iPad a Weddy já existe na App Store: sugere a app em vez de "instalar no ecrã principal".
-    if(/iPhone|iPad|iPod/i.test(ua)){
+    // A Weddy já existe na App Store e na Google Play: sugere a app oficial em vez de "instalar no ecrã principal".
+    const plat = /iPhone|iPad|iPod/i.test(ua) ? 'Ios' : (/Android/i.test(ua) ? 'And' : '');
+    if(plat){
       const box = document.getElementById('iab-warning');
       const sw = (sel, key)=>{ const el = box.querySelector(sel); if(el){ el.setAttribute(el.hasAttribute('data-t-html') ? 'data-t-html' : 'data-t', key); } };
-      sw('.iab-warning-title','iabIosTitle'); sw('p[data-t="iabWarningP1"]','iabIosP1'); sw('p[data-t-html="iabWarningP2"]','iabIosP2'); sw('.iab-warning-note','iabIosNote');
+      sw('.iab-warning-title','iab'+plat+'Title'); sw('p[data-t="iabWarningP1"]','iab'+plat+'P1'); sw('p[data-t-html="iabWarningP2"]','iab'+plat+'P2'); sw('.iab-warning-note','iab'+plat+'Note');
       try{
-        box.querySelector('.iab-warning-title').textContent = ta('iabIosTitle');
-        box.querySelector('p[data-t="iabIosP1"]').textContent = ta('iabIosP1');
-        box.querySelector('p[data-t-html="iabIosP2"]').innerHTML = ta('iabIosP2');
-        box.querySelector('.iab-warning-note').textContent = ta('iabIosNote');
+        box.querySelector('.iab-warning-title').textContent = ta('iab'+plat+'Title');
+        box.querySelector('p[data-t="iab'+plat+'P1"]').textContent = ta('iab'+plat+'P1');
+        box.querySelector('p[data-t-html="iab'+plat+'P2"]').innerHTML = ta('iab'+plat+'P2');
+        box.querySelector('.iab-warning-note').textContent = ta('iab'+plat+'Note');
       }catch(e){}
     }
     document.getElementById('iab-warning').classList.add('show');
