@@ -1420,6 +1420,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
       <div class="iab-warning-title" data-t="iabWarningTitle">Quase lá! ✨</div>
       <p data-t="iabWarningP1">Estás a abrir a Weddy dentro do Instagram, e por aqui não é possível instalar a app no teu telemóvel.</p>
       <p data-t-html="iabWarningP2"><b>Toca nos "•••" ou "⋮" no canto superior direito</b> e escolhe <b>"Abrir no navegador"</b> (Safari ou Chrome).</p>
+      <a id="iab-store-btn" class="login-btn" target="_blank" rel="noopener" style="display:none; text-decoration:none; text-align:center; box-sizing:border-box; margin:6px 0 10px;"></a>
       <p class="iab-warning-note" data-t="iabWarningNote">Depois, no Safari, toca no ícone de partilha e em "Adicionar ao ecrã principal" — fica com um atalho como uma app a sério.</p>
     </div>
   </div>
@@ -4546,6 +4547,8 @@ const APP_I18N = {
     iabIosP1:'Estás a abrir a Weddy dentro do Instagram. No iPhone e no iPad, a melhor forma de usares a Weddy é a app oficial.',
     iabIosP2:'<b>Abre a App Store</b>, procura por <b>"Weddy"</b> e toca em <b>Obter</b>.',
     iabIosNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "•••" e escolher "Abrir no navegador".',
+    iabIosBtn:'Abrir na App Store',
+    iabAndBtn:'Abrir na Google Play',
     iabAndTitle:'A Weddy já está na Google Play! ✨',
     iabAndP1:'Estás a abrir a Weddy dentro do Instagram. No Android, a melhor forma de usares a Weddy é a app oficial.',
     iabAndP2:'<b>Abre a Google Play</b>, procura por <b>"Weddy"</b> e toca em <b>Instalar</b>.',
@@ -5675,6 +5678,8 @@ const APP_I18N = {
     iabIosP1:"You're opening Weddy inside Instagram. On iPhone and iPad, the best way to use Weddy is the official app.",
     iabIosP2:'<b>Open the App Store</b>, search for <b>"Weddy"</b> and tap <b>Get</b>.',
     iabIosNote:'Already have the app? Open it and sign in. You can also tap "•••" and choose "Open in browser".',
+    iabIosBtn:'Open on the App Store',
+    iabAndBtn:'Open on Google Play',
     iabAndTitle:'Weddy is now on Google Play! ✨',
     iabAndP1:"You're opening Weddy inside Instagram. On Android, the best way to use Weddy is the official app.",
     iabAndP2:'<b>Open Google Play</b>, search for <b>"Weddy"</b> and tap <b>Install</b>.',
@@ -19072,6 +19077,11 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
         box.querySelector('p[data-t="iab'+plat+'P1"]').textContent = ta('iab'+plat+'P1');
         box.querySelector('p[data-t-html="iab'+plat+'P2"]').innerHTML = ta('iab'+plat+'P2');
         box.querySelector('.iab-warning-note').textContent = ta('iab'+plat+'Note');
+        const btn = document.getElementById('iab-store-btn');
+        btn.href = plat==='Ios' ? 'https://apps.apple.com/pt/app/weddy/id6817425432' : 'https://play.google.com/store/apps/details?id=pt.weddy.app';
+        btn.setAttribute('data-t','iab'+plat+'Btn');
+        btn.textContent = ta('iab'+plat+'Btn');
+        btn.style.display = 'block';
       }catch(e){}
     }
     document.getElementById('iab-warning').classList.add('show');
