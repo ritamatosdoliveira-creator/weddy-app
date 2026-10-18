@@ -11187,7 +11187,7 @@ function viewDefPremiumLocked(title){
 // ===== Agenda do Google Calendar dentro da Weddy =====
 // Mostra os eventos do calendário ligado (os da Weddy + os que já lá estavam),
 // deixa criar eventos novos e abrir cada um no Google Calendar.
-let gcalAgenda = { month:null, events:null, loading:false, error:'', selected:null, formOpen:false, saving:false, loadedKey:'' };
+let gcalAgenda = { month:null, events:null, loading:false, error:'', selected:null, formOpen:false, saving:false, loadedKey:'', pickerOpen:false };
 function gcalT(pt,en){ return appLang==='en' ? en : pt; }
 function gcalYMD(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function gcalMonthStart(){ if(!gcalAgenda.month){ const n=new Date(); gcalAgenda.month=new Date(n.getFullYear(), n.getMonth(), 1); } return gcalAgenda.month; }
@@ -11283,9 +11283,14 @@ function gcalAgendaHTML(){
   <div class="premium-upsell" style="text-align:left; padding:0; overflow:hidden; margin-bottom:14px;">
     <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px;">
       <button type="button" data-gagenda="prev" aria-label="${gcalT('Mês anterior','Previous month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">‹</button>
-      <div style="font-weight:700; text-transform:capitalize;">${escapeHTML(monthName)}</div>
+      <button type="button" data-gagenda="picker" style="all:unset; cursor:pointer; font-weight:700; padding:6px 12px; border-radius:10px; background:rgba(0,0,0,.04);">${escapeHTML(monthName.charAt(0).toUpperCase()+monthName.slice(1))} ▾</button>
       <button type="button" data-gagenda="next" aria-label="${gcalT('Mês seguinte','Next month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">›</button>
     </div>
+    ${gcalAgenda.pickerOpen ? `<div style="display:flex; gap:8px; padding:0 14px 12px;">
+      <select id="gagenda-pm" data-gagenda="pm" style="flex:2; min-width:0;">${Array.from({length:12},(_,i)=>{ const n=new Date(2000,i,1).toLocaleDateString(appLang==='en'?'en-GB':'pt-PT',{month:'long'}); return `<option value="${i}" ${i===m.getMonth()?'selected':''}>${escapeHTML(n.charAt(0).toUpperCase()+n.slice(1))}</option>`; }).join('')}</select>
+      <select id="gagenda-py" data-gagenda="py" style="flex:1; min-width:0;">${Array.from({length:11},(_,i)=>{ const y=new Date().getFullYear()-2+i; return `<option value="${y}" ${y===m.getFullYear()?'selected':''}>${y}</option>`; }).join('')}</select>
+      <button type="button" data-gagenda="today" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); font-weight:600; font-size:13px; align-self:center;">${gcalT('Hoje','Today')}</button>
+    </div>` : ''}
     <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 8px; gap:2px; font-size:11px; color:var(--ink-soft,#7A6F63); text-align:center;">${wd.map(x=>`<div>${x}</div>`).join('')}</div>
     <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 12px; gap:2px;">${cells}</div>
     ${gcalAgenda.loading ? `<div style="padding:10px 14px; font-size:13px; color:var(--ink-soft,#7A6F63);">${gcalT('A carregar eventos…','Loading events…')}</div>` : ''}
@@ -11298,10 +11303,22 @@ function gcalAgendaHTML(){
     ${rows}
   </div>`;
 }
+document.addEventListener('change', (e)=>{
+  const t = e.target;
+  if(!t || !t.getAttribute) return;
+  const a = t.getAttribute('data-gagenda');
+  if(a!=='pm' && a!=='py') return;
+  const m = gcalMonthStart();
+  const mo = a==='pm' ? Number(t.value) : m.getMonth();
+  const yr = a==='py' ? Number(t.value) : m.getFullYear();
+  gcalAgenda.month = new Date(yr, mo, 1); gcalAgenda.selected = null; gcalAgenda.events = null; gcalAgenda.loadedKey = '';
+  render();
+});
 document.addEventListener('click', async (e)=>{
   const t = e.target && e.target.closest ? e.target.closest('[data-gagenda]') : null;
   if(!t) return;
   const act = t.getAttribute('data-gagenda');
+  if(act==='pm' || act==='py') return;
   if(act==='day'){ gcalAgenda.selected = t.getAttribute('data-day'); render(); }
   else if(act==='prev' || act==='next'){
     const m = gcalMonthStart();
@@ -11309,6 +11326,8 @@ document.addEventListener('click', async (e)=>{
     gcalAgenda.selected = null; gcalAgenda.events = null; gcalAgenda.loadedKey = '';
     render();
   }
+  else if(act==='picker'){ gcalAgenda.pickerOpen = !gcalAgenda.pickerOpen; render(); }
+  else if(act==='today'){ const n=new Date(); gcalAgenda.month=new Date(n.getFullYear(),n.getMonth(),1); gcalAgenda.selected=gcalYMD(n); gcalAgenda.events=null; gcalAgenda.loadedKey=''; render(); }
   else if(act==='new'){ gcalAgenda.formOpen = true; render(); }
   else if(act==='cancel'){ gcalAgenda.formOpen = false; render(); }
   else if(act==='save'){
