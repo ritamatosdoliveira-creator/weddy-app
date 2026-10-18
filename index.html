@@ -14249,7 +14249,17 @@ function bindHandlers(){
       // Procura de novo pelo id: o índice pode ter mudado entretanto (sync).
       const expIdx = expId0 ? state.expenses.findIndex(x=>x.id===expId0) : (state.expenses[expIdx0]===expObj0 ? expIdx0 : -1);
       if(expIdx<0) return;
+      const expDel = state.expenses[expIdx];
+      // Se esta despesa veio de um pagamento de fornecedor, apaga também
+      // esse pagamento — senão a migração (idempotente) recriava a despesa
+      // sozinha, e o movimento "voltava" depois de apagado.
+      if(expDel && expDel.legacyPaymentId){
+        (state.suppliers||[]).forEach(sup=>{
+          if(sup && Array.isArray(sup.payments)) sup.payments = sup.payments.filter(p=>p.id!==expDel.legacyPaymentId);
+        });
+      }
       state.expenses.splice(expIdx,1); render();
+      pushRemote(true);
     });
   });
   const openSheetBtn = document.getElementById('open-sheet');
