@@ -11184,6 +11184,162 @@ function viewDefPremiumLocked(title){
 //   2) desligado — botão "Ligar Google Calendar"
 //   3) ligado, mas sem calendário escolhido ainda — lista de calendários
 //   4) ligado com calendário escolhido — estado + Sincronizar/Alterar/Desligar
+// ===== Agenda do Google Calendar dentro da Weddy =====
+// Mostra os eventos do calendário ligado (os da Weddy + os que já lá estavam),
+// deixa criar eventos novos e abrir cada um no Google Calendar.
+let gcalAgenda = { month:null, events:null, loading:false, error:'', selected:null, formOpen:false, saving:false, loadedKey:'' };
+function gcalT(pt,en){ return appLang==='en' ? en : pt; }
+function gcalYMD(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function gcalMonthStart(){ if(!gcalAgenda.month){ const n=new Date(); gcalAgenda.month=new Date(n.getFullYear(), n.getMonth(), 1); } return gcalAgenda.month; }
+async function gcalLoadAgendaEvents(force){
+  if(!cloudFunctions) return;
+  const m = gcalMonthStart();
+  const key = m.getFullYear()+'-'+m.getMonth();
+  if(gcalAgenda.loading) return;
+  if(!force && gcalAgenda.loadedKey===key && gcalAgenda.events) return;
+  gcalAgenda.loading = true; gcalAgenda.error = '';
+  try{
+    const timeMin = new Date(m.getFullYear(), m.getMonth(), 1).toISOString();
+    const timeMax = new Date(m.getFullYear(), m.getMonth()+1, 1).toISOString();
+    const res = await cloudFunctions.httpsCallable('googleCalendarListEvents')({ timeMin, timeMax });
+    gcalAgenda.events = (res && res.data && res.data.events) || [];
+    gcalAgenda.loadedKey = key;
+  }catch(err){
+    gcalAgenda.error = gcalT('Não foi possível carregar os eventos do Google Calendar.','Could not load your Google Calendar events.');
+    gcalAgenda.events = gcalAgenda.events || [];
+    gcalAgenda.loadedKey = key;
+  }finally{
+    gcalAgenda.loading = false;
+    render();
+  }
+}
+function gcalEventsByDay(){
+  const by = {};
+  (gcalAgenda.events||[]).forEach(ev=>{
+    if(!ev.start) return;
+    if(ev.allDay){
+      let d = new Date(ev.start+'T00:00:00');
+      const end = ev.end ? new Date(ev.end+'T00:00:00') : new Date(d.getTime()+86400000);
+      let guard = 0;
+      while(d < end && guard++ < 62){ (by[gcalYMD(d)] = by[gcalYMD(d)] || []).push(ev); d = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1); }
+    }else{
+      const d = new Date(ev.start);
+      (by[gcalYMD(d)] = by[gcalYMD(d)] || []).push(ev);
+    }
+  });
+  return by;
+}
+function gcalAgendaHTML(){
+  const m = gcalMonthStart();
+  if(!gcalAgenda.events && !gcalAgenda.loading) gcalLoadAgendaEvents(false);
+  const by = gcalEventsByDay();
+  const todayKey = gcalYMD(new Date());
+  const monthName = m.toLocaleDateString(appLang==='en'?'en-GB':'pt-PT', { month:'long', year:'numeric' });
+  const wd = appLang==='en' ? ['M','T','W','T','F','S','S'] : ['S','T','Q','Q','S','S','D'];
+  const first = (m.getDay()+6)%7; // segunda = 0
+  const days = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
+  const sel = gcalAgenda.selected || (m.getFullYear()===new Date().getFullYear() && m.getMonth()===new Date().getMonth() ? todayKey : gcalYMD(m));
+  let cells = '';
+  for(let i=0;i<first;i++) cells += '<div></div>';
+  for(let d=1; d<=days; d++){
+    const key = m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const has = (by[key]||[]).length;
+    const isSel = key===sel, isToday = key===todayKey;
+    cells += `<button type="button" data-gagenda="day" data-day="${key}" style="all:unset; cursor:pointer; text-align:center; padding:6px 0; border-radius:10px; ${isSel?'background:var(--rust,#C1583E); color:#fff;':''} ${isToday&&!isSel?'box-shadow:inset 0 0 0 1.5px var(--rust,#C1583E);':''}">
+      <div style="font-size:14px; font-weight:600;">${d}</div>
+      <div style="height:6px; display:flex; justify-content:center; gap:2px; margin-top:2px;">${has?`<span style="width:5px;height:5px;border-radius:50%;background:${isSel?'#fff':'var(--rust,#C1583E)'};"></span>`:''}</div>
+    </button>`;
+  }
+  const list = (by[sel]||[]).slice().sort((a,b)=> (a.allDay?'':a.start).localeCompare(b.allDay?'':b.start));
+  const fmtTime = ev=> ev.allDay ? gcalT('Dia todo','All day') : new Date(ev.start).toLocaleTimeString(appLang==='en'?'en-GB':'pt-PT',{hour:'2-digit',minute:'2-digit'});
+  const selLabel = new Date(sel+'T00:00:00').toLocaleDateString(appLang==='en'?'en-GB':'pt-PT',{weekday:'long', day:'numeric', month:'long'});
+  const rows = list.length ? list.map(ev=>`
+    <div style="padding:12px 14px; border-top:1px solid var(--line,#e5e1dc);">
+      <div style="display:flex; gap:10px; align-items:baseline;">
+        <div style="min-width:54px; font-size:13px; color:var(--ink-soft,#7A6F63);">${escapeHTML(fmtTime(ev))}</div>
+        <div style="flex:1; font-weight:600;">${escapeHTML(ev.summary)}</div>
+      </div>
+      ${ev.location?`<div style="margin:2px 0 0 64px; font-size:13px; color:var(--ink-soft,#7A6F63);">${escapeHTML(ev.location)}</div>`:''}
+      <div style="margin:6px 0 0 64px; display:flex; gap:14px; flex-wrap:wrap; font-size:13px;">
+        ${ev.htmlLink?`<a href="${escapeHTML(ev.htmlLink)}" target="_blank" rel="noopener" style="color:var(--rust-dark,#9A4F3D);">${gcalT('Abrir no Google Calendar','Open in Google Calendar')}</a>`:''}
+        ${ev.createdInApp?`<button type="button" data-gagenda="del" data-id="${escapeHTML(ev.id)}" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); text-decoration:underline;">${gcalT('Apagar','Delete')}</button>`:''}
+      </div>
+    </div>`).join('') : `<div style="padding:14px; font-size:14px; color:var(--ink-soft,#7A6F63); border-top:1px solid var(--line,#e5e1dc);">${gcalT('Sem eventos neste dia.','No events on this day.')}</div>`;
+  const form = gcalAgenda.formOpen ? `
+    <div style="padding:14px; border-top:1px solid var(--line,#e5e1dc);">
+      <input id="gagenda-title" type="text" maxlength="200" placeholder="${gcalT('Título do evento','Event title')}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
+      <input id="gagenda-date" type="date" value="${sel}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <input id="gagenda-start" type="time" style="flex:1; min-width:0;" aria-label="${gcalT('Hora de início','Start time')}">
+        <input id="gagenda-end" type="time" style="flex:1; min-width:0;" aria-label="${gcalT('Hora de fim','End time')}">
+      </div>
+      <input id="gagenda-place" type="text" maxlength="300" placeholder="${gcalT('Local (opcional)','Place (optional)')}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
+      <div style="font-size:12px; color:var(--ink-soft,#7A6F63); margin-bottom:10px;">${gcalT('Sem horas, o evento fica como "dia todo".','Without times, the event is saved as "all day".')}</div>
+      <button type="button" class="login-btn" data-gagenda="save" ${gcalAgenda.saving?'disabled':''} style="margin-top:0;">${gcalAgenda.saving?gcalT('A guardar…','Saving…'):gcalT('Guardar no Google Calendar','Save to Google Calendar')}</button>
+      <button type="button" class="login-btn" data-gagenda="cancel" style="margin-top:8px; background:transparent; color:var(--rust-dark,#9A4F3D); border:1.6px solid var(--line,#e5e1dc);">${gcalT('Cancelar','Cancel')}</button>
+    </div>` : '';
+  return `
+  <div class="premium-upsell" style="text-align:left; padding:0; overflow:hidden; margin-bottom:14px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px;">
+      <button type="button" data-gagenda="prev" aria-label="${gcalT('Mês anterior','Previous month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">‹</button>
+      <div style="font-weight:700; text-transform:capitalize;">${escapeHTML(monthName)}</div>
+      <button type="button" data-gagenda="next" aria-label="${gcalT('Mês seguinte','Next month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">›</button>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 8px; gap:2px; font-size:11px; color:var(--ink-soft,#7A6F63); text-align:center;">${wd.map(x=>`<div>${x}</div>`).join('')}</div>
+    <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 12px; gap:2px;">${cells}</div>
+    ${gcalAgenda.loading ? `<div style="padding:10px 14px; font-size:13px; color:var(--ink-soft,#7A6F63);">${gcalT('A carregar eventos…','Loading events…')}</div>` : ''}
+    ${gcalAgenda.error ? `<div class="login-msg error" style="margin:0 14px 10px;">${escapeHTML(gcalAgenda.error)}</div>` : ''}
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--line,#e5e1dc);">
+      <div style="font-weight:600; text-transform:capitalize;">${escapeHTML(selLabel)}</div>
+      <button type="button" data-gagenda="new" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); font-weight:600; font-size:14px;">+ ${gcalT('Novo evento','New event')}</button>
+    </div>
+    ${form}
+    ${rows}
+  </div>`;
+}
+document.addEventListener('click', async (e)=>{
+  const t = e.target && e.target.closest ? e.target.closest('[data-gagenda]') : null;
+  if(!t) return;
+  const act = t.getAttribute('data-gagenda');
+  if(act==='day'){ gcalAgenda.selected = t.getAttribute('data-day'); render(); }
+  else if(act==='prev' || act==='next'){
+    const m = gcalMonthStart();
+    gcalAgenda.month = new Date(m.getFullYear(), m.getMonth() + (act==='next'?1:-1), 1);
+    gcalAgenda.selected = null; gcalAgenda.events = null; gcalAgenda.loadedKey = '';
+    render();
+  }
+  else if(act==='new'){ gcalAgenda.formOpen = true; render(); }
+  else if(act==='cancel'){ gcalAgenda.formOpen = false; render(); }
+  else if(act==='save'){
+    if(gcalAgenda.saving) return;
+    const g = id=>{ const el=document.getElementById(id); return el ? el.value.trim() : ''; };
+    const summary = g('gagenda-title'), date = g('gagenda-date');
+    if(!summary || !date){ weddyAlert(gcalT('Escreve um título e escolhe a data.','Enter a title and choose the date.')); return; }
+    gcalAgenda.saving = true; render();
+    try{
+      await cloudFunctions.httpsCallable('googleCalendarCreateEvent')({ summary, date, startTime:g('gagenda-start')||undefined, endTime:g('gagenda-end')||undefined, location:g('gagenda-place')||undefined });
+      gcalAgenda.formOpen = false; gcalAgenda.saving = false;
+      const d = new Date(date+'T00:00:00'); gcalAgenda.month = new Date(d.getFullYear(), d.getMonth(), 1); gcalAgenda.selected = date;
+      gcalAgenda.events = null; gcalAgenda.loadedKey = '';
+      render();
+    }catch(err){
+      gcalAgenda.saving = false; render();
+      weddyAlert(gcalT('Não foi possível guardar o evento. Tenta outra vez.','Could not save the event. Please try again.'));
+    }
+  }
+  else if(act==='del'){
+    const id = t.getAttribute('data-id');
+    if(!id) return;
+    if(!await weddyConfirm(gcalT('Apagar este evento do Google Calendar?','Delete this event from Google Calendar?'))) return;
+    try{
+      await cloudFunctions.httpsCallable('googleCalendarDeleteEvent')({ eventId:id });
+      gcalAgenda.events = null; gcalAgenda.loadedKey = ''; render();
+    }catch(err){
+      weddyAlert(gcalT('Não foi possível apagar o evento.','Could not delete the event.'));
+    }
+  }
+});
+
 function viewDefGoogleCalendar(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('googleCalendarTitle'));
   if(!googleCalendarIntegration && !googleCalendarLoading) loadGoogleCalendarIntegration();
@@ -11207,6 +11363,7 @@ function viewDefGoogleCalendar(){
     return `
     ${defSubHeader(ta('googleCalendarTitle'))}
     ${msgHtml}
+    <div style="margin:0 16px;">${gcalAgendaHTML()}</div>
     <div class="premium-upsell" style="text-align:left;">
       <div class="def-row-title" style="margin-bottom:6px;">${ICONS.checkCircle||'✓'} ${ta('googleCalendarConnectedTitle')}</div>
       <div class="def-row-desc" style="margin-bottom:2px;"><strong>${ta('googleCalendarCalendarLabel')}:</strong> ${escapeHTML(gc.calendarName||'')}</div>

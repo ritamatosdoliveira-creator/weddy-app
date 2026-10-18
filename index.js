@@ -2588,6 +2588,148 @@ exports.googleCalendarSync = onCall(
   }
 );
 
+// --- Agenda dentro da Weddy: ler / criar / apagar eventos -------------------
+// Usa o scope calendar.events que já temos (permite ler, criar e apagar eventos
+// do calendário escolhido). Nunca mexe noutros calendários.
+const GCAL_AGENDA_SECRETS = [GOOGLE_CALENDAR_CLIENT_ID, GOOGLE_CALENDAR_CLIENT_SECRET, GOOGLE_TOKEN_ENCRYPTION_KEY];
+
+async function gcalAgendaContext(request) {
+  if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
+    throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
+  }
+  const weddingId = await resolveWeddingId(request, true);
+  if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+  await assertPremiumWedding(weddingId);
+  const integSnap = await db.collection('weddings').doc(weddingId).collection('integrations').doc('googleCalendar').get();
+  const integ = integSnap.exists ? integSnap.data() : {};
+  if (!integ.connected || !integ.calendarId) throw new HttpsError('failed-precondition', 'NOT_CONNECTED');
+  const accessToken = await getWeddingGoogleAccessToken(weddingId);
+  return { weddingId, calendarId: integ.calendarId, timeZone: integ.calendarTimeZone || 'Europe/Lisbon', accessToken };
+}
+
+function gcalIsIsoDate(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v); }
+function gcalIsIsoDateTime(v) { return typeof v === 'string' && v.length <= 40 && !Number.isNaN(Date.parse(v)); }
+
+exports.googleCalendarListEvents = onCall(
+  { region: 'europe-west1', secrets: GCAL_AGENDA_SECRETS },
+  async (request) => {
+    const ctx = await gcalAgendaContext(request);
+    const d = request.data || {};
+    if (!gcalIsIsoDateTime(d.timeMin) || !gcalIsIsoDateTime(d.timeMax)) {
+      throw new HttpsError('invalid-argument', 'Intervalo de datas inválido.');
+    }
+    const span = Date.parse(d.timeMax) - Date.parse(d.timeMin);
+    if (!(span > 0) || span > 100 * 24 * 3600 * 1000) {
+      throw new HttpsError('invalid-argument', 'Intervalo de datas demasiado grande.');
+    }
+    const qs = new URLSearchParams({
+      timeMin: new Date(d.timeMin).toISOString(),
+      timeMax: new Date(d.timeMax).toISOString(),
+      singleEvents: 'true',
+      orderBy: 'startTime',
+      maxResults: '250',
+    });
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(ctx.calendarId)}/events?${qs.toString()}`;
+    const res = await fetchWithBackoff(url, { headers: { Authorization: `Bearer ${ctx.accessToken}` } });
+    if (!res.ok) {
+      logger.error(`googleCalendarListEvents: Google devolveu ${res.status}.`);
+      throw new HttpsError('internal', 'Não foi possível ler os eventos do Google Calendar.');
+    }
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    const events = items
+      .filter((e) => e && e.status !== 'cancelled')
+      .map((e) => {
+        const allDay = !!(e.start && e.start.date && !e.start.dateTime);
+        return {
+          id: String(e.id || ''),
+          summary: String(e.summary || '(sem título)').slice(0, 200),
+          start: allDay ? e.start.date : (e.start && e.start.dateTime) || '',
+          end: allDay ? ((e.end && e.end.date) || '') : ((e.end && e.end.dateTime) || ''),
+          allDay,
+          location: String(e.location || '').slice(0, 300),
+          description: String(e.description || '').slice(0, 600),
+          htmlLink: typeof e.htmlLink === 'string' && e.htmlLink.startsWith('https://') ? e.htmlLink : '',
+          fromWeddy: /^evt[0-9a-f]{64}$/.test(String(e.id || '')),
+          createdInApp: !!(e.extendedProperties && e.extendedProperties.private && e.extendedProperties.private.weddyUi === '1'),
+        };
+      });
+    return { events, timeZone: ctx.timeZone };
+  }
+);
+
+exports.googleCalendarCreateEvent = onCall(
+  { region: 'europe-west1', secrets: GCAL_AGENDA_SECRETS },
+  async (request) => {
+    const ctx = await gcalAgendaContext(request);
+    const d = request.data || {};
+    const summary = typeof d.summary === 'string' ? d.summary.trim().slice(0, 200) : '';
+    if (!summary) throw new HttpsError('invalid-argument', 'Falta o título do evento.');
+    if (!gcalIsIsoDate(d.date)) throw new HttpsError('invalid-argument', 'Data inválida.');
+    const location = typeof d.location === 'string' ? d.location.trim().slice(0, 300) : '';
+    const description = typeof d.description === 'string' ? d.description.trim().slice(0, 1000) : '';
+    const body = {
+      summary,
+      extendedProperties: { private: { weddyUi: '1', weddingId: ctx.weddingId } },
+    };
+    if (location) body.location = location;
+    if (description) body.description = description;
+    const hasTime = typeof d.startTime === 'string' && /^\d{2}:\d{2}$/.test(d.startTime);
+    if (hasTime) {
+      const endTime = typeof d.endTime === 'string' && /^\d{2}:\d{2}$/.test(d.endTime) ? d.endTime : null;
+      const startLocal = `${d.date}T${d.startTime}:00`;
+      let endLocal;
+      if (endTime) {
+        endLocal = `${d.date}T${endTime}:00`;
+      } else {
+        const [h, m] = d.startTime.split(':').map(Number);
+        const mins = Math.min(h * 60 + m + 60, 23 * 60 + 59);
+        endLocal = `${d.date}T${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}:00`;
+      }
+      if (endLocal <= startLocal) throw new HttpsError('invalid-argument', 'A hora de fim tem de ser depois da de início.');
+      body.start = { dateTime: startLocal, timeZone: ctx.timeZone };
+      body.end = { dateTime: endLocal, timeZone: ctx.timeZone };
+    } else {
+      const next = new Date(`${d.date}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 1);
+      body.start = { date: d.date };
+      body.end = { date: next.toISOString().slice(0, 10) };
+    }
+    const res = await googleEventRequest('POST', ctx.accessToken, ctx.calendarId, null, body);
+    if (!res.ok) {
+      logger.error(`googleCalendarCreateEvent: Google devolveu ${res.status}.`);
+      throw new HttpsError('internal', 'Não foi possível criar o evento no Google Calendar.');
+    }
+    const created = await res.json();
+    return { ok: true, id: created.id, htmlLink: created.htmlLink || '' };
+  }
+);
+
+// Só apaga eventos criados pela própria agenda da Weddy — nunca eventos que
+// a pessoa criou no Google, nem os que a sincronização da Weddy gere.
+exports.googleCalendarDeleteEvent = onCall(
+  { region: 'europe-west1', secrets: GCAL_AGENDA_SECRETS },
+  async (request) => {
+    const ctx = await gcalAgendaContext(request);
+    const eventId = request.data && request.data.eventId;
+    if (typeof eventId !== 'string' || !eventId || eventId.length > 200) {
+      throw new HttpsError('invalid-argument', 'Falta o eventId.');
+    }
+    const getRes = await googleEventRequest('GET', ctx.accessToken, ctx.calendarId, eventId, null);
+    if (getRes.status === 404 || getRes.status === 410) return { ok: true };
+    if (!getRes.ok) throw new HttpsError('internal', 'Não foi possível ler o evento.');
+    const ev = await getRes.json();
+    const mine = ev && ev.extendedProperties && ev.extendedProperties.private
+      && ev.extendedProperties.private.weddyUi === '1' && ev.extendedProperties.private.weddingId === ctx.weddingId;
+    if (!mine) throw new HttpsError('permission-denied', 'Só podes apagar aqui eventos criados na agenda da Weddy.');
+    const delRes = await googleEventRequest('DELETE', ctx.accessToken, ctx.calendarId, eventId, null);
+    if (!delRes.ok && delRes.status !== 404 && delRes.status !== 410) {
+      throw new HttpsError('internal', 'Não foi possível apagar o evento.');
+    }
+    return { ok: true };
+  }
+);
+
 // --- Callable: desligar -----------------------------------------------------
 // Disconnect ≠ apagar eventos. Os eventos já criados no Google Calendar
 // ficam onde estão — só removemos a ligação e as credenciais (spec 40).
