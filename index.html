@@ -11275,6 +11275,7 @@ function gcalAgendaHTML(){
       </div>
       <input id="gagenda-place" type="text" maxlength="300" placeholder="${gcalT('Local (opcional)','Place (optional)')}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
       <div style="font-size:12px; color:var(--ink-soft,#7A6F63); margin-bottom:10px;">${gcalT('Sem horas, o evento fica como "dia todo".','Without times, the event is saved as "all day".')}</div>
+      <label style="display:flex; gap:8px; align-items:center; font-size:13px; margin-bottom:12px;"><input id="gagenda-todo" type="checkbox" checked> ${gcalT('Adicionar também às tarefas e ao calendário da semana','Also add to my to-do list and week calendar')}</label>
       <button type="button" class="login-btn" data-gagenda="save" ${gcalAgenda.saving?'disabled':''} style="margin-top:0;">${gcalAgenda.saving?gcalT('A guardar…','Saving…'):gcalT('Guardar no Google Calendar','Save to Google Calendar')}</button>
       <button type="button" class="login-btn" data-gagenda="cancel" style="margin-top:8px; background:transparent; color:var(--rust-dark,#9A4F3D); border:1.6px solid var(--line,#e5e1dc);">${gcalT('Cancelar','Cancel')}</button>
     </div>` : '';
@@ -11315,9 +11316,14 @@ document.addEventListener('click', async (e)=>{
     const g = id=>{ const el=document.getElementById(id); return el ? el.value.trim() : ''; };
     const summary = g('gagenda-title'), date = g('gagenda-date');
     if(!summary || !date){ weddyAlert(gcalT('Escreve um título e escolhe a data.','Enter a title and choose the date.')); return; }
+    const todoEl = document.getElementById('gagenda-todo'); const wantTodo = !todoEl || todoEl.checked;
     gcalAgenda.saving = true; render();
     try{
       await cloudFunctions.httpsCallable('googleCalendarCreateEvent')({ summary, date, startTime:g('gagenda-start')||undefined, endTime:g('gagenda-end')||undefined, location:g('gagenda-place')||undefined });
+      if(wantTodo){
+        const cat = state.todoCategories.find(c=>c.id==='tc3') || state.todoCategories[0];
+        if(cat){ cat.items.push({ text:summary, done:false, due:date, time:g('gagenda-start')||'' }); try{ pushRemote(true); }catch(_){} }
+      }
       gcalAgenda.formOpen = false; gcalAgenda.saving = false;
       const d = new Date(date+'T00:00:00'); gcalAgenda.month = new Date(d.getFullYear(), d.getMonth(), 1); gcalAgenda.selected = date;
       gcalAgenda.events = null; gcalAgenda.loadedKey = '';
