@@ -11338,10 +11338,10 @@ document.addEventListener('click', async (e)=>{
     const todoEl = document.getElementById('gagenda-todo'); const wantTodo = !todoEl || todoEl.checked;
     gcalAgenda.saving = true; render();
     try{
-      await cloudFunctions.httpsCallable('googleCalendarCreateEvent')({ summary, date, startTime:g('gagenda-start')||undefined, endTime:g('gagenda-end')||undefined, location:g('gagenda-place')||undefined });
+      const createRes = await cloudFunctions.httpsCallable('googleCalendarCreateEvent')({ summary, date, startTime:g('gagenda-start')||undefined, endTime:g('gagenda-end')||undefined, location:g('gagenda-place')||undefined });
       if(wantTodo){
         const cat = state.todoCategories.find(c=>c.id==='tc3') || state.todoCategories[0];
-        if(cat){ cat.items.push({ text:summary, done:false, due:date, time:g('gagenda-start')||'' }); try{ pushRemote(true); }catch(_){} }
+        if(cat){ cat.items.push({ text:summary, done:false, due:date, time:g('gagenda-start')||'', gcalEventId:(createRes&&createRes.data&&createRes.data.id)||'' }); try{ pushRemote(true); }catch(_){} }
       }
       gcalAgenda.formOpen = false; gcalAgenda.saving = false;
       const d = new Date(date+'T00:00:00'); gcalAgenda.month = new Date(d.getFullYear(), d.getMonth(), 1); gcalAgenda.selected = date;
@@ -11358,6 +11358,9 @@ document.addEventListener('click', async (e)=>{
     if(!await weddyConfirm(gcalT('Apagar este evento do Google Calendar?','Delete this event from Google Calendar?'))) return;
     try{
       await cloudFunctions.httpsCallable('googleCalendarDeleteEvent')({ eventId:id });
+      let removed = false;
+      (state.todoCategories||[]).forEach(cat=>{ const n=(cat.items||[]).length; cat.items = (cat.items||[]).filter(it=>it.gcalEventId!==id); if(cat.items.length!==n) removed = true; });
+      if(removed){ try{ pushRemote(true); }catch(_){} }
       gcalAgenda.events = null; gcalAgenda.loadedKey = ''; render();
     }catch(err){
       weddyAlert(gcalT('Não foi possível apagar o evento.','Could not delete the event.'));
