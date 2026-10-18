@@ -278,6 +278,7 @@ html{
 .ring-center{ position:absolute; inset:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; text-align:center; }
 .ring-center .num{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--ink); line-height:1; }
 .ring-center .sub{ font-size:8.8px; color:var(--ink-soft); margin-top:2px; overflow-wrap:anywhere; }
+.ring-desc{ font-size:11px; line-height:1.35; color:var(--ink-soft, #7A6F63); text-align:center; margin-top:8px; padding:0 4px; }
 .ring-breakdown{ display:flex; gap:14px; margin-top:11px; }
 .ring-breakdown .n{ font-size:13px; font-weight:600; color:var(--ink); text-align:center; }
 .ring-breakdown .l{ font-size:8.5px; color:var(--ink-soft); text-align:center; margin-top:1px; }
@@ -3903,6 +3904,8 @@ const APP_I18N = {
     btnSetDueDate:'+ definir data limite',
     navExpensesTitle:'Gastos',
     lblPaid:'Pago',
+    ringDescPaid:'Quanto já pagaste, em % do total dos teus movimentos. "Por pagar" é o que ainda falta pagar deles.',
+    ringDescBudget:'Quanto já pagaste, em % do orçamento total que definiste.',
     lblToPay:'Por pagar',
     lblOfBudget:'Do orçamento',
     sectionPaidVsBudgeted:'Pago vs. orçamentado',
@@ -5012,6 +5015,8 @@ const APP_I18N = {
     btnSetDueDate:'+ set a due date',
     navExpensesTitle:'Expenses',
     lblPaid:'Paid',
+    ringDescPaid:'How much you have paid, as % of the total of your expenses. "Left to pay" is what is still owed on them.',
+    ringDescBudget:'How much you have paid, as % of the total budget you set.',
     lblToPay:'Left to pay',
     lblOfBudget:'Of budget',
     sectionPaidVsBudgeted:'Paid vs. budgeted',
@@ -7048,6 +7053,7 @@ function viewGastos(){
       <div class="ring-breakdown">
         <div><div class="n" id="pago-porpagar">${fmtEUR(totalExpenseRemaining())}</div><div class="l">${ta('lblToPay')}</div></div>
       </div>
+      <div class="ring-desc">${ta('ringDescPaid')}</div>
     </div>
     <div class="ring-card">
       <div class="ring-label">${ta('lblOfBudget')}</div>
@@ -7058,6 +7064,7 @@ function viewGastos(){
       <div class="ring-breakdown">
         <div><div class="n">${fmtEUR(budgetTotal)}</div><div class="l">${ta('navBudgetTitle')}</div></div>
       </div>
+      <div class="ring-desc">${ta('ringDescBudget')}</div>
     </div>
   </div>
 
