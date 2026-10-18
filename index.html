@@ -11296,7 +11296,7 @@ function gcalAgendaHTML(){
     ${gcalAgenda.loading ? `<div style="padding:10px 14px; font-size:13px; color:var(--ink-soft,#7A6F63);">${gcalT('A carregar eventos…','Loading events…')}</div>` : ''}
     ${gcalAgenda.error ? `<div class="login-msg error" style="margin:0 14px 10px;">${escapeHTML(gcalAgenda.error)}</div>` : ''}
     <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--line,#e5e1dc);">
-      <div style="font-weight:600; text-transform:capitalize;">${escapeHTML(selLabel)}</div>
+      <div style="font-weight:600;">${escapeHTML(selLabel.charAt(0).toUpperCase()+selLabel.slice(1))}</div>
       <button type="button" data-gagenda="new" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); font-weight:600; font-size:14px;">+ ${gcalT('Novo evento','New event')}</button>
     </div>
     ${form}
