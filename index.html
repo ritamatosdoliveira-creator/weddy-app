@@ -3904,8 +3904,7 @@ const APP_I18N = {
     btnSetDueDate:'+ definir data limite',
     navExpensesTitle:'Gastos',
     lblPaid:'Pago',
-    ringDescPaid:'% e valor: o que já pagaste.<br>Por pagar: o que falta pagar.',
-    ringDescBudget:'% e valor: o que já pagaste.<br>Orçamento: o total definido.',
+    ringDescPaid:'Por pagar: soma do que falta pagar nos movimentos abaixo.',
     lblToPay:'Por pagar',
     lblOfBudget:'Do orçamento',
     sectionPaidVsBudgeted:'Pago vs. orçamentado',
@@ -5015,8 +5014,7 @@ const APP_I18N = {
     btnSetDueDate:'+ set a due date',
     navExpensesTitle:'Expenses',
     lblPaid:'Paid',
-    ringDescPaid:'% and amount: what you have paid.<br>Left to pay: what is still owed.',
-    ringDescBudget:'% and amount: what you have paid.<br>Budget: your total.',
+    ringDescPaid:'Left to pay: sum of what is still owed in the entries below.',
     lblToPay:'Left to pay',
     lblOfBudget:'Of budget',
     sectionPaidVsBudgeted:'Paid vs. budgeted',
@@ -7064,7 +7062,6 @@ function viewGastos(){
       <div class="ring-breakdown">
         <div><div class="n">${fmtEUR(budgetTotal)}</div><div class="l">${ta('navBudgetTitle')}</div></div>
       </div>
-      <div class="ring-desc">${ta('ringDescBudget')}</div>
     </div>
   </div>
 
