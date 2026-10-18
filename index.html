@@ -11229,6 +11229,18 @@ function gcalEventsByDay(){
   });
   return by;
 }
+function gcalEventHasTodo(id){
+  return (state.todoCategories||[]).some(cat=>(cat.items||[]).some(it=>it.gcalEventId===id));
+}
+function gcalAddEventToTodo(ev){
+  if(!ev || gcalEventHasTodo(ev.id)) return;
+  const dateStr = ev.allDay ? ev.start : gcalYMD(new Date(ev.start));
+  const timeStr = ev.allDay ? '' : new Date(ev.start).toTimeString().slice(0,5);
+  const cat = state.todoCategories.find(c=>c.id==='tc3') || state.todoCategories[0];
+  if(!cat) return;
+  cat.items.push({ text:ev.summary, done:false, due:dateStr, time:timeStr, gcalEventId:ev.id });
+  try{ pushRemote(true); }catch(_){}
+}
 function gcalAgendaHTML(){
   const m = gcalMonthStart();
   if(!gcalAgenda.events && !gcalAgenda.loading) gcalLoadAgendaEvents(false);
@@ -11262,6 +11274,9 @@ function gcalAgendaHTML(){
       ${ev.location?`<div style="margin:2px 0 0 64px; font-size:13px; color:var(--ink-soft,#7A6F63);">${escapeHTML(ev.location)}</div>`:''}
       <div style="margin:6px 0 0 64px; display:flex; gap:14px; flex-wrap:wrap; font-size:13px;">
         ${ev.htmlLink?`<a href="${escapeHTML(ev.htmlLink)}" target="_blank" rel="noopener" style="color:var(--rust-dark,#9A4F3D);">${gcalT('Abrir no Google Calendar','Open in Google Calendar')}</a>`:''}
+        ${gcalEventHasTodo(ev.id)
+          ? `<span style="color:var(--ink-soft,#7A6F63);">${gcalT('Adicionado às tarefas ✓','Added to to-do ✓')}</span>`
+          : `<button type="button" data-gagenda="addtodo" data-id="${escapeHTML(ev.id)}" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); text-decoration:underline;">${gcalT('Adicionar às tarefas e à semana','Add to to-do & week')}</button>`}
         ${ev.createdInApp?`<button type="button" data-gagenda="del" data-id="${escapeHTML(ev.id)}" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); text-decoration:underline;">${gcalT('Apagar','Delete')}</button>`:''}
       </div>
     </div>`).join('') : `<div style="padding:14px; font-size:14px; color:var(--ink-soft,#7A6F63); border-top:1px solid var(--line,#e5e1dc);">${gcalT('Sem eventos neste dia.','No events on this day.')}</div>`;
@@ -11330,6 +11345,13 @@ document.addEventListener('click', async (e)=>{
   else if(act==='today'){ const n=new Date(); gcalAgenda.month=new Date(n.getFullYear(),n.getMonth(),1); gcalAgenda.selected=gcalYMD(n); gcalAgenda.events=null; gcalAgenda.loadedKey=''; render(); }
   else if(act==='new'){ gcalAgenda.formOpen = true; render(); }
   else if(act==='cancel'){ gcalAgenda.formOpen = false; render(); }
+  else if(act==='addtodo'){
+    const id = t.getAttribute('data-id');
+    const ev = (gcalAgenda.events||[]).find(e=>e.id===id);
+    if(!ev) return;
+    gcalAddEventToTodo(ev);
+    render();
+  }
   else if(act==='save'){
     if(gcalAgenda.saving) return;
     const g = id=>{ const el=document.getElementById(id); return el ? el.value.trim() : ''; };
