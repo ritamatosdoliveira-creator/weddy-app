@@ -3751,9 +3751,16 @@ const APP_I18N = {
     premiumHubCtaBtn:'Conhecer o Premium',
     premSaleTitle:'O teu casamento, mais simples e organizado.',
     premSaleIntro:'O Weddy Premium reúne as ferramentas que ajudam a gerir convidados, documentos e datas com mais calma.',
-    premSaleLockedIntro:(t)=>`«${t}» faz parte do Weddy Premium, que reúne as ferramentas para gerir convidados, documentos e datas com mais calma.`,
+    premSaleLockedIntro:(t)=>`Esta ferramenta faz parte do Premium. «${t}» fica disponível com o Weddy Premium, tal como as restantes ferramentas abaixo.`,
+    premRowRSVP:'Um link individual por convidado para confirmar presença e indicar restrições alimentares, com lembretes para quem ainda não respondeu.',
+    premRowSeating:'Propõe a distribuição dos convidados pelas mesas, tendo em conta os lugares e as preferências que definires.',
+    premRowHealth:'Um raio-x rápido ao estado do casamento.',
+    premRowDocs:'Carrega contratos em PDF e pesquisa neles através do Assistente.',
+    premRowCal:'Leva o cronograma para o Google Calendar e vê, cria e apaga eventos sem sair da Weddy.',
+    premRowChat:'Pergunta sobre convidados, orçamento, datas, mesas e pagamentos e recebe respostas com os teus dados.',
+    premRowMemories:'Fotos que os convidados partilham pelo link de RSVP, só visíveis para ti.',
     premGroupGuests:'Convidados e confirmações', premGroupControl:'Organização e controlo', premGroupAsk:'Dúvidas e memórias',
-    premFreeTitle:'Continua gratuito', premFreeText:'Orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares.',
+    premFreeTitle:'Continuas com acesso gratuito a', premFreeText:'orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares. Nada disto muda.',
     premPlanName:'Weddy Premium · 12 meses', premPlanPrice:'30€', premPlanNote:'Pagamento único. Sem renovação automática.',
     premConditionsLead:'Antes de pagares podes ver os', premTermsLink:'Termos', premPrivacyLink:'Política de Privacidade',
     premiumTileRSVP:'Confirma a presença e as respostas dos convidados.',
@@ -4906,9 +4913,16 @@ const APP_I18N = {
     premiumHubCtaBtn:'Discover Premium',
     premSaleTitle:'Your wedding, simpler and organized.',
     premSaleIntro:'Weddy Premium brings together the tools that help you manage guests, documents and dates more calmly.',
-    premSaleLockedIntro:(t)=>`"${t}" is part of Weddy Premium, which brings together the tools to manage guests, documents and dates more calmly.`,
+    premSaleLockedIntro:(t)=>`This tool is part of Premium. "${t}" becomes available with Weddy Premium, along with the other tools below.`,
+    premRowRSVP:'One link per guest to confirm attendance and share dietary restrictions, with reminders for anyone who has not replied yet.',
+    premRowSeating:'Suggests how to place guests at the tables, based on the seats and preferences you set.',
+    premRowHealth:'A quick check-up on how your wedding is going.',
+    premRowDocs:'Upload PDF contracts and search them through the Assistant.',
+    premRowCal:'Send your schedule to Google Calendar and view, create and delete events without leaving Weddy.',
+    premRowChat:'Ask about guests, budget, dates, tables and payments and get answers based on your data.',
+    premRowMemories:'Photos guests share through their RSVP link, visible only to you.',
     premGroupGuests:'Guests and replies', premGroupControl:'Organization and control', premGroupAsk:'Questions and memories',
-    premFreeTitle:'Still free', premFreeText:'Budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues.',
+    premFreeTitle:'You keep free access to', premFreeText:'budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues. None of this changes.',
     premPlanName:'Weddy Premium · 12 months', premPlanPrice:'€30', premPlanNote:'One-time payment. No automatic renewal.',
     premConditionsLead:'Before you pay you can read the', premTermsLink:'Terms', premPrivacyLink:'Privacy Policy',
     premiumTileRSVP:"Confirm attendance and your guests' responses.",
@@ -7220,13 +7234,7 @@ function viewAISeatingLocked(){
     <button class="nav-back" data-aiseatback>${ICONS.chevleft||ICONS.chev}</button>
     <div class="navbar-titlewrap"><h1>${ta('aiSeatingTitle')}</h1></div>
   </div>
-  <div class="premium-upsell">
-    <div class="premium-upsell-icon">${ICONS.sparkle||''}</div>
-    <div class="premium-upsell-title">Weddy Premium</div>
-    <div class="premium-upsell-text">${ta('premiumLockedText')(ta('aiSeatingTitle'))}</div>
-    <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
-    ${restorePurchasesLinkHTML()}
-  </div>
+  ${premiumSaleBodyHtml(ta('aiSeatingTitle'))}
   `;
 }
 
@@ -11175,23 +11183,29 @@ async function handleDocumentUpload(fileList){
 }
 
 function viewDefPremiumLocked(title){
+  const isGeneric0 = title===ta('subscriptionTitle');
+  return `
+  ${defSubHeader(isGeneric0 ? 'Weddy Premium' : title)}
+  ${premiumSaleBodyHtml(title)}`;
+}
+function premiumSaleBodyHtml(title){
   // Página de venda do Premium (Out 2026). Só mostra o que existe: um único
   // plano de 30€, pagamento único, 12 meses, sem renovação automática, e as
   // funcionalidades que estão realmente bloqueadas atrás de
   // hasActiveSubscription(). Agrupadas por necessidade.
   const groups = [
     [ta('premGroupGuests'), [
-      [ICONS.mail, ta('rsvpTitle'), ta('premiumTileRSVP')],
-      [ICONS.sparkle, ta('aiSeatingTitle'), ta('premiumTileAISeatingDesc')],
+      [ICONS.mail, ta('rsvpTitle'), ta('premRowRSVP')],
+      [ICONS.sparkle, ta('aiSeatingTitle'), ta('premRowSeating')],
     ]],
     [ta('premGroupControl'), [
-      [ICONS.warn||ICONS.checklist, ta('healthTitle'), ta('premiumTileHealthDesc')],
-      [ICONS.docnote||ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc')],
-      [ICONS.calendar, ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc')],
+      [ICONS.warn||ICONS.checklist, ta('healthTitle'), ta('premRowHealth')],
+      [ICONS.docnote||ICONS.checklist, ta('documentsTitle'), ta('premRowDocs')],
+      [ICONS.calendar, ta('googleCalendarTitle'), ta('premRowCal')],
     ]],
     [ta('premGroupAsk'), [
-      [ICONS.chat, ta('premiumTileChatbot'), ta('premiumFeatureAssistant')],
-      [ICONS.camera, ta('memoriesTitle'), ta('premiumTileMemoriesDesc')],
+      [ICONS.chat, ta('premiumTileChatbot'), ta('premRowChat')],
+      [ICONS.camera, ta('memoriesTitle'), ta('premRowMemories')],
     ]],
   ];
   const groupsHtml = groups.map(([gt, rows])=>`
@@ -11206,13 +11220,12 @@ function viewDefPremiumLocked(title){
   const isGeneric = title===ta('subscriptionTitle');
   const intro = isGeneric ? ta('premSaleIntro') : ta('premSaleLockedIntro')(title);
   return `
-  ${defSubHeader(isGeneric ? 'Weddy Premium' : title)}
   <div class="premium-upsell prem-sale">
     <div class="premium-upsell-icon">${ICONS.sparkle}</div>
     <div class="premium-upsell-title">${ta('premSaleTitle')}</div>
     <div class="premium-upsell-text">${intro}</div>
     ${groupsHtml}
-    <div class="prem-free"><strong>${ta('premFreeTitle')}:</strong> ${ta('premFreeText')}</div>
+    <div class="prem-free"><strong>${ta('premFreeTitle')}</strong> ${ta('premFreeText')}</div>
     <div class="prem-plan">
       <div class="prem-plan-mid">
         <div class="prem-plan-name">${ta('premPlanName')}</div>
