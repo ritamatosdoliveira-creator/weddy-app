@@ -284,13 +284,19 @@ service cloud.firestore {
 
     // Casamento ativo escolhido no seletor — também lido pelas Cloud Functions.
     // As funções só o respeitam se a pessoa for mesmo dona desse casamento.
+    // premiumNudgeAt: data/hora da última vez que o lembrete do Premium foi
+    // mostrado a esta pessoa (no máximo uma vez a cada 7 dias, em todos os
+    // dispositivos). Os dois campos são opcionais, mas têm de ter o tipo certo.
     match /userPrefs/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['activeWeddingId', 'updatedAt'])
-        && request.resource.data.activeWeddingId is string
-        && request.resource.data.activeWeddingId.size() <= 40;
+        && request.resource.data.keys().hasOnly(['activeWeddingId', 'updatedAt', 'premiumNudgeAt'])
+        && (!('activeWeddingId' in request.resource.data)
+            || (request.resource.data.activeWeddingId is string
+                && request.resource.data.activeWeddingId.size() <= 40))
+        && (!('premiumNudgeAt' in request.resource.data)
+            || request.resource.data.premiumNudgeAt is timestamp);
     }
 
     // Registos de incidente escritos pelo cliente (rede de segurança contra

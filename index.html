@@ -816,6 +816,20 @@ html{
 .prem-plan-price{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; color:var(--rust-dark); }
 .prem-legal{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:12px; line-height:1.5; }
 .prem-legal a{ color:var(--rust-dark); font-weight:600; }
+.pn-card{ position:relative; width:100%; max-width:380px; background:var(--card,#fff); border-radius:24px; padding:26px 22px 18px; box-shadow:0 18px 50px rgba(60,40,30,0.25); text-align:center; }
+.pn-close{ all:unset; position:absolute; top:10px; right:10px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); border-radius:50%; }
+.pn-close svg{ width:18px; height:18px; }
+.pn-icon{ width:54px; height:54px; margin:0 auto 12px; border-radius:50%; background:rgba(193,88,62,0.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
+.pn-icon svg{ width:26px; height:26px; }
+.pn-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; line-height:1.15; color:var(--heading); margin-bottom:8px; }
+.pn-desc{ font-size:13.5px; color:var(--ink-soft); line-height:1.45; margin-bottom:14px; }
+.pn-list{ list-style:none; margin:0 0 14px; padding:0; text-align:left; display:flex; flex-direction:column; gap:8px; }
+.pn-list li{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.4; color:var(--ink); }
+.pn-check{ width:18px; height:18px; flex-shrink:0; color:var(--rust); margin-top:1px; }
+.pn-check svg{ width:18px; height:18px; }
+.pn-price{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:12px; }
+.pn-later{ all:unset; display:block; width:100%; box-sizing:border-box; padding:12px 0 6px; margin-top:4px; font-size:14px; color:var(--ink-soft); cursor:pointer; text-align:center; }
+
 /* --- Weddy Premium: RSVP --- */
 .rsvp-pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
 .rsvp-pill-pending{ background:rgba(20,20,20,0.07); color:var(--ink-soft); }
@@ -3762,6 +3776,13 @@ const APP_I18N = {
     premGroupGuests:'Convidados e confirmações', premGroupControl:'Organização e controlo', premGroupAsk:'Dúvidas e memórias',
     premFreeTitle:'Continuas com acesso gratuito a', premFreeText:'orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares. Nada disto muda.',
     premPlanName:'Weddy Premium · 12 meses', premPlanPrice:'30€', premPlanNote:'Pagamento único. Sem renovação automática.',
+    nudgeTitle:'O teu casamento merece uma ajuda extra.',
+    nudgeDesc:'Simplifica a organização do teu grande dia com as ferramentas exclusivas da Weddy Premium.',
+    nudgeB1:'Convites RSVP com link individual por convidado',
+    nudgeB2:'Weddy AI a organizar os convidados pelas mesas',
+    nudgeB3:'Assistente Weddy e pesquisa nos teus contratos',
+    nudgePrice:'30 € · Pagamento único · Sem renovação.',
+    nudgeCta:'Conhecer o Premium', nudgeLater:'Agora não', nudgeCloseLabel:'Fechar',
     premConditionsLead:'Antes de pagares podes ver os', premTermsLink:'Termos', premPrivacyLink:'Política de Privacidade',
     premiumTileRSVP:'Confirma a presença e as respostas dos convidados.',
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Tira as tuas dúvidas em tempo real.',
@@ -4924,6 +4945,13 @@ const APP_I18N = {
     premGroupGuests:'Guests and replies', premGroupControl:'Organization and control', premGroupAsk:'Questions and memories',
     premFreeTitle:'You keep free access to', premFreeText:'budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues. None of this changes.',
     premPlanName:'Weddy Premium · 12 months', premPlanPrice:'€30', premPlanNote:'One-time payment. No automatic renewal.',
+    nudgeTitle:'Your wedding deserves a little extra help.',
+    nudgeDesc:'Simplify planning your big day with the exclusive tools in Weddy Premium.',
+    nudgeB1:'RSVP invitations with one link per guest',
+    nudgeB2:'Weddy AI arranging guests at the tables',
+    nudgeB3:'Weddy Assistant and search in your contracts',
+    nudgePrice:'€30 · One-time payment · No renewal.',
+    nudgeCta:'Discover Premium', nudgeLater:'Not now', nudgeCloseLabel:'Close',
     premConditionsLead:'Before you pay you can read the', premTermsLink:'Terms', premPrivacyLink:'Privacy Policy',
     premiumTileRSVP:"Confirm attendance and your guests' responses.",
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Get your questions answered in real time.',
@@ -6083,6 +6111,7 @@ function renderTabbar(){
 }
 
 function render(){
+  if(document.getElementById('premium-nudge-overlay') && hasActiveSubscription()) closePremiumNudge();
   applyTheme(weddingSettings.accentColor);
   renderTabbar();
   const body = document.getElementById('app-body');
@@ -17017,7 +17046,7 @@ async function openWeddingSwitcher(){
         b.disabled = true;
         if(!await flushBeforeLeave()){ b.disabled = false; return; }
         try{
-          await db.collection('userPrefs').doc(auth.currentUser.uid).set({ activeWeddingId:id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          await db.collection('userPrefs').doc(auth.currentUser.uid).set({ activeWeddingId:id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
           // Recarrega: garante que NADA do casamento anterior (estado em memória,
           // baselines, ligações em tempo real) fica misturado com o novo.
           location.reload();
@@ -17739,7 +17768,7 @@ function handleOnboardingSubmit(){
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   batch.set(db.collection('creators').doc(auth.currentUser.uid), { weddingId:newRef.id, email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  batch.set(db.collection('userPrefs').doc(auth.currentUser.uid), { activeWeddingId:newRef.id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  batch.set(db.collection('userPrefs').doc(auth.currentUser.uid), { activeWeddingId:newRef.id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
   batch.commit().then(()=>{
     currentWeddingId = newRef.id;
     attachFirestoreSync();
@@ -19196,6 +19225,115 @@ function findOrCreateFlow(user, isRetry){
     renderLoginForm(ta('loginErrorVerifyGeneric')+extra, true);
   });
 }
+
+// ===== Lembrete discreto do Weddy Premium (popup) =====
+// No máximo uma apresentação a cada 7 dias POR UTILIZADOR, em todos os
+// dispositivos: a data da última apresentação fica em userPrefs/{uid}
+// (campo premiumNudgeAt, o mesmo documento que já guarda o casamento ativo)
+// e, como segunda rede de segurança, no localStorage deste dispositivo.
+// Nunca aparece: sem sessão, a quem já tem Premium, nos primeiros minutos de
+// uma sessão, em contas com menos de 1 dia, durante pagamentos, sobre
+// janelas/folhas abertas, nem se a leitura da última apresentação falhar.
+const PREMIUM_NUDGE_CFG = { intervalMs: 7*24*3600*1000, minSessionMs: 120000, minAccountAgeMs: 24*3600*1000 };
+let premiumNudgeSessionStart = 0, premiumNudgeShown = false, premiumNudgeChecking = false, premiumNudgeRetryAt = 0;
+function premiumNudgeLocalKey(uid){ return 'weddy-premium-nudge-'+uid; }
+function premiumNudgeBusy(){
+  try{
+    const ls = document.getElementById('login-screen');
+    if(ls && !ls.classList.contains('hidden')) return true;
+    if(document.querySelector('.sheet.show')) return true;
+    for(const id of ['weddy-alert-overlay','weddy-confirm-overlay','legal-overlay']){
+      const el = document.getElementById(id);
+      if(el && el.style.display && el.style.display!=='none') return true;
+    }
+    const cp = document.getElementById('chat-panel');
+    if(cp && !cp.hidden) return true;
+    if(document.querySelector('.prem-sale')) return true;
+    if(document.querySelector('.js-premium-subscribe:disabled')) return true;
+    if(restoreBtnInFlight) return true;
+    if(isEditingTextField()) return true;
+  }catch(e){ return true; }
+  return false;
+}
+function closePremiumNudge(){
+  const el = document.getElementById('premium-nudge-overlay');
+  if(el) el.remove();
+}
+function openPremiumNudge(){
+  closePremiumNudge();
+  const el = document.createElement('div');
+  el.id = 'premium-nudge-overlay';
+  el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','premium-nudge-title');
+  el.style.cssText = 'position:fixed; inset:0; z-index:9000; background:rgba(30,26,23,0.5); display:flex; align-items:center; justify-content:center; padding:20px;';
+  const checks = ['nudgeB1','nudgeB2','nudgeB3'].map(k=>`<li><span class="pn-check">${ICONS.check}</span><span>${ta(k)}</span></li>`).join('');
+  el.innerHTML = `
+    <div class="pn-card">
+      <button type="button" class="pn-close" id="premium-nudge-x" aria-label="${ta('nudgeCloseLabel')}">${ICONS.x}</button>
+      <div class="pn-icon">${ICONS.crown||ICONS.sparkle}</div>
+      <div class="pn-title" id="premium-nudge-title">${ta('nudgeTitle')}</div>
+      <div class="pn-desc">${ta('nudgeDesc')}</div>
+      <ul class="pn-list">${checks}</ul>
+      <div class="pn-price">${ta('nudgePrice')}</div>
+      <button type="button" class="login-btn pn-cta" id="premium-nudge-cta" style="max-width:none;">${ta('nudgeCta')}</button>
+      <button type="button" class="pn-later" id="premium-nudge-later">${ta('nudgeLater')}</button>
+    </div>`;
+  document.body.appendChild(el);
+  const close = ()=> closePremiumNudge();
+  el.addEventListener('click', e=>{ if(e.target===el) close(); });
+  el.querySelector('#premium-nudge-x').addEventListener('click', close);
+  el.querySelector('#premium-nudge-later').addEventListener('click', close);
+  el.querySelector('#premium-nudge-cta').addEventListener('click', ()=>{
+    close();
+    // Abre a página de venda que já existe (mesmo caminho do cartão do Início).
+    closeAllSheets();
+    activeTab = 'definicoes'; definicoesSection = 'subscricao';
+    rsvpSubScreen = null; rsvpSubScreenReturnTo = null; rsvpAutopilotReview = null;
+    _origRender();
+  });
+  el.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+  const cta = el.querySelector('#premium-nudge-cta'); if(cta) cta.focus();
+}
+async function maybeShowPremiumNudge(){
+  try{
+    const u = auth && auth.currentUser;
+    if(!u){ closePremiumNudge(); premiumNudgeSessionStart = 0; return; }
+    if(!FIREBASE_READY || !currentWeddingId) return;
+    if(hasActiveSubscription()){ closePremiumNudge(); return; }
+    if(premiumNudgeShown || premiumNudgeChecking) return;
+    const now = Date.now();
+    if(!premiumNudgeSessionStart){ premiumNudgeSessionStart = now; return; }
+    if(now - premiumNudgeSessionStart < PREMIUM_NUDGE_CFG.minSessionMs) return;
+    if(now < premiumNudgeRetryAt) return;
+    const created = u.metadata && u.metadata.creationTime ? new Date(u.metadata.creationTime).getTime() : 0;
+    if(created && now - created < PREMIUM_NUDGE_CFG.minAccountAgeMs) return;
+    if(document.getElementById('premium-nudge-overlay') || premiumNudgeBusy()) return;
+    premiumNudgeChecking = true;
+    let last = 0;
+    try{
+      const sn = await db.collection('userPrefs').doc(u.uid).get({ source:'server' });
+      const v = sn.exists ? sn.data().premiumNudgeAt : null;
+      last = v && typeof v.toMillis==='function' ? v.toMillis() : 0;
+    }catch(e){
+      // Sem saber quando foi a última vez, não arriscamos mostrar: volta a tentar mais tarde.
+      premiumNudgeRetryAt = Date.now() + 10*60*1000;
+      premiumNudgeChecking = false;
+      return;
+    }
+    try{ last = Math.max(last, Number(localStorage.getItem(premiumNudgeLocalKey(u.uid))||0)||0); }catch(_){}
+    premiumNudgeChecking = false;
+    if(Date.now() - last < PREMIUM_NUDGE_CFG.intervalMs){ premiumNudgeShown = true; return; }
+    // Voltar a verificar (a leitura demorou): o estado pode ter mudado entretanto.
+    if(!auth.currentUser || hasActiveSubscription() || premiumNudgeBusy()) return;
+    premiumNudgeShown = true; // uma única vez por sessão, aconteça o que acontecer depois
+    try{ localStorage.setItem(premiumNudgeLocalKey(u.uid), String(Date.now())); }catch(_){}
+    openPremiumNudge();
+    db.collection('userPrefs').doc(u.uid).set({ premiumNudgeAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+      .catch(err=> console.warn('Weddy premium nudge: não foi possível gravar a apresentação', err && err.code));
+  }catch(e){
+    premiumNudgeChecking = false;
+  }
+}
+setInterval(maybeShowPremiumNudge, 20000);
 
 function closePaymentAlert(){
   paymentAlertDismissed = true;
