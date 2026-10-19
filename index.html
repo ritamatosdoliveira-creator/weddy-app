@@ -19713,7 +19713,7 @@ function findOrCreateFlow(user, isRetry){
 // Nunca aparece: sem sessão, a quem já tem Premium, nos primeiros minutos de
 // uma sessão, em contas com menos de 1 dia, durante pagamentos, sobre
 // janelas/folhas abertas, nem se a leitura da última apresentação falhar.
-const PREMIUM_NUDGE_CFG = { intervalMs: 7*24*3600*1000, minSessionMs: 120000, minAccountAgeMs: 24*3600*1000 };
+const PREMIUM_NUDGE_CFG = { intervalMs: 7*24*3600*1000, minSessionMs: 45000, minAccountAgeMs: 24*3600*1000 };
 let premiumNudgeSessionStart = 0, premiumNudgeShown = false, premiumNudgeChecking = false, premiumNudgeRetryAt = 0;
 function premiumNudgeLocalKey(uid){ return 'weddy-premium-nudge-'+uid; }
 function premiumNudgeBusy(){
