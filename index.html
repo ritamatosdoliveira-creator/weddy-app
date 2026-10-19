@@ -273,6 +273,9 @@ html{
 .ring-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
 .ring-label-arrow{ display:inline-flex; color:var(--ink-soft); }
 .ring-label-arrow svg{ width:10px; height:10px; }
+.nav-back-bar{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:6px; margin:6px 16px 6px; padding:0 14px 0 8px; min-height:40px; border-radius:999px; background:rgba(193,88,62,0.10); color:var(--rust-dark,#A04A33); font-size:14px; font-weight:600; cursor:pointer; width:max-content; max-width:calc(100% - 32px); }
+.nav-back-bar svg{ width:18px; height:18px; flex-shrink:0; }
+.nav-back-bar:focus-visible{ outline:2px solid var(--rust,#C1583E); outline-offset:2px; }
 .wh-wrap{ padding:0 16px 28px; }
 .wh-hero{ background:linear-gradient(160deg,#FBF3EA 0%,#F4E3D7 100%); border:1px solid rgba(193,88,62,0.14); border-radius:22px; padding:18px; box-shadow:0 6px 22px rgba(120,70,40,0.08); margin-bottom:6px; }
 .wh-eyebrow{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--rust-dark,#A04A33); margin-bottom:10px; }
@@ -3397,6 +3400,23 @@ let fornecedoresSubview = 'lista'; // 'lista' | 'recomendados' | 'detalhe'
 let openSupplierDetailId = null;
 let showFilterChips = false;
 let definicoesSection = null;
+// "Voltar para onde estava": quando um ecrã é aberto A PARTIR de outro (ex.: um
+// botão do Wedding Health que abre Orçamento, ou o cartão Premium do Início que
+// abre a página do Premium), guarda-se a origem e o "voltar" regressa lá, em vez
+// de ir sempre para o menu de Definições / Início. forTab/forSec = o ecrã de
+// destino; se a pessoa sair dele por outro caminho, a origem esquece-se.
+let navBack = null;
+function navBackSet(forTab, forSec, label){
+  navBack = { tab:activeTab, sec:definicoesSection, forTab, forSec:forSec||null, label:label||'' };
+}
+function goNavBack(){
+  const t = navBack; navBack = null;
+  if(!t) return;
+  closeAllSheets();
+  activeTab = t.tab; definicoesSection = t.sec;
+  rsvpSubScreen = null; rsvpSubScreenReturnTo = null; rsvpAutopilotReview = null;
+  _origRender();
+}
 let dressInspirations = [];
 let editingSeatKey = null;
 let seatQuery = '';
@@ -3883,6 +3903,7 @@ const APP_I18N = {
     healthCheckNoTable: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem mesa atribuída.`,
     healthCheckNoMeal: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem refeição escolhida.`,
     healthCheckSuppliers: n => `${n} fornecedor${n===1?'':'es'} ainda por contratar.`,
+    navBackTo: l=>`Voltar a ${l}`,
     whEyebrow:"A saúde do vosso casamento",
     whGoodHead:"Está tudo a evoluir bem", whGoodMsgNone:"Não há nada a precisar da vossa atenção neste momento.", whGoodMsg:"Há apenas alguns pontos a acompanhar.",
     whAttnHead:"Há alguns detalhes que merecem a vossa atenção", whAttnMsg:"Nada de grave — resolvem-se com calma, um de cada vez.",
@@ -5113,6 +5134,7 @@ const APP_I18N = {
     healthCheckNoTable: n => `${n} confirmed guest${n===1?'':'s'} still without a table.`,
     healthCheckNoMeal: n => `${n} confirmed guest${n===1?'':'s'} still without a meal choice.`,
     healthCheckSuppliers: n => `${n} supplier${n===1?'':'s'} still not booked.`,
+    navBackTo: l=>`Back to ${l}`,
     whEyebrow:"Your wedding's health",
     whGoodHead:"Everything is going well", whGoodMsgNone:"Nothing needs your attention right now.", whGoodMsg:"Just a few points to keep an eye on.",
     whAttnHead:"A few details deserve your attention", whAttnMsg:"Nothing serious — easy to sort out, one at a time.",
@@ -6300,6 +6322,7 @@ function renderTabbar(){
 
 function render(){
   if(document.getElementById('premium-nudge-overlay') && hasActiveSubscription()) closePremiumNudge();
+  if(navBack && !(activeTab===navBack.forTab && (definicoesSection||null)===navBack.forSec)) navBack = null;
   applyTheme(weddingSettings.accentColor);
   renderTabbar();
   const body = document.getElementById('app-body');
@@ -6318,6 +6341,16 @@ function render(){
     panel('luademel', viewLuademel()) +
     panel('fornecedores', viewFornecedores()) +
     panel('definicoes', viewDefinicoes());
+  if(navBack && navBack.forTab!=='definicoes'){
+    const sc = document.querySelector('.tabpanel.active .scroll');
+    if(sc){
+      const bar = document.createElement('button');
+      bar.type = 'button'; bar.className = 'nav-back-bar';
+      bar.innerHTML = `${ICONS.chevleft}<span>${escapeHTML(ta('navBackTo')(navBack.label))}</span>`;
+      bar.addEventListener('click', goNavBack);
+      sc.insertBefore(bar, sc.firstChild);
+    }
+  }
   bindHandlers();
   syncMesa3DPanel();
   maybeShowPaymentAlert();
@@ -13513,6 +13546,7 @@ function bindHandlers(){
     el.addEventListener('click', ()=>{
       const target = el.dataset.goto;
       const prevTabForScroll = activeTab;
+      navBack = null;
       if(target !== activeTab) collapseAllSections();
       closeAllSheets();
       activeTab = target;
@@ -14122,6 +14156,8 @@ function bindHandlers(){
       // por isso este azulejo só abre essa janela em vez de navegar.
       if(key==='chatbot'){ openChatPanel(); return; }
       closeAllSheets();
+      // Origem diferente do menu de Definições (ex.: Início) → "voltar" regressa lá.
+      if(!(activeTab==='definicoes' && (definicoesSection===null || definicoesSection===key))) navBackSet('definicoes', key);
       activeTab = 'definicoes';
       definicoesSection = key;
       rsvpSubScreen = null;
@@ -14133,6 +14169,11 @@ function bindHandlers(){
   });
   document.querySelectorAll('[data-defback]').forEach(el=>{
     el.addEventListener('click', ()=>{
+      // Aberto a partir de outro ecrã (Wedding Health, Início, ...): volta lá.
+      if(navBack && navBack.forTab==='definicoes' && navBack.forSec===definicoesSection && !(definicoesSection==='rsvp' && rsvpSubScreen)){
+        goNavBack();
+        return;
+      }
       // Se estivermos num sub-ecrã do hub de RSVP, o botão "voltar" primeiro
       // regressa ao hub (não sai logo de "Convites RSVP" para o menu geral
       // de Definições).
@@ -14217,6 +14258,8 @@ function bindHandlers(){
     el.addEventListener('click', e=>{
       const [kind, value] = e.currentTarget.dataset.healthgoto.split(':');
       closeAllSheets();
+      // Saiu do Wedding Health → o "voltar" do destino regressa aqui.
+      if(activeTab==='definicoes' && definicoesSection==='health') navBackSet(kind==='tab'?value:'definicoes', kind==='def'?value:null, ta('healthTitle'));
       if(kind==='tab'){
         definicoesSection = null;
         activeTab = value;
@@ -19804,6 +19847,7 @@ function openPremiumNudge(){
     close();
     // Abre a página de venda que já existe (mesmo caminho do cartão do Início).
     closeAllSheets();
+    if(!(activeTab==='definicoes' && definicoesSection===null)) navBackSet('definicoes', 'subscricao');
     activeTab = 'definicoes'; definicoesSection = 'subscricao';
     rsvpSubScreen = null; rsvpSubScreenReturnTo = null; rsvpAutopilotReview = null;
     _origRender();
