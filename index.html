@@ -6714,14 +6714,33 @@ function healthSnapshotNow(){
 // Só aceita registos bem formados (o campo vem do Firestore e pode estar
 // corrompido ou ter sido escrito por uma versão antiga): data AAAA-MM-DD
 // válida e contadores numéricos. Devolve ordenado por data.
+function healthEntryValid(e){
+  if(!e || typeof e!=='object' || typeof e.d!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(e.d)) return false;
+  const dt = new Date(e.d+'T00:00:00');
+  if(isNaN(dt.getTime()) || toLocalISODate(dt)!==e.d) return false;
+  return ['idx','done','resp','conf','risks'].every(k=>Number.isFinite(e[k]));
+}
 function validHealthHistory(){
   const h = Array.isArray(state.healthHistory) ? state.healthHistory : [];
-  return h.filter(e=>{
-    if(!e || typeof e!=='object' || typeof e.d!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(e.d)) return false;
-    const dt = new Date(e.d+'T00:00:00');
-    if(isNaN(dt.getTime()) || toLocalISODate(dt)!==e.d) return false;
-    return ['idx','done','resp','conf','risks'].every(k=>Number.isFinite(e[k]));
-  }).sort((x,y)=> x.d<y.d ? -1 : (x.d>y.d ? 1 : 0));
+  return h.filter(healthEntryValid).sort((x,y)=> x.d<y.d ? -1 : (x.d>y.d ? 1 : 0));
+}
+// Junção de dois históricos (dispositivo local + servidor) por DATA: nunca perde
+// um dia registado por outro dispositivo e nunca duplica o mesmo dia. Para o mesmo
+// dia escolhe-se de forma determinística (comparação do JSON), independente de
+// quem chama — assim dois dispositivos chegam sempre ao mesmo resultado e não
+// ficam a "reescrever-se" um ao outro. Só entradas bem formadas; máx. 90.
+function mergeHealthHistory(a, b){
+  const byDay = new Map();
+  [a, b].forEach(list=>{
+    if(!Array.isArray(list)) return;
+    list.forEach(e=>{
+      if(!healthEntryValid(e)) return;
+      const cur = byDay.get(e.d);
+      if(!cur || JSON.stringify(e) > JSON.stringify(cur)) byDay.set(e.d, e);
+    });
+  });
+  const out = Array.from(byDay.values()).sort((x,y)=> x.d<y.d ? -1 : (x.d>y.d ? 1 : 0));
+  return out.length>90 ? out.slice(-90) : out;
 }
 function recordHealthSnapshot(){
   try{
@@ -19338,6 +19357,12 @@ function mergeIncomingWeddingState(localState, incoming, baseline){
     }
     merged[key] = localDirty ? localState[key] : incoming[key];
   });
+  // Histórico do Wedding Health: junção por data (ver mergeHealthHistory), porque
+  // dois dispositivos podem acrescentar dias diferentes ao mesmo array e o
+  // "ganha a alteração local" acima apagaria os registos do outro.
+  if(('healthHistory' in (localState||{})) || ('healthHistory' in (incoming||{}))){
+    merged.healthHistory = mergeHealthHistory(localState && localState.healthHistory, incoming && incoming.healthHistory);
+  }
   return merged;
 }
 // Gravação "à prova de dois dispositivos" (Out 2026, auditoria — o achado mais
