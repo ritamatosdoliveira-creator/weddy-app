@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Weddy</title>
+<meta name="description" content="Site do casamento criado com Weddy.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Weddy">
+<meta property="og:title" content="Weddy">
+<meta property="og:description" content="Site do casamento criado com Weddy.">
+<link rel="preload" href="fonts/cormorant-garamond.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="fonts/manrope.woff" as="font" type="font/woff" crossorigin>
+<style>
+html,body{margin:0;background:#FAF8F5;font-family:"Manrope",system-ui,sans-serif;color:#302C29}
+.st{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
+.st h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;margin:0}
+.st p{margin:0;color:#6F6862;max-width:28em}
+.st a,.st button{margin-top:10px;min-height:46px;padding:0 24px;border-radius:999px;background:#B96752;color:#fff;border:0;font:700 15px inherit;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app"><div class="st" role="status"><p id="ld">A carregar…</p></div></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="weddysite.js"></script>
+<script>
+(function(){
+  var app = document.getElementById('app');
+  var q = new URLSearchParams(location.search);
+  var slug = (q.get('s') || '').toLowerCase();
+  var token = q.get('g') || '';
+  var lang = (navigator.language||'pt').slice(0,2)==='en' ? 'en' : 'pt';
+  var T = WeddySite.STRINGS[lang];
+  function status(title, text, retry){
+    document.title = title + ' · Weddy';
+    app.innerHTML = '<div class="st" role="status"><h1>'+WeddySite.escape(title)+'</h1><p>'+WeddySite.escape(text)+'</p>'+
+      (retry?'<button id="rt">'+WeddySite.escape(T.retry)+'</button>':'<a href="https://www.weddy.pt">Weddy</a>')+'</div>';
+    var b = document.getElementById('rt'); if(b) b.onclick = load;
+  }
+  function setMeta(sel, attr, val){ var el = document.querySelector(sel); if(el) el.setAttribute(attr, val); }
+  function load(){
+    if(WeddySite.slugProblem(slug)){ return status(T.notFoundTitle, T.notFoundText); }
+    app.innerHTML = '<div class="st" role="status"><p>'+WeddySite.escape(T.loading)+'</p></div>';
+    if(!firebase.apps.length) firebase.initializeApp({ apiKey:"AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk", authDomain:"weddy-app-bd12f.firebaseapp.com", projectId:"weddy-app-bd12f", storageBucket:"weddy-app-bd12f.firebasestorage.app", messagingSenderId:"696758255059", appId:"1:696758255059:web:44cbc2e9847d2ab58f8326" });
+    firebase.firestore().collection('publicWeddingSites').doc(slug).get().then(function(d){
+      // Inexistente, rascunho e despublicado dão exatamente a mesma resposta.
+      if(!d.exists || d.data().status !== 'published' || !d.data().snapshot) return status(T.notFoundTitle, T.notFoundText);
+      var data = d.data(), snap = data.snapshot;
+      var r = WeddySite.render(snap, { token: token });
+      document.documentElement.lang = r.lang;
+      document.title = r.title;
+      setMeta('meta[name=description]','content', r.description);
+      setMeta('meta[property="og:title"]','content', r.title);
+      setMeta('meta[property="og:description"]','content', r.description);
+      // noindex por defeito; só indexável se o casal optou explicitamente.
+      setMeta('meta[name=robots]','content', data.indexable === true ? 'index,follow' : 'noindex,nofollow');
+      var st = document.createElement('style'); st.textContent = r.css; document.head.appendChild(st);
+      app.innerHTML = r.html;
+      var sc = document.createElement('script'); sc.textContent = r.script; document.body.appendChild(sc);
+    }).catch(function(e){
+      // As regras negam a leitura de sites suspensos/expirados/despublicados: é o mesmo
+      // que "não disponível" (sem revelar nada). Só falhas de rede mostram "tentar novamente".
+      if(e && e.code === 'permission-denied') return status(T.notFoundTitle, T.notFoundText);
+      status(T.error, '', true);
+    });
+  }
+  load();
+})();
+</script>
+</body>
+</html>

@@ -707,7 +707,11 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   }
 
   const params = new URLSearchParams(location.search);
-  const guestToken = params.get('g');
+  // Auditoria Fase 3: um token com "/" seria lido como caminho (subcoleções) em vez de
+  // ID de documento. Os convites reais nunca o têm; qualquer outro valor é tratado como
+  // convite inválido (mesma mensagem de erro, nenhum pedido ao Firestore).
+  const _rawToken = params.get('g');
+  const guestToken = (_rawToken && _rawToken.indexOf('/') < 0 && _rawToken.length <= 200) ? _rawToken : null;
   let guestData = null, selectedAttend = null;
   // Lista de crianças que a pessoa vai declarar neste convite — cada uma
   // com nome, idade e se vai ou não. Guardada aqui em memória e só escrita

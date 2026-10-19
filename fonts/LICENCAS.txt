@@ -1,0 +1,3 @@
+Cormorant Garamond (c) Christian Thalmann / Catharsis Fonts. Manrope (c) Mikhail Sharanda.
+Ambas sob a SIL Open Font License 1.1 (permite alojamento e redistribuição). Texto completo: OFL-*.txt nesta pasta.
+Origem: https://github.com/google/fonts (ofl/cormorantgaramond, ofl/manrope)

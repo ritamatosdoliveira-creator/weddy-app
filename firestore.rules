@@ -307,5 +307,34 @@ service cloud.firestore {
         && request.auth.token.email_verified == true
         && request.resource.data.size() <= 12;
     }
+  
+    // ── Site do casamento (Premium) ───────────────────────────────────────
+    // Rascunho: os donos do casamento só o LEEM. Toda a escrita (rascunho,
+    // estado, slug, publicação) passa pelas Cloud Functions (Admin SDK), que
+    // validam sessão, posse, Premium, tamanho e campos — nenhum cliente pode
+    // gravar aqui nem fingir uma publicação.
+    match /weddingSites/{weddingId} {
+      allow get: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow list, write: if false;
+    }
+
+    // Cópia pública: qualquer pessoa pode LER um documento se souber o slug
+    // (get), mas só enquanto estiver publicado E dentro da validade do Premium
+    // (validUntil é comparado com a hora do servidor, por isso o site fecha à
+    // hora exata em que o Premium termina). Documentos inexistentes,
+    // despublicados e suspensos respondem todos da mesma forma (negado).
+    // Nunca se pode listar nem escrever.
+    match /publicWeddingSites/{slug} {
+      allow get: if resource.data.status == 'published'
+        && resource.data.validUntil > request.time;
+      allow list, write: if false;
+    }
+
+    // Reserva de endereços: só o servidor.
+    match /siteSlugs/{slug} {
+      allow read, write: if false;
+    }
   }
 }

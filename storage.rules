@@ -25,6 +25,49 @@ service firebase.storage {
       allow update: if false;
     }
 
+    // Imagens do RASCUNHO do site (editor). Só o casal as lê (dentro da app,
+    // via URL de download) e só o casal as cria: jpeg/png/webp até 5 MB, com
+    // Premium ativo E dentro da validade (premiumUntil).
+    // ATENÇÃO: um URL de download COM token ignora estas regras. Por isso, quando
+    // o Premium acaba, o servidor muda os tokens das fotos (siteRotatePhotoTokens)
+    // — os URLs antigos deixam de funcionar sem apagar nenhuma foto.
+    // Sem SVG nem HEIC (SVG pode conter scripts). Estes URLs nunca vão para a
+    // página pública: ao publicar, o servidor copia as fotos para public-sites/.
+    match /sites/{weddingId}/{fileName} {
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      // Carregar/substituir: dono + Premium ativo + dentro da validade. As duas
+      // consultas ao Firestore ficam numa função com "let" (uma chamada por
+      // documento): o Storage limita as consultas ao Firestore por pedido.
+      allow create, update: if canWriteSitePhoto(weddingId);
+    }
+    function canWriteSitePhoto(weddingId) {
+      let w = firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data;
+      let s = firestore.get(/databases/(default)/documents/weddingSites/$(weddingId)).data;
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in w.ownerEmails
+        && w.subscription.active == true
+        && s.premiumUntil > request.time
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+
+    // Fotos PÚBLICAS do site (cópias feitas pelo servidor). Só se podem ler
+    // sem login enquanto o site estiver publicado e dentro da validade;
+    // despublicado, suspenso ou expirado -> negado (sem listar, sem escrever).
+    match /public-sites/{slug}/{fileName} {
+      allow get: if publicSiteOpen(slug);
+      allow list, write: if false;
+    }
+
+    function publicSiteOpen(slug) {
+      let p = firestore.get(/databases/(default)/documents/publicWeddingSites/$(slug)).data;
+      return p.status == 'published' && p.validUntil > request.time;
+    }
+
     // Documentos do casamento (contratos, anexos) — só o casal dono.
     match /documents/{weddingId}/{fileName} {
       allow read, delete: if request.auth != null

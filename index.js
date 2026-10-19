@@ -974,6 +974,8 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
           // Out 2026 (auditoria RGPD): capturas de ecrã de "Reporta um problema"
           // também ficavam para trás.
           deleteStoragePrefix(`feedback/${weddingId}/`),
+          // Site do casamento: imagens, rascunho, snapshot público e slug.
+          deleteWeddingSiteData(weddingId),
         ]);
         // Só depois do Storage: se este falhasse, os convites RSVP e as memórias
         // já tinham sido apagados com o casamento ainda existente.
@@ -1881,6 +1883,562 @@ async function assertPremiumWedding(weddingId) {
     throw new HttpsError('permission-denied', 'Esta funcionalidade faz parte do Weddy Premium.');
   }
   return snap;
+}
+
+// ============================================================================
+// SITE DO CASAMENTO (Premium)
+// ----------------------------------------------------------------------------
+// Fronteira cliente/servidor (decisão Fase 2):
+//  - O CLIENTE só LÊ o seu rascunho (regras: weddingSites/{id} leitura só dos
+//    donos, escrita negada a todos). Todas as escritas passam pelas funções
+//    abaixo, que validam sessão, posse, Premium, tamanho e campos.
+//  - O público só lê publicWeddingSites/{slug}, e só enquanto status ==
+//    'published' E validUntil > agora (a regra compara com a hora do servidor,
+//    por isso o site fecha à hora exata em que o Premium termina, sem esperar
+//    por nenhuma tarefa). As fotos públicas são COPIAS em public-sites/{slug}/,
+//    com a mesma regra no Storage — nada de URLs com token para o público.
+//  - Expirar o Premium nunca apaga nada: syncWeddingSiteLifecycle só muda o
+//    estado para 'suspended' e remove o snapshot da cópia pública. O rascunho,
+//    as fotos, o snapshot guardado e o endereço ficam intactos.
+// ============================================================================
+/*BEGIN-SHARED-BUILDER*/
+const SITE_LIMITS = { title: 80, welcome: 600, storyTitle: 80, story: 3000, venue: 120, address: 240, notes: 600, parking: 300, dressTitle: 80, dress: 800, lodging: 800, transport: 800, meeting: 400, faqQ: 140, faqA: 600, faqMax: 12, linksMax: 6, linkLabel: 60, contactName: 80, contactNote: 240, rsvpText: 300, scheduleNote: 240, scheduleMax: 30, expired: 160, slugMin: 3, slugMax: 40, name: 60, schedLabel: 100, schedPlace: 120 };
+const SITE_TEMPLATES = ['editorial', 'classic', 'modern'];
+const SITE_PALETTES = ['terracota', 'salvia', 'rosa', 'noite'];
+const SITE_TIMEZONES = ['Europe/Lisbon', 'Atlantic/Azores', 'Atlantic/Madeira', 'Europe/London', 'Europe/Madrid', 'Europe/Paris'];
+const SITE_RESERVED_SLUGS = ['admin', 'api', 'app', 'login', 'logout', 'premium', 'rsvp', 'site', 'c', 'assets', 'static', 'weddy', 'www', 'memorias', 'suporte', 'privacidade', 'termos', 'index', '404', 'sw', 'manifest', 'icon', 'login-bg', 'functions', 'settings', 'definicoes', 'help', 'ajuda', 'about', 'sobre', 'test', 'teste'];
+
+function siteSlugProblem(slug) {
+  if (typeof slug !== 'string' || !slug) return 'empty';
+  if (slug.length < SITE_LIMITS.slugMin) return 'short';
+  if (slug.length > SITE_LIMITS.slugMax) return 'long';
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return 'chars';
+  if (SITE_RESERVED_SLUGS.indexOf(slug) >= 0) return 'reserved';
+  return '';
+}
+function siteSlugify(str) {
+  let s = String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  s = s.replace(/&/g, ' e ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-{2,}/g, '-');
+  return s.slice(0, SITE_LIMITS.slugMax).replace(/-+$/, '');
+}
+// Texto simples: corta ao limite, remove caracteres de controlo. O HTML nunca
+// é aceite como tal — o renderizador faz escape de tudo.
+function siteText(v, max) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, max);
+}
+function siteHttps(u) {
+  if (typeof u !== 'string') return '';
+  u = u.trim();
+  if (u.length > 1000 || !/^https:\/\//i.test(u)) return '';
+  try { const p = new URL(u); return p.protocol === 'https:' ? p.href : ''; } catch (e) { return ''; }
+}
+// Imagens: só do Storage deste casamento (sites/{weddingId}/...).
+function siteImage(u, weddingId) {
+  const s = siteHttps(u);
+  if (!s) return '';
+  try {
+    const p = new URL(s);
+    if (p.hostname !== 'firebasestorage.googleapis.com') return '';
+    // /v0/b/BUCKET/o/sites%2F{weddingId}%2F{ficheiro}: o objeto tem de estar
+    // DIRETAMENTE na pasta deste casamento (sem subpastas, sem "..").
+    const prefix = '/o/' + encodeURIComponent('sites/' + weddingId + '/');
+    const i = p.pathname.indexOf(prefix);
+    if (i < 0 || !/^\/v0\/b\/[^/]+$/.test(p.pathname.slice(0, i))) return '';
+    if (!/^[A-Za-z0-9._-]{1,80}$/.test(p.pathname.slice(i + prefix.length))) return '';
+    return s;
+  } catch (e) { return ''; }
+}
+function siteValidDate(d) {
+  if (typeof d !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  const t = new Date(d + 'T12:00:00Z');
+  return !isNaN(t.getTime()) && t.toISOString().slice(0, 10) === d;
+}
+function siteFocus(n) { n = Number(n); return isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : 50; }
+function siteValidTime(t) { return typeof t === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(t); }
+
+// Constrói o snapshot público (lista branca) e devolve { snapshot, errors }.
+// errors = códigos para a interface mostrar mensagens traduzidas.
+function buildPublicSiteSnapshot(draft, weddingId) {
+  const errors = [];
+  const d = (draft && typeof draft === 'object') ? draft : {};
+  const L = SITE_LIMITS;
+  const src = (d.source && typeof d.source === 'object') ? d.source : {};
+  const names = (Array.isArray(src.names) ? src.names : []).slice(0, 2).map((n) => siteText(n, L.name)).filter(Boolean);
+  if (names.length < 2) errors.push('names');
+  const date = siteValidDate(src.date) ? src.date : '';
+  if (!date) errors.push('date');
+  const sec = (d.sections && typeof d.sections === 'object') ? d.sections : {};
+  const out = {};
+  const on = (k) => sec[k] && sec[k].on === true;
+
+  if (on('story')) {
+    const s = sec.story;
+    out.story = { title: siteText(s.title, L.storyTitle), text: siteText(s.text, L.story), photoUrl: siteImage(s.photoUrl, weddingId) };
+    if (!out.story.text) errors.push('story_empty');
+  }
+  if (on('location')) {
+    const s = sec.location;
+    out.location = { name: siteText(s.name, L.venue), address: siteText(s.address, L.address), mapUrl: siteHttps(s.mapUrl), parking: siteText(s.parking, L.parking), notes: siteText(s.notes, L.notes) };
+    if (!out.location.name && !out.location.address) errors.push('location_empty');
+    if (s.mapUrl && !out.location.mapUrl) errors.push('map_url');
+  }
+  if (on('schedule')) {
+    const items = (Array.isArray(src.schedule) ? src.schedule : []).slice(0, L.scheduleMax)
+      .map((e) => ({ time: siteValidTime(e && e.time) ? e.time : '', label: siteText(e && e.label, L.schedLabel), place: siteText(e && e.place, L.schedPlace) }))
+      .filter((e) => e.label);
+    items.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+    out.schedule = { note: siteText(sec.schedule.note, L.scheduleNote), items };
+    if (!items.length) errors.push('schedule_empty');
+  }
+  if (on('dresscode')) {
+    const s = sec.dresscode;
+    out.dresscode = { title: siteText(s.title, L.dressTitle), text: siteText(s.text, L.dress), imageUrl: siteImage(s.imageUrl, weddingId) };
+    if (!out.dresscode.text) errors.push('dresscode_empty');
+  }
+  if (on('lodging')) {
+    const s = sec.lodging;
+    const links = (Array.isArray(s.links) ? s.links : []).slice(0, L.linksMax)
+      .map((l) => ({ label: siteText(l && l.label, L.linkLabel), url: siteHttps(l && l.url) })).filter((l) => l.url);
+    out.lodging = { lodging: siteText(s.lodging, L.lodging), transport: siteText(s.transport, L.transport), parking: siteText(s.parking, L.parking), meeting: siteText(s.meeting, L.meeting), links };
+    if (!out.lodging.lodging && !out.lodging.transport && !out.lodging.parking && !out.lodging.meeting && !links.length) errors.push('lodging_empty');
+  }
+  if (on('faq')) {
+    const items = (Array.isArray(sec.faq.items) ? sec.faq.items : []).slice(0, L.faqMax)
+      .map((f) => ({ q: siteText(f && f.q, L.faqQ), a: siteText(f && f.a, L.faqA) })).filter((f) => f.q && f.a);
+    out.faq = { items };
+    if (!items.length) errors.push('faq_empty');
+  }
+  if (on('contact')) {
+    const s = sec.contact;
+    const email = siteText(s.email, 120);
+    const phone = siteText(s.phone, 24);
+    out.contact = {
+      name: siteText(s.name, L.contactName), note: siteText(s.note, L.contactNote),
+      email: /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(email) ? email : '',
+      phone: /^[+0-9 ()-]{6,24}$/.test(phone) ? phone : ''
+    };
+    if (email && !out.contact.email) errors.push('contact_email');
+    if (phone && !out.contact.phone) errors.push('contact_phone');
+    if (!out.contact.email && !out.contact.phone) errors.push('contact_empty');
+  }
+  if (on('rsvp')) out.rsvp = { text: siteText(sec.rsvp.text, L.rsvpText) };
+
+  const cd = (d.countdown && typeof d.countdown === 'object') ? d.countdown : {};
+  const snapshot = {
+    lang: d.lang === 'en' ? 'en' : 'pt',
+    template: SITE_TEMPLATES.indexOf(d.template) >= 0 ? d.template : 'editorial',
+    palette: SITE_PALETTES.indexOf(d.palette) >= 0 ? d.palette : 'terracota',
+    names,
+    eventDate: date,
+    timezone: SITE_TIMEZONES.indexOf(d.timezone) >= 0 ? d.timezone : 'Europe/Lisbon',
+    title: siteText(d.title, L.title),
+    welcome: siteText(d.welcome, L.welcome),
+    coverUrl: siteImage(d.coverUrl, weddingId),
+    coverPos: { x: siteFocus(d.coverX), y: siteFocus(d.coverY) },
+    countdown: { on: cd.on === true, expiredMessage: siteText(cd.expiredMessage, L.expired) },
+    sections: out
+  };
+  return { snapshot, errors };
+}
+
+/*END-SHARED-BUILDER*/
+function siteObj(v) { return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; }
+
+// Limpa o rascunho que o cliente envia: só chaves conhecidas, tipos e limites
+// fixos. Mantém o conteúdo das secções desligadas (o casal pode voltar a ligá-las).
+function sanitizeSiteDraft(raw, weddingId) {
+  const d = siteObj(raw), L = SITE_LIMITS, sec = siteObj(d.sections), cd = siteObj(d.countdown);
+  const st = siteObj(sec.story), lo = siteObj(sec.location), sc = siteObj(sec.schedule), dc = siteObj(sec.dresscode),
+    lg = siteObj(sec.lodging), fq = siteObj(sec.faq), ct = siteObj(sec.contact), rs = siteObj(sec.rsvp);
+  const on = (x) => x.on === true;
+  return {
+    lang: d.lang === 'en' ? 'en' : 'pt',
+    template: SITE_TEMPLATES.indexOf(d.template) >= 0 ? d.template : 'editorial',
+    palette: SITE_PALETTES.indexOf(d.palette) >= 0 ? d.palette : 'terracota',
+    title: siteText(d.title, L.title), welcome: siteText(d.welcome, L.welcome),
+    coverUrl: siteImage(d.coverUrl, weddingId), coverX: siteFocus(d.coverX), coverY: siteFocus(d.coverY),
+    timezone: SITE_TIMEZONES.indexOf(d.timezone) >= 0 ? d.timezone : 'Europe/Lisbon',
+    countdown: { on: cd.on === true, expiredMessage: siteText(cd.expiredMessage, L.expired) },
+    indexable: d.indexable === true,
+    slug: (typeof d.slug === 'string' && /^[a-z0-9-]{0,40}$/.test(d.slug)) ? d.slug : '',
+    sections: {
+      story: { on: on(st), title: siteText(st.title, L.storyTitle), text: siteText(st.text, L.story), photoUrl: siteImage(st.photoUrl, weddingId) },
+      location: { on: on(lo), name: siteText(lo.name, L.venue), address: siteText(lo.address, L.address), mapUrl: siteText(lo.mapUrl, 500), parking: siteText(lo.parking, L.parking), notes: siteText(lo.notes, L.notes) },
+      schedule: { on: on(sc), note: siteText(sc.note, L.scheduleNote) },
+      dresscode: { on: on(dc), title: siteText(dc.title, L.dressTitle), text: siteText(dc.text, L.dress), imageUrl: siteImage(dc.imageUrl, weddingId) },
+      lodging: { on: on(lg), lodging: siteText(lg.lodging, L.lodging), transport: siteText(lg.transport, L.transport), parking: siteText(lg.parking, L.parking), meeting: siteText(lg.meeting, L.meeting),
+        links: (Array.isArray(lg.links) ? lg.links : []).slice(0, L.linksMax).map((l) => ({ label: siteText(siteObj(l).label, L.linkLabel), url: siteText(siteObj(l).url, 500) })) },
+      faq: { on: on(fq), items: (Array.isArray(fq.items) ? fq.items : []).slice(0, L.faqMax).map((f) => ({ q: siteText(siteObj(f).q, L.faqQ), a: siteText(siteObj(f).a, L.faqA) })) },
+      contact: { on: on(ct), name: siteText(ct.name, L.contactName), phone: siteText(ct.phone, 24), email: siteText(ct.email, 120), note: siteText(ct.note, L.contactNote) },
+      rsvp: { on: on(rs), text: siteText(rs.text, L.rsvpText) }
+    }
+  };
+}
+
+function siteSourceFromWedding(w) {
+  const st = (w && w.settings) || {};
+  let state = {};
+  try { state = JSON.parse((w && w.json) || '{}') || {}; } catch (e) { state = {}; }
+  const schedule = (Array.isArray(state.daySchedule) ? state.daySchedule : [])
+    .filter((ev) => ev && ev.guestVisible)
+    .map((ev) => ({ time: ev.time || '', label: ev.label || '', place: ev.place || '' }))
+    .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+  return {
+    names: [String(st.coupleName1 || '').trim(), String(st.coupleName2 || '').trim()],
+    date: String(st.weddingDate || ''),
+    schedule
+  };
+}
+function siteCanonicalSource(snapshot, schedule) {
+  const sched = (schedule || []).map((e) => [e.time || '', e.label || '', e.place || ''].join('~')).join('^');
+  return [(snapshot.names[0] || ''), (snapshot.names[1] || ''), snapshot.eventDate].join('|') + '#' + sched;
+}
+// Fim da validade do site = fim do Premium (fonte de verdade: subscription).
+// Sem data de início (legado) usa uma janela curta que a tarefa horária renova.
+function siteValidUntil(sub) {
+  const e = subscriptionExpiryDate(sub);
+  return e || new Date(Date.now() + 35 * 24 * 60 * 60 * 1000);
+}
+
+async function siteCoupleContext(request) {
+  if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
+    throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
+  }
+  const weddingId = await resolveWeddingId(request, /* isCouple */ true);
+  if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+  return weddingId;
+}
+// Limite de pedidos por chave numa janela (transação: sem corridas).
+async function siteRateLimit(key, max, windowMs) {
+  const ref = db.collection('siteRateLimits').doc(key);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const now = Date.now();
+    let d = snap.exists ? snap.data() : {};
+    if (!d.start || now - d.start > windowMs) d = { start: now, count: 0 };
+    if (d.count >= max) throw new HttpsError('resource-exhausted', 'Demasiados pedidos. Tenta daqui a pouco.', { code: 'rate_limited' });
+    tx.set(ref, { start: d.start, count: d.count + 1 });
+  });
+}
+
+// Guarda o rascunho (única forma de o escrever). Exige Premium ativo.
+exports.saveWeddingSiteDraft = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const wSnap = await assertPremiumWedding(weddingId);
+  await siteRateLimit('save_' + weddingId, 90, 60 * 1000);
+  const raw = request.data && request.data.draft;
+  if (!raw || typeof raw !== 'object' || JSON.stringify(raw).length > 80000) {
+    throw new HttpsError('invalid-argument', 'Rascunho inválido ou demasiado grande.', { code: 'invalid_draft' });
+  }
+  const draft = sanitizeSiteDraft(raw, weddingId);
+  await db.collection('weddingSites').doc(weddingId).set({
+    weddingId, draft, draftUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    // Validade do Premium espelhada para as regras do Storage (upload de fotos).
+    premiumUntil: siteValidUntil(wSnap.data().subscription), photosRevoked: false
+  }, { merge: true });
+  return { ok: true };
+});
+
+// Verifica (sem reservar) se um endereço está livre e devolve sugestões.
+// Limitado por utilizador; a resposta nunca diz a quem pertence o endereço.
+exports.checkWeddingSiteSlug = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  await siteRateLimit('slug_' + request.auth.uid, 30, 10 * 60 * 1000);
+  const slug = String((request.data && request.data.slug) || '').slice(0, 80).toLowerCase();
+  const problem = siteSlugProblem(slug);
+  if (problem) return { available: false, problem, suggestions: [] };
+  const cur = await db.collection('siteSlugs').doc(slug).get();
+  if (!cur.exists || cur.data().weddingId === weddingId) return { available: true, problem: '', suggestions: [] };
+  const base = slug.replace(/-\d+$/, '');
+  const cand = [`${base}-2026`, `${base}-2027`, `${base}-casamento`, `${base}-2`, `${base}-3`].map((x) => x.slice(0, SITE_LIMITS.slugMax)).filter((x) => !siteSlugProblem(x));
+  const free = [];
+  for (const c of cand) {
+    if (free.length >= 3) break;
+    const s = await db.collection('siteSlugs').doc(c).get();
+    if (!s.exists) free.push(c);
+  }
+  return { available: false, problem: 'taken', suggestions: free };
+});
+
+// Copia as fotos do rascunho (sites/{wid}/...) para a zona pública
+// (public-sites/{slug}/v{n}-...), onde a regra do Storage só deixa ler
+// enquanto o site estiver publicado e dentro da validade. Os URLs com token
+// do rascunho nunca chegam ao snapshot público.
+function sitePathFromUrl(u, weddingId) {
+  try {
+    const p = new URL(u).pathname; // /v0/b/BUCKET/o/ENCODED
+    const m = p.match(/\/o\/(.+)$/);
+    const path = m ? decodeURIComponent(m[1]) : '';
+    return path.indexOf('sites/' + weddingId + '/') === 0 && path.indexOf('..') < 0 ? path : '';
+  } catch (e) { return ''; }
+}
+async function sitePublishImages(snapshot, weddingId, slug, version) {
+  const bucket = admin.storage().bucket();
+  const targets = [[snapshot, 'coverUrl', 'cover'], [(snapshot.sections.story || null), 'photoUrl', 'story'], [(snapshot.sections.dresscode || null), 'imageUrl', 'dress']];
+  for (const [obj, key, name] of targets) {
+    if (!obj || !obj[key]) continue;
+    const src = sitePathFromUrl(obj[key], weddingId);
+    if (!src) { obj[key] = ''; continue; }
+    const dest = `public-sites/${slug}/v${version}-${name}.jpg`;
+    await bucket.file(src).copy(bucket.file(dest));
+    // A cópia herda os metadados do original, incluindo o token de download do
+    // rascunho: um URL com token ignora as regras do Storage. Remove-o, para
+    // que a foto pública só se leia pelo URL sem token (guardado pela regra). O
+    // Cache-Control obriga a revalidar sempre, para o fecho (despublicar/expirar) ser imediato.
+    await bucket.file(dest).setMetadata({ cacheControl: 'private, max-age=0, must-revalidate', metadata: { firebaseStorageDownloadTokens: null } });
+    obj[key] = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(dest)}?alt=media`;
+  }
+}
+// Só DEPOIS de o estado público novo estar gravado se apagam as cópias da versão anterior:
+// antes disso o site ainda publicado continua a apontar para elas (apagá-las primeiro
+// deixava imagens partidas, ou para sempre se a gravação falhasse).
+// Se a publicação falha DEPOIS de copiar fotos mas ANTES de gravar o estado público, as cópias
+// novas (nome previsível v{n}-...) ficariam legíveis enquanto a versão anterior está publicada.
+// Apaga-as — exceto se, entretanto, essa mesma versão ficou realmente publicada (pedido concorrente).
+async function siteDropNewCopies(slug, version) {
+  try {
+    const cur = await db.collection('publicWeddingSites').doc(slug).get();
+    if (cur.exists && cur.data().status === 'published' && cur.data().version === version) return;
+    await admin.storage().bucket().deleteFiles({ prefix: `public-sites/${slug}/v${version}-`, force: true });
+  } catch (e) { logger.error(`siteDropNewCopies: ${slug} v${version}. ${e.message || e}`); }
+}
+async function siteCleanOldCopies(slug, version) {
+  const bucket = admin.storage().bucket();
+  try {
+    const [files] = await bucket.getFiles({ prefix: `public-sites/${slug}/` });
+    await Promise.all(files.filter((f) => f.name.indexOf(`public-sites/${slug}/v${version}-`) !== 0).map((f) => f.delete().catch(() => {})));
+  } catch (e) { /* limpeza best-effort */ }
+}
+
+exports.publishWeddingSite = onCall({ region: 'europe-west1', timeoutSeconds: 120 }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  // Premium validado SEMPRE no servidor (nunca confiar no cliente).
+  const weddingSnap = await assertPremiumWedding(weddingId);
+  await siteRateLimit('pub_' + weddingId, 20, 60 * 60 * 1000);
+  const siteRef = db.collection('weddingSites').doc(weddingId);
+  const siteSnap = await siteRef.get();
+  if (!siteSnap.exists || !siteSnap.data().draft) {
+    throw new HttpsError('failed-precondition', 'Ainda não há nada para publicar.', { code: 'no_draft' });
+  }
+  const site = siteSnap.data();
+  const draft = sanitizeSiteDraft(site.draft, weddingId);
+  // Nomes, data e programa vêm SEMPRE dos dados do casamento lidos aqui no
+  // servidor — nunca do que o cliente escreveu. Só os momentos marcados
+  // "Mostrar aos convidados" podem chegar ao público.
+  draft.source = siteSourceFromWedding(weddingSnap.data());
+  const { snapshot, errors } = buildPublicSiteSnapshot(draft, weddingId);
+  // O endereço fica bloqueado depois da primeira publicação.
+  const slug = site.slug || String(draft.slug || '').toLowerCase();
+  const problem = siteSlugProblem(slug);
+  if (problem) errors.push('slug_' + problem);
+  if (errors.length) {
+    throw new HttpsError('failed-precondition', 'O site tem campos por corrigir.', { code: 'validation', errors });
+  }
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const version = (site.publishedVersion || 0) + 1;
+  const source = siteCanonicalSource(snapshot, draft.source.schedule);
+  const validUntil = siteValidUntil(weddingSnap.data().subscription);
+  // 1) reserva atómica do endereço (falha se for de outro casamento). Antes da
+  // 1.ª publicação concluída, uma nova tentativa com outro endereço liberta a
+  // reserva anterior deste casamento (nunca fica mais do que um endereço preso).
+  await db.runTransaction(async (tx) => {
+    const slugRef = db.collection('siteSlugs').doc(slug);
+    const slugSnap = await tx.get(slugRef);
+    const siteTx = await tx.get(siteRef);
+    if (slugSnap.exists && slugSnap.data().weddingId !== weddingId) {
+      throw new HttpsError('already-exists', 'Este endereço já está a ser usado.', { code: 'slug_taken' });
+    }
+    const prev = siteTx.exists ? siteTx.data().reservedSlug : null;
+    let prevRef = null;
+    if (prev && prev !== slug && !site.slug) {
+      prevRef = db.collection('siteSlugs').doc(prev);
+      const ps = await tx.get(prevRef);
+      if (!ps.exists || ps.data().weddingId !== weddingId) prevRef = null;
+    }
+    if (prevRef) tx.delete(prevRef);
+    tx.set(slugRef, { weddingId, updatedAt: now }, { merge: true });
+    tx.set(siteRef, { reservedSlug: slug }, { merge: true });
+  });
+  // 2) fotos públicas
+  try { await sitePublishImages(snapshot, weddingId, slug, version); }
+  catch (e) {
+    logger.error(`publishWeddingSite: falhou a copiar fotos de ${weddingId}. ${e.message || e}`);
+    await siteDropNewCopies(slug, version);
+    throw new HttpsError('unavailable', 'Não foi possível preparar as fotografias. Tenta novamente.', { code: 'images' });
+  }
+  // 3) estado público + privado numa única escrita atómica
+  const batch = db.batch();
+  batch.set(db.collection('publicWeddingSites').doc(slug), { status: 'published', version, publishedAt: now, validUntil, indexable: draft.indexable === true, snapshot });
+  batch.set(siteRef, {
+    weddingId, status: 'published', slug, publishedVersion: version, publishedAt: now, publishedBy: request.auth.token.email || null,
+    publishedSource: source, publishedDraft: draft, publishedSnapshot: snapshot, unpublishedAt: null, suspendedAt: null, suspendedReason: null,
+    validUntil, premiumUntil: validUntil, photosRevoked: false, indexable: draft.indexable === true
+  }, { merge: true });
+  try { await batch.commit(); }
+  catch (e) {
+    logger.error(`publishWeddingSite: falhou a gravar o estado de ${weddingId}. ${e.message || e}`);
+    await siteDropNewCopies(slug, version);
+    throw new HttpsError('unavailable', 'Não foi possível publicar agora. O site anterior mantém-se. Tenta novamente.', { code: 'commit' });
+  }
+  await siteCleanOldCopies(slug, version);
+  logger.info(`publishWeddingSite: ${weddingId} v${version}`);
+  return { ok: true, slug, version, url: `https://www.weddy.pt/c/${slug}` };
+});
+
+// Despublicar manualmente: não exige Premium e nunca apaga o rascunho.
+exports.unpublishWeddingSite = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const siteRef = db.collection('weddingSites').doc(weddingId);
+  const siteSnap = await siteRef.get();
+  const st = siteSnap.exists ? siteSnap.data() : null;
+  if (!st || !st.slug || (st.status !== 'published' && st.status !== 'suspended')) return { ok: true, alreadyUnpublished: true };
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const batch = db.batch();
+  // Sem snapshot e sem validUntil: a regra pública deixa de permitir a leitura.
+  batch.set(db.collection('publicWeddingSites').doc(st.slug), { status: 'unpublished', unpublishedAt: now });
+  batch.set(siteRef, { status: 'unpublished', unpublishedAt: now, suspendedAt: null, suspendedReason: null }, { merge: true });
+  await batch.commit();
+  logger.info(`unpublishWeddingSite: ${weddingId}`);
+  return { ok: true };
+});
+
+// Muda os tokens de download das fotos do RASCUNHO (sites/{wid}/...) para valores
+// novos que ninguém conhece. Um URL com token ignora as regras do Storage, por
+// isso, quando o Premium acaba, os URLs antigos têm de deixar de funcionar. Não
+// apaga nada: o casal volta a obter URLs válidos (getDownloadURL, que as regras
+// deixam aos donos) quando renovar.
+async function siteRotatePhotoTokens(weddingId) {
+  const bucket = admin.storage().bucket();
+  const [files] = await bucket.getFiles({ prefix: `sites/${weddingId}/` });
+  await Promise.all(files.map((f) => f.setMetadata({ metadata: { firebaseStorageDownloadTokens: crypto.randomUUID() } })));
+  return files.length;
+}
+function siteMillis(t) { return t && t.toMillis ? t.toMillis() : (t instanceof Date ? t.getTime() : 0); }
+
+// Aplica a regra do Premium a um site (publicado ou só rascunho):
+//  - expirou/cancelado -> suspende o site público (sem apagar nada), fecha o
+//    upload de fotos (premiumUntil) e revoga uma vez os tokens das fotos;
+//  - válido -> alinha a validade da cópia pública e das regras com a subscrição.
+async function applySiteLifecycle(weddingId, site, wedding) {
+  if (!site) return 'none';
+  const sub = wedding && wedding.subscription;
+  const siteRef = db.collection('weddingSites').doc(weddingId);
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const published = !!site.slug && site.status === 'published';
+  if (isSubscriptionStillValid(sub)) {
+    const vu = siteValidUntil(sub);
+    const changedUntil = Math.abs(siteMillis(site.premiumUntil) - vu.getTime()) >= 1000;
+    const changedPub = published && Math.abs(siteMillis(site.validUntil) - vu.getTime()) >= 1000;
+    if (!changedUntil && !changedPub && site.photosRevoked !== true) return 'unchanged';
+    const batch = db.batch();
+    const upd = { premiumUntil: vu, photosRevoked: false };
+    if (changedPub) {
+      upd.validUntil = vu;
+      batch.set(db.collection('publicWeddingSites').doc(site.slug), { validUntil: vu }, { merge: true });
+    }
+    batch.set(siteRef, upd, { merge: true });
+    await batch.commit();
+    return 'refreshed';
+  }
+  // Sem Premium válido.
+  let result = 'none';
+  const batch = db.batch();
+  const upd = {};
+  if (published) {
+    batch.set(db.collection('publicWeddingSites').doc(site.slug), { status: 'suspended', suspendedAt: now }); // sem snapshot
+    upd.status = 'suspended'; upd.suspendedAt = now; upd.suspendedReason = 'premium_expired';
+    result = 'suspended';
+  }
+  if (siteMillis(site.premiumUntil) > Date.now() || !site.premiumUntil) upd.premiumUntil = new Date();
+  const needRotate = site.photosRevoked !== true;
+  if (needRotate && result === 'none') result = 'expired';
+  // 1.º o estado (suspensão), 2.º a rotação dos tokens, 3.º a marca photosRevoked: se a rotação
+  // falhar, a suspensão já ficou gravada e a próxima execução repete a rotação (idempotente).
+  if (Object.keys(upd).length) { batch.set(siteRef, upd, { merge: true }); await batch.commit(); }
+  if (needRotate) {
+    await siteRotatePhotoTokens(weddingId);
+    await siteRef.set({ photosRevoked: true }, { merge: true });
+  }
+  if (result !== 'none') logger.info(`siteLifecycle: ${weddingId} ${result} (Premium terminou)`);
+  return result;
+}
+exports.syncWeddingSiteLifecycle = onSchedule(
+  { schedule: 'every 60 minutes', timeZone: 'Europe/Lisbon', region: 'europe-west1', timeoutSeconds: 540 },
+  async () => {
+    // Só os campos que applySiteLifecycle usa: não carrega rascunhos e snapshots (memória).
+    const q = await db.collection('weddingSites').select('slug', 'status', 'premiumUntil', 'validUntil', 'photosRevoked').get();
+    for (const d of q.docs) {
+      try {
+        const w = await db.collection('weddings').doc(d.id).get();
+        await applySiteLifecycle(d.id, d.data(), w.exists ? w.data() : null);
+      } catch (e) { logger.error(`syncWeddingSiteLifecycle: ${d.id}. ${e.message || e}`); }
+    }
+    // Contadores de limite de pedidos: as janelas são de minutos/1 hora, por isso
+    // tudo com mais de 24 h já não serve para nada.
+    try {
+      const old = await db.collection('siteRateLimits').where('start', '<', Date.now() - 24 * 60 * 60 * 1000).limit(400).get();
+      if (!old.empty) { const b = db.batch(); old.docs.forEach((x) => b.delete(x.ref)); await b.commit(); }
+    } catch (e) { logger.error(`syncWeddingSiteLifecycle: limpeza de limites. ${e.message || e}`); }
+  }
+);
+// O casal abre o editor: aplica já a regra (renovação refresca a validade;
+// expiração suspende) sem esperar pela tarefa horária.
+exports.refreshWeddingSite = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const [s, w] = await Promise.all([db.collection('weddingSites').doc(weddingId).get(), db.collection('weddings').doc(weddingId).get()]);
+  if (!s.exists) {
+    // Sem documento ainda: se o Premium é válido, cria o "estado" mínimo que as
+    // regras do Storage usam para deixar carregar fotos (não é rascunho nem publicação).
+    const wd = w.exists ? w.data() : null;
+    if (wd && isSubscriptionStillValid(wd.subscription)) {
+      await db.collection('weddingSites').doc(weddingId).set({ weddingId, premiumUntil: siteValidUntil(wd.subscription), photosRevoked: false }, { merge: true });
+      return { ok: true, result: 'created' };
+    }
+    return { ok: true, result: 'none' };
+  }
+  const result = await applySiteLifecycle(weddingId, s.data(), w.exists ? w.data() : null);
+  return { ok: true, result };
+});
+// Depois de renovar o Premium, volta a pôr online a versão que estava publicada
+// (guardada em privado), sem reconstruir nada. Exige Premium válido no servidor.
+exports.reactivateWeddingSite = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const weddingSnap = await assertPremiumWedding(weddingId);
+  const siteRef = db.collection('weddingSites').doc(weddingId);
+  const s = await siteRef.get();
+  const site = s.exists ? s.data() : null;
+  if (!site || site.status !== 'suspended' || !site.slug || !site.publishedSnapshot) {
+    throw new HttpsError('failed-precondition', 'Não há nenhum site suspenso para reativar.', { code: 'not_suspended' });
+  }
+  const validUntil = siteValidUntil(weddingSnap.data().subscription);
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const batch = db.batch();
+  batch.set(db.collection('publicWeddingSites').doc(site.slug), { status: 'published', version: site.publishedVersion || 1, publishedAt: now, validUntil, indexable: site.indexable === true, snapshot: site.publishedSnapshot });
+  batch.set(siteRef, { status: 'published', suspendedAt: null, suspendedReason: null, validUntil }, { merge: true });
+  await batch.commit();
+  return { ok: true, slug: site.slug };
+});
+
+// Apagamento de conta (RGPD): remove site, cópia pública, fotos e reserva do slug.
+async function deleteWeddingSiteData(weddingId) {
+  const siteRef = db.collection('weddingSites').doc(weddingId);
+  const snap = await siteRef.get();
+  const slug = snap.exists ? snap.data().slug : null;
+  if (slug) {
+    await db.collection('publicWeddingSites').doc(slug).delete().catch(() => {});
+    await db.collection('siteSlugs').doc(slug).delete().catch(() => {});
+    await deleteStoragePrefix(`public-sites/${slug}/`);
+  }
+  const reserved = snap.exists ? snap.data().reservedSlug : null;
+  if (reserved && reserved !== slug) {
+    const rs = await db.collection('siteSlugs').doc(reserved).get().catch(() => null);
+    if (rs && rs.exists && rs.data().weddingId === weddingId) await db.collection('siteSlugs').doc(reserved).delete().catch(() => {});
+  }
+  await siteRef.delete().catch(() => {});
+  await deleteStoragePrefix(`sites/${weddingId}/`);
+  await db.collection('siteRateLimits').doc('save_' + weddingId).delete().catch(() => {});
+  await db.collection('siteRateLimits').doc('pub_' + weddingId).delete().catch(() => {});
 }
 
 // --- Encriptação do refresh token -----------------------------------------

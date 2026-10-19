@@ -1,5 +1,5 @@
-const CACHE_NAME = 'weddy-v227-health-merge';
-const FILES_TO_CACHE = ['./','./index.html','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png','./logo-quintasantoandre.png'];
+const CACHE_NAME = 'weddy-v229-wedding-site';
+const FILES_TO_CACHE = ['./','./index.html','./weddysite.js','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png','./logo-quintasantoandre.png'];
 const EXTERNAL_FILES_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
   'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
@@ -56,7 +56,7 @@ self.addEventListener('fetch', (event) => {
   // Auditoria Out 2026: as páginas públicas dos convidados (rsvp.html/memorias.html)
   // passam a ir primeiro à rede — assim uma correção de segurança chega logo,
   // sem ficar presa numa cópia antiga em cache. Sem rede, usa a cópia guardada.
-  if (/\/(rsvp|memorias)\.html$/.test(new URL(url).pathname)) {
+  if (/\/(rsvp|memorias|site)\.html$|\/weddysite\.js$/.test(new URL(url).pathname)) {
     event.respondWith(
       fetch(event.request).then((response) => {
         if (response && response.ok) {

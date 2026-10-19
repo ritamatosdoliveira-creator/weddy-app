@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Página não encontrada · Weddy</title>
+<script>
+// GitHub Pages serve este ficheiro para qualquer caminho inexistente.
+// /c/<slug> → site.html?s=<slug> (mantém ?g=token se existir).
+(function(){
+  var m = location.pathname.match(/^\/c\/([a-z0-9-]{3,40})\/?$/i);
+  if(m){
+    var q = new URLSearchParams(location.search); q.set('s', m[1].toLowerCase());
+    location.replace('/site.html?' + q.toString());
+  }
+})();
+</script>
+<style>
+html,body{margin:0;background:#FAF8F5;font-family:system-ui,sans-serif;color:#302C29}
+main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
+h1{font-family:Georgia,serif;font-size:32px;margin:0}p{margin:0;color:#6F6862}
+a{margin-top:12px;min-height:46px;padding:0 24px;border-radius:999px;background:#B96752;color:#fff;text-decoration:none;display:inline-flex;align-items:center;font-weight:700}
+</style>
+</head>
+<body><main><h1>Página não encontrada</h1><p>O endereço pode estar errado.</p><a href="https://www.weddy.pt">Weddy</a></main></body>
+</html>

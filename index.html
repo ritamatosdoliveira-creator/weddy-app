@@ -364,6 +364,7 @@ html{
 .premium-hub-badge svg{ width:12px; height:12px; }
 .premium-hub-header-chev{ flex-shrink:0; color:var(--ink-soft); opacity:.6; }
 .premium-hub-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; }
+.premium-hub-tile.wide{ grid-column:1 / -1; }
 /* Correção (Set 2026, achado "Estes 3 continuam mal" — depois de já ter
    corrigido a altura do título e o enquadramento dos ícones, 3 dos 6
    azulejos SEMPRE ficavam com o ícone/título mais para baixo do que os
@@ -1027,6 +1028,64 @@ html{
 .reminder-msg-textarea{ width:100%; min-height:110px; border:1.6px solid var(--line); border-radius:14px; padding:11px 13px; font-size:13.5px; font-family:inherit; color:var(--ink); resize:vertical; box-sizing:border-box; text-align:left; }
 .reminder-char-count{ text-align:right; font-size:11px; color:var(--ink-soft); margin-top:5px; }
 .reminder-recipients-note{ text-align:left; font-size:12px; color:var(--ink-soft); margin-top:2px; }
+/* --- Site do casamento (editor) --- */
+.se-wrap{ padding:0 16px 40px; }
+.se-status{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px 12px; box-shadow:var(--shadow); margin-bottom:10px; }
+.se-status .se-url{ margin:4px 0 2px; font-size:13.5px; } .se-row-tight{ margin-top:8px; gap:6px; } .se-row-tight .se-btn{ min-height:40px; padding:0 12px; font-size:13px; } .se-status.suspended .se-dot{ background:#B3402E; } .se-prev-hint{ font-size:12px; color:var(--ink-soft); margin:6px 0 0; }
+.se-status-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:15px; }
+.se-dot{ width:9px; height:9px; border-radius:50%; background:var(--dusty); }
+.se-status.published .se-dot{ background:#5F8F5A; } .se-status.unpublished .se-dot{ background:var(--gold); }
+.se-badge{ font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:auto; }
+.se-badge.warn{ background:rgba(201,164,128,.25); color:#8A5A2B; } .se-badge.ok{ background:rgba(95,143,90,.14); color:#42703D; }
+.se-url{ margin:10px 0 8px; font-weight:700; word-break:break-all; } .se-url a{ color:var(--rust-dark); }
+.se-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+.se-btn{ min-height:44px; padding:0 16px; width:auto; flex:0 0 auto; }
+.se-save{ margin-left:auto; font-size:12px; color:var(--ink-soft); } .se-save.err{ color:#B3402E; font-weight:600; }
+input[type=range][data-sitefocus]{ accent-color:var(--rust); }
+.se-tabs{ display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 10px; } .se-tabs .se-tab{ flex:1 1 auto; }
+.se-tabs::-webkit-scrollbar{ display:none; }
+.se-tab{ min-height:42px; padding:0 9px; white-space:nowrap; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:600 12.5px inherit; font-family:inherit; cursor:pointer; }
+@media (min-width:420px){ .se-tab{ padding:0 14px; font-size:13.5px; } }
+.se-tab.on{ background:var(--rust); border-color:var(--rust); color:#fff; }
+.se-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); }
+.se-card-t{ font-weight:700; font-size:15px; color:var(--ink); } .se-card-d{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-top:2px; }
+.se-card.off .se-card-t{ color:var(--ink-soft); }
+.se-card-b{ margin-top:10px; padding-top:6px; border-top:1px dashed var(--line); }
+.se-f{ display:block; margin:10px 0 0; position:relative; } .se-l{ display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
+.se-in{ width:100%; box-sizing:border-box; border:1.6px solid var(--line); background:#fff; border-radius:12px; padding:11px 13px; font-size:16px; font-family:inherit; color:var(--ink); min-height:46px; }
+textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none; border-color:var(--rust); }
+.se-cnt{ display:block; text-align:right; font-size:11px; color:var(--ink-soft); margin-top:3px; }
+.se-hint{ font-size:12px; color:var(--ink-soft); line-height:1.45; margin-top:6px; }
+.se-toggle{ display:flex; align-items:center; gap:10px; margin-top:10px; font-size:14px; cursor:pointer; min-height:44px; }
+.se-toggle input{ position:absolute; opacity:0; width:44px; height:28px; margin:0; cursor:pointer; }
+.se-sw{ position:relative; width:44px; height:26px; flex:0 0 44px; border-radius:999px; background:#D9D2CB; transition:background .15s; }
+.se-sw::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); transition:transform .15s; }
+.se-toggle input:checked + .se-sw{ background:var(--rust); } .se-toggle input:checked + .se-sw::after{ transform:translateX(18px); }
+.se-toggle input:focus-visible + .se-sw{ outline:3px solid var(--rust-dark); outline-offset:2px; }
+.se-tpls{ display:grid; gap:8px; margin-top:10px; }
+.se-tpl{ text-align:left; border:1.6px solid var(--line); background:#fff; border-radius:14px; padding:12px 14px; cursor:pointer; font-family:inherit; color:var(--ink); min-height:56px; display:flex; flex-direction:column; gap:2px; }
+.se-tpl b{ font-size:15px; } .se-tpl span{ font-size:12px; color:var(--ink-soft); } .se-tpl.on{ border-color:var(--rust); background:rgba(185,103,82,.07); }
+.se-pals{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:10px; }
+.se-pal{ display:flex; align-items:center; gap:10px; border:1.6px solid var(--line); background:#fff; border-radius:14px; padding:10px 12px; cursor:pointer; font-family:inherit; color:var(--ink); min-height:48px; font-size:14px; }
+.se-pal i{ width:22px; height:22px; border-radius:50%; flex:0 0 22px; } .se-pal.on{ border-color:var(--rust); background:rgba(185,103,82,.07); }
+.se-ph{ margin:2px 0 8px; border-radius:14px; overflow:hidden; max-height:200px; background:#eee; } .se-ph img{ width:100%; height:200px; object-fit:cover; display:block; }
+.se-sub{ border:1px solid var(--line); border-radius:14px; padding:4px 12px 10px; margin-top:10px; background:rgba(0,0,0,.015); }
+.se-row2{ display:grid; grid-template-columns:1fr; gap:0; }
+.se-del,.se-chip{ border:0; background:rgba(185,103,82,.1); color:var(--rust-dark); border-radius:999px; padding:0 14px; min-height:38px; font:700 12.5px inherit; font-family:inherit; cursor:pointer; margin-top:8px; }
+.se-slug{ display:flex; align-items:center; gap:0; border:1.6px solid var(--line); background:#fff; border-radius:12px; overflow:hidden; }
+.se-slug > span{ padding:0 0 0 12px; font-size:13px; color:var(--ink-soft); white-space:nowrap; } .se-slug .se-in{ border:0; border-radius:0; padding-left:2px; min-width:0; }
+.se-slug.locked{ padding:12px 13px; } .se-slug.locked span{ padding:0; }
+.se-good{ color:#42703D; font-weight:700; } .se-bad{ color:#B3402E; font-weight:700; }
+.se-kvs{ display:grid; gap:8px; margin-top:10px; } .se-kvs > div{ display:flex; flex-direction:column; gap:1px; font-size:14px; } .se-kvs span{ font-size:11.5px; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.se-errs{ list-style:none; margin:10px 0 0; padding:0; display:grid; gap:8px; } .se-errs li{ display:flex; gap:10px; align-items:center; justify-content:space-between; font-size:13.5px; background:rgba(179,64,46,.07); border-radius:12px; padding:8px 12px; } .se-errs .se-chip{ margin:0; flex:0 0 auto; }
+.se-ok{ display:flex; gap:8px; align-items:center; margin-top:10px; font-weight:600; color:#42703D; } .se-ok svg{ width:16px; height:16px; }
+.se-pub{ margin-top:0; } .se-pub[disabled]{ opacity:.5; } .se-unpub{ margin-top:10px; width:100%; }
+.se-prev{ position:fixed; inset:0; z-index:9000; background:#2a2623; display:flex; flex-direction:column; }
+.se-prev-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px; } .se-prev-bar .se-chip{ margin:0; background:#fff; }
+.se-seg{ display:flex; background:rgba(255,255,255,.14); border-radius:999px; padding:3px; } .se-seg button{ border:0; background:transparent; color:#fff; padding:0 14px; min-height:36px; border-radius:999px; font:600 13px inherit; font-family:inherit; cursor:pointer; } .se-seg button.on{ background:#fff; color:#302C29; }
+.se-prev-note{ color:rgba(255,255,255,.7); font-size:12px; text-align:center; padding:0 14px 8px; }
+.se-prev-stage{ flex:1; min-height:0; display:flex; justify-content:center; padding:0 0 calc(env(safe-area-inset-bottom,0px) + 8px); }
+.se-prev-stage iframe{ border:0; background:#fff; width:100%; height:100%; } .se-prev-stage.mobile iframe{ width:min(100%,390px); border-radius:18px; } .se-prev-stage.desktop iframe{ width:min(100%,1100px); border-radius:10px; }
 /* --- Ficha completa do fornecedor --- */
 .supd-card{ display:flex; align-items:center; gap:13px; margin:2px 16px 16px; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); }
 .supd-photo-wrap{ position:relative; width:64px; height:64px; border-radius:16px; flex-shrink:0; cursor:pointer; }
@@ -1170,6 +1229,7 @@ html{
 .chat-fab svg{ width:23px; height:23px; }
 .chat-fab.locked{ opacity:.5; }
 .chat-fab:active{ transform:scale(0.93); }
+.chat-fab[hidden]{ display:none !important; }
 /* Janela flutuante do Assistente (pequena, por cima do ecrã atual — nunca
    ocupa a página toda, e o fundo continua visível por trás). */
 .chat-panel-backdrop{ position:fixed; inset:0; background:rgba(48,44,41,0.14); z-index:26; }
@@ -1779,6 +1839,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="weddysite.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -3856,6 +3917,7 @@ const APP_I18N = {
     premRowSeating:'Propõe a distribuição dos convidados pelas mesas, tendo em conta os lugares e as preferências que definires.',
     premRowHealth:'Um raio-x rápido ao estado do casamento.',
     premRowDocs:'Carrega contratos em PDF e pesquisa neles através do Assistente.',
+    premRowSite:'Cria uma página do casamento com data, local, programa e RSVP, e partilha um único link. Só publicas quando quiseres.',
     premRowCal:'Leva o cronograma para o Google Calendar e vê, cria e apaga eventos sem sair da Weddy.',
     premRowChat:'Pergunta sobre convidados, orçamento, datas, mesas e pagamentos e recebe respostas com os teus dados.',
     premRowMemories:'Fotos que os convidados partilham pelo link de RSVP, só visíveis para ti.',
@@ -3877,6 +3939,7 @@ const APP_I18N = {
     premiumTileMemoriesDesc:'Revive os melhores momentos do grande dia.',
     premiumTileDocumentosDesc:'Consulta os teus contratos e documentos.',
     premiumTileGoogleCalDesc:'Sincroniza o teu calendário do casamento.',
+    siteTitle:'Site do casamento', premiumTileSiteDesc:'Uma página pública com toda a informação para os convidados.',
     rsvpTitle:'Convites RSVP', rsvpDesc:'Envia e acompanha as respostas dos convidados',
     rsvpHubTitle:'Convites e respostas dos convidados',
     rsvpRespostasNavTitle:'Respostas dos convidados', rsvpRespostasNavDesc:'Vê, pesquisa e agrupa quem já respondeu',
@@ -4597,6 +4660,7 @@ const APP_I18N = {
     privacyGuestsText:'Quando geras um link de RSVP para um convidado, criamos um registo próprio e independente só para essa pessoa — com o nome que lhe deste, a data e o local do casamento, e (depois de responder) a presença, a escolha de refeição, restrições alimentares ou alergias, e se precisa de transporte ou alojamento. Esse convidado nunca vê a lista completa de convidados nem o orçamento do casamento — só a sua própria informação. Ele pode consultar, atualizar ou apagar a sua resposta a qualquer momento através do próprio link, sem precisar de criar conta. Tu, como responsável pelo tratamento destes dados, podes remover o link de um convidado a qualquer momento em "Convites RSVP"; ao fazê-lo, deixa de ser possível responder ou consultar essa resposta através do link. Quando agrupas vários convidados da mesma família num único link partilhado, esse registo passa a guardar a resposta de cada pessoa da família separadamente (num campo próprio para cada uma) — mas continua a ser um único link, por isso qualquer pessoa que o receba consegue ver e alterar a resposta de todos os membros desse grupo; só quem tem o link consegue aceder a estes dados. É tua responsabilidade informar os teus convidados de que os dados que partilham contigo através deste link servem apenas para organizar o casamento.',
     privacyAssistantTitle:'Nota sobre o Assistente Weddy (Copilot dos noivos)',
     privacyAssistantText:'O Assistente Weddy responde a perguntas sobre o teu próprio casamento (convidados, orçamento, pagamentos, tarefas) e só executa ações simples e de baixo risco quando pedes explicitamente (como criar uma tarefa) — nunca altera dados de convidados nem pagamentos através do chat. As respostas vêm sempre dos dados reais deste casamento, nunca inventadas: quando a tua pergunta não é reconhecida por regras simples, pode ser enviada (só o texto da pergunta, nunca os dados do casamento) a um modelo de inteligência artificial só para tentar perceber a que tipo de pedido corresponde — nunca para gerar a resposta final. A conversa fica guardada no documento do teu casamento (tal como o resto dos teus dados), só para veres o histórico entre sessões.',
+    privacySiteTitle:'Site do casamento (Premium)', privacySiteText:'O site é opcional e só fica online quando carregas em Publicar. Torna-se público apenas o que escolheres mostrar: nomes, data, local, programa (só os momentos marcados para convidados), dress code, alojamento, perguntas frequentes, contacto e fotos que enviares. Nunca é público: lista de convidados, respostas, orçamento, pagamentos, documentos e fornecedores. Por defeito o site não aparece em motores de pesquisa. Podes despublicá-lo a qualquer momento; ao apagares a conta, o site, as fotos e o endereço são apagados.',
     privacyConciergeTitle:'Nota sobre o assistente de conversa (Weddy Concierge)',
     privacyConciergeText:'Cada link de convidado inclui um pequeno assistente de conversa que responde a perguntas sobre o casamento (local, horário, dress code, estacionamento, transporte, alojamento, presentes, e outras perguntas e respostas que tu próprio(a) escreveres em Definições → Convites RSVP → Weddy Concierge). Se o convidado disser, por exemplo, que afinal não vai poder vir ou que tem uma restrição alimentar, o assistente pede sempre confirmação antes de alterar a resposta guardada — nunca altera nada sem essa confirmação explícita. As respostas vêm sempre da informação que tu preencheste, nunca inventadas: quando a mensagem do convidado não é reconhecida por regras simples, pode ser enviada (só o texto da pergunta, nunca dados do casamento) a um modelo de inteligência artificial só para tentar perceber a que tipo de pedido corresponde — nunca para gerar a resposta final nem para decidir sozinho uma alteração. A conversa em si fica só no dispositivo do convidado — não é guardada nem fica visível para ti, apenas o resultado de uma alteração que o convidado confirme (tal como se tivesse usado o formulário normal).',
 
@@ -5087,6 +5151,7 @@ const APP_I18N = {
     premRowSeating:'Suggests how to place guests at the tables, based on the seats and preferences you set.',
     premRowHealth:'A quick check-up on how your wedding is going.',
     premRowDocs:'Upload PDF contracts and search them through the Assistant.',
+    premRowSite:'Create a wedding page with date, venue, schedule and RSVP, and share a single link. You only publish when you decide.',
     premRowCal:'Send your schedule to Google Calendar and view, create and delete events without leaving Weddy.',
     premRowChat:'Ask about guests, budget, dates, tables and payments and get answers based on your data.',
     premRowMemories:'Photos guests share through their RSVP link, visible only to you.',
@@ -5108,6 +5173,7 @@ const APP_I18N = {
     premiumTileMemoriesDesc:'Relive the best moments of the big day.',
     premiumTileDocumentosDesc:'Check your contracts and documents.',
     premiumTileGoogleCalDesc:'Sync your wedding calendar.',
+    siteTitle:'Wedding website', premiumTileSiteDesc:'A public page with everything your guests need.',
     rsvpTitle:'RSVP invitations', rsvpDesc:"Send and track your guests' responses",
     rsvpHubTitle:"Invitations & guest responses",
     rsvpRespostasNavTitle:'Guest responses', rsvpRespostasNavDesc:"See, search and group who's already replied",
@@ -5817,6 +5883,7 @@ const APP_I18N = {
     privacyGuestsText:'When you generate an RSVP link for a guest, we create a separate, independent record just for that person — with the name you gave them, the wedding date and venue, and (once they respond) their attendance, meal choice, dietary restrictions or allergies, and whether they need transport or accommodation. That guest never sees the full guest list or the wedding budget — only their own information. They can view, update or delete their response at any time through their own link, without creating an account. As the controller of this data, you can remove a guest\'s link at any time in "RSVP invitations"; doing so makes it impossible to respond to or view that response through the link any longer. When you group several guests from the same family into one shared link, that record keeps each family member\'s response separately (in its own field) — but it is still a single link, so anyone who has it can see and change every family member\'s response; only whoever has the link can access this data. It is your responsibility to inform your guests that the data they share with you through this link is used solely to organize the wedding.',
     privacyAssistantTitle:'Note about the Weddy Assistant (couple Copilot)',
     privacyAssistantText:"The Weddy Assistant answers questions about your own wedding (guests, budget, payments, tasks) and only carries out simple, low-risk actions when you explicitly ask for them (like creating a task) — it never changes guest data or payments through the chat. Answers always come from this wedding's real data, never invented: when your question isn't recognized by simple rules, it may be sent (just the question's text, never wedding data) to an AI model only to work out what kind of request it is — never to generate the final answer. The conversation is saved in your wedding's document (like the rest of your data), only so you can see the history across sessions.",
+    privacySiteTitle:'Wedding website (Premium)', privacySiteText:'The website is optional and only goes online when you press Publish. Only what you choose to show becomes public: names, date, venue, schedule (only moments marked for guests), dress code, accommodation, FAQ, contact and photos you upload. Never public: guest list, responses, budget, payments, documents and suppliers. By default the site does not appear in search engines. You can unpublish it at any time; when you delete your account, the site, photos and address are deleted.',
     privacyConciergeTitle:'Note about the chat assistant (Weddy Concierge)',
     privacyConciergeText:"Each guest link includes a small chat assistant that answers questions about the wedding (venue, schedule, dress code, parking, transport, accommodation, gifts, and any other questions and answers you write yourself in Settings → RSVP invitations → Weddy Concierge). If the guest says, for example, that they can no longer attend or that they have a dietary restriction, the assistant always asks for confirmation before changing the saved response — it never changes anything without that explicit confirmation. Answers always come from the information you filled in, never invented: when a guest's message isn't recognized by simple rules, it may be sent (just the question's text, never wedding data) to an AI model only to work out what kind of request it is — never to generate the final answer or to decide on a change by itself. The conversation itself stays on the guest's own device — it is not saved or visible to you, only the result of a change the guest confirms (just as if they had used the regular form).",
 
@@ -6365,7 +6432,7 @@ function render(){
 function updateChatFab(){
   const fab = document.getElementById('chat-fab');
   if(!fab) return;
-  fab.hidden = !(typeof firstSyncDone!=='undefined' && firstSyncDone);
+  fab.hidden = !(typeof firstSyncDone!=='undefined' && firstSyncDone) || (activeTab==='definicoes' && definicoesSection==='site');
   fab.classList.toggle('locked', !hasActiveSubscription());
   fab.innerHTML = ICONS.chat;
   const headerTitle = document.querySelector('#chat-panel .chat-panel-header span');
@@ -6948,9 +7015,9 @@ const ICON_REFRAME = {
   docnote: { x0:-0.66, y0: 0.34, s:24.32 },
   calendar:{ x0:-0.16, y0:-0.16, s:24.32 }
 };
-function premiumHubTile(key, icon, title, desc, locked){
+function premiumHubTile(key, icon, title, desc, locked, cls){
   return `
-  <button class="premium-hub-tile${locked?' locked':''}" data-premiumgoto="${key}">
+  <button class="premium-hub-tile${locked?' locked':''}${cls?' '+cls:''}" data-premiumgoto="${key}">
     <div class="premium-hub-tile-top">
       <div class="premium-hub-tile-icon">${icon}</div>
       ${locked ? `<div class="premium-hub-tile-lock">${ICONS.lock}</div>` : ''}
@@ -6981,6 +7048,7 @@ function premiumFeatureGrid(){
       ${premiumHubTile('memories', reframedIcon(ICONS.camera, ICON_REFRAME.camera), ta('memoriesTitle'), ta('premiumTileMemoriesDesc'), !subscribed)}
       ${premiumHubTile('documentos', ICONS.docnote ? reframedIcon(ICONS.docnote, ICON_REFRAME.docnote) : ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc'), !subscribed)}
       ${premiumHubTile('googlecalendar', reframedIcon(ICONS.calendar, ICON_REFRAME.calendar), ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc'), !subscribed)}
+      ${premiumHubTile('site', ICONS.globe, ta('siteTitle'), ta('premiumTileSiteDesc'), !subscribed, 'wide')}
     </div>
     ${subscribed ? '' : `
     <div class="premium-hub-cta">
@@ -11685,6 +11753,7 @@ function premiumSaleBodyHtml(title){
     [ta('premGroupGuests'), [
       [ICONS.mail, ta('rsvpTitle'), ta('premRowRSVP')],
       [ICONS.sparkle, ta('aiSeatingTitle'), ta('premRowSeating')],
+      [ICONS.globe, ta('siteTitle'), ta('premRowSite')],
     ]],
     [ta('premGroupControl'), [
       [ICONS.warn||ICONS.checklist, ta('healthTitle'), ta('premRowHealth')],
@@ -12204,6 +12273,697 @@ function whEvolutionHTML(){
   }
   return `<div class="wh-sec-title">${ta('whEvoTitle')}</div><div class="wh-card">${body}</div>`;
 }
+/* ============================================================
+   SITE DO CASAMENTO (Premium) — editor, painel, pré-visualização, publicação
+   Renderizador partilhado: weddysite.js (o mesmo da página pública).
+   Rascunho: weddingSites/{weddingId}.draft (regras: só os donos).
+   Publicar/despublicar: Cloud Functions (valida Premium no servidor).
+   ============================================================ */
+const SITE_UI = {
+  pt:{
+    title:'Site do casamento', desc:'Uma página bonita com toda a informação para os convidados',
+    intro:'Cria a página do vosso casamento e partilha um único link. Só publicas quando quiseres.',
+    stDraft:'Rascunho', stPublished:'Publicado', stUnpublished:'Despublicado',
+    stDraftHelp:'Ainda não está online. Ninguém consegue ver o site.', stPubHelp:'Está online e qualquer pessoa com o link o pode ver.', stUnpubHelp:'O site saiu do ar. O rascunho continua guardado.',
+    pending:'Alterações por publicar', upToDate:'Tudo publicado', saving:'A guardar…', saved:'Guardado', saveErr:'Não foi possível guardar. Verifica a ligação.', unsaved:'Por guardar…',
+    preview:'Pré-visualizar', previewMobile:'Telemóvel', previewDesktop:'Computador', close:'Fechar',
+    copy:'Copiar link', copied:'Link copiado', open:'Abrir site',
+    tabGeral:'Geral', tabDesign:'Design', tabInfo:'Informação', tabRsvp:'RSVP', tabPub:'Publicação',
+    loading:'A carregar…', loadErr:'Não foi possível carregar o site. Tenta novamente.', retry:'Tentar novamente',
+    fTitle:'Título (opcional)', fTitlePh:'Vamos casar!', fWelcome:'Mensagem de boas-vindas', fWelcomePh:'Escreve umas palavras para os convidados',
+    fLang:'Idioma do site', langPt:'Português', langEn:'English', fTz:'Fuso horário do casamento',
+    fCount:'Mostrar contagem decrescente', fExpired:'Mensagem depois do casamento (opcional)', fExpiredPh:'Obrigado por celebrarem connosco!',
+    namesDate:'Nomes e data vêm das vossas Definições', namesDateHelp:'Alterá-los lá atualiza o site (depois de publicares de novo).', namesLabel:'Noivos', dateLabel:'Data', missing:'por definir',
+    fSlug:'Endereço do site', slugPrefix:'weddy.pt/c/', slugHelp:'Só letras minúsculas, números e hífens. Depois de publicado, o endereço não muda.', slugLocked:'O endereço fica fixo depois da primeira publicação, para os links já partilhados continuarem a funcionar.',
+    slugChecking:'A verificar…', slugOk:'Disponível', slugTaken:'Este endereço já está ocupado.', slugSuggest:'Sugestões:', slugErrNet:'Não foi possível verificar agora.',
+    slugEmpty:'Escolhe um endereço.', slugShort:'Demasiado curto (mínimo 3).', slugLong:'Demasiado longo (máximo 40).', slugChars:'Usa só letras minúsculas, números e hífens (sem hífens seguidos nem nas pontas).', slugReserved:'Este endereço está reservado.',
+    dTemplate:'Modelo', tplEditorial:'Editorial', tplClassic:'Clássico', tplModern:'Moderno',
+    tplEditorialD:'Foto grande, elegante e arejado', tplClassicD:'Moldura tradicional e simétrica', tplModernD:'Linhas limpas e secções em cartões',
+    dPalette:'Cores', dCover:'Foto de capa', coverAdd:'Escolher foto', coverChange:'Trocar foto', coverRemove:'Remover', coverHelp:'JPG, PNG ou WebP. Aparece no topo do site. Em ecrã vertical funciona melhor uma foto vertical.',
+    uploading:'A enviar a foto…', upErrType:'Usa uma foto JPG, PNG ou WebP.', upErrSize:'A foto é demasiado grande (máx. 15 MB).', upErrFail:'Não foi possível enviar a foto. Tenta novamente.',
+    secOn:'Mostrar no site', secStory:'A nossa história', secLocation:'Local', secSchedule:'Programa do dia', secDress:'Dress code', secLodging:'Alojamento e transportes', secFaq:'Perguntas frequentes', secContact:'Contacto',
+    secStoryD:'Desligada por defeito. Conta como se conheceram, se quiseres.', secLocationD:'Onde é, como chegar e onde estacionar.', secScheduleD:'Usa o programa do dia da Weddy. Só aparecem os momentos marcados como visíveis aos convidados.',
+    secDressD:'O que vestir, com uma foto de inspiração se quiseres.', secLodgingD:'Hotéis, transportes e pontos de encontro.', secFaqD:'As dúvidas mais comuns, respondidas.', secContactD:'Desligado por defeito. Nada é publicado sem escolheres.',
+    fStoryTitle:'Título', fStoryText:'Texto', fPhoto:'Foto', photoAdd:'Adicionar foto',
+    fVenue:'Nome do local', fAddress:'Morada', fMapUrl:'Link do mapa (https)', fMapPh:'https://maps.google.com/…', fParking:'Estacionamento', fNotes:'Notas',
+    schedNote:'Nota (opcional)', schedCount:function(n){ return n===0 ? 'Ainda não tens momentos visíveis aos convidados.' : n+(n===1?' momento será mostrado.':' momentos serão mostrados.'); },
+    schedManage:'Gerir o programa do dia', 
+    fDress:'Descrição', fLodging:'Alojamento', fTransport:'Transportes', fMeeting:'Pontos de encontro', fLinks:'Links úteis', linkLabel:'Nome do link', linkUrl:'https://…', addLink:'Adicionar link',
+    fQ:'Pergunta', fA:'Resposta', addFaq:'Adicionar pergunta', remove:'Remover', faqMax:'Máximo de perguntas atingido.',
+    fContactName:'Nome', fContactPhone:'Telefone', fContactEmail:'Email', fContactNote:'Nota (opcional)', contactWarn:'Este contacto ficará visível a quem tiver o link do site.',
+    rsvpOn:'Mostrar a secção de RSVP', rsvpText:'Texto acima do botão (opcional)', rsvpHow:'Como funciona', rsvpHowText:'O RSVP continua a ser o mesmo: cada convidado usa o seu link individual. No site há um botão que o leva ao seu convite. Não há pesquisa pública por nome e nada é duplicado.', rsvpOpen:'Abrir Convites RSVP',
+    pubTitle:'Publicação', checklist:'Antes de publicar', allGood:'Tudo pronto para publicar.', fix:'Corrigir',
+    willBePublic:'O que fica público', wbpNames:'Nomes e data do casamento', wbpSections:'Secções ativas', wbpCover:'Foto de capa', wbpIndex:'Motores de busca',
+    yes:'Sim', no:'Não', indexNo:'Não indexar (recomendado)', indexYes:'Permitir indexar',
+    notPublic:'O que nunca é público', notPublicText:'Lista de convidados, respostas, orçamento, pagamentos, documentos, fornecedores e dados pessoais.',
+    fIndex:'Permitir que o Google encontre este site', fIndexHelp:'Por defeito o site não aparece em pesquisas — só quem tem o link o vê.',
+    publish:'Publicar site', republish:'Publicar alterações', publishing:'A publicar…', unpublish:'Despublicar', unpublishing:'A despublicar…',
+    confirmPublish:function(s){ return 'Vais publicar o site em '+s.url+'. Fica público: '+s.names+'; '+s.date+'; '+s.secs+'. Nunca é público: convidados, orçamento, pagamentos e documentos. Qualquer pessoa com o link poderá vê-lo. Publicar?'; },
+    confirmUnpublish:'O site deixa de estar online. O rascunho e as fotos ficam guardados e podes voltar a publicar quando quiseres. Despublicar?',
+    published:'Site publicado.', unpublished:'Site despublicado.',
+    errPremium:'Esta funcionalidade faz parte do Weddy Premium.', errNet:'Sem ligação ou o servidor não respondeu. Tenta novamente.', errGeneric:'Não foi possível concluir. Tenta novamente.', errTaken:'Este endereço já está ocupado. Escolhe outro.', errValidation:'Há campos por corrigir antes de publicar.',
+    errNoDraft:'Ainda não há nada para publicar.',
+    v_names:'Faltam os nomes dos noivos (Definições → o vosso casamento).', v_date:'Falta a data do casamento (Definições).', v_story_empty:'“A nossa história” está ligada mas sem texto.', v_location_empty:'Local: indica o nome ou a morada.', v_map_url:'O link do mapa tem de começar por https://.',
+    v_schedule_empty:'Programa do dia ligado mas sem momentos visíveis aos convidados.', v_dresscode_empty:'Dress code ligado mas sem descrição.', v_lodging_empty:'Alojamento e transportes ligado mas sem conteúdo.', v_faq_empty:'Perguntas frequentes ligadas mas sem perguntas completas.',
+    v_contact_email:'O email de contacto não é válido.', v_contact_phone:'O telefone de contacto não é válido.', v_contact_empty:'Contacto ligado: indica um telefone ou email.',
+    v_slug_empty:'Escolhe o endereço do site.', v_slug_short:'O endereço é demasiado curto.', v_slug_long:'O endereço é demasiado longo.', v_slug_chars:'O endereço tem caracteres inválidos.', v_slug_reserved:'Este endereço está reservado.',
+    expiredTitle:'O Premium terminou — o site está temporariamente indisponível', expiredText:'Quem abrir o endereço vê apenas uma página genérica de “indisponível”, sem nenhum dado do casamento. Não apagámos nada: o rascunho, as fotos, o design e o endereço ficam guardados e reservados para ti. Ao renovar o Premium, o teu site volta a ficar disponível.', renew:'Renovar o Premium',
+    stSuspended:'Temporariamente indisponível', stSuspHelp:'Estava online, mas foi desativado por o Premium ter terminado ou sido renovado há pouco. Não é público neste momento.', reactivate:'Voltar a pôr online', reactivating:'A reativar…', reactivated:'O site voltou a estar online.', retrySave:'Tentar de novo', focusX:'Enquadramento horizontal', focusY:'Enquadramento vertical', focusHelp:'Move para escolher a parte da foto que fica visível.', pubExplain:'As alterações só ficam públicas quando carregas em “Atualizar site”. Para tirar o site do ar, usa “Despublicar”; o rascunho e o endereço ficam guardados.', previewHint:'Pré-visualização com o teu design, cores, fotos e texto atuais.',
+    rsvpRowTitle:'Site do casamento', rsvpRowDesc:'Uma página pública com a informação do dia e o botão de RSVP',
+    devMobile:'Telemóvel', previewNote:'Pré-visualização: é exatamente isto que os convidados vão ver.'
+  },
+  en:{
+    title:'Wedding website', desc:'A beautiful page with everything your guests need',
+    intro:'Create your wedding page and share a single link. You only publish when you decide.',
+    stDraft:'Draft', stPublished:'Published', stUnpublished:'Unpublished',
+    stDraftHelp:"It's not online yet. Nobody can see the site.", stPubHelp:'It is online and anyone with the link can see it.', stUnpubHelp:'The site is offline. Your draft is still saved.',
+    pending:'Unpublished changes', upToDate:'Everything is published', saving:'Saving…', saved:'Saved', saveErr:"Couldn't save. Check your connection.", unsaved:'Unsaved…',
+    preview:'Preview', previewMobile:'Phone', previewDesktop:'Desktop', close:'Close',
+    copy:'Copy link', copied:'Link copied', open:'Open site',
+    tabGeral:'General', tabDesign:'Design', tabInfo:'Information', tabRsvp:'RSVP', tabPub:'Publishing',
+    loading:'Loading…', loadErr:"Couldn't load the site. Please try again.", retry:'Try again',
+    fTitle:'Title (optional)', fTitlePh:"We're getting married!", fWelcome:'Welcome message', fWelcomePh:'Write a few words for your guests',
+    fLang:'Site language', langPt:'Português', langEn:'English', fTz:'Wedding time zone',
+    fCount:'Show countdown', fExpired:'Message after the wedding (optional)', fExpiredPh:'Thank you for celebrating with us!',
+    namesDate:'Names and date come from your Settings', namesDateHelp:'Changing them there updates the site (after you publish again).', namesLabel:'Couple', dateLabel:'Date', missing:'not set',
+    fSlug:'Site address', slugPrefix:'weddy.pt/c/', slugHelp:'Lowercase letters, numbers and hyphens only. Once published, the address cannot change.', slugLocked:'The address is fixed after the first publication so shared links keep working.',
+    slugChecking:'Checking…', slugOk:'Available', slugTaken:'This address is already taken.', slugSuggest:'Suggestions:', slugErrNet:"Couldn't check right now.",
+    slugEmpty:'Choose an address.', slugShort:'Too short (minimum 3).', slugLong:'Too long (maximum 40).', slugChars:'Use lowercase letters, numbers and single hyphens (not at the ends).', slugReserved:'This address is reserved.',
+    dTemplate:'Template', tplEditorial:'Editorial', tplClassic:'Classic', tplModern:'Modern',
+    tplEditorialD:'Big photo, elegant and airy', tplClassicD:'Traditional, symmetrical frame', tplModernD:'Clean lines and card sections',
+    dPalette:'Colours', dCover:'Cover photo', coverAdd:'Choose photo', coverChange:'Change photo', coverRemove:'Remove', coverHelp:'JPG, PNG or WebP. Shown at the top of the site. A portrait photo works best on phones.',
+    uploading:'Uploading photo…', upErrType:'Use a JPG, PNG or WebP photo.', upErrSize:'The photo is too large (max 15 MB).', upErrFail:"Couldn't upload the photo. Please try again.",
+    secOn:'Show on the site', secStory:'Our story', secLocation:'Venue', secSchedule:'Schedule', secDress:'Dress code', secLodging:'Stay & travel', secFaq:'FAQ', secContact:'Contact',
+    secStoryD:'Off by default. Tell how you met, if you like.', secLocationD:'Where it is, how to get there and where to park.', secScheduleD:"Uses Weddy's day schedule. Only moments marked as visible to guests appear.",
+    secDressD:'What to wear, with an inspiration photo if you like.', secLodgingD:'Hotels, transport and meeting points.', secFaqD:'The most common questions, answered.', secContactD:'Off by default. Nothing is published unless you choose.',
+    fStoryTitle:'Title', fStoryText:'Text', fPhoto:'Photo', photoAdd:'Add photo',
+    fVenue:'Venue name', fAddress:'Address', fMapUrl:'Map link (https)', fMapPh:'https://maps.google.com/…', fParking:'Parking', fNotes:'Notes',
+    schedNote:'Note (optional)', schedCount:function(n){ return n===0 ? 'You have no moments visible to guests yet.' : n+(n===1?' moment will be shown.':' moments will be shown.'); },
+    schedManage:'Manage the day schedule',
+    fDress:'Description', fLodging:'Accommodation', fTransport:'Transport', fMeeting:'Meeting points', fLinks:'Useful links', linkLabel:'Link name', linkUrl:'https://…', addLink:'Add link',
+    fQ:'Question', fA:'Answer', addFaq:'Add question', remove:'Remove', faqMax:'Maximum number of questions reached.',
+    fContactName:'Name', fContactPhone:'Phone', fContactEmail:'Email', fContactNote:'Note (optional)', contactWarn:'This contact will be visible to anyone with the site link.',
+    rsvpOn:'Show the RSVP section', rsvpText:'Text above the button (optional)', rsvpHow:'How it works', rsvpHowText:'RSVP stays the same: each guest uses their own individual link. The site has a button that takes them to their invitation. There is no public name search and nothing is duplicated.', rsvpOpen:'Open RSVP invitations',
+    pubTitle:'Publishing', checklist:'Before publishing', allGood:'Everything is ready to publish.', fix:'Fix',
+    willBePublic:'What becomes public', wbpNames:'Names and wedding date', wbpSections:'Active sections', wbpCover:'Cover photo', wbpIndex:'Search engines',
+    yes:'Yes', no:'No', indexNo:"Don't index (recommended)", indexYes:'Allow indexing',
+    notPublic:'What is never public', notPublicText:'Guest list, responses, budget, payments, documents, suppliers and personal data.',
+    fIndex:'Let Google find this site', fIndexHelp:"By default the site doesn't appear in searches — only people with the link can see it.",
+    publish:'Publish site', republish:'Publish changes', publishing:'Publishing…', unpublish:'Unpublish', unpublishing:'Unpublishing…',
+    confirmPublish:function(s){ return "You're about to publish the site at "+s.url+'. Public: '+s.names+'; '+s.date+'; '+s.secs+'. Never public: guests, budget, payments and documents. Anyone with the link will be able to see it. Publish?'; },
+    confirmUnpublish:"The site will go offline. Your draft and photos stay saved and you can publish again whenever you like. Unpublish?",
+    published:'Site published.', unpublished:'Site unpublished.',
+    errPremium:'This feature is part of Weddy Premium.', errNet:'No connection or the server did not respond. Please try again.', errGeneric:"Couldn't complete that. Please try again.", errTaken:'This address is already taken. Choose another.', errValidation:'Some fields need fixing before publishing.',
+    errNoDraft:'There is nothing to publish yet.',
+    v_names:"The couple's names are missing (Settings → your wedding).", v_date:'The wedding date is missing (Settings).', v_story_empty:'"Our story" is on but has no text.', v_location_empty:'Venue: add a name or an address.', v_map_url:'The map link must start with https://.',
+    v_schedule_empty:'Schedule is on but no moments are visible to guests.', v_dresscode_empty:'Dress code is on but has no description.', v_lodging_empty:'Stay & travel is on but has no content.', v_faq_empty:'FAQ is on but has no complete questions.',
+    v_contact_email:'The contact email is not valid.', v_contact_phone:'The contact phone is not valid.', v_contact_empty:'Contact is on: add a phone or an email.',
+    v_slug_empty:'Choose the site address.', v_slug_short:'The address is too short.', v_slug_long:'The address is too long.', v_slug_chars:'The address has invalid characters.', v_slug_reserved:'This address is reserved.',
+    expiredTitle:'Premium has ended — your site is temporarily unavailable', expiredText:'Anyone opening the address only sees a generic “unavailable” page, with no wedding data. Nothing was deleted: your draft, photos, design and address stay saved and reserved for you. Once you renew Premium, your site becomes available again.', renew:'Renew Premium',
+    stSuspended:'Temporarily unavailable', stSuspHelp:'It was online but has been switched off because Premium ended or was just renewed. It is not public right now.', reactivate:'Put back online', reactivating:'Reactivating…', reactivated:'Your site is back online.', retrySave:'Try again', focusX:'Horizontal framing', focusY:'Vertical framing', focusHelp:'Move to choose which part of the photo stays visible.', pubExplain:'Changes only go public when you tap “Update site”. To take the site offline, use “Unpublish”; your draft and address stay saved.', previewHint:'Preview with your current design, colours, photos and text.',
+    rsvpRowTitle:'Wedding website', rsvpRowDesc:'A public page with the day details and the RSVP button',
+    devMobile:'Phone', previewNote:'Preview: this is exactly what your guests will see.'
+  }
+};
+function ts(k){ const d = SITE_UI[appLang] || SITE_UI.pt; return (k in d) ? d[k] : SITE_UI.pt[k]; }
+
+// ---------- estado ----------
+let siteS = { wid:null, loaded:false, loading:false, err:false, doc:null, draft:null, tab:'geral', saveState:'idle', saveTimer:null, slugTimer:null, slugRes:null, busy:null, valErrors:null, uploadPath:null, uploading:false, previewDev:'mobile', msg:'' };
+function siteReset(){ clearTimeout(siteS.saveTimer); clearTimeout(siteS.slugTimer); siteS = { wid:currentWeddingId, loaded:false, loading:false, err:false, doc:null, draft:null, tab:'geral', saveState:'idle', saveTimer:null, slugTimer:null, slugRes:null, busy:null, valErrors:null, uploadPath:null, uploading:false, previewDev:'mobile', msg:'' }; }
+function siteSource(){
+  const s = weddingSettings || {};
+  return { names:[(s.coupleName1||'').trim(), (s.coupleName2||'').trim()], date:s.weddingDate||'', schedule: buildGuestVisibleProgram() };
+}
+function siteSuggestSlug(){
+  const s = weddingSettings || {};
+  const a = (s.coupleName1||'').trim().split(/\s+/)[0], b = (s.coupleName2||'').trim().split(/\s+/)[0];
+  let base = WeddySite.slugify([a,b].filter(Boolean).join(' e '));
+  const y = (s.weddingDate||'').slice(0,4);
+  if(base && y) base = (base+'-'+y).slice(0, WeddySite.siteLimits.slugMax);
+  return base || '';
+}
+function siteDefaultDraft(){
+  const s = weddingSettings || {};
+  return {
+    lang: appLang==='en'?'en':'pt', template:'editorial', palette:'terracota', title:'', welcome:'', coverUrl:'', timezone:'Europe/Lisbon',
+    countdown:{ on:true, expiredMessage:'' }, indexable:false, slug: siteSuggestSlug(),
+    sections:{
+      story:{ on:false, title:'', text:'', photoUrl:'' },
+      location:{ on:true, name:(s.venue||'').slice(0,120), address:'', mapUrl:'', parking:'', notes:'' },
+      schedule:{ on:true, note:'' },
+      dresscode:{ on:false, title:'', text:'', imageUrl:'' },
+      lodging:{ on:false, lodging:'', transport:'', parking:'', meeting:'', links:[] },
+      faq:{ on:false, items:[] },
+      contact:{ on:false, name:'', phone:'', email:'', note:'' },
+      rsvp:{ on:true, text:'' }
+    },
+    source: siteSource()
+  };
+}
+// Garante que um rascunho antigo/incompleto tem todas as chaves (nunca rebenta).
+function siteNormalizeDraft(d){
+  const base = siteDefaultDraft();
+  d = (d && typeof d==='object') ? d : {};
+  const out = Object.assign({}, base, d);
+  out.countdown = Object.assign({}, base.countdown, d.countdown||{});
+  out.sections = {};
+  Object.keys(base.sections).forEach(k=>{ out.sections[k] = Object.assign({}, base.sections[k], (d.sections&&d.sections[k])||{}); });
+  if(!Array.isArray(out.sections.faq.items)) out.sections.faq.items = [];
+  if(!Array.isArray(out.sections.lodging.links)) out.sections.lodging.links = [];
+  out.source = siteSource();
+  return out;
+}
+function siteStable(o){
+  if(Array.isArray(o)) return '['+o.map(siteStable).join(',')+']';
+  if(o && typeof o==='object') return '{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+siteStable(o[k])).join(',')+'}';
+  return JSON.stringify(o===undefined?null:o);
+}
+function siteStatus(){ return (siteS.doc && siteS.doc.status) || 'draft'; }
+function siteSlugNow(){ return (siteS.doc && siteS.doc.slug) || (siteS.draft && siteS.draft.slug) || ''; }
+function siteHasPending(){
+  if(siteStatus()!=='published' || !siteS.doc || !siteS.doc.publishedDraft || !siteS.draft) return false;
+  // slug não conta (fica bloqueado depois de publicar)
+  const a = Object.assign({}, siteS.draft, { slug:'' }), b = Object.assign({}, siteS.doc.publishedDraft, { slug:'' });
+  return siteStable(a) !== siteStable(b);
+}
+function siteSnapshotNow(){ return WeddySite.buildSnapshot(siteS.draft, currentWeddingId); }
+// Link do site com o token INDIVIDUAL do convidado (só se o site estiver online e o Premium válido).
+// O token já existia (o mesmo do link RSVP); aqui só é anexado ao endereço do site.
+function siteLinkForToken(token){
+  try{
+    if(!token || !hasActiveSubscription() || !siteS.loaded || !siteS.doc || siteS.doc.status!=='published' || !siteS.doc.slug) return '';
+    return 'https://www.weddy.pt/c/'+siteS.doc.slug+'?g='+encodeURIComponent(token);
+  }catch(e){ return ''; }
+}
+function siteUrl(){ return 'https://www.weddy.pt/c/'+siteSlugNow(); }
+function siteGet(path){ return path.split('.').reduce((o,k)=> (o==null?undefined:o[k]), siteS.draft); }
+function siteSet(path, val){
+  const ks = path.split('.'); let o = siteS.draft;
+  for(let i=0;i<ks.length-1;i++){ if(o[ks[i]]==null) return false; o = o[ks[i]]; }
+  o[ks[ks.length-1]] = val; return true;
+}
+
+// ---------- carregar / guardar ----------
+function siteEnsureLoaded(){
+  if(siteS.wid!==currentWeddingId) siteReset();
+  if(siteS.loaded || siteS.loading || siteS.err) return;
+  if(!FIREBASE_READY || !currentWeddingId || !db){ return; }
+  siteS.loading = true;
+  const wid = currentWeddingId;
+  // 1.º o servidor aplica a regra do Premium (renovou -> atualiza validade; expirou -> suspende
+  // o site e revoga os tokens das fotos; cria o documento de controlo que o Storage usa).
+  const pre = cloudFunctions ? cloudFunctions.httpsCallable('refreshWeddingSite')({}).catch(()=>{}) : Promise.resolve();
+  pre.then(()=>db.collection('weddingSites').doc(wid).get()).then(snap=>{
+    if(siteS.wid!==wid) return;
+    siteS.doc = snap.exists ? snap.data() : null;
+    siteS.draft = siteNormalizeDraft(siteS.doc && siteS.doc.draft);
+    siteS.loaded = true; siteS.loading = false; siteS.err = false;
+    _origRender();
+    siteRefreshPhotoUrls();
+  }).catch(()=>{ siteS.loading = false; siteS.err = true; _origRender(); });
+}
+// Os URLs das fotos do rascunho têm um token que o servidor muda quando o Premium
+// termina. Depois de renovar, pede-se o URL atual (as regras deixam só aos donos) e,
+// se mudou, atualiza-se o rascunho (guardado pelo mecanismo normal).
+function siteRefreshPhotoUrls(){
+  try{
+    if(!storage || !siteS.draft || !hasActiveSubscription()) return Promise.resolve(false);
+    const fields = ['coverUrl','sections.story.photoUrl','sections.dresscode.imageUrl'];
+    return Promise.all(fields.map(f=>{
+      const cur = siteGet(f); const m = String(cur||'').match(/\/o\/([^?]+)/);
+      if(!m) return null;
+      let p = ''; try{ p = decodeURIComponent(m[1]); }catch(e){ return null; }
+      if(p.indexOf('sites/'+currentWeddingId+'/')!==0) return null;
+      return storage.ref(p).getDownloadURL().then(u=>{ if(u && u!==cur){ siteSet(f, u); return true; } return false; }).catch(()=>false);
+    })).then(r=>{ if(r.some(Boolean)){ siteMarkDirty(); _origRender(); return true; } return false; });
+  }catch(e){ return Promise.resolve(false); }
+}
+function siteSetSaveState(st){
+  siteS.saveState = st;
+  const el = document.getElementById('site-savestate');
+  if(el){
+    el.className = 'se-save '+st;
+    if(st==='err') el.innerHTML = escapeHTML(ts('saveErr'))+' <button type="button" class="se-chip" data-siteretrysave>'+escapeHTML(ts('retrySave'))+'</button>';
+    else el.textContent = st==='saving'?ts('saving'):st==='saved'?ts('saved'):st==='dirty'?ts('unsaved'):'';
+  }
+}
+function siteMarkDirty(){
+  siteS.valErrors = null;
+  siteSetSaveState('dirty');
+  clearTimeout(siteS.saveTimer);
+  siteS.saveTimer = setTimeout(siteSaveNow, 900);
+  siteRefreshBadges();
+}
+function siteSaveNow(){
+  clearTimeout(siteS.saveTimer);
+  if(!siteS.draft || !currentWeddingId || !cloudFunctions || !hasActiveSubscription()) return Promise.resolve(false);
+  siteS.draft.source = siteSource();
+  const seq = siteS.saveSeq = (siteS.saveSeq||0)+1;
+  siteSetSaveState('saving');
+  const draftCopy = JSON.parse(JSON.stringify(siteS.draft));
+  // A gravação passa SEMPRE pelo servidor (valida Premium, limpa e limita o conteúdo).
+  return cloudFunctions.httpsCallable('saveWeddingSiteDraft')({ draft: draftCopy }).then(()=>{
+    if(!siteS.doc) siteS.doc = {};
+    siteS.doc.draft = draftCopy;
+    if(seq===siteS.saveSeq && siteS.saveState==='saving') siteSetSaveState('saved');
+    return true;
+  }).catch(()=>{ if(seq===siteS.saveSeq) siteSetSaveState('err'); return false; });
+}
+function siteRefreshBadges(){
+  const b = document.getElementById('site-pendingbadge');
+  if(b){ const p = siteHasPending(); b.style.display = siteStatus()==='published' ? '' : 'none'; b.textContent = p ? ts('pending') : ts('upToDate'); b.className = 'se-badge '+(p?'warn':'ok'); }
+}
+
+// ---------- HTML ----------
+function seField(path, label, o){
+  o = o||{};
+  const v = siteGet(path); const val = (v==null?'':v);
+  const max = o.max || 0;
+  const common = `data-sitef="${path}" ${max?`maxlength="${max}"`:''} ${o.ph?`placeholder="${escapeHTML(o.ph)}"`:''}`;
+  const input = o.rows
+    ? `<textarea class="se-in" rows="${o.rows}" ${common}>${escapeHTML(val)}</textarea>`
+    : `<input class="se-in" type="${o.type||'text'}" inputmode="${o.inputmode||'text'}" autocomplete="off" ${common} value="${escapeHTML(val)}">`;
+  return `<label class="se-f"><span class="se-l">${label}</span>${input}${o.rows&&max?`<span class="se-cnt" data-sitecnt="${path}" data-max="${max}">${String(val).length}/${max}</span>`:''}</label>`;
+}
+function seToggle(path, label){
+  return `<label class="se-toggle"><input type="checkbox" data-sitec="${path}" ${siteGet(path)?'checked':''}><span class="se-sw" aria-hidden="true"></span><span>${label}</span></label>`;
+}
+function seSection(key, title, desc, bodyHtml){
+  const on = !!siteGet('sections.'+key+'.on');
+  return `
+  <div class="se-card${on?'':' off'}">
+    <div class="se-card-h"><div><div class="se-card-t">${title}</div><div class="se-card-d">${desc}</div></div></div>
+    ${seToggle('sections.'+key+'.on', ts('secOn'))}
+    ${on ? `<div class="se-card-b">${bodyHtml}</div>` : ''}
+  </div>`;
+}
+function sePhoto(path, label){
+  const url = siteGet(path);
+  const img = WeddySite.safeImg(url);
+  return `<div class="se-f"><span class="se-l">${label}</span>
+    ${img?`<div class="se-ph"><img src="${escapeHTML(img)}" alt="" ${path==='coverUrl'?`style="object-position:${+siteS.draft.coverX>=0?+siteS.draft.coverX:50}% ${+siteS.draft.coverY>=0?+siteS.draft.coverY:50}%" data-sitecoverimg`:''}></div>`:''}
+    <div class="se-row">
+      <button type="button" class="rsvp-copy-btn se-btn" data-siteupload="${path}">${img?ts('coverChange'):ts('coverAdd')}</button>
+      ${img?`<button type="button" class="rsvp-copy-btn se-btn" data-siteremovephoto="${path}">${ts('coverRemove')}</button>`:''}
+    </div>
+    ${siteS.uploading && siteS.uploadPath===path ? `<div class="se-hint">${ts('uploading')}</div>`:''}
+  </div>`;
+}
+function seTabGeral(){
+  const src = siteSource(); const names = src.names.filter(Boolean).join(' & ');
+  const published = siteStatus()==='published' || (siteS.doc && siteS.doc.slug);
+  const slugBlock = published
+    ? `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug locked"><span>${ts('slugPrefix')}</span><b>${escapeHTML(siteSlugNow())}</b></div><div class="se-hint">${ts('slugLocked')}</div></div>`
+    : `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug"><span>${ts('slugPrefix')}</span><input class="se-in" type="text" id="site-slug" data-siteslug autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${WeddySite.siteLimits.slugMax}" value="${escapeHTML(siteS.draft.slug||'')}"></div><div class="se-hint">${ts('slugHelp')}</div><div class="se-hint" id="site-slugmsg" role="status">${seSlugMsg()}</div></div>`;
+  return `
+  <div class="se-card">
+    <div class="se-card-t">${ts('namesDate')}</div>
+    <div class="se-kvs"><div><span>${ts('namesLabel')}</span><b>${names?escapeHTML(names):`<i>${ts('missing')}</i>`}</b></div><div><span>${ts('dateLabel')}</span><b>${src.date?escapeHTML(WeddySite.formatDate(src.date, appLang)):`<i>${ts('missing')}</i>`}</b></div></div>
+    <div class="se-hint">${ts('namesDateHelp')}</div>
+  </div>
+  <div class="se-card">
+    ${seField('title', ts('fTitle'), { max: WeddySite.siteLimits.title, ph: ts('fTitlePh') })}
+    ${seField('welcome', ts('fWelcome'), { rows:4, max: WeddySite.siteLimits.welcome, ph: ts('fWelcomePh') })}
+    <label class="se-f"><span class="se-l">${ts('fLang')}</span><select class="se-in" data-sitesel="lang"><option value="pt" ${siteS.draft.lang==='pt'?'selected':''}>${ts('langPt')}</option><option value="en" ${siteS.draft.lang==='en'?'selected':''}>${ts('langEn')}</option></select></label>
+    <label class="se-f"><span class="se-l">${ts('fTz')}</span><select class="se-in" data-sitesel="timezone">${WeddySite.TIMEZONES.map(z=>`<option value="${z}" ${siteS.draft.timezone===z?'selected':''}>${z}</option>`).join('')}</select></label>
+    ${seToggle('countdown.on', ts('fCount'))}
+    ${siteS.draft.countdown.on ? seField('countdown.expiredMessage', ts('fExpired'), { max: WeddySite.siteLimits.expired, ph: ts('fExpiredPh') }) : ''}
+  </div>
+  <div class="se-card">${slugBlock}</div>`;
+}
+function seSlugMsg(){
+  const r = siteS.slugRes; const sl = (siteS.draft && siteS.draft.slug)||'';
+  if(!sl) return '';
+  const p = WeddySite.siteSlugProblem(sl);
+  if(p) return `<span class="se-bad">${ts('slug'+p.charAt(0).toUpperCase()+p.slice(1))}</span>`;
+  if(!r || r.slug!==sl) return ts('slugChecking');
+  if(r.net) return ts('slugErrNet');
+  if(r.available) return `<span class="se-good">${ts('slugOk')}</span>`;
+  return `<span class="se-bad">${ts('slugTaken')}</span>` + (r.suggestions&&r.suggestions.length ? ` ${ts('slugSuggest')} ${r.suggestions.map(s=>`<button type="button" class="se-chip" data-siteslugpick="${escapeHTML(s)}">${escapeHTML(s)}</button>`).join(' ')}` : '');
+}
+function seTabDesign(){
+  const tpls = [['editorial','tplEditorial','tplEditorialD'],['classic','tplClassic','tplClassicD'],['modern','tplModern','tplModernD']];
+  return `
+  <div class="se-card">
+    <div class="se-card-t">${ts('dTemplate')}</div>
+    <div class="se-tpls" role="radiogroup" aria-label="${ts('dTemplate')}">
+      ${tpls.map(([k,t,d])=>`<button type="button" role="radio" aria-checked="${siteS.draft.template===k}" class="se-tpl${siteS.draft.template===k?' on':''}" data-sitetpl="${k}"><b>${ts(t)}</b><span>${ts(d)}</span></button>`).join('')}
+    </div>
+  </div>
+  <div class="se-card">
+    <div class="se-card-t">${ts('dPalette')}</div>
+    <div class="se-pals" role="radiogroup" aria-label="${ts('dPalette')}">
+      ${Object.keys(WeddySite.PALETTES).map(k=>{ const p = WeddySite.PALETTES[k]; return `<button type="button" role="radio" aria-checked="${siteS.draft.palette===k}" class="se-pal${siteS.draft.palette===k?' on':''}" data-sitepal="${k}"><i style="background:${p.accent}"></i><span>${p.name[appLang==='en'?'en':'pt']}</span></button>`; }).join('')}
+    </div>
+  </div>
+  <div class="se-card">${sePhoto('coverUrl', ts('dCover'))}<div class="se-hint">${ts('coverHelp')}</div>
+    ${WeddySite.safeImg(siteS.draft.coverUrl) ? `<label class="se-f"><span class="se-l">${ts('focusX')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverX" value="${+siteS.draft.coverX>=0?+siteS.draft.coverX:50}" style="width:100%"></label>
+    <label class="se-f"><span class="se-l">${ts('focusY')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverY" value="${+siteS.draft.coverY>=0?+siteS.draft.coverY:50}" style="width:100%"></label><div class="se-hint">${ts('focusHelp')}</div>` : ''}</div>`;
+}
+function seTabInfo(){
+  const L = WeddySite.siteLimits;
+  const links = (siteS.draft.sections.lodging.links||[]).map((l,i)=>`
+    <div class="se-sub"><div class="se-row2">
+      ${seField('sections.lodging.links.'+i+'.label', ts('linkLabel'), { max:L.linkLabel })}
+      ${seField('sections.lodging.links.'+i+'.url', 'URL', { max:300, ph:ts('linkUrl'), inputmode:'url' })}
+    </div><button type="button" class="se-del" data-sitedel="link:${i}">${ts('remove')}</button></div>`).join('');
+  const faqs = (siteS.draft.sections.faq.items||[]).map((f,i)=>`
+    <div class="se-sub">
+      ${seField('sections.faq.items.'+i+'.q', ts('fQ'), { max:L.faqQ })}
+      ${seField('sections.faq.items.'+i+'.a', ts('fA'), { rows:3, max:L.faqA })}
+      <button type="button" class="se-del" data-sitedel="faq:${i}">${ts('remove')}</button></div>`).join('');
+  const nSched = siteSource().schedule.length;
+  return `
+  ${seSection('story', ts('secStory'), ts('secStoryD'),
+    seField('sections.story.title', ts('fStoryTitle'), { max:L.storyTitle }) + seField('sections.story.text', ts('fStoryText'), { rows:6, max:L.story }) + sePhoto('sections.story.photoUrl', ts('fPhoto')))}
+  ${seSection('location', ts('secLocation'), ts('secLocationD'),
+    seField('sections.location.name', ts('fVenue'), { max:L.venue }) + seField('sections.location.address', ts('fAddress'), { rows:2, max:L.address }) +
+    seField('sections.location.mapUrl', ts('fMapUrl'), { max:500, ph:ts('fMapPh'), inputmode:'url' }) + seField('sections.location.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.location.notes', ts('fNotes'), { rows:2, max:L.notes }))}
+  ${seSection('schedule', ts('secSchedule'), ts('secScheduleD'),
+    `<div class="se-hint" style="margin-top:0">${ts('schedCount')(nSched)}</div>` + seField('sections.schedule.note', ts('schedNote'), { max:L.scheduleNote }) +
+    `<button type="button" class="rsvp-copy-btn se-btn" data-sitegoto="inicio">${ts('schedManage')}</button>`)}
+  ${seSection('dresscode', ts('secDress'), ts('secDressD'),
+    seField('sections.dresscode.title', ts('fStoryTitle'), { max:L.dressTitle }) + seField('sections.dresscode.text', ts('fDress'), { rows:4, max:L.dress }) + sePhoto('sections.dresscode.imageUrl', ts('fPhoto')))}
+  ${seSection('lodging', ts('secLodging'), ts('secLodgingD'),
+    seField('sections.lodging.lodging', ts('fLodging'), { rows:3, max:L.lodging }) + seField('sections.lodging.transport', ts('fTransport'), { rows:3, max:L.transport }) +
+    seField('sections.lodging.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.lodging.meeting', ts('fMeeting'), { rows:2, max:L.meeting }) +
+    `<div class="se-l" style="margin-top:6px">${ts('fLinks')}</div>${links}` +
+    ((siteS.draft.sections.lodging.links||[]).length<L.linksMax ? `<button type="button" class="rsvp-copy-btn se-btn" data-siteadd="link">${ICONS.plus} ${ts('addLink')}</button>` : ''))}
+  ${seSection('faq', ts('secFaq'), ts('secFaqD'),
+    faqs + ((siteS.draft.sections.faq.items||[]).length<L.faqMax ? `<button type="button" class="rsvp-copy-btn se-btn" data-siteadd="faq">${ICONS.plus} ${ts('addFaq')}</button>` : `<div class="se-hint">${ts('faqMax')}</div>`))}
+  ${seSection('contact', ts('secContact'), ts('secContactD'),
+    `<div class="se-hint" style="margin-top:0">${ts('contactWarn')}</div>` + seField('sections.contact.name', ts('fContactName'), { max:L.contactName }) +
+    seField('sections.contact.phone', ts('fContactPhone'), { max:24, type:'tel', inputmode:'tel' }) + seField('sections.contact.email', ts('fContactEmail'), { max:120, type:'email', inputmode:'email' }) + seField('sections.contact.note', ts('fContactNote'), { max:L.contactNote }))}`;
+}
+function seTabRsvp(){
+  const on = !!siteS.draft.sections.rsvp.on;
+  return `
+  <div class="se-card">
+    ${seToggle('sections.rsvp.on', ts('rsvpOn'))}
+    ${on ? seField('sections.rsvp.text', ts('rsvpText'), { rows:3, max:WeddySite.siteLimits.rsvpText }) : ''}
+  </div>
+  <div class="se-card"><div class="se-card-t">${ts('rsvpHow')}</div><div class="se-card-d" style="margin-top:6px">${ts('rsvpHowText')}</div>
+    <button type="button" class="rsvp-copy-btn se-btn" style="margin-top:12px" data-sitegoto="rsvp">${ts('rsvpOpen')}</button></div>`;
+}
+function siteValidation(){
+  const r = siteSnapshotNow(); const errs = r.errors.slice();
+  const p = WeddySite.siteSlugProblem(siteSlugNow());
+  if(p) errs.push('slug_'+p);
+  return { snapshot:r.snapshot, errors:errs };
+}
+function siteErrTab(code){
+  if(code==='names'||code==='date') return 'geral';
+  if(code.indexOf('slug_')===0) return 'geral';
+  return 'info';
+}
+function siteSummary(snap){
+  const secKeys = ['story','location','schedule','dresscode','lodging','faq','contact','rsvp'];
+  const nameMap = { story:'secStory', location:'secLocation', schedule:'secSchedule', dresscode:'secDress', lodging:'secLodging', faq:'secFaq', contact:'secContact', rsvp:'tabRsvp' };
+  const active = secKeys.filter(k=>snap.sections[k]).map(k=>ts(nameMap[k]));
+  return {
+    url: siteUrl(), names: snap.names.join(' & '), date: WeddySite.formatDate(snap.eventDate, appLang),
+    secs: active.length ? active.join(', ') : '—', secsList: active
+  };
+}
+function seTabPub(){
+  const v = siteValidation(); const sum = siteSummary(v.snapshot);
+  const st = siteStatus(); const shown = siteS.valErrors || v.errors;
+  const busy = siteS.busy;
+  const list = v.errors.length
+    ? `<ul class="se-errs">${v.errors.map(c=>`<li><span>${ts('v_'+c)}</span><button type="button" class="se-chip" data-sitetab="${siteErrTab(c)}">${ts('fix')}</button></li>`).join('')}</ul>`
+    : `<div class="se-ok">${ICONS.check} ${ts('allGood')}</div>`;
+  const pubLabel = busy==='publish' ? ts('publishing') : (st==='published' ? ts('republish') : ts('publish'));
+  return `
+  <div class="se-card"><div class="se-card-t">${ts('checklist')}</div>${list}</div>
+  <div class="se-card">
+    <div class="se-card-t">${ts('willBePublic')}</div>
+    <div class="se-kvs">
+      <div><span>${ts('wbpNames')}</span><b>${escapeHTML(sum.names||'—')} · ${escapeHTML(sum.date||'—')}</b></div>
+      <div><span>${ts('wbpSections')}</span><b>${escapeHTML(sum.secs)}</b></div>
+      <div><span>${ts('wbpCover')}</span><b>${v.snapshot.coverUrl?ts('yes'):ts('no')}</b></div>
+      <div><span>${ts('wbpIndex')}</span><b>${siteS.draft.indexable?ts('indexYes'):ts('indexNo')}</b></div>
+    </div>
+    <div class="se-card-t" style="margin-top:14px">${ts('notPublic')}</div><div class="se-card-d">${ts('notPublicText')}</div>
+  </div>
+  <div class="se-card">
+    ${seToggle('indexable', ts('fIndex'))}<div class="se-hint">${ts('fIndexHelp')}</div>
+  </div>
+  <div class="se-card">
+    <button type="button" class="login-btn se-pub" data-sitepublish ${busy||v.errors.length?'disabled':''}>${pubLabel}</button>
+    ${st==='published' ? `<button type="button" class="rsvp-copy-btn se-btn se-unpub" data-siteunpublish ${busy?'disabled':''}>${busy==='unpublish'?ts('unpublishing'):ts('unpublish')}</button>` : ''}
+    <div class="se-hint">${ts('pubExplain')}</div>
+    <div class="se-hint" id="site-pubmsg" role="status">${escapeHTML(siteS.msg||'')}</div>
+  </div>`;
+}
+function siteStatusCard(){
+  const st = siteStatus();
+  const label = st==='published'?ts('stPublished'):st==='suspended'?ts('stSuspended'):st==='unpublished'?ts('stUnpublished'):ts('stDraft');
+  const help = st==='suspended'?ts('stSuspHelp'):st==='unpublished'?ts('stUnpubHelp'):st==='draft'?ts('stDraftHelp'):'';
+  const pending = siteHasPending();
+  return `
+  <div class="se-status ${st}">
+    <div class="se-status-top"><span class="se-dot"></span><b>${label}</b>
+      <span id="site-pendingbadge" class="se-badge ${pending?'warn':'ok'}" style="${st==='published'?'':'display:none'}">${pending?ts('pending'):ts('upToDate')}</span></div>
+    ${help?`<div class="se-hint" style="margin:2px 0 0">${help}</div>`:''}
+    ${st==='published' ? `<div class="se-url"><a href="${escapeHTML(siteUrl())}" target="_blank" rel="noopener">${escapeHTML(siteUrl().replace('https://',''))}</a></div>` : ''}
+    ${st==='suspended' ? `<button type="button" class="login-btn se-pub" style="margin-top:10px" data-sitereactivate ${siteS.busy?'disabled':''}>${siteS.busy==='reactivate'?ts('reactivating'):ts('reactivate')}</button>` : ''}
+    <div class="se-row se-row-tight">
+      <button type="button" class="rsvp-deadline-save se-btn" data-sitepreview>${ICONS.eye} ${ts('preview')}</button>
+      ${st==='published' ? `<button type="button" class="rsvp-copy-btn se-btn" data-sitecopy>${ts('copy')}</button><a class="rsvp-copy-btn se-btn" href="${escapeHTML(siteUrl())}" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;display:inline-flex;align-items:center">${ts('open')}</a>` : ''}
+      <span id="site-savestate" class="se-save ${siteS.saveState}" role="status" aria-live="polite"></span>
+    </div>
+  </div>`;
+}
+function siteExpiredView(){
+  return `
+  ${defSubHeader(ts('title'))}
+  <div class="se-card" style="margin:0 16px 14px">
+    <div class="se-card-t">${ts('expiredTitle')}</div><div class="se-card-d" style="margin-top:6px">${ts('expiredText')}</div>
+    <button type="button" class="login-btn se-pub" style="margin-top:14px" data-premiumgoto="subscricao">${ts('renew')}</button>
+  </div>`;
+}
+function viewDefSite(){
+  siteEnsureLoaded();
+  if(!hasActiveSubscription()){
+    if(siteS.loaded && siteS.doc && siteS.doc.slug && (siteS.doc.status==='published' || siteS.doc.status==='suspended')) return siteExpiredView();
+    return viewDefPremiumLocked(ts('title'));
+  }
+  if(!siteS.loaded){
+    return `${defSubHeader(ts('title'), ts('intro'))}<div class="empty-note" style="margin:24px 16px;">${siteS.err ? ts('loadErr')+`<div style="margin-top:12px"><button type="button" class="rsvp-copy-btn se-btn" data-siteretry>${ts('retry')}</button></div>` : ts('loading')}</div>`;
+  }
+  const tabs = [['geral','tabGeral'],['design','tabDesign'],['info','tabInfo'],['rsvp','tabRsvp'],['pub','tabPub']];
+  const body = siteS.tab==='design'?seTabDesign():siteS.tab==='info'?seTabInfo():siteS.tab==='rsvp'?seTabRsvp():siteS.tab==='pub'?seTabPub():seTabGeral();
+  return `
+  ${defSubHeader(ts('title'), ts('intro'))}
+  <div class="se-wrap">
+    ${siteStatusCard()}
+    <div class="se-tabs" role="tablist">${tabs.map(([k,t])=>`<button type="button" role="tab" aria-selected="${siteS.tab===k}" class="se-tab${siteS.tab===k?' on':''}" data-sitetab="${k}">${ts(t)}</button>`).join('')}</div>
+    <div class="se-body">${body}</div>
+  </div>`;
+}
+
+// ---------- pré-visualização ----------
+function siteOpenPreview(){
+  closeSitePreview();
+  const snap = siteSnapshotNow().snapshot;
+  const doc = WeddySite.buildDocument(snap, { preview:true });
+  const ov = document.createElement('div');
+  ov.id = 'site-preview'; ov.className = 'se-prev';
+  ov.innerHTML = `
+    <div class="se-prev-bar">
+      <button type="button" class="se-chip" data-siteprevclose>${ts('close')}</button>
+      <div class="se-seg"><button type="button" data-siteprevdev="mobile" class="${siteS.previewDev==='mobile'?'on':''}">${ts('previewMobile')}</button><button type="button" data-siteprevdev="desktop" class="${siteS.previewDev==='desktop'?'on':''}">${ts('previewDesktop')}</button></div>
+    </div>
+    <div class="se-prev-note">${ts('previewNote')}</div>
+    <div class="se-prev-stage ${siteS.previewDev}"><iframe title="${ts('preview')}" sandbox="allow-scripts"></iframe></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('iframe').srcdoc = doc;
+  // "Computador" num ecrã estreito: mostra o site a 1280 px, reduzido para caber (o mesmo renderizador).
+  const stage = ov.querySelector('.se-prev-stage'), fr = ov.querySelector('iframe');
+  if(siteS.previewDev === 'desktop' && stage.clientWidth > 0 && stage.clientWidth < 1100){
+    const k = stage.clientWidth / 1280;
+    fr.style.cssText = 'width:1280px;height:' + Math.ceil(stage.clientHeight / k) + 'px;transform:scale(' + k + ');transform-origin:0 0;border-radius:0;flex:0 0 auto';
+    stage.style.cssText = 'overflow:hidden;justify-content:flex-start';
+  }
+}
+function closeSitePreview(){ const o = document.getElementById('site-preview'); if(o) o.remove(); }
+
+// ---------- upload de fotos ----------
+function siteDropOldImage(url){
+  // Apaga do Storage a foto antiga do RASCUNHO (nunca a cópia pública, que vive noutra pasta).
+  try{
+    if(!url || !storage || !currentWeddingId) return;
+    const m = String(url).match(/\/o\/([^?]+)/); if(!m) return;
+    const p = decodeURIComponent(m[1]);
+    if(p.indexOf('sites/'+currentWeddingId+'/')!==0 || p.indexOf('..')>=0) return;
+    storage.ref(p).delete().catch(()=>{});
+  }catch(e){}
+}
+async function siteUploadPhoto(path, file){
+  if(!file) return;
+  if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ weddyAlert(ts('upErrType')); return; }
+  if(file.size > 15*1024*1024){ weddyAlert(ts('upErrSize')); return; }
+  if(!storage || !currentWeddingId){ weddyAlert(ts('upErrFail')); return; }
+  siteS.uploading = true; siteS.uploadPath = path; _origRender();
+  try{
+    const dataUrl = await resizeImageFile(file, 1600, 0.85);
+    const blob = await (await fetch(dataUrl)).blob();
+    if(blob.size > 4.5*1024*1024) throw new Error('size');
+    const ref = storage.ref(`sites/${currentWeddingId}/${Date.now().toString(36)}.jpg`);
+    await ref.put(blob, { contentType:'image/jpeg' });
+    const url = await ref.getDownloadURL();
+    const old = siteGet(path);
+    siteSet(path, url);
+    siteMarkDirty();
+    if(old && old!==url) siteDropOldImage(old);
+  }catch(e){ weddyAlert(ts('upErrFail')); }
+  siteS.uploading = false; siteS.uploadPath = null; _origRender();
+}
+
+// ---------- publicar / despublicar ----------
+function siteErrMsg(e){
+  const code = e && (e.code||'').replace('functions/','');
+  const dc = e && e.details && e.details.code;
+  if(dc==='slug_taken') return ts('errTaken');
+  if(dc==='validation') return ts('errValidation');
+  if(dc==='no_draft') return ts('errNoDraft');
+  if(code==='permission-denied') return ts('errPremium');
+  if(code==='unavailable' || code==='deadline-exceeded' || code==='internal' && !dc) return ts('errNet');
+  return ts('errGeneric');
+}
+async function siteReloadDoc(){
+  const snap = await db.collection('weddingSites').doc(currentWeddingId).get();
+  siteS.doc = snap.exists ? snap.data() : null;
+}
+async function sitePublish(){
+  if(siteS.busy) return;
+  const v = siteValidation();
+  if(v.errors.length){ siteS.tab = 'pub'; _origRender(); return; }
+  if(!cloudFunctions){ siteS.msg = ts('errNet'); _origRender(); return; }
+  const sum = siteSummary(v.snapshot);
+  if(!await weddyConfirm(ts('confirmPublish')(sum))) return;
+  siteS.busy = 'publish'; siteS.msg = ''; _origRender();
+  try{
+    const saved = await siteSaveNow();
+    if(saved===false) throw { code:'unavailable' };
+    const res = await cloudFunctions.httpsCallable('publishWeddingSite')({});
+    await siteReloadDoc();
+    siteS.msg = ts('published');
+  }catch(e){ siteS.msg = siteErrMsg(e); }
+  siteS.busy = null; _origRender();
+}
+async function siteUnpublish(){
+  if(siteS.busy) return;
+  if(!await weddyConfirm(ts('confirmUnpublish'))) return;
+  siteS.busy = 'unpublish'; siteS.msg = ''; _origRender();
+  try{
+    await cloudFunctions.httpsCallable('unpublishWeddingSite')({});
+    await siteReloadDoc();
+    siteS.msg = ts('unpublished');
+  }catch(e){ siteS.msg = siteErrMsg(e); }
+  siteS.busy = null; _origRender();
+}
+async function siteReactivate(){
+  if(siteS.busy) return;
+  siteS.busy = 'reactivate'; siteS.msg = ''; _origRender();
+  try{
+    await cloudFunctions.httpsCallable('reactivateWeddingSite')({});
+    await siteReloadDoc();
+    siteS.msg = ts('reactivated');
+  }catch(e){ siteS.msg = siteErrMsg(e); }
+  siteS.busy = null; _origRender();
+}
+function siteCheckSlugSoon(){
+  clearTimeout(siteS.slugTimer);
+  const sl = siteS.draft.slug;
+  const msg = ()=>{ const el = document.getElementById('site-slugmsg'); if(el) el.innerHTML = seSlugMsg(); };
+  msg();
+  if(!sl || WeddySite.siteSlugProblem(sl) || !cloudFunctions) return;
+  siteS.slugTimer = setTimeout(async ()=>{
+    try{
+      const r = (await cloudFunctions.httpsCallable('checkWeddingSiteSlug')({ slug: sl })).data;
+      siteS.slugRes = { slug:sl, available:!!r.available, suggestions:r.suggestions||[] };
+    }catch(e){ siteS.slugRes = { slug:sl, net:true }; }
+    msg();
+  }, 500);
+}
+
+// ---------- eventos (delegados: sobrevivem a qualquer re-render) ----------
+(function siteBindEvents(){
+  const inSite = ()=> activeTab==='definicoes' && definicoesSection==='site' && siteS.draft;
+  document.addEventListener('input', e=>{
+    const t = e.target; if(!t || !inSite()) return;
+    if(t.matches && t.matches('[data-sitefocus]')){
+      siteS.draft[t.getAttribute('data-sitefocus')] = Math.max(0, Math.min(100, +t.value||0));
+      const im = document.querySelector('[data-sitecoverimg]'); if(im) im.style.objectPosition = (siteS.draft.coverX>=0?siteS.draft.coverX:50)+'% '+(siteS.draft.coverY>=0?siteS.draft.coverY:50)+'%';
+      siteMarkDirty(); return;
+    }
+    if(t.matches && t.matches('[data-sitef]')){
+      siteSet(t.getAttribute('data-sitef'), t.value);
+      const c = document.querySelector('[data-sitecnt="'+t.getAttribute('data-sitef')+'"]');
+      if(c) c.textContent = t.value.length+'/'+c.getAttribute('data-max');
+      siteMarkDirty();
+    } else if(t.matches && t.matches('[data-siteslug]')){
+      const clean = t.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').replace(/-{2,}/g,'-');
+      if(clean!==t.value) t.value = clean;
+      siteS.draft.slug = clean; siteS.slugRes = null;
+      siteMarkDirty(); siteCheckSlugSoon();
+    }
+  });
+  document.addEventListener('change', e=>{
+    const t = e.target; if(!t) return;
+    if(t.id==='site-file'){ const f = t.files && t.files[0]; const p = siteS.uploadPath; t.value=''; if(f && p) siteUploadPhoto(p, f); return; }
+    if(!inSite()) return;
+    if(t.matches && t.matches('[data-sitec]')){ siteSet(t.getAttribute('data-sitec'), !!t.checked); siteMarkDirty(); _origRender(); }
+    else if(t.matches && t.matches('[data-sitesel]')){ siteSet(t.getAttribute('data-sitesel'), t.value); siteMarkDirty(); }
+  });
+  document.addEventListener('click', e=>{
+    const el = e.target && e.target.closest ? e.target.closest('[data-sitetab],[data-sitetpl],[data-sitepal],[data-siteupload],[data-siteremovephoto],[data-siteadd],[data-sitedel],[data-sitepreview],[data-siteprevclose],[data-siteprevdev],[data-sitepublish],[data-siteunpublish],[data-sitecopy],[data-sitegoto],[data-siteslugpick],[data-siteretry],[data-sitefromrsvp],[data-siteretrysave],[data-sitereactivate]') : null;
+    if(!el) return;
+    const a = n=> el.getAttribute(n);
+    if(el.hasAttribute('data-siteprevclose')){ closeSitePreview(); return; }
+    if(el.hasAttribute('data-siteprevdev')){ siteS.previewDev = a('data-siteprevdev'); siteOpenPreview(); return; }
+    if(el.hasAttribute('data-siteunpublish')){ siteUnpublish(); return; }
+    if(el.hasAttribute('data-siteretrysave')){ siteSaveNow(); return; }
+    if(el.hasAttribute('data-sitereactivate')){ siteReactivate(); return; }
+    if(el.hasAttribute('data-siteretry')){ siteS.err = false; _origRender(); return; }
+    if(el.hasAttribute('data-sitefromrsvp')){ closeAllSheets(); navBackSet('definicoes','site'); activeTab='definicoes'; definicoesSection='site'; rsvpSubScreen=null; _origRender(); return; }
+    if(!inSite()) return;
+    if(el.hasAttribute('data-sitetab')){ siteS.tab = a('data-sitetab'); _origRender(); return; }
+    if(el.hasAttribute('data-sitetpl')){ siteS.draft.template = a('data-sitetpl'); siteMarkDirty(); _origRender(); return; }
+    if(el.hasAttribute('data-sitepal')){ siteS.draft.palette = a('data-sitepal'); siteMarkDirty(); _origRender(); return; }
+    if(el.hasAttribute('data-siteupload')){ siteS.uploadPath = a('data-siteupload'); let inp = document.getElementById('site-file'); if(!inp){ inp = document.createElement('input'); inp.type='file'; inp.id='site-file'; inp.accept='image/jpeg,image/png,image/webp'; inp.style.display='none'; document.body.appendChild(inp); } inp.click(); return; }
+    if(el.hasAttribute('data-siteremovephoto')){ const p0 = a('data-siteremovephoto'), old = siteGet(p0); siteSet(p0, ''); siteMarkDirty(); _origRender(); siteDropOldImage(old); return; }
+    if(el.hasAttribute('data-siteadd')){
+      const k = a('data-siteadd');
+      if(k==='faq' && siteS.draft.sections.faq.items.length<WeddySite.siteLimits.faqMax) siteS.draft.sections.faq.items.push({ q:'', a:'' });
+      if(k==='link' && siteS.draft.sections.lodging.links.length<WeddySite.siteLimits.linksMax) siteS.draft.sections.lodging.links.push({ label:'', url:'' });
+      siteMarkDirty(); _origRender(); return;
+    }
+    if(el.hasAttribute('data-sitedel')){
+      const [k,i] = a('data-sitedel').split(':'); const idx = +i;
+      if(k==='faq') siteS.draft.sections.faq.items.splice(idx,1);
+      if(k==='link') siteS.draft.sections.lodging.links.splice(idx,1);
+      siteMarkDirty(); _origRender(); return;
+    }
+    if(el.hasAttribute('data-sitepreview')){ siteOpenPreview(); return; }
+    if(el.hasAttribute('data-sitepublish')){ sitePublish(); return; }
+    if(el.hasAttribute('data-sitecopy')){
+      const done = ()=>{ el.textContent = ts('copied'); setTimeout(()=>{ el.textContent = ts('copy'); }, 1800); };
+      try{ navigator.clipboard.writeText(siteUrl()).then(done, done); }catch(err){ done(); }
+      return;
+    }
+    if(el.hasAttribute('data-siteslugpick')){ siteS.draft.slug = a('data-siteslugpick'); siteS.slugRes = null; siteMarkDirty(); _origRender(); siteCheckSlugSoon(); return; }
+    if(el.hasAttribute('data-sitegoto')){
+      const to = a('data-sitegoto');
+      siteSaveNow();
+      if(to==='rsvp'){ navBackSet('definicoes','rsvp'); activeTab='definicoes'; definicoesSection='rsvp'; rsvpSubScreen=null; _origRender(); }
+      else { navBackSet('inicio', null); activeTab = to; definicoesSection = null; _origRender(); }
+      return;
+    }
+  });
+})();
+
 function viewDefWeddingHealth(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('healthTitle'));
   if(!firstSyncDone) return `${defSubHeader(ta('healthTitle'))}<div class="wh-card wh-note">${ta('whLoading')}</div>`;
@@ -12336,6 +13096,11 @@ function viewRSVPHome(){
   ${hubNavRow('deadline', ICONS.sparkle, ta('rsvpLembretesNavTitle'), ta('rsvpLembretesNavDesc'))}
   ${hubNavRow('info', ICONS.pencil, ta('guestInfoLabel'), ta('guestInfoSubLabel'))}
   ${hubNavRow('respostas', ICONS.guests, ta('rsvpHubTitle'), ta('rsvpRespostasNavDesc'))}
+  <div class="rsvp-nav-row tappable" data-sitefromrsvp>
+    <div class="rsvp-nav-row-icon" style="${rustChip}">${ICONS.globe}</div>
+    <div class="rsvp-nav-row-mid"><div class="rsvp-nav-row-title">${ts('rsvpRowTitle')}</div><div class="rsvp-nav-row-desc">${ts('rsvpRowDesc')}</div></div>
+    <span class="rsvp-nav-row-chev">${ICONS.chev}</span>
+  </div>
   <div style="margin:16px 16px 28px; padding:16px; border-radius:16px; background:linear-gradient(135deg, rgba(193,88,62,0.1), rgba(216,166,87,0.12)); text-align:center;">
     <div class="l" style="margin:0 0 4px; font-size:14.5px; color:var(--ink); font-weight:600;">${ta('rsvpNoteAutoFreeTitle')}</div>
     <div style="font-size:12px; color:var(--ink-soft); line-height:1.5;">${ta('rsvpNoteAutoFree')}</div>
@@ -12469,6 +13234,7 @@ function viewRSVPFaq(){
   `;
 }
 function viewRSVPRespostas(){
+  try{ if(hasActiveSubscription() && typeof siteEnsureLoaded==="function") siteEnsureLoaded(); }catch(e){}
   const allGuests = flattenAllGuestsForRSVP();
   const totalGuests = allGuests.length;
   let maybeCount = 0;
@@ -12504,6 +13270,7 @@ function viewRSVPRespostas(){
       const link = RSVP_BASE_URL + '?g=' + token;
       actionsHtml = `<div class="rsvp-actions-inline">
         <button class="rsvp-copy-btn" data-rsvpcopy="${escapeHTML(link)}">${ICONS.mail} ${ta('btnCopyLink')}</button>
+        ${siteLinkForToken(token)?`<button class="rsvp-copy-btn" data-rsvpcopy="${escapeHTML(siteLinkForToken(token))}">${ICONS.mail} ${appLang==='en'?'Copy site link':'Copiar link do site'}</button>`:''}
         <button class="rsvp-qr-btn" data-rsvpqr="${escapeHTML(link)}" data-rsvpqrname="${escapeHTML(item.name)}">${ICONS.qrcode||''} QR</button>
         <button class="rsvp-qr-btn" data-rsvpwalink="${escapeHTML(link)}" data-rsvpwaname="${escapeHTML(item.name)}" data-rsvpwaphone="${escapeHTML(item.entry.phone||'')}" data-rsvpwaside="${escapeHTML(item.side)}" data-rsvpwacat="${escapeHTML(item.catId)}" data-rsvpwaidx="${item.idx}" style="color:#25D366;">${ICONS.whatsapp} ${ta('btnSendWhatsappInvite')}</button>
         <button class="rsvp-qr-btn rsvp-revoke-btn" data-rsvprevoke="${item.side}|${item.catId}|${item.idx}" data-rsvprevokename="${escapeHTML(item.name)}" title="${ta('titleRemoveInvite')}">${ICONS.trash}</button>
@@ -12782,6 +13549,7 @@ function viewDefinicoes(){
   if(definicoesSection==='reportar') return viewDefReportar();
   if(definicoesSection==='rsvp') return viewDefRSVP();
   if(definicoesSection==='health') return viewDefWeddingHealth();
+  if(definicoesSection==='site') return viewDefSite();
   if(definicoesSection==='memories') return viewDefMemories();
   if(definicoesSection==='documentos') return viewDefDocumentos();
   if(definicoesSection==='googlecalendar') return viewDefGoogleCalendar();
@@ -13258,6 +14026,9 @@ function privacyBodyHtml(){
 
     <p><b>${ta('privacyConciergeTitle')}</b><br>
     ${ta('privacyConciergeText')}</p>
+
+    <p><b>${ta('privacySiteTitle')}</b><br>
+    ${ta('privacySiteText')}</p>
 
     <p><b>${ta('privacyAssistantTitle')}</b><br>
     ${ta('privacyAssistantText')}</p>
@@ -14232,7 +15003,7 @@ function bindHandlers(){
       // própria em viewDefMenu (é a única secção Premium que a reorganização
       // manteve lá), por isso voltar para o menu de Definições continua
       // correto para ela.
-      const PREMIUM_SECTIONS_ONLY_FROM_HOME = ['rsvp', 'health', 'memories', 'documentos', 'googlecalendar'];
+      const PREMIUM_SECTIONS_ONLY_FROM_HOME = ['rsvp', 'health', 'memories', 'documentos', 'googlecalendar', 'site'];
       if(PREMIUM_SECTIONS_ONLY_FROM_HOME.includes(definicoesSection)){
         definicoesSection = null;
         activeTab = 'inicio';
