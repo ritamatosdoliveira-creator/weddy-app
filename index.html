@@ -285,7 +285,7 @@ html{
 .wh-h{ font-family:'Cormorant Garamond',serif; font-size:21px; line-height:1.2; color:var(--ink); font-weight:600; }
 .wh-p{ font-size:13.5px; line-height:1.45; color:var(--ink-soft,#6d625a); margin-top:6px; }
 .wh-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-.wh-chip{ border:1px solid rgba(193,88,62,.35); background:#fff; color:var(--rust-dark,#A04A33); border-radius:999px; padding:7px 14px; font-size:13px; font-family:inherit; cursor:pointer; }
+.wh-chip{ border:1px solid rgba(193,88,62,.35); background:#fff; color:var(--rust-dark,#A04A33); border-radius:999px; min-height:40px; padding:7px 14px; font-size:13px; font-family:inherit; cursor:pointer; }
 .wh-how{ margin-top:14px; border-top:1px solid rgba(20,20,20,.08); padding-top:10px; font-size:13px; color:var(--ink-soft,#6d625a); }
 .wh-how summary{ cursor:pointer; color:var(--rust-dark,#A04A33); font-weight:500; list-style:none; }
 .wh-how summary::-webkit-details-marker{ display:none; }
@@ -304,7 +304,8 @@ html{
 .wh-attn-mid{ flex:1; min-width:0; }
 .wh-attn-t{ font-size:14.5px; font-weight:600; color:var(--ink); }
 .wh-attn-d{ font-size:13px; color:var(--ink-soft,#6d625a); margin-top:2px; line-height:1.35; }
-.wh-btn{ flex-shrink:0; border:none; background:var(--rust,#C1583E); color:#fff; border-radius:999px; padding:8px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
+.wh-btn{ flex-shrink:0; border:none; background:var(--rust,#C1583E); color:#fff; border-radius:999px; min-height:40px; padding:8px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
+@media (max-width:360px){ .wh-attn{ flex-wrap:wrap; } .wh-attn-mid{ flex:1 1 calc(100% - 52px); } .wh-attn .wh-btn{ margin-left:48px; } .wh-hero-row{ gap:12px; } .wh-ring{ width:88px; height:88px; } }
 .wh-more summary{ cursor:pointer; padding:12px 14px; font-size:13px; color:var(--rust-dark,#A04A33); list-style:none; text-align:center; border-top:1px solid rgba(20,20,20,.06); }
 .wh-more summary::-webkit-details-marker{ display:none; }
 .wh-more[open] summary{ font-size:0; }
@@ -323,6 +324,8 @@ html{
 .wh-bar{ height:6px; border-radius:99px; background:rgba(20,20,20,.08); margin:7px 0 5px; overflow:hidden; }
 .wh-bar i{ display:block; height:100%; border-radius:99px; }
 .wh-area-m{ font-size:12.5px; color:var(--ink-soft,#6d625a); line-height:1.35; margin-top:3px; }
+.wh-area:focus-visible,.wh-chip:focus-visible,.wh-btn:focus-visible,.wh-how summary:focus-visible,.wh-more summary:focus-visible{ outline:2px solid var(--rust,#C1583E); outline-offset:-2px; }
+.wh-evo-since{ padding:12px 16px 0; font-size:12.5px; color:var(--ink-soft,#6d625a); }
 .wh-area-chev{ color:var(--ink-soft,#9a8f85); flex-shrink:0; display:flex; }
 .wh-area-chev svg{ width:16px; height:16px; }
 .wh-evo{ list-style:none; margin:0; padding:6px 16px; }
@@ -3927,10 +3930,10 @@ const APP_I18N = {
     whT_table:"Atribuir mesas", whA_table:"Ver mesas",
     whT_meal:"Recolher escolhas de refeição", whA_meal:"Ver respostas",
     whT_suppliers:"Fechar fornecedores", whA_suppliers:"Ver fornecedores",
-    whEvoTitle:"Evolução desde a semana passada",
+    whEvoTitle:"Evolução", whEvoSince: n=>(n>=6&&n<=8)?"Desde a semana passada":`Desde há ${n} dias`,
     whEvoStart:"A partir de hoje começamos a registar a evolução. A comparação semanal aparece quando houver uma semana de histórico.",
     whEvoWait: n=>`Já começámos a registar. A comparação aparece daqui a ${n} dia${n===1?'':'s'}.`,
-    whEvoNoChange:"Sem alterações desde a semana passada.",
+    whEvoNoChange:"Sem novos avanços a assinalar neste período.",
     whEvoTasks: n=>`${n>0?'+':''}${n} tarefa${Math.abs(n)===1?'':'s'} concluída${Math.abs(n)===1?'':'s'}`,
     whEvoResp: n=>`${n>0?'+':''}${n} resposta${Math.abs(n)===1?'':'s'} de convidados`,
     whEvoConf: n=>`${n>0?'+':''}${n} confirmaç${Math.abs(n)===1?'ão':'ões'} de presença`,
@@ -5157,10 +5160,10 @@ const APP_I18N = {
     whT_table:"Assign tables", whA_table:"View tables",
     whT_meal:"Collect meal choices", whA_meal:"View replies",
     whT_suppliers:"Close with suppliers", whA_suppliers:"View suppliers",
-    whEvoTitle:"Progress since last week",
+    whEvoTitle:"Progress", whEvoSince: n=>(n>=6&&n<=8)?"Since last week":`Over the last ${n} days`,
     whEvoStart:"We start recording progress today. The weekly comparison appears once there is a week of history.",
     whEvoWait: n=>`We've started recording. The comparison appears in ${n} day${n===1?'':'s'}.`,
-    whEvoNoChange:"No changes since last week.",
+    whEvoNoChange:"No new progress to report in this period.",
     whEvoTasks: n=>`${n>0?'+':''}${n} task${Math.abs(n)===1?'':'s'} completed`,
     whEvoResp: n=>`${n>0?'+':''}${n} guest repl${Math.abs(n)===1?'y':'ies'}`,
     whEvoConf: n=>`${n>0?'+':''}${n} attendance confirmation${Math.abs(n)===1?'':'s'}`,
@@ -6470,8 +6473,10 @@ function checkTasksOverdue(){
 function checkBudgetNear(){
   const orcamento = state.budget && state.budget.total ? moneyNum(state.budget.total) : 0;
   if(!(orcamento>0)) return null;
-  const pct = Math.round((totalExpenseValue()/orcamento)*100);
-  if(pct<90 || pct>100) return null;
+  const ratio = totalExpenseValue()/orcamento;
+  // Mesmo limiar do estado da área (≥90% e ≤100%, sem arredondar antes).
+  if(ratio<0.9 || ratio>1) return null;
+  const pct = Math.round(ratio*100);
   return { id:'budget-near', severity:'yellow', text: ta('healthCheckBudgetNear')(pct), goto:{ tab:'orcamento' } };
 }
 function checkUpcomingPayments(){
@@ -6489,8 +6494,9 @@ function checkBudget(){
   const gasto = totalExpenseValue();
   const orcamento = state.budget && state.budget.total ? state.budget.total : 0;
   if(!(orcamento>0 && gasto>orcamento)) return null;
-  const pct = Math.round(((gasto-orcamento)/orcamento)*100);
-  if(pct<=0) return null;
+  // Mínimo 1%: acima do orçamento por menos de 0,5% já é "acima" (antes
+  // arredondava a 0 e o alerta desaparecia, enquanto a área já mostrava excesso).
+  const pct = Math.max(1, Math.round(((gasto-orcamento)/orcamento)*100));
   return { id:'budget-over', severity: pct>=10?'red':'yellow', text: ta('healthCheckBudgetOver')(pct), goto:{ tab:'orcamento' } };
 }
 function checkUnseatedGuests(){
@@ -6657,26 +6663,41 @@ function computeHealthIndex(areas){
 // aberta ou a app esteve aberta com Premium ativo. Máx. 90 registos.
 function healthSnapshotNow(){
   const checks = getWeddingHealthChecks();
-  const idx = computeHealthIndex(computeHealthAreas(checks));
+  const areas = computeHealthAreas(checks);
+  const idx = computeHealthIndex(areas);
   if(idx.score===null) return null;
+  // av = assinatura das áreas com dados (t/g/b/p/d): só se compara o índice
+  // entre dois registos com as MESMAS áreas, senão a diferença não é fiável.
+  const av = Object.keys(HEALTH_WEIGHTS).filter(k=>areas[k] && areas[k].avail && areas[k].score!==null).map(k=>k[0]).join('');
   const T = healthTaskCounts();
   const all = flattenAllGuestsForRSVP();
   return {
-    d: toLocalISODate(new Date()), idx: idx.score, done: T.done,
+    d: toLocalISODate(new Date()), idx: idx.score, av, done: T.done,
     resp: all.length - all.filter(isRsvpPending).length,
     conf: ALL_GUEST_SIDES.reduce((sum,sd)=>sum+countConfirmed(sd),0),
     risks: checks.length
   };
 }
+// Só aceita registos bem formados (o campo vem do Firestore e pode estar
+// corrompido ou ter sido escrito por uma versão antiga): data AAAA-MM-DD
+// válida e contadores numéricos. Devolve ordenado por data.
+function validHealthHistory(){
+  const h = Array.isArray(state.healthHistory) ? state.healthHistory : [];
+  return h.filter(e=>{
+    if(!e || typeof e!=='object' || typeof e.d!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(e.d)) return false;
+    const dt = new Date(e.d+'T00:00:00');
+    if(isNaN(dt.getTime()) || toLocalISODate(dt)!==e.d) return false;
+    return ['idx','done','resp','conf','risks'].every(k=>Number.isFinite(e[k]));
+  }).sort((x,y)=> x.d<y.d ? -1 : (x.d>y.d ? 1 : 0));
+}
 function recordHealthSnapshot(){
   try{
     const snap = healthSnapshotNow();
     if(!snap) return false;
-    if(!Array.isArray(state.healthHistory)) state.healthHistory = [];
-    const last = state.healthHistory[state.healthHistory.length-1];
-    if(last && last.d===snap.d) return false;
-    state.healthHistory.push(snap);
-    if(state.healthHistory.length>90) state.healthHistory = state.healthHistory.slice(-90);
+    const clean = validHealthHistory();
+    if(clean.some(e=>e.d===snap.d)) return false;
+    clean.push(snap);
+    state.healthHistory = clean.length>90 ? clean.slice(-90) : clean;
     return true;
   }catch(e){ return false; }
 }
@@ -6688,19 +6709,21 @@ function maybeRecordHealthSnapshot(){
 setTimeout(maybeRecordHealthSnapshot, 45000);
 setInterval(maybeRecordHealthSnapshot, 600000);
 function healthEvolution(){
-  const hist = Array.isArray(state.healthHistory) ? state.healthHistory : [];
+  const hist = validHealthHistory();
   if(!hist.length) return { kind:'start' };
   const today = new Date(toLocalISODate(new Date())+'T00:00:00');
   const ageOf = h => Math.round((today - new Date(h.d+'T00:00:00'))/86400000);
+  // Janela de comparação: registo mais recente com 5 a 21 dias.
   let prev = null;
   for(let i=hist.length-1;i>=0;i--){ const a = ageOf(hist[i]); if(a>=5 && a<=21){ prev = hist[i]; break; } }
   if(!prev){
-    const oldest = ageOf(hist[0]);
-    return { kind:'wait', days: Math.max(1, 7-oldest) };
+    // Dias até o registo mais antigo (com menos de 5 dias) atingir 5 dias.
+    const young = hist.map(ageOf).filter(a=>a>=0 && a<5);
+    return { kind:'wait', days: young.length ? 5-Math.max.apply(null,young) : 5 };
   }
   const cur = healthSnapshotNow();
   if(!cur) return { kind:'wait', days:1 };
-  return { kind:'diff', prev, cur };
+  return { kind:'diff', prev, cur, ageDays: ageOf(prev) };
 }
 function viewInicio(){
   const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
@@ -12093,7 +12116,7 @@ function whAreaRow(a){
   const col = colors[a.state] || colors.neutral;
   const pct = a.pct===null ? null : Math.max(0, a.pct);
   return `
-  <div class="wh-area tappable" data-healthgoto="${a.goto}">
+  <div class="wh-area tappable" data-healthgoto="${a.goto}" role="button" tabindex="0">
     <div class="wh-area-ic">${icons[a.key]||''}</div>
     <div class="wh-area-mid">
       <div class="wh-area-top"><span class="wh-area-t">${ta(titles[a.key])}</span>${pct!==null?`<span class="wh-area-p" style="color:${col};">${pct}%</span>`:''}</div>
@@ -12110,15 +12133,22 @@ function whEvolutionHTML(){
   else if(ev.kind==='wait') body = `<div class="wh-evo-note">${ta('whEvoWait')(ev.days)}</div>`;
   else {
     const p = ev.prev, c = ev.cur, items = [];
-    const dDone = c.done - p.done, dResp = c.resp - p.resp, dConf = c.conf - p.conf, dRisk = p.risks - c.risks, dIdx = c.idx - p.idx;
-    if(dDone!==0) items.push([dDone>0, ta('whEvoTasks')(dDone)]);
-    if(dResp!==0) items.push([dResp>0, ta('whEvoResp')(dResp)]);
-    if(dConf!==0) items.push([dConf>0, ta('whEvoConf')(dConf)]);
+    // Contadores (tarefas concluídas, respostas, confirmações) só mostram
+    // AVANÇOS: se baixam é porque alguém apagou tarefas/convidados, e isso
+    // não é uma "regressão" a assinalar.
+    const dDone = c.done - p.done, dResp = c.resp - p.resp, dConf = c.conf - p.conf, dRisk = p.risks - c.risks;
+    if(dDone>0) items.push([true, ta('whEvoTasks')(dDone)]);
+    if(dResp>0) items.push([true, ta('whEvoResp')(dResp)]);
+    if(dConf>0) items.push([true, ta('whEvoConf')(dConf)]);
     if(dRisk>0) items.push([true, ta('whEvoRisks')(dRisk)]);
-    if(dIdx!==0) items.push([dIdx>0, ta('whEvoIdx')(dIdx)]);
-    body = items.length
-      ? `<ul class="wh-evo">${items.map(it=>`<li class="${it[0]?'up':'down'}"><span>${it[0]?'↑':'↓'}</span>${it[1]}</li>`).join('')}</ul>`
-      : `<div class="wh-evo-note">${ta('whEvoNoChange')}</div>`;
+    // O índice só é comparável se as mesmas áreas tinham dados nos dois dias.
+    if(typeof p.av==='string' && p.av===c.av){
+      const dIdx = c.idx - p.idx;
+      if(dIdx!==0) items.push([dIdx>0, ta('whEvoIdx')(dIdx)]);
+    }
+    body = `<div class="wh-evo-since">${ta('whEvoSince')(ev.ageDays)}</div>` + (items.length
+      ? `<ul class="wh-evo">${items.map(it=>`<li class="${it[0]?'up':'down'}"><span aria-hidden="true">${it[0]?'↑':'↓'}</span>${it[1]}</li>`).join('')}</ul>`
+      : `<div class="wh-evo-note">${ta('whEvoNoChange')}</div>`);
   }
   return `<div class="wh-sec-title">${ta('whEvoTitle')}</div><div class="wh-card">${body}</div>`;
 }
@@ -12162,7 +12192,7 @@ function viewDefWeddingHealth(){
     <div class="wh-hero">
       <div class="wh-eyebrow">${ta('whEyebrow')}</div>
       <div class="wh-hero-row">
-        <div class="wh-ring">${donutSVG(idx.score/100, col, 100, 9)}<div class="wh-ring-c"><b>${idx.score}</b><span>/100</span></div></div>
+        <div class="wh-ring" role="img" aria-label="${ta('whEyebrow')}: ${idx.score}/100">${donutSVG(idx.score/100, col, 100, 9)}<div class="wh-ring-c"><b>${idx.score}</b><span>/100</span></div></div>
         <div class="wh-hero-txt"><div class="wh-h">${head}</div><div class="wh-p">${msg}</div></div>
       </div>
       ${how}
@@ -14197,6 +14227,9 @@ function bindHandlers(){
       }
       _origRender();
     });
+  });
+  document.querySelectorAll('[data-healthgoto][role="button"]').forEach(el=>{
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); } });
   });
   document.querySelectorAll('[data-whretry]').forEach(el=>el.addEventListener('click', ()=>_origRender()));
   const defBack = document.getElementById('def-back');
@@ -18803,6 +18836,8 @@ function computeActivityEvents(prev, next){
   if(!prev || !next) return ev;
   const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
   keys.forEach(k=>{
+    // healthHistory é um registo automático do Wedding Health, não uma ação dos noivos.
+    if(k==='healthHistory') return;
     const a = prev[k], b = next[k];
     let same = true;
     try{ same = JSON.stringify(a) === JSON.stringify(b); }catch(e){ same = false; }
