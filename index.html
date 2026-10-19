@@ -873,19 +873,25 @@ html{
 .prem-plan-price{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; color:var(--rust-dark); }
 .prem-legal{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:12px; line-height:1.5; }
 .prem-legal a{ color:var(--rust-dark); font-weight:600; }
-.pn-card{ position:relative; width:100%; max-width:380px; background:var(--card,#fff); border-radius:24px; padding:26px 22px 18px; box-shadow:0 18px 50px rgba(60,40,30,0.25); text-align:center; }
-.pn-close{ all:unset; position:absolute; top:10px; right:10px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); border-radius:50%; }
+.pn-card{ position:relative; width:100%; max-width:380px; max-height:calc(100dvh - 32px); overflow-y:auto; background:linear-gradient(180deg,#FFFBF6 0%,#FBF1E8 100%); border-radius:26px; padding:24px 20px 14px; box-shadow:0 18px 50px rgba(60,40,30,0.28); text-align:center; }
+.pn-close{ all:unset; position:absolute; top:8px; right:8px; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); border-radius:50%; }
+.pn-close:focus-visible, .pn-later:focus-visible{ outline:2px solid var(--rust); outline-offset:2px; }
 .pn-close svg{ width:18px; height:18px; }
-.pn-icon{ width:54px; height:54px; margin:0 auto 12px; border-radius:50%; background:rgba(193,88,62,0.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
-.pn-icon svg{ width:26px; height:26px; }
-.pn-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; line-height:1.15; color:var(--heading); margin-bottom:8px; }
+.pn-icon{ width:48px; height:48px; margin:0 auto 10px; border-radius:50%; background:rgba(193,88,62,0.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
+.pn-icon svg{ width:24px; height:24px; }
+.pn-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:27px; line-height:1.1; color:var(--heading); margin:0 8px 8px; }
 .pn-desc{ font-size:13.5px; color:var(--ink-soft); line-height:1.45; margin-bottom:14px; }
-.pn-list{ list-style:none; margin:0 0 14px; padding:0; text-align:left; display:flex; flex-direction:column; gap:8px; }
-.pn-list li{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.4; color:var(--ink); }
-.pn-check{ width:18px; height:18px; flex-shrink:0; color:var(--rust); margin-top:1px; }
+.pn-list{ list-style:none; margin:0 0 10px; padding:0; text-align:left; display:flex; flex-direction:column; gap:9px; }
+.pn-list li{ display:flex; gap:12px; align-items:center; font-size:14px; line-height:1.35; color:var(--ink); }
+.pn-check{ width:34px; height:34px; flex-shrink:0; border-radius:50%; background:rgba(193,88,62,0.11); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
 .pn-check svg{ width:18px; height:18px; }
-.pn-price{ font-size:13px; font-weight:700; color:var(--ink); margin-bottom:12px; }
-.pn-later{ all:unset; display:block; width:100%; box-sizing:border-box; padding:12px 0 6px; margin-top:4px; font-size:14px; color:var(--ink-soft); cursor:pointer; text-align:center; }
+.pn-art{ display:block; width:100%; max-width:260px; height:auto; margin:0 auto 8px; }
+@media (max-height:720px){ .pn-art{ display:none; } .pn-desc{ margin-bottom:10px; } }
+.pn-price{ display:flex; align-items:center; gap:14px; text-align:left; background:rgba(193,88,62,0.09); border-radius:16px; padding:10px 16px; margin-bottom:12px; }
+.pn-price-l{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--rust-dark); }
+.pn-price-n{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:38px; line-height:1; color:var(--heading); }
+.pn-price-t{ font-family:'Cormorant Garamond',serif; font-size:14px; line-height:1.3; color:var(--ink-soft); border-left:1px solid rgba(60,40,30,0.18); padding-left:14px; }
+.pn-later{ all:unset; display:block; width:100%; box-sizing:border-box; padding:12px 0 6px; margin-top:2px; font-size:14px; color:var(--ink-soft); cursor:pointer; text-align:center; }
 
 /* --- Weddy Premium: RSVP --- */
 .rsvp-pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
@@ -3833,13 +3839,13 @@ const APP_I18N = {
     premGroupGuests:'Convidados e confirmações', premGroupControl:'Organização e controlo', premGroupAsk:'Dúvidas e memórias',
     premFreeTitle:'Continuas com acesso gratuito a', premFreeText:'orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares. Nada disto muda.',
     premPlanName:'Weddy Premium · 12 meses', premPlanPrice:'30€', premPlanNote:'Pagamento único. Sem renovação automática.',
-    nudgeTitle:'O teu casamento merece uma ajuda extra.',
-    nudgeDesc:'Simplifica a organização do teu grande dia com as ferramentas exclusivas da Weddy Premium.',
-    nudgeB1:'Convites RSVP com link individual por convidado',
-    nudgeB2:'Weddy AI a organizar os convidados pelas mesas',
-    nudgeB3:'Assistente Weddy e pesquisa nos teus contratos',
-    nudgePrice:'30 € · Pagamento único · Sem renovação.',
-    nudgeCta:'Conhecer o Premium', nudgeLater:'Agora não', nudgeCloseLabel:'Fechar',
+    nudgeTitle:'Mais tranquilidade para o vosso grande dia.',
+    nudgeDesc:'Tudo o que precisam para organizar o casamento com mais confiança, num só lugar.',
+    nudgeB1:'RSVP individual para cada convidado',
+    nudgeB2:'Weddy AI para ajudar a organizar as mesas',
+    nudgeB3:'Assistente Weddy e pesquisa nos contratos',
+    nudgePriceLabel:'Preço', nudgePriceNote:'Pagamento único · Sem renovação.',
+    nudgeCta:'Quero conhecer o Premium', nudgeLater:'Continuar com a versão gratuita', nudgeCloseLabel:'Fechar',
     premConditionsLead:'Antes de pagares podes ver os', premTermsLink:'Termos', premPrivacyLink:'Política de Privacidade',
     premiumTileRSVP:'Confirma a presença e as respostas dos convidados.',
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Tira as tuas dúvidas em tempo real.',
@@ -5063,13 +5069,13 @@ const APP_I18N = {
     premGroupGuests:'Guests and replies', premGroupControl:'Organization and control', premGroupAsk:'Questions and memories',
     premFreeTitle:'You keep free access to', premFreeText:'budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues. None of this changes.',
     premPlanName:'Weddy Premium · 12 months', premPlanPrice:'€30', premPlanNote:'One-time payment. No automatic renewal.',
-    nudgeTitle:'Your wedding deserves a little extra help.',
-    nudgeDesc:'Simplify planning your big day with the exclusive tools in Weddy Premium.',
-    nudgeB1:'RSVP invitations with one link per guest',
-    nudgeB2:'Weddy AI arranging guests at the tables',
-    nudgeB3:'Weddy Assistant and search in your contracts',
-    nudgePrice:'€30 · One-time payment · No renewal.',
-    nudgeCta:'Discover Premium', nudgeLater:'Not now', nudgeCloseLabel:'Close',
+    nudgeTitle:'More peace of mind for your big day.',
+    nudgeDesc:'Everything you need to plan your wedding with more confidence, in one place.',
+    nudgeB1:'Individual RSVP for every guest',
+    nudgeB2:'Weddy AI to help arrange the tables',
+    nudgeB3:'Weddy Assistant and contract search',
+    nudgePriceLabel:'Price', nudgePriceNote:'One-time payment · No renewal.',
+    nudgeCta:'I want to discover Premium', nudgeLater:'Continue with the free version', nudgeCloseLabel:'Close',
     premConditionsLead:'Before you pay you can read the', premTermsLink:'Terms', premPrivacyLink:'Privacy Policy',
     premiumTileRSVP:"Confirm attendance and your guests' responses.",
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Get your questions answered in real time.',
@@ -19738,7 +19744,10 @@ function openPremiumNudge(){
   el.id = 'premium-nudge-overlay';
   el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','premium-nudge-title');
   el.style.cssText = 'position:fixed; inset:0; z-index:9000; background:rgba(30,26,23,0.5); display:flex; align-items:center; justify-content:center; padding:20px;';
-  const checks = ['nudgeB1','nudgeB2','nudgeB3'].map(k=>`<li><span class="pn-check">${ICONS.check}</span><span>${ta(k)}</span></li>`).join('');
+  const checkIcons = [ICONS.guests, ICONS.sparkle, ICONS.docnote];
+  const checks = ['nudgeB1','nudgeB2','nudgeB3'].map((k,i)=>`<li><span class="pn-check" aria-hidden="true">${checkIcons[i]||ICONS.check}</span><span>${ta(k)}</span></li>`).join('');
+  // Ilustração decorativa leve (mesas + lista de convidados), sem texto nem dados fictícios.
+  const art = `<svg class="pn-art" viewBox="0 0 260 84" aria-hidden="true" focusable="false"><ellipse cx="130" cy="44" rx="124" ry="38" fill="rgba(193,88,62,0.07)"/><g fill="#F3D9CB" stroke="#C1583E" stroke-opacity=".35"><circle cx="52" cy="40" r="14"/><circle cx="96" cy="26" r="12"/><circle cx="92" cy="58" r="12" fill="#E7D8BE"/></g><g fill="#fff" stroke="#C1583E" stroke-opacity=".4"><circle cx="52" cy="20" r="3.5"/><circle cx="52" cy="60" r="3.5"/><circle cx="32" cy="40" r="3.5"/><circle cx="72" cy="40" r="3.5"/><circle cx="96" cy="8" r="3"/><circle cx="76" cy="26" r="3"/><circle cx="116" cy="26" r="3"/><circle cx="92" cy="76" r="3"/><circle cx="72" cy="58" r="3"/><circle cx="112" cy="58" r="3"/></g><rect x="140" y="12" width="104" height="62" rx="10" fill="#fff" stroke="#C1583E" stroke-opacity=".18"/><g fill="#C1583E" fill-opacity=".25"><rect x="170" y="22" width="44" height="4" rx="2"/><rect x="170" y="37" width="36" height="4" rx="2"/><rect x="170" y="52" width="48" height="4" rx="2"/></g><g fill="#7A9471"><circle cx="228" cy="24" r="4"/><circle cx="228" cy="39" r="4"/></g><circle cx="228" cy="54" r="4" fill="#D8A657"/><g fill="#F3D9CB"><circle cx="156" cy="24" r="6"/><circle cx="156" cy="39" r="6"/><circle cx="156" cy="54" r="6"/></g></svg>`;
   el.innerHTML = `
     <div class="pn-card">
       <button type="button" class="pn-close" id="premium-nudge-x" aria-label="${ta('nudgeCloseLabel')}">${ICONS.x}</button>
@@ -19746,7 +19755,8 @@ function openPremiumNudge(){
       <div class="pn-title" id="premium-nudge-title">${ta('nudgeTitle')}</div>
       <div class="pn-desc">${ta('nudgeDesc')}</div>
       <ul class="pn-list">${checks}</ul>
-      <div class="pn-price">${ta('nudgePrice')}</div>
+      ${art}
+      <div class="pn-price"><div><div class="pn-price-l">${ta('nudgePriceLabel')}</div><div class="pn-price-n">30 €</div></div><div class="pn-price-t">${ta('nudgePriceNote')}</div></div>
       <button type="button" class="login-btn pn-cta" id="premium-nudge-cta" style="max-width:none;">${ta('nudgeCta')}</button>
       <button type="button" class="pn-later" id="premium-nudge-later">${ta('nudgeLater')}</button>
     </div>`;
