@@ -799,6 +799,23 @@ html{
 .premium-upsell-list{ list-style:none; margin:0 0 22px; padding:0; text-align:left; display:flex; flex-direction:column; gap:10px; }
 .premium-upsell-list li{ display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
 .premium-upsell-list li svg{ width:17px; height:17px; color:var(--rust); flex-shrink:0; }
+.prem-sale{ text-align:left; }
+.prem-sale .premium-upsell-title, .prem-sale .premium-upsell-text{ text-align:center; }
+.prem-group{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px 14px; margin-bottom:10px; }
+.prem-group-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:16px; color:var(--heading); margin-bottom:6px; }
+.prem-row{ display:flex; gap:12px; align-items:flex-start; padding:8px 0; }
+.prem-row + .prem-row{ border-top:1px solid var(--line); }
+.prem-row-icon{ width:34px; height:34px; border-radius:50%; background:rgba(193,88,62,0.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.prem-row-icon svg{ width:17px; height:17px; }
+.prem-row-title{ font-size:14px; font-weight:600; color:var(--ink); }
+.prem-row-desc{ font-size:12.5px; color:var(--ink-soft); line-height:1.4; margin-top:1px; }
+.prem-free{ font-size:12.5px; color:var(--ink-soft); line-height:1.45; padding:4px 4px 12px; }
+.prem-plan{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card); border:1.5px solid var(--rust); border-radius:18px; padding:14px 16px; margin-bottom:14px; }
+.prem-plan-name{ font-size:14.5px; font-weight:700; color:var(--ink); }
+.prem-plan-note{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+.prem-plan-price{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; color:var(--rust-dark); }
+.prem-legal{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:12px; line-height:1.5; }
+.prem-legal a{ color:var(--rust-dark); font-weight:600; }
 /* --- Weddy Premium: RSVP --- */
 .rsvp-pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
 .rsvp-pill-pending{ background:rgba(20,20,20,0.07); color:var(--ink-soft); }
@@ -3728,9 +3745,17 @@ const APP_I18N = {
     confirmCancelSubscriptionText:'Isto cancela já a subscrição Weddy Premium — todas as funcionalidades Premium (RSVP, Wedding Health, Memórias, Documentos, Google Calendar, Assistente) ficam bloqueadas de imediato. Confirmas?',
     alertSubscriptionCancelError:'Não foi possível cancelar a subscrição agora — verifica a ligação e tenta de novo.',
     homePremiumSectionLabel:'Weddy Premium',
-    premiumHubTitle:'Ferramentas Weddy', premiumHubDesc:'Tudo o que precisas para organizar o grande dia, num só lugar.',
+    premiumHubTitle:'Ferramentas Weddy', premiumHubDesc:'Tudo o que precisas para organizar o teu casamento num só lugar.',
     premiumHubBadge:'Weddy Premium',
-    premiumHubCtaTitle:'Desbloqueia todas as ferramentas', premiumHubCtaDesc:'Torna a tua organização ainda mais completa.',
+    premiumHubCtaTitle:'Mais controlo, menos stress.', premiumHubCtaDesc:'Descobre o que o Weddy Premium desbloqueia.',
+    premiumHubCtaBtn:'Conhecer o Premium',
+    premSaleTitle:'O teu casamento, mais simples e organizado.',
+    premSaleIntro:'O Weddy Premium reúne as ferramentas que ajudam a gerir convidados, documentos e datas com mais calma.',
+    premSaleLockedIntro:(t)=>`«${t}» faz parte do Weddy Premium, que reúne as ferramentas para gerir convidados, documentos e datas com mais calma.`,
+    premGroupGuests:'Convidados e confirmações', premGroupControl:'Organização e controlo', premGroupAsk:'Dúvidas e memórias',
+    premFreeTitle:'Continua gratuito', premFreeText:'Orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares.',
+    premPlanName:'Weddy Premium · 12 meses', premPlanPrice:'30€', premPlanNote:'Pagamento único. Sem renovação automática.',
+    premConditionsLead:'Antes de pagares podes ver os', premTermsLink:'Termos', premPrivacyLink:'Política de Privacidade',
     premiumTileRSVP:'Confirma a presença e as respostas dos convidados.',
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Tira as tuas dúvidas em tempo real.',
     premiumTileHealthDesc:'Um raio-x rápido ao estado do casamento.',
@@ -4875,9 +4900,17 @@ const APP_I18N = {
     confirmCancelSubscriptionText:'This cancels your Weddy Premium subscription right away — every Premium feature (RSVP, Wedding Health, Memories, Documents, Google Calendar, Assistant) is locked immediately. Confirm?',
     alertSubscriptionCancelError:'Could not cancel the subscription right now — check your connection and try again.',
     homePremiumSectionLabel:'Weddy Premium',
-    premiumHubTitle:'Weddy tools', premiumHubDesc:'Everything you need to plan the big day, all in one place.',
+    premiumHubTitle:'Weddy tools', premiumHubDesc:'Everything you need to plan your wedding in one place.',
     premiumHubBadge:'Weddy Premium',
-    premiumHubCtaTitle:'Unlock every tool', premiumHubCtaDesc:'Make your planning even more complete.',
+    premiumHubCtaTitle:'More control, less stress.', premiumHubCtaDesc:'See what Weddy Premium unlocks.',
+    premiumHubCtaBtn:'Discover Premium',
+    premSaleTitle:'Your wedding, simpler and organized.',
+    premSaleIntro:'Weddy Premium brings together the tools that help you manage guests, documents and dates more calmly.',
+    premSaleLockedIntro:(t)=>`"${t}" is part of Weddy Premium, which brings together the tools to manage guests, documents and dates more calmly.`,
+    premGroupGuests:'Guests and replies', premGroupControl:'Organization and control', premGroupAsk:'Questions and memories',
+    premFreeTitle:'Still free', premFreeText:'Budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues.',
+    premPlanName:'Weddy Premium · 12 months', premPlanPrice:'€30', premPlanNote:'One-time payment. No automatic renewal.',
+    premConditionsLead:'Before you pay you can read the', premTermsLink:'Terms', premPrivacyLink:'Privacy Policy',
     premiumTileRSVP:"Confirm attendance and your guests' responses.",
     premiumTileChatbot:'Chatbot', premiumTileChatbotDesc:'Get your questions answered in real time.',
     premiumTileHealthDesc:'A quick check-up on your wedding.',
@@ -6455,7 +6488,7 @@ function premiumFeatureGrid(){
         <div class="premium-hub-cta-desc">${ta('premiumHubCtaDesc')}</div>
         <div class="premium-hub-cta-desc" style="font-weight:700; margin-top:2px;">${ta('premiumPriceYearNote')}</div>
       </div>
-      <button class="premium-hub-cta-btn js-premium-subscribe">${ta('btnSubscribePremium')} ${ICONS.chev}</button>
+      <button class="premium-hub-cta-btn" data-premiumgoto="subscricao">${ta('premiumHubCtaBtn')} ${ICONS.chev}</button>
     </div>
     ${restorePurchasesLinkHTML()}`}
   </div>`;
@@ -11142,36 +11175,54 @@ async function handleDocumentUpload(fileList){
 }
 
 function viewDefPremiumLocked(title){
-  // Pedido da Rita (Set 2026): esta lista só mostrava 2 funcionalidades
-  // (RSVP e Assistente) — passou a mostrar todas as que ficam desbloqueadas
-  // com a subscrição, tal como já estão descritas noutros sítios da app
-  // (premiumFeatureGrid da Home, subscriptionFeature* da página "Gerir
-  // subscrição"), sem inventar nada de novo.
-  const features = [
-    [ICONS.mail, ta('premiumFeatureRSVP')],
-    [ICONS.chat, ta('premiumFeatureAssistant')],
-    [ICONS.guests, ta('subscriptionFeatureGuests')],
-    [ICONS.sparkle, ta('premiumTileAISeatingDesc')],
-    [ICONS.warn||ICONS.checklist, ta('premiumTileHealthDesc')],
-    [ICONS.camera, ta('premiumTileMemoriesDesc')],
-    [ICONS.docnote||ICONS.checklist, ta('premiumTileDocumentosDesc')],
-    [ICONS.calendar, ta('premiumTileGoogleCalDesc')],
+  // Página de venda do Premium (Out 2026). Só mostra o que existe: um único
+  // plano de 30€, pagamento único, 12 meses, sem renovação automática, e as
+  // funcionalidades que estão realmente bloqueadas atrás de
+  // hasActiveSubscription(). Agrupadas por necessidade.
+  const groups = [
+    [ta('premGroupGuests'), [
+      [ICONS.mail, ta('rsvpTitle'), ta('premiumTileRSVP')],
+      [ICONS.sparkle, ta('aiSeatingTitle'), ta('premiumTileAISeatingDesc')],
+    ]],
+    [ta('premGroupControl'), [
+      [ICONS.warn||ICONS.checklist, ta('healthTitle'), ta('premiumTileHealthDesc')],
+      [ICONS.docnote||ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc')],
+      [ICONS.calendar, ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc')],
+    ]],
+    [ta('premGroupAsk'), [
+      [ICONS.chat, ta('premiumTileChatbot'), ta('premiumFeatureAssistant')],
+      [ICONS.camera, ta('memoriesTitle'), ta('premiumTileMemoriesDesc')],
+    ]],
   ];
-  const listHtml = features.map(([icon,label])=>`
-    <li>
-      <div style="width:34px; height:34px; border-radius:50%; background:rgba(193,88,62,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">${icon}</div>
-      <div style="flex:1;">${label}</div>
-    </li>`).join('');
+  const groupsHtml = groups.map(([gt, rows])=>`
+    <div class="prem-group">
+      <div class="prem-group-title">${gt}</div>
+      ${rows.map(([icon,t,d])=>`
+      <div class="prem-row">
+        <div class="prem-row-icon">${icon}</div>
+        <div class="prem-row-mid"><div class="prem-row-title">${t}</div><div class="prem-row-desc">${d}</div></div>
+      </div>`).join('')}
+    </div>`).join('');
+  const isGeneric = title===ta('subscriptionTitle');
+  const intro = isGeneric ? ta('premSaleIntro') : ta('premSaleLockedIntro')(title);
   return `
-  ${defSubHeader(title)}
-  <div class="premium-upsell">
+  ${defSubHeader(isGeneric ? 'Weddy Premium' : title)}
+  <div class="premium-upsell prem-sale">
     <div class="premium-upsell-icon">${ICONS.sparkle}</div>
-    <div class="premium-upsell-title">Weddy Premium</div>
-    <div class="premium-upsell-text">${ta('premiumLockedText')(title)}</div>
-    <ul class="premium-upsell-list">${listHtml}</ul>
-    <div class="l" style="margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600;">${ta('premiumPriceYearNote')}</div>
+    <div class="premium-upsell-title">${ta('premSaleTitle')}</div>
+    <div class="premium-upsell-text">${intro}</div>
+    ${groupsHtml}
+    <div class="prem-free"><strong>${ta('premFreeTitle')}:</strong> ${ta('premFreeText')}</div>
+    <div class="prem-plan">
+      <div class="prem-plan-mid">
+        <div class="prem-plan-name">${ta('premPlanName')}</div>
+        <div class="prem-plan-note">${ta('premPlanNote')}</div>
+      </div>
+      <div class="prem-plan-price">${ta('premPlanPrice')}</div>
+    </div>
     <button class="login-btn js-premium-subscribe" style="max-width:none;">${ta('btnSubscribePremium')}</button>
     ${restorePurchasesLinkHTML()}
+    <div class="prem-legal">${ta('premConditionsLead')} <a href="#" data-openterms>${ta('premTermsLink')}</a> · <a href="#" data-openprivacy>${ta('premPrivacyLink')}</a>.</div>
   </div>
   `;
 }
