@@ -16455,6 +16455,10 @@ async function reauthenticateForAccountDeletion(user, pass){
     return user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, pass));
   }
   if(ids.includes('google.com')){
+    if(nativeGooglePlugin()){
+      const gc = await nativeGoogleCredential();
+      return user.reauthenticateWithCredential(gc);
+    }
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ login_hint: user.email || '' });
     return user.reauthenticateWithPopup(provider);
@@ -17278,6 +17282,34 @@ function handleAuthSubmit(){
 // o estado) e só caímos para signInWithRedirect como último recurso, se o
 // próprio browser recusar mesmo abrir o popup (ambientes muito restritos,
 // ex.: certas webviews Android antigas).
+// Login Google NATIVO (app iOS/Android). Dentro da WebView, a Google abre uma
+// janela externa e o Firebase perde o estado ao voltar ("missing initial
+// state"). Com o plugin nativo (@capacitor-firebase/authentication, com
+// skipNativeAuth) a Google abre a sua folha própria, sem sair da app, e
+// devolve o idToken; depois entramos no Firebase JS com esse token.
+// Se a app instalada ainda não tem o plugin (versão antiga), devolve null e
+// tudo continua a funcionar como antes.
+function nativeGooglePlugin(){
+  try{
+    const C = window.Capacitor;
+    if(!(C && C.isNativePlatform && C.isNativePlatform())) return null;
+    const P = C.Plugins && C.Plugins.FirebaseAuthentication;
+    return (P && typeof P.signInWithGoogle==='function') ? P : null;
+  }catch(e){ return null; }
+}
+async function nativeGoogleCredential(){
+  const P = nativeGooglePlugin();
+  if(!P) return null;
+  const res = await P.signInWithGoogle({ skipNativeAuth:true });
+  const c = res && res.credential;
+  const idToken = c && c.idToken;
+  if(!idToken) throw new Error('google-no-idtoken');
+  return firebase.auth.GoogleAuthProvider.credential(idToken, (c && c.accessToken) || null);
+}
+function isNativeGoogleCancel(err){
+  const m = String((err && (err.message||err.code)) || '').toLowerCase();
+  return /cancel|dismiss|12501|-5\b/.test(m);
+}
 function isStandaloneApp(){
   try{
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
@@ -17313,6 +17345,15 @@ function handleGoogleSignIn(){
     else msg = ta('authErrGeneric')((err && (err.code||err.message))||'unknown error');
     renderLoginForm(msg, true);
   };
+  if(nativeGooglePlugin()){
+    nativeGoogleCredential()
+      .then(cred=> auth.signInWithCredential(cred))
+      .catch(err=>{
+        if(isNativeGoogleCancel(err)){ if(btn) btn.disabled = false; return; }
+        showError(err);
+      });
+    return;
+  }
   auth.signInWithPopup(provider).catch(err=>{
     // Só cai para redirect se o browser realmente recusar abrir o popup —
     // nunca por estarmos em modo instalado (ver comentário acima).
@@ -17480,7 +17521,8 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
       if(!auth.currentUser) throw new Error('sem sessão');
       let gcred = null;
       try{
-        await auth.currentUser.linkWithPopup(provider);
+        if(nativeGooglePlugin()){ const gc0 = await nativeGoogleCredential(); await auth.currentUser.linkWithCredential(gc0); }
+        else await auth.currentUser.linkWithPopup(provider);
         // A Google ainda não existia noutra conta: esta conta Apple passa a ter a Google.
         pendingAppleCredential = null;
         findOrCreateFlow(auth.currentUser);
@@ -17508,7 +17550,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     }catch(err){
       accountDeletionInProgress = false;
       console.error('Weddy link Google error:', err && err.code, err && err.message);
-      const cancelled = err && (err.code==='1001' || err.code===1001 || err.code==='auth/popup-closed-by-user' || err.code==='auth/cancelled-popup-request');
+      const cancelled = err && (isNativeGoogleCancel(err) || err.code==='1001' || err.code===1001 || err.code==='auth/popup-closed-by-user' || err.code==='auth/cancelled-popup-request');
       let m = cancelled ? '' : (err && err.code==='auth/popup-blocked') ? ta('authErrPopupBlocked') : ta('authErrGeneric')((err && (err.code||err.message))||'unknown error');
       if(auth.currentUser && (auth.currentUser.providerData||[]).some(p=>p.providerId==='apple.com') && auth.currentUser.providerData.length===1) renderAppleLinkChoice(auth.currentUser, knownEmail, m);
       else if(!auth.currentUser) renderLoginForm(m, !!m);
