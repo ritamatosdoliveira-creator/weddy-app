@@ -273,6 +273,63 @@ html{
 .ring-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
 .ring-label-arrow{ display:inline-flex; color:var(--ink-soft); }
 .ring-label-arrow svg{ width:10px; height:10px; }
+.wh-wrap{ padding:0 16px 28px; }
+.wh-hero{ background:linear-gradient(160deg,#FBF3EA 0%,#F4E3D7 100%); border:1px solid rgba(193,88,62,0.14); border-radius:22px; padding:18px; box-shadow:0 6px 22px rgba(120,70,40,0.08); margin-bottom:6px; }
+.wh-eyebrow{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--rust-dark,#A04A33); margin-bottom:10px; }
+.wh-hero-row{ display:flex; align-items:center; gap:16px; }
+.wh-ring{ position:relative; width:104px; height:104px; flex-shrink:0; }
+.wh-ring svg{ width:100%; height:100%; }
+.wh-ring-c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.wh-ring-c b{ font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:600; line-height:1; color:var(--ink); }
+.wh-ring-c span{ font-size:11px; color:var(--ink-soft,#8a7f75); }
+.wh-h{ font-family:'Cormorant Garamond',serif; font-size:21px; line-height:1.2; color:var(--ink); font-weight:600; }
+.wh-p{ font-size:13.5px; line-height:1.45; color:var(--ink-soft,#6d625a); margin-top:6px; }
+.wh-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.wh-chip{ border:1px solid rgba(193,88,62,.35); background:#fff; color:var(--rust-dark,#A04A33); border-radius:999px; padding:7px 14px; font-size:13px; font-family:inherit; cursor:pointer; }
+.wh-how{ margin-top:14px; border-top:1px solid rgba(20,20,20,.08); padding-top:10px; font-size:13px; color:var(--ink-soft,#6d625a); }
+.wh-how summary{ cursor:pointer; color:var(--rust-dark,#A04A33); font-weight:500; list-style:none; }
+.wh-how summary::-webkit-details-marker{ display:none; }
+.wh-how ul{ margin:8px 0; padding-left:18px; }
+.wh-how li{ margin:5px 0; line-height:1.4; }
+.wh-how li.off{ opacity:.6; }
+.wh-how em{ font-style:normal; color:var(--ink); font-size:12px; }
+.wh-how p{ line-height:1.45; margin:8px 0 0; }
+.wh-sec-title{ font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); margin:20px 2px 10px; }
+.wh-card{ background:#fff; border:1px solid rgba(20,20,20,.07); border-radius:18px; box-shadow:0 3px 14px rgba(0,0,0,.04); overflow:hidden; }
+.wh-note{ padding:16px; font-size:13.5px; color:var(--ink-soft,#6d625a); line-height:1.45; }
+.wh-attn{ display:flex; align-items:center; gap:12px; padding:14px; border-bottom:1px solid rgba(20,20,20,.06); }
+.wh-attn:last-child{ border-bottom:none; }
+.wh-attn-ic{ width:36px; height:36px; border-radius:12px; background:rgba(193,88,62,.08); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.wh-attn-ic svg{ width:20px; height:20px; }
+.wh-attn-mid{ flex:1; min-width:0; }
+.wh-attn-t{ font-size:14.5px; font-weight:600; color:var(--ink); }
+.wh-attn-d{ font-size:13px; color:var(--ink-soft,#6d625a); margin-top:2px; line-height:1.35; }
+.wh-btn{ flex-shrink:0; border:none; background:var(--rust,#C1583E); color:#fff; border-radius:999px; padding:8px 14px; font-size:12.5px; font-family:inherit; cursor:pointer; }
+.wh-more summary{ cursor:pointer; padding:12px 14px; font-size:13px; color:var(--rust-dark,#A04A33); list-style:none; text-align:center; border-top:1px solid rgba(20,20,20,.06); }
+.wh-more summary::-webkit-details-marker{ display:none; }
+.wh-more[open] summary{ font-size:0; }
+.wh-more[open] summary::after{ content:attr(data-less); font-size:13px; }
+.wh-ok{ padding:20px 16px; text-align:center; }
+.wh-ok-t{ font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:#5F7A56; }
+.wh-ok-d{ font-size:13px; color:var(--ink-soft,#6d625a); margin-top:4px; }
+.wh-area{ display:flex; align-items:center; gap:12px; padding:14px; border-bottom:1px solid rgba(20,20,20,.06); cursor:pointer; }
+.wh-area:last-child{ border-bottom:none; }
+.wh-area-ic{ width:34px; height:34px; border-radius:11px; background:rgba(193,88,62,.08); color:var(--rust-dark,#A04A33); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.wh-area-ic svg{ width:18px; height:18px; }
+.wh-area-mid{ flex:1; min-width:0; }
+.wh-area-top{ display:flex; justify-content:space-between; align-items:baseline; }
+.wh-area-t{ font-size:14.5px; font-weight:600; color:var(--ink); }
+.wh-area-p{ font-size:13px; font-weight:600; }
+.wh-bar{ height:6px; border-radius:99px; background:rgba(20,20,20,.08); margin:7px 0 5px; overflow:hidden; }
+.wh-bar i{ display:block; height:100%; border-radius:99px; }
+.wh-area-m{ font-size:12.5px; color:var(--ink-soft,#6d625a); line-height:1.35; margin-top:3px; }
+.wh-area-chev{ color:var(--ink-soft,#9a8f85); flex-shrink:0; display:flex; }
+.wh-area-chev svg{ width:16px; height:16px; }
+.wh-evo{ list-style:none; margin:0; padding:6px 16px; }
+.wh-evo li{ padding:9px 0; font-size:14px; color:var(--ink); border-bottom:1px solid rgba(20,20,20,.06); display:flex; gap:10px; }
+.wh-evo li:last-child{ border-bottom:none; }
+.wh-evo li.up span{ color:#5F7A56; } .wh-evo li.down span{ color:#C0523F; }
+.wh-evo-note{ padding:16px; font-size:13.5px; color:var(--ink-soft,#6d625a); line-height:1.45; }
 .ring-wrap{ position:relative; width:92px; height:92px; }
 .ring-wrap svg{ width:100%; height:100%; }
 .ring-center{ position:absolute; inset:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; text-align:center; }
@@ -3817,6 +3874,67 @@ const APP_I18N = {
     healthCheckNoTable: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem mesa atribuída.`,
     healthCheckNoMeal: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem refeição escolhida.`,
     healthCheckSuppliers: n => `${n} fornecedor${n===1?'':'es'} ainda por contratar.`,
+    whEyebrow:"A saúde do vosso casamento",
+    whGoodHead:"Está tudo a evoluir bem", whGoodMsgNone:"Não há nada a precisar da vossa atenção neste momento.", whGoodMsg:"Há apenas alguns pontos a acompanhar.",
+    whAttnHead:"Há alguns detalhes que merecem a vossa atenção", whAttnMsg:"Nada de grave — resolvem-se com calma, um de cada vez.",
+    whUrgHead:"Existem prioridades importantes para resolver esta semana", whUrgMsg:"Vamos por partes: comecem pelas primeiras da lista abaixo.",
+    whUnknownTitle:"Ainda estamos a conhecer o estado do vosso casamento",
+    whUnknownDesc:"Ainda não há informação suficiente para calcular o índice com confiança — e preferimos não vos mostrar um número enganador.",
+    whUnknownNeed:"Para começar, preencham pelo menos duas destas áreas:",
+    whHowLink:"Como calculamos este resultado?",
+    whHowIntro:"O índice vai de 0 a 100 e junta cinco áreas, cada uma com um peso:",
+    whHowNote:"Só entram no cálculo as áreas com dados suficientes; as restantes não contam (nem a favor, nem contra) e os pesos são redistribuídos. É preciso haver pelo menos duas áreas com dados. O índice é calculado em cada abertura, a partir do que está registado na Weddy.",
+    whHowTasks:"Tarefas — atrasos face aos prazos que definiram, e quantas já estão concluídas.",
+    whHowGuests:"Convidados — respostas recebidas, com mais peso à medida que o casamento ou o prazo de resposta se aproxima.",
+    whHowBudget:"Orçamento — quanto do orçamento definido já foi gasto (a pontuação desce perto do limite e acima dele).",
+    whHowPayments:"Pagamentos — pagamentos em atraso ou próximos do prazo, quando têm data registada.",
+    whHowDecisions:"Decisões pendentes — convidados sem mesa ou sem refeição e fornecedores por contratar perto da data.",
+    whHowCounts:"conta", whHowNoData:"sem dados — não conta",
+    whAreasTitle:"Estado por área",
+    whAreaBudget:"Orçamento", whAreaGuests:"Convidados", whAreaTasks:"Tarefas", whAreaPayments:"Pagamentos",
+    whBudgetNone:"Ainda não definiram o orçamento total.",
+    whBudgetOk: (spent,total)=>`${spent} gastos de ${total}.`,
+    whBudgetNear: (spent,total)=>`${spent} de ${total} — perto do limite.`,
+    whBudgetOver: (over)=>`Ultrapassou o orçamento em ${over}.`,
+    whGuestsNone:"Ainda não adicionaram convidados.",
+    whGuestsAll:"Todos os convidados já responderam.",
+    whGuestsPart: (r,t,p)=>`${r} de ${t} responderam · ${p} pendente${p===1?'':'s'}.`,
+    whTasksNone:"Ainda não têm tarefas registadas.",
+    whTasksLate: (n,d,t)=>`${n} atrasada${n===1?'':'s'} · ${d} de ${t} concluídas.`,
+    whTasksOk: (d,t)=>`${d} de ${t} concluídas, nenhuma atrasada.`,
+    whPayNoDates:"Sem datas de pagamento registadas.",
+    whPayNone:"Sem pagamentos em aberto.",
+    whPayLate: n=>`${n} pagamento${n===1?'':'s'} em atraso.`,
+    whPaySoon: n=>`${n} pagamento${n===1?'':'s'} nos próximos 7 dias.`,
+    whPayUpcoming: n=>`${n} pagamento${n===1?'':'s'} nos próximos 15 dias.`,
+    whPayClear:"Nenhum pagamento próximo do prazo.",
+    whAttnTitle:"O que merece atenção agora?",
+    whAttnAllGood:"Está tudo em dia. Continuem assim!",
+    whAttnAllGoodDesc:"Não encontrámos nada a precisar da vossa atenção neste momento.",
+    whAttnNeedMore:"Ainda não conseguimos fazer uma análise completa.",
+    whAttnMore: n=>`Ver mais ${n}`,
+    whAttnLess:"Ver menos",
+    whT_rsvp:"Acompanhar confirmações", whA_rsvp:"Ver convidados",
+    whT_payLate:"Resolver pagamentos em atraso", whT_payments:"Rever pagamentos próximos do prazo", whA_pay:"Ver pagamentos",
+    whT_tasksLate:"Priorizar tarefas atrasadas", whA_tasks:"Ver tarefas",
+    whT_budget:"Rever o orçamento", whA_budget:"Ver orçamento",
+    whT_table:"Atribuir mesas", whA_table:"Ver mesas",
+    whT_meal:"Recolher escolhas de refeição", whA_meal:"Ver respostas",
+    whT_suppliers:"Fechar fornecedores", whA_suppliers:"Ver fornecedores",
+    whEvoTitle:"Evolução desde a semana passada",
+    whEvoStart:"A partir de hoje começamos a registar a evolução. A comparação semanal aparece quando houver uma semana de histórico.",
+    whEvoWait: n=>`Já começámos a registar. A comparação aparece daqui a ${n} dia${n===1?'':'s'}.`,
+    whEvoNoChange:"Sem alterações desde a semana passada.",
+    whEvoTasks: n=>`${n>0?'+':''}${n} tarefa${Math.abs(n)===1?'':'s'} concluída${Math.abs(n)===1?'':'s'}`,
+    whEvoResp: n=>`${n>0?'+':''}${n} resposta${Math.abs(n)===1?'':'s'} de convidados`,
+    whEvoConf: n=>`${n>0?'+':''}${n} confirmaç${Math.abs(n)===1?'ão':'ões'} de presença`,
+    whEvoRisks: n=>`${n} ponto${n===1?'':'s'} de atenção resolvido${n===1?'':'s'}`,
+    whEvoIdx: n=>`Estado geral ${n>0?'+':''}${n} ponto${Math.abs(n)===1?'':'s'}`,
+    whLoading:"A carregar os dados do casamento…",
+    whError:"Não foi possível analisar o casamento agora.", whRetry:"Tentar novamente",
+    healthCheckPaymentsLate: n => `Tens ${n} pagamento${n===1?'':'s'} em atraso.`,
+    healthCheckTasksLate: n => `${n} tarefa${n===1?'':'s'} com prazo já ultrapassado.`,
+    healthCheckBudgetNear: pct => `Já gastaram ${pct}% do orçamento definido.`,
     btnResolve:'Resolver',
     memoriesTitle:'Weddy Memories', memoriesDesc:'Fotos que os convidados partilharam contigo',
     documentsTitle:'Documentos do casamento', documentsDesc:'Carrega contratos em PDF e pesquisa neles pelo Assistente',
@@ -4986,6 +5104,67 @@ const APP_I18N = {
     healthCheckNoTable: n => `${n} confirmed guest${n===1?'':'s'} still without a table.`,
     healthCheckNoMeal: n => `${n} confirmed guest${n===1?'':'s'} still without a meal choice.`,
     healthCheckSuppliers: n => `${n} supplier${n===1?'':'s'} still not booked.`,
+    whEyebrow:"Your wedding's health",
+    whGoodHead:"Everything is going well", whGoodMsgNone:"Nothing needs your attention right now.", whGoodMsg:"Just a few points to keep an eye on.",
+    whAttnHead:"A few details deserve your attention", whAttnMsg:"Nothing serious — easy to sort out, one at a time.",
+    whUrgHead:"There are important priorities to handle this week", whUrgMsg:"One step at a time: start with the first ones below.",
+    whUnknownTitle:"We're still getting to know your wedding",
+    whUnknownDesc:"There isn't enough information yet to calculate the score reliably — and we'd rather not show you a misleading number.",
+    whUnknownNeed:"To get started, fill in at least two of these areas:",
+    whHowLink:"How do we calculate this?",
+    whHowIntro:"The score goes from 0 to 100 and combines five areas, each with a weight:",
+    whHowNote:"Only areas with enough data are counted; the others count neither for nor against, and the weights are redistributed. At least two areas need data. The score is recalculated each time you open this page, from what is saved in Weddy.",
+    whHowTasks:"Tasks — overdue deadlines you set, and how many are done.",
+    whHowGuests:"Guests — replies received, weighted more as the wedding or reply deadline gets closer.",
+    whHowBudget:"Budget — how much of your budget is spent (the score drops near the limit and above it).",
+    whHowPayments:"Payments — overdue or soon-due payments, when they have a date.",
+    whHowDecisions:"Pending decisions — guests without a table or meal, and suppliers not booked close to the date.",
+    whHowCounts:"counts", whHowNoData:"no data — not counted",
+    whAreasTitle:"Status by area",
+    whAreaBudget:"Budget", whAreaGuests:"Guests", whAreaTasks:"Tasks", whAreaPayments:"Payments",
+    whBudgetNone:"You haven't set a total budget yet.",
+    whBudgetOk: (spent,total)=>`${spent} spent of ${total}.`,
+    whBudgetNear: (spent,total)=>`${spent} of ${total} — close to the limit.`,
+    whBudgetOver: (over)=>`Over budget by ${over}.`,
+    whGuestsNone:"You haven't added guests yet.",
+    whGuestsAll:"All guests have replied.",
+    whGuestsPart: (r,t,p)=>`${r} of ${t} replied · ${p} pending.`,
+    whTasksNone:"No tasks yet.",
+    whTasksLate: (n,d,t)=>`${n} overdue · ${d} of ${t} done.`,
+    whTasksOk: (d,t)=>`${d} of ${t} done, none overdue.`,
+    whPayNoDates:"No payment dates recorded.",
+    whPayNone:"No open payments.",
+    whPayLate: n=>`${n} overdue payment${n===1?'':'s'}.`,
+    whPaySoon: n=>`${n} payment${n===1?'':'s'} in the next 7 days.`,
+    whPayUpcoming: n=>`${n} payment${n===1?'':'s'} in the next 15 days.`,
+    whPayClear:"No payments close to their due date.",
+    whAttnTitle:"What needs attention now?",
+    whAttnAllGood:"Everything is up to date. Keep it up!",
+    whAttnAllGoodDesc:"We found nothing that needs your attention right now.",
+    whAttnNeedMore:"We can't do a full analysis yet.",
+    whAttnMore: n=>`Show ${n} more`,
+    whAttnLess:"Show less",
+    whT_rsvp:"Follow up on RSVPs", whA_rsvp:"View guests",
+    whT_payLate:"Settle overdue payments", whT_payments:"Review payments coming due", whA_pay:"View payments",
+    whT_tasksLate:"Prioritise overdue tasks", whA_tasks:"View tasks",
+    whT_budget:"Review the budget", whA_budget:"View budget",
+    whT_table:"Assign tables", whA_table:"View tables",
+    whT_meal:"Collect meal choices", whA_meal:"View replies",
+    whT_suppliers:"Close with suppliers", whA_suppliers:"View suppliers",
+    whEvoTitle:"Progress since last week",
+    whEvoStart:"We start recording progress today. The weekly comparison appears once there is a week of history.",
+    whEvoWait: n=>`We've started recording. The comparison appears in ${n} day${n===1?'':'s'}.`,
+    whEvoNoChange:"No changes since last week.",
+    whEvoTasks: n=>`${n>0?'+':''}${n} task${Math.abs(n)===1?'':'s'} completed`,
+    whEvoResp: n=>`${n>0?'+':''}${n} guest repl${Math.abs(n)===1?'y':'ies'}`,
+    whEvoConf: n=>`${n>0?'+':''}${n} attendance confirmation${Math.abs(n)===1?'':'s'}`,
+    whEvoRisks: n=>`${n} attention point${n===1?'':'s'} resolved`,
+    whEvoIdx: n=>`Overall ${n>0?'+':''}${n} point${Math.abs(n)===1?'':'s'}`,
+    whLoading:"Loading your wedding data…",
+    whError:"We couldn't analyse your wedding right now.", whRetry:"Try again",
+    healthCheckPaymentsLate: n => `You have ${n} overdue payment${n===1?'':'s'}.`,
+    healthCheckTasksLate: n => `${n} task${n===1?'':'s'} past their deadline.`,
+    healthCheckBudgetNear: pct => `You've already spent ${pct}% of your budget.`,
     btnResolve:'Fix this',
     memoriesTitle:'Weddy Memories', memoriesDesc:'Photos your guests have shared with you',
     documentsTitle:'Wedding documents', documentsDesc:'Upload PDF contracts and search them through the Assistant',
@@ -6247,13 +6426,50 @@ function isRsvpPending(g){
   if(!g.entry.rsvpToken) return !isConfirmed(g.side, g.catId, g.idx);
   return !rsvpHasResponded(memberRSVPResponse(g));
 }
+// Urgência das respostas de RSVP (0.25 longe, 0.6 a aproximar-se, 1 perto/depois
+// do prazo). Usada no alerta e no índice: pendentes a 10 meses do casamento
+// não são um problema — só passam a ser quando o prazo ou a data se aproximam.
+function healthRsvpUrgency(){
+  const wd = weddingSettings.weddingDate ? daysUntil(weddingSettings.weddingDate) : null;
+  const dl = weddingSettings.rsvpDeadline ? daysUntil(weddingSettings.rsvpDeadline) : null;
+  if(dl!==null && dl<0) return 1;
+  if(wd!==null && wd<=30) return 1;
+  if((dl!==null && dl<=14) || (wd!==null && wd<=90)) return 0.6;
+  return 0.25;
+}
 function checkPendingRSVP(){
-  const pendentes = flattenAllGuestsForRSVP().filter(isRsvpPending).length;
+  const all = flattenAllGuestsForRSVP();
+  const pendentes = all.filter(isRsvpPending).length;
   if(pendentes<=0) return null;
-  return { id:'rsvp-pending', severity: pendentes>10?'red':'yellow', text: ta('healthCheckPendingRSVP')(pendentes), goto:{ def:'rsvp' } };
+  // Dados em falta / cedo demais não são falha: sem nenhuma resposta, sem
+  // prazo e com o casamento ainda longe (ou sem data), não há o que assinalar.
+  const responded = all.length - pendentes;
+  const wd = weddingSettings.weddingDate ? daysUntil(weddingSettings.weddingDate) : null;
+  if(responded===0 && !weddingSettings.rsvpDeadline && !(wd!==null && wd<=120)) return null;
+  return { id:'rsvp-pending', severity: (pendentes>10 && healthRsvpUrgency()>=0.6)?'red':'yellow', text: ta('healthCheckPendingRSVP')(pendentes), goto:{ def:'rsvp' } };
+}
+function checkOverduePayments(){
+  const late = getUpcomingPayments().filter(u=>u.overdue).length;
+  if(!late) return null;
+  return { id:'payments-overdue', severity:'red', text: ta('healthCheckPaymentsLate')(late), goto:{ tab:'gastos' } };
+}
+function checkTasksOverdue(){
+  let late = 0;
+  (state.todoCategories||[]).forEach(cat=>(cat.items||[]).forEach(it=>{
+    if(!it.done && it.due && daysUntil(it.due)<0) late++;
+  }));
+  if(!late) return null;
+  return { id:'tasks-overdue', severity: late>=3?'red':'yellow', text: ta('healthCheckTasksLate')(late), goto:{ tab:'todo' } };
+}
+function checkBudgetNear(){
+  const orcamento = state.budget && state.budget.total ? moneyNum(state.budget.total) : 0;
+  if(!(orcamento>0)) return null;
+  const pct = Math.round((totalExpenseValue()/orcamento)*100);
+  if(pct<90 || pct>100) return null;
+  return { id:'budget-near', severity:'yellow', text: ta('healthCheckBudgetNear')(pct), goto:{ tab:'orcamento' } };
 }
 function checkUpcomingPayments(){
-  const upcoming = getUpcomingPayments();
+  const upcoming = getUpcomingPayments().filter(u=>!u.overdue);
   if(!upcoming.length) return null;
   const soon = upcoming.filter(u=>u.days<=7).length;
   return {
@@ -6304,9 +6520,12 @@ function checkUnbookedVendors(){
 // Ordem = prioridade por defeito quando duas regras têm a mesma gravidade
 // (a ordenação final por vermelho/amarelo acontece em getWeddingHealthChecks).
 const healthRules = [
-  checkPendingRSVP,
-  checkUpcomingPayments,
+  checkOverduePayments,
+  checkTasksOverdue,
   checkBudget,
+  checkUpcomingPayments,
+  checkBudgetNear,
+  checkPendingRSVP,
   checkUnseatedGuests,
   checkMissingMeals,
   checkUnbookedVendors
@@ -6317,6 +6536,165 @@ function getWeddingHealthChecks(){
     .map(rule=>rule())
     .filter(Boolean)
     .sort((a,b)=> HEALTH_SEVERITY_ORDER[a.severity] - HEALTH_SEVERITY_ORDER[b.severity]);
+}
+
+// ------------------------------------------------------------
+// Wedding Health v2 (Out 2026): índice 0–100, estado por área e histórico.
+// Tudo calculado a partir dos dados REAIS do casamento; área sem dados
+// suficientes devolve avail:false e NÃO entra no índice (dados em falta
+// nunca contam como falha). Pesos: tarefas 30, convidados 25, orçamento 20,
+// pagamentos 15, decisões pendentes 10 (redistribuídos pelas áreas com dados).
+// ------------------------------------------------------------
+const HEALTH_WEIGHTS = { tasks:30, guests:25, budget:20, payments:15, decisions:10 };
+function healthClamp(n){ return Math.max(0, Math.min(100, Math.round(n))); }
+function healthTaskCounts(){
+  let total=0, done=0, overdue=0, withDue=0;
+  (state.todoCategories||[]).forEach(cat=>(cat.items||[]).forEach(it=>{
+    total++;
+    if(it.due) withDue++;
+    if(it.done) done++;
+    else if(it.due && daysUntil(it.due)<0) overdue++;
+  }));
+  let clTotal=0, clDone=0;
+  try{
+    CHECKLIST_PHASES_LIST().forEach(p=>p.tasks.forEach((t,i)=>{ clTotal++; if(state.checklistDone && state.checklistDone[p.id+'-'+i]) clDone++; }));
+  }catch(e){}
+  return { total:total+clTotal, done:done+clDone, overdue, withDue, todoDone:done };
+}
+function computeHealthAreas(checks){
+  checks = checks || getWeddingHealthChecks();
+  const fmt = fmtEUR;
+  const A = {};
+  // Tarefas
+  const T = healthTaskCounts();
+  const tPct = T.total>0 ? T.done/T.total : null;
+  const tAvail = T.total>0 && (T.done>0 || T.withDue>0);
+  A.tasks = {
+    key:'tasks', avail:tAvail, pct: tPct===null?null:Math.round(tPct*100), goto:'tab:todo',
+    score: tAvail ? healthClamp(0.85*(100-Math.min(60,T.overdue*15)) + 0.15*(tPct*100)) : null,
+    state: T.overdue>0 ? 'bad' : 'ok',
+    msg: T.total===0 ? ta('whTasksNone') : (T.overdue>0 ? ta('whTasksLate')(T.overdue,T.done,T.total) : ta('whTasksOk')(T.done,T.total))
+  };
+  // Convidados
+  const all = flattenAllGuestsForRSVP();
+  const gTotal = all.length;
+  const gPend = all.filter(isRsvpPending).length;
+  const gResp = gTotal - gPend;
+  const rate = gTotal>0 ? gResp/gTotal : null;
+  const u = healthRsvpUrgency();
+  A.guests = {
+    key:'guests', avail:gTotal>0, pct: rate===null?null:Math.round(rate*100), goto:'tab:convidados',
+    score: gTotal>0 ? healthClamp(100 - (1-rate)*100*u) : null,
+    state: gTotal===0 ? 'neutral' : (gPend===0 ? 'ok' : (u>=0.6 && rate<0.5 ? 'bad' : (u>=0.6 ? 'warn' : 'ok'))),
+    msg: gTotal===0 ? ta('whGuestsNone') : (gPend===0 ? ta('whGuestsAll') : ta('whGuestsPart')(gResp,gTotal,gPend))
+  };
+  // Orçamento
+  const budget = state.budget && state.budget.total ? moneyNum(state.budget.total) : 0;
+  const spent = totalExpenseValue();
+  let bScore=null, bState='neutral', bMsg=ta('whBudgetNone'), bPct=null;
+  if(budget>0){
+    const r = spent/budget;
+    bPct = Math.round(r*100);
+    bScore = r<=0.9 ? 100 : (r<=1 ? 100-(r-0.9)*300 : Math.max(0, 70-(r-1)*200));
+    bScore = healthClamp(bScore);
+    if(r>1){ bState='bad'; bMsg=ta('whBudgetOver')(fmt(spent-budget)); }
+    else if(r>=0.9){ bState='warn'; bMsg=ta('whBudgetNear')(fmt(spent),fmt(budget)); }
+    else { bState='ok'; bMsg=ta('whBudgetOk')(fmt(spent),fmt(budget)); }
+  }
+  A.budget = { key:'budget', avail:budget>0 && spent>0, pct:bPct, goto:'tab:orcamento', score:bScore, state:bState, msg:bMsg };
+  // Pagamentos
+  let pTotal=0, pPaid=0, pHasDates=false, pOpen=0;
+  (state.expenses||[]).forEach(e=>{
+    const v = moneyNum(e.value), paid = Math.min(v, moneyNum(e.paid));
+    if(v>0){ pTotal+=v; pPaid+=paid; if(v-paid>0){ pOpen++; if(e.dueDate) pHasDates=true; } }
+  });
+  const up = getUpcomingPayments();
+  const pLate = up.filter(x=>x.overdue).length;
+  const pSoon = up.filter(x=>!x.overdue && x.days<=7).length;
+  const pNext = up.filter(x=>!x.overdue && x.days>7).length;
+  const pAvail = pTotal>0 && (pHasDates || pOpen===0);
+  let pMsg, pState='ok';
+  if(pTotal===0){ pMsg=ta('whPayNoDates'); pState='neutral'; }
+  else if(pOpen===0){ pMsg=ta('whPayNone'); }
+  else if(pLate){ pMsg=ta('whPayLate')(pLate); pState='bad'; }
+  else if(pSoon){ pMsg=ta('whPaySoon')(pSoon); pState='warn'; }
+  else if(pNext){ pMsg=ta('whPayUpcoming')(pNext); pState='warn'; }
+  else if(!pHasDates){ pMsg=ta('whPayNoDates'); pState='neutral'; }
+  else { pMsg=ta('whPayClear'); }
+  A.payments = {
+    key:'payments', avail:pAvail, pct: pTotal>0 ? Math.round(pPaid/pTotal*100) : null, goto:'tab:gastos',
+    score: pAvail ? healthClamp(100 - Math.min(100, pLate*35 + pSoon*10 + pNext*3)) : null,
+    state:pState, msg:pMsg
+  };
+  // Decisões pendentes (mesas, refeições, fornecedores) — só no índice
+  const dChecks = checks.filter(c=>c.id==='no-table'||c.id==='no-meal'||c.id==='suppliers');
+  const dAvail = gTotal>0 || (state.suppliers||[]).length>0;
+  A.decisions = {
+    key:'decisions', avail:dAvail, pct:null, goto:null,
+    score: dAvail ? healthClamp(100 - dChecks.reduce((n,c)=>n+(c.severity==='red'?40:25),0)) : null,
+    state:'ok', msg:''
+  };
+  return A;
+}
+function computeHealthIndex(areas){
+  areas = areas || computeHealthAreas();
+  let wSum=0, acc=0, n=0;
+  Object.keys(HEALTH_WEIGHTS).forEach(k=>{
+    const a = areas[k];
+    if(a && a.avail && a.score!==null){ wSum+=HEALTH_WEIGHTS[k]; acc+=HEALTH_WEIGHTS[k]*a.score; n++; }
+  });
+  if(n<2 || wSum===0) return { score:null, count:n };
+  const score = healthClamp(acc/wSum);
+  return { score, count:n, band: score>=80 ? 'good' : (score>=60 ? 'attn' : 'urgent') };
+}
+// Histórico REAL (nunca retroativo): 1 registo por dia em que a página foi
+// aberta ou a app esteve aberta com Premium ativo. Máx. 90 registos.
+function healthSnapshotNow(){
+  const checks = getWeddingHealthChecks();
+  const idx = computeHealthIndex(computeHealthAreas(checks));
+  if(idx.score===null) return null;
+  const T = healthTaskCounts();
+  const all = flattenAllGuestsForRSVP();
+  return {
+    d: toLocalISODate(new Date()), idx: idx.score, done: T.done,
+    resp: all.length - all.filter(isRsvpPending).length,
+    conf: ALL_GUEST_SIDES.reduce((sum,sd)=>sum+countConfirmed(sd),0),
+    risks: checks.length
+  };
+}
+function recordHealthSnapshot(){
+  try{
+    const snap = healthSnapshotNow();
+    if(!snap) return false;
+    if(!Array.isArray(state.healthHistory)) state.healthHistory = [];
+    const last = state.healthHistory[state.healthHistory.length-1];
+    if(last && last.d===snap.d) return false;
+    state.healthHistory.push(snap);
+    if(state.healthHistory.length>90) state.healthHistory = state.healthHistory.slice(-90);
+    return true;
+  }catch(e){ return false; }
+}
+function maybeRecordHealthSnapshot(){
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !firstSyncDone) return;
+  if(!hasActiveSubscription()) return;
+  if(recordHealthSnapshot()) pushRemote();
+}
+setTimeout(maybeRecordHealthSnapshot, 45000);
+setInterval(maybeRecordHealthSnapshot, 600000);
+function healthEvolution(){
+  const hist = Array.isArray(state.healthHistory) ? state.healthHistory : [];
+  if(!hist.length) return { kind:'start' };
+  const today = new Date(toLocalISODate(new Date())+'T00:00:00');
+  const ageOf = h => Math.round((today - new Date(h.d+'T00:00:00'))/86400000);
+  let prev = null;
+  for(let i=hist.length-1;i>=0;i--){ const a = ageOf(hist[i]); if(a>=5 && a<=21){ prev = hist[i]; break; } }
+  if(!prev){
+    const oldest = ageOf(hist[0]);
+    return { kind:'wait', days: Math.max(1, 7-oldest) };
+  }
+  const cur = healthSnapshotNow();
+  if(!cur) return { kind:'wait', days:1 };
+  return { kind:'diff', prev, cur };
 }
 function viewInicio(){
   const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
@@ -11674,41 +12052,135 @@ function loadXlsxLib(){
   });
   return _xlsxLibPromise;
 }
+function whAttnMeta(id){
+  const M = {
+    'payments-overdue': ['whT_payLate','whA_pay','warn'],
+    'tasks-overdue': ['whT_tasksLate','whA_tasks','checklist'],
+    'budget-over': ['whT_budget','whA_budget','budget'],
+    'budget-near': ['whT_budget','whA_budget','budget'],
+    'payments': ['whT_payments','whA_pay','expenses'],
+    'rsvp-pending': ['whT_rsvp','whA_rsvp','guests'],
+    'no-table': ['whT_table','whA_table','tables'],
+    'no-meal': ['whT_meal','whA_meal','placesetting'],
+    'suppliers': ['whT_suppliers','whA_suppliers','briefcase']
+  };
+  return M[id] || ['healthTitle','btnResolve','warn'];
+}
+function whAttnRow(c){
+  const m = whAttnMeta(c.id);
+  const dot = c.severity==='red' ? '#C0523F' : '#D8A657';
+  const gotoAttr = c.goto ? `data-healthgoto="${c.goto.tab ? 'tab:'+c.goto.tab : 'def:'+c.goto.def}"` : '';
+  return `
+  <div class="wh-attn ${c.severity}">
+    <div class="wh-attn-ic" style="color:${dot};">${ICONS[m[2]]||ICONS.warn}</div>
+    <div class="wh-attn-mid">
+      <div class="wh-attn-t">${ta(m[0])}</div>
+      <div class="wh-attn-d">${c.text}</div>
+    </div>
+    ${c.goto ? `<button class="wh-btn" ${gotoAttr}>${ta(m[1])}</button>` : ''}
+  </div>`;
+}
+function whAreaRow(a){
+  const titles = { budget:'whAreaBudget', guests:'whAreaGuests', tasks:'whAreaTasks', payments:'whAreaPayments' };
+  const icons = { budget:ICONS.budget, guests:ICONS.guests, tasks:ICONS.checklist, payments:ICONS.expenses };
+  const colors = { ok:'#7A9471', warn:'#D8A657', bad:'#C0523F', neutral:'#B9AFA3' };
+  const col = colors[a.state] || colors.neutral;
+  const pct = a.pct===null ? null : Math.max(0, a.pct);
+  return `
+  <div class="wh-area tappable" data-healthgoto="${a.goto}">
+    <div class="wh-area-ic">${icons[a.key]||''}</div>
+    <div class="wh-area-mid">
+      <div class="wh-area-top"><span class="wh-area-t">${ta(titles[a.key])}</span>${pct!==null?`<span class="wh-area-p" style="color:${col};">${pct}%</span>`:''}</div>
+      ${pct!==null?`<div class="wh-bar"><i style="width:${Math.min(100,pct)}%; background:${col};"></i></div>`:''}
+      <div class="wh-area-m">${a.msg}</div>
+    </div>
+    <span class="wh-area-chev">${ICONS.chev}</span>
+  </div>`;
+}
+function whEvolutionHTML(){
+  const ev = healthEvolution();
+  let body;
+  if(ev.kind==='start') body = `<div class="wh-evo-note">${ta('whEvoStart')}</div>`;
+  else if(ev.kind==='wait') body = `<div class="wh-evo-note">${ta('whEvoWait')(ev.days)}</div>`;
+  else {
+    const p = ev.prev, c = ev.cur, items = [];
+    const dDone = c.done - p.done, dResp = c.resp - p.resp, dConf = c.conf - p.conf, dRisk = p.risks - c.risks, dIdx = c.idx - p.idx;
+    if(dDone!==0) items.push([dDone>0, ta('whEvoTasks')(dDone)]);
+    if(dResp!==0) items.push([dResp>0, ta('whEvoResp')(dResp)]);
+    if(dConf!==0) items.push([dConf>0, ta('whEvoConf')(dConf)]);
+    if(dRisk>0) items.push([true, ta('whEvoRisks')(dRisk)]);
+    if(dIdx!==0) items.push([dIdx>0, ta('whEvoIdx')(dIdx)]);
+    body = items.length
+      ? `<ul class="wh-evo">${items.map(it=>`<li class="${it[0]?'up':'down'}"><span>${it[0]?'↑':'↓'}</span>${it[1]}</li>`).join('')}</ul>`
+      : `<div class="wh-evo-note">${ta('whEvoNoChange')}</div>`;
+  }
+  return `<div class="wh-sec-title">${ta('whEvoTitle')}</div><div class="wh-card">${body}</div>`;
+}
 function viewDefWeddingHealth(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('healthTitle'));
-  const checks = getWeddingHealthChecks();
-  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
-  const pct = totalGuests>0 ? Math.round((totalConfirmed/totalGuests)*100) : 0;
-  const nRed = checks.filter(c=>c.severity==='red').length;
-  const nYellow = checks.filter(c=>c.severity==='yellow').length;
-  const overall = nRed>0 ? 'red' : (nYellow>0 ? 'yellow' : 'green');
-  const overallDot = { red:'#C0523F', yellow:'#D8A657', green:'#7A9471' }[overall];
-  const overallText = overall==='red' ? ta('healthSummaryRed')(nRed+nYellow)
-    : overall==='yellow' ? ta('healthSummaryYellow')(nYellow)
-    : ta('healthAllGood');
-  const rows = checks.map(c=>{
-    const dot = c.severity==='red' ? '#C0523F' : '#D8A657';
-    const gotoAttr = c.goto ? `data-healthgoto="${c.goto.tab ? 'tab:'+c.goto.tab : 'def:'+c.goto.def}"` : '';
-    return `
-    <div class="list-row" style="align-items:flex-start; gap:10px;">
-      <span style="width:10px; height:10px; border-radius:50%; background:${dot}; flex-shrink:0; margin-top:6px;"></span>
-      <div class="def-row-mid" style="flex:1;">
-        <div class="def-row-title" style="font-weight:400; line-height:1.4;">${c.text}</div>
-      </div>
-      ${c.goto ? `<button class="rsvp-copy-btn" ${gotoAttr} style="flex-shrink:0;">${ta('btnResolve')}</button>` : ''}
-    </div>`;
+  if(!firstSyncDone) return `${defSubHeader(ta('healthTitle'))}<div class="wh-card wh-note">${ta('whLoading')}</div>`;
+  let checks, areas, idx;
+  try{
+    checks = getWeddingHealthChecks();
+    areas = computeHealthAreas(checks);
+    idx = computeHealthIndex(areas);
+    recordHealthSnapshot();
+  }catch(e){
+    return `${defSubHeader(ta('healthTitle'))}<div class="wh-card wh-note">${ta('whError')}<br><button class="wh-btn" data-whretry="1" style="margin-top:10px;">${ta('whRetry')}</button></div>`;
+  }
+  const colors = { good:'#7A9471', attn:'#D8A657', urgent:'#C0523F' };
+  const wl = { tasks:'whHowTasks', guests:'whHowGuests', budget:'whHowBudget', payments:'whHowPayments', decisions:'whHowDecisions' };
+  const howList = Object.keys(HEALTH_WEIGHTS).map(k=>{
+    const a = areas[k], on = a && a.avail && a.score!==null;
+    return `<li class="${on?'':'off'}">${ta(wl[k])} <em>(${HEALTH_WEIGHTS[k]}% · ${on ? ta('whHowCounts')+': '+a.score : ta('whHowNoData')})</em></li>`;
   }).join('');
+  const how = `<details class="wh-how"><summary>${ta('whHowLink')}</summary><p>${ta('whHowIntro')}</p><ul>${howList}</ul><p>${ta('whHowNote')}</p></details>`;
+  let hero;
+  if(idx.score===null){
+    const need = ['tasks','guests','budget','payments'].filter(k=>!(areas[k].avail&&areas[k].score!==null));
+    const names = { tasks:'whAreaTasks', guests:'whAreaGuests', budget:'whAreaBudget', payments:'whAreaPayments' };
+    hero = `
+    <div class="wh-hero">
+      <div class="wh-eyebrow">${ta('whEyebrow')}</div>
+      <div class="wh-h">${ta('whUnknownTitle')}</div>
+      <div class="wh-p">${ta('whUnknownDesc')}</div>
+      <div class="wh-p" style="margin-top:8px;">${ta('whUnknownNeed')}</div>
+      <div class="wh-chips">${need.map(k=>`<button class="wh-chip" data-healthgoto="${areas[k].goto}">${ta(names[k])}</button>`).join('')}</div>
+      ${how}
+    </div>`;
+  } else {
+    const b = idx.band, col = colors[b];
+    const head = b==='good' ? ta('whGoodHead') : (b==='attn' ? ta('whAttnHead') : ta('whUrgHead'));
+    const msg = b==='good' ? (checks.length ? ta('whGoodMsg') : ta('whGoodMsgNone')) : (b==='attn' ? ta('whAttnMsg') : ta('whUrgMsg'));
+    hero = `
+    <div class="wh-hero">
+      <div class="wh-eyebrow">${ta('whEyebrow')}</div>
+      <div class="wh-hero-row">
+        <div class="wh-ring">${donutSVG(idx.score/100, col, 100, 9)}<div class="wh-ring-c"><b>${idx.score}</b><span>/100</span></div></div>
+        <div class="wh-hero-txt"><div class="wh-h">${head}</div><div class="wh-p">${msg}</div></div>
+      </div>
+      ${how}
+    </div>`;
+  }
+  const top = checks.slice(0,3), rest = checks.slice(3);
+  let attn;
+  if(checks.length){
+    attn = top.map(whAttnRow).join('') + (rest.length ? `<details class="wh-more"><summary data-less="${ta('whAttnLess')}">${ta('whAttnMore')(rest.length)}</summary>${rest.map(whAttnRow).join('')}</details>` : '');
+  } else if(idx.score!==null){
+    attn = `<div class="wh-ok"><div class="wh-ok-t">${ta('whAttnAllGood')}</div><div class="wh-ok-d">${ta('whAttnAllGoodDesc')}</div></div>`;
+  } else {
+    attn = `<div class="wh-note">${ta('whAttnNeedMore')}</div>`;
+  }
   return `
   ${defSubHeader(ta('healthTitle'))}
-  <div class="stat-card" style="margin:0 16px 12px; display:flex; align-items:center; gap:12px;">
-    <span style="width:14px; height:14px; border-radius:50%; background:${overallDot}; flex-shrink:0;"></span>
-    <div>
-      <div class="l" style="margin:0 0 2px; font-size:16px; color:var(--ink);">${overallText}</div>
-      ${totalGuests>0 ? `<div class="l" style="margin:0;">${ta('healthConfirmedPct')(pct)}</div>` : ''}
-    </div>
+  <div class="wh-wrap">
+    ${hero}
+    <div class="wh-sec-title">${ta('whAttnTitle')}</div>
+    <div class="wh-card wh-attn-list">${attn}</div>
+    <div class="wh-sec-title">${ta('whAreasTitle')}</div>
+    <div class="wh-card wh-areas">${['budget','guests','tasks','payments'].map(k=>whAreaRow(areas[k])).join('')}</div>
+    ${whEvolutionHTML()}
   </div>
-  ${checks.length ? `<div class="list-group" style="margin-bottom:24px;">${rows}</div>` : `<div class="empty-note" style="margin:0 16px 24px;">${ta('healthAllGoodDesc')}</div>`}
   `;
 }
 function viewDefRSVP(){
@@ -13720,6 +14192,7 @@ function bindHandlers(){
       _origRender();
     });
   });
+  document.querySelectorAll('[data-whretry]').forEach(el=>el.addEventListener('click', ()=>_origRender()));
   const defBack = document.getElementById('def-back');
   if(defBack) defBack.addEventListener('click', ()=>{ closeAllSheets(); activeTab='inicio'; _origRender(); });
   const defSignout = document.getElementById('def-signout');
