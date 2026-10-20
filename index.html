@@ -2137,6 +2137,18 @@ if(FIREBASE_READY){
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db = firebase.firestore();
+  // Android (Out 2026, bug da Rita na app da Play Store): a verificação da
+  // conta ficava parada em "A verificar a tua conta…" para sempre, só no
+  // Android, com a mesma conta a funcionar no iPhone. O Firestore comunica
+  // por uma ligação longa (WebChannel) que certas redes/aparelhos Android
+  // deixam "pendurada" sem nunca falhar. Esta opção faz o próprio Firestore
+  // detetar isso e cair para a ligação alternativa (long polling). Só no
+  // Android, para não mexer no que já funciona no iPhone e no computador.
+  try{
+    if(/Android/i.test(navigator.userAgent||'')){
+      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+    }
+  }catch(e){ console.warn('Weddy: não foi possível ajustar a ligação do Firestore:', e && e.message); }
   storage = firebase.storage();
   cloudFunctions = (typeof firebase.functions==='function') ? firebase.app().functions(WEDDY_FUNCTIONS_REGION) : null;
 }
@@ -20642,7 +20654,12 @@ function findOrCreateFlow(user, isRetry){
   // Casamento ativo escolhido no seletor (userPrefs) — só vale se a pessoa
   // ainda for dona dele; senão, regra normal (o que criou, depois o menor id).
   const prefPromise = db.collection('userPrefs').doc(user.uid).get({ source:'server' }).then(sn=> sn.exists ? (sn.data().activeWeddingId||null) : null).catch(()=>null);
-  Promise.all([ WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).get({ source:'server' }), prefPromise ]).then(([qs, prefId])=>{
+  // Out 2026: estas consultas não tinham tempo limite — se a ligação ao
+  // Firestore ficasse pendurada (visto no Android), o ecrã ficava em "A
+  // verificar a tua conta…" para sempre, sem erro. Passado este tempo, falha
+  // com o código "timeout" e mostra a mensagem de erro normal.
+  const verifyTimeout = new Promise((_, reject)=>{ setTimeout(()=>reject({ code:'timeout', message:'verify-timeout' }), 20000); });
+  Promise.race([ Promise.all([ WEDDINGS().where('ownerEmails','array-contains', user.email.toLowerCase()).get({ source:'server' }), prefPromise ]), verifyTimeout ]).then(([qs, prefId])=>{
     // "Criar o meu casamento" (seletor): mostra o onboarding mesmo já havendo
     // casamentos, mas só se esta conta ainda não criou nenhum.
     let wantsCreateOwn = false;
