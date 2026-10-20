@@ -1098,6 +1098,15 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .se-ok{ display:flex; gap:8px; align-items:center; margin-top:10px; font-weight:600; color:#42703D; } .se-ok svg{ width:16px; height:16px; }
 .se-pub{ margin-top:0; } .se-pub[disabled]{ opacity:.5; } .se-unpub{ margin-top:10px; width:100%; }
 .se-prev{ position:fixed; inset:0; z-index:9000; background:#2a2623; display:flex; flex-direction:column; }
+.se-crop{ position:fixed; inset:0; z-index:9100; background:#2a2623; color:#fff; display:flex; flex-direction:column; touch-action:none; user-select:none; -webkit-user-select:none; }
+.se-crop-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px; } .se-crop-bar b{ font-size:15px; } .se-crop-bar .se-chip{ margin:0; background:#fff; } .se-crop-bar .se-chip.pri{ background:var(--rust,#B96752); color:#fff; }
+.se-crop-stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.se-crop-frame{ position:relative; overflow:hidden; background:#000; outline:2px solid #fff; box-shadow:0 0 0 9999px rgba(42,38,35,.72); cursor:grab; }
+.se-crop-frame img{ position:absolute; left:50%; top:50%; max-width:none; pointer-events:none; -webkit-user-drag:none; }
+.se-crop-tools{ padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 14px); display:grid; gap:10px; }
+.se-crop-asp{ display:flex; gap:6px; overflow-x:auto; justify-content:center; flex-wrap:wrap; } .se-crop-asp button{ border:0; border-radius:999px; padding:0 12px; min-height:34px; font:700 12.5px inherit; font-family:inherit; background:rgba(255,255,255,.14); color:#fff; cursor:pointer; } .se-crop-asp button.on{ background:#fff; color:#2a2623; }
+.se-crop-zoom{ display:flex; align-items:center; gap:10px; font-size:12.5px; } .se-crop-zoom input{ flex:1; }
+.se-crop-hint{ font-size:12px; opacity:.7; text-align:center; }
 .se-prev-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px; } .se-prev-bar .se-chip{ margin:0; background:#fff; }
 .se-seg{ display:flex; background:rgba(255,255,255,.14); border-radius:999px; padding:3px; } .se-seg button{ border:0; background:transparent; color:#fff; padding:0 14px; min-height:36px; border-radius:999px; font:600 13px inherit; font-family:inherit; cursor:pointer; } .se-seg button.on{ background:#fff; color:#302C29; }
 .se-prev-note{ color:rgba(255,255,255,.7); font-size:12px; text-align:center; padding:0 14px 8px; }
@@ -12359,7 +12368,7 @@ const SITE_UI = {
     expiredTitle:'O Premium terminou — o site está temporariamente indisponível', expiredText:'Quem abrir o endereço vê apenas uma página genérica de “indisponível”, sem nenhum dado do casamento. Não apagámos nada: o rascunho, as fotos, o design e o endereço ficam guardados e reservados para ti. Ao renovar o Premium, o teu site volta a ficar disponível.', renew:'Renovar o Premium',
     stSuspended:'Temporariamente indisponível', stSuspHelp:'Estava online, mas foi desativado por o Premium ter terminado ou sido renovado há pouco. Não é público neste momento.', reactivate:'Voltar a pôr online', reactivating:'A reativar…', reactivated:'O site voltou a estar online.', retrySave:'Tentar de novo', focusX:'Enquadramento horizontal', focusY:'Enquadramento vertical', focusHelp:'Move para escolher a parte da foto que fica visível.', pubExplain:'As alterações só ficam públicas quando carregas em “Atualizar site”. Para tirar o site do ar, usa “Despublicar”; o rascunho e o endereço ficam guardados.', previewHint:'Pré-visualização com o teu design, cores, fotos e texto atuais.',
     rsvpRowTitle:'Site do casamento', rsvpRowDesc:'Uma página pública com a informação do dia e o botão de RSVP',
-    devMobile:'Telemóvel', previewNote:'Pré-visualização: é exatamente isto que os convidados vão ver.'
+    devMobile:'Telemóvel', previewNote:'Pré-visualização: é exatamente isto que os convidados vão ver.', cropTitle:'Recortar foto', cropUse:'Usar foto', cropCancel:'Cancelar', cropOrig:'Original', cropZoom:'Zoom', cropHint:'Arrasta a foto para a mover. Usa o zoom para ampliar.'
   },
   en:{
     title:'Wedding website', desc:'A beautiful page with everything your guests need',
@@ -12411,7 +12420,7 @@ const SITE_UI = {
     expiredTitle:'Premium has ended — your site is temporarily unavailable', expiredText:'Anyone opening the address only sees a generic “unavailable” page, with no wedding data. Nothing was deleted: your draft, photos, design and address stay saved and reserved for you. Once you renew Premium, your site becomes available again.', renew:'Renew Premium',
     stSuspended:'Temporarily unavailable', stSuspHelp:'It was online but has been switched off because Premium ended or was just renewed. It is not public right now.', reactivate:'Put back online', reactivating:'Reactivating…', reactivated:'Your site is back online.', retrySave:'Try again', focusX:'Horizontal framing', focusY:'Vertical framing', focusHelp:'Move to choose which part of the photo stays visible.', pubExplain:'Changes only go public when you tap “Update site”. To take the site offline, use “Unpublish”; your draft and address stay saved.', previewHint:'Preview with your current design, colours, photos and text.',
     rsvpRowTitle:'Wedding website', rsvpRowDesc:'A public page with the day details and the RSVP button',
-    devMobile:'Phone', previewNote:'Preview: this is exactly what your guests will see.'
+    devMobile:'Phone', previewNote:'Preview: this is exactly what your guests will see.', cropTitle:'Crop photo', cropUse:'Use photo', cropCancel:'Cancel', cropOrig:'Original', cropZoom:'Zoom', cropHint:'Drag the photo to move it. Use zoom to enlarge.'
   }
 };
 function ts(k){ const d = SITE_UI[appLang] || SITE_UI.pt; return (k in d) ? d[k] : SITE_UI.pt[k]; }
@@ -12828,6 +12837,82 @@ function siteDropOldImage(url){
     storage.ref(p).delete().catch(()=>{});
   }catch(e){}
 }
+// Recorte da foto antes de enviar: arrastar para mover, zoom, proporção (Original, 4:5, 3:4, 1:1, 4:3, 16:9).
+// Devolve um File novo (JPEG) ou o original se nada foi alterado; null se cancelar.
+function siteCropPhoto(file){
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    im.onload = () => {
+      const W = im.naturalWidth, H = im.naturalHeight;
+      if(!W || !H){ URL.revokeObjectURL(url); resolve(file); return; }
+      const ASP = [['orig', ts('cropOrig'), 0], ['45','4:5',4/5], ['34','3:4',3/4], ['11','1:1',1], ['43','4:3',4/3], ['169','16:9',16/9]];
+      let asp = 'orig', zoom = 1, ox = 0, oy = 0, fw = 0, fh = 0, base = 1, changed = false;
+      const ov = document.createElement('div'); ov.className = 'se-crop'; ov.id = 'site-crop';
+      ov.innerHTML = `<div class="se-crop-bar"><button type="button" class="se-chip" data-c="cancel">${ts('cropCancel')}</button><b>${ts('cropTitle')}</b><button type="button" class="se-chip pri" data-c="use">${ts('cropUse')}</button></div>
+        <div class="se-crop-stage"><div class="se-crop-frame"><img alt="" src="${url}"></div></div>
+        <div class="se-crop-tools"><div class="se-crop-asp">${ASP.map(a => `<button type="button" data-asp="${a[0]}" class="${a[0]==='orig'?'on':''}">${a[1]}</button>`).join('')}</div>
+        <label class="se-crop-zoom">${ts('cropZoom')}<input type="range" min="1" max="4" step="0.01" value="1" aria-label="${ts('cropZoom')}"></label>
+        <div class="se-crop-hint">${ts('cropHint')}</div></div>`;
+      document.body.appendChild(ov);
+      const stage = ov.querySelector('.se-crop-stage'), frame = ov.querySelector('.se-crop-frame'), img = frame.querySelector('img'), rng = ov.querySelector('input[type=range]');
+      const clamp = () => {
+        const dw = W*base*zoom, dh = H*base*zoom;
+        const mx = Math.max(0, (dw - fw)/2), my = Math.max(0, (dh - fh)/2);
+        ox = Math.min(mx, Math.max(-mx, ox)); oy = Math.min(my, Math.max(-my, oy));
+      };
+      const paint = () => {
+        clamp();
+        const dw = W*base*zoom, dh = H*base*zoom;
+        img.style.width = dw + 'px'; img.style.height = dh + 'px';
+        img.style.transform = 'translate(' + (-dw/2 + ox) + 'px,' + (-dh/2 + oy) + 'px)';
+      };
+      const layout = () => {
+        const r = (ASP.find(a => a[0]===asp)[2]) || (W/H);
+        const sw = stage.clientWidth - 32, sh = stage.clientHeight - 32;
+        fw = sw; fh = fw / r; if(fh > sh){ fh = sh; fw = fh * r; }
+        frame.style.width = Math.round(fw) + 'px'; frame.style.height = Math.round(fh) + 'px';
+        base = Math.max(fw / W, fh / H);
+        paint();
+      };
+      const done = (v) => { window.removeEventListener('resize', layout); ov.remove(); URL.revokeObjectURL(url); resolve(v); };
+      const out = () => {
+        if(!changed && asp==='orig' && zoom===1) return Promise.resolve(file);
+        const sc = base*zoom;
+        const sw = fw / sc, sh = fh / sc;
+        const sx = W/2 - ox/sc - sw/2, sy = H/2 - oy/sc - sh/2;
+        const k = Math.min(1, 1600 / Math.max(sw, sh));
+        const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(sw*k)); c.height = Math.max(1, Math.round(sh*k));
+        c.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        return new Promise(res => c.toBlob(b => res(b ? new File([b], 'foto.jpg', { type:'image/jpeg' }) : file), 'image/jpeg', 0.88));
+      };
+      ov.addEventListener('click', (e) => {
+        const t = e.target.closest('[data-c],[data-asp]'); if(!t) return;
+        if(t.getAttribute('data-c')==='cancel') return done(null);
+        if(t.getAttribute('data-c')==='use'){ t.disabled = true; out().then(done); return; }
+        asp = t.getAttribute('data-asp'); changed = true; ox = 0; oy = 0;
+        ov.querySelectorAll('[data-asp]').forEach(b => b.classList.toggle('on', b===t));
+        layout();
+      });
+      rng.addEventListener('input', () => { zoom = parseFloat(rng.value) || 1; changed = true; paint(); });
+      // arrastar (1 dedo/rato) e beliscar (2 dedos)
+      const pts = new Map(); let pinch0 = 0, zoom0 = 1;
+      frame.addEventListener('pointerdown', (e) => { frame.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x:e.clientX, y:e.clientY }); if(pts.size===2){ const [a,b] = [...pts.values()]; pinch0 = Math.hypot(a.x-b.x, a.y-b.y); zoom0 = zoom; } });
+      frame.addEventListener('pointermove', (e) => {
+        const p = pts.get(e.pointerId); if(!p) return;
+        if(pts.size===1){ ox += e.clientX - p.x; oy += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; changed = true; paint(); }
+        else if(pts.size===2){ p.x = e.clientX; p.y = e.clientY; const [a,b] = [...pts.values()]; const d = Math.hypot(a.x-b.x, a.y-b.y); if(pinch0>0){ zoom = Math.min(4, Math.max(1, zoom0 * d / pinch0)); rng.value = zoom; changed = true; paint(); } }
+      });
+      const up = (e) => { pts.delete(e.pointerId); };
+      frame.addEventListener('pointerup', up); frame.addEventListener('pointercancel', up);
+      frame.addEventListener('wheel', (e) => { e.preventDefault(); zoom = Math.min(4, Math.max(1, zoom * (e.deltaY < 0 ? 1.08 : 1/1.08))); rng.value = zoom; changed = true; paint(); }, { passive:false });
+      window.addEventListener('resize', layout);
+      requestAnimationFrame(layout);
+    };
+    im.src = url;
+  });
+}
 async function siteUploadPhoto(path, file){
   if(!file) return;
   if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ weddyAlert(ts('upErrType')); return; }
@@ -12941,7 +13026,7 @@ function siteCheckSlugSoon(){
   });
   document.addEventListener('change', e=>{
     const t = e.target; if(!t) return;
-    if(t.id==='site-file'){ const f = t.files && t.files[0]; const p = siteS.uploadPath; t.value=''; if(f && p) siteUploadPhoto(p, f); return; }
+    if(t.id==='site-file'){ const f = t.files && t.files[0]; const p = siteS.uploadPath; t.value=''; if(f && p){ if(!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size > 15*1024*1024) siteUploadPhoto(p, f); else siteCropPhoto(f).then(f2 => { if(f2) siteUploadPhoto(p, f2); else { siteS.uploadPath = null; } }); } return; }
     if(!inSite()) return;
     if(t.matches && t.matches('[data-sitec]')){ siteSet(t.getAttribute('data-sitec'), !!t.checked); siteMarkDirty(); _origRender(); }
     else if(t.matches && t.matches('[data-sitesel]')){ siteSet(t.getAttribute('data-sitesel'), t.value); siteMarkDirty(); }
