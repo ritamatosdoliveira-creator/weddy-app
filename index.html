@@ -2141,12 +2141,13 @@ if(FIREBASE_READY){
   // conta ficava parada em "A verificar a tua conta…" para sempre, só no
   // Android, com a mesma conta a funcionar no iPhone. O Firestore comunica
   // por uma ligação longa (WebChannel) que certas redes/aparelhos Android
-  // deixam "pendurada" sem nunca falhar. Esta opção faz o próprio Firestore
-  // detetar isso e cair para a ligação alternativa (long polling). Só no
-  // Android, para não mexer no que já funciona no iPhone e no computador.
+  // deixam "pendurada" sem nunca falhar. v235: a deteção automática (v234)
+  // não chegou — a verificação continuava presa à espera do 1.º snapshot
+  // em tempo real — por isso força-se a ligação alternativa (long polling).
+  // Só no Android, para não mexer no que já funciona no iPhone e no computador.
   try{
     if(/Android/i.test(navigator.userAgent||'')){
-      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+      db.settings({ experimentalForceLongPolling: true, merge: true });
     }
   }catch(e){ console.warn('Weddy: não foi possível ajustar a ligação do Firestore:', e && e.message); }
   storage = firebase.storage();
@@ -20319,6 +20320,18 @@ function writeWeddingPayloadSafely(){
 }
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) unsubscribeSnapshot();
+  // Out 2026 (bug Android): o ecrã "A verificar a tua conta…" só desaparece
+  // quando chega o 1.º snapshot em tempo real. Se essa ligação ficar
+  // pendurada (visto no Android), ficava assim para sempre, sem erro. Passado
+  // este tempo mostra o erro com o código "timeout-sync"; se o snapshot
+  // chegar depois, o ecrã de login esconde-se na mesma (ver firstSyncDone).
+  setTimeout(()=>{
+    if(!firstSyncDone && auth && auth.currentUser && !accountDeletionInProgress){
+      console.error('[Weddy] Sem resposta do Firestore ao 1.º snapshot (timeout-sync).');
+      document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
+      renderLoginForm(ta('loginErrorVerifyGeneric')+' (timeout-sync)', true);
+    }
+  }, 20000);
   unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
     let changed = false;
     if(snap.exists){
