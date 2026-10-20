@@ -7797,11 +7797,14 @@ function viewMesas(){
       </div>
       <div class="seat-list">${seatsHTML}</div>`;
     }
+    // Out 2026 (bug Android, "reading 'icon'"): uma mesa com forma desconhecida
+    // (ou em falta) rebentava aqui e deixava a app presa no ecrã de verificação.
+    // Agora usa a forma redonda por defeito (igual ao que o desenho da sala já faz).
     tablesHTML += `
     <div class="table-group">
       <div class="table-head" data-toggletable="${t}">
-        <div class="icon-chip" style="${chipStyle(ti)}">${ICONS[TABLE_SHAPES[table.shape].icon]}</div>
-        <div class="ttitle">${ta('tableLabel')(t)}<span class="phase-desc">${TABLE_SHAPES[table.shape].label}</span></div>
+        <div class="icon-chip" style="${chipStyle(ti)}">${ICONS[(TABLE_SHAPES[table.shape]||TABLE_SHAPES.round).icon]}</div>
+        <div class="ttitle">${ta('tableLabel')(t)}<span class="phase-desc">${(TABLE_SHAPES[table.shape]||TABLE_SHAPES.round).label}</span></div>
         ${table.notes ? `<span title="${ta('titleHasNotes')}" style="color:var(--gold); display:flex; align-items:center; width:15px; height:15px; flex-shrink:0;">${ICONS.docnote.replace('<svg ', '<svg style="width:100%;height:100%;" ')}</span>` : ''}
         <span class="fillcount">${filled}/${table.seats}</span>
         <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
