@@ -2132,6 +2132,16 @@ const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
 // implantada — tem de bater certo com a região usada no deploy
 // (functions-deliverable/index.js), senão a chamada falha.
 const WEDDY_FUNCTIONS_REGION = 'europe-west1';
+// Diagnóstico (Out 2026, bug Android: "timeout-sync"): guarda os últimos erros
+// de JavaScript da página e se chegou ou não o 1.º snapshot em tempo real,
+// para o ecrã de erro dizer o que falhou sem precisar de consola.
+const weddyRecentErrors = [];
+let weddySnapSeen = false;
+function weddyNoteError(m){
+  try{ weddyRecentErrors.push(String(m).replace(/[<>&]/g,'').slice(0,140)); if(weddyRecentErrors.length>3) weddyRecentErrors.shift(); }catch(_){}
+}
+window.addEventListener('error', e=> weddyNoteError(((e&&e.message)||'erro')+' @'+(e&&e.lineno)+':'+(e&&e.colno)));
+window.addEventListener('unhandledrejection', e=> weddyNoteError('promise: '+((e&&e.reason&&(e.reason.message||e.reason.code))||(e&&e.reason)||'?')));
 let auth = null, db = null, storage = null, cloudFunctions = null;
 if(FIREBASE_READY){
   firebase.initializeApp(firebaseConfig);
@@ -20329,10 +20339,11 @@ function attachFirestoreSync(){
     if(!firstSyncDone && auth && auth.currentUser && !accountDeletionInProgress){
       console.error('[Weddy] Sem resposta do Firestore ao 1.º snapshot (timeout-sync).');
       document.getElementById('login-screen').classList.remove('hidden'); document.documentElement.classList.add('login-active');
-      renderLoginForm(ta('loginErrorVerifyGeneric')+' (timeout-sync)', true);
+      renderLoginForm(ta('loginErrorVerifyGeneric')+' (timeout-sync, snap='+(weddySnapSeen?1:0)+(weddyRecentErrors.length?', '+weddyRecentErrors.join(' | '):'')+')', true);
     }
   }, 20000);
   unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
+    weddySnapSeen = true;
     let changed = false;
     if(snap.exists){
       const data = snap.data();
