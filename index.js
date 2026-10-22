@@ -133,6 +133,10 @@ const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 // Integrations → Webhooks) e tem de ser EXATAMENTE o mesmo valor aqui.
 // Nunca em texto simples — vive no Secret Manager como os outros acima.
 const REVENUECAT_WEBHOOK_AUTH = defineSecret('REVENUECAT_WEBHOOK_AUTH');
+// Aviso por email à Rita quando chega uma compra (ou reembolso) pela Apple.
+// Vazio = desligado. Define com SALES_ALERT_EMAIL no .env da função
+// (ex.: SALES_ALERT_EMAIL=oteuemail@gmail.com). Usa o mesmo SMTP dos lembretes.
+const SALES_ALERT_EMAIL = defineString('SALES_ALERT_EMAIL', { default: '' });
 
 // Sign in with Apple — revogação de tokens ao apagar a conta (exigido pela Apple).
 // A chave .p8 vive no Secret Manager: firebase functions:secrets:set APPLE_SIGNIN_PRIVATE_KEY
@@ -4205,6 +4209,33 @@ async function resolveWeddingIdByUid(uid) {
   }
 }
 
+// Aviso interno (só para a Rita). Nunca pode fazer falhar o webhook: qualquer
+// erro aqui fica só no log. Não inclui dados além do email da conta.
+async function notifySalesAlert(kind, uid, weddingId, event) {
+  try {
+    const to = (SALES_ALERT_EMAIL.value() || '').trim();
+    if (!to) return;
+    let email = '(sem email)';
+    try { email = (await admin.auth().getUser(uid)).email || email; } catch (e) { /* conta sem email */ }
+    const titulo = kind === 'refund' ? 'Reembolso Weddy Premium (Apple)' : 'Nova compra Weddy Premium (Apple)';
+    const linhas = [
+      `Conta: ${email}`,
+      `Casamento: ${weddingId || '—'}`,
+      `Produto: ${(event && event.product_id) || '—'}`,
+      `Transação: ${(event && event.transaction_id) || '—'}`,
+      `Quando: ${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`,
+    ];
+    await buildTransporter().sendMail({
+      from: SMTP_FROM.value(),
+      to,
+      subject: titulo,
+      text: `${titulo}\n\n${linhas.join('\n')}\n`,
+    });
+  } catch (err) {
+    logger.error(`notifySalesAlert: falhou o aviso por email. ${err.message || err}`);
+  }
+}
+
 async function logRevenueCatWebhookIncident(reason, weddingId, event, err) {
   try {
     await db.collection('_incident_log').add({
@@ -4223,7 +4254,7 @@ async function logRevenueCatWebhookIncident(reason, weddingId, event, err) {
 }
 
 exports.revenueCatWebhook = onRequest(
-  { region: 'europe-west1', secrets: [REVENUECAT_WEBHOOK_AUTH] },
+  { region: 'europe-west1', secrets: [REVENUECAT_WEBHOOK_AUTH, SMTP_USER, SMTP_PASS] },
   async (req, res) => {
     if (req.method !== 'POST') {
       res.status(405).send('Method Not Allowed');
@@ -4300,7 +4331,10 @@ exports.revenueCatWebhook = onRequest(
                 return 'ok';
               });
               if (outcome === 'dup') logger.info(`revenueCatWebhook: transação ${event.transaction_id} já processada, ignorada.`);
-              else logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
+              else {
+                logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
+                await notifySalesAlert('purchase', uid, weddingId, event);
+              }
             } catch (writeErr) {
               logger.error(`revenueCatWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
               await logRevenueCatWebhookIncident('falha-ao-ativar', weddingId, event, writeErr);
@@ -4325,6 +4359,7 @@ exports.revenueCatWebhook = onRequest(
               'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
             }).catch((e) => logger.error(`revenueCatWebhook: falhou a desativar após REFUND. ${e.message || e}`));
             logger.info(`revenueCatWebhook: REFUND — Premium desativado no casamento ${refundWeddingId}.`);
+            await notifySalesAlert('refund', event.app_user_id, refundWeddingId, event);
           }
         } else {
           await logRevenueCatWebhookIncident('refund-sem-casamento', null, event);
