@@ -24,7 +24,7 @@ window.WEDDY_DEMO_SEED=function(store,WID,UID,EMAIL){
   all.forEach(function(e,i){ if(i%4!==3) confirmed[e.guestId]=true; });
   /* mesas */
   var tables=[]; var cols=3;
-  for(var i=0;i<6;i++){tables.push({id:i+1,shape:i===0?'imperial':'round',seats:i===0?12:8,x:40+(i%cols)*190,y:130+Math.floor(i/cols)*190});}
+  for(var i=0;i<6;i++){tables.push({id:i+1,shape:i===1?'long':(i===3?'serpentine':'round'),seats:i===0?12:8,x:4+(i%cols)*106,y:56+Math.floor(i/cols)*124});}
   var assignments={}; var pool=all.filter(function(e){return confirmed[e.guestId];});
   var p=0; tables.slice(1).forEach(function(t,ti){ if(ti>3) return; for(var s=1;s<=t.seats-1 && p<pool.length;s++){ assignments['t'+t.id+'-s'+s]=pool[p++].guestId; } });
   var cats=[
@@ -51,7 +51,7 @@ window.WEDDY_DEMO_SEED=function(store,WID,UID,EMAIL){
     budget:{total:50000,guestsEstimate:all.length},
     categories:cats,
     guests:guests, confirmed:confirmed, expenses:exp,
-    seating:{tables:tables,assignments:assignments,items:[{id:'i1',type:'entrada',x:16,y:16},{id:'i2',type:'pista',x:260,y:520}]},
+    seating:{tables:tables,assignments:assignments,items:[{id:'i1',type:'entrada',x:4,y:8},{id:'i2',type:'pista',x:170,y:296}]},
     daySchedule:[{id:'ev1',label:'Cerimónia',time:'15:00',place:'Capela da Quinta',guestVisible:true},{id:'ev2',label:'Cocktail',time:'16:30',place:'Jardim',guestVisible:true},{id:'ev3',label:'Jantar',time:'19:30',place:'Salão',guestVisible:true},{id:'ev4',label:'Bolo e primeira dança',time:'22:00',place:'Salão',guestVisible:true},{id:'ev5',label:'Festa',time:'23:00',place:'Pista',guestVisible:true}],
     checklistDone:done, checklistPersonal:[], dressChecklistDone:{}, dressVisits:[], favoriteVisitId:null,
     suppliers:sup,

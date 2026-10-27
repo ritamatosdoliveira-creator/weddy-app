@@ -17954,9 +17954,9 @@ function bindSalaItemDrag(el){
 function renderSalaView(){
   const changed = ensureTablePositions();
   const wrap = document.getElementById('sala-scroll');
-  const itemSize = 108, pad = 40;
+  const itemSize = 108, pad = window.WEDDY_LOCK ? 4 : 40;
   const desk = wrap.clientWidth > 700;
-  const minW = desk ? Math.min(wrap.clientWidth - 32, 1000) : 340, minH = desk ? 600 : 420;
+  const minW = window.WEDDY_LOCK ? Math.max(300, wrap.clientWidth - 40) : (desk ? Math.min(wrap.clientWidth - 32, 1000) : 340), minH = window.WEDDY_LOCK ? 0 : (desk ? 600 : 420);
   const salaIt = salaItems();
   const maxX = Math.max(minW, ...state.seating.tables.map(t=>t.x+itemSize), ...salaIt.map(i=>(i.x||0)+((SALA_ITEM_TYPES[i.type]||{w:100}).w))) + pad;
   const maxY = Math.max(minH, ...state.seating.tables.map(t=>t.y+itemSize+16), ...salaIt.map(i=>(i.y||0)+((SALA_ITEM_TYPES[i.type]||{h:40}).h))) + pad;
