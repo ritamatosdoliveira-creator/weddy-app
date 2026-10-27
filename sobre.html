@@ -506,6 +506,20 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .moves h2{margin-bottom:16px}
 @media(min-width:860px){.about{padding-block:48px 8px}.moves{padding-bottom:56px}.about h1{font-size:clamp(64px,6.4vw,112px)}.about-p{max-width:44ch}.moves-row article{padding:clamp(20px,2vw,32px)}}
 @media(max-width:859px){.about{padding-bottom:24px}.moves{padding-bottom:48px}}
+.essence{padding-bottom:56px}
+.essence h2{font-weight:500;font-size:clamp(30px,3.6vw,48px);margin-bottom:20px}
+.ess-grid{display:grid;gap:16px}
+.ess{background:#fffdfb;border:1px solid #efe6df;border-radius:22px;padding:clamp(24px,2.2vw,36px);box-shadow:0 18px 40px -30px rgba(48,44,41,.35)}
+.ess p{margin:0;color:var(--ink2);font-size:clamp(16px,1.2vw,19px);line-height:1.6}
+.ess .ess-k{font-family:"Cormorant Garamond",serif;font-size:clamp(28px,2.2vw,38px);font-weight:500;color:var(--ink);line-height:1.1;margin-bottom:12px}
+.ess-m{background:var(--rust-d);border-color:var(--rust-d);color:#fff}
+.ess-m .ess-k{color:#F6E3DA}.ess-m .ess-big{color:#fff;font-size:clamp(20px,2vw,32px);line-height:1.45;font-weight:500}
+.pills{display:flex;flex-wrap:wrap;gap:10px}.pills span{background:#F6E3DA;color:var(--rust-d);border-radius:999px;padding:9px 18px;font-weight:600;font-size:15.5px}
+.ess ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ess li{position:relative;padding-left:28px;color:var(--ink2);font-size:clamp(16px,1.2vw,19px);line-height:1.5}
+.ess li:before{content:"";position:absolute;left:0;top:.35em;width:16px;height:16px;border-radius:50%;background:var(--sage)}
+@media(min-width:860px){.ess-grid{grid-template-columns:1.3fr 1fr 1fr;grid-template-rows:auto auto}.ess-m{grid-row:span 2;display:flex;flex-direction:column;justify-content:center}.ess-c{grid-column:2/4}}
+@media(min-width:860px){.essence{max-width:none}}
 </style>
 </head>
 <body>
@@ -541,12 +555,14 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
       <figcaption>Rita, fundadora da Weddy</figcaption>
     </figure>
   </section>
-  <section class="wrap moves" aria-labelledby="t-moves">
-    <h2 id="t-moves">O que nos move</h2>
-    <div class="moves-row">
-      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19c-3.5 0-7-2.2-8-6 3 0 5.2.9 6.5 2.4C11 13.5 11 11 12 8c1 3 1 5.5 1.5 7.4C14.8 13.9 17 13 20 13c-1 3.8-4.5 6-8 6z"/></svg></span><h3>Calma</h3><p>Uma coisa de cada vez, ao teu ritmo.</p></article>
-      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span><h3>Clareza</h3><p>Tudo num só lugar, sempre à mão.</p></article>
-      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.3.2-.6.3-1 .3z"/></svg></span><h3>À tua maneira</h3><p>Ferramentas que se adaptam a ti.</p></article>
+  <section class="wrap essence" aria-labelledby="t-ess">
+    <h2 id="t-ess">A nossa essência</h2>
+    <div class="ess-grid">
+      <article class="ess ess-m"><p class="ess-k">Missão</p><p class="ess-big">Simplificar o planeamento do casamento, juntando tudo num só lugar, para que cada casal o viva com calma e à sua maneira.</p></article>
+      <article class="ess"><p class="ess-k">Visão</p><p>Ser a app de confiança dos casais, do pedido de casamento ao grande dia.</p></article>
+      <article class="ess"><p class="ess-k">Valores</p><div class="pills"><span>Calma</span><span>Clareza</span><span>Simplicidade</span><span>Proximidade</span></div></article>
+      <article class="ess ess-c"><p class="ess-k">O nosso compromisso</p>
+        <ul><li>O essencial é gratuito.</li><li>Premium com pagamento único, sem renovação automática.</li><li>Respeito total pela tua privacidade.</li></ul></article>
     </div>
   </section>
   <section class="endcta" aria-labelledby="t-cta"><div class="wrap endcta-in"><div class="endcta-t">
