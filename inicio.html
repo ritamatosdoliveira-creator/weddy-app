@@ -411,29 +411,21 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .endcta-t>p:not(.endcta-eye){color:#F1DDD4;font-size:clamp(17px,1.4vw,20px);max-width:44ch;margin:20px 0 32px}
 .btn.light{background:#FBF3EE;color:#7E3E2F;border-color:#FBF3EE;min-height:56px;font-size:17px;padding:0 34px}
 .btn.light:hover{background:#fff;border-color:#fff}
-.endcta-img{justify-self:center}
-.endcta-img img{width:min(340px,76vw);height:auto;border-radius:24px;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
 @media(min-width:860px){.endcta-in{grid-template-columns:1.3fr 1fr;padding-block:96px}.endcta-img{justify-self:end}.endcta-img img{width:min(420px,30vw)}}
 
-.endcta-img{position:relative;width:min(420px,88vw);height:380px;justify-self:center}
 .ec{position:absolute;background:#FFFDFB;border-radius:20px;padding:18px 20px;color:var(--ink);box-shadow:0 26px 50px -26px rgba(0,0,0,.55)}
 .ec-top{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display);font-size:21px;font-weight:500;margin-bottom:10px}
 .ec-top small{font-family:var(--body);font-size:11.5px;color:var(--ink2)}
 .ec small{color:var(--ink2);font-size:12px}
-.ec-a{left:0;top:0;width:64%}
 .ec-ring{position:relative;width:72px;height:72px;margin-bottom:12px}.ec-ring svg{width:100%;height:100%}
 .ec-ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:20px;font-weight:500}
 .ec-chk{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px;color:var(--ink2)}
 .ec-chk li{display:flex;gap:9px;align-items:center}.ec-chk i{width:15px;height:15px;border-radius:50%;border:1.5px solid #D8CBC1;flex:none}
 .ec-chk li.d{color:var(--ink)}.ec-chk li.d i{background:#C9826B;border-color:#C9826B}
-.ec-b{right:0;top:70px;width:52%}
 .ec-big{font-family:var(--display);font-size:32px;font-weight:500;line-height:1.1}
 .ec-bar{height:8px;border-radius:99px;background:#F1E7E0;margin:10px 0 8px;overflow:hidden}.ec-bar i{display:block;width:60%;height:100%;background:linear-gradient(90deg,#D49A86,#C9826B);border-radius:99px}
-.ec-c{left:14%;bottom:0;width:60%}
 .ec-av{display:flex;margin-bottom:8px}.ec-av span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;margin-right:-8px;border:2px solid #FFFDFB}
 .ec-av .m{background:#F3EFEA;font-size:11px;margin-right:0;color:var(--ink2)}
-@media(max-width:859px){.endcta-img{height:400px}.ec-a{width:72%}.ec-b{width:62%;top:170px;z-index:1}.ec-c{left:4%;width:56%;top:300px;bottom:auto}.endcta-img{height:440px}}
-@media(min-width:860px){.endcta-img{justify-self:end;width:min(480px,36vw);height:440px}.ec-a{width:70%}.ec-b{width:60%;top:215px;right:0}.ec-c{left:0;width:46%;top:auto;bottom:0}}
 
 .ec-hrow{display:flex;gap:14px;align-items:center;margin-bottom:12px}.ec-hrow p{margin:0;font-size:13px;line-height:1.35;font-weight:600}.ec-hrow small{font-weight:400}
 .ec-a .ec-ring{margin:0;flex:none}
@@ -443,7 +435,20 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .ec-ev em{font-style:normal;font-family:var(--display);font-size:20px;width:38px;height:38px;border-radius:10px;background:#F6E9E2;color:var(--rust-d);display:grid;place-items:center;flex:none}
 .ec-ev b{display:block;font-size:12.5px;font-weight:600}.ec-ev small{font-size:11px}
 .ec-ph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}.ec-ph i{height:44px;border-radius:8px}
-.ec-b{width:58%}
+
+.endcta-img{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:640px;justify-self:center;align-items:start}
+.ec{position:relative!important;inset:auto!important;width:auto!important}
+.ec-1,.ec-3{transform:translateY(0)}.ec-2,.ec-4{transform:translateY(28px)}
+.ec-ico{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#F6E9E2;color:var(--rust-d);font-style:normal}.ec-ico svg{width:17px;height:17px}
+.ec-dress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}.ec-dress i{height:92px;border-radius:10px;display:block;position:relative}
+.ec-dress i::after{content:"";position:absolute;left:50%;top:14%;width:34%;height:70%;transform:translateX(-50%);background:rgba(255,255,255,.75);clip-path:polygon(30% 0,70% 0,60% 30%,100% 100%,0 100%,40% 30%)}
+.ec-stars{display:flex;align-items:center;gap:3px;color:#D9A94A}.ec-stars svg{width:15px;height:15px}.ec-stars .off{display:inline-flex;opacity:.3}.ec-stars small{margin-left:8px;color:var(--ink2)}
+.ec-forn{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.ec-forn li{display:grid;grid-template-columns:1fr auto;gap:0 8px;align-items:center}.ec-forn b{font-size:12.5px;font-weight:600}.ec-forn small{grid-column:1;font-size:11px}.ec-forn em{grid-row:1/3;grid-column:2;font-style:normal;font-size:10.5px;background:#E3EADB;color:#5E6B54;padding:3px 9px;border-radius:99px}.ec-forn em.p{background:#F6E9E2;color:var(--rust-d)}
+.ec{padding:20px 22px}
+.ec-top{font-size:22px}
+@media(max-width:559px){.endcta-img{gap:12px}.ec{padding:16px 16px}.ec-top{font-size:19px}.ec-2,.ec-4{transform:translateY(16px)}.ec-hrow{flex-direction:column;align-items:flex-start}.ec-forn em{display:none}.ec-ev small{font-size:0}.ec-ev small::first-line{font-size:11px}.ec-ev b{font-size:12px}}
+@media(min-width:860px){.endcta-in{grid-template-columns:.9fr 1.1fr}.endcta-img{justify-self:end;padding-bottom:28px}}
 </style>
 </head>
 <body>
@@ -638,12 +643,16 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <a class="btn light" href="index.html">Criar conta gratuitamente</a>
       </div>
       <div class="endcta-img" aria-hidden="true">
-        <div class="ec ec-a"><div class="ec-top"><span>Wedding Health</span></div>
-          <div class="ec-hrow"><div class="ec-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#F1E7E0" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#D9A94A" stroke-width="4" stroke-linecap="round" stroke-dasharray="68 94" transform="rotate(-90 18 18)"/></svg><b>72</b></div><p>A saúde do vosso casamento.<br><small>Nada de grave, um detalhe de cada vez.</small></p></div>
+        <div class="ec ec-1"><div class="ec-top"><span>Wedding Health</span></div>
+          <div class="ec-hrow"><div class="ec-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#F1E7E0" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#D9A94A" stroke-width="4" stroke-linecap="round" stroke-dasharray="68 94" transform="rotate(-90 18 18)"/></svg><b>72</b></div><p>A saúde do vosso casamento<br><small>Nada de grave, um detalhe de cada vez.</small></p></div>
           <ul class="ec-area"><li><span>Orçamento</span><i><u style="width:42%"></u></i></li><li><span>Tarefas</span><i><u style="width:13%"></u></i></li></ul></div>
-        <div class="ec ec-b"><div class="ec-top"><span>Google Calendar</span></div>
-          <ul class="ec-ev"><li><em>12</em><div><b>Prova do vestido</b><small>15:00 · Sincronizado</small></div></li><li><em>20</em><div><b>Reunião com o fotógrafo</b><small>18:30 · Sincronizado</small></div></li></ul></div>
-        <div class="ec ec-c"><div class="ec-top"><span>Memories</span></div><div class="ec-ph"><i style="background:#E9CFC3"></i><i style="background:#CBD3C0"></i><i style="background:#EBDCC9"></i></div><small>Os melhores momentos, reunidos</small></div>
+        <div class="ec ec-2"><div class="ec-top"><span>Google Calendar</span></div>
+          <ul class="ec-ev"><li><em>12</em><div><b>Prova do vestido</b><small>15:00</small></div></li><li><em>20</em><div><b>Reunião com o fotógrafo</b><small>18:30</small></div></li><li><em>04</em><div><b>Visita ao espaço</b><small>11:00</small></div></li></ul></div>
+        <div class="ec ec-3"><div class="ec-top"><span>Yes to the Dress</span><i class="ec-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3l3 3 3-3 1.500 5-2 3.500L19 21H5l2.500-9.500-2-3.500z"/></svg></i></div>
+          <div class="ec-dress"><i style="background:linear-gradient(160deg,#F6E9E2,#E9CFC3)"></i><i style="background:linear-gradient(160deg,#F3EEE6,#E3D8C8)"></i><i style="background:linear-gradient(160deg,#EEF0E8,#CBD3C0)"></i></div>
+          <div class="ec-stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><span class="off"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg></span><small>O vestido favorito</small></div></div>
+        <div class="ec ec-4"><div class="ec-top"><span>Fornecedores</span><i class="ec-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1.500-4.500h13L20 9M4 9v10h16V9M4 9c0 1.500 1.200 2.500 2.700 2.500S9.300 10.500 9.300 9c0 1.500 1.200 2.500 2.700 2.500s2.700-1 2.700-2.500c0 1.500 1.200 2.500 2.700 2.500S20 10.500 20 9"/></svg></i></div>
+          <ul class="ec-forn"><li><b>Quinta dos Sonhos</b><small>Espaço</small><em>Confirmado</em></li><li><b>Foto &amp; Vídeo</b><small>Fotografia</small><em class="p">Por decidir</em></li><li><b>Flores da Maria</b><small>Decoração</small><em>Confirmado</em></li></ul></div>
       </div>
     </div>
   </section>
