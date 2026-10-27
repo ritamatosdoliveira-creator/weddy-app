@@ -257,6 +257,25 @@ html{
 .stat-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 12px 11px; box-shadow:var(--shadow); position:relative; }
 .stat-card-icon{ margin-top:8px; color:var(--heading); opacity:.55; }
 .stat-card-icon svg{ width:15px; height:15px; }
+.orc-sum{ background:var(--card); border:1px solid var(--line); border-radius:18px; margin:6px 16px 12px; padding:16px 16px 6px; box-shadow:var(--shadow); }
+.orc-sum-l{ font-size:12.5px; color:var(--ink-soft); font-weight:500; margin-bottom:6px; }
+.orc-sum-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.orc-sum-n{ font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:600; color:var(--heading); line-height:1.1; }
+.orc-sum-p{ font-size:12.5px; color:var(--ink-soft); text-align:right; }
+.orc-sum-bar{ height:8px; border-radius:99px; background:rgba(20,20,20,0.07); margin:12px 0 14px; overflow:hidden; }
+.orc-sum-bar>i{ display:block; height:100%; border-radius:99px; background:var(--rust,#B96752); }
+.orc-sum-bar.over>i{ background:#B24A3C; }
+.orc-sum-mini{ display:flex; gap:8px; margin:0 16px 12px; }
+.orc-sum-mini>div{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px 11px; }
+.orc-sum-mini .l{ font-size:11.5px; color:var(--ink-soft); font-weight:500; }
+.orc-sum-mini .n{ font-size:15px; font-weight:700; color:var(--ink); margin-top:2px; }
+.orc-sum-mini .n.over{ color:#B24A3C; }
+.orc-sum-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; }
+.orc-sum-row:first-of-type{ border-top:0; }
+.orc-sum-dot{ width:10px; height:10px; border-radius:50%; flex:none; }
+.orc-sum-name{ flex:1; min-width:0; color:var(--ink); }
+.orc-sum-pct{ color:var(--ink-soft); font-size:13px; min-width:42px; text-align:right; }
+.orc-sum-val{ font-weight:700; color:var(--ink); min-width:74px; text-align:right; }
 .cat-row-v2{ background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 16px 9px; overflow:hidden; }
 .cat-row-head{ display:flex; align-items:center; gap:11px; padding:12px 13px; cursor:pointer; }
 .cat-row-mid{ flex:1; min-width:0; }
@@ -3472,6 +3491,7 @@ migrateTodoCategoryIcons();
 let weddingSettings = { coupleName1:'', coupleName2:'', weddingDate:'', venue:'', accentColor:'rust', heroPhotoUrl:null, heroPhotoPosX:50, heroPhotoPosY:50, heroPhotoZoom:100 };
 let activeTab = 'inicio';
 let guestSeg = 'noiva';
+let orcTab = 'orcamento';
 let openDesc = {};
 let openTable = {};
 let openGuestGroup = {};
@@ -4181,6 +4201,12 @@ const APP_I18N = {
     placeholderAge:'Idade',
     loadingLabel:'A carregar…',
     navBudgetTitle:'Orçamento',
+    orcTabMain:'Orçamento', orcTabSummary:'Resumo',
+    orcSpentTotal:'Total gasto', orcPctOfBudget:p=>`${p}% do orçamento`,
+    orcPaid:'Pago', orcToPay:'Por pagar', orcAvailable:'Disponível', orcOverBy:'Acima do orçamento',
+    orcByCategory:'Gasto por categoria', orcOtherCat:'Outros',
+    orcNoExpenses:'Ainda não registaste gastos. Quando o fizeres, o resumo aparece aqui.', orcGoExpenses:'Ver gastos',
+    orcSetTotal:'Define o orçamento total no separador Orçamento para veres a percentagem gasta.',
     budgetTotalLabel:'Orçamento total',
     budgetGuestsEstLabel:'Convidados (est.)',
     perGuestLabel:'€ / convidado',
@@ -5378,6 +5404,12 @@ const APP_I18N = {
     placeholderAge:'Age',
     loadingLabel:'Loading…',
     navBudgetTitle:'Budget',
+    orcTabMain:'Budget', orcTabSummary:'Summary',
+    orcSpentTotal:'Total spent', orcPctOfBudget:p=>`${p}% of budget`,
+    orcPaid:'Paid', orcToPay:'To pay', orcAvailable:'Available', orcOverBy:'Over budget',
+    orcByCategory:'Spent by category', orcOtherCat:'Other',
+    orcNoExpenses:'No expenses recorded yet. Once you add some, the summary shows up here.', orcGoExpenses:'View expenses',
+    orcSetTotal:'Set the total budget in the Budget tab to see the percentage spent.',
     budgetTotalLabel:'Total budget',
     budgetGuestsEstLabel:'Guests (est.)',
     perGuestLabel:'€ / guest',
@@ -7166,7 +7198,52 @@ function softUpdateCategoryValue(id, newValue){
   pushRemote();
 }
 
+function buildOrcResumo(){
+  const total = Number(state.budget.total)||0;
+  const spent = totalExpenseValue();
+  const paid = totalExpensePaid();
+  const toPay = totalExpenseRemaining();
+  const pct = total ? Math.round(spent/total*100) : 0;
+  const over = total>0 && spent>total;
+  const avail = total - spent;
+  if(!state.expenses.length){
+    return `<div class="orc-sum"><div class="orc-sum-l">${ta('orcSpentTotal')}</div><div class="orc-sum-n">${fmtEUR(0)}</div>
+      <div class="empty-note" style="padding:12px 0 8px;">${ta('orcNoExpenses')}</div>
+      <div style="padding:0 0 12px;"><button class="visit-action-btn" data-goto="gastos">${ta('orcGoExpenses')}</button></div></div>`;
+  }
+  const cats = state.categories.map((c,i)=>({name:c.name, v:spentByCategory(c.id), color:CAT_COLORS[i%CAT_COLORS.length]})).filter(x=>x.v>0);
+  const inCats = cats.reduce((a,x)=>a+x.v,0);
+  if(spent-inCats>0.5) cats.push({name:ta('orcOtherCat'), v:spent-inCats, color:'#B8ADA3'});
+  cats.sort((a,b)=>b.v-a.v);
+  const rows = cats.map(x=>`<div class="orc-sum-row"><span class="orc-sum-dot" style="background:${x.color}"></span><span class="orc-sum-name">${escapeHTML(x.name)}</span>${total?`<span class="orc-sum-pct">${Math.round(x.v/total*100)}%</span>`:''}<span class="orc-sum-val">${fmtEUR(x.v)}</span></div>`).join('');
+  return `
+  <div class="orc-sum">
+    <div class="orc-sum-l">${ta('orcSpentTotal')}</div>
+    <div class="orc-sum-top"><div class="orc-sum-n">${fmtEUR(spent)}</div>${total?`<div class="orc-sum-p">${ta('orcPctOfBudget')(pct)}</div>`:''}</div>
+    ${total?`<div class="orc-sum-bar ${over?'over':''}"><i style="width:${Math.min(100,pct)}%"></i></div>`:`<div class="empty-note" style="padding:8px 0 6px;">${ta('orcSetTotal')}</div>`}
+  </div>
+  <div class="orc-sum-mini">
+    <div><div class="l">${ta('orcPaid')}</div><div class="n">${fmtEUR(paid)}</div></div>
+    <div><div class="l">${ta('orcToPay')}</div><div class="n">${fmtEUR(toPay)}</div></div>
+    ${total?`<div><div class="l">${over?ta('orcOverBy'):ta('orcAvailable')}</div><div class="n ${over?'over':''}">${fmtEUR(Math.abs(avail))}</div></div>`:''}
+  </div>
+  <div class="section-label" style="display:flex; align-items:center; gap:10px;">${ta('orcByCategory')}<span style="flex:1; height:1px; background:var(--line);"></span></div>
+  <div class="orc-sum" style="padding-block:4px;">${rows}</div>
+  <div style="height:8px;"></div>`;
+}
+
 function viewOrcamento(){
+  const seg = `
+  <div class="segmented" style="margin-bottom:10px;">
+    <button data-orctab="orcamento" class="${orcTab==='orcamento'?'active':''}">${ta('orcTabMain')}</button>
+    <button data-orctab="resumo" class="${orcTab==='resumo'?'active':''}">${ta('orcTabSummary')}</button>
+  </div>`;
+  const head = `<div class="navbar"><h1>${ta('navBudgetTitle')}</h1><div class="navbar-botanical">${ICONS.botanical}</div></div>${seg}`;
+  if(orcTab==='resumo') return head + buildOrcResumo();
+  return head + viewOrcamentoPlano();
+}
+
+function viewOrcamentoPlano(){
   const total = state.budget.total;
   const guests = state.budget.guestsEstimate;
   const perGuest = guests? total/guests : 0;
@@ -7213,8 +7290,6 @@ function viewOrcamento(){
   }).join('');
 
   return `
-  <div class="navbar"><h1>${ta('navBudgetTitle')}</h1><div class="navbar-botanical">${ICONS.botanical}</div></div>
-
   <div class="stats-row">
     <div class="stat-card" style="background:#E7EBE1; border-color:#DCE2D3;">
       <div class="l" style="margin:0 0 4px;">${ta('budgetTotalLabel')}</div>
@@ -16008,6 +16083,9 @@ function bindHandlers(){
   // Convidados
   const openGuestSheetBtn = document.getElementById('open-guest-sheet');
   if(openGuestSheetBtn) openGuestSheetBtn.addEventListener('click', openGuestSheet);
+  document.querySelectorAll('.segmented button[data-orctab]').forEach(b=>{
+    b.addEventListener('click', ()=>{ orcTab = b.dataset.orctab; _origRender(); });
+  });
   document.querySelectorAll('.segmented button[data-seg]').forEach(b=>{
     b.addEventListener('click', ()=>{ guestSeg = b.dataset.seg; _origRender(); });
   });
