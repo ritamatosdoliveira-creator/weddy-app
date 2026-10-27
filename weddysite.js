@@ -123,7 +123,7 @@
     orn:'<svg class="ws-orn" viewBox="0 0 120 12" aria-hidden="true" focusable="false"><path d="M0 6h48M72 6h48" stroke="currentColor" stroke-width="1" fill="none"/><path d="M60 1.5 64.5 6 60 10.5 55.5 6z" fill="currentColor"/></svg>'
   };
 
-  var FONT_BASE = 'fonts/'; // relativo ao documento (site.html e index.html estão na raiz)
+  var FONT_BASE = '/fonts/'; // relativo ao documento (site.html e index.html estão na raiz)
   var CSS = [
   /* fontes alojadas localmente (OFL), sem pedidos ao Google */
   '@font-face{ font-family:"Cormorant Garamond"; font-style:normal; font-weight:300 700; font-display:swap; src:url("'+FONT_BASE+'cormorant-garamond.woff") format("woff"); }',
