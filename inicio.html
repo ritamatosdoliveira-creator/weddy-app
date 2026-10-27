@@ -506,6 +506,28 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
   .mainnav a:hover{background:#F6E3DA;color:var(--rust-d);text-decoration:none}
   .mainnav a:focus-visible{outline-offset:2px}
 }
+/* CTA final: iPhone + cartões a sair do ecrã */
+.endcta-store{margin:18px 0 0;font-size:14px;letter-spacing:.04em;color:#EBCFC5}
+.endcta-img.endcta-img{display:block;max-width:none;width:auto;justify-self:center}
+.ec-scale{--s:.43;width:calc(760px*var(--s));height:calc(560px*var(--s))}
+.ec-stage{position:relative;width:760px;height:560px;transform:scale(var(--s));transform-origin:0 0}
+.ec-glow{position:absolute;left:180px;top:60px;width:400px;height:440px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,226,214,.32),rgba(255,226,214,0));z-index:0}
+.ec-stage .ec{position:absolute!important;width:300px!important;transform:scale(.74)!important;transform-origin:0 0;z-index:1;margin:0}
+.ec-stage .ec-1{left:30px!important;top:50px!important}
+.ec-stage .ec-3{left:30px!important;top:292px!important}
+.ec-stage .ec-2{left:494px!important;top:84px!important}
+.ec-stage .ec-4{left:494px!important;top:322px!important}
+.ec-phone{position:absolute;left:262px;top:34px;width:236px;aspect-ratio:600/1226;z-index:3;background:#1F1B19;border-radius:38px;padding:7px;box-shadow:0 40px 70px -24px rgba(0,0,0,.6),inset 0 0 0 1.5px #4a423d}
+.ec-phone img{display:block;width:100%;height:100%;object-fit:cover;border-radius:31px}
+.ec-isl{position:absolute;z-index:2;left:50%;top:14px;width:64px;height:18px;border-radius:99px;background:#0d0b0a;transform:translateX(-50%)}
+@media(min-width:430px){.ec-scale{--s:.49}}
+@media(min-width:560px){.ec-scale{--s:.68}}
+@media(min-width:860px){.ec-scale{--s:.55}}
+@media(min-width:1100px){.ec-scale{--s:.72}}
+@media(min-width:1400px){.ec-scale{--s:.85}}
+@media(min-width:1700px){.ec-scale{--s:.95}}
+@media(prefers-reduced-motion:no-preference){.ec-stage .ec-1,.ec-stage .ec-4{animation:ecF 7s ease-in-out infinite}.ec-stage .ec-2,.ec-stage .ec-3{animation:ecF 7s ease-in-out -3.5s infinite}}
+@keyframes ecF{50%{translate:0 -7px}}
 </style>
 </head>
 <body>
@@ -712,8 +734,9 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <h2 id="t-cta">Começa a organizar <em>o teu grande dia.</em></h2>
         <p>O essencial é gratuito. Quando precisares de mais, o Premium é uma opção.</p>
         <a class="btn light" href="index.html">Criar conta gratuitamente</a>
+        <p class="endcta-store">Disponível na App Store</p>
       </div>
-      <div class="endcta-img" aria-hidden="true">
+      <div class="endcta-img" aria-hidden="true"><div class="ec-scale"><div class="ec-stage"><span class="ec-glow"></span>
         <div class="ec ec-1"><div class="ec-top"><span>Wedding Health</span></div>
           <div class="ec-hrow"><div class="ec-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#F1E7E0" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#D9A94A" stroke-width="4" stroke-linecap="round" stroke-dasharray="68 94" transform="rotate(-90 18 18)"/></svg><b>72</b></div><p>A saúde do vosso casamento<br><small>Nada de grave, um detalhe de cada vez.</small></p></div>
           <ul class="ec-area"><li><span>Orçamento</span><i><u style="width:42%"></u></i></li><li><span>Tarefas</span><i><u style="width:13%"></u></i></li></ul></div>
@@ -724,6 +747,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
           <div class="ec-stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg><span class="off"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.500l2.300 5 5.400.6-4 3.700 1.100 5.300L12 15.300 7.200 18l1.100-5.300-4-3.700 5.400-.6z"/></svg></span><small>O vestido favorito</small></div></div>
         <div class="ec ec-4"><div class="ec-top"><span>Fornecedores</span><i class="ec-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1.500-4.500h13L20 9M4 9v10h16V9M4 9c0 1.500 1.200 2.500 2.700 2.500S9.300 10.500 9.300 9c0 1.500 1.200 2.500 2.700 2.500s2.700-1 2.700-2.500c0 1.500 1.200 2.500 2.700 2.500S20 10.500 20 9"/></svg></i></div>
           <ul class="ec-forn"><li><b>Quinta dos Sonhos</b><small>Espaço</small><em>Confirmado</em></li><li><b>Foto &amp; Vídeo</b><small>Fotografia</small><em class="p">Por decidir</em></li><li><b>Flores da Maria</b><small>Decoração</small><em>Confirmado</em></li></ul></div>
+        <div class="ec-phone"><span class="ec-isl"></span><img src="inicio/ecra-checklist.jpg" width="600" height="1226" alt=""></div></div></div>
       </div>
     </div>
   </section>
