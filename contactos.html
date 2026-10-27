@@ -218,8 +218,9 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .fx-head{display:flex;flex-direction:column;gap:18px;margin-bottom:36px}
 .fx-eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink2);font-weight:500;margin:0 0 16px}
 .fx h2{font-weight:500;font-size:clamp(38px,5vw,60px);line-height:1.08}
-.fx-lead{margin-top:20px;max-width:46ch;color:var(--ink2);font-size:17px;line-height:1.7}
+.fx-lead{margin-top:20px;max-width:52ch;color:var(--ink2);font-size:17px;line-height:1.7}
 .fx-link{align-self:flex-start;color:var(--rust-d);font-weight:500;text-decoration:none;font-size:16px}
+.fx-side .fx-link{display:inline-block;margin-top:12px}
 .fx-link:hover,.fx-more:hover{text-decoration:underline;text-underline-offset:5px}
 .fx-ico{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#F6E9E2;color:var(--rust-d);flex:none}
 .fx-ico svg{width:26px;height:26px}
@@ -243,8 +244,8 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .fx-list h3{font-size:22px;margin-bottom:4px}
 .fx-list p{font-size:14px;color:var(--ink2);line-height:1.55}
 @media(min-width:760px){
-  .fx-head{flex-direction:row;justify-content:space-between;align-items:flex-end}
-  .fx-link{align-self:flex-end;margin-bottom:8px}
+  .fx-head{flex-direction:row;justify-content:flex-start;gap:clamp(40px,5vw,96px);align-items:flex-end}
+  .fx-side{max-width:52ch;padding-bottom:10px}.fx-side .fx-lead{margin-top:0}.fx-side .fx-link{display:inline-block;margin-top:14px}
   .fx-trio{grid-template-columns:repeat(3,1fr)}
 }
 @media(min-width:860px){
@@ -531,6 +532,8 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 @media(min-width:860px){.page-hero p.lead{max-width:none}.page-hero{padding-block:48px 28px}}
 @media(min-width:860px){.page-hero{display:grid;grid-template-columns:auto 1fr;column-gap:56px;align-items:end}.page-hero .fx-eyebrow{grid-column:1/-1}.page-hero h1{max-width:none;white-space:nowrap}.page-hero p.lead{max-width:46ch;margin:0 0 .9em}}
 @media(min-width:860px){.page-hero p.lead{max-width:62ch;margin-bottom:1.1em}}
+@media(min-width:860px){.page-hero{align-items:center}.page-hero p.lead{margin:0}}
+.page-hero p.lead{text-wrap:balance}
 </style>
 </head>
 <body>
