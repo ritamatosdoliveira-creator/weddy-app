@@ -701,6 +701,19 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
 .demo-device{padding:30px 0 16px;background:#FAF8F5}
 .demo-device video,.demo-device iframe,.demo-device .demo-ph{border-radius:0}
 .demo-device::after{bottom:6px}
+
+/* lado a lado */
+.demo-hero{grid-template-columns:1fr!important;max-width:760px;margin-inline:auto;text-align:center;padding-block:48px 8px}
+.demo-hero .demo-steps{text-align:left;max-width:520px;margin-inline:auto}
+.demo-hero .demo-cta{justify-content:center}
+.demo-pair{display:grid;grid-template-columns:1fr;gap:44px;justify-items:center;padding-block:24px 80px;max-width:1000px;margin-inline:auto}
+.demo-pair .demo-phone{margin:0;text-align:center;display:flex;flex-direction:column;align-items:center}
+.demo-pair .demo-device,.demo-pair .demo-device.live{width:340px;max-width:100%;height:auto;aspect-ratio:390/844;box-sizing:content-box}
+.demo-pair .demo-device.live{height:auto}
+.demo-pair .demo-cap{max-width:340px;margin:14px 0 0;font-size:14px;color:var(--ink2)}
+.demo-pair .demo-phone figcaption{max-width:340px}
+.demo-pair .btn{margin-top:14px}
+@media(min-width:860px){.demo-pair{grid-template-columns:1fr 1fr;align-items:start}}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
@@ -742,19 +755,19 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
       </ol>
       <div class="demo-cta"><a class="btn" href="/app/">Começar gratuitamente</a><a class="btn ghost" href="#experimentar">Experimentar a app</a></div>
     </div>
-    <figure class="demo-phone">
+  </section>
+  <section class="wrap demo-pair" aria-label="Vídeo e demonstração interativa">
+    <figure class="demo-phone demo-vid">
+      <p class="fx-eyebrow">Vê em vídeo</p>
       <div class="demo-device"><video controls autoplay muted loop playsinline preload="auto" poster="inicio/demo-poster.jpg" aria-label="Vídeo de demonstração da app Weddy" width="390" height="844"><source src="inicio/demo-video.mp4" type="video/mp4">O teu navegador não suporta vídeo.</video></div>
       <figcaption>Vídeo de 1 minuto e meio · dados de exemplo</figcaption>
     </figure>
-  </section>
-  <section class="wrap demo-live" id="experimentar" aria-labelledby="t-live">
-    <div class="demo-live-t">
+    <div class="demo-phone demo-livecol" id="experimentar">
       <p class="fx-eyebrow">Experimenta tu</p>
-      <h2 id="t-live">Toca, escreve e explora.</h2>
-      <p class="lead">Esta é a app a sério, com um casamento fictício. Nada do que fizeres aqui é guardado nem enviado.</p>
+    <div class="demo-device live" id="demo-box" aria-live="polite"><div class="demo-ph"><span>A app abre aqui</span></div></div>
+      <p class="demo-cap">Esta é a app a sério, com um casamento fictício. Nada do que fizeres aqui é guardado nem enviado.</p>
       <button class="btn" type="button" id="demo-start">Abrir a demonstração</button>
     </div>
-    <div class="demo-device live" id="demo-box" aria-live="polite"><div class="demo-ph"><span>A app abre aqui</span></div></div>
   </section>
   <script>
   (function(){
