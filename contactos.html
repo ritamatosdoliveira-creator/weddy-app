@@ -666,6 +666,24 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .page-hero p.lead{text-wrap:balance}
 @media(min-width:860px) and (max-width:1179px){.mainnav a{padding:10px 12px!important;font-size:14px!important}.mainnav{gap:2px!important}}
 @media(min-width:860px) and (max-width:1019px){.mainnav a{padding:9px 8px!important;font-size:13.5px!important}header.top .btn.small{padding:0 14px!important;font-size:14px!important}}
+.demo-hero{display:grid;gap:36px;padding-block:48px 32px;align-items:center}
+.demo-t h1{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:clamp(44px,8vw,84px);line-height:1;margin:6px 0 14px;color:var(--ink)}
+.demo-t h1 em{color:var(--rust);font-style:italic}
+.demo-steps{list-style:none;margin:22px 0 26px;padding:0;display:grid;gap:10px;counter-reset:s}
+.demo-steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;column-gap:12px;align-items:baseline;font-size:15px;color:var(--ink2)}
+.demo-steps li::before{content:counter(s);grid-row:1/3;width:26px;height:26px;border-radius:50%;background:var(--blush);color:var(--rust-dark);display:grid;place-items:center;font-size:13px;font-weight:600}
+.demo-steps b{color:var(--ink);font-weight:600}
+.demo-cta{display:flex;flex-wrap:wrap;gap:12px}
+.demo-phone{margin:0;justify-self:center;text-align:center}
+.demo-phone figcaption{margin-top:12px;font-size:13px;color:var(--ink2)}
+.demo-device{width:min(320px,82vw);aspect-ratio:390/844;border-radius:38px;border:9px solid var(--ink);background:#000;overflow:hidden;box-shadow:0 24px 60px -24px rgba(48,44,41,.5);margin-inline:auto}
+.demo-device video,.demo-device iframe{width:100%;height:100%;border:0;display:block;object-fit:cover;background:var(--cream)}
+.demo-live{display:grid;gap:32px;padding-block:40px 80px;align-items:center}
+.demo-live h2{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:clamp(34px,5vw,52px);line-height:1.05;margin:6px 0 12px;color:var(--ink)}
+.demo-live .btn{margin-top:18px}
+.demo-device.live{width:min(360px,86vw)}
+.demo-ph{height:100%;display:grid;place-items:center;background:var(--cream2);color:var(--ink2);font-size:14px}
+@media(min-width:860px){.demo-hero,.demo-live{grid-template-columns:1.1fr .9fr;gap:6vw;max-width:1180px;margin-inline:auto}.demo-device{width:320px}.demo-device.live{width:360px}}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
@@ -682,6 +700,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
       <a href="inicio.html#gratuito">Funcionalidades</a>
       <a href="inicio.html#como">Como funciona</a>
       <a href="inicio.html#premium">Premium</a>
+      <a href="demonstracao.html">Demonstração</a>
       <a href="sobre.html">Sobre nós</a>
       <a href="contactos.html" aria-current="page">Contactos</a>
       <a class="navcta" href="index.html">Começar gratuitamente</a>
