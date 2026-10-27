@@ -599,6 +599,19 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 @media(max-width:859px){.hero-outer{overflow:hidden}.hero{position:relative}.frame{position:absolute!important;right:-5%!important;left:auto!important;top:auto!important;bottom:70px;width:38%!important;margin:0!important;z-index:1;transform:rotate(5deg);opacity:.95}.frame img{height:auto!important;aspect-ratio:1/1.35!important}}
 @media(max-width:859px){.endcta-in{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;padding-block:44px!important}.endcta-img.endcta-img{justify-self:end!important;margin-right:-96px}.ec-scale{--s:.4!important}.endcta .btn.light{padding-inline:16px;font-size:14px!important;min-height:44px}.endcta h2{font-size:25px!important;max-width:none}.endcta-t>p:not(.endcta-eye){margin:14px 0 20px}.endcta .stores{flex-wrap:wrap}}
 @media(min-width:601px) and (max-width:859px){.ec-scale{--s:.4!important}.endcta-img.endcta-img{margin-right:0}}
+/* secção final no telemóvel: texto em cima, imagem inteira por baixo (sem cortes) */
+.as-meta small{letter-spacing:0!important;text-transform:none!important;font-size:7px!important}.as-d{display:none!important}
+@media(max-width:859px){
+  .endcta-in{grid-template-columns:minmax(0,1fr)!important;gap:20px!important}
+  .endcta-img.endcta-img{justify-self:center!important;margin-right:0!important;margin-inline:auto}
+  .ec-scale{--s:.42!important}
+}
+@media(min-width:360px) and (max-width:859px){.ec-scale{--s:.44!important}}
+@media(min-width:390px) and (max-width:859px){.ec-scale{--s:.47!important}}
+@media(min-width:430px) and (max-width:859px){.ec-scale{--s:.54!important}}
+@media(min-width:500px) and (max-width:859px){.ec-scale{--s:.64!important}}
+@media(min-width:600px) and (max-width:859px){.ec-scale{--s:.76!important}}
+@media(max-width:859px){.endcta .btn.light{display:none}}
 .stage .phone video{display:block;width:100%;height:auto;border-radius:30px;background:#FAF8F5}
 #demo-full{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:var(--cream,#FAF8F5)}
 #demo-full iframe{flex:1;min-height:0;width:100%;border:0;display:block}
