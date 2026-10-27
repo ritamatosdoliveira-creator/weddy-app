@@ -544,6 +544,16 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .as-d{font-size:9.5px;color:#555;line-height:1.4;margin:8px 0 0}
 @media(min-width:760px) and (max-width:1599px){.fx-head{flex-direction:column;align-items:flex-start;gap:14px}}
 @media(min-width:1180px){.fx-side{max-width:none}.fx-side .fx-lead{max-width:none;white-space:nowrap;font-size:16px}}
+.fx-shot2{display:none}
+.ui-pay .ui-top small{font-size:11.5px;color:var(--ink2)}
+.pay-sum{display:flex;gap:18px;align-items:center;margin:6px 0 16px}
+.pay-ring{position:relative;width:96px;height:96px;flex:none}.pay-ring svg{width:100%;height:100%}.pay-ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:24px;font-weight:500}
+.pay-sum ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;flex:1;font-size:12.5px;color:var(--ink2)}
+.pay-sum li{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center}.pay-sum li i{width:10px;height:10px;border-radius:50%}.pay-sum li b{color:var(--ink);font-weight:600;white-space:nowrap}.pay-sum li{white-space:nowrap}
+.pay-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pay-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid #f0e8e1;border-radius:12px;padding:10px 12px}
+.pay-list b{display:block;font-size:12.5px;font-weight:600}.pay-list small{font-size:11px;color:var(--ink2)}.pay-list em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--rust-d)}
+@media(min-width:1400px){.fx-main{grid-template-columns:.85fr .9fr 1.05fr;gap:28px}.fx-shot2{display:grid}.fx-shot2 .ui{max-width:340px}}
 </style>
 </head>
 <body>
@@ -614,6 +624,9 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
           <p>Acompanha todos os gastos, define limites e mantém o controlo do teu orçamento, para que nada te apanhe de surpresa.</p>
           <a class="fx-more" href="index.html">Ver detalhes <span aria-hidden="true">→</span></a>
         </div>
+        <figure class="fx-shot fx-shot2" aria-hidden="true"><div class="ui ui-pay"><div class="ui-top"><span>Pagamentos</span><small>Próximos</small></div>
+   <div class="pay-sum"><div class="pay-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14.500" fill="none" stroke="#F1E7E0" stroke-width="4.500"/><circle cx="18" cy="18" r="14.500" fill="none" stroke="#C9826B" stroke-width="4.500" stroke-linecap="round" stroke-dasharray="56 91" transform="rotate(-90 18 18)"/></svg><b>62%</b></div><ul><li><i style="background:#C9826B"></i>Pago<b>18 500 €</b></li><li><i style="background:#F1E7E0"></i>Por pagar<b>11 500 €</b></li><li><i style="background:#A8B39C"></i>Disponível<b>20 000 €</b></li></ul></div>
+   <ul class="pay-list"><li><div><b>Quinta dos Sonhos</b><small>Sinal · 12 nov</small></div><em>3 000 €</em></li><li><div><b>Flores da Maria</b><small>1.ª prestação · 30 nov</small></div><em>600 €</em></li><li><div><b>Foto &amp; Vídeo</b><small>Reserva · 15 dez</small></div><em>800 €</em></li></ul></div></figure>
         <figure class="fx-shot" aria-hidden="true"><svg class="fx-sprig" viewBox="0 0 120 200" fill="none" stroke="#B96752" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M60 196C58 150 62 100 78 20"/><path d="M62 160c-14-4-24-14-28-28 14 2 25 12 28 28zM65 128c14-4 24-14 28-28-14 2-25 12-28 28zM68 96c-13-5-22-15-25-28 13 3 23 12 25 28zM72 64c12-5 20-14 22-26-12 3-21 11-22 26z"/></svg>
   <div class="ui ui-budget"><div class="ui-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span>Orçamento</span></div>
    <div class="ui-tabs"><u class="on">Resumo</u><u>Despesas</u><u>Categorias</u></div>
