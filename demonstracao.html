@@ -724,6 +724,11 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
 @media(min-width:860px) and (max-width:999px){.demo-hero{grid-template-columns:1fr!important;text-align:center!important}.demo-hero .demo-steps{margin-inline:auto!important}.demo-hero .demo-cta{justify-content:center!important}}
 @media(max-width:999px){.demo-hero .demo-pair{grid-template-columns:1fr}}
 @media(min-width:1000px){.demo-hero .demo-t h1{font-size:clamp(44px,4.6vw,64px)}}
+/* telemóvel: o mockup nunca passa da largura do ecrã */
+.demo-pair .demo-device,.demo-pair .demo-device.live{width:min(340px,calc(100vw - 80px))!important;max-width:none!important}
+.demo-pair .demo-cap,.demo-pair .demo-phone figcaption{max-width:min(340px,calc(100vw - 48px))}
+.demo-hero,.demo-pair{min-width:0}
+@media(max-width:600px){.demo-hero{padding-block:28px 48px!important}.demo-hero .demo-pair{gap:36px}}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
