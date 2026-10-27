@@ -669,6 +669,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
+<script src="site-i18n.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#principal">Saltar para o conteúdo</a>
@@ -719,13 +720,13 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 document.getElementById('cform').addEventListener('submit',function(e){e.preventDefault();
 var f=e.target,n=f.nome.value.trim(),m=f.email.value.trim(),t=f.msg.value.trim(),er=document.getElementById('c-erro'),ok=document.getElementById('c-ok'),bt=document.getElementById('c-btn');
 ok.style.display='none';
-if(!n||!t||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)){er.textContent='Preenche o nome, um email válido e a mensagem.';er.style.display='block';return}
-er.style.display='none';bt.disabled=true;bt.textContent='A enviar...';
+if(!n||!t||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)){er.textContent=(window.weddyT||String)('Preenche o nome, um email válido e a mensagem.');er.style.display='block';return}
+er.style.display='none';bt.disabled=true;bt.textContent=(window.weddyT||String)('A enviar...');
 fetch('https://europe-west1-weddy-app-bd12f.cloudfunctions.net/sendContactMessage',{method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({nome:n,email:m,assunto:f.assunto.value,msg:t,website:f.website.value})})
 .then(function(r){if(!r.ok)throw 0;ok.style.display='block';f.reset()})
-.catch(function(){er.innerHTML='Não foi possível enviar agora. Escreve-nos para <a href="mailto:geral@weddy.pt">geral@weddy.pt</a>.';er.style.display='block'})
-.finally(function(){bt.disabled=false;bt.textContent='Enviar pedido'});});
+.catch(function(){er.innerHTML=(window.weddyT||String)('Não foi possível enviar agora. Escreve-nos para')+' <a href="mailto:geral@weddy.pt">geral@weddy.pt</a>.';er.style.display='block'})
+.finally(function(){bt.disabled=false;bt.textContent=(window.weddyT||String)('Enviar pedido')});});
 </script>
 
 </main>
