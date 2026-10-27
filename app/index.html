@@ -4304,6 +4304,8 @@ const APP_I18N = {
     homeToSpendLabel:'Por gastar',
     homeBigDayLabel:'O grande dia',
     donutAllocatedLabel:'repartido',
+    budgetOverTitle:'Orçamento ultrapassado',
+    budgetOverBody:(pct,extra)=>`Já distribuíste ${pct}% do orçamento total (mais ${extra}% do que tens previsto). Revê os valores das categorias para os ajustar.`,
 
     btnRename:'Renomear',
     btnDelete:'Eliminar',
@@ -5515,6 +5517,8 @@ const APP_I18N = {
     homeToSpendLabel:'Left to spend',
     homeBigDayLabel:'The big day',
     donutAllocatedLabel:'allocated',
+    budgetOverTitle:'Budget exceeded',
+    budgetOverBody:(pct,extra)=>`You have allocated ${pct}% of your total budget (${extra}% more than planned). Review the category amounts to adjust them.`,
 
     btnRename:'Rename',
     btnDelete:'Delete',
@@ -6657,6 +6661,63 @@ function updateChatFab(){
   const closeBtn = document.getElementById('chat-panel-close');
   if(closeBtn) closeBtn.addEventListener('click', ()=>{ closeChatPanel(); });
 })();
+
+/* Aviso quando as categorias somam mais de 100% do orçamento total (uma vez por cada valor novo). */
+let _budgetOverKey = (function(){ try{ return localStorage.getItem('weddy-budget-over-key')||''; }catch(e){ return ''; } })();
+function maybeWarnBudgetOver(pctSum){
+  const key = pctSum > 1.0005 ? String(Math.round(pctSum*1000)) : '';
+  if(!key){ if(_budgetOverKey){ _budgetOverKey=''; try{ localStorage.removeItem('weddy-budget-over-key'); }catch(e){} } return; }
+  if(key === _budgetOverKey || document.getElementById('budget-over-popup')) return;
+  _budgetOverKey = key; try{ localStorage.setItem('weddy-budget-over-key', key); }catch(e){}
+  const pct = Math.round(pctSum*1000)/10, extra = Math.round((pctSum-1)*1000)/10;
+  const o = document.createElement('div');
+  o.id = 'budget-over-popup'; o.className = 'iab-warning show'; o.setAttribute('role','alertdialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-labelledby','budget-over-title');
+  o.innerHTML = `<div class="iab-warning-card">
+    <div class="iab-warning-icon" style="color:var(--rust-dark);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.01"/></svg></div>
+    <div class="iab-warning-title" id="budget-over-title">${escapeHTML(ta('budgetOverTitle'))}</div>
+    <p style="margin:0 0 6px;">${escapeHTML(ta('budgetOverBody')(pct, extra))}</p>
+    <button class="login-btn" id="budget-over-ok" style="margin-top:14px;">${escapeHTML(ta('btnOk'))}</button>
+  </div>`;
+  const host = document.getElementById('app') || document.body;
+  (document.getElementById('payment-alert-popup')?.parentNode || document.body).appendChild(o);
+  const close = ()=>o.remove();
+  o.querySelector('#budget-over-ok').addEventListener('click', close);
+  o.addEventListener('click', e=>{ if(e.target===o) close(); });
+  o.querySelector('#budget-over-ok').focus();
+}
+
+/* O botão do assistente pode ser arrastado com o toque para onde não tape nada; a posição fica guardada. */
+(function makeChatFabDraggable(){
+  const fab = document.getElementById('chat-fab'); if(!fab) return;
+  fab.style.touchAction = 'none';
+  const KEY = 'weddy-chat-fab-pos';
+  function clamp(r,b){
+    const w=fab.offsetWidth||52, h=fab.offsetHeight||52, m=8;
+    return { r:Math.min(Math.max(r,m), Math.max(m, innerWidth-w-m)), b:Math.min(Math.max(b,m), Math.max(m, innerHeight-h-m)) };
+  }
+  function apply(r,b){ const c=clamp(r,b); fab.style.setProperty('right', c.r+'px'); fab.style.setProperty('bottom', c.b+'px'); return c; }
+  try{ const sv = JSON.parse(localStorage.getItem(KEY)||'null'); if(sv && isFinite(sv.r) && isFinite(sv.b)) apply(sv.r, sv.b); }catch(e){}
+  window.addEventListener('resize', ()=>{ if(fab.style.right) apply(parseFloat(fab.style.right), parseFloat(fab.style.bottom)); });
+  let sx=0, sy=0, sr=0, sb=0, moved=false, id=null;
+  fab.addEventListener('pointerdown', e=>{
+    id=e.pointerId; moved=false; sx=e.clientX; sy=e.clientY;
+    const rc=fab.getBoundingClientRect(); sr=innerWidth-rc.right; sb=innerHeight-rc.bottom;
+    try{ fab.setPointerCapture(id); }catch(_){}
+  });
+  fab.addEventListener('pointermove', e=>{
+    if(e.pointerId!==id) return;
+    const dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!moved && Math.hypot(dx,dy)<8) return;
+    moved=true; apply(sr-dx, sb-dy);
+  });
+  function end(e){
+    if(e.pointerId!==id) return; id=null;
+    if(moved){ try{ localStorage.setItem(KEY, JSON.stringify({r:parseFloat(fab.style.right), b:parseFloat(fab.style.bottom)})); }catch(_){}
+      fab._justDragged = true; setTimeout(()=>{ fab._justDragged=false; }, 350); }
+  }
+  fab.addEventListener('pointerup', end); fab.addEventListener('pointercancel', end);
+  fab.addEventListener('click', e=>{ if(fab._justDragged){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+})();
 let paymentAlertDismissed = false;
 try{ paymentAlertDismissed = localStorage.getItem('weddy-payment-alert-dismissed-date') === new Date().toDateString(); }catch(e){}
 function maybeShowPaymentAlert(){
@@ -7286,6 +7347,7 @@ function buildDonutSection(){
   const total = state.budget.total;
   const pctOf = c => total ? Number(c.value)/total : 0;
   const pctSum = state.categories.reduce((s,c)=>s+pctOf(c),0);
+  setTimeout(()=>maybeWarnBudgetOver(pctSum),0);
   const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(pctOf(c)*1000)/10}%</span>`).join('');
   return `
   <div class="donut-chart-card">
