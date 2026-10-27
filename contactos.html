@@ -499,6 +499,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 @media(min-width:860px){.about{grid-template-columns:1.15fr .85fr;gap:72px}.about-img{max-width:440px;justify-self:end}.moves-row{grid-template-columns:repeat(3,1fr)}.moves-row article+article{border-top:0;border-left:1px solid #efe6df}}
 @media(min-width:860px){.about,.moves{max-width:1080px;margin-inline:auto}.about{grid-template-columns:1fr 400px;gap:64px}.about-img{max-width:400px;justify-self:end}.about-img img{max-height:520px;object-fit:cover}}
 @media(min-width:860px){.about h1{white-space:nowrap}}
+@media(min-width:860px){.about,.moves{max-width:none}.about{grid-template-columns:1.1fr .9fr;gap:5vw;padding-block:48px 72px}.about h1{font-size:clamp(64px,7.4vw,128px)}.about .lead{max-width:22ch;font-size:clamp(30px,2.9vw,52px)}.about-p{max-width:40ch;font-size:clamp(18px,1.35vw,22px)}.about-img{max-width:none;width:100%;justify-self:end}.about-img img{max-height:none;object-fit:cover;aspect-ratio:4/5}.moves-row article{padding:clamp(28px,3vw,48px)}.moves-row h3{font-size:clamp(27px,2.2vw,36px)}.moves-row p{font-size:clamp(16px,1.2vw,19px)}}
 </style>
 </head>
 <body>
@@ -534,22 +535,29 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
     </div>
     <form class="cform" id="cform" novalidate>
       <h2>Pedido de informação</h2>
-      <p class="hint">Preenche o formulário e abrimos o teu email com a mensagem pronta a enviar.</p>
+      <p class="hint">Preenche o formulário e enviamos a tua mensagem diretamente para a nossa equipa.</p>
       <div class="fld"><label for="c-nome">Nome</label><input id="c-nome" name="nome" autocomplete="name" required></div>
       <div class="fld"><label for="c-email">O teu email</label><input id="c-email" name="email" type="email" autocomplete="email" required></div>
       <div class="fld"><label for="c-assunto">Assunto</label><select id="c-assunto" name="assunto"><option>Pedido de informação</option><option>Weddy Premium</option><option>Parcerias e fornecedores</option><option>Suporte</option><option>Outro assunto</option></select></div>
       <div class="fld"><label for="c-msg">Mensagem</label><textarea id="c-msg" name="msg" required></textarea></div>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+      <p id="c-ok" role="status" style="color:#4d6140;background:#eef3e9;border-radius:12px;padding:12px 14px;font-size:15px;margin:0 0 12px;display:none">Mensagem enviada. Respondemos em 1 a 2 dias úteis.</p>
       <p id="c-erro" role="alert" style="color:#9A4F3D;font-size:14.5px;margin:0 0 12px;display:none">Preenche o nome, o email e a mensagem.</p>
-      <button class="btn" type="submit">Enviar pedido</button>
-      <p class="fine">Ao enviar, abre-se a tua aplicação de email com a mensagem para geral@weddy.pt. Não guardamos nada neste formulário. Se preferires, escreve diretamente para <a href="mailto:geral@weddy.pt">geral@weddy.pt</a>.</p>
+      <button class="btn" id="c-btn" type="submit">Enviar pedido</button>
+      <p class="fine">A tua mensagem segue para geral@weddy.pt e não fica guardada no site. Se preferires, escreve diretamente para <a href="mailto:geral@weddy.pt">geral@weddy.pt</a>.</p>
     </form>
   </div>
 <script>
 document.getElementById('cform').addEventListener('submit',function(e){e.preventDefault();
-var f=e.target,n=f.nome.value.trim(),m=f.email.value.trim(),t=f.msg.value.trim(),er=document.getElementById('c-erro');
-if(!n||!m||!t||m.indexOf('@')<1){er.style.display='block';return}er.style.display='none';
-var body='Nome: '+n+'\nEmail: '+m+'\n\n'+t;
-location.href='mailto:geral@weddy.pt?subject='+encodeURIComponent(f.assunto.value+' | Weddy')+'&body='+encodeURIComponent(body);});
+var f=e.target,n=f.nome.value.trim(),m=f.email.value.trim(),t=f.msg.value.trim(),er=document.getElementById('c-erro'),ok=document.getElementById('c-ok'),bt=document.getElementById('c-btn');
+ok.style.display='none';
+if(!n||!t||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)){er.textContent='Preenche o nome, um email válido e a mensagem.';er.style.display='block';return}
+er.style.display='none';bt.disabled=true;bt.textContent='A enviar...';
+fetch('https://europe-west1-weddy-app-bd12f.cloudfunctions.net/sendContactMessage',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({nome:n,email:m,assunto:f.assunto.value,msg:t,website:f.website.value})})
+.then(function(r){if(!r.ok)throw 0;ok.style.display='block';f.reset()})
+.catch(function(){er.innerHTML='Não foi possível enviar agora. Escreve-nos para <a href="mailto:geral@weddy.pt">geral@weddy.pt</a>.';er.style.display='block'})
+.finally(function(){bt.disabled=false;bt.textContent='Enviar pedido'});});
 </script>
 
 </main>
