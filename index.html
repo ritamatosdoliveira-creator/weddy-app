@@ -1124,6 +1124,7 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .se-row2{ display:grid; grid-template-columns:1fr; gap:0; }
 .se-del,.se-chip{ border:0; background:rgba(185,103,82,.1); color:var(--rust-dark); border-radius:999px; padding:0 14px; min-height:38px; font:700 12.5px inherit; font-family:inherit; cursor:pointer; margin-top:8px; }
 .se-slug{ display:flex; align-items:center; gap:0; border:1.6px solid var(--line); background:#fff; border-radius:12px; overflow:hidden; }
+.se-slug .se-slugcode{ padding:0 12px 0 0; font-size:13px; font-weight:600; color:var(--rust-dark); white-space:nowrap; }
 .se-slug > span{ padding:0 0 0 12px; font-size:13px; color:var(--ink-soft); white-space:nowrap; } .se-slug .se-in{ border:0; border-radius:0; padding-left:2px; min-width:0; }
 .se-slug.locked{ padding:12px 13px; } .se-slug.locked span{ padding:0; }
 .se-good{ color:#42703D; font-weight:700; } .se-bad{ color:#B3402E; font-weight:700; }
@@ -12521,7 +12522,7 @@ const SITE_UI = {
     fLang:'Idioma do site', langPt:'Português', langEn:'English', fTz:'Fuso horário do casamento',
     fCount:'Mostrar contagem decrescente', fExpired:'Mensagem depois do casamento (opcional)', fExpiredPh:'Obrigado por celebrarem connosco!',
     namesDate:'Nomes e data vêm das vossas Definições', namesDateHelp:'Alterá-los lá atualiza o site (depois de publicares de novo).', namesLabel:'Noivos', dateLabel:'Data', missing:'por definir',
-    fSlug:'Endereço do site', slugPrefix:'weddy.pt/c/', slugHelp:'Só letras minúsculas, números e hífens. Depois de publicado, o endereço não muda.', slugLocked:'O endereço fica fixo depois da primeira publicação, para os links já partilhados continuarem a funcionar.',
+    fSlug:'Endereço do site', slugPrefix:'weddy.pt/c/', slugHelp:'Só letras minúsculas, números e hífens. O código no fim torna o endereço só vosso e não muda. Depois de publicado, o endereço não muda.', slugLocked:'O endereço fica fixo depois da primeira publicação, para os links já partilhados continuarem a funcionar.',
     slugChecking:'A verificar…', slugOk:'Disponível', slugTaken:'Este endereço já está ocupado.', slugSuggest:'Sugestões:', slugErrNet:'Não foi possível verificar agora.',
     slugEmpty:'Escolhe um endereço.', slugShort:'Demasiado curto (mínimo 3).', slugLong:'Demasiado longo (máximo 40).', slugChars:'Usa só letras minúsculas, números e hífens (sem hífens seguidos nem nas pontas).', slugReserved:'Este endereço está reservado.',
     dTemplate:'Modelo', tplEditorial:'Editorial', tplClassic:'Clássico', tplModern:'Moderno',
@@ -12573,7 +12574,7 @@ const SITE_UI = {
     fLang:'Site language', langPt:'Português', langEn:'English', fTz:'Wedding time zone',
     fCount:'Show countdown', fExpired:'Message after the wedding (optional)', fExpiredPh:'Thank you for celebrating with us!',
     namesDate:'Names and date come from your Settings', namesDateHelp:'Changing them there updates the site (after you publish again).', namesLabel:'Couple', dateLabel:'Date', missing:'not set',
-    fSlug:'Site address', slugPrefix:'weddy.pt/c/', slugHelp:'Lowercase letters, numbers and hyphens only. Once published, the address cannot change.', slugLocked:'The address is fixed after the first publication so shared links keep working.',
+    fSlug:'Site address', slugPrefix:'weddy.pt/c/', slugHelp:'Lowercase letters, numbers and hyphens only. The code at the end makes the address yours alone and cannot be changed. Once published, the address cannot change.', slugLocked:'The address is fixed after the first publication so shared links keep working.',
     slugChecking:'Checking…', slugOk:'Available', slugTaken:'This address is already taken.', slugSuggest:'Suggestions:', slugErrNet:"Couldn't check right now.",
     slugEmpty:'Choose an address.', slugShort:'Too short (minimum 3).', slugLong:'Too long (maximum 40).', slugChars:'Use lowercase letters, numbers and single hyphens (not at the ends).', slugReserved:'This address is reserved.',
     dTemplate:'Template', tplEditorial:'Editorial', tplClassic:'Classic', tplModern:'Modern',
@@ -12621,13 +12622,31 @@ function siteSource(){
   const s = weddingSettings || {};
   return { names:[(s.coupleName1||'').trim(), (s.coupleName2||'').trim()], date:s.weddingDate||'', schedule: buildGuestVisibleProgram() };
 }
+// Endereço = nome-ano + código curto (ex.: rita-e-tiago-2027-k7p2). O código evita
+// que dois casais com os mesmos nomes disputem o mesmo endereço e torna-o difícil de adivinhar.
+const SITE_SLUG_CODE_RE = /-(?=[a-z2-9]*[a-z])(?=[a-z2-9]*[2-9])[a-z2-9]{4}$/;
+function siteNewSlugCode(){
+  if(siteS.slugCode) return siteS.slugCode;
+  const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let c;
+  do{ c=''; for(let i=0;i<4;i++) c += A[Math.floor(Math.random()*A.length)]; }while(!/[a-z]/.test(c) || !/[2-9]/.test(c));
+  return (siteS.slugCode = c);
+}
+function siteSlugParts(slug){
+  slug = String(slug||''); const m = slug.match(SITE_SLUG_CODE_RE);
+  return m ? { name: slug.slice(0, -5), code: m[0].slice(1) } : { name: slug, code: '' };
+}
+function siteBuildSlug(namePart, code){
+  const n = String(namePart||'').replace(/^-+|-+$/g,'');
+  return n ? (n + '-' + (code || siteNewSlugCode())) : '';
+}
 function siteSuggestSlug(){
   const s = weddingSettings || {};
   const a = (s.coupleName1||'').trim().split(/\s+/)[0], b = (s.coupleName2||'').trim().split(/\s+/)[0];
   let base = WeddySite.slugify([a,b].filter(Boolean).join(' e '));
   const y = (s.weddingDate||'').slice(0,4);
-  if(base && y) base = (base+'-'+y).slice(0, WeddySite.siteLimits.slugMax);
-  return base || '';
+  if(base && y) base = base+'-'+y;
+  base = base.slice(0, WeddySite.siteLimits.slugMax - 5).replace(/-+$/,'');
+  return siteBuildSlug(base, '');
 }
 function siteDefaultDraft(){
   const s = weddingSettings || {};
@@ -12799,9 +12818,11 @@ function sePhoto(path, label){
 function seTabGeral(){
   const src = siteSource(); const names = src.names.filter(Boolean).join(' & ');
   const published = siteStatus()==='published' || (siteS.doc && siteS.doc.slug);
+  if(!published && siteS.draft && !SITE_SLUG_CODE_RE.test(siteS.draft.slug||'')){ const nm = String(siteS.draft.slug||'').slice(0, WeddySite.siteLimits.slugMax-5); siteS.draft.slug = siteBuildSlug(nm, ''); }
+  const slugParts = siteSlugParts(siteS.draft && siteS.draft.slug);
   const slugBlock = published
     ? `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug locked"><span>${ts('slugPrefix')}</span><b>${escapeHTML(siteSlugNow())}</b></div><div class="se-hint">${ts('slugLocked')}</div></div>`
-    : `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug"><span>${ts('slugPrefix')}</span><input class="se-in" type="text" id="site-slug" data-siteslug autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${WeddySite.siteLimits.slugMax}" value="${escapeHTML(siteS.draft.slug||'')}"></div><div class="se-hint">${ts('slugHelp')}</div><div class="se-hint" id="site-slugmsg" role="status">${seSlugMsg()}</div></div>`;
+    : `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug"><span>${ts('slugPrefix')}</span><input class="se-in" type="text" id="site-slug" data-siteslug autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${WeddySite.siteLimits.slugMax-5}" value="${escapeHTML(slugParts.name)}"><b class="se-slugcode">${slugParts.code?'-'+escapeHTML(slugParts.code):''}</b></div><div class="se-hint">${ts('slugHelp')}</div><div class="se-hint" id="site-slugmsg" role="status">${seSlugMsg()}</div></div>`;
   return `
   <div class="se-card">
     <div class="se-card-t">${ts('namesDate')}</div>
@@ -13209,7 +13230,8 @@ function siteCheckSlugSoon(){
     } else if(t.matches && t.matches('[data-siteslug]')){
       const clean = t.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').replace(/-{2,}/g,'-');
       if(clean!==t.value) t.value = clean;
-      siteS.draft.slug = clean; siteS.slugRes = null;
+      const sp = siteSlugParts(siteS.draft.slug);
+      siteS.draft.slug = siteBuildSlug(clean.slice(0, WeddySite.siteLimits.slugMax-5), sp.code); siteS.slugRes = null;
       siteMarkDirty(); siteCheckSlugSoon();
     }
   });

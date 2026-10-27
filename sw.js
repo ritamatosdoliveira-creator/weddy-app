@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weddy-v242-largura-desktop';
+const CACHE_NAME = 'weddy-v243-endereco-site';
 const FILES_TO_CACHE = ['./','./index.html','./weddysite.js','./site-mockup.jpg','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./login-bg.jpg','./dsk-logo.png','./dsk-casal.png','./dsk-flor-bl.png','./dsk-flor-tr.png','./dsk-flor-tl.png','./logo-happybox.png','./logo-dgpublicidade.png','./logo-jtestudios.png','./logo-quintasantoandre.png'];
 const EXTERNAL_FILES_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
