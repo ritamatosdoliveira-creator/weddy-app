@@ -393,17 +393,12 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 #premium .chip{padding:11px 22px;font-size:16px}
 /* Tags Premium desalinhadas (pedido da Rita): ar mais divertido */
 #premium .chip{transition:transform .25s cubic-bezier(.3,1.6,.5,1),background .2s}
-#premium .chip:nth-child(1){margin:0 8px 10px 0}
-#premium .chip:nth-child(2){margin:0 30px 22px 0}
-#premium .chip:nth-child(3){margin:0 14px 12px 0}
-#premium .chip:nth-child(4){margin:0 40px 28px 0}
-#premium .chip:nth-child(5){margin:0 10px 14px 0}
-#premium .chip:nth-child(6){margin:0 26px 18px 0}
-#premium .chip:nth-child(7){margin:0 6px 10px 0}
-#premium .chip:nth-child(8){margin:0 34px 24px 0}
-#premium .chip:hover{background:#EBCFC5}
-#premium .chips{gap:0;padding:0;align-items:flex-start}
-@media(prefers-reduced-motion:reduce){#premium .chip{transition:none}}
+#premium .chips{gap:12px;padding:6px 0;justify-content:center;align-items:center;max-width:none}
+#premium .chip{animation:chipfloat 5s ease-in-out infinite;box-shadow:0 8px 18px -12px rgba(154,79,61,.45)}
+#premium .chip:nth-child(2n){animation-delay:-1.2s}#premium .chip:nth-child(3n){animation-delay:-2.4s}#premium .chip:nth-child(5n){animation-delay:-3.6s}
+@keyframes chipfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+#premium .chip:hover{animation-play-state:paused;background:linear-gradient(135deg,#F6DDD2,#EBCFC5);transform:translateY(-3px) scale(1.05)}
+@media(prefers-reduced-motion:reduce){#premium .chip{transition:none;animation:none}}
 #premium .pbox{max-width:520px;padding:44px 44px;border-radius:28px}
 #premium .pbox>p:first-child{font-size:19px}
 #premium .pbox .amount{font-size:92px;margin-top:14px}
