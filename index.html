@@ -910,6 +910,10 @@ html{
 .prem-row-title{ font-size:14px; font-weight:600; color:var(--ink); }
 .prem-row-desc{ font-size:12.5px; color:var(--ink-soft); line-height:1.4; margin-top:1px; }
 .prem-free{ font-size:12.5px; color:var(--ink-soft); line-height:1.45; padding:4px 4px 12px; }
+.prem-cover{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px 14px; margin-bottom:10px; }
+.prem-cover-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:16px; color:var(--heading); margin-bottom:4px; }
+.prem-cover-text{ font-size:13.5px; color:var(--ink); line-height:1.45; }
+.prem-cover-note{ font-size:11.5px; color:var(--ink-soft); line-height:1.45; margin-top:8px; }
 .prem-plan{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card); border:1.5px solid var(--rust); border-radius:18px; padding:14px 16px; margin-bottom:14px; }
 .prem-plan-name{ font-size:14.5px; font-weight:700; color:var(--ink); }
 .prem-plan-note{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
@@ -1518,6 +1522,16 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .sala-legend-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .sala-hint{ text-align:center; font-size:11px; color:var(--ink-soft); margin:0 16px 12px; }
 .sala-canvas{ position:relative; margin:0 16px; background:repeating-linear-gradient(0deg, rgba(20,20,20,0.035) 0 1px, transparent 1px 28px), repeating-linear-gradient(90deg, rgba(20,20,20,0.035) 0 1px, transparent 1px 28px), var(--cream2); border-radius:16px; border:1px solid var(--line); }
+.sala-add{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:7px; margin:0 16px 10px; }
+.sala-add-title{ width:100%; text-align:center; font-size:11px; color:var(--ink-soft); }
+.sala-add button{ all:unset; cursor:pointer; box-sizing:border-box; padding:7px 12px; border-radius:99px; background:var(--card); border:1px solid var(--line); font-size:12.5px; font-weight:600; color:var(--ink); }
+.sala-add button:active{ opacity:.6; }
+.sala-item{ position:absolute; box-sizing:border-box; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11.5px; font-weight:700; color:var(--ink-soft); touch-action:none; cursor:grab; user-select:none; z-index:0; border-radius:12px; background:rgba(255,253,250,0.9); border:1.5px solid #E4CFC4; }
+.sala-item.dragging{ cursor:grabbing; z-index:6; filter:drop-shadow(0 8px 14px rgba(20,20,20,0.25)); }
+.sala-item-pista{ background:rgba(246,227,218,0.55); border-style:dashed; font-family:'Cormorant Garamond',serif; font-size:15px; }
+.sala-item-entrada,.sala-item-saida{ border-radius:99px; background:var(--rust,#B96752); border-color:var(--rust,#B96752); color:#fff; }
+.sala-item-saida{ background:#7C8A6E; border-color:#7C8A6E; }
+.sala-item-del{ all:unset; cursor:pointer; position:absolute; top:-8px; right:-8px; width:20px; height:20px; border-radius:50%; background:#fff; border:1px solid var(--line); color:var(--ink-soft); font-size:13px; line-height:18px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,.15); }
 .sala-table-item{ position:absolute; width:108px; touch-action:none; cursor:grab; user-select:none; z-index:1; transition:box-shadow .15s; }
 .sala-table-item svg{ width:100%; height:auto; display:block; }
 .sala-table-item.dragging{ cursor:grabbing; z-index:5; filter:drop-shadow(0 8px 14px rgba(20,20,20,0.25)); }
@@ -3408,7 +3422,7 @@ function seedData(){
     },
     confirmed:{},
     expenses:[],
-    seating:{ tables: Array.from({length:10}, (_,i)=>({ id:i+1, shape:'round', seats:10, x:null, y:null })), assignments:{} },
+    seating:{ tables: Array.from({length:10}, (_,i)=>({ id:i+1, shape:'round', seats:10, x:null, y:null })), assignments:{}, items:[] },
     daySchedule:[],
     checklistDone:{},
     checklistPersonal:[],
@@ -3800,6 +3814,53 @@ function daysUntil(dateStr){
   const diff = Math.ceil((target - now)/(1000*60*60*24));
   return diff;
 }
+// Bloco "O acesso e a data do teu casamento" na página de venda do Premium
+// (Out 2026). Só LÊ weddingSettings.weddingDate; não grava nada, não mexe em
+// pagamentos nem em hasActiveSubscription(). É uma ESTIMATIVA conservadora,
+// não uma garantia: o Premium dura 12 meses a partir da ativação
+// (hasActiveSubscription: setMonth(+12), o dia inexistente 29/02 transborda
+// para 01/03) e o instante exato do fim depende da hora de ativação e do
+// fuso (cliente vs servidor), por isso usa-se uma tolerância de 3 dias.
+// Contas em dias de calendário UTC (sem horas), para o horário de verão não
+// influenciar. Estados: 0 sem bloco; 1 estimativa de acesso depois do dia do
+// casamento (Fe >= W+4, mostra o piso Fg = Fe-3); 2/3 não garantido
+// (Fe <= W-3 / entre W-2 e W+3, mostram E = 1.º dia a partir do qual a
+// estimativa já inclui o dia do casamento; E é sempre posterior a hoje).
+const PREMIUM_COVERAGE_TOL_DAYS = 3;
+function premiumCoverageInfo(weddingDateStr, nowDate){
+  const K = PREMIUM_COVERAGE_TOL_DAYS, DAY = 86400000;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weddingDateStr||''));
+  if(!m) return { state:0 };
+  const wy = +m[1], wm = +m[2], wd = +m[3];
+  if(wy < 2000 || wy > 2100) return { state:0 };
+  const W = Math.round(Date.UTC(wy, wm-1, wd)/DAY);
+  const chk = new Date(W*DAY);
+  if(chk.getUTCFullYear() !== wy || chk.getUTCMonth() !== wm-1 || chk.getUTCDate() !== wd) return { state:0 };
+  const now = (nowDate instanceof Date && !isNaN(nowDate.getTime())) ? nowDate : new Date();
+  const T = Math.round(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())/DAY);
+  if(W <= T) return { state:0 };
+  const addYear = n => { const u = new Date(n*DAY); return Math.round(Date.UTC(u.getUTCFullYear()+1, u.getUTCMonth(), u.getUTCDate())/DAY); };
+  const iso = n => new Date(n*DAY).toISOString().slice(0,10);
+  const Fe = addYear(T);
+  if(Fe >= W+K+1) return { state:1, Fg: iso(Fe-K) };
+  let P = Math.max(T+1, W+K+1-368); // E nunca é <= hoje: a pesquisa começa em amanhã
+  while(addYear(P) < W+K+1) P++;
+  return { state: (Fe <= W-K) ? 2 : 3, E: iso(P) };
+}
+// FIM premiumCoverageInfo
+function premiumCoverageBlockHtml(){
+  let info = null;
+  try{ info = premiumCoverageInfo(weddingSettings && weddingSettings.weddingDate); }catch(e){ info = null; }
+  if(!info || !info.state) return '';
+  const w = formatDatePT(weddingSettings.weddingDate);
+  const body = info.state === 1 ? ta('premCoverText1')(w, formatDatePT(info.Fg)) : ta('premCoverTextNo')(w, formatDatePT(info.E));
+  return `
+    <div class="prem-cover">
+      <div class="prem-cover-title">${ta('premCoverTitle')}</div>
+      <div class="prem-cover-text">${body}</div>
+      <div class="prem-cover-note">${ta('premCoverNote')}</div>
+    </div>`;
+}
 function formatDatePT(dateStr){
   if(!dateStr) return ta('dateNotSet');
   const meses = ta('monthNamesFull');
@@ -3992,6 +4053,10 @@ const APP_I18N = {
     premRowMemories:'Fotos que os convidados partilham pelo link de RSVP, só visíveis para ti.',
     premGroupGuests:'Convidados e confirmações', premGroupControl:'Organização e controlo', premGroupAsk:'Dúvidas e memórias',
     premFreeTitle:'Continuas com acesso gratuito a', premFreeText:'orçamento e gastos, lista de convidados, mesas (organizadas por ti), checklist, fornecedores e lugares. Nada disto muda.',
+    premCoverTitle:'O acesso e a data do teu casamento',
+    premCoverText1:(w,f)=>`Com a data que indicaste (${w}), se ativares hoje, a estimativa é que o acesso dure, no mínimo, até ao fim de ${f}, depois do dia do casamento.`,
+    premCoverTextNo:(w,e)=>`Com a data que indicaste (${w}), ativar hoje poderá não garantir acesso até ao dia do casamento, porque o acesso dura 12 meses a partir da ativação. Se ativares a partir de ${e}, a estimativa de acesso já inclui esse dia. Podes ativar quando te fizer mais sentido.`,
+    premCoverNote:'Se a data do casamento ainda não for definitiva, esta indicação pode mudar. Podes alterá-la em Definições. A data exata de fim aparece depois de ativares.',
     premPlanName:'Weddy Premium · 12 meses', premPlanPrice:'30€', premPlanNote:'Pagamento único. Sem renovação automática.',
     nudgeTitle:'Mais tranquilidade para o vosso grande dia.',
     nudgeDesc:'Tudo o que precisam para organizar o casamento com mais confiança, num só lugar.',
@@ -5090,6 +5155,9 @@ const APP_I18N = {
     alertSeatingSyncPartialFailure:(failed,total)=>`A mesa foi sincronizada, mas ${failed} de ${total} convite(s) de convidados não foram atualizados agora. Tenta sincronizar de novo daqui a pouco.`,
     salaLegendFree:'Livre',
     salaViewHint:'toca numa mesa para ver os nomes · arrasta para a mover',
+    salaAddTitle:'Adicionar à sala',
+    salaItemEntrada:'Entrada', salaItemSaida:'Saída', salaItemPista:'Pista de dança',
+    salaItemRemove:'Remover',
     seatFreeLabel:'Lugar livre',
     childLabel:'Criança',
     childAgeYears:(age)=>`${age} anos`,
@@ -5232,6 +5300,10 @@ const APP_I18N = {
     premRowMemories:'Photos guests share through their RSVP link, visible only to you.',
     premGroupGuests:'Guests and replies', premGroupControl:'Organization and control', premGroupAsk:'Questions and memories',
     premFreeTitle:'You keep free access to', premFreeText:'budget and expenses, guest list, tables (arranged by you), checklist, suppliers and venues. None of this changes.',
+    premCoverTitle:'Your access and your wedding date',
+    premCoverText1:(w,f)=>`Based on the date you entered (${w}), if you activate today, we estimate access will last at least until the end of ${f}, after your wedding day.`,
+    premCoverTextNo:(w,e)=>`Based on the date you entered (${w}), activating today may not guarantee access through your wedding day, because access lasts 12 months from activation. If you activate on or after ${e}, our estimate is that access includes that day. You can activate whenever it suits you best.`,
+    premCoverNote:'If your wedding date is not final yet, this may change. You can edit it in Settings. The exact end date appears once you activate.',
     premPlanName:'Weddy Premium · 12 months', premPlanPrice:'€30', premPlanNote:'One-time payment. No automatic renewal.',
     nudgeTitle:'More peace of mind for your big day.',
     nudgeDesc:'Everything you need to plan your wedding with more confidence, in one place.',
@@ -6297,6 +6369,9 @@ const APP_I18N = {
     alertSeatingSyncPartialFailure:(failed,total)=>`The table was synced, but ${failed} of ${total} guest invite(s) weren't updated just now. Try syncing again in a bit.`,
     salaLegendFree:'Free',
     salaViewHint:'tap a table to see the names · drag to move it',
+    salaAddTitle:'Add to the room',
+    salaItemEntrada:'Entrance', salaItemSaida:'Exit', salaItemPista:'Dance floor',
+    salaItemRemove:'Remove',
     seatFreeLabel:'Empty seat',
     childLabel:'Child',
     childAgeYears:(age)=>`${age} years old`,
@@ -11922,6 +11997,7 @@ function premiumSaleBodyHtml(title){
     <div class="premium-upsell-text">${intro}</div>
     ${groupsHtml}
     <div class="prem-free"><strong>${ta('premFreeTitle')}</strong> ${ta('premFreeText')}</div>
+    ${premiumCoverageBlockHtml()}
     <div class="prem-plan">
       <div class="prem-plan-mid">
         <div class="prem-plan-name">${ta('premPlanName')}</div>
@@ -17818,13 +17894,58 @@ function bindSalaTableDrag(el){
   el.addEventListener('pointerup', finishDrag);
   el.addEventListener('pointercancel', finishDrag);
 }
+const SALA_ITEM_TYPES = {
+  entrada:{ key:'salaItemEntrada', w:96,  h:34 },
+  saida:  { key:'salaItemSaida',   w:96,  h:34 },
+  pista:  { key:'salaItemPista',   w:150, h:104 }
+};
+function salaItems(){
+  if(!state.seating.items || !Array.isArray(state.seating.items)) state.seating.items = [];
+  return state.seating.items;
+}
+function bindSalaItemDrag(el){
+  const id = el.dataset.itemid;
+  let dragging=false, startX=0, startY=0, origLeft=0, origTop=0;
+  el.addEventListener('pointerdown', e=>{
+    if(e.target.closest('[data-delitem]')) return;
+    dragging = true;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    origLeft = parseFloat(el.style.left)||0;
+    origTop = parseFloat(el.style.top)||0;
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    el.style.left = Math.max(0, origLeft + e.clientX-startX)+'px';
+    el.style.top = Math.max(0, origTop + e.clientY-startY)+'px';
+  });
+  function finish(){
+    if(!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    const it = salaItems().find(x=>x.id===id);
+    if(it){
+      it.x = Math.max(0, parseFloat(el.style.left)||0);
+      it.y = Math.max(0, parseFloat(el.style.top)||0);
+    }
+    render();
+  }
+  el.addEventListener('pointerup', finish);
+  el.addEventListener('pointercancel', finish);
+}
 function renderSalaView(){
   const changed = ensureTablePositions();
   const wrap = document.getElementById('sala-scroll');
   const itemSize = 108, pad = 40;
-  const maxX = Math.max(340, ...state.seating.tables.map(t=>t.x+itemSize)) + pad;
-  const maxY = Math.max(420, ...state.seating.tables.map(t=>t.y+itemSize+16)) + pad;
+  const salaIt = salaItems();
+  const maxX = Math.max(340, ...state.seating.tables.map(t=>t.x+itemSize), ...salaIt.map(i=>(i.x||0)+((SALA_ITEM_TYPES[i.type]||{w:100}).w))) + pad;
+  const maxY = Math.max(420, ...state.seating.tables.map(t=>t.y+itemSize+16), ...salaIt.map(i=>(i.y||0)+((SALA_ITEM_TYPES[i.type]||{h:40}).h))) + pad;
   let items = '';
+  salaIt.forEach(it=>{
+    const cfg = SALA_ITEM_TYPES[it.type]; if(!cfg) return;
+    items += `<div class="sala-item sala-item-${it.type}" data-itemid="${escapeHTML(it.id)}" style="left:${it.x||0}px; top:${it.y||0}px; width:${cfg.w}px; height:${cfg.h}px;">${ta(cfg.key)}<button type="button" class="sala-item-del" data-delitem="${escapeHTML(it.id)}" aria-label="${escapeHTML(ta('salaItemRemove'))}">×</button></div>`;
+  });
   state.seating.tables.forEach(table=>{
     items += `<div class="sala-table-item" data-tableid="${table.id}" style="left:${table.x}px; top:${table.y}px;">${tableSVG(table)}</div>`;
   });
@@ -17836,9 +17957,31 @@ function renderSalaView(){
       <span class="sala-legend-item"><span class="sala-legend-dot" style="background:#E7DEC8;"></span>${ta('salaLegendFree')}</span>
     </div>
     <div class="sala-hint">${ta('salaViewHint')}</div>
+    <div class="sala-add">
+      <span class="sala-add-title">${ta('salaAddTitle')}</span>
+      ${Object.keys(SALA_ITEM_TYPES).map(k=>`<button type="button" data-additem="${k}">+ ${ta(SALA_ITEM_TYPES[k].key)}</button>`).join('')}
+    </div>
     <div class="sala-canvas" id="sala-canvas" style="width:${maxX}px; height:${maxY}px;">${items}</div>
   `;
   wrap.querySelectorAll('.sala-table-item').forEach(bindSalaTableDrag);
+  wrap.querySelectorAll('.sala-item').forEach(bindSalaItemDrag);
+  wrap.querySelectorAll('[data-additem]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const type = btn.dataset.additem;
+      if(!SALA_ITEM_TYPES[type]) return;
+      const list = salaItems();
+      const bottom = Math.max(16, ...state.seating.tables.map(t=>(t.y||0)+itemSize+8), ...list.map(i=>(i.y||0)+((SALA_ITEM_TYPES[i.type]||{h:40}).h)+8));
+      list.push({ id:'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), type, x:16, y:bottom });
+      render();
+    });
+  });
+  wrap.querySelectorAll('[data-delitem]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      state.seating.items = salaItems().filter(i=>i.id!==btn.dataset.delitem);
+      render();
+    });
+  });
   if(changed) pushRemote();
 }
 
