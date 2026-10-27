@@ -5180,6 +5180,7 @@ const APP_I18N = {
     recCatInvitations:'Convites e papelaria',
     recCatPhotoVideo:'Fotografia e Vídeo',
     recCatVenueCatering:'Espaço e Catering',
+    recCatFavors:'Lembranças e papelaria',
     checklistPhasesData: CHECKLIST_PHASES_PT,
     weddingDayChecklistData: WEDDING_DAY_CHECKLIST_PT,
     themeRust:'Terracota', themeNavy:'Azul-marinho', themeOlive:'Verde-oliva', themeBlush:'Rosa-antigo', themeGold:'Dourado-clássico',
@@ -6394,6 +6395,7 @@ const APP_I18N = {
     recCatInvitations:'Invitations & stationery',
     recCatPhotoVideo:'Photography & Video',
     recCatVenueCatering:'Venue & Catering',
+    recCatFavors:'Favours & stationery',
     checklistPhasesData: CHECKLIST_PHASES_EN,
     weddingDayChecklistData: WEDDING_DAY_CHECKLIST_EN,
     themeRust:'Terracotta', themeNavy:'Navy blue', themeOlive:'Olive green', themeBlush:'Antique pink', themeGold:'Classic gold',
@@ -8616,7 +8618,8 @@ function RECOMMENDED_SUPPLIERS_LIST(){ return [
   { id:'rec1', name:'HappyBox - Photobooth para eventos', category:'entretenimento', catLabel:ta('recCatEntertainment'), phone:'+351 918 588 120', local:'Porto & Lisboa', site:'www.happybox.pt', email:'info@happybox.pt', logo:'/logo-happybox.png' },
   { id:'rec2', name:'DGPUBLICIDADE', category:'convites', catLabel:ta('recCatInvitations'), phone:'+351 910 661 210', local:'Porto', site:'www.dgpublicidade.com', email:'geral@dgpublicidade.com', logo:'/logo-dgpublicidade.png' },
   { id:'rec3', name:'JT Estudios', category:'foto', catLabel:ta('recCatPhotoVideo'), phone:'+351 935 211 420', local:'Porto', site:'www.jtestudios.com', email:'geral@jtestudios.com', logo:'/logo-jtestudios.png' },
-  { id:'rec4', name:'Quinta Santo André', category:'quinta', catLabel:ta('recCatVenueCatering'), phone:'+351 965 488 896', local:'Barcelos', site:'www.quintasantoandre.com', email:'geral@quintasantoandre.com', logo:'/logo-quintasantoandre.png' }
+  { id:'rec4', name:'Quinta Santo André', category:'quinta', catLabel:ta('recCatVenueCatering'), phone:'+351 965 488 896', local:'Barcelos', site:'www.quintasantoandre.com', email:'geral@quintasantoandre.com', logo:'/logo-quintasantoandre.png' },
+  { id:'rec5', name:'Mate Ceramics', category:'convites', catLabel:ta('recCatFavors'), phone:'', local:'Porto', site:'instagram.com/mate.ceramic', email:'hello@mateceramics.com', logo:'/logo-mateceramics.jpg' }
 ]; }
 function supplierCardHTML(opts){
   const { title, catLabel, phone, local, site, email, logo, price, badge, attrs, isAdd, clickable } = opts;
