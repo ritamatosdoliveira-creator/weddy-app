@@ -479,6 +479,12 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .cform .btn{width:100%;min-height:54px;font-size:17px;cursor:pointer;font-family:inherit}
 .cform .fine{font-size:13.5px;color:var(--ink2);margin-top:14px;line-height:1.55}
 @media(min-width:860px){.story{grid-template-columns:1fr 1fr;gap:72px}.vals{grid-template-columns:repeat(3,1fr)}.contact{grid-template-columns:.8fr 1.2fr;gap:56px}}
+.founder{display:grid;gap:32px;padding-block:24px 72px;align-items:center}
+.founder figure{margin:0}.founder img{width:100%;height:auto;border-radius:22px;display:block;box-shadow:0 26px 50px -30px rgba(48,44,41,.5)}
+.founder h2{font-weight:500;font-size:clamp(34px,4.2vw,56px);line-height:1.08}
+.founder p{color:var(--ink2);font-size:18px;line-height:1.8;margin-top:16px}
+.founder .sig{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:24px;color:var(--rust-d)}
+@media(min-width:860px){.founder{grid-template-columns:.8fr 1.2fr;gap:72px}.founder img{max-height:620px;object-fit:cover}}
 </style>
 </head>
 <body>
@@ -506,13 +512,13 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
     <h1>Organizar um casamento não tem de custar a calma.</h1>
     <p class="lead">A Weddy nasceu de uma necessidade real: juntar num só lugar tudo o que um casal precisa para organizar o casamento, sem folhas de cálculo espalhadas nem listas perdidas.</p>
   </section>
-  <div class="wrap story">
-    <div><h2>A nossa história</h2>
-      <p>Começou como uma app feita para organizar um casamento de verdade: o orçamento, os convidados, as mesas e as tarefas, tudo ao mesmo tempo.</p>
-      <p>Percebemos que muitos casais passam pelo mesmo. Por isso transformámos essa app na Weddy, pensada para quem quer organizar o casamento à sua maneira.</p></div>
-    <div><h2>O que nos move</h2>
-      <p>Acreditamos que planear o casamento deve ser uma fase feliz, e não uma fonte de stress. A Weddy existe para dar clareza, para que tenhas mais tempo para aproveitar.</p>
-      <p>O essencial é gratuito. O Premium é uma opção para quem quer mais ferramentas, com pagamento único e sem renovação automática.</p></div>
+  <div class="wrap founder">
+    <figure><img src="inicio/rita.jpg" width="900" height="1125" alt="Rita, fundadora da Weddy, a sorrir e a mostrar o anel de noivado"></figure>
+    <div><h2>Olá, sou a Rita.</h2>
+      <p>Senti dificuldade em organizar o meu casamento num só lugar e em ter tudo à mão: o orçamento, os convidados, as mesas, as tarefas.</p>
+      <p>Daí nasceu a Weddy. Começou como uma app para organizar o meu próprio casamento e transformou-se numa ferramenta para qualquer casal que queira planear com calma e à sua maneira.</p>
+      <p>O essencial é gratuito. O Premium é uma opção para quem quer mais ferramentas, com pagamento único e sem renovação automática.</p>
+      <p class="sig">Rita, fundadora da Weddy</p></div>
   </div>
   <section class="wrap" style="padding-bottom:96px">
     <p class="fx-eyebrow">Em que acreditamos</p>
