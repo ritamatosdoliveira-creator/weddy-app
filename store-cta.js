@@ -4,7 +4,7 @@
   var ua=navigator.userAgent||'';
   var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   var android=/Android/i.test(ua);
-  var url=ios?'https://apps.apple.com/pt/app/weddy/id6817425432':android?'https://play.google.com/store/apps/details?id=pt.weddy.app':'';
+  var url=ios?'https://apps.apple.com/pt/app/weddy/id6817425432':''; /* Android: continua a abrir /app/ (revertido) */
   if(!url)return;
   function fix(){
     var l=document.querySelectorAll('a[href="/app/"],a[href="/app"]');

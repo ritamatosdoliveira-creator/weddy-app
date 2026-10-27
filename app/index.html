@@ -21,7 +21,7 @@
   var ua=navigator.userAgent||'',q=location.search||'';
   var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   var android=/Android/i.test(ua);
-  if(!ios&&!android)return;
+  if(!ios)return; /* Android: sem ecrã de loja (revertido) */
   if(window.Capacitor||window.top!==window||/[?&](googleCalendar|weddyCheckout)/.test(q))return;
   /* App Android (TWA): arranca com referrer android-app://; guardamos isso só nesta sessão. A PWA instalada não tem este referrer e vê o ecrã. */
   try{ if(/^android-app:\/\//.test(document.referrer||''))sessionStorage.setItem('weddyTwa','1'); if(sessionStorage.getItem('weddyTwa')==='1')return; }catch(e){ if(/^android-app:\/\//.test(document.referrer||''))return; }
