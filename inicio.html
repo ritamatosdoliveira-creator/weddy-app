@@ -183,7 +183,6 @@ h1 em{font-style:normal;color:inherit}
 .bub svg{width:26px;height:26px}
 .strip h3{font-size:22px;font-weight:500}
 .strip p{font-size:14px}
-.seat.s1{right:22%;top:22%}.seat.s2{right:14%;top:52%}.ctaband{background:linear-gradient(90deg,#F6EFE9,#F9F4EF);overflow:hidden;border-top:1px solid #f0e8e1}
 .ctab-in{display:grid;gap:20px;align-items:center;padding-block:44px;position:relative}
 .ctab-t h2{font-size:clamp(28px,4vw,36px);font-weight:500;margin-bottom:10px}
 .ctab-t p{color:var(--ink2);font-size:15px;margin-bottom:20px}
@@ -238,21 +237,12 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .fx-main-t h3{font-size:clamp(30px,3.4vw,42px);margin:22px 0 14px;max-width:20ch}
 .fx-main-t p{color:var(--ink2);font-size:17px;line-height:1.7;max-width:38ch}
 .fx-more{display:inline-block;margin-top:26px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--rust-d);text-decoration:none;padding-top:14px;border-top:1px solid var(--rust);min-width:56px}
-.fx-shot{margin:0;border-radius:20px;overflow:hidden;border:1px solid #efe6df;background:#fff;box-shadow:0 24px 50px -28px rgba(48,44,41,.45);height:380px;position:relative}
-.fx-shot{display:flex;justify-content:center;align-items:flex-start;padding-top:22px;background:linear-gradient(#F8EFE9,#FBF6F2)}
-.fx-shot img{width:min(78%,400px);height:auto;border-radius:22px 22px 0 0;border:1px solid #e6dad1;border-bottom:0;box-shadow:0 20px 40px -24px rgba(48,44,41,.5)}
-.fx-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .fx-trio{display:grid;gap:22px;margin-top:24px}
 .fx-card{padding:28px;display:flex;flex-direction:column}
 .fx-card h3{font-size:30px;margin:18px 0 10px}
 .fx-card p{color:var(--ink2);font-size:15.5px;line-height:1.65}
 .fx-card p em{display:block;margin-top:6px;font-size:13.5px;font-style:normal;color:var(--rust-d)}
-.fx-thumb{margin:22px 0 0;border-radius:14px;overflow:hidden;border:1px solid #efe6df;background:#fff;height:230px;position:relative;margin-top:auto}
 .fx-card p{margin-bottom:22px}
-.fx-mesa{display:grid;place-items:center;background:#fbf7f3}
-.fx-ring{width:116px;height:116px;border-radius:50%;border:12px solid #E8CDC3;display:grid;place-items:center;font-family:var(--display);font-size:22px}
-.seat{position:absolute;width:30px;height:30px;border-radius:50%;border:2px solid #E3D5CC;background:#fff}
-.seat.s1{left:50%;top:14%;margin-left:-15px}.seat.s2{right:30%;top:50%}.seat.s3{left:50%;bottom:12%;margin-left:-15px}.seat.s4{left:30%;top:50%}
 .fx-more-band{margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}
 .fx-list{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:26px 18px}
 .fx-list li{display:flex;gap:14px;align-items:flex-start}
@@ -265,14 +255,56 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 }
 @media(min-width:860px){
   .fx-main{grid-template-columns:1fr 1.1fr;align-items:center;padding:44px 52px;gap:48px}
-  .fx-shot{height:clamp(380px,30vw,520px)}
-  .fx-thumb{height:clamp(230px,17vw,300px)}
   .fx-list{grid-template-columns:repeat(4,1fr);gap:0}
   .fx-list li{padding-inline:26px;border-left:1px solid var(--line)}
   .fx-list li:first-child{padding-left:0;border-left:0}
 }
 @media(max-width:759px){.fx-trio{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.fx-card,.fx-main{transition:none}.fx-card:hover,.fx-main:hover{transform:none}}
+.fx-shot{margin:0;position:relative;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:34px 26px;border-radius:20px;background:linear-gradient(135deg,#F8EFE9,#FBF6F2);overflow:hidden}
+.fx-sprig{position:absolute;right:14px;top:10px;width:70px;opacity:.5;transform:rotate(14deg)}
+.ui{width:100%;max-width:440px;background:#fffdfb;border:1px solid #ecdfd6;border-radius:22px;box-shadow:0 24px 50px -28px rgba(48,44,41,.45);padding:20px;font-size:13px;color:var(--ink);position:relative}
+.ui-top{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:20px;font-weight:500;margin-bottom:14px}
+.ui-top svg{width:18px;height:18px;color:var(--ink2)}.ui-top small{font-family:var(--body);font-size:12px;color:var(--ink2);margin-left:auto}
+.ui-tabs{display:flex;gap:6px;margin-bottom:14px}
+.ui-tabs u{text-decoration:none;padding:6px 14px;border-radius:999px;font-size:12px;color:var(--ink2)}
+.ui-tabs u.on{background:#F3DDD3;color:var(--rust-d);font-weight:600}
+.ui-box{background:#fff;border:1px solid #f0e8e1;border-radius:14px;padding:16px}
+.ui-box>small{color:var(--ink2);font-size:12px}
+.ui-big{display:flex;align-items:baseline;justify-content:space-between;margin:2px 0 10px}
+.ui-big span{font-family:var(--display);font-size:30px;font-weight:500}.ui-big small{font-size:11px;color:var(--ink2)}
+.ui-bar{height:8px;border-radius:99px;background:#F1E7E0;overflow:hidden}.ui-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#D49A86,#C9826B)}
+.ui-bar.thin{height:6px;margin-bottom:14px}
+.ui-cats{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:11px}
+.ui-cats li{display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;font-size:12.5px}
+.ui-cats i{width:10px;height:10px;border-radius:50%}.ui-cats em{font-style:normal;color:var(--ink2);min-width:34px;text-align:right}.ui-cats b{font-weight:600;min-width:70px;text-align:right}
+.fx-thumb{margin:auto 0 0;border-radius:14px;background:linear-gradient(135deg,#F8EFE9,#FBF6F2);padding:18px;display:grid;place-items:center;height:300px;overflow:hidden}
+.ui-sm{padding:16px;border-radius:16px;font-size:12.5px}
+.ui-sm .ui-top{font-size:17px;margin-bottom:10px}
+.ui-search{background:#F3EFEA;border-radius:10px;padding:8px 12px;color:var(--ink2);font-size:12px;margin-bottom:10px}
+.ui-guests{list-style:none;margin:0;padding:0}
+.ui-guests li{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f3ece6}
+.ui-guests li:first-child{border-top:0}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:12px;color:var(--ink);flex:none}
+.ui-guests b{display:block;font-weight:600;font-size:12.5px}.ui-guests small{color:var(--ink2);font-size:11px}
+.ui-guests em{margin-left:auto;font-style:normal;font-size:11px;background:#E3EADB;color:#5E6B54;padding:3px 10px;border-radius:99px}
+.ui-guests em.pend{background:#F6E9E2;color:var(--rust-d)}
+.mesa-body{display:flex;align-items:center;gap:18px}
+.mesa-ring{position:relative;width:118px;height:118px;flex:none;border-radius:50%;background:#fff;border:1px solid #f0e8e1;display:grid;place-items:center}
+.mesa-c{font-family:var(--display);font-size:15px;font-weight:500}
+.st{position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5.5px;border-radius:50%;background:#D49A86;transform:rotate(var(--a)) translateY(-59px)}
+.mesa-names{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:12px;color:var(--ink2)}
+.mesa-names li::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#E6C5B8;margin-right:8px}
+.mesa-names li.more::before{display:none}.mesa-names .more{background:#F3EFEA;border-radius:99px;padding:2px 12px;justify-self:start}
+.ui-check{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.ui-check li{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.ui-check i{width:18px;height:18px;border-radius:50%;border:1.5px solid #D8CBC1;flex:none}
+.ui-check li.d i{background:#C9826B;border-color:#C9826B;position:relative}
+.ui-check li.d i::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(40deg)}
+.ui-check li.d span{color:var(--ink)}.ui-check li:not(.d) span{color:var(--ink2)}
+@media(min-width:860px){.fx-shot{min-height:clamp(380px,30vw,520px)}}
+.ui{min-width:0}.fx-thumb{grid-template-columns:minmax(0,1fr)}
+@media(max-width:559px){.fx-shot{padding:20px 12px}.ui{padding:16px}.ui-cats li{grid-template-columns:10px 1fr auto auto;gap:8px;font-size:12px}.ui-cats b{min-width:62px}.ui-cats em{min-width:28px}.ui-tabs u{padding:6px 10px}.fx-main{padding:22px}}
 </style>
 </head>
 <body>
@@ -339,7 +371,11 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
           <p>Acompanha todos os gastos, define limites e mantém o controlo do teu orçamento, para que nada te apanhe de surpresa.</p>
           <a class="fx-more" href="index.html">Ver detalhes <span aria-hidden="true">→</span></a>
         </div>
-        <figure class="fx-shot"><img src="inicio/ecra-orcamento.jpg" width="600" height="1226" loading="lazy" alt="Ecrã do orçamento da Weddy, com o total e a repartição por categorias"></figure>
+        <figure class="fx-shot" aria-hidden="true"><svg class="fx-sprig" viewBox="0 0 120 200" fill="none" stroke="#B96752" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M60 196C58 150 62 100 78 20"/><path d="M62 160c-14-4-24-14-28-28 14 2 25 12 28 28zM65 128c14-4 24-14 28-28-14 2-25 12-28 28zM68 96c-13-5-22-15-25-28 13 3 23 12 25 28zM72 64c12-5 20-14 22-26-12 3-21 11-22 26z"/></svg>
+  <div class="ui ui-budget"><div class="ui-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span>Orçamento</span></div>
+   <div class="ui-tabs"><u class="on">Resumo</u><u>Despesas</u><u>Categorias</u></div>
+   <div class="ui-box"><small>Total gasto</small><div class="ui-big"><span>30 000 €</span><small>60% do orçamento</small></div><div class="ui-bar"><i style="width:60%"></i></div>
+   <ul class="ui-cats"><li><i style="background:#C9826B"></i><span>Espaço e Catering</span><em>50%</em><b>15 000 €</b></li><li><i style="background:#D9A98F"></i><span>Decoração e Flores</span><em>12%</em><b>3 600 €</b></li><li><i style="background:#A8B39C"></i><span>Fotografia e Vídeo</span><em>8%</em><b>2 400 €</b></li><li><i style="background:#C9826B"></i><span>Vestuário e Acessórios</span><em>5%</em><b>1 500 €</b></li></ul></div></div></figure>
       </article>
 
       <div class="fx-trio">
@@ -347,19 +383,28 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
           <span class="fx-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.200"/><path d="M3.500 19c.5-3.200 2.700-5 5.500-5s5 1.800 5.500 5"/><circle cx="17" cy="9" r="2.400"/><path d="M16.500 14.200c2.300.1 3.600 1.700 4 4.300"/></svg></span>
           <h3>Convidados e RSVP</h3>
           <p>Organiza a lista de convidados, acompanha as confirmações de presença e gere os teus convidados. <em>O RSVP faz parte do Premium.</em></p>
-          <figure class="fx-thumb"><img src="inicio/ecra-convidados.jpg" width="600" height="1226" loading="lazy" alt="Ecrã dos convidados da Weddy, organizados por grupos"></figure>
+          <figure class="fx-thumb" aria-hidden="true"><div class="ui ui-sm"><div class="ui-top"><span>Convidados</span></div>
+ <div class="ui-search">Procurar convidado</div>
+ <ul class="ui-guests">
+  <li><span class="av" style="background:#E4C3B6">R</span><div><b>Rita Silva</b><small>Confirmado</small></div><em>Presente</em></li>
+  <li><span class="av" style="background:#CBD3C0">P</span><div><b>Pedro Martins</b><small>Confirmado</small></div><em>Presente</em></li>
+  <li><span class="av" style="background:#EBDCC9">A</span><div><b>Ana Costa</b><small>Por confirmar</small></div><em class="pend">Pendente</em></li>
+ </ul></div></figure>
         </article>
         <article class="fx-card">
           <span class="fx-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="9" rx="7" ry="3"/><path d="M5 9v3c0 1.700 3.100 3 7 3s7-1.300 7-3V9M12 15v5M8 20h8"/></svg></span>
           <h3>Mesas e lugares</h3>
           <p>Organiza os convidados, distribui os lugares e visualiza o plano de mesas.</p>
-          <figure class="fx-thumb fx-mesa" aria-hidden="true"><div class="fx-ring"><b>Mesa</b></div><i class="seat s1"></i><i class="seat s2"></i><i class="seat s3"></i><i class="seat s4"></i></figure>
+          <figure class="fx-thumb" aria-hidden="true"><div class="ui ui-sm ui-mesa"><div class="ui-top"><span>Mesa 1</span><small>12 convidados</small></div>
+ <div class="mesa-body"><div class="mesa-ring"><i class="st" style="--a:0deg"></i><i class="st" style="--a:30deg"></i><i class="st" style="--a:60deg"></i><i class="st" style="--a:90deg"></i><i class="st" style="--a:120deg"></i><i class="st" style="--a:150deg"></i><i class="st" style="--a:180deg"></i><i class="st" style="--a:210deg"></i><i class="st" style="--a:240deg"></i><i class="st" style="--a:270deg"></i><i class="st" style="--a:300deg"></i><i class="st" style="--a:330deg"></i><div class="mesa-c">Mesa 1</div></div>
+ <ul class="mesa-names"><li>Rita Silva</li><li>Pedro Martins</li><li>Ana Costa</li><li>João Pereira</li><li class="more">+8</li></ul></div></div></figure>
         </article>
         <article class="fx-card">
           <span class="fx-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2.500"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg></span>
           <h3>Checklist e tarefas</h3>
           <p>Acompanha o que já foi feito e o que ainda falta, para não deixares escapar nada importante.</p>
-          <figure class="fx-thumb"><img src="inicio/ecra-checklist.jpg" width="600" height="1226" loading="lazy" alt="Ecrã da checklist da Weddy, com as fases do planeamento"></figure>
+          <figure class="fx-thumb" aria-hidden="true"><div class="ui ui-sm"><div class="ui-top"><span>Checklist</span><small>2 de 4 concluídas</small></div>
+ <div class="ui-bar thin"><i style="width:50%"></i></div><ul class="ui-check"><li class="d"><i></i><span>Reservar o espaço</span></li><li class="d"><i></i><span>Escolher o catering</span></li><li class=""><i></i><span>Confirmar convidados</span></li><li class=""><i></i><span>Contratar fotógrafo</span></li></ul></div></figure>
         </article>
       </div>
 
