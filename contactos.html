@@ -570,6 +570,17 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .ec-msg.me{background:#F6E9E2;color:var(--rust-d);margin-left:auto;border-bottom-right-radius:4px}
 .ec-msg.bot{background:#F3EFEA;color:var(--ink);border-bottom-left-radius:4px}
 .ec-stage .ec-5,.ec-stage .ec-6{animation:ecF 7s ease-in-out -2s infinite}
+/* Cartões a sair do telemóvel */
+.ec-stage .ec{transition:translate 1s cubic-bezier(.22,.9,.28,1) var(--d,0s),scale 1s cubic-bezier(.22,.9,.28,1) var(--d,0s),opacity .6s ease var(--d,0s)}
+.ec-stage.pre .ec{opacity:0;translate:var(--dx) var(--dy);scale:.4;animation:none!important}
+.ec-stage .ec-1{--dx:239px;--dy:217px;--d:.05s}
+.ec-stage .ec-5{--dx:239px;--dy:-156px;--d:.45s}
+.ec-stage .ec-3{--dx:239px;--dy:29px;--d:.25s}
+.ec-stage .ec-2{--dx:-225px;--dy:202px;--d:.15s}
+.ec-stage .ec-4{--dx:-225px;--dy:4px;--d:.35s}
+.ec-stage .ec-6{--dx:-225px;--dy:-169px;--d:.55s}
+.ec-stage .ec-phone{transition:transform .8s ease}.ec-stage.pre .ec-phone{transform:scale(.97)}
+.ec-glow{transition:opacity 1.2s ease}.ec-stage.pre .ec-glow{opacity:0}
 .mainnav a[aria-current=page]{color:var(--rust-d)}
 @media(min-width:860px){.mainnav a[aria-current=page]{background:#F6E3DA}}
 .page-hero{padding-block:64px 36px}
@@ -731,6 +742,11 @@ b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='tru
 n.addEventListener('click',function(e){if(e.target.tagName==='A')set(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){set(false);b.focus()}});
 })();
+</script>
+<script>
+(function(){var st=document.querySelector('.ec-stage');if(!st||!('IntersectionObserver' in window)||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;
+st.classList.add('pre');var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){st.classList.remove('pre');io.disconnect()}},{threshold:.4});io.observe(st);
+setTimeout(function(){st.classList.remove('pre')},9000)})();
 </script>
 </body>
 </html>
