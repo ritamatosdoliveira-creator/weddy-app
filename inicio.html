@@ -33,7 +33,7 @@ body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--body);f
 img{max-width:100%;display:block}
 a{color:var(--rust-d)}
 :focus-visible{outline:3px solid var(--rust-d);outline-offset:3px;border-radius:6px}
-.wrap{width:100%;max-width:1080px;margin:0 auto;padding-inline:max(20px,env(safe-area-inset-left)) max(20px,env(safe-area-inset-right))}
+.wrap{width:100%;max-width:1800px;margin:0 auto;padding-inline:max(20px,env(safe-area-inset-left),3.5vw) max(20px,env(safe-area-inset-right),3.5vw)}
 .skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:10}
 .skip:focus{left:12px}
 
@@ -120,8 +120,8 @@ header.top{gap:20px}
 .stage .phone{position:absolute;margin:0;border-radius:40px;padding:8px;transform:none}
 .stage .phone img{border-radius:32px}
 .stage .p-center{width:230px;left:50%;top:0;margin-left:-115px;z-index:3}
-.stage .p-left{width:196px;left:-6%;top:46px;z-index:2;transform:rotate(-3deg)!important}
-.stage .p-right{width:196px;right:-6%;top:46px;z-index:2;transform:rotate(3deg)!important}
+.stage .p-left{width:196px;left:-14%;top:46px;z-index:2;transform:rotate(-3deg)!important}
+.stage .p-right{width:196px;right:-14%;top:46px;z-index:2;transform:rotate(3deg)!important}
 .polaroid{position:absolute;right:1%;bottom:2%;width:34%;max-width:200px;margin:0;background:#fff;padding:8px 8px 22px;box-shadow:0 18px 40px -16px rgba(48,44,41,.4);transform:rotate(4deg);z-index:4}
 .polaroid img{display:block;width:100%;height:auto;aspect-ratio:1/1.2;object-fit:cover;object-position:50% 20%}
 .strip{background:var(--cream2);border-block:1px solid var(--line)}
@@ -136,8 +136,9 @@ header.top{gap:20px}
 @media(min-width:860px){
   .mainnav{display:flex}
   .stage{height:560px}
-  .stage .p-center{width:236px;margin-left:-118px}
-  .stage .p-left,.stage .p-right{width:210px}
+  .stage .p-center{width:clamp(236px,19vw,300px);margin-left:calc(clamp(236px,19vw,300px)/-2)}
+  .stage .p-left,.stage .p-right{width:clamp(210px,16vw,260px)}
+  .stage{height:clamp(560px,46vw,700px)}
   .strip-in{grid-template-columns:repeat(3,1fr);gap:0}
   .strip-in>div{padding-inline:28px;border-left:1px solid var(--line)}
   .strip-in>div:first-child{border-left:0;padding-left:0}
@@ -163,11 +164,11 @@ header.top{gap:20px}
 body{background:linear-gradient(#FBF8F4,#F8F3EE 60%,#FBF8F4)}
 header.top{padding-block:26px}
 .mainnav a{font-weight:500;font-size:14.5px}
-h1{font-weight:500;font-size:clamp(46px,6.6vw,84px);line-height:1.04;color:#2f2724}
+h1{font-weight:500;font-size:clamp(46px,6vw,104px);line-height:1.04;color:#2f2724}
 h1 em{font-style:normal;color:inherit}
 .hero-outer{position:relative;overflow:hidden}
 
-.hero .lead{font-size:18px;font-weight:400;line-height:1.75}
+.hero .lead{max-width:52ch;font-size:clamp(18px,1.4vw,22px);font-weight:400;line-height:1.75}
 .btn{font-weight:600}
 .btn.small,.btn{box-shadow:0 8px 20px -10px rgba(154,79,61,.6)}
 .btn.ghost{box-shadow:none;background:transparent}
@@ -191,7 +192,7 @@ h1 em{font-style:normal;color:inherit}
 .fcard .bub{width:56px;height:56px;margin-bottom:12px}
 .fcard h3{font-size:28px;font-weight:500;margin-bottom:6px}
 .fcard p{font-size:14.5px;color:var(--ink2);line-height:1.6}
-.mini{margin-top:20px;border-radius:12px;overflow:hidden;height:210px;background:#fff;border:1px solid #f0e8e1;position:relative}
+.mini{margin-top:20px;border-radius:12px;overflow:hidden;height:clamp(210px,19vw,360px);background:#fff;border:1px solid #f0e8e1;position:relative}
 .mini img{width:100%;height:auto;margin-top:-26%}
 .mini.mesa{display:grid;place-items:center}
 .mini.mesa .ring{width:120px;height:120px;border-radius:50%;border:12px solid #E8CDC3;display:grid;place-content:center;text-align:center;line-height:1.2}
@@ -210,9 +211,9 @@ h1 em{font-style:normal;color:inherit}
   .fgrid{grid-template-columns:repeat(3,1fr)}
   .ctab-in{grid-template-columns:1.2fr 1fr;padding-left:70px}
   .hero-outer{overflow:hidden}
-  .frame{right:-24px;top:22px;width:min(340px,27vw)}
+  .frame{right:-2vw;top:22px;width:min(520px,30vw)}
   .hero{padding-bottom:90px}
-  .stage{margin-right:60px}
+  .stage{margin-right:min(240px,12vw)}
 }
 @media(max-width:859px){
   .frame{position:relative;width:70%;margin:-30px 0 0 auto;right:0}
