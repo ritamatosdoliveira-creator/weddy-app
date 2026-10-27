@@ -432,8 +432,18 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .ec-c{left:14%;bottom:0;width:60%}
 .ec-av{display:flex;margin-bottom:8px}.ec-av span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;margin-right:-8px;border:2px solid #FFFDFB}
 .ec-av .m{background:#F3EFEA;font-size:11px;margin-right:0;color:var(--ink2)}
-@media(max-width:859px){.endcta-img{height:400px}.ec-a{width:72%}.ec-b{width:48%;top:150px;z-index:1}.ec-c{left:4%;width:56%;top:262px;bottom:auto}}
-@media(min-width:860px){.endcta-img{justify-self:end;width:min(460px,34vw);height:400px}}
+@media(max-width:859px){.endcta-img{height:400px}.ec-a{width:72%}.ec-b{width:62%;top:170px;z-index:1}.ec-c{left:4%;width:56%;top:300px;bottom:auto}.endcta-img{height:440px}}
+@media(min-width:860px){.endcta-img{justify-self:end;width:min(480px,36vw);height:440px}.ec-a{width:70%}.ec-b{width:60%;top:215px;right:0}.ec-c{left:0;width:46%;top:auto;bottom:0}}
+
+.ec-hrow{display:flex;gap:14px;align-items:center;margin-bottom:12px}.ec-hrow p{margin:0;font-size:13px;line-height:1.35;font-weight:600}.ec-hrow small{font-weight:400}
+.ec-a .ec-ring{margin:0;flex:none}
+.ec-area{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:12px;color:var(--ink2)}
+.ec-area li{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center}.ec-area i{height:6px;border-radius:99px;background:#F1E7E0;overflow:hidden}.ec-area u{display:block;height:100%;background:#8FA382;border-radius:99px}
+.ec-ev{list-style:none;margin:0;padding:0;display:grid;gap:10px}.ec-ev li{display:flex;gap:10px;align-items:center}
+.ec-ev em{font-style:normal;font-family:var(--display);font-size:20px;width:38px;height:38px;border-radius:10px;background:#F6E9E2;color:var(--rust-d);display:grid;place-items:center;flex:none}
+.ec-ev b{display:block;font-size:12.5px;font-weight:600}.ec-ev small{font-size:11px}
+.ec-ph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}.ec-ph i{height:44px;border-radius:8px}
+.ec-b{width:58%}
 </style>
 </head>
 <body>
@@ -628,11 +638,12 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <a class="btn light" href="index.html">Criar conta gratuitamente</a>
       </div>
       <div class="endcta-img" aria-hidden="true">
-        <div class="ec ec-a"><div class="ec-top"><span>Checklist</span><small>5 de 12 fases</small></div>
-          <div class="ec-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#F1E7E0" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#C9826B" stroke-width="4" stroke-linecap="round" stroke-dasharray="39 94" transform="rotate(-90 18 18)"/></svg><b>42%</b></div>
-          <ul class="ec-chk"><li class="d"><i></i>Definir o orçamento</li><li class="d"><i></i>Lista de convidados</li><li><i></i>Escolher o local</li></ul></div>
-        <div class="ec ec-b"><div class="ec-top"><span>Orçamento</span></div><div class="ec-big">30 000 €</div><div class="ec-bar"><i></i></div><small>60% do orçamento</small></div>
-        <div class="ec ec-c"><div class="ec-top"><span>Convidados</span></div><div class="ec-av"><span style="background:#E4C3B6">R</span><span style="background:#CBD3C0">P</span><span style="background:#EBDCC9">A</span><span class="m">+90</span></div><small>93 convidados</small></div>
+        <div class="ec ec-a"><div class="ec-top"><span>Wedding Health</span></div>
+          <div class="ec-hrow"><div class="ec-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#F1E7E0" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#D9A94A" stroke-width="4" stroke-linecap="round" stroke-dasharray="68 94" transform="rotate(-90 18 18)"/></svg><b>72</b></div><p>A saúde do vosso casamento.<br><small>Nada de grave, um detalhe de cada vez.</small></p></div>
+          <ul class="ec-area"><li><span>Orçamento</span><i><u style="width:42%"></u></i></li><li><span>Tarefas</span><i><u style="width:13%"></u></i></li></ul></div>
+        <div class="ec ec-b"><div class="ec-top"><span>Google Calendar</span></div>
+          <ul class="ec-ev"><li><em>12</em><div><b>Prova do vestido</b><small>15:00 · Sincronizado</small></div></li><li><em>20</em><div><b>Reunião com o fotógrafo</b><small>18:30 · Sincronizado</small></div></li></ul></div>
+        <div class="ec ec-c"><div class="ec-top"><span>Memories</span></div><div class="ec-ph"><i style="background:#E9CFC3"></i><i style="background:#CBD3C0"></i><i style="background:#EBDCC9"></i></div><small>Os melhores momentos, reunidos</small></div>
       </div>
     </div>
   </section>
