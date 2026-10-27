@@ -523,6 +523,11 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .endcta.soft{background:#F3E4DC;color:var(--ink)}
 .endcta.soft h2{color:var(--ink)}.endcta.soft h2 em{color:var(--rust)}
 .endcta.soft p{color:var(--ink2)}.endcta.soft .endcta-eye{color:var(--rust-d)}
+.cta-row{background:#F3E4DC;padding-block:32px}
+.cta-in{display:grid;gap:14px;align-items:center}
+.cta-in h2{font-weight:500;font-size:clamp(28px,2.6vw,42px);line-height:1.1}.cta-in h2 em{color:var(--rust);font-style:normal}
+.cta-in p{margin:0;color:var(--ink2);font-size:clamp(16px,1.2vw,19px)}
+@media(min-width:860px){.cta-row{padding-block:36px}.cta-in{grid-template-columns:auto 1fr auto;gap:48px}.cta-in p{justify-self:center}.cta-row .wrap{max-width:none}}
 </style>
 </head>
 <body>
@@ -568,10 +573,11 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <ul><li>O essencial é gratuito.</li><li>Premium com pagamento único, sem renovação automática.</li><li>Respeito total pela tua privacidade.</li></ul></article>
     </div>
   </section>
-  <section class="endcta soft" aria-labelledby="t-cta"><div class="wrap endcta-in"><div class="endcta-t">
-    <p class="endcta-eye">Weddy</p><h2 id="t-cta">Vamos organizar <em>o teu grande dia?</em></h2>
+  <section class="cta-row" aria-labelledby="t-cta"><div class="wrap cta-in">
+    <h2 id="t-cta">Vamos organizar <em>o teu grande dia?</em></h2>
     <p>O essencial é gratuito. O Premium é uma opção, com pagamento único.</p>
-    <a class="btn" href="index.html">Criar conta gratuitamente</a></div></div></section>
+    <a class="btn" href="index.html">Criar conta gratuitamente</a>
+  </div></section>
 
 </main>
 <footer>
