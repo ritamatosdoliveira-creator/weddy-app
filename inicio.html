@@ -417,6 +417,30 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 @media(max-width:859px){#premium{padding-block:64px}#premium .pbox{padding:30px}#premium .pbox .amount{font-size:68px}#premium .pfx-vis{height:290px}}
 
 /* ===== Como funciona + CTA final ===== */
+/* Como funciona v2 */
+.how2{padding-block:96px 88px;background:linear-gradient(180deg,#FAF8F5,#F6EEE8)}
+.how2-head{display:grid;gap:16px;margin-bottom:48px;align-items:end}
+.how2-head h2{font-weight:500;font-size:clamp(38px,5vw,64px);line-height:1.06}
+.how2-head h2 em{color:var(--rust-d);font-style:italic}
+.how2-lead{color:var(--ink2);font-size:clamp(16px,1.3vw,20px);line-height:1.6;max-width:42ch;margin:0}
+.how2-steps{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.how2-s{position:relative;background:#fffdfb;border:1px solid #efe6df;border-radius:22px;padding:26px 24px 24px;box-shadow:0 18px 40px -30px rgba(48,44,41,.35);display:flex;flex-direction:column;gap:10px}
+.hn2{font-family:var(--display);font-size:58px;line-height:.9;color:#E4C3B6;font-weight:500}
+.how2-ico{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#F6E9E2;color:var(--rust-d);position:absolute;top:22px;right:22px}
+.how2-ico svg{width:23px;height:23px}
+.how2-s h3{font-family:var(--display);font-weight:500;font-size:clamp(24px,1.9vw,30px);line-height:1.12;margin-top:8px}
+.how2-s p{margin:0;color:var(--ink2);font-size:15.5px;line-height:1.6}
+.how2-tag{margin-top:auto;align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.02em;border-radius:99px;padding:5px 12px;background:#E7EBE1;color:#4d6140}
+.how2-tag.prem{background:#F1DDD4;color:#8A4636}
+.how2-last{background:var(--rust-d);border-color:var(--rust-d)}
+.how2-last .hn2{color:rgba(255,255,255,.35)}.how2-last .how2-ico{background:rgba(255,255,255,.16);color:#fff}
+.how2-last h3{color:#fff}.how2-last p{color:#F6E3DA}.how2-last .how2-tag{background:rgba(255,255,255,.18);color:#fff}
+.how2-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:40px}
+.how2-cta span{color:var(--ink2);font-size:15px}
+@media(min-width:640px){.how2-steps{grid-template-columns:repeat(2,1fr)}.how2-last{grid-column:1/-1}}
+@media(min-width:860px){.how2-head{grid-template-columns:1.2fr 1fr;gap:56px}.how2-lead{justify-self:start;padding-bottom:10px}}
+@media(min-width:1100px){.how2-steps{grid-template-columns:repeat(5,1fr);gap:18px;align-items:stretch}.how2-last{grid-column:auto}
+.how2-s:nth-child(1){margin-top:64px}.how2-s:nth-child(2){margin-top:48px}.how2-s:nth-child(3){margin-top:32px}.how2-s:nth-child(4){margin-top:16px}}
 .how{padding-block:110px 100px}
 .how-head h2{font-weight:500;font-size:clamp(38px,5vw,64px);line-height:1.08;margin-bottom:56px}
 .how-steps{list-style:none;margin:0;padding:0;display:grid;gap:40px;position:relative}
@@ -663,17 +687,21 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
     </div>
   </section>
 
-  <section id="como" class="how" aria-labelledby="t-como">
+  <section id="como" class="how how2" aria-labelledby="t-como">
     <div class="wrap">
-      <div class="how-head">
-        <p class="fx-eyebrow">Como funciona</p>
-        <h2 id="t-como">Três passos, <em>sem complicar.</em></h2>
+      <div class="how2-head">
+        <div><p class="fx-eyebrow">Como funciona</p>
+        <h2 id="t-como">Do primeiro passo <em>ao grande dia.</em></h2></div>
+        <p class="how2-lead">Cinco passos simples para teres tudo organizado, ao teu ritmo.</p>
       </div>
-      <ol class="how-steps">
-        <li><span class="hn">1</span><h3>Cria a tua conta</h3><p>Abre a app e começa. O essencial é gratuito.</p></li>
-        <li><span class="hn">2</span><h3>Começa pela checklist</h3><p>O resto pode esperar. Vais acrescentando o que fizer sentido.</p></li>
-        <li><span class="hn">3</span><h3>Organiza ao teu ritmo</h3><p>Orçamento, convidados, mesas e fornecedores. Tudo no mesmo sítio.</p></li>
+      <ol class="how2-steps">
+        <li class="how2-s"><span class="hn2">01</span><span class="how2-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 19c.6-3.4 3.1-5.2 6.5-5.2s5.9 1.8 6.5 5.2M18.5 7v6M15.5 10h6"/></svg></span><h3>Cria a tua conta</h3><p>Abre a app e começa. Sem folhas de cálculo e sem listas perdidas.</p><span class="how2-tag ">Grátis</span></li>
+        <li class="how2-s"><span class="hn2">02</span><span class="how2-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg></span><h3>Define o essencial</h3><p>Nomes, data, local e orçamento. A checklist já vem pronta para ires riscando.</p><span class="how2-tag ">Grátis</span></li>
+        <li class="how2-s"><span class="hn2">03</span><span class="how2-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.3" cy="8.2" r="2.7"/><circle cx="16.2" cy="9.3" r="2.1"/><path d="M3 19c.4-3.4 2.5-5.2 5.3-5.2s4.9 1.8 5.3 5.2M14.3 14.2c2.1.3 3.7 1.7 4.1 4.3"/></svg></span><h3>Junta os convidados</h3><p>Organiza a lista e acompanha quem confirma. Com o Premium, cada convidado responde pelo seu link.</p><span class="how2-tag prem">Grátis + Premium</span></li>
+        <li class="how2-s"><span class="hn2">04</span><span class="how2-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="8" rx="7" ry="3"/><path d="M5 8v3c0 1.7 3.1 3 7 3s7-1.3 7-3V8M12 14v6M8 20h8"/></svg></span><h3>Organiza mesas e gastos</h3><p>Distribui os lugares na sala, regista as despesas e vê quanto já gastaste.</p><span class="how2-tag ">Grátis</span></li>
+        <li class="how2-s how2-last"><span class="hn2">05</span><span class="how2-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.3.2-.6.3-1 .3z"/></svg></span><h3>Chega ao grande dia com calma</h3><p>Acompanha o estado do casamento e guarda depois as memórias do dia.</p><span class="how2-tag prem">Grátis + Premium</span></li>
       </ol>
+      <div class="how2-cta"><a class="btn" href="index.html">Começar gratuitamente</a><span>O essencial é gratuito.</span></div>
     </div>
   </section>
 
