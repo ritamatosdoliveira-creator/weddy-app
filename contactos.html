@@ -584,6 +584,26 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .endcta-in{padding-block:44px!important}
 .ec-scale{height:calc(545px*var(--s))!important;margin-top:calc(-40px*var(--s))}
 @media(min-width:860px){.endcta-in{padding-block:52px!important}}
+/* escala de telemóvel (≤600px): tipografia e espaços segundo as normas (corpo 16px, títulos 26–36px, botões ≥46px, margens 16px) */
+@media(max-width:600px){
+.wrap{padding-inline:16px}
+h1,.demo-t h1{font-size:clamp(30px,9vw,36px)!important;line-height:1.1!important}
+h2,.demo-live h2{font-size:26px!important;line-height:1.12!important}
+h3{font-size:19px!important}
+.lead,main p{font-size:15.5px;line-height:1.55}
+.lead{font-size:16.5px}
+.btn{min-height:46px;font-size:15px;padding-inline:22px}
+main>section,main section.wrap{padding-block:clamp(32px,9vw,48px)}
+.fx-eyebrow{font-size:11px!important}
+.lead,.fx-lead,.about-p,main p,main li,main small{font-size:15.5px!important;line-height:1.55!important}
+.lead{font-size:16.5px!important}
+.btn,a.btn,button.btn{font-size:15px!important}
+.wm{font-size:28px!important}
+#premium .pbox .amount{font-size:46px!important}
+.ess-k{font-size:22px!important}
+.ess-big{font-size:17px!important}
+.fx-eyebrow,p.fx-eyebrow{font-size:11px!important}
+}
 .mainnav a[aria-current=page]{color:var(--rust-d)}
 @media(min-width:860px){.mainnav a[aria-current=page]{background:#F6E3DA}}
 .page-hero{padding-block:64px 36px}
