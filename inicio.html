@@ -353,6 +353,22 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 #premium .mheart{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;background:#C9826B;color:#fff;display:grid;place-items:center;box-shadow:0 6px 14px -6px rgba(48,44,41,.5)}
 #premium .mheart svg{width:17px;height:17px}
 #premium .pfx-site2{padding:18px 0 0;align-items:start;justify-items:center}#premium .pfx-site2 img{height:272px;width:auto;max-width:78%;border-radius:10px 10px 0 0;border-bottom:0}
+
+#premium .pfx-site3{background:#fff;border:1px solid #efe6df;display:grid;grid-template-rows:auto 1fr}
+#premium .sbar{display:flex;gap:6px;padding:10px 14px;background:#F6EFE9;border-bottom:1px solid #efe6df}
+#premium .sbar i{width:9px;height:9px;border-radius:50%;background:#E3D5CC}
+#premium .sbody{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px;align-items:center;padding:18px 22px;background:linear-gradient(135deg,#fffdfb,#FBF4EF);min-height:0}
+#premium .sphoto{height:100%;min-height:0;border:1px solid #D9B8AA;border-radius:999px 999px 10px 10px;padding:4px;overflow:hidden;justify-self:center;aspect-ratio:.82;max-height:100%}
+#premium .sphoto img{width:100%;height:100%;object-fit:cover;object-position:50% 40%;border-radius:999px 999px 6px 6px}
+#premium .stext{display:grid;gap:4px;justify-items:start}
+#premium .stext small{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#9A4F3D}
+#premium .stext b{font-family:var(--display);font-weight:500;font-size:clamp(28px,2.8vw,38px);line-height:1.05;color:#2f2724}
+#premium .stext b em{color:#B07E6E;font-size:.8em;margin:0 2px}
+#premium .stext .rule{display:block;width:44px;height:1px;background:#C9826B;margin:6px 0}
+#premium .sdate{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+#premium .svenue{font-family:var(--display);font-style:italic;color:var(--ink2);font-size:17px}
+#premium .sbtn{margin-top:10px;background:#7E4A52;color:#fff;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:9px 16px;border-radius:2px}
+@media(max-width:559px){#premium .sbody{grid-template-columns:1fr;justify-items:center;text-align:center}#premium .stext{justify-items:center}#premium .pfx-site3{height:auto}#premium .sphoto{height:200px}}
 </style>
 </head>
 <body>
@@ -504,7 +520,20 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <p>Revive os melhores momentos do grande dia, reunidos num só lugar.</p>
       </article>
       <article class="pfx-card">
-        <div class="pfx-vis pfx-site2"><img src="inicio/site-real.jpg" width="720" height="888" loading="lazy" alt="Exemplo de site de casamento da Weddy: fotografia do casal, nomes, data e botão para confirmar presença"></div>
+        <div class="pfx-vis pfx-site3" aria-hidden="true">
+          <div class="sbar"><i></i><i></i><i></i></div>
+          <div class="sbody">
+            <div class="sphoto"><img src="inicio/site-casal.jpg" width="400" height="464" loading="lazy" alt=""></div>
+            <div class="stext">
+              <small>Vamos casar!</small>
+              <b>Rita <em>&amp;</em> Tiago</b>
+              <i class="rule"></i>
+              <span class="sdate">1 de julho de 2027</span>
+              <span class="svenue">Quinta das lágrimas</span>
+              <span class="sbtn">Confirmar presença</span>
+            </div>
+          </div>
+        </div>
         <h3>Site do casamento</h3>
         <p>Uma página pública com toda a informação para os convidados.</p>
       </article>
