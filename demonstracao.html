@@ -831,6 +831,8 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
       if(window.matchMedia&&matchMedia('(max-width:700px)').matches){openFull();return;}
       box.innerHTML=frame();btn.textContent=T('Recomeçar a demonstração');
     });
+    /* vindo do botão "Experimentar a app" do ecrã inicial: abre logo a demonstração */
+    if(/[?&]abrir=1/.test(location.search)){setTimeout(function(){btn.click();if(!(window.matchMedia&&matchMedia('(max-width:700px)').matches)){var c=document.querySelector('.demo-livecol');if(c)c.scrollIntoView({block:'center'});}},350);}
   })();
   </script>
 
