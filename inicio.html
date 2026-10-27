@@ -369,6 +369,14 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 #premium .svenue{font-family:var(--display);font-style:italic;color:var(--ink2);font-size:17px}
 #premium .sbtn{margin-top:10px;background:#7E4A52;color:#fff;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:9px 16px;border-radius:2px}
 @media(max-width:559px){#premium .sbody{grid-template-columns:1fr;justify-items:center;text-align:center}#premium .stext{justify-items:center}#premium .pfx-site3{height:auto}#premium .sphoto{height:200px}}
+
+#premium .pfeat{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#premium .pfeat li{background:#fffdfb;border:1px solid #efe6df;border-radius:14px;padding:14px 16px;display:grid;gap:3px;align-content:start}
+#premium .pfeat b{font-family:var(--display);font-weight:500;font-size:20px;color:var(--ink);line-height:1.15}
+#premium .pfeat span{font-size:13px;color:var(--ink2);line-height:1.5}
+@media(min-width:860px){#premium .price{grid-template-columns:1fr 1fr;align-items:start}#premium .ptext{grid-column:1}#premium .pfeat{grid-column:2;grid-row:1/3}#premium .pbox{grid-column:1;grid-row:2;justify-self:start;max-width:420px}}
+@media(min-width:1500px){#premium .price{grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr) 400px;gap:40px}#premium .ptext,#premium .pfeat,#premium .pbox{grid-column:auto;grid-row:auto}#premium .pbox{max-width:400px;justify-self:end}}
+@media(max-width:559px){#premium .pfeat{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -486,14 +494,13 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 
   <section class="alt" id="premium" aria-labelledby="t-premium">
     <div class="wrap price">
-      <div>
+      <div class="ptext">
         <p class="eyebrow">Weddy Premium</p>
         <h2 id="t-premium">Se um dia precisares <em>de mais.</em></h2>
         <p class="lead" style="margin-top:16px">O Premium acrescenta ferramentas para gerir convidados, documentos e datas com mais calma. Continua com acesso gratuito a tudo o que já usas.</p>
-        <div class="chips" role="list" aria-label="Funcionalidades Premium">
-          <span class="chip" role="listitem">RSVP</span><span class="chip" role="listitem">Assistente de mesas</span><span class="chip" role="listitem">Site do casamento</span><span class="chip" role="listitem">Estado do casamento</span><span class="chip" role="listitem">Documentos</span><span class="chip" role="listitem">Google Calendar</span><span class="chip" role="listitem">Chatbot</span><span class="chip" role="listitem">Weddy Memories</span>
-        </div>
+        
       </div>
+      <ul class="pfeat" aria-label="Funcionalidades Premium"><li><b>RSVP</b><span>Confirma a presença e as respostas dos convidados.</span></li><li><b>Assistente de mesas</b><span>Ajuda-te a propor a distribuição das mesas.</span></li><li><b>Site do casamento</b><span>Uma página pública com a informação para os convidados.</span></li><li><b>Estado do casamento</b><span>Um raio-x rápido ao estado do casamento.</span></li><li><b>Documentos</b><span>Consulta os contratos e documentos do casamento.</span></li><li><b>Google Calendar</b><span>Sincroniza o calendário do casamento.</span></li><li><b>Chatbot</b><span>Tira as tuas dúvidas em tempo real.</span></li><li><b>Weddy Memories</b><span>Revive os melhores momentos do grande dia.</span></li></ul>
       <div class="pbox">
         <p style="font-weight:700">Weddy Premium · 12 meses</p>
         <p class="amount">30 €<small>pagamento único</small></p>
