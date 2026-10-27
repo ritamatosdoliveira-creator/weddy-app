@@ -391,6 +391,19 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 #premium .lead{font-size:clamp(19px,1.6vw,24px);max-width:56ch;margin-top:22px!important}
 #premium .chips{gap:12px;margin-top:34px;max-width:720px}
 #premium .chip{padding:11px 22px;font-size:16px}
+/* Tags Premium desalinhadas (pedido da Rita): ar mais divertido */
+#premium .chip{transition:transform .25s cubic-bezier(.3,1.6,.5,1),background .2s}
+#premium .chip:nth-child(1){transform:rotate(-3deg) translateY(2px)}
+#premium .chip:nth-child(2){transform:rotate(2deg) translateY(-6px)}
+#premium .chip:nth-child(3){transform:rotate(-2deg) translateY(5px)}
+#premium .chip:nth-child(4){transform:rotate(3deg) translateY(-3px)}
+#premium .chip:nth-child(5){transform:rotate(-3.5deg) translateY(6px)}
+#premium .chip:nth-child(6){transform:rotate(2.5deg) translateY(-5px)}
+#premium .chip:nth-child(7){transform:rotate(-2deg) translateY(3px)}
+#premium .chip:nth-child(8){transform:rotate(3deg) translateY(-2px)}
+#premium .chip:hover{transform:rotate(0) translateY(-3px) scale(1.06);background:#EBCFC5}
+#premium .chips{padding-block:8px;row-gap:20px}
+@media(prefers-reduced-motion:reduce){#premium .chip{transition:none}}
 #premium .pbox{max-width:520px;padding:44px 44px;border-radius:28px}
 #premium .pbox>p:first-child{font-size:19px}
 #premium .pbox .amount{font-size:92px;margin-top:14px}
