@@ -17110,7 +17110,7 @@ document.getElementById('seat-picker-search').addEventListener('input', e=>{
 ============================================================ */
 let mesa3dReady = false;
 let mesa3dSelectedTable = 1;
-let mesa3dViewMode = 'mesa';
+let mesa3dViewMode = window.WEDDY_LOCK ? 'sala' : 'mesa';
 const mesa3d = { scene:null, camera:null, renderer:null, tableGroup:null, chairs:[], dragging:false, startX:0, startRotY:0, moved:0, raf:null };
 
 // Fase 8.0: antes, o valor gravado em cada lugar já trazia o nome embutido
@@ -17136,7 +17136,7 @@ function ensureMesa3DHeader(){
       <div><h1>${ta('tabSeating')}</h1></div>
       ${badge}
     </div>
-    <div class="segmented">
+    <div class="segmented"${window.WEDDY_LOCK?' style="display:none"':''}>
       <button data-mesa3dview="mesa" class="${mesa3dViewMode==='mesa'?'active':''}">${ta('mesa3dModeTableByTable')}</button>
       <button data-mesa3dview="sala" class="${mesa3dViewMode==='sala'?'active':''}">${ta('mesa3dModeRoomView')}</button>
     </div>

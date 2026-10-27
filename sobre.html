@@ -684,6 +684,14 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .demo-device.live{width:min(342px,80vw)}
 .demo-ph{height:100%;display:grid;place-items:center;background:var(--cream2);color:var(--ink2);font-size:14px}
 @media(min-width:860px){.demo-hero,.demo-live{grid-template-columns:1.1fr .9fr;gap:6vw;max-width:1180px;margin-inline:auto}.demo-device{width:302px}.demo-device.live{width:342px}}
+
+.demo-device.live{width:390px;max-width:100%;aspect-ratio:auto;height:clamp(560px,calc(100svh - 150px),844px)}
+@media(min-width:860px){.demo-device.live{width:390px}}
+#demo-full{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:var(--cream)}
+#demo-full iframe{flex:1;min-height:0;width:100%;border:0;display:block}
+.demo-full-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--cream);border-bottom:1px solid rgba(48,44,41,.1);font-weight:600;color:var(--ink)}
+.demo-full-bar button{all:unset;cursor:pointer;padding:8px 16px;border-radius:99px;background:var(--rust);color:#fff;font-size:14px;font-weight:600}
+html.demo-lock,html.demo-lock body{overflow:hidden}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
@@ -697,13 +705,13 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
     <a class="wm" href="inicio.html" aria-label="Weddy, página inicial">weddy<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.3.2-.6.3-1 .3z"/></svg></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="mainnav" aria-label="Abrir menu"><span></span><span></span><span></span></button>
     <nav class="mainnav" id="mainnav" aria-label="Principal">
-      <a href="inicio.html#gratuito">Funcionalidades</a>
-      <a href="inicio.html#como">Como funciona</a>
-      <a href="inicio.html#premium">Premium</a>
+      <a href="/#gratuito">Funcionalidades</a>
+      <a href="/#como">Como funciona</a>
+      <a href="/#premium">Premium</a>
       <a href="demonstracao.html">Demonstração</a>
       <a href="sobre.html" aria-current="page">Sobre nós</a>
       <a href="contactos.html">Contactos</a>
-      <a class="navcta" href="index.html">Começar gratuitamente</a>
+      <a class="navcta" href="/app/">Começar gratuitamente</a>
     </nav>
     <a class="btn small" href="index.html">Começar gratuitamente</a>
   </header>
@@ -716,7 +724,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
       <h1>Olá, sou a <em>Rita.</em></h1>
       <p class="lead">Quando comecei a organizar o meu casamento, percebi como é difícil ter tudo reunido num só lugar. Quis tudo à mão, com calma e sem confusão. Dessa vontade nasceu a Weddy.</p>
       <p class="about-p">Hoje, a Weddy ajuda outros casais a viver o planeamento com a mesma tranquilidade, à sua maneira.</p>
-      <div class="about-cta"><a class="btn" href="index.html">Começar gratuitamente</a><a class="btn ghost" href="contactos.html">Falar connosco</a></div>
+      <div class="about-cta"><a class="btn" href="/app/">Começar gratuitamente</a><a class="btn ghost" href="contactos.html">Falar connosco</a></div>
     </div>
     <figure class="about-img">
       <img src="inicio/rita.jpg" width="900" height="1125" alt="Rita, fundadora da Weddy, a sorrir e a mostrar o anel de noivado">
@@ -736,7 +744,7 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
   <section class="cta-row" aria-labelledby="t-cta"><div class="wrap cta-in">
     <h2 id="t-cta">Vamos organizar <em>o teu grande dia?</em></h2>
     <p>O essencial é gratuito. O Premium é uma opção, com pagamento único.</p>
-    <a class="btn" href="index.html">Criar conta gratuitamente</a>
+    <a class="btn" href="/app/">Criar conta gratuitamente</a>
   </div></section>
 
 </main>
