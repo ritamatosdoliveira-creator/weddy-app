@@ -1526,6 +1526,7 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .sala-add-title{ width:100%; text-align:center; font-size:11px; color:var(--ink-soft); }
 .sala-add button{ all:unset; cursor:pointer; box-sizing:border-box; padding:7px 12px; border-radius:99px; background:var(--card); border:1px solid var(--line); font-size:12.5px; font-weight:600; color:var(--ink); }
 .sala-add button:active{ opacity:.6; }
+.sala-canvas.sala-desk{ margin:0 auto; }
 .sala-item{ position:absolute; box-sizing:border-box; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11.5px; font-weight:700; color:var(--ink-soft); touch-action:none; cursor:grab; user-select:none; z-index:0; border-radius:12px; background:rgba(255,253,250,0.9); border:1.5px solid #E4CFC4; }
 .sala-item.dragging{ cursor:grabbing; z-index:6; filter:drop-shadow(0 8px 14px rgba(20,20,20,0.25)); }
 .sala-item-pista{ background:rgba(246,227,218,0.55); border-style:dashed; font-family:'Cormorant Garamond',serif; font-size:15px; }
@@ -17938,9 +17939,11 @@ function renderSalaView(){
   const changed = ensureTablePositions();
   const wrap = document.getElementById('sala-scroll');
   const itemSize = 108, pad = 40;
+  const desk = wrap.clientWidth > 700;
+  const minW = desk ? Math.min(wrap.clientWidth - 32, 1000) : 340, minH = desk ? 600 : 420;
   const salaIt = salaItems();
-  const maxX = Math.max(340, ...state.seating.tables.map(t=>t.x+itemSize), ...salaIt.map(i=>(i.x||0)+((SALA_ITEM_TYPES[i.type]||{w:100}).w))) + pad;
-  const maxY = Math.max(420, ...state.seating.tables.map(t=>t.y+itemSize+16), ...salaIt.map(i=>(i.y||0)+((SALA_ITEM_TYPES[i.type]||{h:40}).h))) + pad;
+  const maxX = Math.max(minW, ...state.seating.tables.map(t=>t.x+itemSize), ...salaIt.map(i=>(i.x||0)+((SALA_ITEM_TYPES[i.type]||{w:100}).w))) + pad;
+  const maxY = Math.max(minH, ...state.seating.tables.map(t=>t.y+itemSize+16), ...salaIt.map(i=>(i.y||0)+((SALA_ITEM_TYPES[i.type]||{h:40}).h))) + pad;
   let items = '';
   salaIt.forEach(it=>{
     const cfg = SALA_ITEM_TYPES[it.type]; if(!cfg) return;
@@ -17961,7 +17964,7 @@ function renderSalaView(){
       <span class="sala-add-title">${ta('salaAddTitle')}</span>
       ${Object.keys(SALA_ITEM_TYPES).map(k=>`<button type="button" data-additem="${k}">+ ${ta(SALA_ITEM_TYPES[k].key)}</button>`).join('')}
     </div>
-    <div class="sala-canvas" id="sala-canvas" style="width:${maxX}px; height:${maxY}px;">${items}</div>
+    <div class="sala-canvas${desk?' sala-desk':''}" id="sala-canvas" style="width:${maxX}px; height:${maxY}px;">${items}</div>
   `;
   wrap.querySelectorAll('.sala-table-item').forEach(bindSalaTableDrag);
   wrap.querySelectorAll('.sala-item').forEach(bindSalaItemDrag);
