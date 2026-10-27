@@ -66,5 +66,24 @@ window.WEDDY_DEMO_SEED=function(store,WID,UID,EMAIL){
     consent:{termsVersion:'2026-10-02',privacyVersion:'2026-10-02'},
     settings:{coupleName1:'Rita',coupleName2:'Tiago',weddingDate:wedding,venue:'Quinta das Lágrimas',accentColor:'rust',heroPhotoUrl:'inicio/ilustracao-casal.jpg',heroPhotoPosX:50,heroPhotoPosY:20,heroPhotoZoom:100},
     json:JSON.stringify(data),subscription:{active:true,plan:'premium12',startedAt:new Date().toISOString()}};
+  /* site do casamento (rascunho, por publicar) */
+  store['weddingSites/'+WID]={status:'draft',draft:{
+    lang:'pt',template:'editorial',palette:'terracota',title:'Rita & Tiago',
+    welcome:'Vamos casar e queremos celebrar este dia convosco. Aqui encontram tudo o que precisam de saber.',
+    coverUrl:'inicio/ilustracao-casal.jpg',timezone:'Europe/Lisbon',countdown:{on:true,expiredMessage:''},indexable:false,slug:'rita-e-tiago-2027',
+    sections:{
+      story:{on:true,title:'A nossa história',text:'Conhecemo-nos num fim de tarde de verão e nunca mais nos largámos. Agora vamos dizer sim, rodeados de quem mais gostamos.',photoUrl:''},
+      location:{on:true,name:'Quinta das Lágrimas',address:'Rua António Augusto Gonçalves, Coimbra',mapUrl:'',parking:'Estacionamento gratuito no local.',notes:''},
+      schedule:{on:true,note:''},
+      dresscode:{on:true,title:'Dress code',text:'Elegante, em tons suaves. Evitar branco e preto total.',imageUrl:''},
+      lodging:{on:false,lodging:'',transport:'',parking:'',meeting:'',links:[]},
+      faq:{on:true,items:[{q:'Posso levar acompanhante?',a:'O convite indica os lugares reservados para cada convidado.'},{q:'Há lugar para crianças?',a:'Sim, haverá uma zona dedicada com animação.'}]},
+      contact:{on:true,name:'Rita',phone:'',email:'demo@weddy.pt',note:''},
+      rsvp:{on:true,text:'Confirma a tua presença até 30 de abril.'}}}};
+  /* Weddy Memories: fotos de exemplo */
+  var TS=window.firebase&&window.firebase.firestore.Timestamp;
+  [['inicio/mem-2.jpg','Joana Ferreira'],['inicio/mem-3.jpg','Miguel Santos'],['inicio/mem-4.jpg','Catarina Lopes'],['inicio/ilustracao-flores.jpg','Beatriz Gomes'],['inicio/mem-1.jpg','Sofia Martins'],['inicio/ilustracao-casal.jpg','Nuno Almeida']].forEach(function(m,i){
+    store['memories/m'+i]={weddingId:WID,url:m[0],guestName:m[1],createdAt:TS?new TS(Date.now()-i*3600000):null};
+  });
   try{localStorage.setItem('weddy_demo','1');}catch(e){}
 };

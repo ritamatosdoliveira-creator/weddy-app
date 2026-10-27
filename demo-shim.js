@@ -172,9 +172,17 @@
   /* funções na nuvem: nenhuma chega a correr */
   function callable(name){
     return function(data){
-      var out = {};
+      var out = {}, path = 'weddingSites/' + WID, doc = store[path];
       if(name === 'classifyWeddyIntent') out = { intent: 'UNKNOWN' };
-      return Promise.resolve({ data: out });
+      else if(name === 'saveWeddingSiteDraft'){ store[path] = Object.assign({}, doc || {}, { draft: clone(data.draft) }); }
+      else if(name === 'publishWeddingSite'){
+        var d = (store[path] && store[path].draft) || {};
+        store[path] = Object.assign({}, store[path] || {}, { status: 'published', slug: d.slug || 'rita-e-tiago-2027', publishedDraft: clone(d) });
+        out = { ok: true, url: 'https://www.weddy.pt/c/' + store[path].slug };
+      }
+      else if(name === 'unpublishWeddingSite'){ store[path] = Object.assign({}, store[path] || {}, { status: 'draft' }); }
+      else if(name === 'checkWeddingSiteSlug') out = { available: true, ok: true };
+      return new Promise(function(res){ setTimeout(function(){ res({ data: out }); }, 350); });
     };
   }
   var fnObj = { httpsCallable: callable };

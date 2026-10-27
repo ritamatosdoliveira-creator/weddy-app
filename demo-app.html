@@ -1911,7 +1911,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
-<script>if(/[?&]demo=1(&|$)/.test(location.search)){document.write('<script src="demo-seed.js"><\/script><script src="demo-shim.js"><\/script>');document.documentElement.classList.add("weddy-demo")}</script>
+<script>window.WEDDY_LOCK=!/[?&]full=1(&|$)/.test(location.search);if(/[?&]demo=1(&|$)/.test(location.search)){document.write('<script src="demo-seed.js"><\/script><script src="demo-shim.js"><\/script>');document.documentElement.classList.add("weddy-demo")}</script>
 <script src="weddysite.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -7224,12 +7224,12 @@ function premiumFeatureGrid(){
       </div>
     </button>
     <div class="premium-hub-grid">
-      ${premiumHubTile('rsvp', reframedIcon(ICONS.mail, ICON_REFRAME.mail), ta('rsvpTitle'), ta('premiumTileRSVP'), !subscribed)}
+      ${premiumHubTile('rsvp', reframedIcon(ICONS.mail, ICON_REFRAME.mail), ta('rsvpTitle'), ta('premiumTileRSVP'), !!window.WEDDY_LOCK || !subscribed)}
       ${premiumHubTile('chatbot', reframedIcon(ICONS.chat, ICON_REFRAME.chat), ta('premiumTileChatbot'), ta('premiumTileChatbotDesc'), !subscribed)}
-      ${premiumHubTile('health', ICONS.warn ? reframedIcon(ICONS.warn, ICON_REFRAME.warn) : ICONS.checklist, ta('healthTitle'), ta('premiumTileHealthDesc'), !subscribed)}
-      ${premiumHubTile('memories', reframedIcon(ICONS.camera, ICON_REFRAME.camera), ta('memoriesTitle'), ta('premiumTileMemoriesDesc'), !subscribed)}
-      ${premiumHubTile('documentos', ICONS.docnote ? reframedIcon(ICONS.docnote, ICON_REFRAME.docnote) : ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc'), !subscribed)}
-      ${premiumHubTile('googlecalendar', reframedIcon(ICONS.calendar, ICON_REFRAME.calendar), ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc'), !subscribed)}
+      ${premiumHubTile('health', ICONS.warn ? reframedIcon(ICONS.warn, ICON_REFRAME.warn) : ICONS.checklist, ta('healthTitle'), ta('premiumTileHealthDesc'), !!window.WEDDY_LOCK || !subscribed)}
+      ${premiumHubTile('memories', reframedIcon(ICONS.camera, ICON_REFRAME.camera), ta('memoriesTitle'), ta('premiumTileMemoriesDesc'), !!window.WEDDY_LOCK || !subscribed)}
+      ${premiumHubTile('documentos', ICONS.docnote ? reframedIcon(ICONS.docnote, ICON_REFRAME.docnote) : ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc'), !!window.WEDDY_LOCK || !subscribed)}
+      ${premiumHubTile('googlecalendar', reframedIcon(ICONS.calendar, ICON_REFRAME.calendar), ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc'), !!window.WEDDY_LOCK || !subscribed)}
       ${premiumSiteBanner(!subscribed)}
     </div>
     ${subscribed ? '' : `
@@ -14640,6 +14640,7 @@ function bindHandlers(){
   document.querySelectorAll('[data-goto]').forEach(el=>{
     el.addEventListener('click', ()=>{
       const target = el.dataset.goto;
+      if(window.WEDDY_LOCK && (target==='definicoes' || target==='inspiracao')){ weddyAlert('Disponível na app completa. Cria a tua conta gratuita em weddy.pt.'); return; }
       const prevTabForScroll = activeTab;
       navBack = null;
       if(target !== activeTab) collapseAllSections();
@@ -15250,6 +15251,7 @@ function bindHandlers(){
       // do Assistente (o mesmo botão redondo que já existe sempre visível),
       // por isso este azulejo só abre essa janela em vez de navegar.
       if(key==='chatbot'){ openChatPanel(); return; }
+      if(window.WEDDY_LOCK && key!=='site'){ weddyAlert('Disponível na app completa. Cria a tua conta gratuita em weddy.pt.'); return; }
       closeAllSheets();
       // Origem diferente do menu de Definições (ex.: Início) → "voltar" regressa lá.
       if(!(activeTab==='definicoes' && (definicoesSection===null || definicoesSection===key))) navBackSet('definicoes', key);
@@ -16392,6 +16394,7 @@ function bindGoogleCalendarHandlers(){
 function bindAISeatingHandlers(){
   const openBtn = document.getElementById('ai-seating-open-btn');
   if(openBtn) openBtn.addEventListener('click', ()=>{
+    if(window.WEDDY_LOCK){ weddyAlert('Disponível na app completa. Cria a tua conta gratuita em weddy.pt.'); return; }
     aiSeatingScreen = 'prefs';
     aiSeatingConstraints = [];
     aiSeatingFreeText = '';
