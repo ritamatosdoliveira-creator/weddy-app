@@ -21520,5 +21520,46 @@ function showUpdateBanner(){
 }
 
 </script>
+<script>
+/* Rato: clicar e arrastar desliza os ecrãs (como o dedo no telemóvel). Só para rato; o toque não muda. */
+(function(){
+  if(!window.PointerEvent) return;
+  var drag=null, lastDrag=0;
+  var SKIP='input,textarea,select,canvas,video,iframe,[contenteditable="true"],.sala-item,.sala-table-item,.crop-viewport,.se-crop-stage,.se-crop-frame,[data-nodrag]';
+  function scroller(el){
+    while(el && el!==document.documentElement){
+      var cs=getComputedStyle(el);
+      var oy=/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight>el.clientHeight+1;
+      var ox=/(auto|scroll)/.test(cs.overflowX) && el.scrollWidth>el.clientWidth+1;
+      if(oy||ox) return {el:el,oy:oy,ox:ox};
+      el=el.parentElement;
+    }
+    return null;
+  }
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType!=='mouse'||e.button!==0) return;
+    var t=e.target; if(!t||!t.closest||t.closest(SKIP)) return;
+    var s=scroller(t); if(!s) return;
+    drag={el:s.el,oy:s.oy,ox:s.ox,x:e.clientX,y:e.clientY,sx:s.el.scrollLeft,sy:s.el.scrollTop,moved:false,id:e.pointerId};
+  },true);
+  document.addEventListener('pointermove',function(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    if(!(e.buttons&1)){ drag=null; return; }
+    var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    if(!drag.moved){ if(Math.abs(dx)+Math.abs(dy)<6) return; drag.moved=true; document.documentElement.classList.add('weddy-dragscroll'); }
+    if(drag.oy) drag.el.scrollTop=drag.sy-dy;
+    if(drag.ox) drag.el.scrollLeft=drag.sx-dx;
+    e.preventDefault();
+  },true);
+  function end(){ if(drag&&drag.moved) lastDrag=Date.now(); drag=null; document.documentElement.classList.remove('weddy-dragscroll'); }
+  document.addEventListener('pointerup',end,true);
+  document.addEventListener('pointercancel',end,true);
+  document.addEventListener('selectstart',function(e){ if(drag&&drag.moved) e.preventDefault(); },true);
+  document.addEventListener('click',function(e){ if(Date.now()-lastDrag<350){ e.stopPropagation(); e.preventDefault(); } },true);
+  var st=document.createElement('style');
+  st.textContent='html.weddy-dragscroll,html.weddy-dragscroll *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}';
+  document.head.appendChild(st);
+})();
+</script>
 </body>
 </html>

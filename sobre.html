@@ -701,6 +701,29 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
 .demo-device{padding:30px 0 16px;background:#FAF8F5}
 .demo-device video,.demo-device iframe,.demo-device .demo-ph{border-radius:0}
 .demo-device::after{bottom:6px}
+
+/* lado a lado */
+.demo-hero{grid-template-columns:1fr!important;max-width:760px;margin-inline:auto;text-align:center;padding-block:48px 8px}
+.demo-hero .demo-steps{text-align:left;max-width:520px;margin-inline:auto}
+.demo-hero .demo-cta{justify-content:center}
+.demo-pair{display:grid;grid-template-columns:1fr;gap:44px;justify-items:center;padding-block:24px 80px;max-width:1000px;margin-inline:auto}
+.demo-pair .demo-phone{margin:0;text-align:center;display:flex;flex-direction:column;align-items:center}
+.demo-pair .demo-device,.demo-pair .demo-device.live{width:340px;max-width:100%;height:auto;aspect-ratio:390/844;box-sizing:content-box}
+.demo-pair .demo-device.live{height:auto}
+.demo-pair .demo-cap{max-width:340px;margin:14px 0 0;font-size:14px;color:var(--ink2)}
+.demo-pair .demo-phone figcaption{max-width:340px}
+.demo-pair .btn{margin-top:14px}
+@media(min-width:860px){.demo-pair{grid-template-columns:1fr 1fr;align-items:start}}
+
+/* texto à esquerda, dois telemóveis à direita */
+.demo-hero{max-width:1240px!important;text-align:left!important;padding-block:40px 70px!important}
+.demo-hero .demo-steps{margin-inline:0!important}
+.demo-hero .demo-cta{justify-content:flex-start!important}
+.demo-hero .demo-pair{padding:0;max-width:none;margin:0;gap:28px}
+@media(min-width:1000px){.demo-hero{grid-template-columns:minmax(300px,.8fr) 1.6fr!important;gap:48px!important;align-items:start!important}.demo-hero .demo-pair{grid-template-columns:1fr 1fr}}
+@media(min-width:860px) and (max-width:999px){.demo-hero{grid-template-columns:1fr!important;text-align:center!important}.demo-hero .demo-steps{margin-inline:auto!important}.demo-hero .demo-cta{justify-content:center!important}}
+@media(max-width:999px){.demo-hero .demo-pair{grid-template-columns:1fr}}
+@media(min-width:1000px){.demo-hero .demo-t h1{font-size:clamp(44px,4.6vw,64px)}}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>

@@ -17525,7 +17525,14 @@ function initMesa3D(){
   const wrap = canvas.parentElement;
   const w = Math.max(wrap.clientWidth, 10), h = Math.max(wrap.clientHeight, 10);
 
-  mesa3d.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  try{
+    mesa3d.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  }catch(err){
+    // Sem WebGL neste aparelho: usa a vista da sala (2D), que funciona sempre.
+    mesa3d.renderer = null; mesa3dReady = false; mesa3dViewMode = 'sala';
+    setTimeout(()=>{ try{ render(); }catch(e){} }, 0);
+    return;
+  }
   mesa3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
   mesa3d.renderer.setSize(w, h, false);
   if('outputColorSpace' in mesa3d.renderer) mesa3d.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -17657,11 +17664,43 @@ function initMesa3D(){
     if(mesa3d.moved < 12){ handleMesa3DTap(e); }
   });
 
-  window.addEventListener('resize', resizeMesa3D);
+  if(!mesa3d.resizeBound){ window.addEventListener('resize', resizeMesa3D); mesa3d.resizeBound = true; }
+
+  // Se o navegador perder o contexto WebGL (acontece ao voltar à app depois de
+  // algum tempo, com pouca memória gráfica...), a mesa fica branca com uma carinha
+  // triste. Esperamos um pouco que o navegador o devolva e, se não voltar, criamos
+  // tudo de novo.
+  canvas.addEventListener('webglcontextlost', e=>{
+    e.preventDefault();
+    clearTimeout(mesa3d.lostTimer);
+    mesa3d.lostTimer = setTimeout(()=>{ if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()) rebuildMesa3D(); }, 1200);
+  });
+  canvas.addEventListener('webglcontextrestored', ()=>{ clearTimeout(mesa3d.lostTimer); renderMesa3DFrame(); });
+  if(!mesa3d.visBound){
+    mesa3d.visBound = true;
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState==='visible' && activeTab==='mesa3d' && mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()){
+        setTimeout(()=>{ if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()) rebuildMesa3D(); }, 800);
+      }
+    });
+  }
 
   loadMesa3DTable();
 }
 
+function rebuildMesa3D(){
+  try{
+    const old = document.getElementById('mesa3d-canvas');
+    if(!old) return;
+    const fresh = old.cloneNode(false);
+    old.parentNode.replaceChild(fresh, old);
+    try{ mesa3d.renderer && mesa3d.renderer.dispose(); }catch(e){}
+    if(mesa3d.raf){ cancelAnimationFrame(mesa3d.raf); mesa3d.raf = null; }
+    mesa3d.renderer = null; mesa3d.chairs = []; mesa3d.builtSeatCount = 0;
+    mesa3dReady = false;
+    if(activeTab==='mesa3d' && mesa3dViewMode==='mesa'){ renderMesa3DChips(); initMesa3D(); mesa3dReady = !!mesa3d.renderer; }
+  }catch(e){ console.error('Weddy mesa3d rebuild error:', e); }
+}
 function resizeMesa3D(){
   if(!mesa3d.renderer) return;
   const canvas = document.getElementById('mesa3d-canvas');
@@ -17760,8 +17799,11 @@ function syncMesa3DPanel(){
   document.getElementById('mesa3d-view-sala').classList.toggle('active', mesa3dViewMode==='sala');
 
   if(mesa3dViewMode==='mesa'){
-    if(!mesa3dReady){ renderMesa3DChips(); initMesa3D(); mesa3dReady = true; }
-    else { renderMesa3DChips(); loadMesa3DTable(); resizeMesa3D(); }
+    if(!mesa3dReady){ renderMesa3DChips(); initMesa3D(); mesa3dReady = !!mesa3d.renderer; }
+    else {
+      if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()){ rebuildMesa3D(); }
+      else { renderMesa3DChips(); loadMesa3DTable(); resizeMesa3D(); }
+    }
   } else {
     renderSalaView();
   }
@@ -21536,6 +21578,47 @@ function showUpdateBanner(){
   });
 }
 
+</script>
+<script>
+/* Rato: clicar e arrastar desliza os ecrãs (como o dedo no telemóvel). Só para rato; o toque não muda. */
+(function(){
+  if(!window.PointerEvent) return;
+  var drag=null, lastDrag=0;
+  var SKIP='input,textarea,select,canvas,video,iframe,[contenteditable="true"],.sala-item,.sala-table-item,.crop-viewport,.se-crop-stage,.se-crop-frame,[data-nodrag]';
+  function scroller(el){
+    while(el && el!==document.documentElement){
+      var cs=getComputedStyle(el);
+      var oy=/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight>el.clientHeight+1;
+      var ox=/(auto|scroll)/.test(cs.overflowX) && el.scrollWidth>el.clientWidth+1;
+      if(oy||ox) return {el:el,oy:oy,ox:ox};
+      el=el.parentElement;
+    }
+    return null;
+  }
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType!=='mouse'||e.button!==0) return;
+    var t=e.target; if(!t||!t.closest||t.closest(SKIP)) return;
+    var s=scroller(t); if(!s) return;
+    drag={el:s.el,oy:s.oy,ox:s.ox,x:e.clientX,y:e.clientY,sx:s.el.scrollLeft,sy:s.el.scrollTop,moved:false,id:e.pointerId};
+  },true);
+  document.addEventListener('pointermove',function(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    if(!(e.buttons&1)){ drag=null; return; }
+    var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    if(!drag.moved){ if(Math.abs(dx)+Math.abs(dy)<6) return; drag.moved=true; document.documentElement.classList.add('weddy-dragscroll'); }
+    if(drag.oy) drag.el.scrollTop=drag.sy-dy;
+    if(drag.ox) drag.el.scrollLeft=drag.sx-dx;
+    e.preventDefault();
+  },true);
+  function end(){ if(drag&&drag.moved) lastDrag=Date.now(); drag=null; document.documentElement.classList.remove('weddy-dragscroll'); }
+  document.addEventListener('pointerup',end,true);
+  document.addEventListener('pointercancel',end,true);
+  document.addEventListener('selectstart',function(e){ if(drag&&drag.moved) e.preventDefault(); },true);
+  document.addEventListener('click',function(e){ if(Date.now()-lastDrag<350){ e.stopPropagation(); e.preventDefault(); } },true);
+  var st=document.createElement('style');
+  st.textContent='html.weddy-dragscroll,html.weddy-dragscroll *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}';
+  document.head.appendChild(st);
+})();
 </script>
 </body>
 </html>
