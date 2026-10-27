@@ -590,6 +590,12 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 @media(max-width:859px){.endcta-in{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;padding-block:44px!important}.endcta-img.endcta-img{justify-self:end!important;margin-right:-96px}.ec-scale{--s:.4!important}.endcta .btn.light{padding-inline:16px;font-size:14px!important;min-height:44px}.endcta h2{font-size:25px!important;max-width:none}.endcta-t>p:not(.endcta-eye){margin:14px 0 20px}.endcta .stores{flex-wrap:wrap}}
 @media(min-width:601px) and (max-width:859px){.ec-scale{--s:.4!important}.endcta-img.endcta-img{margin-right:0}}
 .stage .phone video{display:block;width:100%;height:auto;border-radius:30px;background:#FAF8F5}
+#demo-full{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:var(--cream,#FAF8F5)}
+#demo-full iframe{flex:1;min-height:0;width:100%;border:0;display:block}
+.demo-full-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--cream,#FAF8F5);border-bottom:1px solid rgba(48,44,41,.1);font-weight:600;color:var(--ink,#302C29)}
+.demo-full-bar button{all:unset;cursor:pointer;padding:8px 16px;border-radius:99px;background:var(--rust,#B96752);color:#fff;font-size:14px;font-weight:600}
+html.demo-lock,html.demo-lock body{overflow:hidden}
+@media(min-width:701px){#demo-full{inset:0;background:rgba(48,44,41,.55);align-items:center;justify-content:center;padding:20px;box-sizing:border-box}#demo-full .demo-full-bar,#demo-full iframe{width:min(420px,100%);flex:none}#demo-full .demo-full-bar{border-radius:22px 22px 0 0}#demo-full iframe{height:min(820px,calc(100vh - 100px));border-radius:0 0 22px 22px;background:var(--cream,#FAF8F5)}}
 /* escala de telemóvel (≤600px): tipografia e espaços segundo as normas (corpo 16px, títulos 26–36px, botões ≥46px, margens 16px) */
 @media(max-width:600px){
 body>*:not(#demo-full):not(script):not(style){zoom:.86}
@@ -849,6 +855,24 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){set(false);
 (function(){var st=document.querySelector('.ec-stage');if(!st||!('IntersectionObserver' in window)||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;
 st.classList.add('pre');var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){st.classList.remove('pre');io.disconnect()}},{threshold:.4});io.observe(st);
 setTimeout(function(){st.classList.remove('pre')},9000)})();
+</script>
+<script>
+(function(){
+  var a=document.querySelector('a.try');if(!a)return;
+  function T(s){return (window.weddyT||String)(s)}
+  a.addEventListener('click',function(e){
+    if(e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
+    e.preventDefault();
+    var o=document.createElement('div');o.id='demo-full';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+    o.innerHTML='<div class="demo-full-bar"><span>'+T('Demonstração')+'</span><button type="button" id="demo-full-x">'+T('Fechar')+'</button></div><iframe src="demo-app.html?demo=1" title="'+T('Demonstração interativa da app Weddy')+'" allow="clipboard-write"></iframe>';
+    document.body.appendChild(o);document.documentElement.classList.add('demo-lock');
+    function close(){o.remove();document.documentElement.classList.remove('demo-lock');document.removeEventListener('keydown',esc);a.focus();}
+    function esc(ev){if(ev.key==='Escape')close();}
+    document.addEventListener('keydown',esc);
+    o.addEventListener('click',function(ev){if(ev.target===o)close();});
+    var x=o.querySelector('#demo-full-x');x.addEventListener('click',close);x.focus();
+  });
+})();
 </script>
 </body>
 </html>
