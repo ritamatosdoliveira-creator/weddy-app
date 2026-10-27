@@ -12,6 +12,37 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <script>try{ if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) document.documentElement.classList.add('native-app'); }catch(e){}</script>
+<script>
+/* Telemóvel no browser (fora da app instalada): encaminha para a App Store / Google Play.
+   Não aparece na app da loja (Capacitor/TWA), na PWA instalada, na demonstração (iframe/?demo),
+   nem nos retornos de login/pagamento. "Continuar na versão web" fica disponível. */
+(function(){try{
+  var ua=navigator.userAgent||'',q=location.search||'';
+  var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var android=/Android/i.test(ua);
+  if(!ios&&!android)return;
+  if(window.Capacitor||window.top!==window||/[?&](demo|googleCalendar|weddyCheckout|store=0)/.test(q))return;
+  if((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)return;
+  if(/^android-app:\/\//.test(document.referrer||''))return;
+  if(sessionStorage.getItem('weddyWebOk'))return;
+  var url=ios?'https://apps.apple.com/pt/app/weddy/id6817425432':'https://play.google.com/store/apps/details?id=pt.weddy.app';
+  var pt=/^pt/i.test(navigator.language||'pt');
+  var T=pt?{h:'A Weddy já está na loja',p:'Descarrega a app para planeares o casamento com tudo no telemóvel.',b:ios?'Abrir na App Store':'Abrir no Google Play',c:'Continuar na versão web'}
+          :{h:'Weddy is now in the store',p:'Download the app to plan your wedding with everything on your phone.',b:ios?'Open in the App Store':'Open in Google Play',c:'Continue on the web version'};
+  function show(){
+    var o=document.createElement('div');o.id='store-gate';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-labelledby','store-gate-h');
+    o.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#FAF8F5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 28px;font-family:Manrope,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#302C29';
+    o.innerHTML='<img src="/icon-192.png" alt="" width="84" height="84" style="border-radius:20px;box-shadow:0 8px 24px rgba(48,44,41,.12);margin-bottom:24px">'
+      +'<h1 id="store-gate-h" style="font-family:\'Cormorant Garamond\',Georgia,serif;font-weight:500;font-size:32px;line-height:1.15;margin:0 0 12px;color:#9A4F3D">'+T.h+'</h1>'
+      +'<p style="font-size:16px;line-height:1.5;margin:0 0 28px;max-width:300px;color:#5b534e">'+T.p+'</p>'
+      +'<a href="'+url+'" style="display:block;width:100%;max-width:300px;box-sizing:border-box;padding:15px 20px;border-radius:99px;background:#B96752;color:#fff;font-weight:700;font-size:16px;text-decoration:none">'+T.b+'</a>'
+      +'<button type="button" id="store-gate-x" style="all:unset;cursor:pointer;margin-top:18px;padding:10px 14px;font-size:14px;color:#7a6f68;text-decoration:underline">'+T.c+'</button>';
+    document.body.appendChild(o);
+    document.getElementById('store-gate-x').addEventListener('click',function(){try{sessionStorage.setItem('weddyWebOk','1')}catch(e){}o.remove()});
+  }
+  if(document.body)show();else document.addEventListener('DOMContentLoaded',show);
+}catch(e){}})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -190,7 +221,7 @@ html{
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
 .tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
 .tabpanel.active{ display:flex; }
-.scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; touch-action:pan-y; }
+.scroll{ flex:1; overflow-y:auto; overflow-x:hidden; min-width:0; padding-bottom:90px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; touch-action:pan-y; }
 .scroll::-webkit-scrollbar{ display:none; }
 
 .navbar{ padding:4px 18px 10px; flex-shrink:0; position:sticky; top:0; z-index:15; background:var(--cream); display:flex; align-items:center; gap:12px; }
@@ -1180,6 +1211,8 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .supd-pay-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
 .supd-pay-row:last-child{ border-bottom:none; }
 .supd-pay-row .amount{ font-weight:600; color:var(--ink); font-size:14px; }
+/* iOS: os campos de data têm largura mínima própria e alargavam a página */
+input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-box; }
 .supd-pay-addrow{ display:flex; gap:8px; margin-top:10px; align-items:center; }
 .supd-pay-addrow input{ border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 9px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; }
 .supd-pay-addrow input[type="date"]{ flex:1.2; min-width:0; }

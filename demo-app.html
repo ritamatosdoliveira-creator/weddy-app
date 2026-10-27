@@ -191,7 +191,7 @@ html{
 .app-body{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
 .tabpanel{ display:none; flex-direction:column; flex:1; min-height:0; }
 .tabpanel.active{ display:flex; }
-.scroll{ flex:1; overflow-y:auto; padding-bottom:90px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; touch-action:pan-y; }
+.scroll{ flex:1; overflow-y:auto; overflow-x:hidden; min-width:0; padding-bottom:90px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; touch-action:pan-y; }
 .scroll::-webkit-scrollbar{ display:none; }
 
 .navbar{ padding:4px 18px 10px; flex-shrink:0; position:sticky; top:0; z-index:15; background:var(--cream); display:flex; align-items:center; gap:12px; }
@@ -1180,6 +1180,8 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .supd-pay-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
 .supd-pay-row:last-child{ border-bottom:none; }
 .supd-pay-row .amount{ font-weight:600; color:var(--ink); font-size:14px; }
+/* iOS: os campos de data têm largura mínima própria e alargavam a página */
+input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-box; }
 .supd-pay-addrow{ display:flex; gap:8px; margin-top:10px; align-items:center; }
 .supd-pay-addrow input{ border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 9px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; }
 .supd-pay-addrow input[type="date"]{ flex:1.2; min-width:0; }
