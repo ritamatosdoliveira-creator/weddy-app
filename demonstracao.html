@@ -714,6 +714,16 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
 .demo-pair .demo-phone figcaption{max-width:340px}
 .demo-pair .btn{margin-top:14px}
 @media(min-width:860px){.demo-pair{grid-template-columns:1fr 1fr;align-items:start}}
+
+/* texto à esquerda, dois telemóveis à direita */
+.demo-hero{max-width:1240px!important;text-align:left!important;padding-block:40px 70px!important}
+.demo-hero .demo-steps{margin-inline:0!important}
+.demo-hero .demo-cta{justify-content:flex-start!important}
+.demo-hero .demo-pair{padding:0;max-width:none;margin:0;gap:28px}
+@media(min-width:1000px){.demo-hero{grid-template-columns:minmax(300px,.8fr) 1.6fr!important;gap:48px!important;align-items:start!important}.demo-hero .demo-pair{grid-template-columns:1fr 1fr}}
+@media(min-width:860px) and (max-width:999px){.demo-hero{grid-template-columns:1fr!important;text-align:center!important}.demo-hero .demo-steps{margin-inline:auto!important}.demo-hero .demo-cta{justify-content:center!important}}
+@media(max-width:999px){.demo-hero .demo-pair{grid-template-columns:1fr}}
+@media(min-width:1000px){.demo-hero .demo-t h1{font-size:clamp(44px,4.6vw,64px)}}
 </style>
 <script src="site-protect.js" defer></script>
 <script src="site-anchors.js" defer></script>
@@ -755,8 +765,7 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
       </ol>
       <div class="demo-cta"><a class="btn" href="/app/">Começar gratuitamente</a><a class="btn ghost" href="#experimentar">Experimentar a app</a></div>
     </div>
-  </section>
-  <section class="wrap demo-pair" aria-label="Vídeo e demonstração interativa">
+    <div class="demo-pair" role="group" aria-label="Vídeo e demonstração interativa">
     <figure class="demo-phone demo-vid">
       <p class="fx-eyebrow">Vê em vídeo</p>
       <div class="demo-device"><video controls autoplay muted loop playsinline preload="auto" poster="inicio/demo-poster.jpg" aria-label="Vídeo de demonstração da app Weddy" width="390" height="844"><source src="inicio/demo-video.mp4" type="video/mp4">O teu navegador não suporta vídeo.</video></div>
@@ -767,6 +776,7 @@ html.demo-lock,html.demo-lock body{overflow:hidden}
     <div class="demo-device live" id="demo-box" aria-live="polite"><div class="demo-ph"><span>A app abre aqui</span></div></div>
       <p class="demo-cap">Esta é a app a sério, com um casamento fictício. Nada do que fizeres aqui é guardado nem enviado.</p>
       <button class="btn" type="button" id="demo-start">Abrir a demonstração</button>
+    </div>
     </div>
   </section>
   <script>
