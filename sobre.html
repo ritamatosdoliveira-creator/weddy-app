@@ -479,12 +479,24 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .cform .btn{width:100%;min-height:54px;font-size:17px;cursor:pointer;font-family:inherit}
 .cform .fine{font-size:13.5px;color:var(--ink2);margin-top:14px;line-height:1.55}
 @media(min-width:860px){.story{grid-template-columns:1fr 1fr;gap:72px}.vals{grid-template-columns:repeat(3,1fr)}.contact{grid-template-columns:.8fr 1.2fr;gap:56px}}
-.founder{display:grid;gap:32px;padding-block:24px 72px;align-items:center}
-.founder figure{margin:0}.founder img{width:100%;height:auto;border-radius:22px;display:block;box-shadow:0 26px 50px -30px rgba(48,44,41,.5)}
-.founder h2{font-weight:500;font-size:clamp(34px,4.2vw,56px);line-height:1.08}
-.founder p{color:var(--ink2);font-size:18px;line-height:1.8;margin-top:16px}
-.founder .sig{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:24px;color:var(--rust-d)}
-@media(min-width:860px){.founder{grid-template-columns:.8fr 1.2fr;gap:72px}.founder img{max-height:620px;object-fit:cover}}
+.about{display:grid;gap:36px;padding-block:56px 64px;align-items:center}
+.about h1{font-weight:500;font-size:clamp(48px,7vw,96px);line-height:1}
+.about h1 em{color:var(--rust);font-style:italic}
+.about .lead{margin-top:22px;max-width:30ch;font-family:"Cormorant Garamond",serif;font-size:clamp(26px,3vw,36px);line-height:1.25;color:var(--ink)}
+.about-p{margin-top:18px;max-width:46ch;color:var(--ink2);font-size:18px;line-height:1.7}
+.about-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn.ghost{background:transparent;color:var(--rust-d);border:1.5px solid var(--rust-d);box-shadow:none}
+.about-img{margin:0;position:relative}
+.about-img img{width:100%;height:auto;display:block;border-radius:200px 200px 24px 24px;box-shadow:0 30px 60px -34px rgba(48,44,41,.55)}
+.about-img figcaption{position:absolute;left:16px;bottom:16px;background:#fffdfbEE;border-radius:999px;padding:10px 18px;font-weight:600;font-size:14.5px;color:var(--ink)}
+.moves{padding-bottom:80px}
+.moves h2{font-weight:500;font-size:clamp(30px,3.6vw,44px);margin-bottom:22px}
+.moves-row{display:grid;background:#fffdfb;border:1px solid #efe6df;border-radius:22px;box-shadow:0 18px 40px -30px rgba(48,44,41,.35)}
+.moves-row article{padding:28px;display:grid;grid-template-columns:auto 1fr;column-gap:16px;align-items:center}
+.moves-row article+article{border-top:1px solid #efe6df}
+.moves-row .bub{grid-row:span 2;width:54px;height:54px}
+.moves-row h3{font-size:27px;font-weight:500;line-height:1.1}.moves-row p{margin:2px 0 0;color:var(--ink2);font-size:16px}
+@media(min-width:860px){.about{grid-template-columns:1.15fr .85fr;gap:72px}.about-img{max-width:440px;justify-self:end}.moves-row{grid-template-columns:repeat(3,1fr)}.moves-row article+article{border-top:0;border-left:1px solid #efe6df}}
 </style>
 </head>
 <body>
@@ -507,30 +519,30 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 </div>
 
 <main id="principal">
-  <section class="wrap page-hero">
-    <p class="fx-eyebrow">Sobre nós</p>
-    <h1>Organizar um casamento não tem de custar a calma.</h1>
-    <p class="lead">A Weddy nasceu de uma necessidade real: juntar num só lugar tudo o que um casal precisa para organizar o casamento, sem folhas de cálculo espalhadas nem listas perdidas.</p>
+  <section class="wrap about">
+    <div class="about-t">
+      <p class="fx-eyebrow">Sobre nós</p>
+      <h1>Olá, sou a <em>Rita.</em></h1>
+      <p class="lead">Senti dificuldade em organizar o meu casamento num só lugar e em ter tudo à mão. Daí nasceu a Weddy.</p>
+      <p class="about-p">Começou como uma app para o meu próprio casamento e tornou-se numa ferramenta para qualquer casal planear com calma, à sua maneira.</p>
+      <div class="about-cta"><a class="btn" href="index.html">Começar gratuitamente</a><a class="btn ghost" href="contactos.html">Falar connosco</a></div>
+    </div>
+    <figure class="about-img">
+      <img src="inicio/rita.jpg" width="900" height="1125" alt="Rita, fundadora da Weddy, a sorrir e a mostrar o anel de noivado">
+      <figcaption>Rita, fundadora da Weddy</figcaption>
+    </figure>
   </section>
-  <div class="wrap founder">
-    <figure><img src="inicio/rita.jpg" width="900" height="1125" alt="Rita, fundadora da Weddy, a sorrir e a mostrar o anel de noivado"></figure>
-    <div><h2>Olá, sou a Rita.</h2>
-      <p>Senti dificuldade em organizar o meu casamento num só lugar e em ter tudo à mão: o orçamento, os convidados, as mesas, as tarefas.</p>
-      <p>Daí nasceu a Weddy. Começou como uma app para organizar o meu próprio casamento e transformou-se numa ferramenta para qualquer casal que queira planear com calma e à sua maneira.</p>
-      <p>O essencial é gratuito. O Premium é uma opção para quem quer mais ferramentas, com pagamento único e sem renovação automática.</p>
-      <p class="sig">Rita, fundadora da Weddy</p></div>
-  </div>
-  <section class="wrap" style="padding-bottom:96px">
-    <p class="fx-eyebrow">Em que acreditamos</p>
-    <div class="vals">
-      <article class="val"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19c-3.5 0-7-2.2-8-6 3 0 5.2.9 6.5 2.4C11 13.5 11 11 12 8c1 3 1 5.5 1.5 7.4C14.8 13.9 17 13 20 13c-1 3.8-4.5 6-8 6z"/></svg></span><h3>Calma</h3><p>Uma coisa de cada vez, ao teu ritmo e sem pressas.</p></article>
-      <article class="val"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span><h3>Clareza</h3><p>Tudo num só lugar, para saberes sempre onde estás.</p></article>
-      <article class="val"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.3.2-.6.3-1 .3z"/></svg></span><h3>À tua maneira</h3><p>Ferramentas que se adaptam a ti, e não o contrário.</p></article>
+  <section class="wrap moves" aria-labelledby="t-moves">
+    <h2 id="t-moves">O que nos move</h2>
+    <div class="moves-row">
+      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19c-3.5 0-7-2.2-8-6 3 0 5.2.9 6.5 2.4C11 13.5 11 11 12 8c1 3 1 5.5 1.5 7.4C14.8 13.9 17 13 20 13c-1 3.8-4.5 6-8 6z"/></svg></span><h3>Calma</h3><p>Uma coisa de cada vez, ao teu ritmo.</p></article>
+      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span><h3>Clareza</h3><p>Tudo num só lugar, sempre à mão.</p></article>
+      <article><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3C7.9 17 3.5 13.4 3.5 9.3 3.5 6.4 5.8 4 8.7 4c1.6 0 3 .7 3.9 1.9C13.5 4.7 14.9 4 16.5 4c2.9 0 5.2 2.4 5.2 5.3 0 4.1-4.4 7.7-7.7 10.6-.3.2-.6.3-1 .3z"/></svg></span><h3>À tua maneira</h3><p>Ferramentas que se adaptam a ti.</p></article>
     </div>
   </section>
   <section class="endcta" aria-labelledby="t-cta"><div class="wrap endcta-in"><div class="endcta-t">
     <p class="endcta-eye">Weddy</p><h2 id="t-cta">Vamos organizar <em>o teu grande dia?</em></h2>
-    <p>O essencial é gratuito. Quando precisares de mais, o Premium é uma opção.</p>
+    <p>O essencial é gratuito. O Premium é uma opção, com pagamento único.</p>
     <a class="btn light" href="index.html">Criar conta gratuitamente</a></div></div></section>
 
 </main>
