@@ -325,6 +325,27 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
 .lines{display:grid;gap:5px;width:130px}.lines i{height:5px;border-radius:99px;background:#EADDD4}.lines i+i{width:70%;justify-self:center}
 @media(min-width:760px){.pfx{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.pfx-card{transition:none}.pfx-card:hover{transform:none}}
+
+/* ===== Secção Premium (só #premium) ===== */
+#premium{padding-block:80px 72px}
+#premium .price{align-items:start;gap:44px;padding-block:0}
+#premium .lead{max-width:50ch;font-size:clamp(17px,1.3vw,19px)}
+#premium .chips{gap:8px;margin-top:26px;max-width:560px}
+#premium .chip{background:#F1DDD4;border:1px solid #E6C9BD;padding:7px 15px;font-size:13.5px;font-weight:600;color:#6B3F32;cursor:default}
+#premium .pbox{border:1.5px solid var(--rust);border-radius:22px;padding:30px 32px;width:100%;max-width:440px;box-shadow:0 22px 44px -30px rgba(154,79,61,.45)}
+#premium .pbox .amount{font-weight:600;font-size:64px;margin-top:8px}
+#premium .pbox ul{margin:18px 0 24px;gap:9px;font-size:15.5px}
+#premium .pbox .btn{width:100%}
+#premium .pfx{padding-bottom:0;margin-top:48px;gap:20px}
+#premium .pfx-card{padding:22px 24px 24px;align-content:start}
+#premium .pfx-vis{height:200px}
+#premium .arch{padding:12px 10px;width:116px}#premium .arch b{font-size:30px}#premium .lines{width:116px}
+#premium .pfx-card h3{margin-top:12px;font-size:26px}
+@media(min-width:860px){
+  #premium .price{grid-template-columns:1.15fr .85fr}
+  #premium .pbox{justify-self:end}
+}
+@media(max-width:859px){#premium{padding-block:56px}#premium .pbox{max-width:none}#premium .pbox .amount{font-size:56px}}
 </style>
 </head>
 <body>
@@ -446,8 +467,8 @@ header.top .btn.small{order:2;margin-left:auto;min-height:40px;padding:0 14px;fo
         <p class="eyebrow">Weddy Premium</p>
         <h2 id="t-premium">Se um dia precisares <em>de mais.</em></h2>
         <p class="lead" style="margin-top:16px">O Premium acrescenta ferramentas para gerir convidados, documentos e datas com mais calma. Continua com acesso gratuito a tudo o que já usas.</p>
-        <div class="chips" aria-label="Funcionalidades Premium">
-          <span class="chip">RSVP</span><span class="chip">Assistente de mesas</span><span class="chip">Site do casamento</span><span class="chip">Estado do casamento</span><span class="chip">Documentos</span><span class="chip">Google Calendar</span><span class="chip">Chatbot</span><span class="chip">Weddy Memories</span>
+        <div class="chips" role="list" aria-label="Funcionalidades Premium">
+          <span class="chip" role="listitem">RSVP</span><span class="chip" role="listitem">Assistente de mesas</span><span class="chip" role="listitem">Site do casamento</span><span class="chip" role="listitem">Estado do casamento</span><span class="chip" role="listitem">Documentos</span><span class="chip" role="listitem">Google Calendar</span><span class="chip" role="listitem">Chatbot</span><span class="chip" role="listitem">Weddy Memories</span>
         </div>
       </div>
       <div class="pbox">
