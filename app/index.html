@@ -8923,6 +8923,8 @@ function viewFornecedoresRecomendados(){
     const items = RECOMMENDED_SUPPLIERS_LIST().filter(r=>r.category===cat.id);
     return { cat, items };
   }).filter(g=>g.items.length);
+  const _fav = groups.findIndex(g=>g.cat.id==='lembrancas');
+  if(_fav>1) groups.splice(1,0,groups.splice(_fav,1)[0]);
 
   const groupsHTML = groups.map(g=>`
     <div class="sup-section-head"><span>${escapeHTML(g.cat.name)}</span></div>
