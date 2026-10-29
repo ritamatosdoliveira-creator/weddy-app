@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <script>
 /* App instalada (ecrã principal / app das lojas) e ligações antigas da app continuam a abrir a app. */
-(function(){try{var q=location.search,st=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true||!!window.Capacitor||/^android-app:\/\//.test(document.referrer||'');
+(function(){try{var q=location.search,st=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true||!!window.Capacitor||/^android-app:\/\/pt\.weddy\.app/.test(document.referrer||'');
 if((st&&!/[?&]site=1(&|$)/.test(q))||/[?&](googleCalendar|weddyCheckout)=/.test(q))location.replace('/app/'+q+location.hash);}catch(e){}})();
 </script>
 
