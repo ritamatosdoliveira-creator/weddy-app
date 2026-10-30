@@ -1016,6 +1016,36 @@ html{
 .cmp-why-body{ margin-top:7px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
 .cmp-why-intro{ font-size:11.5px; color:var(--ink-soft); width:100%; }
 .cmp-bchip{ font-size:11.5px; line-height:1.4; background:var(--cream2); color:var(--ink); border-radius:9px; padding:4px 8px; overflow-wrap:anywhere; } .cmp-bchip.gone{ background:#FBEDEA; color:#8E3A2F; }
+.cmp-plevels{ margin-top:12px; padding-top:10px; border-top:1px solid var(--line); }
+.cmp-plevels-h{ font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+.cmp-plevel{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:5px 0; font-size:13px; }
+.cmp-plevel > span:first-child{ min-width:0; overflow-wrap:anywhere; }
+.cmp-plevel-seg{ flex:none; display:flex; background:#F0ECE7; border-radius:10px; padding:2px; }
+.cmp-plevel-seg button{ all:unset; box-sizing:border-box; cursor:pointer; padding:6px 10px; border-radius:8px; font-size:12px; font-weight:700; color:var(--ink-soft); }
+.cmp-plevel-seg button.on{ background:#fff; color:var(--rust-dark); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.cmp-plevel-seg button:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:1px; }
+.cmp-orient, .cmp-rcrit, .cmp-conc, .cmp-str-g{ text-align:left; }
+.cmp-orient{ margin:14px 0 4px; padding:16px; background:linear-gradient(180deg,#FBF1EC,#FFFDFC 70%); border:1px solid var(--blush); border-radius:20px; box-shadow:var(--shadow); }
+.cmp-or-eyebrow{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--rust-dark); }
+.cmp-or-q{ margin:4px 0 12px; font-family:'Cormorant Garamond',serif; font-size:22px; line-height:1.15; font-weight:600; color:var(--ink); }
+.cmp-or-badge{ display:inline-block; font-size:12px; font-weight:700; color:#4C5C3F; background:#E6ECDF; border-radius:99px; padding:5px 11px; }
+.cmp-or-badge-eq{ color:#6F675F; background:#F0ECE7; }
+.cmp-or-name{ margin:8px 0 2px; font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; color:var(--rust-dark); overflow-wrap:anywhere; }
+.cmp-or-h{ margin:14px 0 6px; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); }
+.cmp-or-msg{ margin-top:8px; font-size:13.5px; line-height:1.45; color:var(--ink); }
+.cmp-or-nodata{ margin-top:12px; font-size:12.5px; color:var(--ink-soft); }
+.cmp-or-foot{ margin-top:14px; padding-top:10px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-soft); }
+.cmp-st-prio{ display:inline-block; font-size:10.5px; font-weight:700; color:var(--ink-soft); background:#F0ECE7; border-radius:99px; padding:1px 8px; margin-right:6px; }
+.cmp-rcrit{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.cmp-rcrit-row{ padding:10px 14px; border-top:1px solid var(--line); }
+.cmp-rcrit-row:first-child{ border-top:0; }
+.cmp-rcrit-k{ font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:3px; }
+.cmp-rcrit-v{ font-size:13px; line-height:1.35; overflow-wrap:anywhere; }
+.cmp-rcrit-v span{ font-weight:700; color:var(--rust-dark); }
+.cmp-rcrit-v i{ color:var(--ink-soft); }
+.cmp-str-g{ margin-bottom:10px; }
+.cmp-str-who{ font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--rust-dark); margin-bottom:4px; overflow-wrap:anywhere; }
+.cmp-conc p{ margin:0; font-size:14px; line-height:1.5; color:var(--ink); background:#FAF3EF; border-radius:14px; padding:12px 14px; }
 .cmp-prio-note{ margin-bottom:10px; } .cmp-prio-note-h{ font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--rust-dark); margin-bottom:6px; }
 .cmp-miss{ padding:8px 0; border-top:1px solid var(--line); } .cmp-miss:first-of-type{ border-top:0; }
 .cmp-miss-who{ font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:5px; overflow-wrap:anywhere; }
@@ -1098,6 +1128,44 @@ html{
 .cmp-export-btn{ all:unset; box-sizing:border-box; flex-shrink:0; cursor:pointer; padding:10px 16px; border-radius:99px; background:var(--rust-dark); color:#fff; font-size:13px; font-weight:700; text-align:center; }
 .cmp-export-btn[disabled]{ opacity:.45; cursor:not-allowed; }
 .cmp-export-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+/* v266 — Comparar lado a lado (até 3) e caixas iguais nos 3 separadores principais */
+.cmp-colhd{ position:sticky; top:0; z-index:5; display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:8px; margin:0 16px 12px; padding:8px 14px; background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:0 2px 10px rgba(48,44,41,.05); }
+.cmp-colhd > div{ display:flex; align-items:center; gap:6px; min-width:0; font-size:12px; font-weight:700; color:var(--ink); }
+.cmp-colhd b, .cmp-full-who b{ flex:0 0 auto; width:9px; height:9px; border-radius:50%; display:inline-block; }
+.cmp-colhd span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.cmp-g{ display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:8px; }
+.cmp-c{ min-width:0; font-size:13px; line-height:1.35; color:var(--ink); overflow-wrap:anywhere; padding:6px 8px; border-radius:10px; background:transparent; text-align:left; }
+.cmp-c.d{ background:#F6E6DF; }
+.cmp-c b{ display:block; font-size:13.5px; font-weight:700; }
+.cmp-c .cmp-none, .cmp-none{ color:#6f655f; font-style:italic; font-size:12.5px; }
+.cmp-c .cmp-bl li{ font-size:12.5px; padding:0 0 0 11px; margin:0 0 3px; }
+.cmp-c .cmp-bl li::before{ top:.5em; width:4px; height:4px; left:0; }
+.cmp-more-n{ display:block; font-size:11.5px; font-weight:700; color:var(--rust-dark); }
+.cmp-full{ margin-top:6px; }
+.cmp-full > summary{ list-style:none; cursor:pointer; font-size:12.5px; font-weight:700; color:var(--rust-dark); padding:4px 0; }
+.cmp-full > summary::-webkit-details-marker{ display:none; }
+.cmp-full > summary:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; border-radius:4px; }
+.cmp-full[open] > summary{ margin-bottom:4px; }
+.cmp-full-p{ padding:8px 0; border-top:1px solid var(--line); }
+.cmp-full-who{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; margin-bottom:4px; }
+.cmp-full .cmp-bl li{ font-size:13.5px; }
+.cmp-r{ padding:12px 16px; }
+/* caixas iguais */
+.cmp-prio, .cmp-export, .cmp-orient, .cmp-rsec, .cmp-conc{ margin:0 16px 12px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:0 2px 10px rgba(48,44,41,.05); }
+.cmp-prio{ margin-top:16px; }
+.cmp-orient{ background:linear-gradient(180deg,#FBF1EC,#FFFDFC 70%); border-color:var(--blush); }
+.cmp-props{ padding:0 16px; gap:12px; }
+.cmp-card, .cmp-prop{ border-radius:18px; box-shadow:0 2px 10px rgba(48,44,41,.05); }
+.cmp-add{ margin-bottom:12px; }
+.cmp-tabs{ margin-bottom:12px; }
+.cmp-report{ margin:0; padding:0; background:none; border:0; border-radius:0; }
+.cmp-rsec{ margin-top:0; }
+.cmp-prio-h, .cmp-rsec-h{ font-size:20px; }
+.cmp-st, .cmp-q{ background:transparent; border:0; border-top:1px solid var(--line); border-radius:0; padding:10px 0; margin:0; }
+.cmp-st:first-of-type, .cmp-q:first-of-type{ border-top:0; }
+.cmp-rcrit{ background:transparent; border:0; border-radius:0; }
+.cmp-rcrit-row{ padding:10px 0; }
+.cmp-conc p{ padding:12px 14px; }
 .sup-banner{ display:flex; gap:12px; align-items:stretch; margin:0 18px 18px; padding:18px; border-radius:16px; background:#EADFD6; }
 .sup-banner-text{ flex:1; min-width:0; }
 .sup-banner-eyebrow{ font-size:9.5px; font-weight:600; letter-spacing:.08em; color:#A9705C; text-transform:uppercase; margin-bottom:7px; }
@@ -4414,7 +4482,7 @@ const APP_I18N = {
     premiumTileRSVP:'Confirma a presença e as respostas dos convidados.',
     cmpTitle:"Weddy Compare", cmpTagline:"Compare propostas. Descubra diferenças. Escolha com confiança.", cmpBannerSub:"Compara propostas de fornecedores lado a lado.", cmpPremiumTag:"Premium", cmpYourCompares:"As tuas comparações", cmpNew:"Nova comparação", cmpEmpty:"Ainda não criaste nenhuma comparação. Toca no + para comparar propostas de fornecedores.", cmpNewTitle:"Nova comparação", cmpEditTitle:"Editar comparação", cmpName:"Nome da comparação", cmpNamePh:"Ex: Fotógrafos para o casamento", cmpCategory:"Categoria", cmpHowMany:"Quantos fornecedores queres comparar?", cmpCreate:"Criar comparação", cmpSaveChanges:"Guardar", cmpCancel:"Cancelar", cmpAddProposal:"Adicionar proposta", cmpProposals:"Propostas", cmpProposalFallback:"Proposta sem nome", cmpProposalOne:"proposta", cmpProposalMany:"propostas", cmpFileOne:"ficheiro", cmpFileMany:"ficheiros", cmpMaxReached:"Chegaste ao número de fornecedores desta comparação. Podes aumentá-lo em Editar.", cmpNeedTwo:"Adiciona pelo menos 2 propostas para veres a comparação.", cmpByCriterion:"Por critério", cmpBySupplier:"Por fornecedor", cmpNotIndicated:"Não indicado", cmpNoDataYet:"Sem dados ainda", cmpEditComparison:"Editar comparação", cmpEditProposal:"Editar proposta", cmpDone:"Concluído", cmpProposalTitle:"Proposta", cmpSupplier:"Fornecedor", cmpSupplierPick:"Escolher fornecedor…", cmpSupplierGroupCat:"Desta categoria", cmpSupplierGroupOther:"Outros fornecedores", cmpSupplierTemp:"Outro fornecedor (ainda não registado)", cmpSupplierName:"Nome do fornecedor", cmpSupplierNamePh:"Ex: Estúdio Luz", cmpFiles:"Propostas e documentos", cmpAttach:"Carregar PDF ou fotografia", cmpAttachHint:"PDF ou imagem, até 15 MB.", cmpUploading:"A carregar…", cmpFileTooLarge:"Ficheiro demasiado grande (máx. 15 MB).", cmpFileType:"Só são aceites PDF e imagens.", cmpUploadFailed:"Não foi possível guardar o ficheiro. Tenta de novo.", cmpFieldsTitle:"Dados da proposta", cmpFieldsHint:"Preenche o que já sabes. O que não estiver na proposta fica como \"Não indicado\".", cmpNotes:"Notas", cmpRemoveProposal:"Remover proposta", cmpRemoveProposalConfirm:"Remover esta proposta e os ficheiros associados?", cmpRemoveFileConfirm:"Remover este ficheiro?", cmpDeleteComparison:"Eliminar comparação", cmpDeleteConfirm:"Eliminar esta comparação, as propostas e os ficheiros associados?", cmpUpdatedOn:"Atualizada em", cmpVatIncl:"IVA incluído", cmpVatExcl:"IVA não incluído", cmpVatNone:"Não indicado", cmpCrit_price:"Valor total (€)", cmpCrit_vat:"IVA", cmpCrit_services:"Serviços incluídos", cmpCrit_hours:"Horas de serviço", cmpCrit_travel:"Deslocação", cmpCrit_extras:"Extras", cmpCrit_payment:"Condições de pagamento", cmpCrit_deposit:"Valor do sinal", cmpCrit_deadline:"Prazo de entrega", cmpCrit_cancellation:"Cancelamento", cmpCrit_validity:"Validade da proposta", cmpCrit_exclusions:"Exclusões e observações", cmpCatNone:"Sem categoria",
     cmpAiTitle:"Weddy AI", cmpAiIdleNoFiles:"Carrega a proposta (PDF ou fotografia) e a Weddy AI lê-a por ti.", cmpAiIdle:"A Weddy AI lê a proposta e preenche os dados. Tu reves e confirmas antes de entrarem na comparação.", cmpAiAnalyze:"Analisar com Weddy AI", cmpAiProcessing:"A ler o documento… pode demorar até 1 minuto.", cmpAiReady:"Análise pronta. Revê e confirma os dados antes de os usares.", cmpAiReview:"Rever dados extraídos", cmpAiConfirmedOn:"Dados confirmados em", cmpAiAgain:"Analisar de novo", cmpAiAgainConfirm:"Fazer uma nova análise? Os dados atuais só mudam se confirmares a nova análise.", cmpAiFailed:"A análise falhou.", cmpAiRetry:"Tentar de novo", cmpAiPrivacy:"Os ficheiros são enviados para análise à OpenAI, fornecedor de IA da Weddy. Máximo de 3 ficheiros por análise e 10 análises por dia.", cmpAiTooMany:"Podes analisar até 3 ficheiros de cada vez. Remove os restantes.", cmpAiErrExpired:"A análise demorou demasiado. Tenta de novo.", cmpAiErrGeneric:"Não foi possível analisar o documento agora. Tenta de novo.", cmpAiErrOffline:"Sem ligação ao servidor. Verifica a internet e tenta de novo.", cmpAiErrUnavailable:"A análise por IA não está disponível neste momento.", cmpAiErrNoFiles:"Carrega primeiro um PDF ou uma fotografia.", cmpAiChipReview:"Por rever", cmpAiChipProcessing:"A analisar…", cmpAiChipFailed:"Análise falhou", cmpAiChipDone:"Analisada", cmpAiPendingBanner:"propostas com análise por rever. Só entram na comparação depois de confirmadas.", cmpAiPendingBannerOne:"proposta com análise por rever. Só entra na comparação depois de confirmada.", cmpRevTitle:"Rever análise", cmpRevIntro:"A Weddy AI leu o documento. Confirma ou corrige cada valor: só os dados confirmados entram na comparação.", cmpRevLegendExplicit:"Escrito no documento.", cmpRevLegendInferred:"Deduzido pela IA; precisa da tua confirmação.", cmpRevLegendNone:"O documento não diz.", cmpBadgeExplicit:"Explícito", cmpBadgeInferred:"Inferido", cmpBadgeNone:"Não indicado", cmpBadgeEdited:"Corrigido por ti", cmpRevNeeds:"Confirmação necessária", cmpRevConfirmThis:"Confirmo este valor", cmpRevInDoc:"No documento:", cmpRevCurrent:"Valor atual:", cmpRevWillReplace:"será substituído", cmpRevWarnings:"Avisos da análise", cmpRevUnreadable:"A IA não conseguiu ler este documento com fiabilidade. Podes preencher os dados à mão.", cmpRevOriginals:"Documento original (toca para abrir)", cmpRevSupplierDetected:"Fornecedor identificado", cmpRevSupplierNote:"Esta proposta já está ligada a um fornecedor registado.", cmpRevConfirmAll:"Confirmar e usar na comparação", cmpRevMissing:"Faltam confirmar valores assinalados a laranja.", cmpRevRepeat:"Repetir análise", cmpRevDiscard:"Descartar análise", cmpRevDiscardConfirm:"Descartar esta análise? Os dados já confirmados mantêm-se.", cmpSrcAi:"IA · confirmado", cmpSrcAiInferred:"IA · inferido · confirmado", cmpSrcManual:"preenchido por ti",
-    cmpModeTable:"Tabela", cmpTableCrit:"Critério", cmpOnlyDiff:"Só diferenças", cmpOnlyDiffHint:"esconde os critérios iguais em todas as propostas.", cmpNoDiffs:"Nenhuma diferença nos critérios preenchidos.", cmpEqualHidden:"critérios iguais em todas as propostas estão escondidos.", cmpLegendTitle:"Como ler", cmpOrigin_doc:"Documento", cmpOrigin_inf:"Inferido", cmpOrigin_you:"Tu", cmpLegendDoc:"Lido no documento e confirmado por ti.", cmpLegendInf:"Deduzido pela IA e confirmado por ti. Confirma se o âmbito é o esperado.", cmpLegendYou:"Escrito por ti.", cmpLegendNone:"A proposta não diz. Nenhum valor é assumido.", cmpRowSame:"Igual", cmpRowDiff:"Diferente", cmpRowMissing:"Falta em", cmpRowMissingShort:"Falta info", cmpPriorityTag:"Prioridade", cmpPrioTitle:"O que mais valorizam", cmpPrioHint:"Escolhe até 3. Os critérios ligados a estas prioridades aparecem primeiro e a Weddy AI adapta a leitura. Não há pontuações nem ranking.", cmpPrioMax:"Podes escolher até 3 prioridades. Desmarca uma para escolher outra.", cmpPrio_price_low:"Preço mais baixo", cmpPrio_more_services:"Mais serviços incluídos", cmpPrio_longer_duration:"Maior duração do serviço", cmpPrio_flexibility:"Flexibilidade", cmpPrio_payment_terms:"Condições de pagamento", cmpPrio_fewer_extra_costs:"Menos custos adicionais", cmpPriceLowest:"Valor mais baixo indicado", cmpPriceAbove:"acima do valor mais baixo", cmpPriceNote_vat_mixed:"Preços não comparáveis diretamente: uns incluem IVA e outros não.", cmpPriceNote_vat_unknown:"Preços não comparáveis diretamente: falta indicar se o IVA está incluído em alguma proposta.", cmpPriceNote_unit_based:"Preços não comparáveis diretamente: algum é por pessoa, hora ou unidade.", cmpPriceNote_unparsable:"Preços não comparáveis diretamente: algum não é um preço total único em euros (por exemplo, inclui sinal, prestações, intervalo, percentagem ou outra moeda).", cmpPriceNote_partial:(incl,excl,many)=>`Comparação parcial: só entram ${incl}; ${excl} ${many?'não têm':'não tem'} preço confirmado. O estado do IVA refere-se apenas às propostas comparadas.`, cmpPriceNote_ok:"Preços com o mesmo regime de IVA. A diferença é só aritmética: confirma que o âmbito dos serviços é equivalente.", cmpRepTitle:"Relatório da Weddy AI", cmpRepIntro:"Um resumo das diferenças entre as propostas, baseado só nos dados que confirmaste. Não escolhe um fornecedor por ti.", cmpRepPrivacy:"Não são enviados documentos: só os dados confirmados e as prioridades. Máximo de 20 relatórios por dia.", cmpRepGenerate:"Gerar relatório", cmpRepRegenerate:"Atualizar relatório", cmpRepNeedData:"Confirma os dados de pelo menos 2 propostas para a Weddy AI gerar o relatório.", cmpRepProcessing:"A Weddy AI está a preparar o relatório…", cmpRepFailed:"Não foi possível gerar o relatório.", cmpRepRetry:"Tentar de novo", cmpRepStale:"Os dados ou as prioridades mudaram depois deste relatório. Atualiza para refletir as alterações.", cmpRepStaleLang:"Este relatório foi gerado noutro idioma. Atualiza para o ter no idioma atual.", cmpRepGeneratedOn:"Gerado em", cmpRepChipFresh:"Atualizado", cmpRepChipStale:"Desatualizado", cmpRepDisclaimer:"Isto não é um ranking nem uma recomendação de escolha. As conclusões vêm só dos dados que confirmaste; a decisão é vossa.", cmpRepSummary:"Resumo geral", cmpRepPriceServices:"Preço e serviços", cmpRepAddCosts:"Custos adicionais possíveis", cmpRepAttention:"Pontos de atenção", cmpRepPriorities:"À luz das vossas prioridades", cmpRepPrioNone:"Escolhe prioridades acima para uma leitura adaptada ao que mais valorizam.", cmpRepMissing:"Informação em falta", cmpRepMissingNone:"Todos os critérios têm dados.", cmpRepQuestions:"Perguntas recomendadas", cmpRepWhy:"Porquê?", cmpRepWhyIntro:"Baseado em:", cmpRepChanged:"dado alterado desde o relatório", cmpRepCopy:"Copiar perguntas", cmpRepCopied:"Copiado", cmpRepCopyIntro:"Olá! Tenho algumas questões sobre a vossa proposta:", cmpRepNoItems:"Sem observações nesta secção.", cmpRepErrGeneric:"Não foi possível gerar o relatório agora. Tenta de novo.", cmpRepErrExpired:"O relatório demorou demasiado. Tenta de novo.",
+    cmpModeTable:"Tabela", cmpTableCrit:"Critério", cmpOnlyDiff:"Só diferenças", cmpOnlyDiffHint:"esconde os critérios iguais em todas as propostas.", cmpNoDiffs:"Nenhuma diferença nos critérios preenchidos.", cmpEqualHidden:"critérios iguais em todas as propostas estão escondidos.", cmpLegendTitle:"Como ler", cmpOrigin_doc:"Documento", cmpOrigin_inf:"Inferido", cmpOrigin_you:"Tu", cmpLegendDoc:"Lido no documento e confirmado por ti.", cmpLegendInf:"Deduzido pela IA e confirmado por ti. Confirma se o âmbito é o esperado.", cmpLegendYou:"Escrito por ti.", cmpLegendNone:"A proposta não diz. Nenhum valor é assumido.", cmpRowSame:"Igual", cmpRowDiff:"Diferente", cmpRowMissing:"Falta em", cmpRowMissingShort:"Falta info", cmpPriorityTag:"Prioridade", cmpPrioTitle:"O que mais valorizam", cmpPrioHint:"Escolhe até 3. Os critérios ligados a estas prioridades aparecem primeiro e a Weddy AI adapta a leitura. Não há pontuações nem ranking.", cmpPrioMax:"Podes escolher até 3 prioridades. Desmarca uma para escolher outra.", cmpLevelTitle:"Importância de cada prioridade", cmpLevelImportant:"Importante", cmpLevelEssential:"Essencial", cmpOrTitle:"Orientação da Weddy", cmpOrQuestion:"Qual proposta está mais alinhada com as vossas prioridades?", cmpOrAligned:"Mais alinhada com as vossas prioridades", cmpOrBalanced:"Propostas equilibradas face às vossas prioridades", cmpOrBalancedHint:"Nenhuma se destaca nas vossas prioridades: cada uma corresponde melhor a aspetos diferentes.", cmpOrInsufficientBadge:"Sem dados suficientes para distinguir", cmpOrNoPriorities:"Escolham acima o que mais valorizam para a Weddy poder orientar a leitura.", cmpOrNoData:"Ainda não há dados confirmados suficientes nas vossas prioridades para distinguir as propostas. Confirmem mais campos ou esclareçam os pontos abaixo com os fornecedores.", cmpOrInsufficient:"Com os dados confirmados não é possível distinguir as propostas face às vossas prioridades. Isto não quer dizer que sejam iguais: faltam dados para o afirmar.", cmpOrWhy:"Porquê", cmpOrOther:"Onde a outra proposta pode ser mais interessante", cmpOrOtherNone:"Com os dados confirmados, não identificámos aspetos das vossas prioridades em que a outra proposta se destaque.", cmpOrNoDataList:"Sem dados para comparar:", cmpOrFoot:"É uma orientação, não uma pontuação nem uma escolha. A decisão final é vossa.", cmpOrOld:"Este relatório é anterior à orientação. Atualiza o relatório para a ver.", cmpRepCriteria:"Comparação por critérios", cmpRepStrengths:"Pontos fortes de cada proposta", cmpRepConclusion:"Conclusão", cmpConcAligned:n=>`Com base nos dados confirmados, ${n} está mais alinhada com as vossas prioridades. É uma orientação, não uma decisão: esclareçam os aspetos acima com os fornecedores e escolham o que sentem ser certo para vocês.`, cmpConcBalanced:"Face às vossas prioridades, as propostas estão equilibradas. A escolha depende do que pesa mais para vocês: usem as perguntas acima para decidir com mais segurança.", cmpConcInsufficient:"Ainda não há dados suficientes para orientar. Confirmem mais campos nas vossas prioridades ou esclareçam os pontos acima com os fornecedores. A decisão é vossa.", cmpConcOld:"Este relatório é anterior à orientação. Atualiza-o para ver a orientação, os pontos fortes e a conclusão. A decisão é sempre vossa.", pdfOrientation:"Orientação da Weddy", pdfConclusion:"Conclusão", cmpPrio_price_low:"Preço mais baixo", cmpPrio_more_services:"Mais serviços incluídos", cmpPrio_longer_duration:"Maior duração do serviço", cmpPrio_flexibility:"Flexibilidade", cmpPrio_payment_terms:"Condições de pagamento", cmpPrio_fewer_extra_costs:"Menos custos adicionais", cmpPriceLowest:"Valor mais baixo indicado", cmpPriceAbove:"acima do valor mais baixo", cmpPriceNote_vat_mixed:"Preços não comparáveis diretamente: uns incluem IVA e outros não.", cmpPriceNote_vat_unknown:"Preços não comparáveis diretamente: falta indicar se o IVA está incluído em alguma proposta.", cmpPriceNote_unit_based:"Preços não comparáveis diretamente: algum é por pessoa, hora ou unidade.", cmpPriceNote_unparsable:"Preços não comparáveis diretamente: algum não é um preço total único em euros (por exemplo, inclui sinal, prestações, intervalo, percentagem ou outra moeda).", cmpPriceNote_partial:(incl,excl,many)=>`Comparação parcial: só entram ${incl}; ${excl} ${many?'não têm':'não tem'} preço confirmado. O estado do IVA refere-se apenas às propostas comparadas.`, cmpPriceNote_ok:"Preços com o mesmo regime de IVA. A diferença é só aritmética: confirma que o âmbito dos serviços é equivalente.", cmpRepTitle:"Relatório da Weddy AI", cmpRepIntro:"Um resumo das diferenças entre as propostas, baseado só nos dados que confirmaste. Não escolhe um fornecedor por ti.", cmpRepPrivacy:"Não são enviados documentos: só os dados confirmados e as prioridades. Máximo de 20 relatórios por dia.", cmpRepGenerate:"Gerar relatório", cmpRepRegenerate:"Atualizar relatório", cmpRepNeedData:"Confirma os dados de pelo menos 2 propostas para a Weddy AI gerar o relatório.", cmpRepProcessing:"A Weddy AI está a preparar o relatório…", cmpRepFailed:"Não foi possível gerar o relatório.", cmpRepRetry:"Tentar de novo", cmpRepStale:"Os dados ou as prioridades mudaram depois deste relatório. Atualiza para refletir as alterações.", cmpRepStaleLang:"Este relatório foi gerado noutro idioma. Atualiza para o ter no idioma atual.", cmpRepGeneratedOn:"Gerado em", cmpRepChipFresh:"Atualizado", cmpRepChipStale:"Desatualizado", cmpRepDisclaimer:"Isto não é um ranking nem uma pontuação. A orientação indica o alinhamento com as vossas prioridades, só com os dados que confirmaste; a decisão é vossa.", cmpRepSummary:"Resumo das propostas", cmpRepPriceServices:"Preço e serviços incluídos", cmpRepAddCosts:"Custos adicionais possíveis", cmpRepAttention:"Aspetos a esclarecer antes de decidir", cmpRepPriorities:"À luz das vossas prioridades", cmpRepPrioNone:"Escolhe prioridades acima para uma leitura adaptada ao que mais valorizam.", cmpRepMissing:"Informação em falta", cmpRepMissingNone:"Todos os critérios têm dados.", cmpRepQuestions:"Perguntas a colocar aos fornecedores", cmpRepWhy:"Porquê?", cmpRepWhyIntro:"Baseado em:", cmpRepChanged:"dado alterado desde o relatório", cmpRepCopy:"Copiar perguntas", cmpRepCopied:"Copiado", cmpRepCopyIntro:"Olá! Tenho algumas questões sobre a vossa proposta:", cmpRepNoItems:"Sem observações nesta secção.", cmpRepErrGeneric:"Não foi possível gerar o relatório agora. Tenta de novo.", cmpRepErrExpired:"O relatório demorou demasiado. Tenta de novo.",
     cmpLinksTitle:"Ligações", cmpLkCapSupplier:"Fornecedor e contrato", cmpLkCapBudget:"Orçamento", cmpChipContract:"Contrato", cmpChipInBudget:"Nas despesas",
     cmpLkSupLinked:(n)=>`Ligada ao fornecedor ${n}.`, cmpLkOpenSup:"Abrir ficha do fornecedor", cmpLkSupTemp:"Este fornecedor ainda não está registado na Weddy.", cmpLkSimilar:(n)=>`Já tens «${n}» nos fornecedores.`, cmpLkAlreadyUsed:"já está noutra proposta desta comparação", cmpLkAlreadyUsedMsg:"Este fornecedor já está noutra proposta desta comparação.", cmpLkAssociate:"Associar", cmpLkRegister:"Registar como fornecedor", cmpLkSupNone:"Escolhe um fornecedor registado ou indica o nome para poderes ligar esta proposta à ficha.",
     cmpLkContract:"Contrato registado na ficha:", cmpLkContractLegacy:"Há um contrato antigo guardado só neste dispositivo. Abre a ficha do fornecedor para o ver.", cmpLkNoContract:"Sem contrato registado na ficha deste fornecedor.", cmpLkAddContract:"Abrir ficha para adicionar contrato",
@@ -4433,12 +4501,12 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpTextSegAria:"Ver cada proposta", cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
     cmpExpBlockedStale:"O relatório da Weddy AI está desatualizado e não pode ser exportado. Queres atualizá-lo primeiro?", cmpExpUpdate:"Atualizar relatório", cmpExpNoReport:"Esta comparação ainda não tem relatório da Weddy AI. Queres gerá-lo antes de exportar?", cmpExpGenerate:"Gerar relatório", cmpExpWithout:"Exportar sem relatório",
-    cmpExpProcessing:"O relatório está a ser gerado. Tenta exportar quando terminar.", cmpExpFailedUpdate:"Não foi possível atualizar o relatório. Tenta de novo.", cmpExpInelig:"Precisas de pelo menos duas propostas com dados confirmados para exportar.", cmpExpDone:"PDF criado", cmpExpReady:"O PDF está pronto. Toca para o guardar ou partilhar.", cmpExpShare:"Guardar / partilhar", cmpTabCompare:"Comparar", cmpTabProps:"Propostas", cmpTabReport:"Relatório", cmpSecPrice:"Preço e pagamento", cmpSecIncl:"O que está incluído", cmpSecTerms:"Prazos e condições", cmpSecSame:"Sem diferenças", cmpSecFields:(n)=>`${n} ${n===1?"campo":"campos"}`, cmpDiffCount:(n)=>`${n} ${n===1?"diferença":"diferenças"}`, cmpPickLabel:"Comparar", cmpPickHint:"Toca para trocar. Duas de cada vez, para se ler bem.", cmpUnitTag:"preço por pessoa", cmpUnitEst:(t,g)=>`≈ ${t} para ${g} convidados da tua lista (estimativa)`, cmpUnitNoGuests:"Adiciona convidados à lista para estimar o total", cmpTabsAria:"Secções do comparador", cmpExpErr:"Não foi possível criar o PDF. Tenta novamente.",
+    cmpExpProcessing:"O relatório está a ser gerado. Tenta exportar quando terminar.", cmpExpFailedUpdate:"Não foi possível atualizar o relatório. Tenta de novo.", cmpExpInelig:"Precisas de pelo menos duas propostas com dados confirmados para exportar.", cmpExpDone:"PDF criado", cmpExpReady:"O PDF está pronto. Toca para o guardar ou partilhar.", cmpExpShare:"Guardar / partilhar", cmpTabCompare:"Comparar", cmpTabProps:"Propostas", cmpTabReport:"Relatório", cmpSecPrice:"Preço e pagamento", cmpSecIncl:"O que está incluído", cmpSecTerms:"Prazos e condições", cmpSecSame:"Sem diferenças", cmpSecFields:(n)=>`${n} ${n===1?"campo":"campos"}`, cmpDiffCount:(n)=>`${n} ${n===1?"diferença":"diferenças"}`, cmpPickLabel:"Comparar", cmpPickHint:"Toca para trocar. Três de cada vez, para se ler bem.", cmpUnitTag:"preço por pessoa", cmpUnitEst:(t,g)=>`≈ ${t} para ${g} convidados da tua lista (estimativa)`, cmpUnitNoGuests:"Adiciona convidados à lista para estimar o total", cmpTabsAria:"Secções do comparador", cmpExpErr:"Não foi possível criar o PDF. Tenta novamente.",
     pdfTitle:"Relatório de comparação", pdfProposalsN:(n)=>`${n} propostas`, pdfGenerated:"Gerado em", pdfPriorities:"Prioridades", pdfNoPriorities:"Sem prioridades definidas.", pdfLegend:"Origem dos dados",
     pdfOrg_doc:"Documento", pdfOrg_inf:"Inferido e confirmado", pdfOrg_infp:"Inferido, por confirmar", pdfValueHidden:"valor não mostrado", pdfPendingInf:(n)=>`${n} valor(es) inferido(s) pela Weddy AI ainda por confirmar não foram incluídos como dados.`, pdfOrg_you:"Corrigido pelos noivos", pdfOrg_none:"Não indicado",
     pdfOrgDesc_doc:"valor lido num documento da proposta e confirmado por vocês.", pdfOrgDesc_inf:"deduzido pela Weddy AI (por exemplo, uma soma) e confirmado pelos noivos.", pdfOrgDesc_infp:"deduzido pela Weddy AI e ainda sujeito a confirmação; por isso o valor não é mostrado nem usado no relatório.", pdfOrgDesc_you:"valor escrito ou corrigido por vocês.", pdfOrgDesc_none:"a proposta não refere este dado, ou ainda não foi confirmado.",
@@ -5697,7 +5765,7 @@ const APP_I18N = {
     premiumTileRSVP:"Confirm attendance and your guests' responses.",
     cmpTitle:"Weddy Compare", cmpTagline:"Compare proposals. Spot the differences. Choose with confidence.", cmpBannerSub:"Compare supplier proposals side by side.", cmpPremiumTag:"Premium", cmpYourCompares:"Your comparisons", cmpNew:"New comparison", cmpEmpty:"You have no comparisons yet. Tap + to compare supplier proposals.", cmpNewTitle:"New comparison", cmpEditTitle:"Edit comparison", cmpName:"Comparison name", cmpNamePh:"E.g. Photographers for the wedding", cmpCategory:"Category", cmpHowMany:"How many suppliers do you want to compare?", cmpCreate:"Create comparison", cmpSaveChanges:"Save", cmpCancel:"Cancel", cmpAddProposal:"Add proposal", cmpProposals:"Proposals", cmpProposalFallback:"Unnamed proposal", cmpProposalOne:"proposal", cmpProposalMany:"proposals", cmpFileOne:"file", cmpFileMany:"files", cmpMaxReached:"You have reached the number of suppliers for this comparison. You can raise it in Edit.", cmpNeedTwo:"Add at least 2 proposals to see the comparison.", cmpByCriterion:"By criterion", cmpBySupplier:"By supplier", cmpNotIndicated:"Not stated", cmpNoDataYet:"No data yet", cmpEditComparison:"Edit comparison", cmpEditProposal:"Edit proposal", cmpDone:"Done", cmpProposalTitle:"Proposal", cmpSupplier:"Supplier", cmpSupplierPick:"Choose supplier…", cmpSupplierGroupCat:"In this category", cmpSupplierGroupOther:"Other suppliers", cmpSupplierTemp:"Other supplier (not registered yet)", cmpSupplierName:"Supplier name", cmpSupplierNamePh:"E.g. Studio Luz", cmpFiles:"Proposals and documents", cmpAttach:"Upload PDF or photo", cmpAttachHint:"PDF or image, up to 15 MB.", cmpUploading:"Uploading…", cmpFileTooLarge:"File too large (max 15 MB).", cmpFileType:"Only PDFs and images are accepted.", cmpUploadFailed:"Could not save the file. Please try again.", cmpFieldsTitle:"Proposal details", cmpFieldsHint:"Fill in what you know. Anything missing from the proposal stays as \"Not stated\".", cmpNotes:"Notes", cmpRemoveProposal:"Remove proposal", cmpRemoveProposalConfirm:"Remove this proposal and its files?", cmpRemoveFileConfirm:"Remove this file?", cmpDeleteComparison:"Delete comparison", cmpDeleteConfirm:"Delete this comparison, its proposals and files?", cmpUpdatedOn:"Updated on", cmpVatIncl:"VAT included", cmpVatExcl:"VAT not included", cmpVatNone:"Not stated", cmpCrit_price:"Total amount (€)", cmpCrit_vat:"VAT", cmpCrit_services:"Included services", cmpCrit_hours:"Service hours", cmpCrit_travel:"Travel", cmpCrit_extras:"Extras", cmpCrit_payment:"Payment terms", cmpCrit_deposit:"Deposit amount", cmpCrit_deadline:"Delivery time", cmpCrit_cancellation:"Cancellation", cmpCrit_validity:"Proposal validity", cmpCrit_exclusions:"Exclusions and remarks", cmpCatNone:"No category",
     cmpAiTitle:"Weddy AI", cmpAiIdleNoFiles:"Upload the proposal (PDF or photo) and Weddy AI reads it for you.", cmpAiIdle:"Weddy AI reads the proposal and fills in the details. You review and confirm before they enter the comparison.", cmpAiAnalyze:"Analyse with Weddy AI", cmpAiProcessing:"Reading the document… this can take up to a minute.", cmpAiReady:"Analysis ready. Review and confirm the details before using them.", cmpAiReview:"Review extracted data", cmpAiConfirmedOn:"Data confirmed on", cmpAiAgain:"Analyse again", cmpAiAgainConfirm:"Run a new analysis? Current data only changes if you confirm the new analysis.", cmpAiFailed:"The analysis failed.", cmpAiRetry:"Try again", cmpAiPrivacy:"Files are sent for analysis to OpenAI, Weddy's AI provider. Up to 3 files per analysis and 10 analyses per day.", cmpAiTooMany:"You can analyse up to 3 files at a time. Remove the others.", cmpAiErrExpired:"The analysis took too long. Please try again.", cmpAiErrGeneric:"Could not analyse the document right now. Please try again.", cmpAiErrOffline:"Could not reach the server. Check your connection and try again.", cmpAiErrUnavailable:"AI analysis is not available right now.", cmpAiErrNoFiles:"Upload a PDF or a photo first.", cmpAiChipReview:"To review", cmpAiChipProcessing:"Analysing…", cmpAiChipFailed:"Analysis failed", cmpAiChipDone:"Analysed", cmpAiPendingBanner:"proposals with an analysis to review. They only enter the comparison once confirmed.", cmpAiPendingBannerOne:"proposal with an analysis to review. It only enters the comparison once confirmed.", cmpRevTitle:"Review analysis", cmpRevIntro:"Weddy AI read the document. Confirm or correct each value: only confirmed data enters the comparison.", cmpRevLegendExplicit:"Written in the document.", cmpRevLegendInferred:"Deduced by the AI; needs your confirmation.", cmpRevLegendNone:"The document does not say.", cmpBadgeExplicit:"Explicit", cmpBadgeInferred:"Inferred", cmpBadgeNone:"Not stated", cmpBadgeEdited:"Edited by you", cmpRevNeeds:"Confirmation needed", cmpRevConfirmThis:"I confirm this value", cmpRevInDoc:"In the document:", cmpRevCurrent:"Current value:", cmpRevWillReplace:"will be replaced", cmpRevWarnings:"Analysis warnings", cmpRevUnreadable:"The AI could not read this document reliably. You can fill in the details by hand.", cmpRevOriginals:"Original document (tap to open)", cmpRevSupplierDetected:"Supplier identified", cmpRevSupplierNote:"This proposal is already linked to a registered supplier.", cmpRevConfirmAll:"Confirm and use in the comparison", cmpRevMissing:"Some values marked in orange still need confirming.", cmpRevRepeat:"Repeat analysis", cmpRevDiscard:"Discard analysis", cmpRevDiscardConfirm:"Discard this analysis? Data you already confirmed stays.", cmpSrcAi:"AI · confirmed", cmpSrcAiInferred:"AI · inferred · confirmed", cmpSrcManual:"filled in by you",
-    cmpModeTable:"Table", cmpTableCrit:"Criterion", cmpOnlyDiff:"Differences only", cmpOnlyDiffHint:"hides criteria that are the same in every proposal.", cmpNoDiffs:"No differences in the criteria filled in.", cmpEqualHidden:"criteria that are the same in every proposal are hidden.", cmpLegendTitle:"How to read", cmpOrigin_doc:"Document", cmpOrigin_inf:"Inferred", cmpOrigin_you:"You", cmpLegendDoc:"Read in the document and confirmed by you.", cmpLegendInf:"Deduced by the AI and confirmed by you. Check the scope is what you expect.", cmpLegendYou:"Written by you.", cmpLegendNone:"The proposal does not say. No value is assumed.", cmpRowSame:"Same", cmpRowDiff:"Different", cmpRowMissing:"Missing for", cmpRowMissingShort:"Info missing", cmpPriorityTag:"Priority", cmpPrioTitle:"What matters most to you", cmpPrioHint:"Pick up to 3. Criteria linked to these priorities come first and Weddy AI adapts its reading. There are no scores or rankings.", cmpPrioMax:"You can pick up to 3 priorities. Untick one to choose another.", cmpPrio_price_low:"Lowest price", cmpPrio_more_services:"More services included", cmpPrio_longer_duration:"Longer service time", cmpPrio_flexibility:"Flexibility", cmpPrio_payment_terms:"Payment terms", cmpPrio_fewer_extra_costs:"Fewer extra costs", cmpPriceLowest:"Lowest stated amount", cmpPriceAbove:"above the lowest amount", cmpPriceNote_vat_mixed:"Prices are not directly comparable: some include VAT and others do not.", cmpPriceNote_vat_unknown:"Prices are not directly comparable: it is not stated whether VAT is included in at least one proposal.", cmpPriceNote_unit_based:"Prices are not directly comparable: at least one is per person, hour or unit.", cmpPriceNote_unparsable:"Prices are not directly comparable: at least one is not a single total price in euros (for example, it includes a deposit, instalments, a range, a percentage or another currency).", cmpPriceNote_partial:(incl,excl,many)=>`Partial comparison: only ${incl} included; ${excl} ${many?'have':'has'} no confirmed price. The VAT status applies only to the compared proposals.`, cmpPriceNote_ok:"Prices share the same VAT status. The difference is only arithmetic: check that the scope of services is equivalent.", cmpRepTitle:"Weddy AI report", cmpRepIntro:"A summary of the differences between proposals, based only on the data you confirmed. It does not choose a supplier for you.", cmpRepPrivacy:"No documents are sent: only confirmed data and priorities. Up to 20 reports per day.", cmpRepGenerate:"Generate report", cmpRepRegenerate:"Update report", cmpRepNeedData:"Confirm the data of at least 2 proposals so Weddy AI can generate the report.", cmpRepProcessing:"Weddy AI is preparing the report…", cmpRepFailed:"The report could not be generated.", cmpRepRetry:"Try again", cmpRepStale:"The data or priorities changed after this report. Update it to reflect the changes.", cmpRepStaleLang:"This report was generated in another language. Update it to get it in the current language.", cmpRepGeneratedOn:"Generated on", cmpRepChipFresh:"Up to date", cmpRepChipStale:"Out of date", cmpRepDisclaimer:"This is not a ranking or a recommendation. Conclusions come only from the data you confirmed; the decision is yours.", cmpRepSummary:"Overview", cmpRepPriceServices:"Price and services", cmpRepAddCosts:"Possible extra costs", cmpRepAttention:"Points to watch", cmpRepPriorities:"In light of your priorities", cmpRepPrioNone:"Pick priorities above for a reading adapted to what matters most to you.", cmpRepMissing:"Missing information", cmpRepMissingNone:"Every criterion has data.", cmpRepQuestions:"Recommended questions", cmpRepWhy:"Why?", cmpRepWhyIntro:"Based on:", cmpRepChanged:"data changed since the report", cmpRepCopy:"Copy questions", cmpRepCopied:"Copied", cmpRepCopyIntro:"Hello! I have a few questions about your proposal:", cmpRepNoItems:"No observations in this section.", cmpRepErrGeneric:"Could not generate the report right now. Please try again.", cmpRepErrExpired:"The report took too long. Please try again.",
+    cmpModeTable:"Table", cmpTableCrit:"Criterion", cmpOnlyDiff:"Differences only", cmpOnlyDiffHint:"hides criteria that are the same in every proposal.", cmpNoDiffs:"No differences in the criteria filled in.", cmpEqualHidden:"criteria that are the same in every proposal are hidden.", cmpLegendTitle:"How to read", cmpOrigin_doc:"Document", cmpOrigin_inf:"Inferred", cmpOrigin_you:"You", cmpLegendDoc:"Read in the document and confirmed by you.", cmpLegendInf:"Deduced by the AI and confirmed by you. Check the scope is what you expect.", cmpLegendYou:"Written by you.", cmpLegendNone:"The proposal does not say. No value is assumed.", cmpRowSame:"Same", cmpRowDiff:"Different", cmpRowMissing:"Missing for", cmpRowMissingShort:"Info missing", cmpPriorityTag:"Priority", cmpPrioTitle:"What matters most to you", cmpPrioHint:"Pick up to 3. Criteria linked to these priorities come first and Weddy AI adapts its reading. There are no scores or rankings.", cmpPrioMax:"You can pick up to 3 priorities. Untick one to choose another.", cmpLevelTitle:"How important is each priority", cmpLevelImportant:"Important", cmpLevelEssential:"Essential", cmpOrTitle:"Weddy guidance", cmpOrQuestion:"Which proposal is most aligned with your priorities?", cmpOrAligned:"Most aligned with your priorities", cmpOrBalanced:"Proposals are balanced against your priorities", cmpOrBalancedHint:"None stands out on your priorities: each one fits different aspects better.", cmpOrInsufficientBadge:"Not enough data to tell them apart", cmpOrNoPriorities:"Choose above what matters most to you so Weddy can guide the reading.", cmpOrNoData:"There is not yet enough confirmed data on your priorities to tell the proposals apart. Confirm more fields or clarify the points below with the suppliers.", cmpOrInsufficient:"With the confirmed data it is not possible to tell the proposals apart against your priorities. That does not mean they are equal: the data to say so is missing.", cmpOrWhy:"Why", cmpOrOther:"Where the other proposal may be more interesting", cmpOrOtherNone:"With the confirmed data, we did not find aspects of your priorities where the other proposal stands out.", cmpOrNoDataList:"No data to compare:", cmpOrFoot:"This is guidance, not a score or a choice. The final decision is yours.", cmpOrOld:"This report predates the guidance. Update the report to see it.", cmpRepCriteria:"Comparison by criteria", cmpRepStrengths:"Strengths of each proposal", cmpRepConclusion:"Conclusion", cmpConcAligned:n=>`Based on the confirmed data, ${n} is most aligned with your priorities. This is guidance, not a decision: clarify the points above with the suppliers and choose what feels right for you.`, cmpConcBalanced:"Against your priorities the proposals are balanced. The choice depends on what matters most to you: use the questions above to decide with more confidence.", cmpConcInsufficient:"There is not yet enough data to give guidance. Confirm more fields on your priorities or clarify the points above with the suppliers. The decision is yours.", cmpConcOld:"This report predates the guidance. Update it to see the guidance, strengths and conclusion. The decision is always yours.", pdfOrientation:"Weddy guidance", pdfConclusion:"Conclusion", cmpPrio_price_low:"Lowest price", cmpPrio_more_services:"More services included", cmpPrio_longer_duration:"Longer service time", cmpPrio_flexibility:"Flexibility", cmpPrio_payment_terms:"Payment terms", cmpPrio_fewer_extra_costs:"Fewer extra costs", cmpPriceLowest:"Lowest stated amount", cmpPriceAbove:"above the lowest amount", cmpPriceNote_vat_mixed:"Prices are not directly comparable: some include VAT and others do not.", cmpPriceNote_vat_unknown:"Prices are not directly comparable: it is not stated whether VAT is included in at least one proposal.", cmpPriceNote_unit_based:"Prices are not directly comparable: at least one is per person, hour or unit.", cmpPriceNote_unparsable:"Prices are not directly comparable: at least one is not a single total price in euros (for example, it includes a deposit, instalments, a range, a percentage or another currency).", cmpPriceNote_partial:(incl,excl,many)=>`Partial comparison: only ${incl} included; ${excl} ${many?'have':'has'} no confirmed price. The VAT status applies only to the compared proposals.`, cmpPriceNote_ok:"Prices share the same VAT status. The difference is only arithmetic: check that the scope of services is equivalent.", cmpRepTitle:"Weddy AI report", cmpRepIntro:"A summary of the differences between proposals, based only on the data you confirmed. It does not choose a supplier for you.", cmpRepPrivacy:"No documents are sent: only confirmed data and priorities. Up to 20 reports per day.", cmpRepGenerate:"Generate report", cmpRepRegenerate:"Update report", cmpRepNeedData:"Confirm the data of at least 2 proposals so Weddy AI can generate the report.", cmpRepProcessing:"Weddy AI is preparing the report…", cmpRepFailed:"The report could not be generated.", cmpRepRetry:"Try again", cmpRepStale:"The data or priorities changed after this report. Update it to reflect the changes.", cmpRepStaleLang:"This report was generated in another language. Update it to get it in the current language.", cmpRepGeneratedOn:"Generated on", cmpRepChipFresh:"Up to date", cmpRepChipStale:"Out of date", cmpRepDisclaimer:"This is not a ranking or a score. The guidance shows alignment with your priorities, using only the data you confirmed; the decision is yours.", cmpRepSummary:"Overview", cmpRepPriceServices:"Price and services", cmpRepAddCosts:"Possible extra costs", cmpRepAttention:"Points to watch", cmpRepPriorities:"In light of your priorities", cmpRepPrioNone:"Pick priorities above for a reading adapted to what matters most to you.", cmpRepMissing:"Missing information", cmpRepMissingNone:"Every criterion has data.", cmpRepQuestions:"Recommended questions", cmpRepWhy:"Why?", cmpRepWhyIntro:"Based on:", cmpRepChanged:"data changed since the report", cmpRepCopy:"Copy questions", cmpRepCopied:"Copied", cmpRepCopyIntro:"Hello! I have a few questions about your proposal:", cmpRepNoItems:"No observations in this section.", cmpRepErrGeneric:"Could not generate the report right now. Please try again.", cmpRepErrExpired:"The report took too long. Please try again.",
     cmpLinksTitle:"Links", cmpLkCapSupplier:"Supplier and contract", cmpLkCapBudget:"Budget", cmpChipContract:"Contract", cmpChipInBudget:"In expenses",
     cmpLkSupLinked:(n)=>`Linked to supplier ${n}.`, cmpLkOpenSup:"Open supplier profile", cmpLkSupTemp:"This supplier is not registered in Weddy yet.", cmpLkSimilar:(n)=>`You already have «${n}» in suppliers.`, cmpLkAlreadyUsed:"already in another proposal of this comparison", cmpLkAlreadyUsedMsg:"This supplier is already in another proposal of this comparison.", cmpLkAssociate:"Link", cmpLkRegister:"Register as supplier", cmpLkSupNone:"Choose a registered supplier or enter a name so you can link this proposal to a profile.",
     cmpLkContract:"Contract on the supplier profile:", cmpLkContractLegacy:"There is an old contract saved only on this device. Open the supplier profile to see it.", cmpLkNoContract:"No contract on this supplier's profile.", cmpLkAddContract:"Open profile to add a contract",
@@ -5716,12 +5784,12 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpTextSegAria:"See each proposal", cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
     cmpExpBlockedStale:"The Weddy AI report is out of date and cannot be exported. Update it first?", cmpExpUpdate:"Update report", cmpExpNoReport:"This comparison has no Weddy AI report yet. Generate it before exporting?", cmpExpGenerate:"Generate report", cmpExpWithout:"Export without report",
-    cmpExpProcessing:"The report is being generated. Try exporting when it finishes.", cmpExpFailedUpdate:"Could not update the report. Try again.", cmpExpInelig:"You need at least two proposals with confirmed data to export.", cmpExpDone:"PDF created", cmpExpReady:"The PDF is ready. Tap to save or share it.", cmpExpShare:"Save / share", cmpTabCompare:"Compare", cmpTabProps:"Proposals", cmpTabReport:"Report", cmpSecPrice:"Price and payment", cmpSecIncl:"What is included", cmpSecTerms:"Deadlines and terms", cmpSecSame:"No differences", cmpSecFields:(n)=>`${n} ${n===1?"field":"fields"}`, cmpDiffCount:(n)=>`${n} ${n===1?"difference":"differences"}`, cmpPickLabel:"Compare", cmpPickHint:"Tap to switch. Two at a time, so it reads well.", cmpUnitTag:"price per person", cmpUnitEst:(t,g)=>`≈ ${t} for ${g} guests on your list (estimate)`, cmpUnitNoGuests:"Add guests to your list to estimate the total", cmpTabsAria:"Comparison sections", cmpExpErr:"Could not create the PDF. Please try again.",
+    cmpExpProcessing:"The report is being generated. Try exporting when it finishes.", cmpExpFailedUpdate:"Could not update the report. Try again.", cmpExpInelig:"You need at least two proposals with confirmed data to export.", cmpExpDone:"PDF created", cmpExpReady:"The PDF is ready. Tap to save or share it.", cmpExpShare:"Save / share", cmpTabCompare:"Compare", cmpTabProps:"Proposals", cmpTabReport:"Report", cmpSecPrice:"Price and payment", cmpSecIncl:"What is included", cmpSecTerms:"Deadlines and terms", cmpSecSame:"No differences", cmpSecFields:(n)=>`${n} ${n===1?"field":"fields"}`, cmpDiffCount:(n)=>`${n} ${n===1?"difference":"differences"}`, cmpPickLabel:"Compare", cmpPickHint:"Tap to switch. Three at a time, so it reads well.", cmpUnitTag:"price per person", cmpUnitEst:(t,g)=>`≈ ${t} for ${g} guests on your list (estimate)`, cmpUnitNoGuests:"Add guests to your list to estimate the total", cmpTabsAria:"Comparison sections", cmpExpErr:"Could not create the PDF. Please try again.",
     pdfTitle:"Comparison report", pdfProposalsN:(n)=>`${n} proposals`, pdfGenerated:"Generated on", pdfPriorities:"Priorities", pdfNoPriorities:"No priorities set.", pdfLegend:"Data origin",
     pdfOrg_doc:"Document", pdfOrg_inf:"Inferred and confirmed", pdfOrg_infp:"Inferred, to be confirmed", pdfValueHidden:"value not shown", pdfPendingInf:(n)=>`${n} value(s) inferred by Weddy AI and still to be confirmed were not included as data.`, pdfOrg_you:"Corrected by the couple", pdfOrg_none:"Not stated",
     pdfOrgDesc_doc:"value read in a proposal document and confirmed by you.", pdfOrgDesc_inf:"deduced by Weddy AI (for example, a sum) and confirmed by the couple.", pdfOrgDesc_infp:"deduced by Weddy AI and still subject to confirmation; so the value is not shown or used in the report.", pdfOrgDesc_you:"value written or corrected by you.", pdfOrgDesc_none:"the proposal does not mention this, or it has not been confirmed yet.",
@@ -9485,7 +9553,7 @@ function cmpIsEmptyProposal(c, p){
   return !p.name && !p.supplierId && !(p.notes||'').trim() && !Object.keys(p.fields||{}).length && !cmpDocs(c,p).length;
 }
 function cmpGo(view, cid, pid){
-  if(view==='detalhe' && cid && cid!==openCompareId){ compareTab = 'comparar'; compareSel = null; compareTextIdx = 0; }
+  if(view==='detalhe' && cid && cid!==openCompareId){ compareTab = 'comparar'; compareSel = null; }
   compareView = view; openCompareId = cid || null; openProposalId = pid || null;
   fornecedoresSubview = 'comparador';
   { const _c = cmpGet(openCompareId); if(_c) cmpRefreshSnapshots(_c); }
@@ -9599,7 +9667,7 @@ function viewCompareDetalhe(){
     ${canAdd ? `<button type="button" class="cmp-add" id="cmp-add-prop">${ICONS.plus}<span>${ta('cmpAddProposal')}</span></button>` : `<div class="cmp-note">${ta('cmpMaxReached')}</div>`}
   </div>
   <div class="cmp-danger"><button type="button" id="cmp-delete" class="cmp-link-danger">${ta('cmpDeleteComparison')}</button></div>`;
-  const panelReport = props.length >= 2 ? `${cmpExportBlockHTML(c)}${cmpReportHTML(c)}` : needTwo;
+  const panelReport = props.length >= 2 ? `${cmpPrioritiesHTML(c)}${cmpExportBlockHTML(c)}${cmpReportHTML(c)}` : needTwo;
   return `
   ${pageHeader('cmp-detail-back', escapeHTML(c.name||''), escapeHTML(cmpCatName(c.category)), `<button class="cmp-edit-btn" id="cmp-edit-btn" type="button">${ta('cmpEditComparison')}</button>`)}
   ${(()=>{ const pend = props.filter(p=>cmpAiStatus(p)==='review'); return pend.length ? `<div class="cmp-pending"><span>${pend.length} ${pend.length===1?ta('cmpAiPendingBannerOne'):ta('cmpAiPendingBanner')}</span><button type="button" data-cmp-review="${pend[0].id}">${ta('cmpAiReview')}</button></div>` : ''; })()}
@@ -9768,8 +9836,7 @@ function bindCompareHandlers(){
   document.querySelectorAll('[data-cmp-prop]').forEach(b=>b.addEventListener('click', e=>cmpGo('proposta', openCompareId, e.currentTarget.dataset.cmpProp)));
   document.querySelectorAll('[data-cmpmode]').forEach(b=>b.addEventListener('click', e=>{ compareMode = e.currentTarget.dataset.cmpmode; render(); }));
   document.querySelectorAll('[data-cmptab]').forEach(b=>b.addEventListener('click', e=>{ compareTab = e.currentTarget.dataset.cmptab; render(); try{ window.scrollTo(0,0); const bd = document.getElementById('app-body'); if(bd) bd.scrollTop = 0; }catch(err){} }));
-  document.querySelectorAll('[data-cmptext]').forEach(b=>b.addEventListener('click', e=>{ compareTextIdx = Number(e.currentTarget.dataset.cmptext)||0; cmpRenderKeep(); }));
-  document.querySelectorAll('[data-cmpsel]').forEach(b=>b.addEventListener('click', e=>{ const id = e.currentTarget.dataset.cmpsel; if(!compareSel || compareSel.ids.includes(id)) return; compareSel = { cid:compareSel.cid, ids:[compareSel.ids[1], id] }; cmpRenderKeep(); }));
+  document.querySelectorAll('[data-cmpsel]').forEach(b=>b.addEventListener('click', e=>{ const id = e.currentTarget.dataset.cmpsel; if(!compareSel || compareSel.ids.includes(id)) return; compareSel = { cid:compareSel.cid, ids:[...compareSel.ids.slice(1), id] }; cmpRenderKeep(); }));
   bindCompareReportHandlers();
   bindCompareLinkHandlers();
   bindCompareListHandlers();
@@ -10170,6 +10237,8 @@ function cmpPriceFacts(c){
 function cmpSigOf(c){
   const keys = cmpCriteriaFor(c);
   const parts = [String(c.category||''), (c.priorities||[]).filter(x=>CMP_PRIORITIES.includes(x)).slice().sort().join(',')];
+  const ess = cmpEssentialList(c);
+  if(ess.length) parts.push('lv:'+ess.slice().sort().join(',')); // só muda quando há prioridades essenciais: relatórios antigos mantêm a assinatura
   (c.proposals||[]).filter(p=>p && typeof p.id==='string').slice(0,4).forEach(p=>{
     parts.push(p.id+'|'+keys.map(k=>{ const f = cmpConfirmed(p,k); return k+'='+(f?f.v:''); }).join('¦'));
   });
@@ -10177,6 +10246,11 @@ function cmpSigOf(c){
   let h = 5381;
   for(let i=0;i<s.length;i++) h = ((h<<5)+h+s.charCodeAt(i))|0;
   return (h>>>0).toString(36)+'-'+s.length.toString(36);
+}
+// Prioridades escolhidas marcadas como «essenciais»; as restantes contam como «importantes».
+function cmpEssentialList(c){
+  const lv = (c && c.priorityLevels && typeof c.priorityLevels==='object') ? c.priorityLevels : {};
+  return (c.priorities||[]).filter(k=>CMP_PRIORITIES.includes(k) && lv[k]==='essential');
 }
 function cmpOrderedKeys(c){
   const keys = cmpCriteriaFor(c), first = [];
@@ -10286,18 +10360,19 @@ const CMP_SECTIONS = [
   ['cmpSecIncl',  ['services','hours','travel','extras']],
   ['cmpSecTerms', ['deadline','cancellation','exclusions']],
 ];
+const CMP_SEL_MAX = 3; // colunas lado a lado legíveis no telemóvel
 function cmpSelProps(c){
   const ps = c.proposals || [];
-  if(ps.length<=2) return ps;
+  if(ps.length<=CMP_SEL_MAX) return ps;
   let ids = (compareSel && compareSel.cid===c.id) ? compareSel.ids.filter(id=>ps.some(p=>p.id===id)) : [];
-  for(const p of ps){ if(ids.length>=2) break; if(!ids.includes(p.id)) ids.push(p.id); }
-  ids = ids.slice(0,2);
+  for(const p of ps){ if(ids.length>=CMP_SEL_MAX) break; if(!ids.includes(p.id)) ids.push(p.id); }
+  ids = ids.slice(0,CMP_SEL_MAX);
   compareSel = { cid:c.id, ids };
   return ps.filter(p=>ids.includes(p.id));
 }
 function cmpPickHTML(c){
   const ps = c.proposals || [];
-  if(ps.length<=2) return '';
+  if(ps.length<=CMP_SEL_MAX) return '';
   const sel = cmpSelProps(c).map(p=>p.id);
   return `<div class="cmp-pick"><span>${ta('cmpPickLabel')}</span>${ps.map(p=>`<button type="button" data-cmpsel="${p.id}" aria-pressed="${sel.includes(p.id)}" class="${sel.includes(p.id)?'on':''}">${escapeHTML(cmpProposalLabel(p))}</button>`).join('')}</div>
   <div class="cmp-pick-hint">${ta('cmpPickHint')}</div>`;
@@ -10339,53 +10414,63 @@ function cmpBulletParts(text){
   });
   return parts;
 }
-let compareTextIdx = 0;
 const cmpWordSet = t=>new Set(String(t||'').toLowerCase().replace(/[^a-zà-ú0-9€ ]/g,' ').split(/\s+/).filter(w=>w.length>2));
 function cmpCellParts(k, cell){ return cell && cell.f ? cmpBulletParts(String(cmpDisplayVal(k, cell.f.v)||'')) : []; }
+const CMP_DOTS = ['#B96752','#C9A480','#7C8A6E','#B8ADA3'];
+const cmpClip = (t,n)=>{ t = String(t||''); return t.length>n ? t.slice(0,n-1).trim()+'…' : t; };
 // Linha «de texto»: alguma proposta tem texto longo que se divide em pontos. Só apresentação.
 function cmpIsTextRow(info){
   if(!CMP_BULLET_KEYS.includes(info.k)) return false;
-  return info.cells.some(x=>{ if(!x.f) return false; const d = String(cmpDisplayVal(info.k, x.f.v)||''); return d.length>70 && cmpBulletParts(d).length>=2; });
+  return info.cells.some(x=>{ if(!x.f) return false; const d = String(cmpDisplayVal(info.k, x.f.v)||''); return d.length>40 && cmpBulletParts(d).length>=2; });
 }
-function cmpTextBodyHTML(cs, info, idx){
+// Cabeçalho fixo com as propostas (uma coluna cada, até 3), com a cor de cada uma.
+function cmpColHeadHTML(cs){
+  return `<div class="cmp-colhd" style="--n:${cs.proposals.length}">${cs.proposals.map((p,i)=>`<div><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b><span>${escapeHTML(cmpProposalLabel(p))}</span></div>`).join('')}</div>`;
+}
+// Texto completo de uma proposta, em pontos; destaca (rosa) os pontos que as outras não têm.
+function cmpFullBodyHTML(info, idx){
   const cell = info.cells[idx];
   if(!cell.f) return `<span class="cmp-val cmp-none">${ta('cmpNotIndicated')}</span>`;
   const parts = cmpCellParts(info.k, cell);
   const others = info.cells.filter((_,i)=>i!==idx).filter(x=>x.f).map(x=>cmpCellParts(info.k,x).map(cmpWordSet));
-  const hasOther = others.length>0;
   const isDiffItem = it=>{
-    if(!hasOther) return false;
+    if(!others.length) return false;
     const w = cmpWordSet(it); if(!w.size) return false;
     return others.some(set=>{ let best = 0; set.forEach(o=>{ let n = 0; w.forEach(x=>{ if(o.has(x)) n++; }); const j = n/Math.min(w.size,o.size); if(j>best) best = j; }); return best<0.7; });
   };
-  const li = a=>a.map(x=>`<li${isDiffItem(x)?' class="d"':''}>${escapeHTML(x)}</li>`).join('');
-  const head = parts.slice(0,CMP_BULLET_MAX+2), rest = parts.slice(CMP_BULLET_MAX+2);
-  return `<ul class="cmp-bl">${li(head)}</ul>${rest.length?`<details class="cmp-bl-more"><summary>${ta('cmpMoreN')(rest.length)}</summary><ul class="cmp-bl">${li(rest)}</ul></details>`:''}<div class="cmp-bl-org">${cmpOriginTag(cell.f.origin)}</div>`;
+  return `<ul class="cmp-bl">${parts.map(x=>`<li${isDiffItem(x)?' class="d"':''}>${escapeHTML(x)}</li>`).join('')}</ul><div class="cmp-bl-org">${cmpOriginTag(cell.f.origin)}</div>`;
 }
-function cmpTextRowHTML(cs, info){
-  const idx = Math.min(compareTextIdx, info.cells.length-1);
-  return `<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div>${cmpTextBodyHTML(cs, info, idx)}</div>`;
-}
-function cmpTextSegHTML(cs){
-  const idx = Math.min(compareTextIdx, cs.proposals.length-1);
-  return `<div class="cmp-tseg" role="tablist" aria-label="${escapeHTML(ta('cmpTextSegAria'))}">${cs.proposals.map((p,i)=>`<button type="button" role="tab" aria-selected="${i===idx}" class="${i===idx?'on':''}" data-cmptext="${i}">${escapeHTML(cmpProposalLabel(p))}</button>`).join('')}</div>`;
+const cmpNormVal = (k,x)=> x.f ? String(cmpDisplayVal(k, x.f.v)||'').replace(/\s+/g,' ').trim().toLowerCase() : null;
+// Célula resumida (texto breve): valores curtos tal como estão; textos longos em 2 pontos curtos + «+N».
+function cmpBriefCellHTML(cs, info, x){
+  if(!x.f) return `<em class="cmp-none">${ta('cmpNotIndicated')}</em>`;
+  const disp = String(cmpDisplayVal(info.k, x.f.v)||'');
+  if(info.k==='price') return `<b>${escapeHTML(cmpClip(disp,40))}</b>${cmpPriceDeltaHTML(cs,x.p)}${cmpUnitTotalHTML(x.p)}`;
+  if(CMP_BULLET_KEYS.includes(info.k) && disp.length>40){
+    const parts = cmpBulletParts(disp);
+    if(parts.length>=2){
+      const rest = parts.length-2;
+      return `<ul class="cmp-bl cmp-bl-brief">${parts.slice(0,2).map(t=>`<li>${escapeHTML(cmpClip(t,34))}</li>`).join('')}</ul>${rest>0?`<small class="cmp-more-n">+${rest}</small>`:''}`;
+    }
+  }
+  return escapeHTML(cmpClip(disp,56));
 }
 function cmpShortVs(k, cell){
   if(!cell.f) return ta('cmpNotIndicated');
   const d = String(cmpDisplayVal(k, cell.f.v)||'').replace(/\s+/g,' ').trim();
   return d.length>60 ? d.slice(0,57).trim()+'…' : d;
 }
+// Uma linha = um critério, com as propostas lado a lado (colunas iguais).
 function cmpSectionRowHTML(cs, info){
-  if(cmpIsTextRow(info)) return cmpTextRowHTML(cs, info);
-  const idx = Math.min(compareTextIdx, info.cells.length-1);
-  const cell = info.cells[idx];
-  const norm = x=>x.f ? String(cmpDisplayVal(info.k, x.f.v)||'').replace(/\s+/g,' ').trim().toLowerCase() : null;
-  const mine = norm(cell);
-  const vs = info.cells.map((x,i)=>({x,i})).filter(o=>o.i!==idx).map(o=>{
-    const same = mine!==null && norm(o.x)===mine;
-    return `<div class="cmp-vs">${escapeHTML(cmpProposalLabel(cs.proposals[o.i]))}: <b>${same?ta('cmpSameShort'):escapeHTML(cmpShortVs(info.k,o.x))}</b></div>`;
+  const n = info.cells.length;
+  const differs = (info.diff||info.hasMissing);
+  const cells = info.cells.map(x=>{
+    const mine = cmpNormVal(info.k,x);
+    const d = differs && info.cells.some(o=>o!==x && cmpNormVal(info.k,o)!==mine);
+    return `<div class="cmp-c${d?' d':''}">${cmpBriefCellHTML(cs,info,x)}</div>`;
   }).join('');
-  return `<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div><div class="cmp-v">${cmpCellHTML(cs,info.k,cell)}${info.k==='price'?cmpUnitTotalHTML(cell.p):''}</div>${vs}</div>`;
+  const full = cmpIsTextRow(info) ? `<details class="cmp-full"><summary>${ta('cmpFullShow')}</summary><div class="cmp-full-body">${info.cells.map((x,i)=>`<div class="cmp-full-p"><div class="cmp-full-who"><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b>${escapeHTML(cmpProposalLabel(cs.proposals[i]))}</div>${cmpFullBodyHTML(info,i)}</div>`).join('')}</div></details>` : '';
+  return `<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div><div class="cmp-g" style="--n:${n}">${cells}</div>${full}</div>`;
 }
 function cmpToolbar2HTML(rowsAny){
   return `<div class="cmp-tools2">${rowsAny?`<label class="cmp-difftoggle2"><input type="checkbox" id="cmp-diff-toggle" ${compareDiffOnly?'checked':''}><span>${ta('cmpOnlyDiff')}</span></label>`:'<span></span>'}<details class="cmp-how"><summary>${ta('cmpHowRead')}</summary><div class="cmp-how-body"><div>${cmpOriginTag('doc')} ${ta('cmpLegendDoc')}</div><div>${cmpOriginTag('inf')} ${ta('cmpLegendInf')}</div><div>${cmpOriginTag('you')} ${ta('cmpLegendYou')}</div><div><span class="cmp-val cmp-none" style="font-size:11px;">${ta('cmpNotIndicated')}</span> ${ta('cmpLegendNone')}</div></div></details></div>`;
@@ -10409,7 +10494,7 @@ function cmpSectionsHTML(cs){
   const restHTML = (compareDiffOnly && rest.length) ? `<details class="cmp-sec"><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta('cmpSecSame')}</span><span>${ta('cmpSecFields')(rest.length)}</span></summary>${wrap(cs.proposals.length, rest.map(r=>cmpSectionRowHTML(cs,r)).join(''))}</details>` : '';
   const none = (compareDiffOnly && !shownCount && rows.length) ? `<div class="empty-note">${ta('cmpNoDiffs')}</div>` : '';
   const emptyHTML = compareDiffOnly ? '' : cmpEmptyGroupHTML(cs, empty, info=>`<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)}</div><span class="cmp-val cmp-none">${ta('cmpNotIndicated')}</span></div>`);
-  return (cs.proposals.length>=2?cmpTextSegHTML(cs):'') + cmpToolbar2HTML(rows.length>0) + none + secs + restHTML + emptyHTML + (rows.some(r=>r.k==='price') ? cmpPriceNoteHTML(cs) : '');
+  return (cs.proposals.length>=2?cmpColHeadHTML(cs):'') + cmpToolbar2HTML(rows.length>0) + none + secs + restHTML + emptyHTML + (rows.some(r=>r.k==='price') ? cmpPriceNoteHTML(cs) : '');
 }
 /* ---- vistas ---- */
 function cmpVisibleRows(c){
@@ -10485,6 +10570,7 @@ function cmpPrioritiesHTML(c){
       ${CMP_PRIORITIES.map(k=>`<button type="button" class="cmp-pchip ${sel.includes(k)?'on':''}" data-cmpprio="${k}" aria-pressed="${sel.includes(k)?'true':'false'}">${ta('cmpPrio_'+k)}</button>`).join('')}
     </div>
     <div class="cmp-hint cmp-prio-max" id="cmp-prio-max" role="status" style="display:none;margin:8px 0 0;">${ta('cmpPrioMax')}</div>
+    ${sel.length ? `<div class="cmp-plevels" role="group" aria-label="${escapeHTML(ta('cmpLevelTitle'))}"><div class="cmp-plevels-h">${ta('cmpLevelTitle')}</div>${sel.filter(k=>CMP_PRIORITIES.includes(k)).map(k=>{ const ess = cmpEssentialList(c).includes(k); return `<div class="cmp-plevel"><span>${ta('cmpPrio_'+k)}</span><span class="cmp-plevel-seg"><button type="button" data-cmplevel="${k}|important" aria-pressed="${!ess}" class="${!ess?'on':''}">${ta('cmpLevelImportant')}</button><button type="button" data-cmplevel="${k}|essential" aria-pressed="${ess}" class="${ess?'on':''}">${ta('cmpLevelEssential')}</button></span></div>`; }).join('')}</div>` : ''}
   </section>`;
 }
 
@@ -10537,11 +10623,12 @@ async function cmpGenerateReport(cid){
     const data = {
       summary: cmpCleanStatements(R.summary), priceVsServices: cmpCleanStatements(R.priceVsServices),
       additionalCosts: cmpCleanStatements(R.additionalCosts), attentionPoints: cmpCleanStatements(R.attentionPoints),
+      orientation: cmpCleanOrientation(R.orientation), strengths: cmpCleanStrengths(R.strengths),
       priorityNotes: (Array.isArray(R.priorityNotes)?R.priorityNotes:[]).filter(n=>n && CMP_PRIORITIES.includes(n.priority)).slice(0,3).map(n=>({ priority:n.priority, observations:cmpCleanStatements(n.observations) })).filter(n=>n.observations.length),
       questions: (Array.isArray(R.questions)?R.questions:[]).slice(0,12).filter(q=>q && typeof q.proposalId==='string' && typeof q.text==='string' && q.text.trim()).map(q=>({ proposalId:q.proposalId, field: CMP_CRITERIA.includes(q.field)?q.field:null, text:q.text.slice(0,300) }))
     };
     const cc = cmpGet(cid); if(!cc) return; // a comparação pode ter sido eliminada entretanto
-    cc.report = { generatedAt: r.generatedAt || new Date().toISOString(), sig: typeof r.sig==='string' ? r.sig : '', lang: r.lang==='en'?'en':'pt', model: typeof r.model==='string' ? r.model.slice(0,60) : '', priorities: Array.isArray(r.priorities)?r.priorities.filter(x=>CMP_PRIORITIES.includes(x)):[], data };
+    cc.report = { generatedAt: r.generatedAt || new Date().toISOString(), sig: (r.report && r.report.orientation) ? (typeof r.sig==='string' ? r.sig : '') : cmpSigOf(cc) /* servidor ainda sem orientação: não marcar como desatualizado */, lang: r.lang==='en'?'en':'pt', model: typeof r.model==='string' ? r.model.slice(0,60) : '', priorities: Array.isArray(r.priorities)?r.priorities.filter(x=>CMP_PRIORITIES.includes(x)):[], priorityLevels: Array.isArray(r.priorityLevels)?r.priorityLevels.filter(x=>CMP_PRIORITIES.includes(x)):[], data };
     delete cc.reportJob;
     cmpTouch(cc);
     cmpRerenderKeepScroll({cid, view:['detalhe']});
@@ -10557,11 +10644,29 @@ function cmpBasisChipHTML(c,b){
   const val = cmpDisplayVal(b.field, f.v);
   return `<span class="cmp-bchip"><b>${escapeHTML(who)}</b> · ${ta('cmpCrit_'+b.field)}: ${escapeHTML(val.length>70?val.slice(0,67)+'…':val)}</span>`;
 }
-function cmpStatementHTML(c,s){
+function cmpCleanOrientation(o){
+  if(!o || typeof o!=='object') return null;
+  const status = ['aligned','balanced','insufficient'].includes(o.status) ? o.status : 'insufficient';
+  const keep = (list, withPrio)=>(Array.isArray(list)?list:[]).slice(0,6).map(s=>{
+    const one = cmpCleanStatements([s])[0]; if(!one) return null;
+    if(withPrio){ if(!CMP_PRIORITIES.includes(s.priority)) return null; one.priority = s.priority; }
+    return one;
+  }).filter(Boolean);
+  const pr = a=>(Array.isArray(a)?a:[]).filter(k=>CMP_PRIORITIES.includes(k)).slice(0,3);
+  return { status, proposalId: typeof o.proposalId==='string' ? o.proposalId : null, reasons:keep(o.reasons,true), otherStrengths:keep(o.otherStrengths,false), code: typeof o.code==='string' ? o.code.slice(0,20) : '', comparable:pr(o.comparable), noData:pr(o.noData), essential:pr(o.essential) };
+}
+function cmpCleanStrengths(list){
+  return (Array.isArray(list)?list:[]).slice(0,4).map(x=>{
+    if(!x || typeof x.proposalId!=='string') return null;
+    const st = cmpCleanStatements(x.statements).slice(0,3);
+    return st.length ? { proposalId:x.proposalId, statements:st } : null;
+  }).filter(Boolean);
+}
+function cmpStatementHTML(c,s,label){
   const p = s.proposalId ? cmpProp(c,s.proposalId) : null;
   return `
   <li class="cmp-st">
-    <div class="cmp-st-text">${p?`<span class="cmp-st-who">${escapeHTML(cmpProposalLabel(p))}</span>`:''}${escapeHTML(s.text)}</div>
+    <div class="cmp-st-text">${p?`<span class="cmp-st-who">${escapeHTML(cmpProposalLabel(p))}</span>`:''}${label?`<span class="cmp-st-prio">${label}</span>`:''}${escapeHTML(s.text)}</div>
     <details class="cmp-why"><summary>${ta('cmpRepWhy')}</summary><div class="cmp-why-body"><div class="cmp-why-intro">${ta('cmpRepWhyIntro')}</div>${s.basis.map(b=>cmpBasisChipHTML(c,b)).join('')}</div></details>
   </li>`;
 }
@@ -10573,6 +10678,52 @@ function cmpSectionHTML(title, items, c, extraTop){
 function cmpReportHasScopeNote(D, noteTxt){
   const first = (D && D.priceVsServices || [])[0];
   return !!(first && (first.scope===true || first.text===noteTxt));
+}
+function cmpPrioNamesText(list){ return (list||[]).map(k=>ta('cmpPrio_'+k)).join(', '); }
+// «Orientação da Weddy»: nunca é pontuação nem ranking. A proposta só aparece quando o servidor validou motivos com base em dados confirmados.
+function cmpOrientationHTML(c){
+  const D = c.report.data, o = D.orientation;
+  const head = `<div class="cmp-or-eyebrow">${ta('cmpOrTitle')}</div><h3 class="cmp-or-q">${ta('cmpOrQuestion')}</h3>`;
+  if(!o) return `<section class="cmp-orient cmp-or-none" aria-label="${escapeHTML(ta('cmpOrTitle'))}">${head}<div class="cmp-or-msg">${ta('cmpOrOld')}</div></section>`;
+  const ess = o.essential||[];
+  const prioLabel = k=>`${ta('cmpPrio_'+k)}${ess.includes(k)?` · ${ta('cmpLevelEssential')}`:''}`;
+  let body = '';
+  if(o.status==='aligned'){
+    const p = cmpProp(c, o.proposalId);
+    const reasons = o.reasons.map(s=>cmpStatementHTML(c,s,escapeHTML(prioLabel(s.priority)))).join('');
+    const other = o.otherStrengths.length ? `<ul class="cmp-stlist">${o.otherStrengths.map(s=>cmpStatementHTML(c,s)).join('')}</ul>` : `<div class="cmp-hint">${ta('cmpOrOtherNone')}</div>`;
+    body = `<div class="cmp-or-badge">${ta('cmpOrAligned')}</div>
+      <div class="cmp-or-name">${p?escapeHTML(cmpProposalLabel(p)):'—'}</div>
+      <h4 class="cmp-or-h">${ta('cmpOrWhy')}</h4><ul class="cmp-stlist">${reasons}</ul>
+      <h4 class="cmp-or-h">${ta('cmpOrOther')}</h4>${other}`;
+  } else if(o.status==='balanced'){
+    const groups = c.proposals.map(p=>({ p, rs:o.reasons.filter(r=>r.proposalId===p.id) })).filter(g=>g.rs.length);
+    body = `<div class="cmp-or-badge cmp-or-badge-eq">${ta('cmpOrBalanced')}</div>
+      <div class="cmp-or-msg">${ta('cmpOrBalancedHint')}</div>
+      ${groups.map(g=>`<h4 class="cmp-or-h">${escapeHTML(cmpProposalLabel(g.p))}</h4><ul class="cmp-stlist">${g.rs.map(s=>cmpStatementHTML(c,s,escapeHTML(prioLabel(s.priority)))).join('')}</ul>`).join('')}`;
+  } else {
+    const msg = o.code==='no_priorities' ? ta('cmpOrNoPriorities') : o.code==='no_data' ? ta('cmpOrNoData') : ta('cmpOrInsufficient');
+    body = `<div class="cmp-or-badge cmp-or-badge-eq">${ta('cmpOrInsufficientBadge')}</div><div class="cmp-or-msg">${msg}</div>`;
+  }
+  const nd = (o.noData||[]).length && o.code!=='no_data' && o.code!=='no_priorities' ? `<div class="cmp-or-nodata">${ta('cmpOrNoDataList')} ${escapeHTML(cmpPrioNamesText(o.noData))}.</div>` : '';
+  return `<section class="cmp-orient" aria-label="${escapeHTML(ta('cmpOrTitle'))}">${head}${body}${nd}<div class="cmp-or-foot">${ta('cmpOrFoot')}</div></section>`;
+}
+function cmpReportCriteriaHTML(c){
+  const rows = cmpRows(c).withData;
+  if(!rows.length) return '';
+  return `<div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepCriteria')}</h4><div class="cmp-rcrit">${rows.map(info=>`<div class="cmp-rcrit-row"><div class="cmp-rcrit-k">${ta('cmpCrit_'+info.k)}</div>${info.cells.map((x,i)=>`<div class="cmp-rcrit-v"><span>${escapeHTML(cmpProposalLabel(c.proposals[i]))}</span> ${x.f?escapeHTML(cmpShortVs(info.k,x)):`<i>${ta('cmpNotIndicated')}</i>`}</div>`).join('')}</div>`).join('')}</div></div>`;
+}
+function cmpStrengthsHTML(c, D){
+  if(!Array.isArray(D.strengths)) return ''; // relatório anterior à orientação
+  const groups = c.proposals.map(p=>({ p, st:(D.strengths.find(x=>x.proposalId===p.id)||{}).statements||[] })).filter(g=>g.st.length);
+  return `<div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepStrengths')}</h4>${groups.length ? groups.map(g=>`<div class="cmp-str-g"><div class="cmp-str-who">${escapeHTML(cmpProposalLabel(g.p))}</div><ul class="cmp-stlist">${g.st.map(s=>cmpStatementHTML(c,{...s,proposalId:null})).join('')}</ul></div>`).join('') : `<div class="cmp-hint">${ta('cmpRepNoItems')}</div>`}</div>`;
+}
+function cmpConclusionText(c, D){
+  const o = D.orientation;
+  if(!o) return ta('cmpConcOld');
+  if(o.status==='aligned'){ const p = cmpProp(c,o.proposalId); return ta('cmpConcAligned')(p?cmpProposalLabel(p):''); }
+  if(o.status==='balanced') return ta('cmpConcBalanced');
+  return ta('cmpConcInsufficient');
 }
 function cmpReportBodyHTML(c){
   const r = c.report, D = r.data;
@@ -10591,14 +10742,19 @@ function cmpReportBodyHTML(c){
   // Em comparação parcial o servidor já abre "Preço e serviços" com a mesma ressalva: não a repetir.
   const noteTxt = (pf.reason!=='needs_two') ? cmpPriceNoteText(c,pf) : '';
   const note = (noteTxt && !(pf.status==='partial' && cmpReportHasScopeNote(D, noteTxt))) ? `<div class="cmp-pnote ${cmpPriceNoteClass(pf)}">${escapeHTML(noteTxt)}</div>` : '';
+  const oldPrio = (!D.orientation && (D.priorityNotes||[]).length) ? `<div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepPriorities')}</h4>${prioBlock}</div>` : '';
   return `
+    ${cmpOrientationHTML(c)}
     ${cmpSectionHTML(ta('cmpRepSummary'), D.summary, c)}
+    ${cmpReportCriteriaHTML(c)}
     ${cmpSectionHTML(ta('cmpRepPriceServices'), D.priceVsServices, c, note)}
+    ${cmpStrengthsHTML(c, D)}
     ${cmpSectionHTML(ta('cmpRepAddCosts'), D.additionalCosts, c)}
     ${cmpSectionHTML(ta('cmpRepAttention'), D.attentionPoints, c)}
-    <div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepPriorities')}</h4>${prioBlock}</div>
+    ${oldPrio}
     <div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepMissing')}</h4>${missHTML}</div>
-    <div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepQuestions')}</h4>${qHTML}</div>`;
+    <div class="cmp-rsec"><h4 class="cmp-rsec-h">${ta('cmpRepQuestions')}</h4>${qHTML}</div>
+    <div class="cmp-rsec cmp-conc"><h4 class="cmp-rsec-h">${ta('cmpRepConclusion')}</h4><p>${escapeHTML(cmpConclusionText(c,D))}</p></div>`;
 }
 function cmpReportHTML(c){
   const job = cmpReportJobStatus(c);
@@ -10656,10 +10812,20 @@ function bindCompareReportHandlers(){
     const k = e.currentTarget.dataset.cmpprio;
     const sel = Array.isArray(c.priorities) ? c.priorities.slice() : [];
     const i = sel.indexOf(k);
-    if(i>=0) sel.splice(i,1);
+    if(i>=0){ sel.splice(i,1); if(c.priorityLevels){ delete c.priorityLevels[k]; if(!Object.keys(c.priorityLevels).length) delete c.priorityLevels; } }
     else if(sel.length>=CMP_PRIORITY_MAX){ const m = document.getElementById('cmp-prio-max'); if(m) m.style.display=''; return; }
     else sel.push(k);
     c.priorities = sel;
+    cmpTouch(c);
+    cmpRenderKeep();
+  }));
+  document.querySelectorAll('[data-cmplevel]').forEach(b=>b.addEventListener('click', e=>{
+    const [k, lv] = String(e.currentTarget.dataset.cmplevel).split('|');
+    if(!CMP_PRIORITIES.includes(k) || !(c.priorities||[]).includes(k)) return;
+    const cur = (c.priorityLevels && c.priorityLevels[k]==='essential') ? 'essential' : 'important';
+    if(cur===lv) return;
+    if(lv==='essential'){ c.priorityLevels = Object.assign({}, c.priorityLevels||{}, {[k]:'essential'}); }
+    else if(c.priorityLevels){ delete c.priorityLevels[k]; if(!Object.keys(c.priorityLevels).length) delete c.priorityLevels; }
     cmpTouch(c);
     cmpRenderKeep();
   }));
@@ -11154,6 +11320,7 @@ function cmpDuplicate(c){
   let name = (base+' '+ta('cmpDupSuffix')).slice(0,80), i = 2;
   while(taken.has(name)) name = (base+' '+ta('cmpDupSuffix')+' '+(i++)).slice(0,80);
   const nc = { id:cmpNewId('cmp'), name, category:c.category, max:c.max||3, priorities:(c.priorities||[]).slice(), proposals:[], createdAt:now, updatedAt:now };
+  if(c.priorityLevels && typeof c.priorityLevels==='object') nc.priorityLevels = Object.assign({}, c.priorityLevels);
   (c.proposals||[]).forEach(p=>{
     const q = JSON.parse(JSON.stringify(p));
     q.id = cmpNewId('prp');
@@ -11446,7 +11613,7 @@ function cmpBuildPdf(c){
     font('helvetica',8.8,'bold');
     let x = ML; const h = 6.6;
     prios.forEach(k=>{
-      const t = ta('cmpPrio_'+k); const w = doc.getTextWidth(t)+8;
+      const t = ta('cmpPrio_'+k)+(cmpEssentialList(c).includes(k)?' · '+ta('cmpLevelEssential'):''); const w = doc.getTextWidth(t)+8;
       if(x+w>ML+CW){ x = ML; y += h+2; }
       ensure(h+2);
       doc.setFillColor(...P.CREAM2); doc.roundedRect(x, y-4.6, w, h, 3.3, 3.3, 'F');
@@ -11593,14 +11760,46 @@ function cmpBuildPdf(c){
       if(!items.length) para(ta('cmpRepNoItems'), 9, P.SOFT, 'italic'); else items.forEach(statement);
       y += 2;
     };
+    // 1. Orientação da Weddy (nunca pontuação nem ranking)
+    { const o = D.orientation;
+      sub(ta('pdfOrientation'), 40);
+      if(!o){ para(ta('cmpOrOld'), 9, P.SOFT, 'italic'); }
+      else {
+        para(ta('cmpOrQuestion'), 9.4, P.SOFT, 'italic');
+        if(o.status==='aligned'){
+          const p = cmpProp(c,o.proposalId);
+          ensure(14); font('helvetica',8.4,'bold'); col(P.SOFT); doc.text(ta('cmpOrAligned'), ML, y); y += 5.4;
+          font('helvetica',12.5,'bold'); col(P.BROWN_D); doc.text(cmpPdfNb(p?label(p):'—'), ML, y); y += 6;
+          sub(ta('cmpOrWhy'), 22); o.reasons.forEach(r=>statement(r));
+          sub(ta('cmpOrOther'), 22);
+          if(o.otherStrengths.length) o.otherStrengths.forEach(statement); else para(ta('cmpOrOtherNone'), 9, P.SOFT, 'italic');
+        } else if(o.status==='balanced'){
+          para(ta('cmpOrBalanced'), 9.6, P.BROWN_D, 'bold');
+          para(ta('cmpOrBalancedHint'), 9, P.SOFT, 'italic');
+          props.forEach(pp=>{ const rs = o.reasons.filter(r=>r.proposalId===pp.id); if(!rs.length) return; sub(label(pp), 22); rs.forEach(statement); });
+        } else {
+          para(ta('cmpOrInsufficientBadge'), 9.6, P.BROWN_D, 'bold');
+          para(o.code==='no_priorities' ? ta('cmpOrNoPriorities') : o.code==='no_data' ? ta('cmpOrNoData') : ta('cmpOrInsufficient'), 9, P.SOFT, 'italic');
+        }
+        if((o.noData||[]).length && o.code!=='no_data' && o.code!=='no_priorities') para(ta('cmpOrNoDataList')+' '+cmpPrioNamesText(o.noData)+'.', 8.6, P.SOFT);
+        para(ta('cmpOrFoot'), 8.6, P.SOFT, 'italic');
+      }
+      y += 2;
+    }
     block(ta('cmpRepSummary'), D.summary||[]);
     block(ta('cmpRepPriceServices'), D.priceVsServices||[], (pn && pf.status==='partial' && cmpReportHasScopeNote(D, pn)) ? '' : pn);
+    if(Array.isArray(D.strengths)){
+      sub(ta('cmpRepStrengths'), 30);
+      if(!D.strengths.length) para(ta('cmpRepNoItems'), 9, P.SOFT, 'italic');
+      props.forEach(pp=>{ const g = D.strengths.find(x=>x.proposalId===pp.id); if(!g) return; ensure(18); font('helvetica',9,'bold'); col(P.RUST); doc.text(label(pp), ML+1, y); y += 4.6; g.statements.forEach(st=>statement(Object.assign({}, st, { proposalId:null }))); });
+      y += 2;
+    }
     block(ta('cmpRepAddCosts'), D.additionalCosts||[]);
     block(ta('cmpRepAttention'), D.attentionPoints||[]);
-    sub(ta('cmpRepPriorities'), 22);
-    if(!(c.priorities||[]).length) para(ta('cmpRepPrioNone'), 9, P.SOFT, 'italic');
-    else if(!(D.priorityNotes||[]).length) para(ta('cmpRepNoItems'), 9, P.SOFT, 'italic');
-    else D.priorityNotes.forEach(nn=>{ ensure(20); font('helvetica',9,'bold'); col(P.RUST); doc.text(ta('cmpPrio_'+nn.priority), ML+1, y); y += 4.6; nn.observations.forEach(statement); });
+    if(!D.orientation && (D.priorityNotes||[]).length){
+      sub(ta('cmpRepPriorities'), 22);
+      D.priorityNotes.forEach(nn=>{ ensure(20); font('helvetica',9,'bold'); col(P.RUST); doc.text(ta('cmpPrio_'+nn.priority), ML+1, y); y += 4.6; nn.observations.forEach(statement); });
+    }
     y += 3;
   }
 
@@ -11646,6 +11845,13 @@ function cmpBuildPdf(c){
       y += 2.5;
     });
     y += 2;
+  }
+
+  /* ---- conclusão (texto fixo, sem IA) ---- */
+  if(withReport){
+    heading(ta('pdfConclusion'), 30);
+    para(cmpConclusionText(c, c.report.data), 9.6, P.INK);
+    y += 3;
   }
 
   /* ---- nota final ---- */
