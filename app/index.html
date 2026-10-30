@@ -2152,6 +2152,136 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
   .dy-sheet{ padding:8px 40px 34px; } .dy-sheet .sheet-title{ font-size:46px; }
 }
 @media (max-width:359px){ .dy-title{ font-size:40px; } .dy-featured .dy-name{ font-size:32px; } }
+/* v278 — Lua-de-mel editorial (fotografia real, tipografia serifada, linhas finas) */
+.hmx{ --hx-ink:#2B2522; --hx-soft:#7C6F66; --hx-line:#E6DCD4; --hx-teal:#5F8F93; --hx-teal-d:#3F6F73; --hx-rose:#A95A67; --hx-sand:#F3EBE1; padding:0 18px 30px; text-align:left; color:var(--hx-ink); box-sizing:border-box; }
+.hmx *{ box-sizing:border-box; }
+.hmx, .hmx *{ font-variant-numeric:lining-nums; }
+.hmx button{ font-family:inherit; }
+.hmx-head{ display:flex; align-items:flex-start; gap:6px; padding:12px 0 18px; }
+.hmx-back{ all:unset; box-sizing:border-box; flex:none; width:40px; height:40px; margin-left:-10px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--hx-ink, #2B2522); }
+.hmx-back svg{ width:20px; height:20px; }
+.hmx-titlewrap{ flex:1; min-width:0; margin-left:-4px; padding-top:34px; }
+.hmx-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:58px; line-height:.95; letter-spacing:-.01em; color:#2B2522; text-align:left; }
+.hmx-sub{ margin:8px 0 0; font-size:17px; font-weight:300; color:#8B7D74; line-height:1.3; }
+.hmx-add{ all:unset; box-sizing:border-box; flex:none; width:42px; height:42px; margin-top:62px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--hx-rose,#A95A67); color:#fff; cursor:pointer; box-shadow:0 6px 16px rgba(169,90,103,.28); }
+.hmx-add svg{ width:20px; height:20px; }
+.hmx-note{ display:flex; gap:14px; align-items:flex-start; padding:16px 18px; margin:0 0 22px; background:#F2E4DF; border-radius:14px; }
+.hmx-note-ico{ flex:none; color:#A95A67; display:flex; margin-top:2px; }
+.hmx-note-ico svg{ width:22px; height:22px; }
+.hmx-note b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; line-height:1.15; color:#2B2522; }
+.hmx-note span:not(.hmx-note-ico){ display:block; margin-top:4px; font-size:13.5px; line-height:1.4; color:#7C6F66; font-weight:300; }
+.hmx-cards{ display:flex; flex-direction:column; gap:26px; }
+.hmx-card{ position:relative; border-radius:18px; overflow:hidden; background:#FFFCF9; box-shadow:0 10px 30px rgba(70,50,40,.08); cursor:pointer; text-align:left; }
+.hmx-card:focus-visible{ outline:2px solid #5F8F93; outline-offset:3px; }
+.hmx-photo{ position:relative; aspect-ratio:16/10; clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),0 100%); background:#EFE7E1; }
+.hmx-card.is-first .hmx-photo{ aspect-ratio:4/3; }
+.hmx-ph{ position:absolute; inset:0; overflow:hidden; background:linear-gradient(140deg,#CDB9A2,#EDE2D3); }
+.hmx-ph-praia{ background:linear-gradient(140deg,#8FC1D4,#E6EFE4); } .hmx-ph-cidade{ background:linear-gradient(140deg,#C9A480,#EBDDCB); } .hmx-ph-montanha{ background:linear-gradient(140deg,#8FA88C,#DCE4D6); }
+.hmx-ph-cruzeiro{ background:linear-gradient(140deg,#7FA7C4,#E2ECF2); } .hmx-ph-aventura{ background:linear-gradient(140deg,#C79A6B,#EEDFC8); } .hmx-ph-relax{ background:linear-gradient(140deg,#9CC4C0,#EAF1EA); }
+.hmx-ph-ico{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.75); }
+.hmx-ph-ico svg{ width:44px; height:44px; }
+.hmx-img{ position:absolute; inset:0; width:100%; height:100%; margin:0; object-fit:cover; display:block; }
+.hmx-heart{ all:unset; box-sizing:border-box; position:absolute; top:14px; right:14px; z-index:2; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.94); color:#A95A67; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 14px rgba(40,30,25,.18); }
+.hmx-heart svg{ width:21px; height:21px; }
+.hmx-heart.active svg{ fill:#A95A67; }
+.hmx-heart:focus-visible, .hmx-add:focus-visible, .hmx-back:focus-visible, .hmx-type:focus-visible, .hmx-save:focus-visible, .hmx-del:focus-visible, .hmx-plus:focus-visible, .hmx-x:focus-visible, .hmx-stepper button:focus-visible{ outline:2px solid #5F8F93; outline-offset:2px; }
+.hmx-chosen{ position:absolute; top:20px; left:16px; z-index:2; padding:6px 11px; border-radius:99px; background:rgba(255,255,255,.94); color:#A95A67; font-size:10.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; }
+.hmx-info{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:0 16px; padding:0 18px 20px 20px; margin-top:-4px; }
+.hmx-num{ font-family:'Cormorant Garamond',serif; font-size:24px; color:#2B2522; align-self:start; padding-top:6px; }
+.hmx-body{ min-width:0; padding-left:16px; border-left:1px solid #E6DCD4; }
+.hmx-name{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:36px; line-height:1; letter-spacing:-.005em; color:#2B2522; overflow-wrap:anywhere; text-align:left; }
+.hmx-card.is-first .hmx-name{ font-size:44px; }
+.hmx-meta{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; }
+.hmx-m{ display:inline-flex; align-items:flex-start; gap:8px; font-size:14px; color:#4E443E; line-height:1.35; min-width:0; }
+.hmx-m svg{ flex:none; width:18px; height:18px; margin-top:1px; color:#7C6F66; }
+.hmx-m-route{ min-width:0; }
+.hmx-m span{ overflow-wrap:anywhere; }
+.hmx-chev{ display:flex; color:#2B2522; }
+.hmx-chev svg{ width:10px; height:16px; }
+.hmx-empty{ margin:6px 0 0; font-size:14px; color:#7C6F66; line-height:1.5; }
+.hmx-quote{ margin:40px 0 0 auto; max-width:62%; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:25px; line-height:1.25; color:#8B7D74; text-align:left; }
+/* página de edição */
+.hmx-edit{ padding:0 0 34px; }
+.hmx-hero{ position:relative; height:224px; overflow:hidden; background:#EFE7E1; }
+.hmx-hero .hmx-ph{ left:18%; }
+.hmx-hero-fade{ position:absolute; inset:0; background:linear-gradient(90deg,var(--cream,#FAF8F5) 0%,rgba(250,248,245,.92) 34%,rgba(250,248,245,.35) 62%,rgba(250,248,245,0) 82%), linear-gradient(180deg,rgba(250,248,245,.55),rgba(250,248,245,0) 38%); }
+.hmx-back-hero{ position:absolute; top:12px; left:8px; margin:0; z-index:3; }
+.hmx-hero-txt{ position:absolute; left:18px; right:18px; bottom:22px; z-index:2; }
+.hmx-hero-title{ margin:0; max-width:68%; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:50px; line-height:.95; letter-spacing:-.01em; color:#2B2522; overflow-wrap:anywhere; text-align:left; }
+.hmx-kicker{ display:block; margin-top:10px; font-size:11.5px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:#5E5750; }
+.hmx-form{ padding:18px 18px 0; }
+.hmx-sec{ margin:0 0 22px; }
+.hmx-lbl{ display:block; margin:0 0 9px; font-size:14px; font-weight:400; color:#7C6F66; letter-spacing:0; text-transform:none; }
+.hmx-input{ width:100%; height:50px; padding:0 16px; border:1px solid #E6DCD4; border-radius:10px; background:#fff; box-shadow:none; font-family:inherit; font-size:17px; color:#2B2522; outline:none; -webkit-appearance:none; appearance:none; }
+.hmx-input:focus{ border-color:#5F8F93; }
+.hmx-notes{ height:auto; min-height:84px; padding:13px 16px; resize:vertical; line-height:1.45; }
+.hmx-types{ display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; }
+.hmx-type{ all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; min-width:0; padding:11px 2px 9px; border:1px solid #E6DCD4; border-radius:10px; background:rgba(255,255,255,.55); color:#7C6F66; font-size:10.5px; line-height:1.1; text-align:center; cursor:pointer; }
+.hmx-type svg{ width:24px; height:24px; }
+.hmx-type span{ max-width:100%; overflow:hidden; text-overflow:clip; }
+.hmx-type.active{ border-color:#5F8F93; background:#E9F1F0; color:#3F6F73; box-shadow:inset 0 0 0 1px #5F8F93; }
+.hmx-row2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:18px; align-items:start; }
+.hmx-stepper{ display:flex; align-items:center; gap:14px; height:50px; }
+.hmx-stepper button{ all:unset; box-sizing:border-box; width:42px; height:42px; border-radius:50%; background:#EFE8E0; color:#5E5750; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.hmx-stepper button svg{ width:17px; height:17px; }
+.hmx-stepper span{ min-width:24px; text-align:center; font-family:'Cormorant Garamond',serif; font-size:28px; color:#2B2522; }
+.hmx-cities{ list-style:none; margin:0; padding:0; border-top:1px solid #E6DCD4; }
+.hmx-city{ display:flex; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid #E6DCD4; }
+.hmx-city-n{ flex:none; width:30px; height:30px; border-radius:50%; background:#5F8F93; color:#fff; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.hmx-city-name{ flex:1; min-width:0; font-size:16px; color:#2B2522; overflow-wrap:anywhere; }
+.hmx-x{ all:unset; box-sizing:border-box; flex:none; width:36px; height:36px; display:flex; align-items:center; justify-content:center; color:#7C6F66; cursor:pointer; }
+.hmx-x svg{ width:17px; height:17px; }
+.hmx-city-add{ display:flex; align-items:center; gap:10px; margin-top:12px; padding:6px 6px 6px 14px; background:#F1ECE6; border-radius:12px; }
+.hmx-pin{ display:flex; color:#9A8E85; }
+.hmx-pin svg{ width:18px; height:18px; }
+.hmx-city-add input{ flex:1; min-width:0; height:40px; border:0; background:transparent; font-family:inherit; font-size:16px; color:#2B2522; outline:none; -webkit-appearance:none; }
+.hmx-plus{ all:unset; box-sizing:border-box; flex:none; width:42px; height:42px; border-radius:50%; background:#5F8F93; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.hmx-plus svg{ width:19px; height:19px; }
+.hmx-hint{ margin:0 0 10px; font-size:13px; line-height:1.5; color:#8B7D74; font-weight:300; }
+.hmx-hint-empty{ margin:0 0 4px; }
+.hmx-files{ display:flex; flex-direction:column; gap:8px; }
+.hmx-file{ display:flex; align-items:center; gap:12px; padding:6px 6px 6px 14px; border:1px solid #E6DCD4; border-radius:12px; background:#fff; cursor:pointer; min-height:52px; }
+.hmx-file:focus-visible{ outline:2px solid #5F8F93; outline-offset:2px; }
+.hmx-file-ico{ flex:none; display:flex; color:#5F8F93; }
+.hmx-file-ico svg{ width:22px; height:22px; }
+.hmx-file-name{ flex:1; min-width:0; font-size:15px; color:#2B2522; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hmx-attach-add{ display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:6px 0; font-size:14px; color:#3F6F73; cursor:pointer; border-bottom:1px solid #5F8F93; }
+.hmx-attach-add svg{ width:16px; height:16px; }
+.hmx-actions{ padding:8px 18px 0; display:flex; flex-direction:column; align-items:stretch; gap:10px; }
+.hmx-save{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; height:52px; border-radius:99px; background:#A95A67; color:#fff; font-size:15px; font-weight:500; letter-spacing:.04em; cursor:pointer; box-shadow:0 8px 20px rgba(169,90,103,.25); }
+.hmx-save svg{ width:15px; height:15px; }
+.hmx-del{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; height:44px; color:#8B7D74; font-size:13.5px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.hmx-del svg{ width:15px; height:15px; }
+@media (min-width:1024px){
+  .hmx{ max-width:1180px; margin:0 auto; padding:8px 40px 56px; }
+  .hmx-head{ padding:18px 0 28px; }
+  .hmx-back{ margin-left:-12px; }
+  .hmx-titlewrap{ padding-top:26px; }
+  .hmx-title{ font-size:92px; }
+  .hmx-sub{ font-size:21px; margin-top:12px; }
+  .hmx-add{ margin-top:70px; width:48px; height:48px; }
+  .hmx-note{ max-width:620px; margin-bottom:36px; padding:20px 24px; }
+  .hmx-cards{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:36px 32px; align-items:start; }
+  .hmx-card.is-first{ grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); align-items:stretch; }
+  .hmx-card.is-first .hmx-photo{ aspect-ratio:auto; min-height:460px; clip-path:polygon(0 0,100% 0,calc(100% - 22px) 100%,0 100%); }
+  .hmx-card.is-first .hmx-info{ align-self:center; margin:0; padding:36px 36px 36px 28px; }
+  .hmx-card.is-first .hmx-name{ font-size:64px; }
+  .hmx-card.is-first .hmx-m{ font-size:15.5px; }
+  .hmx-name{ font-size:42px; }
+  .hmx-photo{ aspect-ratio:4/3; }
+  .hmx-quote{ max-width:480px; font-size:30px; margin-top:56px; }
+  .hmx-edit{ padding:0 0 56px; max-width:none; }
+  .hmx-hero{ height:380px; }
+  .hmx-hero .hmx-ph{ left:30%; }
+  .hmx-hero-txt{ left:max(40px, calc((100% - 1100px)/2)); bottom:40px; }
+  .hmx-hero-title{ font-size:92px; max-width:56%; }
+  .hmx-back-hero{ left:max(28px, calc((100% - 1100px)/2 - 12px)); top:18px; }
+  .hmx-kicker{ font-size:12.5px; }
+  .hmx-form{ max-width:1100px; margin:0 auto; padding:34px 40px 0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 64px; align-items:start; }
+  .hmx-actions{ max-width:1100px; margin:10px auto 0; padding:0 40px; flex-direction:row-reverse; justify-content:flex-start; align-items:center; gap:24px; }
+  .hmx-save{ width:240px; }
+  .hmx-del{ width:auto; padding:0 6px; }
+}
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -4937,7 +5067,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6220,7 +6350,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -9759,29 +9889,87 @@ function viewTodoCategory(cat){
 const HM_TYPES = ['Praia','Cidade','Montanha','Cruzeiro','Aventura','Relax'];
 const HM_TYPE_KEY = { Praia:'hmTypeBeach', Cidade:'hmTypeCity', Montanha:'hmTypeMountain', Cruzeiro:'hmTypeCruise', Aventura:'hmTypeAdventure', Relax:'hmTypeRelax' };
 function hmTypeLabel(t){ return HM_TYPE_KEY[t] ? ta(HM_TYPE_KEY[t]) : t; }
-function hmOptionSummary(o){
+
+/* ---- v278 — Lua-de-mel editorial ------------------------------------
+   Fotografias reais (Unsplash, licença livre, incl. uso comercial), servidas
+   diretamente do CDN da Unsplash (hotlinking permitido). Nada é guardado nos
+   dados da hipótese: a fotografia deduz-se do nome/cidades (destino) ou do
+   tipo de viagem. Se não carregar, fica o fundo em gradiente + ícone. */
+const HMX_SVG = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const HMX_ICONS = {
+  Praia: ICONS.beach, Cidade: ICONS.city, Montanha: ICONS.mountain,
+  Cruzeiro: HMX_SVG('<path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M19.4 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.9 5.3 2.8 7.8"/><path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/><path d="M12 10v4M12 2v3"/>'),
+  Aventura: HMX_SVG('<path d="M3.5 21 14 3M20.5 21 10 3"/><path d="M15.5 21 12 15l-3.5 6"/><path d="M2 21h20"/>'),
+  Relax: HMX_SVG('<circle cx="12" cy="8" r="2"/><path d="M12 10v12"/><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M15 8a3 3 0 1 1-3 3"/><path d="M12 22c4.2 0 7-1.7 7-5-4.2 0-7 1.7-7 5ZM12 22c-4.2 0-7-1.7-7-5 4.2 0 7 1.7 7 5Z"/>')
+};
+const HMX_ICO = {
+  cal: HMX_SVG('<rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M8 2.8v3.4M16 2.8v3.4M3.5 9.5h17"/>'),
+  plane: HMX_SVG('<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'),
+  coins: HMX_SVG('<circle cx="8" cy="8" r="6"/><path d="M18.1 10.4A6 6 0 1 1 10.3 18"/><path d="M7 6h1v4"/>'),
+  pin: HMX_SVG('<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>'),
+  doc: HMX_SVG('<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>'),
+  img: HMX_SVG('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>'),
+  x: HMX_SVG('<path d="M18 6 6 18M6 6l12 12"/>'),
+  minus: HMX_SVG('<path d="M5 12h14"/>'),
+  plus: HMX_SVG('<path d="M5 12h14M12 5v14"/>'),
+  trash: ICONS.trash
+};
+const HMX_PH = {
+  praia:'photo-1573843981267-be1999ff37cd', maldivas:'photo-1514282401047-d79a71a590e8', tropical:'photo-1507525428034-b723cf961d3e',
+  bali:'photo-1537996194471-e657df975ab4', paris:'photo-1502602898657-3e91760cbb34', roma:'photo-1552832230-c0197dd311b5',
+  veneza:'photo-1514890547357-a9ee288728e0', nova_iorque:'photo-1496442226666-8d4d0e62e6e9', santorini:'photo-1613395877344-13d4a8e0d49e',
+  suica:'photo-1530122037265-a5f1f91d3b99', dolomitas:'photo-1501785888041-af3ef285b470', alpes:'photo-1506905925346-21bda4d32df4',
+  japao:'photo-1493976040374-85c8e12f0c0e', safari:'photo-1516426122078-c23e76319801', resort:'photo-1540541338287-41700207dee6',
+  cruzeiro:'photo-1599640842225-85d111c60e6b'
+};
+const HMX_TYPE_PH = { Praia:'praia', Cidade:'paris', Montanha:'alpes', Cruzeiro:'cruzeiro', Aventura:'safari', Relax:'resort' };
+const HMX_DEST = [
+  [/maldiv/, 'maldivas'], [/seychelles|maur[ií]cia|mauritius|bora ?bora|polin[ée]sia|tahiti|zanzibar|bahamas|caribe|cabo verde|punta cana|can[cç]un/, 'tropical'],
+  [/\bbali\b|indon[ée]sia/, 'bali'], [/paris|fran[cç]a|france/, 'paris'], [/\broma\b|rome|it[aá]lia|italy/, 'roma'],
+  [/vene[cz]ia|venice/, 'veneza'], [/nova iorque|new york|\bnyc\b|manhattan/, 'nova_iorque'], [/santorini|gr[eé]cia|greece|mykonos/, 'santorini'],
+  [/su[ií][cç]a|switzerland|zermatt|interlaken|lauterbrunnen|genebra|zurique/, 'suica'], [/dolomit/, 'dolomitas'],
+  [/t[oó]quio|tokyo|jap[aã]o|japan|quioto|kyoto/, 'japao'], [/safari|qu[eé]nia|kenya|tanz[aâ]nia|serengeti|[aá]frica do sul|namibia|botswana/, 'safari']
+];
+function hmxNorm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+function hmxPhotoKey(o){
+  const text = hmxNorm([o.name].concat(o.cities||[]).join(' '));
+  for(const [re,key] of HMX_DEST){ if(new RegExp(re.source.normalize('NFD').replace(/[̀-ͯ]/g,''),'i').test(text)) return key; }
+  return HMX_TYPE_PH[o.type] || null;
+}
+function hmxImgURL(key, w, h){ return `https://images.unsplash.com/${HMX_PH[key]}?auto=format&fit=crop&crop=entropy&w=${w}&h=${h}&q=72`; }
+function hmxPhotoHTML(o, kind, eager){
+  const key = hmxPhotoKey(o);
+  const ico = HMX_ICONS[o.type] || ICONS.honeymoon;
+  const sizes = kind==='hero' ? [[750,300],[1600,560]] : (kind==='big' ? [[720,540],[1280,960]] : [[560,420],[1000,750]]);
+  const img = key ? `<img class="hmx-img" src="${hmxImgURL(key,sizes[0][0],sizes[0][1])}" srcset="${hmxImgURL(key,sizes[0][0],sizes[0][1])} ${sizes[0][0]}w, ${hmxImgURL(key,sizes[1][0],sizes[1][1])} ${sizes[1][0]}w" sizes="${kind==='hero'?'100vw':(kind==='big'?'(min-width:1024px) 60vw, 100vw':'(min-width:1024px) 40vw, 100vw')}" alt="" loading="${eager?'eager':'lazy'}" decoding="async" referrerpolicy="no-referrer">` : '';
+  return `<div class="hmx-ph hmx-ph-${hmxNorm(o.type)||'none'}"><span class="hmx-ph-ico">${ico}</span>${img}</div>`;
+}
+function hmxMetaHTML(o){
   const bits = [];
-  if(o.days) bits.push(ta('daysLeftLabel')(o.days));
-  if(o.cities && o.cities.length) bits.push(o.cities.join(' → '));
-  return bits.join(' · ') || ta('weddingInfoUnset');
+  if(o.days) bits.push(`<span class="hmx-m">${HMX_ICO.cal}<span>${ta('daysLeftLabel')(o.days)}</span></span>`);
+  if(o.cities && o.cities.length) bits.push(`<span class="hmx-m hmx-m-route">${HMX_ICO.plane}<span>${o.cities.map(escapeHTML).join(' → ')}</span></span>`);
+  if(o.budget) bits.push(`<span class="hmx-m">${HMX_ICO.coins}<span>${fmtEUR(Number(o.budget))}</span></span>`);
+  return bits.length ? `<div class="hmx-meta">${bits.join('')}</div>` : '';
 }
-function hmOptionCardHTML(o){
+function hmOptionCardHTML(o, idx){
+  const first = idx===0;
   return `
-  <div class="hm-idea-card ${o.favorite?'is-fav':''}" data-editidea="${o.id}">
-    <div class="hm-idea-photo" style="background:${HM_TYPE_GRAD[o.type]||'linear-gradient(140deg,#C9A480,#E7DCCB)'};">${ICONS[HM_TYPE_ICON[o.type]||'honeymoon']}</div>
-    <div class="hm-idea-mid">
-      <div class="hm-idea-name">${escapeHTML(o.name)}</div>
-      <div class="hm-idea-type">${hmOptionSummary(o)}</div>
-      ${o.budget ? `<div class="hm-idea-type">${fmtEUR(Number(o.budget))}</div>` : ''}
+  <article class="hmx-card ${first?'is-first':''} ${o.favorite?'is-fav':''}" data-editidea="${o.id}" role="button" tabindex="0">
+    <div class="hmx-photo">
+      ${hmxPhotoHTML(o, first?'big':'card', first)}
+      <button type="button" class="hmx-heart ${o.favorite?'active':''}" data-favoption="${o.id}" aria-pressed="${o.favorite?'true':'false'}" aria-label="${ta('honeymoonBannerTitle')}">${ICONS.heart}</button>
+      ${o.favorite ? `<span class="hmx-chosen">${ta('hmxChosen')}</span>` : ''}
     </div>
-    <div class="hm-idea-right">
-      <button class="hm-heart ${o.favorite?'active':''}" data-favoption="${o.id}">${ICONS.heart}</button>
-      <span class="hm-idea-chev">${ICONS.chev}</span>
+    <div class="hmx-info">
+      <span class="hmx-num">${String(idx+1).padStart(2,'0')}</span>
+      <div class="hmx-body">
+        <h2 class="hmx-name">${escapeHTML(o.name)}</h2>
+        ${hmxMetaHTML(o)}
+      </div>
+      <span class="hmx-chev">${ICONS.chev}</span>
     </div>
-  </div>`;
+  </article>`;
 }
-const HM_TYPE_ICON = { Praia:'beach', Cidade:'city', Montanha:'mountain' };
-const HM_TYPE_GRAD = { Praia:'linear-gradient(140deg,#8FC1D4,#DCE9DE)', Cidade:'linear-gradient(140deg,#C9A480,#E7DCCB)', Montanha:'linear-gradient(140deg,#8FA88C,#D8E0D2)' };
 function viewLuademel(){
   if(hmDraftOption) return viewLuademelOption(hmDraftOption);
   if(hmOpenOptionId){
@@ -9792,84 +9980,111 @@ function viewLuademel(){
   const options = state.honeymoon.options;
   const optionsHTML = options.map(hmOptionCardHTML).join('');
   return `
-  ${pageHeader('luademel-back', ta('homeQuickHoneymoon'), ta('honeymoonSubtitle'), `<button class="nav-action" id="add-idea-btn">${ICONS.plus}</button>`)}
+  ${pageHeader('luademel-back', ta('homeQuickHoneymoon'), ta('honeymoonSubtitle'), `<button class="nav-action" id="add-idea-btn" aria-label="${ta('newOptionTitle')}" style="flex-shrink:0;">${ICONS.plus}</button>`)}
+  <div class="hmx">
 
-  <div class="hm-banner">
-    <div class="hm-banner-icon">${ICONS.heart}</div>
-    <div>
-      <b>${ta('honeymoonBannerTitle')}</b>
-      <span>${ta('honeymoonBannerText')}</span>
+
+    <aside class="hmx-note">
+      <span class="hmx-note-ico">${ICONS.heart}</span>
+      <div><b>${ta('honeymoonBannerTitle')}</b><span>${ta('honeymoonBannerText')}</span></div>
+    </aside>
+
+    <div class="hmx-cards">
+      ${optionsHTML || `<p class="hmx-empty">${ta('honeymoonEmpty')}</p>`}
     </div>
+    <p class="hmx-quote">${ta('hmxQuote')}</p>
   </div>
-
-  <div class="hm-idea-list">
-    ${optionsHTML || `<div class="empty-note" style="margin:0 16px 18px;">${ta('honeymoonEmpty')}</div>`}
-  </div>
-  <div style="height:10px;"></div>
   `;
 }
 function viewLuademelOption(o){
   const citiesHTML = (o.cities||[]).map((c,i)=>`
-    <div class="list-row" style="padding:10px 14px;">
-      <span class="hm-city-num">${i+1}</span>
-      <div class="title" style="flex:1;">${escapeHTML(c)}</div>
-      <button class="remove-x" data-delcity="${i}">✕</button>
-    </div>`).join('');
+    <li class="hmx-city"><span class="hmx-city-n">${i+1}</span><span class="hmx-city-name">${escapeHTML(c)}</span><button type="button" class="hmx-x" data-delcity="${i}" aria-label="✕">${HMX_ICO.x}</button></li>`).join('');
+  const attachHTML = o.id ? `
+    <section class="hmx-sec hmx-attach">
+      <h3 class="hmx-lbl">${ta('sectionHoneymoonAttachments')}</h3>
+      <p class="hmx-hint">${ta('honeymoonAttachmentsIntroText')}</p>
+      <div class="hmx-files">
+        ${honeymoonAttachmentDocs(o.id).map(({d,i})=>hmAttachmentRowHTML(d,i)).join('') || `<p class="hmx-hint hmx-hint-empty">${ta('honeymoonAttachmentsEmptyText')}</p>`}
+      </div>
+      <label class="hmx-attach-add" for="hmo-attach-input">${HMX_ICO.plus}<span>${ta('btnAddHoneymoonAttachment')}</span></label>
+      <input type="file" id="hmo-attach-input" accept="application/pdf,image/*" style="display:none;">
+      <div id="hmo-attach-status" class="hmx-hint"></div>
+    </section>` : `
+    <section class="hmx-sec hmx-attach">
+      <h3 class="hmx-lbl">${ta('sectionHoneymoonAttachments')}</h3>
+      <p class="hmx-hint">${ta('honeymoonAttachmentsSaveFirstText')}</p>
+    </section>`;
   return `
-  ${pageHeader('luademel-option-back', o.name||ta('newOptionTitle'))}
+  <div class="hmx hmx-edit">
+    <div class="hmx-hero">
+      ${hmxPhotoHTML(o, 'hero', true)}
+      <div class="hmx-hero-fade"></div>
+      <button type="button" class="hmx-back hmx-back-hero" id="luademel-option-back" aria-label="${ta('homeQuickHoneymoon')}">${ICONS.chevleft}</button>
+      <div class="hmx-hero-txt">
+        <h1 class="hmx-hero-title" id="hmx-hero-title">${escapeHTML(o.name||ta('newOptionTitle'))}</h1>
+        ${o.id ? `<span class="hmx-kicker">${ta('hmxEditKicker')}</span>` : ''}
+      </div>
+    </div>
 
-  <div class="sheet-field" style="margin:0 16px 14px;"><label>${ta('labelOptionName')}</label><input type="text" id="hmo-name" value="${escapeHTML(o.name||'')}" placeholder="${ta('phOptionNameExample')}"></div>
+    <div class="hmx-form">
+      <div class="hmx-col">
+        <section class="hmx-sec"><label class="hmx-lbl" for="hmo-name">${ta('labelOptionName')}</label>
+          <input class="hmx-input" type="text" id="hmo-name" value="${escapeHTML(o.name||'')}" placeholder="${ta('phOptionNameExample')}"></section>
 
-  <div class="sheet-field" style="margin:0 16px 14px;">
-    <label>${ta('labelType')}</label>
-    <div class="hm-theme-picker">
-      ${HM_TYPES.map(t=>`<button type="button" class="hm-theme-btn ${o.type===t?'active':''}" data-hmotype="${t}">${ICONS[HM_TYPE_ICON[t]||'honeymoon']}<span>${hmTypeLabel(t)}</span></button>`).join('')}
+        <section class="hmx-sec"><span class="hmx-lbl" id="hmx-type-l">${ta('labelType')}</span>
+          <div class="hmx-types" role="group" aria-labelledby="hmx-type-l">
+            ${HM_TYPES.map(t=>`<button type="button" class="hmx-type ${o.type===t?'active':''}" data-hmotype="${t}" aria-pressed="${o.type===t?'true':'false'}">${HMX_ICONS[t]}<span>${hmTypeLabel(t)}</span></button>`).join('')}
+          </div></section>
+
+        <div class="hmx-row2">
+          <section class="hmx-sec"><span class="hmx-lbl">${ta('labelNumDays')}</span>
+            <div class="hmx-stepper">
+              <button type="button" data-hmodays="-1" aria-label="−">${HMX_ICO.minus}</button>
+              <span id="hmo-days-val">${o.days||0}</span>
+              <button type="button" data-hmodays="1" aria-label="+">${HMX_ICO.plus}</button>
+            </div></section>
+          <section class="hmx-sec"><label class="hmx-lbl" for="hmo-budget">${ta('labelEstimatedBudget')}</label>
+            <input class="hmx-input" type="number" min="0" inputmode="numeric" id="hmo-budget" value="${o.budget||''}" placeholder="0"></section>
+        </div>
+
+        <section class="hmx-sec"><label class="hmx-lbl" for="hmo-notes">${ta('labelNotesHelp')}</label>
+          <textarea class="hmx-input hmx-notes" id="hmo-notes" rows="3" placeholder="${ta('phNotesHelpExample')}">${escapeHTML(o.notes||'')}</textarea></section>
+      </div>
+
+      <div class="hmx-col">
+        <section class="hmx-sec"><span class="hmx-lbl">${ta('sectionItinerary')}</span>
+          ${citiesHTML ? `<ol class="hmx-cities">${citiesHTML}</ol>` : `<p class="hmx-hint hmx-hint-empty">${ta('emptyNoCities')}</p>`}
+          <div class="hmx-city-add"><span class="hmx-pin">${HMX_ICO.pin}</span>
+            <input type="text" id="add-hmo-city" placeholder="${ta('placeholderAddCity')}" aria-label="${ta('placeholderAddCity')}">
+            <button type="button" class="hmx-plus" id="addbtn-hmo-city" aria-label="${ta('placeholderAddCity')}">${HMX_ICO.plus}</button></div>
+        </section>
+        ${attachHTML}
+      </div>
+    </div>
+
+    <div class="hmx-actions">
+      <button type="button" class="hmx-save" id="save-hmoption-btn">${ICONS.check} ${ta('btnSave')}</button>
+      <button type="button" class="hmx-del" id="del-hmoption-btn">${ICONS.trash} ${ta('btnDeleteThisOption')}</button>
     </div>
   </div>
-
-  <div class="sheet-field" style="margin:0 16px 14px;">
-    <label>${ta('labelNumDays')}</label>
-    <div class="pct-stepper" style="width:140px;">
-      <button data-hmodays="-1">−</button>
-      <span class="pctval" id="hmo-days-val">${o.days||0}</span>
-      <button data-hmodays="1">+</button>
-    </div>
-  </div>
-
-  <div class="sheet-field" style="margin:0 16px 14px;"><label>${ta('labelEstimatedBudget')}</label><input type="number" min="0" id="hmo-budget" value="${o.budget||''}" placeholder="0"></div>
-
-  <div class="section-label">${ta('sectionItinerary')}</div>
-  <div class="list-group">
-    ${citiesHTML || `<div class="empty-note">${ta('emptyNoCities')}</div>`}
-    <div class="add-row">
-      <input type="text" placeholder="${ta('placeholderAddCity')}" id="add-hmo-city">
-      <button class="add-circle" id="addbtn-hmo-city">${ICONS.plus}</button>
-    </div>
-  </div>
-
-  <div class="sheet-field" style="margin:16px 16px 20px;"><label>${ta('labelNotesHelp')}</label><input type="text" id="hmo-notes" value="${escapeHTML(o.notes||'')}" placeholder="${ta('phNotesHelpExample')}"></div>
-
-  ${o.id ? `
-  <div class="section-label">${ta('sectionHoneymoonAttachments')}</div>
-  <p style="font-size:12.5px; color:var(--ink-soft); margin:0 16px 10px; line-height:1.5;">${ta('honeymoonAttachmentsIntroText')}</p>
-  <div class="list-group" style="margin:0 16px 6px;">
-    ${honeymoonAttachmentDocs(o.id).map(({d,i})=>hmAttachmentRowHTML(d,i)).join('') || `<div class="empty-note">${ta('honeymoonAttachmentsEmptyText')}</div>`}
-    <label class="add-row" for="hmo-attach-input" style="cursor:pointer;">
-      <span style="flex:1; color:var(--ink-soft); font-size:13.5px;">${ta('btnAddHoneymoonAttachment')}</span>
-      <span class="add-circle">${ICONS.plus}</span>
-    </label>
-  </div>
-  <input type="file" id="hmo-attach-input" accept="application/pdf,image/*" style="display:none;">
-  <div id="hmo-attach-status" class="empty-note" style="margin:0 16px 20px;"></div>
-  ` : `
-  <div class="section-label">${ta('sectionHoneymoonAttachments')}</div>
-  <div class="empty-note" style="margin:0 16px 20px;">${ta('honeymoonAttachmentsSaveFirstText')}</div>
-  `}
-
-  <button class="login-btn" id="save-hmoption-btn" style="width:calc(100% - 32px); max-width:none; margin:0 16px 12px;">${ICONS.check} ${ta('btnSave')}</button>
-  <button class="visit-action-btn danger" id="del-hmoption-btn" style="width:calc(100% - 32px); margin:0 16px 30px;">${ICONS.trash} ${ta('btnDeleteThisOption')}</button>
   `;
 }
+// Imagens que não carregam: remove o <img> e fica o gradiente + ícone do tipo
+document.addEventListener('error', e=>{
+  const t = e.target;
+  if(t && t.classList && t.classList.contains('hmx-img')) t.remove();
+}, true);
+// Título do cabeçalho acompanha o nome enquanto se escreve; cartões acessíveis por teclado
+document.addEventListener('input', e=>{
+  if(e.target && e.target.id==='hmo-name'){
+    const h = document.getElementById('hmx-hero-title');
+    if(h) h.textContent = e.target.value.trim() || ta('newOptionTitle');
+  }
+});
+document.addEventListener('keydown', e=>{
+  const c = e.target && e.target.classList && e.target.classList.contains('hmx-card') ? e.target : null;
+  if(c && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); c.click(); }
+});
 
 function viewFornecedores(){
   if(fornecedoresSubview === 'recomendados') return viewFornecedoresRecomendados();
@@ -12853,12 +13068,10 @@ function hmAttachmentRowHTML(d, i){
   // isso basta verificar a extensão ".pdf" para escolher o ícone certo.
   const isImg = !/\.pdf$/i.test(d.name||'');
   return `
-  <div class="list-row tappable" style="align-items:center; cursor:pointer;" data-openattach="${i}">
-    <div class="def-row-icon" style="${chipStyle(4)}">${isImg ? ICONS.camera : (ICONS.docnote||ICONS.checklist)}</div>
-    <div class="def-row-mid">
-      <div class="def-row-title">${escapeHTML(d.name)}</div>
-    </div>
-    <button class="child-remove" data-delhmattach="${i}">×</button>
+  <div class="hmx-file" role="button" tabindex="0" data-openattach="${i}">
+    <span class="hmx-file-ico">${isImg ? HMX_ICO.img : HMX_ICO.doc}</span>
+    <span class="hmx-file-name">${escapeHTML(d.name)}</span>
+    <button type="button" class="hmx-x" data-delhmattach="${i}" aria-label="×">${HMX_ICO.x}</button>
   </div>`;
 }
 let cmpReturnTo = null; // Weddy Compare: voltar à comparação depois de abrir a ficha de um fornecedor
