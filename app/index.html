@@ -2436,6 +2436,91 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
   .orcx-h2{ font-size:30px; }
   .orcx-thead{ grid-template-columns:minmax(0,1fr) 180px 140px; } .orcx-trow{ grid-template-columns:10px minmax(0,1fr) 180px 140px; font-size:15.5px; }
 }
+/* v280 — Convidados editorial (usa a mesma base .orcx do Orçamento: mesmas fontes, cores e componentes) */
+.gx .search-bar{ margin:0 0 18px; background:#fff; border:1px solid var(--ox-line); border-radius:12px; padding:0 14px; height:48px; }
+.gx .search-bar input{ font-size:15px; }
+.gx .search-bar svg{ width:16px; height:16px; }
+.gx-tabs{ margin-bottom:16px; }
+.gx-sum{ display:flex; align-items:center; gap:22px; padding:4px 0 22px; border-bottom:1px solid var(--ox-line); margin-bottom:4px; }
+.gx-ring{ position:relative; width:92px; height:92px; flex:none; }
+.gx-ring svg{ width:100%; height:100%; display:block; }
+.gx-ring-c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.gx-ring-c b{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:28px; line-height:1; color:var(--ox-ink); }
+.gx-ring-c span{ font-size:10px; letter-spacing:.06em; color:var(--ox-soft); margin-top:2px; }
+.gx-sum-list{ flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; padding-left:22px; border-left:1px solid var(--ox-line); }
+.gx-sum-i{ display:flex; flex-direction:column; }
+.gx-sum-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:30px; line-height:1.05; color:var(--heading); }
+.gx-sum-l{ font-size:12px; color:var(--ox-soft); margin-top:3px; }
+.gx-cat{ display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--ox-line); cursor:pointer; min-height:64px; }
+.gx-cat:focus-visible, .gx-check:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gx-cat-ico{ flex:none; }
+.gx-cat-mid{ flex:1; min-width:0; }
+.gx-cat-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.gx-cat-name{ font-size:15.5px; color:var(--ox-ink); overflow-wrap:anywhere; }
+.gx-cat-count{ font-size:13px; color:var(--ox-soft); white-space:nowrap; }
+.gx-cat-track{ height:3px; border-radius:3px; background:var(--ox-line); overflow:hidden; }
+.gx-cat-fill{ height:100%; border-radius:3px; }
+.gx-cat-chev{ flex:none; display:flex; color:var(--ox-soft); }
+.gx-cat-chev svg{ width:8px; height:14px; }
+.gx-newcat{ display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--ox-line); }
+.gx-newcat-btn{ all:unset; box-sizing:border-box; flex:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--ox-terra); color:var(--ox-terra); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.gx-newcat-btn svg{ width:15px; height:15px; }
+.gx-newcat-btn:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gx-newcat input{ flex:1; min-width:0; height:44px; border:0; background:transparent; font-family:inherit; font-size:15.5px; color:var(--ox-ink); outline:none; -webkit-appearance:none; }
+.gx-newcat input::placeholder{ color:var(--heading); opacity:.85; }
+/* detalhe */
+.gx-top{ padding:6px 0 0; }
+.gx-back{ all:unset; box-sizing:border-box; display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--heading); font-size:15px; cursor:pointer; margin-left:-4px; }
+.gx-back svg{ width:18px; height:18px; }
+.gx-back:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:4px; }
+.gx-dhead{ padding-top:2px; }
+.gx-dhead .orcx-title{ font-size:40px; }
+.gx-prog{ display:flex; align-items:center; gap:14px; margin:4px 0 20px; }
+.gx-prog .orcx-prog{ flex:1; margin:0; }
+.gx-prog span{ font-size:13px; color:var(--ox-soft); white-space:nowrap; }
+.gx-thead{ display:none; }
+.gx-list{ border-top:1px solid var(--ox-line); }
+.gx .gx-row{ display:grid; grid-template-columns:20px 26px minmax(0,1fr) 40px 40px 40px; align-items:center; column-gap:6px; padding:6px 0; border-bottom:1px solid var(--ox-line); min-height:56px; background:transparent; }
+.gx .gx-row.child-row{ flex-wrap:nowrap; row-gap:0; }
+.gx-drag{ display:flex; align-items:center; justify-content:center; width:20px; }
+.gx-check{ width:24px !important; height:24px !important; }
+.gx-name{ min-width:0; width:100%; font-size:16px !important; color:var(--ox-ink); padding:8px 4px; }
+.gx .gx-row.confirmed .gx-name{ color:var(--ox-ink); }
+.gx-ic{ all:unset; box-sizing:border-box; width:40px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ox-soft); }
+.gx-ic svg{ width:18px; height:18px; }
+.gx-ic:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:-2px; border-radius:8px; }
+.gx-x{ color:var(--ox-soft); }
+.gx .gx-row .child-extra-row{ grid-column:1 / -1; padding:2px 0 8px 52px; flex-basis:auto; }
+.gx-res-h{ margin:22px 0 6px; font-size:11px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--ox-soft); }
+.gx-add{ display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+.gx-add input{ width:100%; height:46px; border:0; border-bottom:1px solid var(--ox-line); background:transparent; font-family:inherit; font-size:16px; color:var(--ox-ink); outline:none; padding:0 2px; border-radius:0; -webkit-appearance:none; }
+.gx-add input:focus{ border-bottom-color:var(--ox-terra); }
+.gx-add-btn{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:52px; border-radius:12px; background:#F2E4DF; color:var(--heading); font-size:15px; font-weight:500; cursor:pointer; }
+.gx-add-btn svg{ width:16px; height:16px; }
+.gx-add-btn:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gx-cat-actions{ display:flex; gap:22px; padding:18px 0 0; }
+@media (min-width:768px){
+  .gx-cats{ display:grid; grid-template-columns:1fr 1fr; column-gap:48px; }
+  .gx-sum{ gap:30px; }
+}
+@media (min-width:1024px){
+  .gx-sum{ padding:8px 0 30px; margin-bottom:18px; }
+  .gx-ring{ width:112px; height:112px; } .gx-ring-c b{ font-size:34px; }
+  .gx-sum-list{ flex-direction:row; gap:64px; padding-left:36px; flex:none; }
+  .gx-sum-n{ font-size:40px; }
+  .gx-cats{ column-gap:72px; }
+  .gx .search-bar{ max-width:520px; }
+  .gx-dhead .orcx-title{ font-size:56px; }
+  .gx-prog{ max-width:520px; }
+  .gx-thead{ display:grid; grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 56px; column-gap:8px; padding:0 0 8px; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); margin-top:6px; }
+  .gx-th-c{ text-align:center; }
+  .gx .gx-row{ grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 56px; column-gap:8px; min-height:60px; }
+  .gx .gx-row .child-extra-row{ padding-left:62px; }
+  .gx-ic{ width:100%; }
+  .gx-add{ flex-direction:row; align-items:center; gap:24px; }
+  .gx-add input{ flex:1; }
+  .gx-add-btn{ width:280px; flex:none; }
+}
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -4645,6 +4730,7 @@ function collapseAllSections(){
   openDesc = {};
   openTable = {};
   openGuestGroup = {};
+  guestDetail = null;
   openChecklistPhaseId = CHECKLIST_PHASES_PT[0] ? CHECKLIST_PHASES_PT[0].id : null;
   openNoivaChecklist = false;
   openDressVisit = {};
@@ -5221,7 +5307,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", gxSub:"Organiza a lista de convidados do teu casamento.", gxConfirmedWord:"confirmados", gxConfirmedOf:(c,t)=>`${c} de ${t} convidados confirmados`, gxAdd:"Adicionar convidado", gxColName:"Nome", gxColContact:"Contacto", gxNoResults:"Nenhum convidado encontrado.", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6504,7 +6590,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", gxSub:"Organise your wedding guest list.", gxConfirmedWord:"confirmed", gxConfirmedOf:(c,t)=>`${c} of ${t} guests confirmed`, gxAdd:"Add guest", gxColName:"Name", gxColContact:"Contact", gxNoResults:"No guests found.", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -7816,13 +7902,12 @@ function updateChatFab(){
   if(closeBtn) closeBtn.addEventListener('click', ()=>{ closeChatPanel(); });
 })();
 
-/* Aviso quando as categorias somam mais de 100% do orçamento total (uma vez por cada valor novo). */
-let _budgetOverKey = (function(){ try{ return localStorage.getItem('weddy-budget-over-key')||''; }catch(e){ return ''; } })();
+/* Aviso quando as categorias somam mais de 100% do orçamento total: aparece uma única vez por sessão
+   (não volta a abrir a cada letra escrita nem a cada vez que o teclado abre). */
+let _budgetOverShown = (function(){ try{ return sessionStorage.getItem('weddy-budget-over-shown')==='1'; }catch(e){ return false; } })();
 function maybeWarnBudgetOver(pctSum){
-  const key = pctSum > 1.0005 ? String(Math.round(pctSum*1000)) : '';
-  if(!key){ if(_budgetOverKey){ _budgetOverKey=''; try{ localStorage.removeItem('weddy-budget-over-key'); }catch(e){} } return; }
-  if(key === _budgetOverKey || document.getElementById('budget-over-popup')) return;
-  _budgetOverKey = key; try{ localStorage.setItem('weddy-budget-over-key', key); }catch(e){}
+  if(!(pctSum > 1.0005) || _budgetOverShown || document.getElementById('budget-over-popup')) return;
+  _budgetOverShown = true; try{ sessionStorage.setItem('weddy-budget-over-shown','1'); }catch(e){}
   const pct = Math.round(pctSum*1000)/10, extra = Math.round((pctSum-1)*1000)/10;
   const o = document.createElement('div');
   o.id = 'budget-over-popup'; o.className = 'iab-warning show'; o.setAttribute('role','alertdialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-labelledby','budget-over-title');
@@ -8722,75 +8807,136 @@ document.addEventListener('keydown', e=>{
 /* ============================================================
    VIEW: Convidados
 ============================================================ */
-function guestGroupHTML(side, catKey, catLabel, icon, colorIdx, isCustom){
-  const items = getGuestNames(side, catKey) || [];
-  const key = side+'|'+catKey;
-  const isSearching = !!guestFilter;
-  const open = isSearching || !!openGuestGroup[key];
+/* v280 — Convidados: lista de categorias + página de detalhe de categoria (mesmos dados, ids e handlers) */
+let guestDetail = null; // 'lado|categoria' quando uma categoria está aberta
+function gxRsvpInfo(n){
+  const rsvpToken = (typeof n==='object' && n) ? n.rsvpToken : null;
+  const rsvpResp = rsvpToken ? memberRSVPResponse({entry:n}) : null;
+  const rsvpStatus = rsvpToken ? rsvpStatusOf(rsvpResp) : null;
+  const color = rsvpStatus==='yes' ? '#3F8F5F' : rsvpStatus==='no' ? '#8A8A8A' : rsvpStatus==='maybe' ? '#D8A657' : 'var(--rust,#B5654B)';
+  const title = !rsvpToken ? ta('btnGenerateLink') : rsvpStatus==='yes' ? ta('rsvpStatusGoing') : rsvpStatus==='no' ? ta('rsvpStatusNotGoing') : rsvpStatus==='maybe' ? ta('rsvpStatusMaybe') : ta('rsvpStatusPending');
+  return { token:rsvpToken, color, title };
+}
+function gxRowHTML(side, catKey, n, idx, canDrag){
   const isChildren = catKey==='criancas';
   const hasPayment = isPaymentTrackingCat(catKey);
-  const nameOf = n => (typeof n==='string') ? n : (n.name||'');
-  const weightOf = n => hasPayment ? guestWeight(n) : 1;
-  const confirmedWeight = items.reduce((s,n,idx)=> s + (isConfirmed(side,catKey,idx) ? weightOf(n) : 0), 0);
-  const totalWeight = items.reduce((s,n)=> s + weightOf(n), 0);
-  const rows = items.map((n,idx)=>{
-    const name = nameOf(n);
-    if(guestFilter && !name.toLowerCase().includes(guestFilter.toLowerCase())) return '';
-    const conf = isConfirmed(side,catKey,idx);
-    const age = isChildren ? ((n&&n.age)||'') : '';
-    const payingPct = hasPayment ? guestWeight(n) : 1;
-    // Atalho direto para o RSVP deste convidado (Set 2026, pedido da Rita):
-    // antes, ver o estado da resposta ou gerar o link obrigava a ir a
-    // Definições > Convites RSVP > Respostas e procurar a pessoa lá — agora
-    // este ícone salta logo para ela (ver data-rsvpstatus mais abaixo).
-    // Cor conta a história: cinzento = ainda sem convite gerado, ferrugem =
-    // convite enviado mas ainda sem resposta, verde/laranja/cinzento-escuro
-    // = já respondeu (sim/talvez/não).
-    const rsvpToken = (typeof n==='object' && n) ? n.rsvpToken : null;
-    const rsvpResp = rsvpToken ? memberRSVPResponse({entry:n}) : null;
-    const rsvpStatus = rsvpToken ? rsvpStatusOf(rsvpResp) : null;
-    const rsvpColor = rsvpStatus==='yes' ? '#3F8F5F' : rsvpStatus==='no' ? '#8A8A8A' : rsvpStatus==='maybe' ? '#D8A657' : 'var(--rust,#B5654B)';
-    const rsvpTitle = !rsvpToken ? ta('btnGenerateLink') : rsvpStatus==='yes' ? ta('rsvpStatusGoing') : rsvpStatus==='no' ? ta('rsvpStatusNotGoing') : rsvpStatus==='maybe' ? ta('rsvpStatusMaybe') : ta('rsvpStatusPending');
-    return `
-    <div class="list-row guest-row ${hasPayment?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
-      ${!isSearching ? `<button class="drag-handle" data-draghandle="${side}|${catKey}">${ICONS.draghandle}</button>` : '<span style="width:20px;flex-shrink:0;"></span>'}
-      <div class="check tappable" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
-      <input type="text" class="title-input-inline" style="flex:1; min-width:0;" data-editguest="${side}|${catKey}|${idx}" value="${escapeHTML(name)}">
-      <button class="remove-x" style="${(typeof n==='object'&&n&&n.phone)?'color:var(--rust,#B5654B);opacity:1;':'opacity:.35;'}" data-editphone="${side}|${catKey}|${idx}" title="${ta('labelPhoneOptional')}">${ICONS.phone}</button>
-      <button class="remove-x" style="color:${rsvpColor}; opacity:${rsvpToken?1:.35};" data-rsvpstatus="${side}|${catKey}|${idx}" title="${escapeHTML(rsvpTitle)}">${ICONS.guests}</button>
-      <button class="remove-x" data-remove="${side}|${catKey}|${idx}">✕</button>
-      ${hasPayment ? `
-      <div class="child-extra-row">
-        ${isChildren ? `<input type="number" min="0" max="17" class="child-age-input" placeholder="${ta('placeholderAge')}" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">` : ''}
-        <select class="payment-pct-select" data-editpaypct="${side}|${catKey}|${idx}">
-          <option value="0" ${payingPct===0?'selected':''}>${ta('payingNone')}</option>
-          <option value="0.5" ${payingPct===0.5?'selected':''}>${ta('paying50')}</option>
-          <option value="1" ${payingPct===1?'selected':''}>${ta('paying100')}</option>
-        </select>
-      </div>` : ''}
-    </div>`;
-  }).join('');
+  const name = (typeof n==='string') ? n : (n.name||'');
+  const conf = isConfirmed(side,catKey,idx);
+  const age = isChildren ? ((n&&n.age)||'') : '';
+  const payingPct = hasPayment ? guestWeight(n) : 1;
+  const r = gxRsvpInfo(n);
   return `
-  <div class="guest-group-card">
-    <div class="guest-group-head" data-togglegroup="${key}">
-      <div class="icon-chip" style="${chipStyle(colorIdx)}">${icon}</div>
-      <div class="ggtitle">${escapeHTML(catLabel)}</div>
-      <span class="ggcount">${hasPayment ? `${fmtGuestCount(confirmedWeight)}/${fmtGuestCount(totalWeight)}` : `${confirmedWeight}/${totalWeight}`}</span>
-      <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
-    </div>
-    ${open? `
-    <div class="guest-group-body" data-draglist="${side}|${catKey}">
-      ${rows || `<div class="empty-note">${ta('emptyNoGuestsInCategory')}</div>`}
-      <div class="add-row">
-        <input type="text" placeholder="${ta('addToCategoryPlaceholder')(escapeHTML(catLabel.toLowerCase()))}" data-addname="${side}|${catKey}">
-        <button class="add-circle" data-addbtn="${side}|${catKey}">${ICONS.plus}</button>
-      </div>
-      ${isCustom ? `<div style="display:flex; gap:9px; padding:0 14px 12px;">
-        <button class="visit-action-btn" data-renameguestcat="${side}|${catKey}">${ICONS.pencil} ${ta('btnEditName')}</button>
-        <button class="visit-action-btn danger" data-delguestcat="${side}|${catKey}">${ICONS.trash} ${ta('btnDelete')}</button>
-      </div>` : ''}
+  <div class="guest-row gx-row ${hasPayment?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
+    ${canDrag ? `<button type="button" class="drag-handle gx-drag" data-draghandle="${side}|${catKey}" aria-label="↕">${ICONS.draghandle}</button>` : '<span class="gx-drag"></span>'}
+    <div class="check tappable gx-check" role="checkbox" tabindex="0" aria-checked="${conf?'true':'false'}" data-confirm="${side}|${catKey}|${idx}">${ICONS.check}</div>
+    <input type="text" class="title-input-inline gx-name" data-editguest="${side}|${catKey}|${idx}" value="${escapeHTML(name)}" aria-label="${escapeHTML(name)}">
+    <button type="button" class="gx-ic gx-phone" style="${(typeof n==='object'&&n&&n.phone)?'color:var(--rust,#B5654B);opacity:1;':'opacity:.4;'}" data-editphone="${side}|${catKey}|${idx}" title="${ta('labelPhoneOptional')}" aria-label="${ta('labelPhoneOptional')}">${ICONS.phone}</button>
+    <button type="button" class="gx-ic gx-rsvp" style="color:${r.color}; opacity:${r.token?1:.4};" data-rsvpstatus="${side}|${catKey}|${idx}" title="${escapeHTML(r.title)}" aria-label="${escapeHTML(r.title)}">${ICONS.guests}</button>
+    <button type="button" class="gx-ic gx-x" data-remove="${side}|${catKey}|${idx}" aria-label="${ta('btnDelete')}">${ICONS.x}</button>
+    ${hasPayment ? `
+    <div class="child-extra-row">
+      ${isChildren ? `<input type="number" min="0" max="17" class="child-age-input" placeholder="${ta('placeholderAge')}" data-editchildage="${side}|${catKey}|${idx}" value="${escapeHTML(age)}">` : ''}
+      <select class="payment-pct-select" data-editpaypct="${side}|${catKey}|${idx}">
+        <option value="0" ${payingPct===0?'selected':''}>${ta('payingNone')}</option>
+        <option value="0.5" ${payingPct===0.5?'selected':''}>${ta('paying50')}</option>
+        <option value="1" ${payingPct===1?'selected':''}>${ta('paying100')}</option>
+      </select>
     </div>` : ''}
   </div>`;
+}
+function gxCatStats(side, catKey){
+  const items = getGuestNames(side, catKey) || [];
+  const hasPayment = isPaymentTrackingCat(catKey);
+  const weightOf = n => hasPayment ? guestWeight(n) : 1;
+  const confirmed = items.reduce((s,n,idx)=> s + (isConfirmed(side,catKey,idx) ? weightOf(n) : 0), 0);
+  const total = items.reduce((s,n)=> s + weightOf(n), 0);
+  const fmt = x => hasPayment ? fmtGuestCount(x) : String(x);
+  return { items, confirmed, total, label:`${fmt(confirmed)}/${fmt(total)}`, pct: total ? Math.min(1, confirmed/total) : 0 };
+}
+function gxCatLabel(c){ return c.isCustom ? c.label : ta(FIXED_GUEST_CAT_KEY[c.id]); }
+function gxCatRowHTML(side, c){
+  const st = gxCatStats(side, c.id);
+  const pair = CAT_COLOR_PAIRS[c.colorIdx % CAT_COLOR_PAIRS.length];
+  return `
+  <div class="gx-cat" role="button" tabindex="0" data-opengcat="${side}|${c.id}">
+    <div class="icon-chip gx-cat-ico" style="${chipStyle(c.colorIdx)}">${c.icon}</div>
+    <div class="gx-cat-mid">
+      <div class="gx-cat-top"><span class="gx-cat-name">${escapeHTML(gxCatLabel(c))}</span><span class="gx-cat-count">${st.label}</span></div>
+      <div class="gx-cat-track"><div class="gx-cat-fill" style="width:${Math.round(st.pct*100)}%; background:${pair.fg};"></div></div>
+    </div>
+    <span class="gx-cat-chev">${ICONS.chev}</span>
+  </div>`;
+}
+function gxSummaryHTML(){
+  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
+  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
+  // Custo previsto por convidado: total dos movimentos ÷ convidados a pagar
+  // (com os pesos das crianças/staff). Sem convidados, usa a estimativa do Orçamento.
+  const guestBase = totalGuests > 0 ? totalGuests : (state.budget.guestsEstimate || 0);
+  const perGuest = guestBase ? totalExpenseValue()/guestBase : 0;
+  return `
+  <div class="gx-sum">
+    <div class="gx-ring">
+      ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, '#B96750', 92, 7)}
+      <div class="gx-ring-c"><b>${fmtGuestCount(totalConfirmed)}</b><span>${ta('gxConfirmedWord')}</span></div>
+    </div>
+    <div class="gx-sum-list">
+      <div class="gx-sum-i"><span class="gx-sum-n">${fmtGuestCount(totalGuests)}</span><span class="gx-sum-l">${ta('totalGuestsLabel')}</span></div>
+      <div class="gx-sum-i"><span class="gx-sum-n">${fmtEUR(perGuest)}</span><span class="gx-sum-l">${ta('perGuestPaidLabel')}</span></div>
+    </div>
+  </div>`;
+}
+function gxSearchResultsHTML(){
+  const q = guestFilter.toLowerCase();
+  let any = false;
+  const out = allGuestCategoriesOf(guestSeg).map(c=>{
+    const nameOf = n => (typeof n==='string') ? n : (n.name||'');
+    const items = getGuestNames(guestSeg, c.id) || [];
+    const rows = items.map((n,idx)=> nameOf(n).toLowerCase().includes(q) ? gxRowHTML(guestSeg, c.id, n, idx, false) : '').join('');
+    if(!rows) return '';
+    any = true;
+    return `<section class="gx-res"><h3 class="gx-res-h">${escapeHTML(gxCatLabel(c))}</h3><div class="gx-list" data-draglist="${guestSeg}|${c.id}">${rows}</div></section>`;
+  }).join('');
+  return any ? out : `<p class="orcx-empty">${ta('gxNoResults')}</p>`;
+}
+function gxDetailBodyHTML(side, catKey){
+  const c = allGuestCategoriesOf(side).find(x=>x.id===catKey);
+  const label = c ? gxCatLabel(c) : catKey;
+  const st = gxCatStats(side, catKey);
+  const q = guestFilter.toLowerCase();
+  const nameOf = n => (typeof n==='string') ? n : (n.name||'');
+  const canDrag = !guestFilter;
+  const rows = st.items.map((n,idx)=> (!q || nameOf(n).toLowerCase().includes(q)) ? gxRowHTML(side, catKey, n, idx, canDrag) : '').join('');
+  return `
+  <div class="gx-thead" aria-hidden="true"><span></span><span></span><span>${ta('gxColName')}</span><span class="gx-th-c">${ta('gxColContact')}</span><span class="gx-th-c">RSVP</span><span></span></div>
+  <div class="gx-list" data-draglist="${side}|${catKey}">
+    ${rows || `<div class="orcx-empty">${ta('emptyNoGuestsInCategory')}</div>`}
+  </div>
+  <div class="gx-add">
+    <input type="text" placeholder="${ta('addToCategoryPlaceholder')(escapeHTML(label.toLowerCase()))}" data-addname="${side}|${catKey}" aria-label="${ta('gxAdd')}">
+    <button type="button" class="gx-add-btn" data-addbtn="${side}|${catKey}">${HMX_ICO.plus}<span>${ta('gxAdd')}</span></button>
+  </div>
+  ${c && c.isCustom ? `<div class="gx-cat-actions">
+    <button type="button" class="orcx-act" data-renameguestcat="${side}|${catKey}">${ICONS.pencil} ${ta('btnEditName')}</button>
+    <button type="button" class="orcx-act is-danger" data-delguestcat="${side}|${catKey}">${ICONS.trash} ${ta('btnDelete')}</button>
+  </div>` : ''}`;
+}
+function buildGuestBody(){
+  const cats = allGuestCategoriesOf(guestSeg).map(c=>gxCatRowHTML(guestSeg, c)).join('');
+  return `
+  <div class="gx-cats">${cats}</div>
+  <div class="gx-newcat">
+    <button type="button" class="gx-newcat-btn" id="addbtn-guestcat" aria-label="${ta('placeholderNewGuestCategory')}">${HMX_ICO.plus}</button>
+    <input type="text" placeholder="${ta('placeholderNewGuestCategory')}" id="add-guestcat-name" aria-label="${ta('placeholderNewGuestCategory')}">
+  </div>`;
+}
+function buildConvidadosDynamic(){
+  if(guestDetail){
+    const [s,c] = guestDetail.split('|');
+    return gxDetailBodyHTML(s, c);
+  }
+  if(guestFilter) return gxSearchResultsHTML();
+  return gxSummaryHTML() + `<div id="guest-groups-container">${buildGuestBody()}</div>`;
 }
 
 function initDragReorder(list, onDrop){
@@ -9004,6 +9150,7 @@ function bindGuestGroupHandlers(scope){
         .filter(Boolean);
       deleteGuestRSVPDocsBatch(removedEntries).catch(()=>{});
       state.guests[side].custom = state.guests[side].custom.filter(c=>c.id!==cat);
+      guestDetail = null;
       render();
     });
   });
@@ -9016,6 +9163,7 @@ function bindGuestGroupHandlers(scope){
     if(!state.guests[guestSeg].custom) state.guests[guestSeg].custom = [];
     state.guests[guestSeg].custom.push({ id, label, names:[] });
     openGuestGroup[guestSeg+'|'+id] = true;
+    guestDetail = guestSeg+'|'+id; guestFilter = '';
     render();
   });
   const addGuestCatInput = scope.querySelector('#add-guestcat-name');
@@ -9027,41 +9175,10 @@ function bindGuestGroupHandlers(scope){
       if(!state.guests[guestSeg].custom) state.guests[guestSeg].custom = [];
       state.guests[guestSeg].custom.push({ id, label, names:[] });
       openGuestGroup[guestSeg+'|'+id] = true;
+      guestDetail = guestSeg+'|'+id; guestFilter = '';
       render();
     }
   });
-}
-function buildGuestBody(){
-  let body = '';
-  body = allGuestCategoriesOf(guestSeg).map(c=>
-    guestGroupHTML(guestSeg, c.id, c.isCustom ? c.label : ta(FIXED_GUEST_CAT_KEY[c.id]), c.icon, c.colorIdx, c.isCustom)
-  ).join('');
-  body += `
-  <div class="add-row" style="margin:0 16px 16px; background:var(--card); border:1px dashed var(--line); border-radius:14px;">
-    <input type="text" placeholder="${ta('placeholderNewGuestCategory')}" id="add-guestcat-name">
-    <button class="add-circle" id="addbtn-guestcat">${ICONS.plus}</button>
-  </div>`;
-  return body;
-}
-function buildConvidadosDynamic(){
-  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
-  // Custo previsto por convidado: total dos movimentos ÷ convidados a pagar
-  // (com os pesos das crianças/staff). Sem convidados, usa a estimativa do Orçamento.
-  const guestBase = totalGuests > 0 ? totalGuests : (state.budget.guestsEstimate || 0);
-  const perGuest = guestBase ? totalExpenseValue()/guestBase : 0;
-  return `
-  <div class="ring-stat-card">
-    <div class="ring-wrap" style="width:78px;height:78px;flex-shrink:0;">
-      ${donutSVG(totalGuests? totalConfirmed/totalGuests : 0, 'var(--dusty-dark)', 78, 8)}
-      <div class="ring-center"><span class="num" style="font-size:17px;">${fmtGuestCount(totalConfirmed)}</span></div>
-    </div>
-    <div class="ring-stat-list">
-      <div class="ring-stat-item"><span class="n">${fmtGuestCount(totalGuests)}</span><span class="l">${ta('totalGuestsLabel')}</span></div>
-      <div class="ring-stat-item"><span class="n">${fmtEUR(perGuest)}</span><span class="l">${ta('perGuestPaidLabel')}</span></div>
-    </div>
-  </div>
-  <div id="guest-groups-container">${buildGuestBody()}</div>`;
 }
 // Out 2026 (pedido da Rita): depois de adicionar um convidado, o campo era
 // recriado sem foco — no telemóvel o teclado fechava, a página saltava e era
@@ -9079,23 +9196,66 @@ function softUpdateConvidados(save){
   if(!el) return;
   el.innerHTML = buildConvidadosDynamic();
   bindGuestGroupHandlers(el);
+  if(guestDetail){
+    const [gs,gc] = guestDetail.split('|');
+    if(getGuestNames(gs,gc)){
+      const st = gxCatStats(gs,gc);
+      const sub = document.getElementById('gx-dsub'); if(sub) sub.textContent = ta('gxConfirmedOf')(fmtGuestCount(st.confirmed), fmtGuestCount(st.total));
+      const pr = document.getElementById('gx-dprog'); if(pr){ const i = pr.querySelector('i'); if(i) i.style.width = Math.round(st.pct*100)+'%'; const sp = pr.querySelector('span'); if(sp) sp.textContent = st.label; }
+    }
+  }
   if(save!==false) pushRemote();
 }
 function viewConvidados(){
+  if(guestDetail){
+    const [s,c] = guestDetail.split('|');
+    if(getGuestNames(s,c)){
+      const cat = allGuestCategoriesOf(s).find(x=>x.id===c);
+      const st = gxCatStats(s,c);
+      return `
+      <div class="orcx gx gx-detail">
+        <div class="gx-top"><button type="button" class="gx-back" id="gx-back">${ICONS.chevleft}<span>${ta('navGuestsTitle')}</span></button></div>
+        <header class="orcx-head gx-dhead">
+          <h1 class="orcx-title">${escapeHTML(cat ? gxCatLabel(cat) : c)}</h1>
+          <p class="orcx-sub" id="gx-dsub">${ta('gxConfirmedOf')(fmtGuestCount(st.confirmed), fmtGuestCount(st.total))}</p>
+        </header>
+        <div class="gx-prog" id="gx-dprog"><div class="orcx-prog"><i style="width:${Math.round(st.pct*100)}%"></i></div><span>${st.label}</span></div>
+        <div class="search-bar gx-search">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${escapeHTML(guestFilter)}"></div>
+        <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
+      </div>`;
+    }
+    guestDetail = null;
+  }
   return `
-  <div class="navbar"><h1>${ta('navGuestsTitle')}</h1><div class="navbar-botanical">${ICONS.botanical}</div></div>
-
-  <div class="segmented">
-    <button data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">${ta('sideBride')}</button>
-    <button data-seg="noivo" class="${guestSeg==='noivo'?'active':''}">${ta('sideGroom')}</button>
-    <button data-seg="conjunto" class="${guestSeg==='conjunto'?'active':''}">${ta('sideJoint')}</button>
+  <div class="orcx gx">
+    <header class="orcx-head">
+      <h1 class="orcx-title">${ta('navGuestsTitle')}</h1>
+      <p class="orcx-sub">${ta('gxSub')}</p>
+    </header>
+    <div class="orcx-tabs gx-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="${guestSeg==='noiva'}" data-seg="noiva" class="${guestSeg==='noiva'?'active':''}">${ta('sideBride')}</button>
+      <button type="button" role="tab" aria-selected="${guestSeg==='noivo'}" data-seg="noivo" class="${guestSeg==='noivo'?'active':''}">${ta('sideGroom')}</button>
+      <button type="button" role="tab" aria-selected="${guestSeg==='conjunto'}" data-seg="conjunto" class="${guestSeg==='conjunto'?'active':''}">${ta('sideJoint')}</button>
+    </div>
+    <div class="search-bar gx-search">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${escapeHTML(guestFilter)}"></div>
+    <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
   </div>
-
-  <div class="search-bar">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${guestFilter}"></div>
-
-  <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
   `;
 }
+// Interações só de navegação/apresentação dos Convidados (os dados continuam a ser tratados pelos handlers originais)
+document.addEventListener('click', e=>{
+  const t = e.target.closest && e.target.closest('.gx [data-seg]');
+  if(t){ guestSeg = t.getAttribute('data-seg'); guestFilter = ''; _origRender(); return; }
+  const o = e.target.closest && e.target.closest('[data-opengcat]');
+  if(o){ guestDetail = o.getAttribute('data-opengcat'); guestFilter = ''; _origRender(); return; }
+  const b = e.target.closest && e.target.closest('#gx-back');
+  if(b){ guestDetail = null; guestFilter = ''; _origRender(); }
+});
+document.addEventListener('keydown', e=>{
+  const el = e.target;
+  if(!el || !el.classList) return;
+  if((el.classList.contains('gx-cat') || el.classList.contains('gx-check')) && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); el.click(); }
+});
 
 /* ============================================================
    VIEW: Gastos
@@ -20802,7 +20962,7 @@ document.getElementById('gf-save').addEventListener('click', ()=>{
   if(arr){
     arr.push(newGuestEntry(cat, name));
     openGuestGroup[guestSheetSide+'|'+cat] = true;
-    guestSeg = guestSheetSide;
+    guestSeg = guestSheetSide; guestDetail = guestSheetSide+'|'+cat; guestFilter = '';
   }
   closeGuestSheet();
   render();
