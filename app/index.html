@@ -4351,7 +4351,7 @@ const APP_I18N = {
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
     cmpExpBlockedStale:"O relatório da Weddy AI está desatualizado e não pode ser exportado. Queres atualizá-lo primeiro?", cmpExpUpdate:"Atualizar relatório", cmpExpNoReport:"Esta comparação ainda não tem relatório da Weddy AI. Queres gerá-lo antes de exportar?", cmpExpGenerate:"Gerar relatório", cmpExpWithout:"Exportar sem relatório",
-    cmpExpProcessing:"O relatório está a ser gerado. Tenta exportar quando terminar.", cmpExpFailedUpdate:"Não foi possível atualizar o relatório. Tenta de novo.", cmpExpInelig:"Precisas de pelo menos duas propostas com dados confirmados para exportar.", cmpExpDone:"PDF criado", cmpExpErr:"Não foi possível criar o PDF. Tenta novamente.",
+    cmpExpProcessing:"O relatório está a ser gerado. Tenta exportar quando terminar.", cmpExpFailedUpdate:"Não foi possível atualizar o relatório. Tenta de novo.", cmpExpInelig:"Precisas de pelo menos duas propostas com dados confirmados para exportar.", cmpExpDone:"PDF criado", cmpExpReady:"O PDF está pronto. Toca para o guardar ou partilhar.", cmpExpShare:"Guardar / partilhar", cmpExpErr:"Não foi possível criar o PDF. Tenta novamente.",
     pdfTitle:"Relatório de comparação", pdfProposalsN:(n)=>`${n} propostas`, pdfGenerated:"Gerado em", pdfPriorities:"Prioridades", pdfNoPriorities:"Sem prioridades definidas.", pdfLegend:"Origem dos dados",
     pdfOrg_doc:"Documento", pdfOrg_inf:"Inferido e confirmado", pdfOrg_infp:"Inferido, por confirmar", pdfValueHidden:"valor não mostrado", pdfPendingInf:(n)=>`${n} valor(es) inferido(s) pela Weddy AI ainda por confirmar não foram incluídos como dados.`, pdfOrg_you:"Corrigido pelos noivos", pdfOrg_none:"Não indicado",
     pdfOrgDesc_doc:"valor lido num documento da proposta e confirmado por vocês.", pdfOrgDesc_inf:"deduzido pela Weddy AI (por exemplo, uma soma) e confirmado pelos noivos.", pdfOrgDesc_infp:"deduzido pela Weddy AI e ainda sujeito a confirmação; por isso o valor não é mostrado nem usado no relatório.", pdfOrgDesc_you:"valor escrito ou corrigido por vocês.", pdfOrgDesc_none:"a proposta não refere este dado, ou ainda não foi confirmado.",
@@ -5634,7 +5634,7 @@ const APP_I18N = {
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
     cmpExpBlockedStale:"The Weddy AI report is out of date and cannot be exported. Update it first?", cmpExpUpdate:"Update report", cmpExpNoReport:"This comparison has no Weddy AI report yet. Generate it before exporting?", cmpExpGenerate:"Generate report", cmpExpWithout:"Export without report",
-    cmpExpProcessing:"The report is being generated. Try exporting when it finishes.", cmpExpFailedUpdate:"Could not update the report. Try again.", cmpExpInelig:"You need at least two proposals with confirmed data to export.", cmpExpDone:"PDF created", cmpExpErr:"Could not create the PDF. Please try again.",
+    cmpExpProcessing:"The report is being generated. Try exporting when it finishes.", cmpExpFailedUpdate:"Could not update the report. Try again.", cmpExpInelig:"You need at least two proposals with confirmed data to export.", cmpExpDone:"PDF created", cmpExpReady:"The PDF is ready. Tap to save or share it.", cmpExpShare:"Save / share", cmpExpErr:"Could not create the PDF. Please try again.",
     pdfTitle:"Comparison report", pdfProposalsN:(n)=>`${n} proposals`, pdfGenerated:"Generated on", pdfPriorities:"Priorities", pdfNoPriorities:"No priorities set.", pdfLegend:"Data origin",
     pdfOrg_doc:"Document", pdfOrg_inf:"Inferred and confirmed", pdfOrg_infp:"Inferred, to be confirmed", pdfValueHidden:"value not shown", pdfPendingInf:(n)=>`${n} value(s) inferred by Weddy AI and still to be confirmed were not included as data.`, pdfOrg_you:"Corrected by the couple", pdfOrg_none:"Not stated",
     pdfOrgDesc_doc:"value read in a proposal document and confirmed by you.", pdfOrgDesc_inf:"deduced by Weddy AI (for example, a sum) and confirmed by the couple.", pdfOrgDesc_infp:"deduced by Weddy AI and still subject to confirmation; so the value is not shown or used in the report.", pdfOrgDesc_you:"value written or corrected by you.", pdfOrgDesc_none:"the proposal does not mention this, or it has not been confirmed yet.",
@@ -11088,14 +11088,42 @@ async function cmpExportFlow(cid){
 function cmpPdfSlug(s){
   return normalizeSearchText(String(s||'')).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40) || 'comparacao';
 }
-function cmpExportPdf(c){
+// Telemóvel (iOS/Android, app instalada ou WebView): o descarregamento automático do jsPDF falha em silêncio.
+// Aqui abre-se a folha de partilha com o ficheiro; no computador mantém-se o descarregamento direto (doc.save).
+// Devolve 'shared' | 'saved' | 'cancelled' (só os dois primeiros contam como «PDF criado»).
+function cmpIsMobileShare(){
+  try{ return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }catch(e){ return false; }
+}
+async function cmpDeliverPdf(doc, fileName){
+  if(cmpIsMobileShare() && typeof File==='function' && navigator.share && navigator.canShare){
+    let file = null;
+    try{ file = new File([doc.output('blob')], fileName, { type:'application/pdf' }); if(!navigator.canShare({ files:[file] })) file = null; }catch(e){ file = null; }
+    if(file){
+      let retry = false;
+      try{ await navigator.share({ files:[file], title:fileName }); return 'shared'; }
+      catch(err){
+        if(err && err.name==='AbortError') return 'cancelled';
+        retry = !!(err && err.name==='NotAllowedError'); // o gesto do toque expirou (ex.: depois de gerar o relatório)
+      }
+      if(retry){
+        const r = await cmpChoice(ta('cmpExpReady'), [{id:'share', label:ta('cmpExpShare'), primary:true},{id:'cancel', label:ta('cmpCancel')}]);
+        if(r!=='share') return 'cancelled';
+        try{ await navigator.share({ files:[file], title:fileName }); return 'shared'; }
+        catch(err2){ if(err2 && err2.name==='AbortError') return 'cancelled'; }
+      }
+    }
+  }
+  doc.save(fileName); return 'saved';
+}
+async function cmpExportPdf(c){
   const btn = document.getElementById('cmp-export-pdf');
   if(typeof window.jspdf === 'undefined'){ weddyAlert(ta('xlLoadPdfError')); return false; }
   try{
     const doc = cmpBuildPdf(c);
     if(!doc){ weddyAlert(ta('cmpExpBlockedStale')); return false; }
     const day = new Date().toISOString().slice(0,10);
-    doc.save(`weddy-${cmpPdfSlug(c.name)}-${day}.pdf`);
+    const res = await cmpDeliverPdf(doc, `weddy-${cmpPdfSlug(c.name)}-${day}.pdf`);
+    if(res==='cancelled') return false; // fechou a folha de partilha: não diz «PDF criado»
     if(btn){ const old = btn.textContent; btn.textContent = ta('cmpExpDone'); setTimeout(()=>{ const b = document.getElementById('cmp-export-pdf'); if(b) b.textContent = old; }, 2200); }
     return true;
   }catch(err){
