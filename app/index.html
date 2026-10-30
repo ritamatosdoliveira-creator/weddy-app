@@ -1284,6 +1284,40 @@ html{
 .cmp-prop-file-n{ min-width:0; overflow-wrap:anywhere; }
 .cmp-prop-file-more{ flex:0 0 auto; font-weight:700; color:var(--rust-dark); }
 .cmp-prop-more{ flex:0 0 auto; font-size:20px; line-height:1; letter-spacing:1px; color:var(--ink-soft); padding-left:4px; }
+/* v272 — critérios simples; origem discreta */
+.cmp-org-btn{ appearance:none; border:0; font-family:inherit; cursor:pointer; display:block; width:max-content; margin:5px 0 0; padding:1px 8px; font-size:10px; opacity:.9; }
+.cmp-c .cmp-org-btn, .cmp-orig-p .cmp-org-btn{ margin-left:0; }
+.cmp-org-btn:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:1px; border-radius:99px; }
+.cmp-org-pop{ position:fixed; left:16px; right:16px; bottom:calc(env(safe-area-inset-bottom,0px) + 86px); z-index:9999; max-width:420px; margin:0 auto; padding:10px 14px; border-radius:12px; background:var(--ink); color:#fff; font-size:13px; line-height:1.4; box-shadow:0 6px 22px rgba(0,0,0,.25); }
+.cmp-lhead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
+.cmp-lhead .cmp-l{ margin:0; }
+.cmp-lstate{ flex:0 0 auto; font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; background:#F2EEE9; color:var(--ink-soft); }
+.cmp-lstate.eq{ background:#EAF0E4; color:#4F6342; } .cmp-lstate.sim{ background:#F3EDDD; color:#7A6431; } .cmp-lstate.d{ background:#FBE9E4; color:var(--rust-dark); }
+.cmp-r-same .cmp-c-same{ background:#F4F7F1; }
+.cmp-same-tag{ display:block; margin-top:3px; font-size:11.5px; font-weight:700; color:#4F6342; }
+.cmp-lr-body{ min-width:0; }
+.cmp-lr-blk{ margin:0 0 10px; }
+.cmp-lr-h{ margin:0 0 4px; font-size:11px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--ink-soft); }
+.cmp-lr-eq .cmp-bl li, .cmp-lr-sim .cmp-bl li{ font-size:13px; }
+.cmp-bl-sim li{ padding-left:0; }
+.cmp-bl-sim li::before{ display:none; }
+.cmp-sim-l{ display:block; font-size:12.5px; line-height:1.35; margin-bottom:2px; }
+.cmp-grp{ margin-bottom:6px; }
+.cmp-grp-h{ font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--ink-soft); margin:2px 0 3px; }
+.cmp-grp-cost .cmp-grp-h, .cmp-grp-exc .cmp-grp-h{ color:var(--rust-dark); }
+.cmp-amt{ font-weight:700; color:var(--rust-dark); white-space:nowrap; }
+.cmp-orig{ margin-top:2px; }
+.cmp-orig > summary{ list-style:none; cursor:pointer; font-size:12px; color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px; padding:3px 0; }
+.cmp-orig > summary::-webkit-details-marker{ display:none; }
+.cmp-orig > summary:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; border-radius:4px; }
+.cmp-orig-p{ padding:8px 0; border-top:1px solid var(--line); }
+.cmp-orig .cmp-bl li{ font-size:13px; }
+.cmp-lr .cmp-c{ padding:6px 8px; }
+@media (min-width:1024px){
+  .cmp-d-main .cmp-lhead{ display:contents; }
+  .cmp-d-main .cmp-lstate{ display:none; }
+  .cmp-d-main .cmp-r-same .cmp-lr-body, .cmp-d-main .cmp-lr .cmp-lr-body{ grid-column:2; }
+}
 /* v271 — elementos só para desktop (escondidos no telemóvel) */
 .cmp-colhd > .cmp-colhd-sp, .cmp-colhd-p, .cmp-r-tag, .cmp-prop-data, .cmp-prop-editbtn{ display:none; }
 
@@ -4670,7 +4704,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -5953,7 +5987,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -10018,6 +10052,7 @@ function bindCompareHandlers(){
   });
   document.querySelectorAll('[data-cmp-prop]').forEach(b=>b.addEventListener('click', e=>cmpGo('proposta', openCompareId, e.currentTarget.dataset.cmpProp)));
   document.querySelectorAll('[data-cmpmode]').forEach(b=>b.addEventListener('click', e=>{ compareMode = e.currentTarget.dataset.cmpmode; render(); }));
+  cmpBindOrgPop();
   { const goTab = id=>{ const b = document.querySelector('[data-cmptab="'+id+'"]'); if(b) b.click(); };
     const nx = document.getElementById('cmp-step-next'); if(nx) nx.addEventListener('click', ()=>goTab('propostas'));
     const bk = document.getElementById('cmp-step-back'); if(bk) bk.addEventListener('click', ()=>goTab('comparar'));
@@ -10547,7 +10582,6 @@ function cmpToolbarHTML(c){
   const rows = cmpRows(c);
   const hasAny = rows.withData.length>0;
   return `
-  ${cmpLegendHTML()}
   ${hasAny ? `<label class="cmp-difftoggle"><input type="checkbox" id="cmp-diff-toggle" ${compareDiffOnly?'checked':''}><span><b>${ta('cmpOnlyDiff')}</b> · ${ta('cmpOnlyDiffHint')}</span></label>` : ''}`;
 }
 
@@ -10662,7 +10696,122 @@ function cmpShortVs(k, cell){
   const d = String(cmpDisplayVal(k, cell.f.v)||'').replace(/\s+/g,' ').trim();
   return d.length>60 ? d.slice(0,57).trim()+'…' : d;
 }
-// Uma linha = um critério, com as propostas lado a lado (colunas iguais).
+
+/* ---- v272: critérios mais simples (só apresentação; o texto original nunca se perde) ---- */
+function cmpOrgLabel(o){ return ta('cmpOrigin_'+o); }
+function cmpOrgBtn(o){ return o ? `<button type="button" class="cmp-org cmp-org-${o} cmp-org-btn" data-cmporg="${o}" aria-label="${escapeHTML(cmpOrgLabel(o))}: ${escapeHTML(ta(o==='doc'?'cmpLegendDoc':o==='inf'?'cmpLegendInf':'cmpLegendYou'))}">${cmpOrgLabel(o)}</button>` : ''; }
+// Pequeno aviso (sem bloco fixo) com o significado da etiqueta de origem; fecha ao tocar fora.
+function cmpBindOrgPop(){
+  if(window.__cmpOrgPop) return; window.__cmpOrgPop = true;
+  document.addEventListener('click', e=>{
+    const old = document.querySelector('.cmp-org-pop'); if(old) old.remove();
+    const b = e.target && e.target.closest ? e.target.closest('[data-cmporg]') : null; if(!b) return;
+    const o = b.dataset.cmporg, pop = document.createElement('div'); pop.className = 'cmp-org-pop'; pop.setAttribute('role','status');
+    pop.innerHTML = `<b>${escapeHTML(cmpOrgLabel(o))}</b> ${escapeHTML(ta(o==='doc'?'cmpLegendDoc':o==='inf'?'cmpLegendInf':'cmpLegendYou'))}`;
+    document.body.appendChild(pop); setTimeout(()=>{ if(pop.parentNode) pop.remove(); }, 4500);
+  });
+}
+// Relação entre dois pontos: igual, semelhante (mesmas palavras e números, sem negação trocada) ou diferente.
+function cmpRelBullets(a,b){
+  if(cmpNorm(a)===cmpNorm(b)) return 'equal';
+  const nums = t=>(String(t).match(/\d+(?:[.,]\d+)?/g)||[]).slice().sort().join(',');
+  if(nums(a)!==nums(b)) return 'diff';
+  const neg = t=>/\b(n[aã]o|sem|exclu[ií]d)/i.test(t);
+  if(neg(a)!==neg(b)) return 'diff';
+  const A = cmpWordSet(a), B = cmpWordSet(b); if(!A.size || !B.size) return 'diff';
+  let n = 0; A.forEach(w=>{ if(B.has(w)) n++; });
+  return n/Math.min(A.size,B.size) >= 0.7 ? 'similar' : 'diff';
+}
+// Agrupa os pontos de todas as propostas: iguais/semelhantes (uma vez), partilhados por algumas, e exclusivos de cada uma.
+function cmpClusterBullets(info){
+  const n = info.cells.length;
+  const items = [];
+  info.cells.forEach((x,i)=>{ if(x.f) cmpCellParts(info.k,x).forEach(t=>items.push({i, text:t, origin:x.f.origin, used:false})); });
+  const clusters = [];
+  items.forEach(it=>{
+    if(it.used) return; it.used = true;
+    const cl = { members:[it], rel:'equal' };
+    for(let j=0;j<n;j++){
+      if(j===it.i) continue;
+      const m = items.find(o=>!o.used && o.i===j && cmpRelBullets(it.text,o.text)!=='diff');
+      if(m){ m.used = true; cl.members.push(m); if(cmpRelBullets(it.text,m.text)==='similar') cl.rel = 'similar'; }
+    }
+    clusters.push(cl);
+  });
+  const present = info.cells.map((x,i)=>x.f?i:-1).filter(i=>i>=0);
+  const common = clusters.filter(c=>c.members.length===present.length && present.length>1);
+  const subsets = clusters.filter(c=>c.members.length>1 && c.members.length<present.length);
+  const unique = info.cells.map((_,i)=>clusters.filter(c=>c.members.length===1 && c.members[0].i===i).map(c=>c.members[0]));
+  // uma proposta sozinha com dados: tudo é «exclusivo» dessa proposta
+  const solo = present.length===1;
+  return { n, present, common: solo?[]:common, subsets: solo?[]:subsets, unique: solo ? info.cells.map((_,i)=>clusters.filter(c=>c.members[0].i===i).map(c=>c.members[0])) : unique };
+}
+// Tipo de cada ponto (só para organizar; o texto não muda): incluído, opcional, custo adicional, não incluído.
+function cmpBulletKind(t){
+  if(/n[aã]o\s+(est[aá]\s+)?inclu|exclu[ií]d|n[aã]o\s+inclui|\bsem\s/i.test(t)) return 'exc';
+  if(/opcional|facultativ|a pedido|mediante|[àa]\s+escolha|se pretend/i.test(t)) return 'opt';
+  if(/€|euros?\b/i.test(t) && /(adicional|extra|cada\b|por\s+(hora|pessoa|convidado|dia|unidade|pessoa)|\/\s?h\b|[àa]\s+parte|suplemento|taxa)/i.test(t)) return 'cost';
+  return 'inc';
+}
+const CMP_KIND_ORDER = ['inc','opt','cost','exc'], CMP_KIND_KEY = { inc:'cmpGrpInc', opt:'cmpGrpOpt', cost:'cmpGrpCost', exc:'cmpGrpExc' };
+const CMP_TYPED_KEYS = ['services','extras','exclusions'];
+const cmpAmt = h=>h.replace(/(\d[\d.\s]*(?:,\d+)?\s?€|€\s?\d[\d.]*)/g,'<span class="cmp-amt">$1</span>');
+function cmpBulletsGroupedHTML(k, texts, multiKinds){
+  if(!texts.length) return '';
+  if(!CMP_TYPED_KEYS.includes(k)) return `<ul class="cmp-bl">${texts.map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>`;
+  const by = {}; texts.forEach(t=>{ (by[cmpBulletKind(t)] = by[cmpBulletKind(t)] || []).push(t); });
+  return CMP_KIND_ORDER.filter(g=>by[g]).map(g=>`<div class="cmp-grp cmp-grp-${g}">${multiKinds?`<div class="cmp-grp-h">${ta(CMP_KIND_KEY[g])}</div>`:''}<ul class="cmp-bl">${by[g].map(t=>`<li>${g==='inc'?escapeHTML(t):cmpAmt(escapeHTML(t))}</li>`).join('')}</ul></div>`).join('');
+}
+const cmpNamesOf = (cs, ids)=>ids.map(i=>cmpProposalLabel(cs.proposals[i])).join(' / ');
+function cmpRowV2HTML(cs, info){
+  const n = info.cells.length, k = info.k;
+  const label = `${ta('cmpCrit_'+k)} ${cmpPrioTagHTML(cs,k)}`;
+  const sameAllTxt = ta('cmpSameAll')(n);
+  const orgOf = x=>x.f ? cmpOrgBtn(x.f.origin) : '';
+  // 1) valores curtos (preço, IVA, sinal…): lado a lado; se todos iguais, uma só célula
+  if(!cmpIsTextRow(info)){
+    const differs = (info.diff||info.hasMissing);
+    if(info.same){
+      const x = info.cells[0];
+      return `<div class="cmp-r cmp-r-same"><div class="cmp-lhead"><div class="cmp-l">${label}</div></div><div class="cmp-lr-body"><div class="cmp-c cmp-c-same">${cmpBriefCellHTML(cs,info,x)}<span class="cmp-same-tag">${escapeHTML(sameAllTxt)}</span>${info.cells.map(orgOf).filter((v,i,a)=>a.indexOf(v)===i).join('')}</div></div><div class="cmp-r-tag">${escapeHTML(ta('cmpDeskSame'))}</div></div>`;
+    }
+    const cells = info.cells.map(x=>{
+      const mine = cmpNormVal(k,x);
+      const d = differs && info.cells.some(o=>o!==x && cmpNormVal(k,o)!==mine);
+      return `<div class="cmp-c${d?' d':''}">${cmpBriefCellHTML(cs,info,x)}${orgOf(x)}</div>`;
+    }).join('');
+    const pfx = cmpPriceFacts(cs), mx = Math.max(0,...Object.values(pfx.byId).map(d=>d.delta));
+    const tagTxt = (k==='price' && pfx.comparable && mx>0) ? '+ '+fmtEUR2(mx) : ta('cmpDiffTag');
+    return `<div class="cmp-r"><div class="cmp-lhead"><div class="cmp-l">${label}</div></div><div class="cmp-g" style="--n:${n}">${cells}</div><div class="cmp-r-tag d">${escapeHTML(tagTxt)}</div></div>`;
+  }
+  // 2) textos longos: o que é igual/semelhante aparece uma vez; o que difere, por proposta
+  const cl = cmpClusterBullets(info);
+  const typed = CMP_TYPED_KEYS.includes(k);
+  const allTexts = [].concat(cl.common.map(c=>c.members[0].text), cl.subsets.map(c=>c.members[0].text), ...cl.unique.map(u=>u.map(m=>m.text)));
+  const multi = typed && new Set(allTexts.map(cmpBulletKind)).size>1;
+  const commonEq = cl.common.filter(c=>c.rel==='equal'), commonSim = cl.common.filter(c=>c.rel==='similar');
+  const blk = (head, inner, cls)=>`<div class="cmp-lr-blk${cls?' '+cls:''}"><div class="cmp-lr-h">${head}</div>${inner}</div>`;
+  let body = '';
+  if(commonEq.length) body += blk(escapeHTML(ta('cmpInAll')(cl.present.length)), cmpBulletsGroupedHTML(k, commonEq.map(c=>c.members[0].text), multi), 'cmp-lr-eq');
+  if(commonSim.length) body += blk(escapeHTML(ta('cmpSimilarHdr')), `<ul class="cmp-bl cmp-bl-sim">${commonSim.map(c=>`<li>${c.members.map(m=>`<span class="cmp-sim-l">${cmpDots(m.i)}${escapeHTML(m.text)}</span>`).join('')}</li>`).join('')}</ul>`, 'cmp-lr-sim');
+  const subMap = {}; cl.subsets.forEach(c=>{ const key = c.members.map(m=>m.i).sort().join(','); (subMap[key] = subMap[key] || []).push(c.members[0].text); });
+  Object.keys(subMap).forEach(key=>{ body += blk(escapeHTML(ta('cmpOnlyIn')(cmpNamesOf(cs, key.split(',').map(Number)))), cmpBulletsGroupedHTML(k, subMap[key], multi), 'cmp-lr-sub'); });
+  const anyUnique = cl.unique.some(u=>u.length), anyMissing = info.cells.some(x=>!x.f);
+  if(anyUnique || anyMissing){
+    const cells = info.cells.map((x,i)=>{
+      if(!x.f) return `<div class="cmp-c d"><em class="cmp-none">${escapeHTML(ta('cmpNotIndicated'))}</em></div>`;
+      const u = cl.unique[i];
+      return `<div class="cmp-c${u.length?' d':''}">${u.length ? cmpBulletsGroupedHTML(k, u.map(m=>m.text), multi) : `<em class="cmp-none">${escapeHTML(ta('cmpNothingExcl'))}</em>`}${orgOf(x)}</div>`;
+    }).join('');
+    body += `<div class="cmp-lr-blk"><div class="cmp-lr-h">${escapeHTML(ta('cmpOnlyEach'))}</div><div class="cmp-g" style="--n:${n}">${cells}</div></div>`;
+  }
+  const orig = `<details class="cmp-orig"><summary>${ta('cmpOrigBtn')}</summary><div class="cmp-orig-body">${info.cells.map((x,i)=>`<div class="cmp-orig-p"><div class="cmp-full-who">${cmpDots(i)}<b>${escapeHTML(cmpProposalLabel(cs.proposals[i]))}</b></div>${x.f ? `<ul class="cmp-bl">${cmpCellParts(k,x).map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>${orgOf(x)}` : `<em class="cmp-none">${escapeHTML(ta('cmpNotIndicated'))}</em>`}</div>`).join('')}</div></details>`;
+  const allSame = !anyUnique && !anyMissing && !cl.subsets.length;
+  const state = allSame ? (commonSim.length ? ta('cmpSimilarTag') : sameAllTxt) : ta('cmpDiffTag');
+  const stCls = allSame ? (commonSim.length ? ' sim' : ' eq') : ' d';
+  return `<div class="cmp-r cmp-lr"><div class="cmp-lhead"><div class="cmp-l">${label}</div><span class="cmp-lstate${stCls}">${escapeHTML(state)}</span></div><div class="cmp-lr-body">${body}${orig}</div><div class="cmp-r-tag${stCls}">${escapeHTML(state)}</div></div>`;
+}
+// Uma linha = um critério, com as propostas lado a lado (colunas iguais). (Usada no Relatório.)
 function cmpSectionRowHTML(cs, info){
   const n = info.cells.length;
   const differs = (info.diff||info.hasMissing);
@@ -10678,7 +10827,7 @@ function cmpSectionRowHTML(cs, info){
   return `<div class="cmp-r${isText?' cmp-textrow':''}"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div><div class="cmp-g" style="--n:${n}">${cells}</div><div class="cmp-r-tag${(info.diff||info.hasMissing)?' d':''}">${escapeHTML(tagTxt)}</div>${full}</div>`;
 }
 function cmpToolbar2HTML(rowsAny){
-  return `<div class="cmp-tools2">${rowsAny?`<label class="cmp-difftoggle2"><input type="checkbox" id="cmp-diff-toggle" ${compareDiffOnly?'checked':''}><span>${ta('cmpOnlyDiff')}</span></label>`:'<span></span>'}<details class="cmp-how"><summary>${ta('cmpHowRead')}</summary><div class="cmp-how-body"><div>${cmpOriginTag('doc')} ${ta('cmpLegendDoc')}</div><div>${cmpOriginTag('inf')} ${ta('cmpLegendInf')}</div><div>${cmpOriginTag('you')} ${ta('cmpLegendYou')}</div><div><span class="cmp-val cmp-none" style="font-size:11px;">${ta('cmpNotIndicated')}</span> ${ta('cmpLegendNone')}</div></div></details></div>`;
+  return `<div class="cmp-tools2">${rowsAny?`<label class="cmp-difftoggle2"><input type="checkbox" id="cmp-diff-toggle" ${compareDiffOnly?'checked':''}><span>${ta('cmpOnlyDiff')}</span></label>`:'<span></span>'}</div>`;
 }
 function cmpSectionsHTML(cs){
   const rows = cmpRows(cs).withData, empty = cmpRows(cs).empty;
@@ -10693,10 +10842,10 @@ function cmpSectionsHTML(cs){
     list.forEach(r=>shownKeys.add(r.k)); shownCount += list.length;
     const nd = grp.filter(isDiff).length;
     const open = nd>0 && (opened<2 || cmpDesk()) ? (opened++, 'open') : '';
-    return `<details class="cmp-sec" ${open}><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta(title)}</span><span>${ta('cmpDiffCount')(nd)}</span></summary>${wrap(cs.proposals.length, list.map(r=>cmpSectionRowHTML(cs,r)).join(''))}</details>`;
+    return `<details class="cmp-sec" ${open}><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta(title)}</span><span>${ta('cmpDiffCount')(nd)}</span></summary>${wrap(cs.proposals.length, list.map(r=>cmpRowV2HTML(cs,r)).join(''))}</details>`;
   }).join('');
   const rest = rows.filter(r=>!shownKeys.has(r.k));
-  const restHTML = (compareDiffOnly && rest.length) ? `<details class="cmp-sec"><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta('cmpSecSame')}</span><span>${ta('cmpSecFields')(rest.length)}</span></summary>${wrap(cs.proposals.length, rest.map(r=>cmpSectionRowHTML(cs,r)).join(''))}</details>` : '';
+  const restHTML = (compareDiffOnly && rest.length) ? `<details class="cmp-sec"><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta('cmpSecSame')}</span><span>${ta('cmpSecFields')(rest.length)}</span></summary>${wrap(cs.proposals.length, rest.map(r=>cmpRowV2HTML(cs,r)).join(''))}</details>` : '';
   const none = (compareDiffOnly && !shownCount && rows.length) ? `<div class="empty-note">${ta('cmpNoDiffs')}</div>` : '';
   const emptyHTML = compareDiffOnly ? '' : cmpEmptyGroupHTML(cs, empty, info=>`<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)}</div><span class="cmp-val cmp-none">${ta('cmpNotIndicated')}</span></div>`);
   return (cs.proposals.length>=2?cmpColHeadHTML(cs):'') + cmpToolbar2HTML(rows.length>0) + none + secs + restHTML + emptyHTML + (rows.some(r=>r.k==='price') ? cmpPriceNoteHTML(cs) : '');
