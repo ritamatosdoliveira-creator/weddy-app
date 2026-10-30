@@ -2282,6 +2282,160 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
   .hmx-save{ width:240px; }
   .hmx-del{ width:auto; padding:0 6px; }
 }
+/* v279 — Orçamento editorial (tipografia original da Weddy: Cormorant Garamond + Manrope) */
+.orcx{ --ox-ink:#302B29; --ox-soft:#98918A; --ox-line:#EAE5E0; --ox-terra:#B96750; --ox-over:#A8412F; padding:0 18px 36px; text-align:left; color:var(--ox-ink); box-sizing:border-box; max-width:1180px; margin:0 auto; font-variant-numeric:lining-nums; }
+.orcx *{ box-sizing:border-box; }
+.orcx button{ font-family:inherit; }
+.orcx-head{ padding:14px 0 14px; }
+.orcx-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:44px; line-height:1; letter-spacing:.002em; color:var(--heading); text-align:left; }
+.orcx-sub{ margin:10px 0 0; font-size:15px; line-height:1.4; color:var(--ox-soft); font-weight:400; max-width:420px; }
+.orcx-sub-d{ display:none; }
+.orcx-tabs{ display:flex; gap:28px; border-bottom:1px solid var(--ox-line); margin:4px 0 20px; }
+.orcx-tabs button{ all:unset; box-sizing:border-box; cursor:pointer; padding:10px 2px 11px; font-size:15px; font-weight:500; color:var(--ox-soft); position:relative; min-height:44px; display:flex; align-items:center; }
+.orcx-tabs button.active{ color:var(--heading); }
+.orcx-tabs button.active::after{ content:''; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--ox-terra); border-radius:2px; }
+.orcx-tabs button:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:4px; }
+.orcx-lbl{ display:block; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); line-height:1.3; margin:0; }
+.orcx-link{ all:unset; box-sizing:border-box; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:13px; color:var(--ox-soft); padding:6px 0; }
+.orcx-link svg{ width:7px; height:12px; }
+.orcx-link:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.orcx-h2{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:26px; line-height:1.1; color:var(--ox-ink); }
+.orcx-sec-h{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; margin-bottom:14px; border-bottom:1px solid var(--ox-line); }
+.orcx-dot{ width:10px; height:10px; border-radius:50%; flex:none; display:inline-block; }
+/* indicadores */
+.orcx-stats{ display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr); padding:4px 0 20px; border-bottom:1px solid var(--ox-line); margin-bottom:24px; }
+.orcx-stat{ padding:0 10px; border-left:1px solid var(--ox-line); min-width:0; }
+.orcx-stat:first-child{ padding-left:0; border-left:0; }
+.orcx-stat .orcx-lbl{ min-height:27px; }
+.orcx-stat-v{ display:flex; align-items:baseline; gap:4px; margin-top:6px; min-width:0; }
+.orcx-cur{ font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:500; color:var(--heading); }
+.orcx-in{ all:unset; box-sizing:border-box; flex:1; min-width:0; width:100%; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:28px; line-height:1.1; color:var(--heading); border-bottom:1px solid transparent; -moz-appearance:textfield; appearance:textfield; }
+.orcx-in::-webkit-outer-spin-button, .orcx-in::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.orcx-in:focus{ border-bottom-color:var(--ox-terra); }
+.orcx-edit{ flex:none; align-self:center; color:var(--ox-soft); display:flex; }
+.orcx-edit svg{ width:14px; height:14px; }
+.orcx-stat-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:30px; line-height:1.1; color:var(--heading); }
+/* repartição */
+.orcx-alloc-top{ display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 8px; margin-bottom:12px; }
+.orcx-alloc-top b{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:34px; line-height:1; color:var(--ox-ink); }
+.orcx-alloc-top b.is-over{ color:var(--ox-over); }
+.orcx-alloc-top span{ font-size:13px; color:var(--ox-soft); }
+.orcx-excess{ font-style:normal; font-size:12px; font-weight:500; color:var(--ox-over); border:1px solid rgba(168,65,47,.35); border-radius:99px; padding:3px 10px; margin-left:auto; }
+.orcx-bar{ display:flex; height:12px; border-radius:99px; overflow:hidden; background:var(--ox-line); gap:2px; }
+.orcx-bar i{ display:block; height:100%; min-width:0; }
+.orcx-bar .orcx-bar-rest{ background:var(--ox-line); }
+.orcx-bar.is-over{ box-shadow:0 0 0 1.5px rgba(168,65,47,.35); }
+.orcx-legend{ list-style:none; margin:16px 0 0; padding:0; }
+.orcx-leg-i{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--ox-line); font-size:14px; }
+.orcx-leg-i:first-child{ border-top:0; }
+.orcx-leg-n{ flex:1; min-width:0; overflow-wrap:anywhere; }
+.orcx-leg-v{ display:none; color:var(--ox-soft); font-size:13px; white-space:nowrap; }
+.orcx-legend.show-vals .orcx-leg-v{ display:inline; }
+.orcx-leg-p{ min-width:46px; text-align:right; color:var(--ox-ink); font-weight:500; }
+/* categorias */
+.orcx-cats{ border-top:0; }
+.orcx-cat{ border-bottom:1px solid var(--ox-line); }
+.orcx-cat-head{ display:flex; align-items:center; gap:12px; padding:14px 0; cursor:pointer; min-height:56px; }
+.orcx-cat-head:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.orcx-cat-mid{ flex:1; min-width:0; }
+.orcx-cat-name{ font-size:15px; color:var(--ox-ink); margin-bottom:8px; overflow-wrap:anywhere; }
+.orcx-cat-track{ height:3px; border-radius:3px; background:var(--ox-line); overflow:hidden; }
+.orcx-cat-fill{ height:100%; border-radius:3px; }
+.orcx-cat-vals{ text-align:right; flex:none; width:84px; }
+.orcx-cat-total{ font-size:14.5px; font-weight:500; color:var(--ox-ink); white-space:nowrap; }
+.orcx-cat-pct{ font-size:12px; color:var(--ox-soft); margin-top:3px; }
+.orcx-cat-chev{ flex:none; display:flex; color:var(--ox-soft); transition:transform .2s; }
+.orcx-cat-chev svg{ width:8px; height:14px; }
+.orcx-cat.is-open .orcx-cat-chev{ transform:rotate(90deg); }
+.orcx-cat-expand{ padding:0 0 16px 22px; }
+.orcx-cat-pg{ font-size:12.5px; color:var(--ox-soft); padding-bottom:4px; }
+.orcx-cat-actions{ display:flex; gap:18px; padding:6px 0 12px; }
+.orcx-act{ all:unset; box-sizing:border-box; cursor:pointer; display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ox-soft); padding:8px 0; text-decoration:underline; text-underline-offset:3px; }
+.orcx-act svg{ width:15px; height:15px; }
+.orcx-act.is-danger{ color:var(--ox-over); }
+.orcx-addcat{ display:flex; align-items:center; gap:10px; padding:14px 0 0; }
+.orcx-addcat input{ flex:1; min-width:0; height:46px; border:0; border-bottom:1px solid var(--ox-line); background:transparent; font-family:inherit; font-size:15px; color:var(--ox-ink); outline:none; padding:0 2px; -webkit-appearance:none; border-radius:0; }
+.orcx-addcat input:focus{ border-bottom-color:var(--ox-terra); }
+.orcx-plus{ all:unset; box-sizing:border-box; flex:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--ox-line); color:var(--heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.orcx-plus svg{ width:15px; height:15px; }
+.orcx-plus:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.orcx-cols{ display:block; }
+.orcx-col-b{ margin-top:30px; }
+/* resumo */
+.orcx-hero{ padding:4px 0 22px; border-bottom:1px solid var(--ox-line); }
+.orcx-hero-top{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:4px 14px; margin-top:8px; }
+.orcx-hero-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:56px; line-height:1; color:var(--heading); }
+.orcx-hero-p{ font-size:14px; color:var(--ox-soft); }
+.orcx-prog{ height:6px; border-radius:99px; background:var(--ox-line); margin:16px 0 8px; overflow:hidden; }
+.orcx-prog i{ display:block; height:100%; border-radius:99px; background:var(--ox-terra); }
+.orcx-prog.is-near i{ background:#D0AD87; }
+.orcx-prog.is-over i{ background:var(--ox-over); }
+.orcx-prog-ends{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ox-soft); }
+.orcx-note{ display:flex; align-items:flex-start; gap:8px; margin:14px 0 0; font-size:13px; line-height:1.45; color:var(--ox-soft); }
+.orcx-note svg{ flex:none; width:16px; height:16px; margin-top:1px; }
+.orcx-note.is-over{ color:var(--ox-over); }
+.orcx-empty{ margin:12px 0 4px; font-size:14px; line-height:1.5; color:var(--ox-soft); }
+.orcx-kpis{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); padding:20px 0; border-bottom:1px solid var(--ox-line); }
+.orcx-kpi{ padding:0 12px; border-left:1px solid var(--ox-line); min-width:0; }
+.orcx-kpi:first-child{ padding-left:0; border-left:0; }
+.orcx-kpi-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:26px; line-height:1.1; color:var(--heading); margin-top:8px; white-space:nowrap; }
+.orcx-kpi.is-over .orcx-kpi-n{ color:var(--ox-over); }
+.orcx-kpi-p{ font-size:12.5px; color:var(--ox-soft); margin-top:4px; min-height:16px; }
+.orcx-table{ padding-top:26px; }
+.orcx-table .orcx-h2{ margin-bottom:14px; }
+.orcx-thead, .orcx-trow{ display:grid; grid-template-columns:minmax(0,1fr) 88px 84px; align-items:center; column-gap:10px; }
+.orcx-trow{ grid-template-columns:10px minmax(0,1fr) 88px 84px; }
+.orcx-thead{ grid-template-columns:minmax(0,1fr) 88px 84px; padding:0 0 8px 20px; border-bottom:1px solid var(--ox-line); }
+.orcx-th{ all:unset; box-sizing:border-box; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); display:flex; align-items:center; gap:4px; cursor:pointer; min-height:32px; }
+.orcx-th-v, .orcx-th-p{ justify-content:flex-end; text-align:right; }
+.orcx-th-p{ cursor:default; white-space:nowrap; }
+.orcx-th:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.orcx-sort-ar{ display:inline-flex; color:var(--ox-terra); }
+.orcx-sort-ar svg{ width:12px; height:12px; }
+.orcx-trow{ padding:13px 0; border-bottom:1px solid var(--ox-line); font-size:14.5px; }
+.orcx-trow.is-zero{ color:var(--ox-soft); }
+.orcx-tn{ min-width:0; overflow-wrap:anywhere; }
+.orcx-tv{ text-align:right; font-weight:500; white-space:nowrap; }
+.orcx-trow.is-zero .orcx-tv{ font-weight:400; }
+.orcx-tp{ text-align:right; color:var(--ox-soft); font-size:13.5px; }
+@media (max-width:359px){ .orcx-thead{ grid-template-columns:minmax(0,1fr) 80px 56px; } .orcx-trow{ grid-template-columns:10px minmax(0,1fr) 80px 56px; } .orcx-hero-n{ font-size:46px; } }
+@media (min-width:768px){
+  .orcx{ padding:0 32px 48px; }
+  .orcx-title{ font-size:52px; }
+  .orcx-legend{ display:grid; grid-template-columns:1fr 1fr; column-gap:36px; }
+  .orcx-leg-i:nth-child(2){ border-top:0; }
+  .orcx-leg-v{ display:inline; }
+  .orcx-hero-n{ font-size:64px; }
+  .orcx-stat{ padding:0 24px; } .orcx-stat:first-child{ padding-left:0; }
+  .orcx-in, .orcx-stat-n{ font-size:36px; }
+  .orcx-kpi{ padding:0 24px; } .orcx-kpi:first-child{ padding-left:0; } .orcx-kpi-n{ font-size:32px; }
+  .orcx-thead, .orcx-trow{ column-gap:16px; } .orcx-thead{ grid-template-columns:minmax(0,1fr) 140px 100px; } .orcx-trow{ grid-template-columns:10px minmax(0,1fr) 140px 100px; }
+}
+@media (min-width:1024px){
+  .orcx{ padding:12px 40px 64px; }
+  .orcx-head{ padding:20px 0 18px; }
+  .orcx-title{ font-size:60px; }
+  .orcx-sub{ font-size:17px; max-width:560px; }
+  .orcx-sub-m{ display:none; } .orcx-sub-d{ display:inline; }
+  .orcx-tabs{ margin:6px 0 32px; }
+  .orcx-stats{ padding:6px 0 30px; margin-bottom:36px; }
+  .orcx-stat{ padding:0 40px; } .orcx-stat:first-child{ padding-left:0; }
+  .orcx-in, .orcx-stat-n{ font-size:44px; } .orcx-cur{ font-size:34px; }
+  .orcx-cols{ display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:0 72px; align-items:start; }
+  .orcx-col-b{ margin-top:0; }
+  .orcx-col-a{ position:sticky; top:16px; }
+  .orcx-legend{ display:block; }
+  .orcx-leg-i:nth-child(2){ border-top:1px solid var(--ox-line); }
+  .orcx-hero{ padding:8px 0 34px; }
+  .orcx-hero-n{ font-size:84px; }
+  .orcx-hero-p{ font-size:16px; }
+  .orcx-prog{ height:8px; margin-top:22px; }
+  .orcx-kpis{ padding:30px 0; }
+  .orcx-kpi{ padding:0 48px; } .orcx-kpi:first-child{ padding-left:0; } .orcx-kpi-n{ font-size:40px; }
+  .orcx-table{ padding-top:40px; }
+  .orcx-h2{ font-size:30px; }
+  .orcx-thead{ grid-template-columns:minmax(0,1fr) 180px 140px; } .orcx-trow{ grid-template-columns:10px minmax(0,1fr) 180px 140px; font-size:15.5px; }
+}
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -5067,7 +5221,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6350,7 +6504,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -8340,19 +8494,37 @@ function premiumFeatureGrid(){
 /* ============================================================
    VIEW: Orçamento
 ============================================================ */
+/* v279 — Orçamento editorial: paleta própria (consistente em barra, legenda, lista e tabela) */
+const ORCX_COLORS = ['#B96750','#B76F7D','#D0AD87','#87947D','#CB9A8C','#8E7F78','#9A4F3D','#A8B39C'];
+function orcxColor(i){ return ORCX_COLORS[i % ORCX_COLORS.length]; }
+const ORCX_SVG = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ORCX_ICO = {
+  pencil: ORCX_SVG('<path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>'),
+  users: ORCX_SVG('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>'),
+  up: ORCX_SVG('<path d="m18 15-6-6-6 6"/>'),
+  down: ORCX_SVG('<path d="m6 9 6 6 6-6"/>'),
+  info: ORCX_SVG('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>')
+};
+let orcxShowVals = false;
+let orcxSort = { k:'v', d:-1 };
+function orcxPct(x){ return (Math.round(x*10)/10).toString().replace('.',','); }
 function buildDonutSection(){
-  const total = state.budget.total;
+  const total = Number(state.budget.total)||0;
   const pctOf = c => total ? Number(c.value)/total : 0;
   const pctSum = state.categories.reduce((s,c)=>s+pctOf(c),0);
   setTimeout(()=>maybeWarnBudgetOver(pctSum),0);
-  const legend = state.categories.map((c,i)=>`<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${escapeHTML(c.name)} · ${Math.round(pctOf(c)*1000)/10}%</span>`).join('');
+  const shown = Math.round(pctSum*1000)/10;
+  const over = pctSum > 1.0005;
+  const base = Math.max(pctSum, 1);
+  const segs = state.categories.map((c,i)=>`<i style="width:${(pctOf(c)/base*100).toFixed(3)}%; background:${orcxColor(i)};"></i>`).join('');
+  const rest = pctSum < 1 ? `<i class="orcx-bar-rest" style="width:${((1-pctSum)/base*100).toFixed(3)}%;"></i>` : '';
+  const legend = state.categories.map((c,i)=>`
+    <li class="orcx-leg-i"><span class="orcx-dot" style="background:${orcxColor(i)}"></span><span class="orcx-leg-n">${escapeHTML(c.name)}</span><span class="orcx-leg-v">${fmtEUR(Number(c.value)||0)}</span><span class="orcx-leg-p">${Math.round(pctOf(c)*1000)/10}%</span></li>`).join('');
   return `
-  <div class="donut-chart-card">
-    <div class="ring-wrap" style="width:118px;height:118px;flex-shrink:0;">
-      ${multiDonutSVG(state.categories.map((c,i)=>({pct:pctOf(c), color:CAT_COLORS[i%CAT_COLORS.length]})), 118, 15)}
-      <div class="ring-center"><span class="num" style="font-size:18px;">${Math.round(pctSum*1000)/10}%</span><span class="sub">${ta('donutAllocatedLabel')}</span></div>
-    </div>
-    <div class="legend-wrap" style="margin:0; padding-left:4px;">${legend}</div>
+  <div class="orcx-alloc">
+    <div class="orcx-alloc-top"><b class="${over?'is-over':''}">${shown}%</b><span>${ta('donutAllocatedLabel')}</span>${over ? `<em class="orcx-excess">${ta('orcxExceeds')(Math.round((pctSum-1)*1000)/10)}</em>` : ''}</div>
+    <div class="orcx-bar ${over?'is-over':''}" role="img" aria-label="${ta('budgetBreakdownLabel')}: ${shown}%">${segs}${rest}</div>
+    <ul class="orcx-legend ${orcxShowVals?'show-vals':''}">${legend}</ul>
   </div>`;
 }
 function softUpdateCategoryValue(id, newValue){
@@ -8379,6 +8551,18 @@ function softUpdateCategoryValue(id, newValue){
   pushRemote();
 }
 
+function orcxHeadHTML(){
+  const res = orcTab==='resumo';
+  return `
+  <header class="orcx-head">
+    <h1 class="orcx-title">${ta('navBudgetTitle')}</h1>
+    <p class="orcx-sub"><span class="orcx-sub-m">${ta(res?'orcxSubSum':'orcxSubMain')}</span><span class="orcx-sub-d">${ta('orcxSubDesk')}</span></p>
+  </header>
+  <div class="orcx-tabs" role="tablist">
+    <button type="button" role="tab" aria-selected="${!res}" data-orctab="orcamento" class="${!res?'active':''}">${ta('orcTabMain')}</button>
+    <button type="button" role="tab" aria-selected="${res}" data-orctab="resumo" class="${res?'active':''}">${ta('orcTabSummary')}</button>
+  </div>`;
+}
 function buildOrcResumo(){
   const total = Number(state.budget.total)||0;
   const spent = totalExpenseValue();
@@ -8387,41 +8571,54 @@ function buildOrcResumo(){
   const pct = total ? Math.round(spent/total*100) : 0;
   const over = total>0 && spent>total;
   const avail = total - spent;
+  const near = total>0 && !over && spent/total >= 0.9;
   if(!state.expenses.length){
-    return `<div class="orc-sum"><div class="orc-sum-l">${ta('orcSpentTotal')}</div><div class="orc-sum-n">${fmtEUR(0)}</div>
-      <div class="empty-note" style="padding:12px 0 8px;">${ta('orcNoExpenses')}</div>
-      <div style="padding:0 0 12px;"><button class="visit-action-btn" data-goto="gastos">${ta('orcGoExpenses')}</button></div></div>`;
+    return `
+    <section class="orcx-hero">
+      <div class="orcx-lbl">${ta('orcSpentTotal')}</div>
+      <div class="orcx-hero-n">${fmtEUR(0)}</div>
+      <p class="orcx-empty">${ta('orcNoExpenses')}</p>
+      <button type="button" class="orcx-link" data-goto="gastos">${ta('orcGoExpenses')} ${ICONS.chev}</button>
+    </section>`;
   }
-  const cats = state.categories.map((c,i)=>({name:c.name, v:spentByCategory(c.id), color:CAT_COLORS[i%CAT_COLORS.length]})).filter(x=>x.v>0);
+  const cats = state.categories.map((c,i)=>({name:c.name, v:spentByCategory(c.id), color:orcxColor(i)}));
   const inCats = cats.reduce((a,x)=>a+x.v,0);
   if(spent-inCats>0.5) cats.push({name:ta('orcOtherCat'), v:spent-inCats, color:'#B8ADA3'});
-  cats.sort((a,b)=>b.v-a.v);
-  const rows = cats.map(x=>`<div class="orc-sum-row"><span class="orc-sum-dot" style="background:${x.color}"></span><span class="orc-sum-name">${escapeHTML(x.name)}</span>${total?`<span class="orc-sum-pct">${Math.round(x.v/total*100)}%</span>`:''}<span class="orc-sum-val">${fmtEUR(x.v)}</span></div>`).join('');
+  const dir = orcxSort.d;
+  cats.sort((a,b)=> orcxSort.k==='n' ? dir*a.name.localeCompare(b.name) : dir*(a.v-b.v));
+  const arrow = k => orcxSort.k===k ? `<span class="orcx-sort-ar">${orcxSort.d<0?ORCX_ICO.down:ORCX_ICO.up}</span>` : '';
+  const rows = cats.map(x=>`
+    <div class="orcx-trow ${x.v>0?'':'is-zero'}"><span class="orcx-dot" style="background:${x.color}"></span><span class="orcx-tn">${escapeHTML(x.name)}</span><span class="orcx-tv">${fmtEUR(x.v)}</span><span class="orcx-tp">${spent ? orcxPct(x.v/spent*100) : '0'}%</span></div>`).join('');
+  const pctB = v => total ? Math.round(v/total*100)+'%' : '';
   return `
-  <div class="orc-sum">
-    <div class="orc-sum-l">${ta('orcSpentTotal')}</div>
-    <div class="orc-sum-top"><div class="orc-sum-n">${fmtEUR(spent)}</div>${total?`<div class="orc-sum-p">${ta('orcPctOfBudget')(pct)}</div>`:''}</div>
-    ${total?`<div class="orc-sum-bar ${over?'over':''}"><i style="width:${Math.min(100,pct)}%"></i></div>`:`<div class="empty-note" style="padding:8px 0 6px;">${ta('orcSetTotal')}</div>`}
-  </div>
-  <div class="orc-sum-mini">
-    <div><div class="l">${ta('orcPaid')}</div><div class="n">${fmtEUR(paid)}</div></div>
-    <div><div class="l">${ta('orcToPay')}</div><div class="n">${fmtEUR(toPay)}</div></div>
-    ${total?`<div><div class="l">${over?ta('orcOverBy'):ta('orcAvailable')}</div><div class="n ${over?'over':''}">${fmtEUR(Math.abs(avail))}</div></div>`:''}
-  </div>
-  <div class="section-label" style="display:flex; align-items:center; gap:10px;">${ta('orcByCategory')}<span style="flex:1; height:1px; background:var(--line);"></span></div>
-  <div class="orc-sum" style="padding-block:4px;">${rows}</div>
-  <div style="height:8px;"></div>`;
+  <section class="orcx-hero ${over?'is-over':''}">
+    <div class="orcx-lbl">${ta('orcSpentTotal')}</div>
+    <div class="orcx-hero-top"><div class="orcx-hero-n">${fmtEUR(spent)}</div>${total?`<div class="orcx-hero-p">${ta('orcPctOfBudget')(pct)}</div>`:''}</div>
+    ${total ? `<div class="orcx-prog ${over?'is-over':(near?'is-near':'')}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,pct)}"><i style="width:${Math.min(100,pct)}%"></i></div>
+    <div class="orcx-prog-ends"><span>${fmtEUR(0)}</span><span>${ta('orcxBudgetRef')} ${fmtEUR(total)}</span></div>` : `<p class="orcx-empty">${ta('orcSetTotal')}</p>`}
+    ${over ? `<p class="orcx-note is-over">${ORCX_ICO.info}<span>${ta('orcxOverNote')(fmtEUR(Math.abs(avail)))}</span></p>` : (near ? `<p class="orcx-note">${ORCX_ICO.info}<span>${ta('orcxNear')(pct, fmtEUR(avail))}</span></p>` : '')}
+  </section>
+
+  <section class="orcx-kpis">
+    <div class="orcx-kpi"><div class="orcx-lbl">${ta('orcPaid')}</div><div class="orcx-kpi-n">${fmtEUR(paid)}</div><div class="orcx-kpi-p">${pctB(paid)}</div></div>
+    <div class="orcx-kpi"><div class="orcx-lbl">${ta('orcToPay')}</div><div class="orcx-kpi-n">${fmtEUR(toPay)}</div><div class="orcx-kpi-p">${pctB(toPay)}</div></div>
+    ${total?`<div class="orcx-kpi ${over?'is-over':''}"><div class="orcx-lbl">${over?ta('orcOverBy'):ta('orcAvailable')}</div><div class="orcx-kpi-n">${fmtEUR(Math.abs(avail))}</div><div class="orcx-kpi-p">${pctB(Math.abs(avail))}</div></div>`:''}
+  </section>
+
+  <section class="orcx-table">
+    <h2 class="orcx-h2">${ta('orcByCategory')}</h2>
+    <div class="orcx-thead" role="row">
+      <button type="button" class="orcx-th orcx-th-n" data-orcxsort="n">${ta('orcxColCat')}${arrow('n')}</button>
+      <button type="button" class="orcx-th orcx-th-v" data-orcxsort="v">${ta('orcxColSpent')}${arrow('v')}</button>
+      <span class="orcx-th orcx-th-p">${ta('orcxColPct')}</span>
+    </div>
+    ${rows}
+  </section>`;
 }
 
 function viewOrcamento(){
-  const seg = `
-  <div class="segmented" style="margin-bottom:10px;">
-    <button data-orctab="orcamento" class="${orcTab==='orcamento'?'active':''}">${ta('orcTabMain')}</button>
-    <button data-orctab="resumo" class="${orcTab==='resumo'?'active':''}">${ta('orcTabSummary')}</button>
-  </div>`;
-  const head = `<div class="navbar"><h1>${ta('navBudgetTitle')}</h1><div class="navbar-botanical">${ICONS.botanical}</div></div>${seg}`;
-  if(orcTab==='resumo') return head + buildOrcResumo();
-  return head + viewOrcamentoPlano();
+  const body = orcTab==='resumo' ? buildOrcResumo() : viewOrcamentoPlano();
+  return `<div class="orcx orcx-${orcTab==='resumo'?'res':'plan'}">${orcxHeadHTML()}${body}</div>`;
 }
 
 function viewOrcamentoPlano(){
@@ -8434,31 +8631,31 @@ function viewOrcamentoPlano(){
     const catPerGuest = guests? catTotal/guests : 0;
     const open = !!openDesc[c.id];
     const pctDisplay = total ? Math.round(catTotal/total*1000)/10 : 0;
-    const pair = CAT_COLOR_PAIRS[i%CAT_COLOR_PAIRS.length];
+    const col = orcxColor(i);
     return `
-    <div class="cat-row-v2">
-      <div class="cat-row-head tappable" data-toggledesc="${c.id}">
-        <div class="icon-chip" style="${chipStyle(i)}">${ICONS.budget}</div>
-        <div class="cat-row-mid">
-          <div class="cat-row-name">${escapeHTML(c.name)}</div>
-          <div class="cat-row-bar-track"><div class="cat-row-bar-fill" data-catbar="${c.id}" style="width:${pctDisplay}%; background:${pair.fg};"></div></div>
+    <div class="orcx-cat ${open?'is-open':''}">
+      <div class="orcx-cat-head" role="button" tabindex="0" aria-expanded="${open}" data-toggledesc="${c.id}">
+        <span class="orcx-dot" style="background:${col}"></span>
+        <div class="orcx-cat-mid">
+          <div class="orcx-cat-name">${escapeHTML(c.name)}</div>
+          <div class="orcx-cat-track"><div class="orcx-cat-fill" data-catbar="${c.id}" style="width:${Math.min(100,pctDisplay)}%; background:${col};"></div></div>
         </div>
-        <div class="cat-row-vals">
-          <div class="cat-row-total" data-cattotal="${c.id}">${fmtEUR(catTotal)}</div>
-          <div class="cat-row-pct" data-catpctdisplay="${c.id}">${pctDisplay}%</div>
+        <div class="orcx-cat-vals">
+          <div class="orcx-cat-total" data-cattotal="${c.id}">${fmtEUR(catTotal)}</div>
+          <div class="orcx-cat-pct" data-catpctdisplay="${c.id}">${pctDisplay}%</div>
         </div>
-        <span class="chev-toggle ${open?'open':''}" style="display:inline-flex;">${ICONS.chev}</span>
+        <span class="orcx-cat-chev">${ICONS.chev}</span>
       </div>
       ${open? `
-      <div class="cat-row-expand">
-        <div class="cat-row-perguest" data-catperguest="${c.id}">${fmtEUR(catPerGuest)}${ta('perGuestSuffix')}</div>
+      <div class="orcx-cat-expand">
+        <div class="orcx-cat-pg" data-catperguest="${c.id}">${fmtEUR(catPerGuest)}${ta('perGuestSuffix')}</div>
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('valueEurLabel')}</span>
           <input type="number" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
-        <div style="display:flex; gap:9px; padding:6px 0 12px;">
-          <button class="visit-action-btn" data-renamecat="${c.id}">${ICONS.pencil} ${ta('btnRename')}</button>
-          <button class="visit-action-btn danger" data-delcat="${c.id}">${ICONS.trash} ${ta('btnDelete')}</button>
+        <div class="orcx-cat-actions">
+          <button type="button" class="orcx-act" data-renamecat="${c.id}">${ICONS.pencil} ${ta('btnRename')}</button>
+          <button type="button" class="orcx-act is-danger" data-delcat="${c.id}">${ICONS.trash} ${ta('btnDelete')}</button>
         </div>
         <div class="cat-desc" style="padding:0;"><ul>${c.desc.map((d,di)=>`<li>${d}<button class="desc-del" data-deldesc="${c.id}|${di}">✕</button></li>`).join('')}</ul>
           <div class="add-row" style="margin-top:8px;">
@@ -8471,38 +8668,56 @@ function viewOrcamentoPlano(){
   }).join('');
 
   return `
-  <div class="stats-row">
-    <div class="stat-card" style="background:#E7EBE1; border-color:#DCE2D3;">
-      <div class="l" style="margin:0 0 4px;">${ta('budgetTotalLabel')}</div>
-      <div style="display:flex; align-items:baseline; gap:3px;"><span style="font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--heading);">€</span><input class="field-input big" id="in-total" type="number" min="0" value="${total}" style="text-align:left;"></div>
-      <div class="stat-card-icon">${ICONS.budget}</div>
+  <section class="orcx-stats">
+    <div class="orcx-stat">
+      <label class="orcx-lbl" for="in-total">${ta('budgetTotalLabel')}</label>
+      <div class="orcx-stat-v"><span class="orcx-cur">€</span><input class="orcx-in" id="in-total" type="number" min="0" inputmode="numeric" value="${total}"><span class="orcx-edit">${ORCX_ICO.pencil}</span></div>
     </div>
-    <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
-      <div class="l" style="margin:0 0 4px;">${ta('budgetGuestsEstLabel')}</div>
-      <input class="field-input big" id="in-guests" type="number" min="0" value="${guests}" style="text-align:left;">
-      <div class="stat-card-icon">${ICONS.guests}</div>
+    <div class="orcx-stat">
+      <label class="orcx-lbl" for="in-guests">${ta('budgetGuestsEstLabel')}</label>
+      <div class="orcx-stat-v"><input class="orcx-in" id="in-guests" type="number" min="0" inputmode="numeric" value="${guests}"><span class="orcx-edit">${ORCX_ICO.users}</span></div>
     </div>
-    <div class="stat-card" style="background:#F3E2D6; border-color:#EAD3C2;">
-      <div class="l" style="margin:0 0 4px;">${ta('perGuestLabel')}</div>
-      <div class="n" id="perguest-display" style="font-size:21px;">${fmtEUR(perGuest)}</div>
-      <div class="stat-card-icon">${ICONS.tag||ICONS.budget}</div>
+    <div class="orcx-stat">
+      <div class="orcx-lbl">${ta('perGuestLabel')}</div>
+      <div class="orcx-stat-v"><span class="orcx-stat-n" id="perguest-display">${fmtEUR(perGuest)}</span></div>
     </div>
-  </div>
+  </section>
 
-  <div class="section-label" style="display:flex; align-items:center; gap:10px;">${ta('budgetBreakdownLabel')}<span style="flex:1; height:1px; background:var(--line);"></span></div>
-  <div id="donut-section">${buildDonutSection()}</div>
+  <div class="orcx-cols">
+    <section class="orcx-col-a">
+      <div class="orcx-sec-h"><h2 class="orcx-h2">${ta('budgetBreakdownLabel')}</h2><button type="button" class="orcx-link" data-orcxvals aria-pressed="${orcxShowVals}">${ta(orcxShowVals?'orcxHideVals':'orcxShowVals')} ${ICONS.chev}</button></div>
+      <div id="donut-section">${buildDonutSection()}</div>
+    </section>
 
-  <div class="section-label">${ta('budgetCategoriesHint')}</div>
-  ${rows}
-  <div class="cat-row-v2" style="padding:4px 4px;">
-    <div class="add-row" style="margin:0;">
-      <input type="text" placeholder="${ta('placeholderNewCategory')}" id="add-cat-name">
-      <button class="add-circle" id="addbtn-cat">${ICONS.plus}</button>
-    </div>
+    <section class="orcx-col-b">
+      <div class="orcx-sec-h"><h2 class="orcx-h2">${ta('orcxCategories')}</h2></div>
+      <div class="orcx-cats">${rows}</div>
+      <div class="orcx-addcat">
+        <input type="text" placeholder="${ta('placeholderNewCategory')}" id="add-cat-name" aria-label="${ta('placeholderNewCategory')}">
+        <button type="button" class="orcx-plus" id="addbtn-cat" aria-label="${ta('placeholderNewCategory')}">${ICONS.plus}</button>
+      </div>
+    </section>
   </div>
-  <div style="height:8px;"></div>
   `;
 }
+// Interações só de apresentação (não tocam em dados): ver valores, ordenar a tabela, teclado nas categorias
+document.addEventListener('click', e=>{
+  const t = e.target.closest && e.target.closest('.orcx [data-orctab]');
+  if(t){ orcTab = t.getAttribute('data-orctab'); _origRender(); return; }
+  const v = e.target.closest && e.target.closest('[data-orcxvals]');
+  if(v){ orcxShowVals = !orcxShowVals; _origRender(); return; }
+  const s = e.target.closest && e.target.closest('[data-orcxsort]');
+  if(s){
+    const k = s.getAttribute('data-orcxsort');
+    orcxSort = orcxSort.k===k ? { k, d:-orcxSort.d } : { k, d:(k==='n'?1:-1) };
+    _origRender();
+  }
+});
+document.addEventListener('keydown', e=>{
+  const h = e.target && e.target.classList && e.target.classList.contains('orcx-cat-head') ? e.target : null;
+  if(h && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); h.click(); }
+});
+
 
 /* ============================================================
    VIEW: Convidados
