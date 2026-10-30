@@ -2058,6 +2058,44 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 
 /* Início — atalhos em grelha */
 /* v275 — atalhos da página inicial: uma só faixa, ícones Lucide em contorno */
+/* v276 — «Ferramentas Weddy» */
+.pf-card{ margin:0 16px 14px; padding:18px 12px 8px; border-radius:26px; background:linear-gradient(170deg,#F8ECE6 0%,#F6EEE9 55%,#F9F3EF 100%); border:1px solid #F0E2DB; box-shadow:0 1px 8px rgba(120,80,60,.05); }
+.pf-card, .pf-card *{ text-align:left; }
+.pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
+.pf-head-t{ min-width:0; flex:1; }
+.pf-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:20.5px; white-space:nowrap; line-height:1.1; color:var(--ink); }
+.pf-sub{ margin:6px 0 0; font-size:12.5px; line-height:1.4; color:var(--ink-soft); font-weight:400; max-width:17em; }
+.pf-pill{ all:unset; box-sizing:border-box; flex:0 0 auto; display:inline-flex; align-items:center; gap:4px; margin-top:2px; padding:6px 8px 6px 8px; border-radius:99px; background:rgba(255,253,251,.9); color:#AD624F; font-size:11.5px; white-space:nowrap; font-weight:500; cursor:pointer; }
+.pf-pill svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.5; }
+.pf-pill i{ font-style:normal; font-size:15px; line-height:1; opacity:.8; }
+.pf-pill:focus-visible, .pf-tile:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
+.pf-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:6px; }
+.pf-tile{ all:unset; box-sizing:border-box; position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:0; padding:16px 10px 16px 12px; min-width:0; cursor:pointer; }
+.pf-tile:not(:nth-child(3n+1))::after{ content:''; position:absolute; left:0; top:14px; bottom:14px; width:1px; background:rgba(150,110,100,.16); }
+.pf-tile:nth-child(n+4)::before{ content:''; position:absolute; top:0; left:12px; right:12px; height:1px; background:rgba(150,110,100,.16); }
+.pf-ico{ width:40px; height:40px; border-radius:50%; background:#F6E4DD; color:#AD624F; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+.pf-ico svg{ width:20px; height:20px; display:block; }
+.pf-t{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:15px; line-height:1.2; color:var(--ink); min-height:2.4em; display:block; }
+.pf-t i{ font-style:normal; font-family:'Manrope',sans-serif; font-size:13px; margin-left:5px; color:var(--ink-soft); opacity:.7; }
+.pf-d{ margin-top:5px; font-size:11px; line-height:1.4; color:var(--ink-soft); font-weight:400; }
+.pf-lock{ position:absolute; top:12px; right:10px; width:14px; height:14px; color:var(--ink-soft); opacity:.6; }
+.pf-lock svg{ width:100%; height:100%; display:block; }
+.pf-tile.locked .pf-t, .pf-tile.locked .pf-d, .pf-tile.locked .pf-ico{ opacity:.7; }
+.pf-site{ margin:0 16px 14px; }
+.pf-site .premium-site-banner{ margin:0; width:100%; }
+.pf-cta-card{ padding:12px; }
+@media (min-width:1024px){
+  .pf-card{ margin:0 0 16px; padding:24px 20px 12px; }
+  .pf-title{ font-size:30px; } .pf-sub{ font-size:14px; max-width:none; }
+  .pf-grid{ grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .pf-tile:nth-child(n+4)::before{ display:none; }
+  .pf-tile:not(:nth-child(3n+1))::after{ display:block; }
+  .pf-tile:nth-child(1)::after{ display:none; } .pf-tile:nth-child(4)::after{ display:block; }
+  .pf-tile{ padding:18px 14px; } .pf-t{ font-size:17px; } .pf-d{ font-size:12.5px; }
+  .pf-site{ margin:0 0 16px; }
+}
+@media (max-width:389px){ .pf-title{ font-size:19px; } }
+@media (max-width:359px){ .pf-t{ font-size:13.5px; } .pf-d{ font-size:10px; } .pf-title{ font-size:19px; } .pf-pill span{ display:none; } }
 .ql-strip{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); margin:4px 16px 20px; padding:0; background:transparent; border:0; border-radius:0; box-shadow:none; }
 .ql-item{ all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; min-width:0; min-height:68px; padding:10px 2px; cursor:pointer; position:relative; color:#AD624F; -webkit-tap-highlight-color:transparent; }
 .ql-item + .ql-item::before{ content:''; position:absolute; left:0; top:22%; bottom:22%; width:1px; background:rgba(120,100,90,.14); }
@@ -4802,7 +4840,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6085,7 +6123,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -8019,32 +8057,47 @@ function premiumSiteBanner(locked){
     <div class="psb-phone" aria-hidden="true"><div class="psb-phone-frame"><img src="/site-mockup.jpg" alt="" width="300" height="450" loading="lazy" decoding="async"></div></div>
   </button>`;
 }
+// «Ferramentas Weddy»: seis ferramentas em 3 colunas x 2 linhas, sem cartões individuais. Destinos, data-premiumgoto,
+// cadeado de quem ainda não é Premium, faixa «Tornar Premium» e «Restaurar compras» mantêm-se como antes.
+const HOME_PF_SVG = inner=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${inner}</svg>`;
+const HOME_PF_ICONS = {
+  rsvp: HOME_PF_SVG('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+  chatbot: HOME_PF_SVG('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/>'),
+  health: HOME_PF_SVG('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+  memories: HOME_PF_SVG('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
+  documentos: HOME_PF_SVG('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'),
+  googlecalendar: HOME_PF_SVG('<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>')
+};
+function homePfTile(key, title, desc, locked){
+  return `
+  <button type="button" class="pf-tile premium-hub-tile${locked?' locked':''}" data-premiumgoto="${key}">
+    <span class="pf-ico">${HOME_PF_ICONS[key]}</span>
+    ${locked ? `<span class="pf-lock" aria-hidden="true">${ICONS.lock}</span>` : ''}
+    <span class="pf-t">${title}<i aria-hidden="true">›</i></span>
+    <span class="pf-d">${desc}</span>
+  </button>`;
+}
 function premiumFeatureGrid(){
   const subscribed = hasActiveSubscription();
   return `
-  <div class="premium-hub-card">
-    <button class="premium-hub-header" data-premiumgoto="subscricao">
-      <div class="premium-hub-header-icon">${ICONS.rings}</div>
-      <div class="premium-hub-header-mid">
-        <div class="premium-hub-header-title">${ta('premiumHubTitle')}</div>
-        <div class="premium-hub-header-desc">${ta('premiumHubDesc')}</div>
-      </div>
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0;">
-        <span class="premium-hub-badge">${ICONS.sparkle} ${ta('premiumHubBadge')}</span>
-        <span class="premium-hub-header-chev">${ICONS.chev}</span>
-      </div>
-    </button>
-    <div class="premium-hub-grid">
-      ${premiumHubTile('rsvp', reframedIcon(ICONS.mail, ICON_REFRAME.mail), ta('rsvpTitle'), ta('premiumTileRSVP'), !subscribed)}
-      ${premiumHubTile('chatbot', reframedIcon(ICONS.chat, ICON_REFRAME.chat), ta('premiumTileChatbot'), ta('premiumTileChatbotDesc'), !subscribed)}
-      ${premiumHubTile('health', ICONS.warn ? reframedIcon(ICONS.warn, ICON_REFRAME.warn) : ICONS.checklist, ta('healthTitle'), ta('premiumTileHealthDesc'), !subscribed)}
-      ${premiumHubTile('memories', reframedIcon(ICONS.camera, ICON_REFRAME.camera), ta('memoriesTitle'), ta('premiumTileMemoriesDesc'), !subscribed)}
-      ${premiumHubTile('documentos', ICONS.docnote ? reframedIcon(ICONS.docnote, ICON_REFRAME.docnote) : ICONS.checklist, ta('documentsTitle'), ta('premiumTileDocumentosDesc'), !subscribed)}
-      ${premiumHubTile('googlecalendar', reframedIcon(ICONS.calendar, ICON_REFRAME.calendar), ta('googleCalendarTitle'), ta('premiumTileGoogleCalDesc'), !subscribed)}
-      ${premiumSiteBanner(!subscribed)}
+  <div class="premium-hub-card pf-card">
+    <div class="pf-head">
+      <div class="pf-head-t"><h2 class="pf-title">${ta('homePfTitle')}</h2><p class="pf-sub">${ta('homePfSub')}</p></div>
+      <button type="button" class="pf-pill" data-premiumgoto="subscricao">${ICONS.crown||ICONS.sparkle}<span>${ta('homePfPill')}</span><i aria-hidden="true">›</i></button>
     </div>
-    ${subscribed ? '' : `
-    <div class="premium-hub-cta">
+    <div class="pf-grid">
+      ${homePfTile('rsvp', ta('homePfRsvpT'), ta('homePfRsvpD'), !subscribed)}
+      ${homePfTile('chatbot', ta('homePfChatT'), ta('homePfChatD'), !subscribed)}
+      ${homePfTile('health', ta('homePfHealthT'), ta('homePfHealthD'), !subscribed)}
+      ${homePfTile('memories', ta('homePfMemT'), ta('homePfMemD'), !subscribed)}
+      ${homePfTile('documentos', ta('homePfDocT'), ta('homePfDocD'), !subscribed)}
+      ${homePfTile('googlecalendar', ta('homePfCalT'), ta('homePfCalD'), !subscribed)}
+    </div>
+  </div>
+  <div class="pf-site">${premiumSiteBanner(!subscribed)}</div>
+  ${subscribed ? '' : `
+  <div class="premium-hub-card pf-cta-card">
+    <div class="premium-hub-cta" style="margin-top:0;">
       <div class="premium-hub-cta-icon">${ICONS.sparkle}</div>
       <div class="premium-hub-cta-text">
         <div class="premium-hub-cta-title">${ta('premiumHubCtaTitle')}</div>
@@ -8053,8 +8106,8 @@ function premiumFeatureGrid(){
       </div>
       <button class="premium-hub-cta-btn" data-premiumgoto="subscricao">${ta('premiumHubCtaBtn')} ${ICONS.chev}</button>
     </div>
-    ${restorePurchasesLinkHTML()}`}
-  </div>`;
+    ${restorePurchasesLinkHTML()}
+  </div>`}`;
 }
 
 /* ============================================================
