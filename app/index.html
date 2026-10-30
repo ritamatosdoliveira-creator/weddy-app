@@ -1028,6 +1028,33 @@ html{
 .cmp-act:first-child{ border-left:0; }
 .cmp-act-main{ color:var(--rust-dark); } .cmp-act-danger{ color:#8E3A2F; }
 .cmp-act:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:-2px; }
+/* lista v5: cartões com um botão principal e menu «⋯» */
+.cmp-item.v5{ position:relative; background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:16px; }
+.cmp-item.v5 .cmp-card{ all:unset; box-sizing:border-box; text-align:left; display:flex; align-items:center; gap:12px; width:100%; cursor:pointer; border-radius:14px; }
+.cmp-item.v5 .cmp-card:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:3px; }
+.cmp-ico{ flex:none; width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg,#F3E3DC,#E7C5BB); display:grid; place-items:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; color:var(--rust-dark); }
+.cmp-item.v5 .cmp-card-main{ gap:2px; }
+.cmp-item.v5 .cmp-card-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; line-height:1.1; }
+.cmp-item.v5 .cmp-st-chip{ font-size:11px; padding:5px 10px; align-self:flex-start; white-space:nowrap; }
+.cmp-avs{ display:flex; align-items:center; margin:14px 0 2px; min-width:0; }
+.cmp-av{ flex:none; width:34px; height:34px; border-radius:50%; border:2px solid var(--card); margin-left:-6px; display:grid; place-items:center; font-size:11px; font-weight:700; color:#fff; }
+.cmp-av:first-child{ margin-left:0; }
+.cmp-props-t{ font-size:12.5px; color:var(--ink-soft); margin-left:10px; min-width:0; overflow-wrap:anywhere; }
+.cmp-next{ text-align:left; margin:12px 0 0; font-size:13px; line-height:1.4; background:#FAF3EF; border-radius:12px; padding:10px 12px; color:var(--ink); }
+.cmp-v5-actions{ display:flex; gap:10px; margin-top:14px; align-items:center; }
+.cmp-v5-actions .cmp-act-main{ all:unset; box-sizing:border-box; flex:1; min-width:0; text-align:center; background:var(--rust); color:#fff; border-radius:14px; padding:12px; font-weight:700; font-size:14px; cursor:pointer; }
+.cmp-v5-actions .cmp-act-main:focus-visible, .cmp-more:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; }
+.cmp-more{ all:unset; box-sizing:border-box; flex:none; width:44px; height:44px; border-radius:14px; border:1.5px solid var(--line); display:grid; place-items:center; font-size:20px; line-height:1; color:var(--ink-soft); cursor:pointer; }
+.cmp-menu{ display:none; gap:8px; margin-top:10px; }
+.cmp-item.open .cmp-menu{ display:flex; }
+.cmp-menu .cmp-act{ border:1.5px solid var(--line); border-radius:12px; padding:10px 4px; background:var(--cream); }
+.cmp-menu .cmp-act-danger{ color:#A2412F; }
+.cmp-empty5{ text-align:center; background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:30px 20px; }
+.cmp-empty5 .cmp-ico{ margin:0 auto 12px; width:56px; height:56px; font-size:28px; }
+.cmp-empty5 h3{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; margin:0 0 6px; color:var(--ink); }
+.cmp-empty5 p{ margin:0 0 16px; font-size:13px; color:var(--ink-soft); line-height:1.45; }
+.cmp-empty5 button{ all:unset; box-sizing:border-box; background:var(--rust); color:#fff; border-radius:14px; padding:12px 26px; font-weight:700; font-size:14px; cursor:pointer; }
+.cmp-empty5 button:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; }
 .cmp-link-btn{ all:unset; cursor:pointer; color:var(--rust-dark); font-weight:700; text-decoration:underline; }
 .cmp-export{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 6px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
 .cmp-export-text{ display:flex; flex-direction:column; gap:3px; font-size:12.5px; color:var(--ink-soft); line-height:1.45; min-width:0; }
@@ -4370,7 +4397,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpActResume:"Retomar", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -5653,7 +5680,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpActResume:"Resume", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -9653,6 +9680,8 @@ function bindCompareHandlers(){
     cmpGo('novo');
   });
   document.querySelectorAll('[data-cmp-open]').forEach(b=>b.addEventListener('click', e=>cmpGo('detalhe', e.currentTarget.dataset.cmpOpen)));
+  const emptyNew = document.getElementById('cmp-empty-new');
+  if(emptyNew) emptyNew.addEventListener('click', ()=>{ if(newBtn) newBtn.click(); });
 
   // Criar / editar comparação
   const novoBack = document.getElementById('cmp-novo-back');
@@ -10928,24 +10957,39 @@ function cmpMatchesFilter(c){
   return true;
 }
 function cmpFilterActive(){ return !!(cmpFilter.q.trim() || cmpFilter.cat || cmpFilter.status); }
+const CMP_AV_COLORS = ['#B96752','#C9A480','#7C8A6E','#B8ADA3','#CB9A8C'];
+function cmpInitials(str){
+  const w = String(str||'').trim().split(/\s+/).filter(Boolean);
+  if(!w.length) return '·';
+  return ((w[0][0]||'')+(w.length>1?(w[w.length-1][0]||''):'')).toUpperCase();
+}
 function cmpItemHTML(c){
-  const n = (c.proposals||[]).length;
+  const props = c.proposals||[];
+  const n = props.length;
   const files = (state.weddingDocuments||[]).filter(d=>d.compareId===c.id).length;
   const when = c.updatedAt ? formatDateShortPT(c.updatedAt.slice(0,10)) : '';
   const k = cmpStatusOf(c);
+  const catName = cmpCatName(c.category);
+  const mono = escapeHTML((String(c.name||catName||'?').trim()[0]||'?').toUpperCase());
+  const avs = props.slice(0,4).map((p,i)=>`<span class="cmp-av" style="background:${CMP_AV_COLORS[i%CMP_AV_COLORS.length]}" aria-hidden="true">${escapeHTML(cmpInitials(cmpProposalLabel(p)))}</span>`).join('');
+  const mainLbl = k==='review' ? ta('cmpActResume') : ta('cmpActOpen');
   return `
-  <div class="cmp-item" data-cmp-item="${c.id}">
+  <div class="cmp-item v5" data-cmp-item="${c.id}">
     <button type="button" class="cmp-card" data-cmp-open="${c.id}">
+      <span class="cmp-ico" aria-hidden="true">${mono}</span>
       <span class="cmp-card-main">
-        <span class="cmp-card-top"><span class="cmp-card-title">${escapeHTML(c.name||'')}</span>${cmpStatusChipHTML(c)}</span>
-        <span class="cmp-card-meta">${escapeHTML(cmpCatName(c.category))} · ${n} ${n===1?ta('cmpProposalOne'):ta('cmpProposalMany')}${files?` · ${files} ${files===1?ta('cmpFileOne'):ta('cmpFileMany')}`:''}</span>
-        <span class="cmp-card-next">${ta('cmpNext_'+k)}</span>
-        ${when?`<span class="cmp-card-date">${ta('cmpUpdatedOn')} ${when}</span>`:''}
+        <span class="cmp-card-title">${escapeHTML(c.name||'')}</span>
+        <span class="cmp-card-meta">${escapeHTML(catName)}${when?` · ${ta('cmpUpdatedOn')} ${when}`:''}</span>
       </span>
-      <span class="cmp-entry-chev">${ICONS.chev||''}</span>
+      ${cmpStatusChipHTML(c)}
     </button>
-    <div class="cmp-item-actions" role="group" aria-label="${escapeHTML(c.name||'')}">
-      <button type="button" class="cmp-act cmp-act-main" data-cmp-resume="${c.id}">${ta('cmpActResume')}</button>
+    <div class="cmp-avs">${avs}<span class="cmp-props-t">${n} ${n===1?ta('cmpProposalOne'):ta('cmpProposalMany')}${files?` · ${files} ${files===1?ta('cmpFileOne'):ta('cmpFileMany')}`:''}</span></div>
+    <div class="cmp-next">${ta('cmpNext_'+k)}</div>
+    <div class="cmp-v5-actions">
+      <button type="button" class="cmp-act cmp-act-main" data-cmp-resume="${c.id}">${mainLbl}</button>
+      <button type="button" class="cmp-more" data-cmp-more="${c.id}" aria-expanded="false" aria-label="${escapeHTML(ta('cmpActMore'))}">⋯</button>
+    </div>
+    <div class="cmp-menu" role="group" aria-label="${escapeHTML(c.name||'')}">
       <button type="button" class="cmp-act" data-cmp-edit="${c.id}">${ta('cmpActEdit')}</button>
       <button type="button" class="cmp-act" data-cmp-dup="${c.id}">${ta('cmpActDup')}</button>
       <button type="button" class="cmp-act cmp-act-danger" data-cmp-del="${c.id}">${ta('cmpActDel')}</button>
@@ -10955,7 +10999,7 @@ function cmpItemHTML(c){
 function cmpItemsHTML(){
   const all = cmpList().slice().sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
   const shown = all.filter(cmpMatchesFilter);
-  if(!all.length) return { html:`<div class="empty-note">${ta('cmpEmpty')}</div>`, shown:0, total:0 };
+  if(!all.length) return { html:`<div class="cmp-empty5"><div class="cmp-ico" aria-hidden="true">⚖</div><h3>${ta('cmpEmptyTitle')}</h3><p>${ta('cmpEmptyHint')}</p><button type="button" id="cmp-empty-new">${ta('cmpNew')}</button></div>`, shown:0, total:0 };
   if(!shown.length) return { html:`<div class="empty-note">${ta('cmpNoResults')} <button type="button" class="cmp-link-btn" id="cmp-clear-filters">${ta('cmpFilterClear')}</button></div>`, shown:0, total:all.length };
   return { html: shown.map(cmpItemHTML).join(''), shown:shown.length, total:all.length };
 }
@@ -10991,6 +11035,8 @@ function cmpRefreshItems(){
   if(cnt) cnt.textContent = cmpFilterActive() ? ta('cmpFilterCount')(it.shown, it.total) : '';
   box.querySelectorAll('[data-cmp-open]').forEach(b=>b.addEventListener('click', e=>cmpGo('detalhe', e.currentTarget.dataset.cmpOpen)));
   bindCompareItemActions(box);
+  const emptyNew2 = document.getElementById('cmp-empty-new');
+  if(emptyNew2) emptyNew2.addEventListener('click', ()=>{ const nb=document.getElementById('cmp-new-btn'); if(nb) nb.click(); });
 }
 function cmpResume(c){
   const pend = (c.proposals||[]).find(p=>cmpAiStatus(p)==='review' && p.ai && p.ai.draft);
@@ -11023,6 +11069,13 @@ function cmpDeleteCompareById(id){
 }
 function bindCompareItemActions(root){
   root = root || document;
+  root.querySelectorAll('[data-cmp-more]').forEach(b=>b.addEventListener('click', e=>{
+    e.stopPropagation();
+    const item = e.currentTarget.closest('.cmp-item'); if(!item) return;
+    const open = !item.classList.contains('open');
+    item.classList.toggle('open', open);
+    e.currentTarget.setAttribute('aria-expanded', open?'true':'false');
+  }));
   root.querySelectorAll('[data-cmp-resume]').forEach(b=>b.addEventListener('click', e=>{ const c = cmpGet(e.currentTarget.dataset.cmpResume); if(c) cmpResume(c); }));
   root.querySelectorAll('[data-cmp-edit]').forEach(b=>b.addEventListener('click', e=>{
     const c = cmpGet(e.currentTarget.dataset.cmpEdit); if(!c) return;
