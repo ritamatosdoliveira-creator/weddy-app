@@ -1284,6 +1284,57 @@ html{
 .cmp-prop-file-n{ min-width:0; overflow-wrap:anywhere; }
 .cmp-prop-file-more{ flex:0 0 auto; font-weight:700; color:var(--rust-dark); }
 .cmp-prop-more{ flex:0 0 auto; font-size:20px; line-height:1; letter-spacing:1px; color:var(--ink-soft); padding-left:4px; }
+/* v271 — elementos só para desktop (escondidos no telemóvel) */
+.cmp-colhd > .cmp-colhd-sp, .cmp-colhd-p, .cmp-r-tag, .cmp-prop-data, .cmp-prop-editbtn{ display:none; }
+
+/* v271 — Weddy Compare em desktop (≥1024 px). Nada disto se aplica ao telemóvel. */
+@media (min-width:1024px){
+  .cmp-desk{ max-width:1280px; margin:0 auto; padding:0 28px 28px; box-sizing:border-box; }
+  .cmp-step, .cmp-step-foot{ display:none !important; }
+  .cmp-d-side > *, .cmp-d-main > *, .cmp-d-rmain > *, .cmp-d-rside > *{ margin-left:0 !important; margin-right:0 !important; }
+  .cmp-tabs{ margin-left:0; margin-right:0; }
+  .cmp-d-cmp{ display:grid; grid-template-columns:300px minmax(0,1fr); gap:24px; align-items:start; }
+  .cmp-d-side{ position:sticky; top:8px; }
+  .cmp-d-side .cmp-prio{ margin-top:0; }
+  .cmp-d-main .cmp-colhd{ grid-template-columns:200px repeat(var(--n),minmax(0,1fr)) 150px; gap:8px; padding:12px 16px; }
+  .cmp-colhd > .cmp-colhd-sp{ display:block; }
+  .cmp-colhd span{ display:flex; flex-direction:column; }
+  .cmp-colhd-p{ display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-top:2px; }
+  .cmp-d-main .cmp-r{ display:grid; grid-template-columns:200px minmax(0,1fr) 150px; gap:8px; align-items:start; padding:14px 16px; }
+  .cmp-d-main .cmp-l{ margin:0; padding-top:6px; font-size:13.5px; color:var(--ink); }
+  .cmp-d-main .cmp-r-tag{ display:block; justify-self:end; align-self:start; margin-top:4px; padding:4px 10px; border-radius:99px; background:#F2EEE9; color:var(--ink-soft); font-size:12px; font-weight:600; text-align:center; }
+  .cmp-d-main .cmp-r-tag.d{ background:#FBE9E4; color:var(--rust-dark); }
+  .cmp-d-main .cmp-textrow .cmp-g{ display:none; }
+  .cmp-d-main .cmp-textrow .cmp-full{ grid-column:2; grid-row:1; margin-top:0; }
+  .cmp-d-main .cmp-textrow .cmp-full > summary{ display:none; }
+  .cmp-d-main .cmp-full-body{ display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:8px; }
+  .cmp-d-main .cmp-full-p{ border-top:0; padding:6px 8px; }
+  .cmp-d-main .cmp-full-who{ display:none; }
+  .cmp-d-main .cmp-sec{ margin-bottom:16px; }
+  /* Propostas */
+  .cmp-props{ display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:20px; padding:0; align-items:stretch; }
+  .cmp-prop{ flex-wrap:wrap; align-items:flex-start; padding:18px; }
+  .cmp-prop-tile{ width:88px; height:66px; }
+  .cmp-prop-tile svg{ width:30px; height:30px; }
+  .cmp-prop-data{ display:flex; flex-direction:column; gap:6px; flex:1 0 100%; padding:12px 14px; border-radius:12px; background:#FBF6F3; margin-top:6px; }
+  .cmp-prop-data-h{ font-size:12px; font-weight:700; color:var(--ink); }
+  .cmp-prop-dl{ display:flex; gap:10px; font-size:12.5px; color:var(--ink-soft); line-height:1.4; }
+  .cmp-prop-dl b{ flex:0 0 120px; font-weight:600; color:var(--ink); }
+  .cmp-prop-dl span{ min-width:0; overflow-wrap:anywhere; }
+  .cmp-prop-editbtn{ display:block; flex:1 0 100%; text-align:center; padding:9px; margin-top:6px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--rust-dark); font-size:13px; font-weight:600; }
+  .cmp-add{ min-height:200px; flex-direction:column; border-radius:18px; }
+  .cmp-note{ grid-column:1 / -1; }
+  /* Relatório */
+  .cmp-d-rep{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr); gap:24px; align-items:start; }
+  .cmp-d-rside .cmp-more-h{ margin-top:0; }
+  .cmp-report > *{ margin-left:0; margin-right:0; }
+  .cmp-report > .cmp-rep-body{ margin:0; }
+}
+@media (min-width:1024px) and (max-width:1279px){
+  .cmp-d-cmp{ grid-template-columns:270px minmax(0,1fr); }
+  .cmp-d-main .cmp-colhd, .cmp-d-main .cmp-r{ grid-template-columns:150px minmax(0,1fr) 130px; }
+  .cmp-d-main .cmp-colhd{ grid-template-columns:150px repeat(var(--n),minmax(0,1fr)) 130px; }
+}
 .sup-banner{ display:flex; gap:12px; align-items:stretch; margin:0 18px 18px; padding:18px; border-radius:16px; background:#EADFD6; }
 .sup-banner-text{ flex:1; min-width:0; }
 .sup-banner-eyebrow{ font-size:9.5px; font-weight:600; letter-spacing:.08em; color:#A9705C; text-transform:uppercase; margin-bottom:7px; }
@@ -4619,7 +4670,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -5902,7 +5953,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -9764,6 +9815,8 @@ function viewCompareDetalhe(){
     const nf = docs.length;
     const fileLine = nf ? `<span class="cmp-prop-file"><span class="cmp-prop-file-ico" aria-hidden="true">${DOC_SVG}</span><span class="cmp-prop-file-n">${escapeHTML(String(docs[0].d.name||''))}</span>${nf>1?`<span class="cmp-prop-file-more">${ta('cmpMoreFiles')(nf-1)}</span>`:''}</span>` : '';
     const chips = `${cmpAiChipHTML(p)}${cmpLinkChipsHTML(p)}`;
+    const dataLines = ['services','payment','deadline'].map(k=>{ const f = cmpConfirmed(p,k); return f ? `<span class="cmp-prop-dl"><b>${ta('cmpCrit_'+k)}</b><span>${escapeHTML(cmpDisplayVal(k,f.v))}</span></span>` : ''; }).filter(Boolean).join('');
+    const dataBlock = dataLines ? `<span class="cmp-prop-data"><span class="cmp-prop-data-h">${ta('cmpDeskExtracted')}</span>${dataLines}</span>` : '';
     return `
     <button type="button" class="cmp-prop" data-cmp-prop="${p.id}" aria-label="${escapeHTML(cmpProposalLabel(p))} · ${escapeHTML(ta('cmpEditProposal'))}">
       <span class="cmp-prop-tile" aria-hidden="true">${DOC_SVG}</span>
@@ -9774,6 +9827,8 @@ function viewCompareDetalhe(){
         ${fileLine}
       </span>
       <span class="cmp-prop-more" aria-hidden="true">···</span>
+      ${dataBlock}
+      <span class="cmp-prop-editbtn" aria-hidden="true">${ta('cmpDeskEditProp')}</span>
     </button>`;
   }).join('');
   const canAdd = props.length < (c.max||3);
@@ -9784,9 +9839,7 @@ function viewCompareDetalhe(){
   const stepIdx = tab==='comparar' ? 1 : tab==='propostas' ? 2 : 3;
   const stepHTML = `<div class="cmp-step" aria-hidden="true"><span class="cmp-step-bar"><i style="width:${Math.round(stepIdx/3*100)}%"></i></span><span class="cmp-step-n">${ta('cmpStepOf')(stepIdx)}</span></div>`;
   const panelCompare = props.length >= 2 ? `
-    ${cmpPrioritiesHTML(c)}
-    ${cmpPickHTML(c)}
-    ${cmpSectionsHTML(cs)}
+    <div class="cmp-d-cmp"><div class="cmp-d-side">${cmpPrioritiesHTML(c)}</div><div class="cmp-d-main">${cmpPickHTML(c)}${cmpSectionsHTML(cs)}</div></div>
     <div class="cmp-step-foot"><button type="button" class="cmp-step-btn cmp-step-primary" id="cmp-step-next">${ta('cmpStepNext')} <span aria-hidden="true">→</span></button></div>` : needTwo;
   const panelProps = `
   <div class="sup-section-head"><span>${ta('cmpProposals')} (${props.length}/${c.max||3})</span></div>
@@ -9797,13 +9850,13 @@ function viewCompareDetalhe(){
   ${props.length>=2 ? `<div class="cmp-step-foot"><button type="button" class="cmp-step-btn" id="cmp-step-back"><span aria-hidden="true">←</span> ${ta('cmpStepBack')}</button><button type="button" class="cmp-step-btn cmp-step-primary" id="cmp-step-report">${ta((c.report&&c.report.data)||!cmpReportEligible(c)?'cmpStepSeeReport':'cmpStepReport')} <span aria-hidden="true">→</span></button></div>` : ''}
   <div class="cmp-danger"><button type="button" id="cmp-delete" class="cmp-link-danger">${ta('cmpDeleteComparison')}</button></div>`;
   const panelReport = props.length >= 2 ? cmpReportHTML(c) : needTwo;
-  return `
+  return `<div class="cmp-desk">
   ${pageHeader('cmp-detail-back', escapeHTML(c.name||''), escapeHTML(cmpCatName(c.category)), `<button class="cmp-edit-btn" id="cmp-edit-btn" type="button">${ta('cmpEditComparison')}</button>`)}
   ${(()=>{ const pend = props.filter(p=>cmpAiStatus(p)==='review'); return pend.length ? `<div class="cmp-pending"><span>${pend.length} ${pend.length===1?ta('cmpAiPendingBannerOne'):ta('cmpAiPendingBanner')}</span><button type="button" data-cmp-review="${pend[0].id}">${ta('cmpAiReview')}</button></div>` : ''; })()}
   ${tabsHTML}
   ${stepHTML}
   ${tab==='comparar' ? panelCompare : tab==='propostas' ? panelProps : panelReport}
-  <div style="height:10px;"></div>`;
+  <div style="height:10px;"></div></div>`;
 }
 
 function viewCompareProposta(){
@@ -10560,6 +10613,7 @@ function cmpBulletParts(text){
 }
 const cmpWordSet = t=>new Set(String(t||'').toLowerCase().replace(/[^a-zà-ú0-9€ ]/g,' ').split(/\s+/).filter(w=>w.length>2));
 function cmpCellParts(k, cell){ return cell && cell.f ? cmpBulletParts(String(cmpDisplayVal(k, cell.f.v)||'')) : []; }
+const cmpDesk = ()=>{ try{ return !!(window.matchMedia && window.matchMedia('(min-width:1024px)').matches); }catch(e){ return false; } };
 const CMP_DOTS = ['#B96752','#C9A480','#7C8A6E','#B8ADA3'];
 const cmpClip = (t,n)=>{ t = String(t||''); return t.length>n ? t.slice(0,n-1).trim()+'…' : t; };
 // Linha «de texto»: alguma proposta tem texto longo que se divide em pontos. Só apresentação.
@@ -10569,7 +10623,7 @@ function cmpIsTextRow(info){
 }
 // Cabeçalho fixo com as propostas (uma coluna cada, até 3), com a cor de cada uma.
 function cmpColHeadHTML(cs){
-  return `<div class="cmp-colhd" style="--n:${cs.proposals.length}">${cs.proposals.map((p,i)=>`<div><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b><span>${escapeHTML(cmpProposalLabel(p))}</span></div>`).join('')}</div>`;
+  return `<div class="cmp-colhd" style="--n:${cs.proposals.length}"><div class="cmp-colhd-sp" aria-hidden="true"></div>${cs.proposals.map((p,i)=>{ const pr = cmpDisplayVal('price', cmpVal(p,'price')); return `<div><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b><span>${escapeHTML(cmpProposalLabel(p))}${pr?`<small class="cmp-colhd-p">${escapeHTML(pr)}</small>`:''}</span></div>`; }).join('')}<div class="cmp-colhd-sp" aria-hidden="true"></div></div>`;
 }
 // Texto completo de uma proposta, em pontos; destaca (rosa) os pontos que as outras não têm.
 function cmpFullBodyHTML(info, idx){
@@ -10617,8 +10671,11 @@ function cmpSectionRowHTML(cs, info){
     const d = differs && info.cells.some(o=>o!==x && cmpNormVal(info.k,o)!==mine);
     return `<div class="cmp-c${d?' d':''}">${cmpBriefCellHTML(cs,info,x)}</div>`;
   }).join('');
-  const full = cmpIsTextRow(info) ? `<details class="cmp-full"><summary>${ta('cmpFullShow')}</summary><div class="cmp-full-body">${info.cells.map((x,i)=>`<div class="cmp-full-p"><div class="cmp-full-who"><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b>${escapeHTML(cmpProposalLabel(cs.proposals[i]))}</div>${cmpFullBodyHTML(info,i)}</div>`).join('')}</div></details>` : '';
-  return `<div class="cmp-r"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div><div class="cmp-g" style="--n:${n}">${cells}</div>${full}</div>`;
+  const isText = cmpIsTextRow(info);
+  const pfx = cmpPriceFacts(cs);
+  const tagTxt = (info.k==='price' && pfx.comparable && Math.max(...Object.values(pfx.byId).map(d=>d.delta))>0) ? '+ '+fmtEUR2(Math.max(...Object.values(pfx.byId).map(d=>d.delta))) : (info.diff||info.hasMissing) ? ta(isText?'cmpDeskDiff':'cmpDeskDiffShort') : ta('cmpDeskSame');
+  const full = isText ? `<details class="cmp-full"${cmpDesk()?' open':''}><summary>${ta('cmpFullShow')}</summary><div class="cmp-full-body" style="--n:${n}">${info.cells.map((x,i)=>`<div class="cmp-full-p"><div class="cmp-full-who"><b style="background:${CMP_DOTS[i%CMP_DOTS.length]}" aria-hidden="true"></b>${escapeHTML(cmpProposalLabel(cs.proposals[i]))}</div>${cmpFullBodyHTML(info,i)}</div>`).join('')}</div></details>` : '';
+  return `<div class="cmp-r${isText?' cmp-textrow':''}"><div class="cmp-l">${ta('cmpCrit_'+info.k)} ${cmpPrioTagHTML(cs,info.k)}</div><div class="cmp-g" style="--n:${n}">${cells}</div><div class="cmp-r-tag${(info.diff||info.hasMissing)?' d':''}">${escapeHTML(tagTxt)}</div>${full}</div>`;
 }
 function cmpToolbar2HTML(rowsAny){
   return `<div class="cmp-tools2">${rowsAny?`<label class="cmp-difftoggle2"><input type="checkbox" id="cmp-diff-toggle" ${compareDiffOnly?'checked':''}><span>${ta('cmpOnlyDiff')}</span></label>`:'<span></span>'}<details class="cmp-how"><summary>${ta('cmpHowRead')}</summary><div class="cmp-how-body"><div>${cmpOriginTag('doc')} ${ta('cmpLegendDoc')}</div><div>${cmpOriginTag('inf')} ${ta('cmpLegendInf')}</div><div>${cmpOriginTag('you')} ${ta('cmpLegendYou')}</div><div><span class="cmp-val cmp-none" style="font-size:11px;">${ta('cmpNotIndicated')}</span> ${ta('cmpLegendNone')}</div></div></details></div>`;
@@ -10635,7 +10692,7 @@ function cmpSectionsHTML(cs){
     if(!list.length) return '';
     list.forEach(r=>shownKeys.add(r.k)); shownCount += list.length;
     const nd = grp.filter(isDiff).length;
-    const open = nd>0 && opened<2 ? (opened++, 'open') : '';
+    const open = nd>0 && (opened<2 || cmpDesk()) ? (opened++, 'open') : '';
     return `<details class="cmp-sec" ${open}><summary><span style="color:inherit;font-size:inherit;text-transform:inherit;letter-spacing:inherit;font-weight:inherit;">${ta(title)}</span><span>${ta('cmpDiffCount')(nd)}</span></summary>${wrap(cs.proposals.length, list.map(r=>cmpSectionRowHTML(cs,r)).join(''))}</details>`;
   }).join('');
   const rest = rows.filter(r=>!shownKeys.has(r.k));
@@ -10983,10 +11040,10 @@ function cmpReportBodyHTML(c){
   const noteTxt = (pf.reason!=='needs_two') ? cmpPriceNoteText(c,pf) : '';
   const note = (noteTxt && !(pf.status==='partial' && cmpReportHasScopeNote(D, noteTxt))) ? `<div class="cmp-pnote ${cmpPriceNoteClass(pf)}">${escapeHTML(noteTxt)}</div>` : '';
   const folds = [cmpFullCompareFoldHTML(c,D,used), cmpStrengthsFoldHTML(c,D,used), cmpAttentionFoldHTML(c,D), cmpQuestionsFoldHTML(c,D)].filter(Boolean);
-  return `
+  return `<div class="cmp-d-rep"><div class="cmp-d-rmain">
     ${cmpOrientationHTML(c)}
-    ${cmpDiffCardHTML(c,D,used,note)}
-    ${folds.length ? `<h3 class="cmp-more-h">${ta('cmpMoreDetails')}</h3>${folds.join('')}` : ''}`;
+    ${cmpDiffCardHTML(c,D,used,note)}</div>
+    ${folds.length ? `<div class="cmp-d-rside"><h3 class="cmp-more-h">${ta('cmpMoreDetails')}</h3>${folds.join('')}</div>` : ''}</div>`;
 }
 function cmpReportHTML(c){
   const job = cmpReportJobStatus(c);
