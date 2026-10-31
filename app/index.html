@@ -2747,6 +2747,21 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 #todo-cat-sheet .sheet-btns{ margin-top:22px; gap:12px; }
 #todo-cat-sheet .btn-cancel, #todo-cat-sheet .btn-save{ height:50px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:15px; font-weight:500; }
 #todo-cat-sheet .btn-cancel{ background:#EFEAE6; color:#9A4F3D; }
+/* Nova categoria como página (telemóvel): ocupa o ecrã todo, sem folha ancorada ao fundo,
+   para o teclado do iPhone não deslocar a app. No desktop mantém-se a janela centrada. */
+.tdx-back{ display:none; }
+@media (max-width:767px){
+  #todo-cat-sheet{ position:fixed; top:0; bottom:0; max-height:none; height:auto; border-radius:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top,0px) + 12px) 18px calc(env(safe-area-inset-bottom,0px) + 28px); box-shadow:none; z-index:60; }
+  #todo-cat-sheet .sheet-handle{ display:none; }
+  #todo-cat-sheet .tdx-back{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:40px; height:40px; margin-left:-8px; color:#302B29; cursor:pointer; }
+  #todo-cat-sheet .tdx-back svg{ width:22px; height:22px; }
+  #todo-cat-sheet .sheet-title{ margin-top:2px; }
+}
+@media (max-width:767px){
+  /* Novo movimento (Gastos) também como página no telemóvel — mesma razão */
+  #expense-sheet{ position:fixed; top:0; bottom:0; max-height:none; height:auto; border-radius:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 28px); box-shadow:none; z-index:60; }
+  #expense-sheet > .sheet-handle{ display:none; }
+}
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -3122,6 +3137,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
   </div>
   <div class="sheet" id="todo-cat-sheet">
     <div class="sheet-handle"></div>
+    <button type="button" class="tdx-back" id="tc-back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
     <div class="sheet-title" id="tc-sheet-title" data-t="tcSheetTitleNew">Nova categoria</div>
     <div class="sheet-field"><label data-t="tdxIcon">Ícone</label><div class="tdx-icons" id="tc-icons" role="radiogroup"><button type="button" class="tdx-ic" data-tcicon="doc" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="music" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="church" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="ring" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="glass" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="camera" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="heart" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="gift" role="radio"></button></div><input type="hidden" id="tc-icon" value="doc"></div>
     <div class="sheet-field"><label data-t="labelTcLabel">Etiqueta (ex: Flores)</label><input type="text" id="tc-label" data-t-placeholder="phTcLabelExample" placeholder="Ex: Flores"></div>
@@ -21656,14 +21672,20 @@ function resetKeyboardScroll(){
     if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
     document.querySelectorAll('.screen').forEach(el=>{ if(el.scrollTop) el.scrollTop = 0; });
     [document.body, document.documentElement, document.scrollingElement].forEach(el=>{ if(el && el.scrollTop) el.scrollTop = 0; });
-    if(window.scrollY) window.scrollTo(0,0);
+    // O iOS pode deixar a janela "deslocada" mesmo com scrollY a 0: um pequeno
+    // empurrão obriga-o a recalcular a posição e a repintar a página inteira.
+    window.scrollTo(0,1); window.scrollTo(0,0);
+    const vv = window.visualViewport;
+    if(vv && (vv.offsetTop > 0 || vv.pageTop > 0)){ window.scrollTo(0,0); }
+    const root = document.documentElement, prev = root.style.height;
+    root.style.height = (window.innerHeight + 1) + 'px'; void root.offsetHeight; root.style.height = prev;
   };
   [60, 250, 600].forEach(t=>setTimeout(run, t));
 }
 document.addEventListener('focusout', e=>{
   if(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) resetKeyboardScroll();
 });
-if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ if(Math.abs(window.visualViewport.height - window.innerHeight) < 80) resetKeyboardScroll(); }); }
+if(window.visualViewport){ window.visualViewport.addEventListener('scroll', ()=>{ if(!anySheetOpen() && window.visualViewport.offsetTop > 0) resetKeyboardScroll(); }); window.visualViewport.addEventListener('resize', ()=>{ if(Math.abs(window.visualViewport.height - window.innerHeight) < 80) resetKeyboardScroll(); }); }
 
 function anySheetOpen(){
   return !!document.querySelector('.sheet.show');
@@ -22990,6 +23012,7 @@ function tdxSyncColor(c){
 document.addEventListener('click', e=>{
   const ic = e.target.closest && e.target.closest('#tc-icons .tdx-ic');
   if(ic){ tdxSyncIcons(ic.dataset.tcicon); return; }
+  if(e.target.closest && e.target.closest('#tc-back')){ document.getElementById('tc-cancel').click(); return; }
   const co = e.target.closest && e.target.closest('#tc-colors .tdx-co');
   if(co){ tdxSyncColor(co.dataset.tccolor); return; }
   if(e.target.closest && e.target.closest('[data-tdx-add]')){
