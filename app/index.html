@@ -2521,6 +2521,163 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
   .gx-add input{ flex:1; }
   .gx-add-btn{ width:280px; flex:none; }
 }
+/* v282 — Gastos (desenho de referência da Rita): cartões brancos, anéis, lista contínua. Mesmas fontes e componentes globais. */
+.gtx{ --gx-rose:#A8505C; --gx-btn:#B65B6B; --gx-sh:0 1px 2px rgba(60,40,30,.04), 0 8px 22px rgba(60,40,30,.07); padding:0 16px 40px; }
+.gtx-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 0 10px; }
+.gtx-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:38px; line-height:1; color:var(--gx-rose); text-align:left; }
+.gtx .gtx-add{ width:42px; height:42px; flex:none; background:var(--gx-btn); box-shadow:0 5px 14px rgba(168,80,92,.30); }
+.gtx .gtx-add:active{ background:var(--gx-rose); }
+.gtx-add svg{ width:16px; height:16px; }
+.gtx-top{ margin-top:6px; }
+.gtx-cards{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.gtx-rc{ background:#fff; border-radius:16px; box-shadow:var(--gx-sh); padding:16px 10px 18px; display:flex; flex-direction:column; align-items:center; min-width:0; }
+.gtx-rc-l{ align-self:flex-start; padding-left:8px; font-size:14px; color:var(--ox-soft); }
+.gtx-ring{ position:relative; width:100px; height:100px; margin:8px 0 12px; }
+.gtx-ring svg{ width:100%; height:100%; display:block; }
+.gtx-ring-c{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.gtx-ring-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:28px; line-height:1; color:var(--ox-ink); }
+.gtx-rc-v{ text-align:center; }
+.gtx-rc-v b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; line-height:1.1; color:var(--heading); white-space:nowrap; }
+.gtx-rc-v span{ display:block; margin-top:3px; font-size:13px; color:var(--ox-soft); }
+.gtx-strip{ margin-top:12px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); background:#F3EBE8; border-radius:14px; padding:14px 0; }
+.gtx-strip > div{ text-align:center; min-width:0; padding:2px 8px; }
+.gtx-strip > div + div{ border-left:1px solid rgba(120,90,80,.2); }
+.gtx-strip b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:25px; line-height:1.1; color:var(--heading); white-space:nowrap; }
+.gtx-strip > div:first-child b{ color:var(--gx-rose); }
+.gtx-strip span{ display:block; margin-top:4px; font-size:13.5px; color:var(--ox-soft); }
+.gtx-sec-h{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:30px 0 8px; }
+.gtx-sec-h h2{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; line-height:1.15; color:#3A2F2C; }
+.gtx-sec-h .orcx-link{ padding:6px 0; }
+.gtx-cols{ display:block; }
+.gtx-cat{ display:grid; grid-template-columns:18px minmax(0,1fr) auto 14px; grid-template-areas:"d n v c" "d b v c"; column-gap:12px; row-gap:7px; align-items:center; padding:11px 0; border-bottom:1px solid var(--ox-line); cursor:pointer; }
+.gtx-cat:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gtx-cat .orcx-dot{ grid-area:d; width:16px; height:16px; }
+.gtx-cat-n{ grid-area:n; font-size:15px; color:var(--ox-ink); overflow-wrap:anywhere; }
+.gtx-cat-bar{ grid-area:b; display:block; height:4px; border-radius:99px; background:#ECE6E3; overflow:hidden; }
+.gtx-cat-bar i{ display:block; height:100%; border-radius:99px; }
+.gtx-cat-vals{ grid-area:v; display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+.gtx-cat-v{ font-size:14px; color:var(--ox-ink); white-space:nowrap; }
+.gtx-cat-p{ font-size:13px; color:var(--ox-soft); }
+.gtx-cat-v.is-over, .gtx-cat-p.is-over{ color:var(--ox-over); }
+.gtx-cat-ch{ grid-area:c; display:flex; color:var(--ox-soft); }
+.gtx-cat-ch svg{ width:8px; height:14px; }
+.gtx-card{ background:#fff; border-radius:16px; box-shadow:var(--gx-sh); padding:2px 16px; }
+.gtx-row{ display:grid; grid-template-columns:minmax(0,1fr) auto 14px; grid-template-areas:"n t ch" "dt dt dt" "tag tag tag" "fin fin fin" "due due due"; column-gap:10px; row-gap:9px; align-items:start; padding:18px 0 16px; border-bottom:1px solid #EFE9E5; cursor:pointer; }
+.gtx-row:last-child{ border-bottom:0; }
+.gtx-row:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gtx-n{ grid-area:n; font-size:16.5px; font-weight:500; color:#2F2926; overflow-wrap:anywhere; line-height:1.3; }
+.gtx-t{ grid-area:t; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:22px; line-height:1.1; color:var(--gx-rose); white-space:nowrap; }
+.gtx-ch{ grid-area:ch; display:flex; align-items:center; align-self:center; color:var(--ox-soft); }
+.gtx-ch svg{ width:8px; height:14px; }
+.gtx-dt{ grid-area:dt; font-size:13.5px; color:var(--ox-soft); margin-top:-3px; }
+.gtx-tag{ grid-area:tag; justify-self:start; display:inline-block; font-size:13px; font-weight:500; line-height:1.2; padding:6px 14px; border-radius:99px; max-width:100%; }
+.gtx-fin3{ grid-area:fin; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) minmax(0,.95fr); }
+.gtx-fin3 > span{ min-width:0; padding:0 8px 0 10px; border-left:1px solid #EFE9E5; }
+.gtx-fin3 > span:first-child{ padding-left:2px; border-left:0; }
+.gtx-fin3 i{ display:block; font-style:normal; font-size:12px; color:var(--ox-soft); margin-bottom:4px; }
+.gtx-fin3 b{ display:block; font-size:13.5px; font-weight:500; color:var(--ox-ink); overflow-wrap:break-word; word-break:normal; hyphens:none; line-height:1.3; }
+.gtx-fin3 b em{ font-style:normal; font-weight:400; color:var(--ox-soft); white-space:nowrap; }
+.gtx-due{ grid-area:due; display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--ox-soft); padding-top:2px; }
+.gtx-due svg{ width:18px; height:18px; flex:none; }
+.gtx-due.is-ok{ color:var(--sage-dark); }
+.gtx-sup, .gtx-pd, .gtx-ms, .gtx-thead{ display:none; }
+.is-overdue{ color:var(--ox-over) !important; }
+.is-soon{ color:#A9803F !important; }
+.gtx-movhead{ margin-top:22px; }
+.gtx-movhead h2{ flex:1 1 auto; min-width:0; white-space:nowrap; }
+.gtx-bk{ all:unset; box-sizing:border-box; cursor:pointer; width:34px; height:34px; margin-left:-8px; display:flex; align-items:center; justify-content:center; color:var(--gx-rose); }
+.gtx-bk svg{ width:20px; height:20px; }
+.gtx-bk:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:6px; }
+.gtx-tools{ display:flex; align-items:center; gap:6px; flex:none; }
+.gtx-fbtn{ all:unset; box-sizing:border-box; cursor:pointer; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--ox-soft); position:relative; }
+.gtx-fbtn svg{ width:19px; height:19px; }
+.gtx-fbtn.is-on{ color:var(--gx-rose); }
+.gtx-fbtn.is-on::after{ content:''; position:absolute; top:7px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--gx-rose); }
+.gtx-fbtn:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.gtx-sort{ position:relative; display:flex; align-items:center; gap:7px; color:var(--ox-soft); }
+.gtx-sort svg{ width:18px; height:18px; flex:none; }
+.gtx-sort select{ max-width:156px; -webkit-appearance:none; appearance:none; border:0; background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2398918A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center/14px; font-family:inherit; font-size:14px; color:var(--ox-ink); padding:8px 20px 8px 0; outline:none; text-overflow:ellipsis; }
+.gtx-sort select:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:4px; }
+.gtx-fpanel{ display:none; margin:0 0 14px; }
+.gtx-fpanel.is-open{ display:block; }
+.gtx .search-bar{ margin:0 0 10px; background:#fff; border:1px solid var(--ox-line); border-radius:12px; padding:0 14px; height:46px; }
+.gtx .search-bar input{ font-size:15px; }
+.gtx .search-bar svg{ width:16px; height:16px; }
+.gtx-filters{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.gtx-sel{ -webkit-appearance:none; appearance:none; width:100%; min-width:0; height:44px; border:1px solid var(--ox-line); border-radius:10px; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2398918A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center/14px; padding:0 32px 0 12px; font-family:inherit; font-size:14px; color:var(--ox-ink); outline:none; text-overflow:ellipsis; }
+.gtx-sel:focus{ border-color:var(--ox-terra); }
+.gtx-count{ margin:10px 0 0; font-size:12.5px; color:var(--ox-soft); }
+.gtx-dtitle{ font-size:34px; overflow-wrap:anywhere; color:var(--gx-rose); }
+.gtx-dsub{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:12px 0 0; font-size:14px; color:var(--ox-soft); }
+.gtx-dsub .gtx-tag{ grid-area:auto; }
+.gtx-dsum{ padding:4px 0 22px; border-bottom:1px solid var(--ox-line); }
+.gtx-dtotal b{ display:block; margin-top:8px; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:50px; line-height:1; color:var(--gx-rose); }
+.gtx-dsum .orcx-prog{ margin:18px 0 8px; }
+.gtx-dsum .orcx-prog i{ background:var(--gx-rose); }
+.gtx-form{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 14px; padding:24px 0 8px; }
+.gtx-f{ display:flex; flex-direction:column; gap:7px; min-width:0; }
+.gtx-f > span{ font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); line-height:1.3; }
+.gtx-f-wide{ grid-column:1/-1; }
+.gtx-in{ box-sizing:border-box; width:100%; min-width:0; max-width:100%; height:46px; border:1px solid var(--ox-line); border-radius:8px; background:#fff; padding:0 12px; font-family:inherit; font-size:15px; color:var(--ox-ink); outline:none; -webkit-appearance:none; appearance:none; text-align:left; }
+.gtx-in:focus{ border-color:var(--ox-terra); }
+select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2398918A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center/14px; padding-right:32px; }
+.gtx-f.gtx-duef.is-overdue .gtx-in{ border-color:var(--ox-over); }
+.gtx-detail .orcx-cat-actions{ padding-top:14px; }
+/* Novo movimento: formulário mais compacto e alinhado com a identidade (mesmos campos, ids e validações) */
+#expense-sheet{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:12px; align-content:start; }
+#expense-sheet > .sheet-handle, #expense-sheet > .sheet-title, #expense-sheet > .sheet-btns, #expense-sheet > .sheet-field:nth-child(3), #expense-sheet > .sheet-field:nth-child(9){ grid-column:1/-1; }
+#expense-sheet > .sheet-field:nth-child(9){ order:1; }
+#expense-sheet > .sheet-btns{ order:2; }
+#expense-sheet .sheet-field{ margin-bottom:12px; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; }
+#expense-sheet .sheet-field label{ font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:#98918A; margin-bottom:6px; line-height:1.3; }
+#expense-sheet .sheet-field input, #expense-sheet .sheet-field select{ height:46px; border-radius:8px; border-color:#EAE5E0; padding:0 12px; font-size:15px; box-sizing:border-box; min-width:0; max-width:100%; text-align:left; }
+#expense-sheet .sheet-field input:focus, #expense-sheet .sheet-field select:focus{ border-color:#B96750; }
+@media (min-width:768px){
+  .gtx{ padding:0 32px 48px; }
+  .gtx-title{ font-size:44px; }
+  .gtx-fpanel .gtx-filters{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .gtx .search-bar{ max-width:520px; }
+  .gtx-ring{ width:116px; height:116px; }
+  .gtx-row{ column-gap:16px; }
+  .gtx-dtotal b{ font-size:58px; }
+  .gtx-form{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .gtx-form .gtx-f.gtx-duef{ grid-column:span 2; }
+  .gtx-detail{ max-width:860px; }
+}
+@media (min-width:1024px){
+  .gtx{ padding:12px 40px 64px; }
+  .gtx-title{ font-size:52px; }
+  .gtx-top{ display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:16px; align-items:stretch; }
+  .gtx-strip{ margin-top:0; grid-template-columns:1fr; align-content:center; padding:10px 0; }
+  .gtx-strip > div{ padding:14px 28px; text-align:left; }
+  .gtx-strip > div + div{ border-left:0; border-top:1px solid rgba(120,90,80,.2); }
+  .gtx-cols{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); column-gap:56px; align-items:start; }
+  .gtx-fbtn{ display:none; }
+  .gtx-fpanel{ display:block; }
+  .gtx-fpanel .search-bar{ display:inline-flex; width:100%; max-width:380px; vertical-align:top; margin-right:12px; }
+  .gtx-movs .gtx-fpanel{ display:flex; flex-wrap:wrap; align-items:flex-start; gap:0 0; }
+  .gtx-movs .gtx-fpanel .gtx-filters{ flex:1; min-width:520px; grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .gtx-movs .gtx-fpanel .gtx-count{ flex-basis:100%; }
+  .gtx-movs .gtx-card{ padding:2px 22px 4px; }
+  .gtx-movs .gtx-thead, .gtx-movs .gtx-row{ grid-template-columns:minmax(0,1.7fr) minmax(0,1.15fr) 100px minmax(0,1.1fr) 104px 104px 104px 18px; column-gap:16px; }
+  .gtx-movs .gtx-thead{ display:grid; align-items:center; padding:14px 0 8px; border-bottom:1px solid #EFE9E5; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); }
+  .gtx-movs .gtx-thead button{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:4px; min-height:32px; }
+  .gtx-movs .gtx-thead button:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+  .gtx-movs .gtx-thead .r{ justify-content:flex-end; text-align:right; }
+  .gtx-movs .gtx-row{ grid-template-areas:none; align-items:center; padding:14px 0; }
+  .gtx-movs .gtx-fin3, .gtx-movs .gtx-due{ display:none; }
+  .gtx-movs .gtx-n{ grid-area:1/1; font-size:15px; font-weight:400; }
+  .gtx-movs .gtx-tag{ grid-area:1/2; }
+  .gtx-movs .gtx-dt{ grid-area:1/3; font-size:14px; margin-top:0; }
+  .gtx-movs .gtx-sup{ display:block; grid-area:1/4; font-size:14px; color:var(--ox-soft); overflow-wrap:anywhere; }
+  .gtx-movs .gtx-t{ grid-area:1/5; text-align:right; font-size:21px; }
+  .gtx-movs .gtx-pd{ display:block; grid-area:1/6; text-align:right; font-size:14.5px; color:var(--ox-ink); }
+  .gtx-movs .gtx-ms{ display:block; grid-area:1/7; text-align:right; font-size:14.5px; color:var(--ox-soft); }
+  .gtx-movs .gtx-ms.has{ color:var(--gx-rose); font-weight:500; }
+  .gtx-movs .gtx-ch{ grid-area:1/8; }
+}
+@media (max-width:420px){ .gtx-sort svg{ display:none; } .gtx-tools{ gap:2px; } }
+@media (max-width:359px){ .gtx-ring{ width:88px; height:88px; } .gtx-rc-v b, .gtx-strip b{ font-size:15px; } .gtx-t{ font-size:19px; } .gtx-title{ font-size:34px; } }
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -4727,6 +4884,7 @@ let openChecklistPhaseId = CHECKLIST_PHASES_PT[0] ? CHECKLIST_PHASES_PT[0].id : 
 let openNoivaChecklist = false;
 let showAllPhaseProgress = false;
 function collapseAllSections(){
+  gastosView = 'main'; expDetailId = null;
   openDesc = {};
   openTable = {};
   openGuestGroup = {};
@@ -5307,7 +5465,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", gxSub:"Organiza a lista de convidados do teu casamento.", gxConfirmedWord:"confirmados", gxConfirmedOf:(c,t)=>`${c} de ${t} convidados confirmados`, gxAdd:"Adicionar convidado", gxColName:"Nome", gxColContact:"Contacto", gxNoResults:"Nenhum convidado encontrado.", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", gtxMissingPay:x=>`Falta pagar ${x}`, gtxPaidFull:"Totalmente pago", gtxColMethod:"Método", gtxSeeAllCats:"Ver todas", gtxFilters:"Filtros", gtxSeeAll:"Ver todos", gtxSearch:"Procurar movimento", gtxAllCats:"Categoria", gtxAllSup:"Fornecedor", gtxAllMeth:"Método", gtxAllStatus:"Estado", gtxStPaid:"Pago", gtxStOpen:"Por pagar", gtxStOverdue:"Em atraso", gtxSortNew:"Data (mais recente)", gtxSortOld:"Data (mais antiga)", gtxSortVal:"Valor (maior)", gtxSortCat:"Categoria", gtxSortBy:"Ordenar por", gtxColState:"Estado", gtxColExp:"Despesa", gtxColCat:"Categoria", gtxColDate:"Data", gtxColSup:"Fornecedor", gtxColTotal:"Total", gtxColPaid:"Pago", gtxColMiss:"Em falta", gtxMissing:"Falta", gtxUntil:"até", gtxOfTotal:"do total", gtxOfBudget:"do orçamento", gtxBudgetTotal:"Orçamento total", gtxNoMatch:"Nenhum movimento com estes filtros.", gtxCount:n=>`${n} ${n===1?'movimento':'movimentos'}`, gtxDetailTotal:"Valor total", gtxPaidField:"Valor pago (€)", gtxDelete:"Eliminar movimento", gxSub:"Organiza a lista de convidados do teu casamento.", gxConfirmedWord:"confirmados", gxConfirmedOf:(c,t)=>`${c} de ${t} convidados confirmados`, gxAdd:"Adicionar convidado", gxColName:"Nome", gxColContact:"Contacto", gxNoResults:"Nenhum convidado encontrado.", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6590,7 +6748,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", gxSub:"Organise your wedding guest list.", gxConfirmedWord:"confirmed", gxConfirmedOf:(c,t)=>`${c} of ${t} guests confirmed`, gxAdd:"Add guest", gxColName:"Name", gxColContact:"Contact", gxNoResults:"No guests found.", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", gtxMissingPay:x=>`${x} left to pay`, gtxPaidFull:"Fully paid", gtxColMethod:"Method", gtxSeeAllCats:"See all", gtxFilters:"Filters", gtxSeeAll:"See all", gtxSearch:"Search entries", gtxAllCats:"Category", gtxAllSup:"Supplier", gtxAllMeth:"Method", gtxAllStatus:"Status", gtxStPaid:"Paid", gtxStOpen:"To pay", gtxStOverdue:"Overdue", gtxSortNew:"Date (newest)", gtxSortOld:"Date (oldest)", gtxSortVal:"Amount (highest)", gtxSortCat:"Category", gtxSortBy:"Sort by", gtxColState:"Status", gtxColExp:"Expense", gtxColCat:"Category", gtxColDate:"Date", gtxColSup:"Supplier", gtxColTotal:"Total", gtxColPaid:"Paid", gtxColMiss:"Remaining", gtxMissing:"Left", gtxUntil:"by", gtxOfTotal:"of total", gtxOfBudget:"of budget", gtxBudgetTotal:"Total budget", gtxNoMatch:"No entries match these filters.", gtxCount:n=>`${n} ${n===1?'entry':'entries'}`, gtxDetailTotal:"Total amount", gtxPaidField:"Amount paid (€)", gtxDelete:"Delete entry", gxSub:"Organise your wedding guest list.", gxConfirmedWord:"confirmed", gxConfirmedOf:(c,t)=>`${c} of ${t} guests confirmed`, gxAdd:"Add guest", gxColName:"Name", gxColContact:"Contact", gxNoResults:"No guests found.", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -9260,116 +9418,293 @@ document.addEventListener('keydown', e=>{
 /* ============================================================
    VIEW: Gastos
 ============================================================ */
-function viewGastos(){
-  const totalValue = totalExpenseValue();
-  const totalPaid = totalExpensePaid();
-  const budgetTotal = state.budget.total;
-
-  const rows = state.expenses.map((e,i)=>{
-    const cat = catById(e.category);
-    const catIdx = state.categories.findIndex(c=>c.id===e.category);
-    const pair = CAT_COLOR_PAIRS[catIdx>=0?catIdx%CAT_COLOR_PAIRS.length:0];
-    const remaining = Math.max(0, moneyNum(e.value)-moneyNum(e.paid));
-    let dueWarn = '';
-    if(remaining>0 && e.dueDate){
-      const days = Math.ceil((new Date(e.dueDate+'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
-      if(days<0) dueWarn = ' overdue';
-      else if(days<=15) dueWarn = ' soon';
+// v282 — Gastos editorial: página principal (indicadores, pago vs orçamentado, movimentos recentes),
+// lista de Movimentos (pesquisa, filtros, ordenação) e detalhe de cada movimento.
+// Os dados (state.expenses), os cálculos e os handlers [data-exp] / [data-delexp] são os originais.
+let gastosView = 'main';   // 'main' | 'movs' | 'det'
+let gastosPrev = 'main';   // de onde se abriu o detalhe
+let expDetailId = null;
+let expQ = '', expFCat = '', expFSup = '', expFMeth = '', expFStatus = '', expSortK = 'date';
+function gtxMethodLabel(m){
+  if(!m) return ta('optionNotDefined');
+  if(m==='mbway') return 'MB WAY';
+  return ta(m==='transferencia' ? 'methodTransfer' : m==='dinheiro' ? 'methodCash' : m==='cartao' ? 'methodCard' : 'optionNotDefined');
+}
+function gtxDate(d){ return d ? String(d).split('-').reverse().join('/') : '—'; }
+function gtxRemaining(e){ return Math.max(0, moneyNum(e.value)-moneyNum(e.paid)); }
+function gtxDueClass(e){
+  if(!(gtxRemaining(e)>0 && e.dueDate)) return '';
+  const days = Math.ceil((new Date(e.dueDate+'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
+  return days<0 ? ' is-overdue' : (days<=15 ? ' is-soon' : '');
+}
+function gtxStatus(e){ if(gtxRemaining(e)<=0) return 'paid'; return gtxDueClass(e).includes('overdue') ? 'overdue' : 'open'; }
+function gtxCatIdx(id){ return state.categories.findIndex(c=>c.id===id); }
+function gtxTagHTML(e){
+  const cat = catById(e.category), k = gtxCatIdx(e.category);
+  const c = k>=0 ? orcxColor(k) : '#B8ADA3';
+  return `<span class="gtx-tag" style="background:${c}3D; color:color-mix(in srgb, ${c} 55%, #2A201C);">${escapeHTML(cat?cat.name:'—')}</span>`;
+}
+function gtxSupplierName(e){
+  const sup = (state.suppliers||[]).find(x=>x.id===e.supplierId);
+  return sup ? sup.name : ta('noSupplierOption');
+}
+function gtxIdxById(id){
+  if(id==null) return -1;
+  const k = state.expenses.findIndex(x=>x.id!=null && String(x.id)===String(id));
+  if(k>=0) return k;
+  const n = Number(id); return (Number.isInteger(n) && state.expenses[n]) ? n : -1;
+}
+function gtxFiltered(){
+  const q = expQ.trim().toLowerCase();
+  let arr = state.expenses.map((e,i)=>({e,i}));
+  arr = arr.filter(({e})=>{
+    if(q){
+      const cat = catById(e.category);
+      const sup = (state.suppliers||[]).find(x=>x.id===e.supplierId);
+      if(![e.desc, cat&&cat.name, sup&&sup.name].join(' ').toLowerCase().includes(q)) return false;
     }
+    if(expFCat && e.category!==expFCat) return false;
+    if(expFSup){ if(expFSup==='_none'){ if(e.supplierId) return false; } else if(e.supplierId!==expFSup) return false; }
+    if(expFMeth){ if(expFMeth==='_none'){ if(e.method) return false; } else if(e.method!==expFMeth) return false; }
+    if(expFStatus){ const st = gtxStatus(e); if(expFStatus==='open' ? st==='paid' : st!==expFStatus) return false; }
+    return true;
+  });
+  return gtxSort(arr);
+}
+function gtxSort(arr, k){
+  k = k || expSortK;
+  const d = x=>x.e.date||'';
+  const out = arr.slice();
+  if(k==='date') out.sort((x,y)=> (!d(x)&&d(y)) ? 1 : (d(x)&&!d(y)) ? -1 : d(y).localeCompare(d(x)) || y.i-x.i);
+  else if(k==='dateAsc') out.sort((x,y)=> (!d(x)&&d(y)) ? 1 : (d(x)&&!d(y)) ? -1 : d(x).localeCompare(d(y)) || x.i-y.i);
+  else if(k==='value') out.sort((x,y)=> moneyNum(y.e.value)-moneyNum(x.e.value) || x.i-y.i);
+  else if(k==='cat') out.sort((x,y)=> gtxCatIdx(x.e.category)-gtxCatIdx(y.e.category) || d(y).localeCompare(d(x)));
+  return out;
+}
+const GTX_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const GTX_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg>';
+function gtxRowHTML({e,i}){
+  const rem = gtxRemaining(e), due = gtxDueClass(e).trim();
+  const total = moneyNum(e.value), paid = moneyNum(e.paid);
+  const open = e.id!=null ? e.id : i;
+  return `
+  <div class="gtx-row${rem<=0?' is-paid':''}" role="button" tabindex="0" data-openexp="${escapeHTML(String(open))}">
+    <span class="gtx-n">${escapeHTML(e.desc||'—')}</span>
+    <span class="gtx-t">${fmtEUR(total)}</span>
+    <span class="gtx-ch">${ICONS.chev}</span>
+    <span class="gtx-dt">${gtxDate(e.date)}</span>
+    ${gtxTagHTML(e)}
+    <span class="gtx-fin3">
+      <span><i>${ta('gtxColPaid')}</i><b>${fmtEUR(paid)} <em>/ ${fmtEUR(total)}</em></b></span>
+      <span><i>${ta('gtxColMethod')}</i><b>${escapeHTML(gtxMethodLabel(e.method))}</b></span>
+      <span><i>${ta('gtxColSup')}</i><b>${escapeHTML(gtxSupplierName(e))}</b></span>
+    </span>
+    <span class="gtx-due ${rem>0?due:'is-ok'}">${rem>0 ? GTX_CLOCK : GTX_CHECK}<span>${rem>0 ? `${ta('gtxMissingPay')(fmtEUR(rem))}${e.dueDate ? ` — ${ta('gtxUntil')} ${gtxDate(e.dueDate)}` : ''}` : ta('gtxPaidFull')}</span></span>
+    <span class="gtx-sup">${escapeHTML(gtxSupplierName(e))}</span>
+    <span class="gtx-pd">${fmtEUR(paid)}</span>
+    <span class="gtx-ms${rem>0?' has':''}${rem>0&&due?' '+due:''}">${rem>0 ? fmtEUR(rem) : '—'}</span>
+  </div>`;
+}
+function gtxListHTML(){
+  if(!state.expenses.length) return `<p class="orcx-empty">${ta('emptyNoMovements')}</p>`;
+  const arr = gtxFiltered();
+  if(!arr.length) return `<p class="orcx-empty">${ta('gtxNoMatch')}</p>`;
+  return arr.map(gtxRowHTML).join('');
+}
+function gtxCountText(){ const n = gtxFiltered().length; return ta('gtxCount')(n); }
+function gtxCatRowsHTML(){
+  return state.categories.map((c,i)=>{
+    const budget = Number(c.value)||0, paid = paidByCategory(c.id);
+    const pct = budget ? Math.round(paid/budget*100) : 0, over = paid>budget;
     return `
-    <div class="exp-row">
-      <div class="exp-top">
-        <input class="exp-desc-input" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="${ta('placeholderDescription')}">
-        <span class="exp-val">${fmtEUR(e.value)}</span>
-        <button class="exp-del" data-delexp="${i}">✕</button>
+    <div class="gtx-cat" role="button" tabindex="0" data-gtx-cat="${c.id}" data-catprogress="${c.id}">
+      <i class="orcx-dot" style="background:${orcxColor(i)}"></i>
+      <span class="gtx-cat-n">${escapeHTML(c.name)}</span>
+      <span class="gtx-cat-bar"><i data-catfill="${c.id}" style="width:${Math.min(100,budget?paid/budget*100:0)}%; background:${over?'var(--ox-over)':orcxColor(i)}"></i></span>
+      <span class="gtx-cat-vals"><span class="gtx-cat-v${over?' is-over':''}" data-catv="${c.id}">${fmtEUR(paid)} / ${fmtEUR(budget)}</span><span class="gtx-cat-p${over?' is-over':''}" data-catp="${c.id}">${fmtPct(pct)}</span></span>
+      <span class="gtx-cat-ch">${ICONS.chev}</span>
+    </div>`;
+  }).join('');
+}
+function gtxRingHTML(kind){
+  const totalValue = totalExpenseValue(), totalPaid = totalExpensePaid(), budgetTotal = state.budget.total;
+  const pago = kind==='pago';
+  const frac = pago ? (totalValue? totalPaid/totalValue : 0) : (budgetTotal? totalPaid/budgetTotal : 0);
+  return donutSVG(frac, pago ? 'var(--sage-dark)' : '#D0AD87', 104, 8)
+    + `<div class="gtx-ring-c"><span class="gtx-ring-n">${fmtPct(Math.round(frac*100))}</span></div>`;
+}
+function gtxAddBtn(){ return `<button class="nav-action gtx-add" id="open-sheet" aria-label="${ta('sheetTitleNewExpense')}">${ICONS.plus}</button>`; }
+function viewGastos(){
+  if(gastosView==='det'){
+    const idx = gtxIdxById(expDetailId);
+    if(idx>=0) return gtxDetailHTML(idx);
+    gastosView = gastosPrev==='movs' ? 'movs' : 'main'; expDetailId = null;
+  }
+  if(gastosView==='movs') return gtxMovsHTML();
+  const totalPaid = totalExpensePaid(), budgetTotal = state.budget.total;
+  const recent = gtxSort(state.expenses.map((e,i)=>({e,i})),'date').slice(0,5);
+  return `
+  <div class="orcx gtx">
+    <header class="gtx-head">
+      <h1 class="gtx-title">${ta('navExpensesTitle')}</h1>
+      ${gtxAddBtn()}
+    </header>
+    <section class="gtx-top">
+      <div class="gtx-cards">
+        <div class="gtx-rc">
+          <span class="gtx-rc-l">${ta('lblPaid')}</span>
+          <div class="gtx-ring" id="pago-ring-wrap">${gtxRingHTML('pago')}</div>
+          <div class="gtx-rc-v"><b data-gtx-paid>${fmtEUR(totalPaid)}</b><span>${ta('gtxOfTotal')}</span></div>
+        </div>
+        <div class="gtx-rc">
+          <span class="gtx-rc-l">${ta('lblOfBudget')}</span>
+          <div class="gtx-ring" id="orc-ring-wrap">${gtxRingHTML('orc')}</div>
+          <div class="gtx-rc-v"><b data-gtx-paid>${fmtEUR(totalPaid)}</b><span>${ta('gtxOfBudget')}</span></div>
+        </div>
       </div>
-      <div class="exp-meta">
-        <span class="exp-date-label">${ta('labelDate')}</span>
-        <input class="exp-date-input" type="date" data-exp="date|${i}" value="${e.date||''}">
-        <span class="tag-pill" style="background:${pair.bg}; color:${pair.fg};">${cat?cat.name:'—'}</span>
+      <div class="gtx-strip">
+        <div><b id="pago-porpagar">${fmtEUR(totalExpenseRemaining())}</b><span>${ta('lblToPay')}</span></div>
+        <div><b>${fmtEUR(budgetTotal)}</b><span>${ta('gtxBudgetTotal')}</span></div>
       </div>
-      <div class="exp-paid-row">
-        ${ta('labelPaidColon')} <input type="number" min="0" data-exp="paid|${i}" value="${moneyNum(e.paid)}"> / ${fmtEUR(e.value)}
+    </section>
+    <div class="gtx-cols">
+      <section class="gtx-col-cats">
+        <div class="gtx-sec-h"><h2>${ta('sectionPaidVsBudgeted')}</h2>${state.expenses.length ? `<button type="button" class="orcx-link" data-gtx="movscat">${ta('gtxSeeAllCats')} ${ICONS.chev}</button>` : ''}</div>
+        <div class="gtx-cats">${gtxCatRowsHTML()}</div>
+      </section>
+      <section class="gtx-col-recent">
+        <div class="gtx-sec-h"><h2>${ta('sectionMovements')}</h2>${state.expenses.length ? `<button type="button" class="orcx-link" data-gtx="movs">${ta('gtxSeeAll')} ${ICONS.chev}</button>` : ''}</div>
+        ${recent.length ? `<div class="gtx-card gtx-list">${recent.map(gtxRowHTML).join('')}</div>` : `<p class="orcx-empty">${ta('emptyNoMovements')}</p>`}
+      </section>
+    </div>
+  </div>`;
+}
+let expFiltersOpen = false;
+function gtxMovsHTML(){
+  const catOpts = `<option value="">${ta('gtxAllCats')}</option>` + state.categories.map(c=>`<option value="${c.id}" ${expFCat===c.id?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  const supOpts = `<option value="">${ta('gtxAllSup')}</option><option value="_none" ${expFSup==='_none'?'selected':''}>${ta('noSupplierOption')}</option>` + (state.suppliers||[]).map(x=>`<option value="${x.id}" ${expFSup===x.id?'selected':''}>${escapeHTML(x.name)}</option>`).join('');
+  const mOpts = `<option value="">${ta('gtxAllMeth')}</option><option value="_none" ${expFMeth==='_none'?'selected':''}>${ta('optionNotDefined')}</option>` + ['transferencia','dinheiro','cartao','mbway'].map(m=>`<option value="${m}" ${expFMeth===m?'selected':''}>${gtxMethodLabel(m)}</option>`).join('');
+  const stOpts = `<option value="">${ta('gtxAllStatus')}</option>` + [['paid','gtxStPaid'],['open','gtxStOpen'],['overdue','gtxStOverdue']].map(([v,k])=>`<option value="${v}" ${expFStatus===v?'selected':''}>${ta(k)}</option>`).join('');
+  const sortOpts = [['date','gtxSortNew'],['dateAsc','gtxSortOld'],['value','gtxSortVal'],['cat','gtxSortCat']].map(([v,k])=>`<option value="${v}" ${expSortK===v?'selected':''}>${ta(k)}</option>`).join('');
+  const active = !!(expQ || expFCat || expFSup || expFMeth || expFStatus);
+  const arrow = k => (expSortK===k || (k==='date' && expSortK==='dateAsc')) ? `<span class="orcx-sort-ar">${expSortK==='dateAsc'&&k==='date' ? ORCX_ICO.up : ORCX_ICO.down}</span>` : '';
+  const SLIDERS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>';
+  const LINES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h6"/></svg>';
+  return `
+  <div class="orcx gtx gtx-movs">
+    <header class="gtx-head">
+      <h1 class="gtx-title">${ta('navExpensesTitle')}</h1>
+      ${gtxAddBtn()}
+    </header>
+    <div class="gtx-sec-h gtx-movhead">
+      <button type="button" class="gtx-bk" data-gtx="main" aria-label="${ta('navExpensesTitle')}">${ICONS.chevleft}</button>
+      <h2>${ta('sectionMovements')}</h2>
+      <div class="gtx-tools">
+        <button type="button" class="gtx-fbtn${active?' is-on':''}" data-gtx="filters" aria-expanded="${expFiltersOpen||active}" aria-label="${ta('gtxFilters')}">${SLIDERS}</button>
+        <label class="gtx-sort">${LINES}<select data-expf="sort" aria-label="${ta('gtxSortBy')}">${sortOpts}</select></label>
       </div>
-      <div class="exp-method-row">
-        <span>${ta('labelMethod')}</span>
-        <select data-exp="method|${i}">
+    </div>
+    <div class="gtx-fpanel${(expFiltersOpen||active)?' is-open':''}">
+      <div class="search-bar gtx-search">${ICONS.search}<input type="text" id="exp-search" placeholder="${ta('gtxSearch')}" value="${escapeHTML(expQ)}" autocomplete="off"></div>
+      <div class="gtx-filters">
+        <select class="gtx-sel" data-expf="cat" aria-label="${ta('labelHmCategory')}">${catOpts}</select>
+        <select class="gtx-sel" data-expf="sup" aria-label="${ta('labelSupplierOptional')}">${supOpts}</select>
+        <select class="gtx-sel" data-expf="meth" aria-label="${ta('labelPaymentMethod')}">${mOpts}</select>
+        <select class="gtx-sel" data-expf="status" aria-label="${ta('gtxColState')}">${stOpts}</select>
+      </div>
+      <p class="gtx-count" id="gtx-count">${gtxCountText()}</p>
+    </div>
+    <div class="gtx-card">
+      <div class="gtx-thead" role="row">
+        <span>${ta('gtxColExp')}</span>
+        <button type="button" data-expsort="cat">${ta('gtxColCat')}${arrow('cat')}</button>
+        <button type="button" data-expsort="date">${ta('gtxColDate')}${arrow('date')}</button>
+        <span>${ta('gtxColSup')}</span>
+        <button type="button" data-expsort="value" class="r">${ta('gtxColTotal')}${arrow('value')}</button>
+        <span class="r">${ta('gtxColPaid')}</span>
+        <span class="r">${ta('gtxColMiss')}</span>
+        <span></span>
+      </div>
+      <div class="gtx-list" id="gtx-list">${gtxListHTML()}</div>
+    </div>
+  </div>`;
+}
+function gtxDetailHTML(i){
+  const e = state.expenses[i];
+  const total = moneyNum(e.value), paid = moneyNum(e.paid), rem = gtxRemaining(e);
+  const pct = total ? Math.min(100, Math.round(paid/total*100)) : 0;
+  const backLbl = gastosPrev==='movs' ? ta('sectionMovements') : ta('navExpensesTitle');
+  return `
+  <div class="orcx gtx gtx-detail" data-det="${i}">
+    <div class="gx-top"><button type="button" class="gx-back" data-gtx="back">${ICONS.chevleft}<span>${backLbl}</span></button></div>
+    <header class="orcx-head">
+      <h1 class="orcx-title gtx-dtitle">${escapeHTML(e.desc||'—')}</h1>
+      <p class="gtx-dsub"><span>${gtxDate(e.date)}</span>${gtxTagHTML(e)}</p>
+    </header>
+    <section class="gtx-dsum">
+      <div class="gtx-dtotal"><span class="orcx-lbl">${ta('gtxDetailTotal')}</span><b>${fmtEUR(total)}</b></div>
+      <div class="orcx-prog${gtxDueClass(e).includes('overdue')?' is-over':''}" id="gtx-d-prog"><i style="width:${pct}%"></i></div>
+      <div class="orcx-prog-ends"><span id="gtx-d-paid">${ta('gtxColPaid')} ${fmtEUR(paid)}</span><span id="gtx-d-rem">${rem>0 ? `${ta('gtxMissing')} ${fmtEUR(rem)}` : ta('gtxStPaid')}</span></div>
+    </section>
+    <section class="gtx-form">
+      <label class="gtx-f gtx-f-wide"><span>${ta('labelExpenseDescription')}</span><input class="gtx-in" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="${ta('placeholderDescription')}"></label>
+      <label class="gtx-f"><span>${ta('labelDate')}</span><input class="gtx-in" type="date" data-exp="date|${i}" value="${e.date||''}"></label>
+      <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="number" min="0" inputmode="decimal" data-exp="paid|${i}" value="${paid}"></label>
+      <label class="gtx-f"><span>${ta('labelPaymentMethod')}</span>
+        <select class="gtx-in" data-exp="method|${i}">
           <option value="" ${!e.method?'selected':''}>${ta('optionNotDefined')}</option>
           <option value="transferencia" ${e.method==='transferencia'?'selected':''}>${ta('methodTransfer')}</option>
           <option value="dinheiro" ${e.method==='dinheiro'?'selected':''}>${ta('methodCash')}</option>
           <option value="cartao" ${e.method==='cartao'?'selected':''}>${ta('methodCard')}</option>
           <option value="mbway" ${e.method==='mbway'?'selected':''}>MB WAY</option>
-        </select>
-      </div>
-      <div class="exp-method-row">
-        <span>${ta('labelSupplierOptional')}</span>
-        <select data-exp="supplierId|${i}">
+        </select></label>
+      <label class="gtx-f"><span>${ta('labelSupplierOptional')}</span>
+        <select class="gtx-in" data-exp="supplierId|${i}">
           <option value="" ${!e.supplierId?'selected':''}>${ta('noSupplierOption')}</option>
-          ${state.suppliers.map(s=>`<option value="${s.id}" ${e.supplierId===s.id?'selected':''}>${escapeHTML(s.name)}</option>`).join('')}
-        </select>
-      </div>
-      ${remaining>0 && e.dueDate ? `
-      <div class="exp-due-row${dueWarn}" data-duerow="${i}">
-        <span data-dueremaining="${i}">${ta('remainingToPayLabel')(fmtEUR(remaining))}</span>
-        <input type="date" class="exp-due-input" data-exp="dueDate|${i}" value="${e.dueDate||''}">
-      </div>` : ''}
-      ${remaining>0 && !e.dueDate ? `
-      <label class="exp-due-row exp-adddue-row" data-duerow="${i}">
-        <span>${ta('btnSetDueDate')}</span>
-        <input type="date" class="exp-adddue-input" data-exp="dueDate|${i}" value="">
-      </label>` : ''}
-    </div>`;
-  }).join('');
-
-  const progress = state.categories.map((c,i)=>{
-    const catBudget = Number(c.value)||0;
-    const paid = paidByCategory(c.id);
-    const pct = catBudget? Math.min(100,(paid/catBudget)*100) : 0;
-    const over = paid>catBudget;
-    return `
-    <div class="cat-progress" data-catprogress="${c.id}">
-      <div class="cp-row"><span>${escapeHTML(c.name)}</span><span class="${over?'over':''}">${fmtEUR(paid)} / ${fmtEUR(catBudget)}</span></div>
-      <div class="cp-track"><div class="cp-fill ${over?'over':''}" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-
-  return `
-  <div class="navbar navbar-row">
-    <div><h1>${ta('navExpensesTitle')}</h1></div>
-    <button class="nav-action" id="open-sheet">${ICONS.plus}</button>
-  </div>
-
-  <div class="ring-row">
-    <div class="ring-card">
-      <div class="ring-label">${ta('lblPaid')}</div>
-      <div class="ring-wrap" id="pago-ring-wrap">
-        ${donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)}
-        <div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
-      </div>
-      <div class="ring-breakdown">
-        <div><div class="n" id="pago-porpagar">${fmtEUR(totalExpenseRemaining())}</div><div class="l">${ta('lblToPay')}</div></div>
-      </div>
-      <div class="ring-desc">${ta('ringDescPaid')}</div>
-    </div>
-    <div class="ring-card">
-      <div class="ring-label">${ta('lblOfBudget')}</div>
-      <div class="ring-wrap" id="orc-ring-wrap">
-        ${donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)}
-        <div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalPaid/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>
-      </div>
-      <div class="ring-breakdown">
-        <div><div class="n">${fmtEUR(budgetTotal)}</div><div class="l">${ta('navBudgetTitle')}</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-label">${ta('sectionPaidVsBudgeted')}</div>
-  <div class="list-group">${progress}</div>
-
-  <div class="section-label">${ta('sectionMovements')}</div>
-  <div class="list-group">${rows || `<div class="empty-note">${ta('emptyNoMovements')}</div>`}</div>
-  `;
+          ${state.suppliers.map(x=>`<option value="${x.id}" ${e.supplierId===x.id?'selected':''}>${escapeHTML(x.name)}</option>`).join('')}
+        </select></label>
+      <label class="gtx-f gtx-f-wide gtx-duef${gtxDueClass(e)}" data-duerow="${i}" style="${rem>0?'':'display:none'}"><span>${ta('labelPayByDateOptional')}</span><input class="gtx-in" type="date" data-exp="dueDate|${i}" value="${e.dueDate||''}"></label>
+    </section>
+    <div class="orcx-cat-actions"><button type="button" class="orcx-act is-danger" data-delexp="${i}">${ICONS.trash}<span>${ta('gtxDelete')}</span></button></div>
+  </div>`;
 }
+// Navegação, pesquisa, filtros e ordenação de Gastos (só apresentação; os dados são tratados pelos handlers originais).
+document.addEventListener('click', e=>{
+  const g = e.target.closest && e.target.closest('[data-gtx]');
+  if(g){
+    const a = g.getAttribute('data-gtx');
+    if(a==='movs'){ gastosView='movs'; expDetailId=null; }
+    else if(a==='main'){ gastosView='main'; expDetailId=null; }
+    else if(a==='movscat'){ gastosView='movs'; expDetailId=null; expSortK='cat'; }
+    else if(a==='filters'){ expFiltersOpen = !expFiltersOpen; }
+    else if(a==='back'){ gastosView = gastosPrev==='movs' ? 'movs' : 'main'; expDetailId=null; }
+    _origRender(); return;
+  }
+  const gc = e.target.closest && e.target.closest('[data-gtx-cat]');
+  if(gc){ expFCat = gc.getAttribute('data-gtx-cat'); expQ=''; expFSup=''; expFMeth=''; expFStatus=''; expFiltersOpen=true; gastosView='movs'; expDetailId=null; _origRender(); return; }
+  const o = e.target.closest && e.target.closest('[data-openexp]');
+  if(o){ gastosPrev = gastosView==='movs' ? 'movs' : 'main'; expDetailId = o.getAttribute('data-openexp'); gastosView='det'; _origRender(); return; }
+  const so = e.target.closest && e.target.closest('[data-expsort]');
+  if(so){ const k = so.getAttribute('data-expsort'); expSortK = (k==='date') ? (expSortK==='date' ? 'dateAsc' : 'date') : k; _origRender(); }
+});
+document.addEventListener('keydown', e=>{
+  const el = e.target;
+  if(el && el.classList && (el.classList.contains('gtx-row') || el.classList.contains('gtx-cat')) && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); el.click(); }
+});
+function gtxRefreshList(){
+  const l = document.getElementById('gtx-list'); if(l) l.innerHTML = gtxListHTML();
+  const c = document.getElementById('gtx-count'); if(c) c.textContent = gtxCountText();
+}
+document.addEventListener('input', e=>{
+  if(e.target && e.target.id==='exp-search'){ expQ = e.target.value; gtxRefreshList(); }
+});
+document.addEventListener('change', e=>{
+  const f = e.target && e.target.getAttribute && e.target.getAttribute('data-expf');
+  if(!f) return;
+  const v = e.target.value;
+  if(f==='cat') expFCat=v; else if(f==='sup') expFSup=v; else if(f==='meth') expFMeth=v; else if(f==='status') expFStatus=v; else if(f==='sort') expSortK=v;
+  if(f==='sort') _origRender(); else gtxRefreshList();
+});
 
 /* ============================================================
    VIEW: Mesas
@@ -20843,36 +21178,37 @@ function softUpdateGastos(){
   const budgetTotal = state.budget.total;
 
   const pagoWrap = document.getElementById('pago-ring-wrap');
-  if(pagoWrap) pagoWrap.innerHTML = donutSVG(totalValue? totalPaid/totalValue : 0, 'var(--sage-dark)', 92, 9)
-    + `<div class="ring-center"><span class="num">${fmtPct(totalValue? Math.round(totalPaid/totalValue*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
+  if(pagoWrap) pagoWrap.innerHTML = gtxRingHTML('pago');
+  const orcWrap = document.getElementById('orc-ring-wrap');
+  if(orcWrap) orcWrap.innerHTML = gtxRingHTML('orc');
+  document.querySelectorAll('[data-gtx-paid]').forEach(el=>{ el.textContent = fmtEUR(totalPaid); });
   const porPagar = document.getElementById('pago-porpagar');
   if(porPagar) porPagar.textContent = fmtEUR(totalExpenseRemaining());
 
-  const orcWrap = document.getElementById('orc-ring-wrap');
-  if(orcWrap) orcWrap.innerHTML = donutSVG(budgetTotal? totalPaid/budgetTotal : 0, 'var(--gold)', 92, 9)
-    + `<div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalPaid/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalPaid)}</span></div>`;
-
-  state.expenses.forEach((e,i)=>{
-    const remaining = Math.max(0, moneyNum(e.value)-moneyNum(e.paid));
-    const remEl = document.querySelector(`[data-dueremaining="${i}"]`);
-    if(remEl) remEl.textContent = ta('remainingToPayLabel')(fmtEUR(remaining));
-    const rowEl = document.querySelector(`[data-duerow="${i}"]`);
-    if(rowEl) rowEl.style.display = remaining>0 ? '' : 'none';
-  });
+  // Detalhe do movimento: faltam/pago/barra seguem o valor pago
+  const det = document.querySelector('.gtx-detail[data-det]');
+  if(det){
+    const ex = state.expenses[Number(det.getAttribute('data-det'))];
+    if(ex){
+      const tot = moneyNum(ex.value), pd = moneyNum(ex.paid), rem = gtxRemaining(ex);
+      const fill = document.querySelector('#gtx-d-prog i'); if(fill) fill.style.width = (tot ? Math.min(100, Math.round(pd/tot*100)) : 0)+'%';
+      const pe = document.getElementById('gtx-d-paid'); if(pe) pe.textContent = `${ta('gtxColPaid')} ${fmtEUR(pd)}`;
+      const re = document.getElementById('gtx-d-rem'); if(re) re.textContent = rem>0 ? `${ta('gtxMissing')} ${fmtEUR(rem)}` : ta('gtxStPaid');
+      const rowEl = det.querySelector('[data-duerow]'); if(rowEl) rowEl.style.display = rem>0 ? '' : 'none';
+    }
+  }
 
   // Pago vs. orçamentado, por categoria
-  state.categories.forEach(c=>{
+  state.categories.forEach((c,ci)=>{
     const catBudget = Number(c.value)||0;
     const paid = paidByCategory(c.id);
-    const pct = catBudget? Math.min(100,(paid/catBudget)*100) : 0;
     const over = paid>catBudget;
-    const row = document.querySelector(`[data-catprogress="${c.id}"]`);
-    if(row){
-      const valSpan = row.querySelector('.cp-row span:last-child');
-      const fill = row.querySelector('.cp-fill');
-      if(valSpan){ valSpan.textContent = `${fmtEUR(paid)} / ${fmtEUR(catBudget)}`; valSpan.classList.toggle('over', over); }
-      if(fill){ fill.style.width = pct+'%'; fill.classList.toggle('over', over); }
-    }
+    const v = document.querySelector(`[data-catv="${c.id}"]`);
+    if(v){ v.textContent = `${fmtEUR(paid)} / ${fmtEUR(catBudget)}`; v.classList.toggle('is-over', over); }
+    const p = document.querySelector(`[data-catp="${c.id}"]`);
+    if(p){ p.textContent = fmtPct(catBudget ? Math.round(paid/catBudget*100) : 0); p.classList.toggle('is-over', over); }
+    const f = document.querySelector(`[data-catfill="${c.id}"]`);
+    if(f){ f.style.width = Math.min(100, catBudget? paid/catBudget*100 : 0)+'%'; f.style.background = over ? 'var(--ox-over)' : orcxColor(ci); }
   });
 
   // Início — o anel "Orçamento gasto" segue os mesmos números
