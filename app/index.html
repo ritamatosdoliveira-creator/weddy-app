@@ -2582,7 +2582,8 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .gtx-sup, .gtx-pd, .gtx-ms, .gtx-thead{ display:none; }
 .is-overdue{ color:var(--ox-over) !important; }
 .is-soon{ color:#A9803F !important; }
-.gtx-movhead{ margin-top:22px; }
+.gtx-toolsrow{ display:flex; justify-content:flex-end; margin:0 0 6px; }
+.gtx-movs, .gtx-detail{ padding-top:6px; }
 .gtx-movhead h2{ flex:1 1 auto; min-width:0; white-space:nowrap; }
 .gtx-bk{ all:unset; box-sizing:border-box; cursor:pointer; width:34px; height:34px; margin-left:-8px; display:flex; align-items:center; justify-content:center; color:var(--gx-rose); }
 .gtx-bk svg{ width:20px; height:20px; }
@@ -2607,7 +2608,7 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .gtx-sel:focus{ border-color:var(--ox-terra); }
 .gtx-count{ margin:10px 0 0; font-size:12.5px; color:var(--ox-soft); }
 .gtx-dtitle{ overflow-wrap:anywhere; }
-.gtx-dsub{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:12px 0 0; font-size:14px; color:var(--ox-soft); }
+.gtx-dsub{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:6px 0 20px; font-size:14px; color:var(--ox-soft); }
 .gtx-dsub .gtx-tag{ grid-area:auto; }
 .gtx-dsum{ padding:4px 0 22px; border-bottom:1px solid var(--ox-line); }
 .gtx-dtotal b{ display:block; margin-top:8px; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:50px; line-height:1; color:var(--gx-rose); }
@@ -9591,14 +9592,9 @@ function gtxMovsHTML(){
   const SLIDERS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>';
   const LINES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h6"/></svg>';
   return `
+  ${pageHeader('gtx-back-movs', ta('sectionMovements'), '', gtxAddBtn().replace('class="nav-action gtx-add"','class="nav-action gtx-add" style="flex-shrink:0;"')).replace('id="gtx-back-movs"','data-gtx="main" aria-label="'+ta('navExpensesTitle')+'"')}
   <div class="orcx gtx gtx-movs">
-    <header class="gtx-head">
-      <h1 class="gtx-title">${ta('navExpensesTitle')}</h1>
-      ${gtxAddBtn()}
-    </header>
-    <div class="gtx-sec-h gtx-movhead">
-      <button type="button" class="gtx-bk" data-gtx="main" aria-label="${ta('navExpensesTitle')}">${ICONS.chevleft}</button>
-      <h2>${ta('sectionMovements')}</h2>
+    <div class="gtx-toolsrow">
       <div class="gtx-tools">
         <button type="button" class="gtx-fbtn${active?' is-on':''}" data-gtx="filters" aria-expanded="${expFiltersOpen||active}" aria-label="${ta('gtxFilters')}">${SLIDERS}</button>
         <label class="gtx-sort">${LINES}<select data-expf="sort" aria-label="${ta('gtxSortBy')}">${sortOpts}</select></label>
@@ -9635,12 +9631,9 @@ function gtxDetailHTML(i){
   const pct = total ? Math.min(100, Math.round(paid/total*100)) : 0;
   const backLbl = gastosPrev==='movs' ? ta('sectionMovements') : ta('navExpensesTitle');
   return `
+  ${pageHeader('gtx-back-det', escapeHTML(e.desc||'—')).replace('id="gtx-back-det"','data-gtx="back" aria-label="'+backLbl+'"')}
   <div class="orcx gtx gtx-detail" data-det="${i}">
-    <div class="gx-top"><button type="button" class="gx-back" data-gtx="back">${ICONS.chevleft}<span>${backLbl}</span></button></div>
-    <header class="orcx-head">
-      <h1 class="orcx-title gtx-dtitle">${escapeHTML(e.desc||'—')}</h1>
-      <p class="gtx-dsub"><span>${gtxDate(e.date)}</span>${gtxTagHTML(e)}</p>
-    </header>
+    <p class="gtx-dsub"><span>${gtxDate(e.date)}</span>${gtxTagHTML(e)}</p>
     <section class="gtx-dsum">
       <div class="gtx-dtotal"><span class="orcx-lbl">${ta('gtxDetailTotal')}</span><b>${fmtEUR(total)}</b></div>
       <div class="orcx-prog${gtxDueClass(e).includes('overdue')?' is-over':''}" id="gtx-d-prog"><i style="width:${pct}%"></i></div>
