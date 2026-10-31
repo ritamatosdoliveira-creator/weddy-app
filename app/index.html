@@ -84,8 +84,8 @@ html,body{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:non
 input, textarea, select, [contenteditable="true"], [contenteditable=""]{ -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; }
 b, strong{ font-weight:600; }
 html{background:#FAF8F5;}
-html.login-active{ background:#FBF1E7 url('/login-bg.jpg') center/cover no-repeat; }
-html.login-active:has(.lgx-welcome){ background:#FAEFE6; }
+html.login-active{ background:#FAF8F5 url('/login-bg-creme.jpg') center/cover no-repeat; }
+html.login-active:has(.lgx-welcome){ background:#FAF8F5; }
 html,body{margin:0;padding:0;height:100%;background:#FAF8F5;
   /* Corrigido (Set 2026): sem isto, o Safari/iOS por vezes "infla" o
      tamanho do texto sozinho em certos ecrãs (o título aparecia gigante
@@ -138,8 +138,8 @@ html{
    conteúdo ocupa o resto do ecrã com uma largura de leitura confortável e
    a página Início passa a grelha de várias colunas. */
 @media (min-width:700px) and (min-height:560px){
-  html.login-active, html .login-screen{ background:#FBEEDF; }
-  html.login-active:has(.lgx-welcome), html .login-screen:has(.lgx-welcome){ background:#FAEFE6; }
+  html.login-active, html .login-screen{ background:#FAF8F5; }
+  html.login-active:has(.lgx-welcome), html .login-screen:has(.lgx-welcome){ background:#FAF8F5; }
   .login-screen::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:
     url('/dsk-logo.png') center 4vh/auto min(22vh,210px) no-repeat,
     url('/dsk-casal.png') right bottom/auto min(34vh,300px) no-repeat,
@@ -3057,7 +3057,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .lgx-link{ margin-top:14px; font-size:12.5px; color:var(--lg-ink); text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .lgx-or{ display:flex; align-items:center; gap:14px; margin:16px 0 4px; color:var(--lg-soft); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
 .lgx-or::before, .lgx-or::after{ content:''; flex:1; height:1px; background:var(--lg-line); }
-.login-screen:has(.lgx-welcome){ background:#FAEFE6 !important; }
+.login-screen:has(.lgx-welcome){ background:#FAF8F5 !important; }
 .lgx-login{ justify-content:flex-start; padding-top:calc(env(safe-area-inset-top,0px) + 215px); padding-bottom:calc(env(safe-area-inset-bottom,0px) + 40px); }
 .lgx-login .lgx-logo-l, .lgx-login .lgx-sprig-br{ display:none !important; }
 
@@ -3067,7 +3067,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .lgx-consent{ display:flex; flex-direction:column; align-items:center; gap:6px; margin:4px auto 0; font-size:11.5px; color:var(--lg-soft); line-height:1.5; max-width:290px; cursor:pointer; }
 .login-lang-switch{ z-index:5; }
 @media (min-width:700px) and (min-height:560px){ .lgx-logo-l, .lgx-sprig-br{ display:none !important; } .lgx-login{ justify-content:flex-start; padding-top:calc(env(safe-area-inset-top,0px) + 190px); padding-bottom:30px; } .lgx-back{ top:150px; } .lgx-foot{ padding-right:0; } }
-.login-screen{ position:absolute; inset:-2px; z-index:100; background:#FBF1E7 url('/login-bg.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
+.login-screen{ position:absolute; inset:-2px; z-index:100; background:#FAF8F5 url('/login-bg-creme.jpg') center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 30px calc(env(safe-area-inset-bottom) + 32px); text-align:center; overflow:hidden; }
 .login-inner{ position:relative; z-index:1; width:100%; }
 .login-lang-switch{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 44px); right:14px; z-index:2; display:flex; background:rgba(255,255,255,0.85); border-radius:10px; padding:3px; gap:2px; backdrop-filter:blur(4px); }
 .login-lang-switch button{ all:unset; box-sizing:border-box; padding:5px 11px; font-size:12px; font-weight:700; border-radius:7px; cursor:pointer; color:#9a8b83; }
@@ -23820,7 +23820,7 @@ function renderLoginWelcome(){
   document.getElementById('login-inner').innerHTML = `
   <div class="lgx lgx-welcome">
     <img class="lgx-sprig-tr" src="/login-sprig-tr.png" alt="">
-    <img class="lgx-logo" src="/dsk-logo.png" alt="Weddy">
+    <img class="lgx-logo" src="/login-logo-w.png" alt="Weddy">
     <h1 class="lgx-h">${ta('lgxW1')}<br>${ta('lgxW2')}</h1>
     <div class="lgx-kick">${ta('lgxKick')}</div>
     <div class="lgx-art"><img src="/login-couple.png" alt=""></div>
