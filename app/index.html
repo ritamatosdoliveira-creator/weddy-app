@@ -725,6 +725,15 @@ html{
 .task-row-chev{ display:flex; color:var(--ink-soft); flex-shrink:0; }
 .task-row-chev svg{ width:13px; height:13px; }
 .show-more-btn:active{ background:rgba(20,20,20,0.12); }
+/* v295 — Mesas: forma e n.º de lugares lado a lado */
+.tcx{ display:flex; align-items:stretch; gap:14px; padding:10px 14px 6px; }
+.tcx-col{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+.tcx-col:first-child{ flex:1; }
+.tcx-lbl{ font-size:12.5px; color:var(--ink-soft); }
+.tcx-sep{ width:1px; background:var(--line); align-self:stretch; }
+.tcx .stepper{ align-self:flex-start; border-radius:10px; }
+.tcx .stepper button{ height:34px; width:34px; }
+.tcx .stepper .sval{ width:38px; }
 .table-config-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; }
 .shape-picker{ display:flex; gap:6px; }
 .shape-btn{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:10px; border:1.4px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer;  line-height:1;}
@@ -9880,15 +9889,18 @@ function viewMesas(){
         seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${escapeHTML(name)}</span>${ICONS.chev}</div>`;
       }
       bodyHTML = `
-      <div class="table-config-row">
-        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('labelShape')}</span>
-        <div class="shape-picker">
-          ${Object.keys(TABLE_SHAPES).map(sh=>`<button class="shape-btn ${table.shape===sh?'active':''}" data-setshape="${t}|${sh}" title="${TABLE_SHAPES[sh].label}">${ICONS[TABLE_SHAPES[sh].icon]}</button>`).join('')}
+      <div class="tcx">
+        <div class="tcx-col">
+          <span class="tcx-lbl">${ta('labelShape')}</span>
+          <div class="shape-picker">
+            ${Object.keys(TABLE_SHAPES).map(sh=>`<button class="shape-btn ${table.shape===sh?'active':''}" data-setshape="${t}|${sh}" title="${TABLE_SHAPES[sh].label}">${ICONS[TABLE_SHAPES[sh].icon]}</button>`).join('')}
+          </div>
         </div>
-      </div>
-      <div class="table-config-row">
-        <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('labelSeats')}</span>
-        <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
+        <div class="tcx-sep"></div>
+        <div class="tcx-col">
+          <span class="tcx-lbl">${ta('labelSeats')}</span>
+          <div class="stepper"><button data-tableseat="${t}|-1">−</button><span class="sval">${table.seats}</span><button data-tableseat="${t}|1">+</button></div>
+        </div>
       </div>
       <div style="padding:8px 14px 4px;">
         <label style="display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px;">${ta('notesTableLabel')}</label>
