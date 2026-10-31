@@ -2751,7 +2751,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
    para o teclado do iPhone não deslocar a app. No desktop mantém-se a janela centrada. */
 .tdx-back{ display:none; }
 @media (max-width:767px){
-  #todo-cat-sheet{ position:fixed; top:0; bottom:0; max-height:none; height:auto; border-radius:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top,0px) + 12px) 18px calc(env(safe-area-inset-bottom,0px) + 28px); box-shadow:none; z-index:60; }
+  #todo-cat-sheet{ position:fixed; top:0; bottom:0; max-height:none !important; height:auto; border-radius:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top,0px) + 12px) 18px calc(env(safe-area-inset-bottom,0px) + 28px); box-shadow:none; z-index:60; }
   #todo-cat-sheet .sheet-handle{ display:none; }
   #todo-cat-sheet{ display:flex; flex-direction:column; }
   body:has(#todo-cat-sheet.show) #sheet-backdrop, body:has(#expense-sheet.show) #sheet-backdrop{ display:none; }
