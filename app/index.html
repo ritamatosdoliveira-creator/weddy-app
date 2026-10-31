@@ -21646,6 +21646,24 @@ function closeAllSheets(){
   });
 }
 document.getElementById('sheet-backdrop').addEventListener('click', closeAllSheets);
+// iOS: ao abrir o teclado o Safari desloca a página para mostrar o campo e, ao
+// fechar o teclado, deixa essa deslocação ("espaço em branco" no fundo, cabeçalho
+// cortado). Voltamos sempre ao topo quando o teclado fecha e não há folhas abertas.
+function resetKeyboardScroll(){
+  const run = ()=>{
+    if(anySheetOpen()) return;
+    const ae = document.activeElement;
+    if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+    document.querySelectorAll('.screen').forEach(el=>{ if(el.scrollTop) el.scrollTop = 0; });
+    [document.body, document.documentElement, document.scrollingElement].forEach(el=>{ if(el && el.scrollTop) el.scrollTop = 0; });
+    if(window.scrollY) window.scrollTo(0,0);
+  };
+  [60, 250, 600].forEach(t=>setTimeout(run, t));
+}
+document.addEventListener('focusout', e=>{
+  if(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) resetKeyboardScroll();
+});
+if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ if(Math.abs(window.visualViewport.height - window.innerHeight) < 80) resetKeyboardScroll(); }); }
 
 function anySheetOpen(){
   return !!document.querySelector('.sheet.show');
@@ -22987,6 +23005,8 @@ function closeTodoCatSheet(){
   document.getElementById('todo-cat-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
   editingTodoCatId = null;
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  resetKeyboardScroll();
 }
 
 // Fix 7 da auditoria RGPD/Segurança (Set 2026) — direito à portabilidade
