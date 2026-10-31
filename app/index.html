@@ -2522,11 +2522,10 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
   .gx-add-btn{ width:280px; flex:none; }
 }
 /* v282 — Gastos (desenho de referência da Rita): cartões brancos, anéis, lista contínua. Mesmas fontes e componentes globais. */
-.gtx{ --gx-rose:#A8505C; --gx-btn:#B65B6B; --gx-sh:0 1px 2px rgba(60,40,30,.04), 0 8px 22px rgba(60,40,30,.07); padding:0 16px 40px; }
-.gtx-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 0 10px; }
-.gtx-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:38px; line-height:1; color:var(--gx-rose); text-align:left; }
-.gtx .gtx-add{ width:42px; height:42px; flex:none; background:var(--gx-btn); box-shadow:0 5px 14px rgba(168,80,92,.30); }
-.gtx .gtx-add:active{ background:var(--gx-rose); }
+.gtx{ --gx-rose:var(--heading); --gx-btn:var(--rust); --gx-sh:0 1px 2px rgba(60,40,30,.04), 0 8px 22px rgba(60,40,30,.07); padding:0 16px 40px; }
+.gtx-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0 14px; }
+.gtx-title{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:44px; line-height:1; letter-spacing:.002em; color:var(--heading); text-align:left; }
+.gtx .gtx-add{ width:42px; height:42px; flex:none; }
 .gtx-add svg{ width:16px; height:16px; }
 .gtx-top{ margin-top:6px; }
 .gtx-cards{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
@@ -2545,8 +2544,8 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .gtx-strip b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:25px; line-height:1.1; color:var(--heading); white-space:nowrap; }
 .gtx-strip > div:first-child b{ color:var(--gx-rose); }
 .gtx-strip span{ display:block; margin-top:4px; font-size:13.5px; color:var(--ox-soft); }
-.gtx-sec-h{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:30px 0 8px; }
-.gtx-sec-h h2{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; line-height:1.15; color:#3A2F2C; }
+.gtx-sec-h{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; margin:30px 0 14px; border-bottom:1px solid var(--ox-line); }
+.gtx-sec-h h2{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:26px; line-height:1.1; color:var(--ox-ink); }
 .gtx-sec-h .orcx-link{ padding:6px 0; }
 .gtx-cols{ display:block; }
 .gtx-cat{ display:grid; grid-template-columns:18px minmax(0,1fr) auto 14px; grid-template-areas:"d n v c" "d b v c"; column-gap:12px; row-gap:7px; align-items:center; padding:11px 0; border-bottom:1px solid var(--ox-line); cursor:pointer; }
@@ -2607,7 +2606,7 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .gtx-sel{ -webkit-appearance:none; appearance:none; width:100%; min-width:0; height:44px; border:1px solid var(--ox-line); border-radius:10px; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2398918A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center/14px; padding:0 32px 0 12px; font-family:inherit; font-size:14px; color:var(--ox-ink); outline:none; text-overflow:ellipsis; }
 .gtx-sel:focus{ border-color:var(--ox-terra); }
 .gtx-count{ margin:10px 0 0; font-size:12.5px; color:var(--ox-soft); }
-.gtx-dtitle{ font-size:34px; overflow-wrap:anywhere; color:var(--gx-rose); }
+.gtx-dtitle{ overflow-wrap:anywhere; }
 .gtx-dsub{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:12px 0 0; font-size:14px; color:var(--ox-soft); }
 .gtx-dsub .gtx-tag{ grid-area:auto; }
 .gtx-dsum{ padding:4px 0 22px; border-bottom:1px solid var(--ox-line); }
@@ -2634,7 +2633,8 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 #expense-sheet .sheet-field input:focus, #expense-sheet .sheet-field select:focus{ border-color:#B96750; }
 @media (min-width:768px){
   .gtx{ padding:0 32px 48px; }
-  .gtx-title{ font-size:44px; }
+  .gtx-title{ font-size:52px; }
+  .gtx-sec-h h2{ font-size:30px; }
   .gtx-fpanel .gtx-filters{ grid-template-columns:repeat(4,minmax(0,1fr)); }
   .gtx .search-bar{ max-width:520px; }
   .gtx-ring{ width:116px; height:116px; }
@@ -2646,7 +2646,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 }
 @media (min-width:1024px){
   .gtx{ padding:12px 40px 64px; }
-  .gtx-title{ font-size:52px; }
+  .gtx-title{ font-size:60px; }
   .gtx-top{ display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:16px; align-items:stretch; }
   .gtx-strip{ margin-top:0; grid-template-columns:1fr; align-content:center; padding:10px 0; }
   .gtx-strip > div{ padding:14px 28px; text-align:left; }
@@ -2677,7 +2677,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
   .gtx-movs .gtx-ch{ grid-area:1/8; }
 }
 @media (max-width:420px){ .gtx-sort svg{ display:none; } .gtx-tools{ gap:2px; } }
-@media (max-width:359px){ .gtx-ring{ width:88px; height:88px; } .gtx-rc-v b, .gtx-strip b{ font-size:15px; } .gtx-t{ font-size:19px; } .gtx-title{ font-size:34px; } }
+@media (max-width:359px){ .gtx-ring{ width:88px; height:88px; } .gtx-rc-v b, .gtx-strip b{ font-size:20px; } .gtx-t{ font-size:19px; } }
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
