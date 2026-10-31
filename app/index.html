@@ -2679,6 +2679,74 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 }
 @media (max-width:420px){ .gtx-sort svg{ display:none; } .gtx-tools{ gap:2px; } }
 @media (max-width:359px){ .gtx-ring{ width:88px; height:88px; } .gtx-rc-v b, .gtx-strip b{ font-size:20px; } .gtx-t{ font-size:19px; } }
+/* v285 — To-do (cartões suaves, cor por categoria; mesma tipografia da Weddy) */
+.tdx{ --ox-ink:#302B29; --ox-soft:#98918A; --ox-line:#EAE5E0; --ox-terra:#B96750; --ox-over:#A8412F; max-width:1180px; margin:0 auto; padding:0 18px 36px; box-sizing:border-box; text-align:left; color:var(--ox-ink); font-variant-numeric:lining-nums; }
+.tdx-chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 14px; scrollbar-width:none; }
+.tdx-chips::-webkit-scrollbar{ display:none; }
+.tdx .search-bar{ margin:0 0 18px; max-width:520px; background:rgba(20,20,20,0.06); border:0; border-radius:12px; padding:13px 14px; }
+.tdx-list{ display:flex; flex-direction:column; gap:12px; }
+.tdx-cat{ display:grid; grid-template-columns:48px minmax(0,1fr); column-gap:14px; align-items:start; padding:16px; background:#fff; border-radius:16px; box-shadow:0 1px 2px rgba(60,40,30,.04), 0 8px 22px rgba(60,40,30,.06); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tdx-cat:active{ transform:scale(.995); }
+.tdx-cat:focus-visible, .tdx-notes:focus-visible, .tdx-add:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; }
+.tdx-ico{ width:48px; height:48px; border-radius:50%; background:color-mix(in srgb, var(--tc) 30%, #fff); color:color-mix(in srgb, var(--tc) 78%, #3a2f2b); display:flex; align-items:center; justify-content:center; flex:none; }
+.tdx-ico svg{ width:22px; height:22px; }
+.tdx-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.tdx-name{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; line-height:1.15; color:var(--ox-ink); overflow-wrap:anywhere; }
+.tdx-side{ display:flex; align-items:center; gap:10px; color:var(--ox-soft); padding-top:3px; flex:none; }
+.tdx-side span{ font-size:13px; white-space:nowrap; }
+.tdx-side svg{ width:14px; height:14px; flex:none; }
+.tdx-desc{ margin-top:5px; font-size:13px; line-height:1.45; color:var(--ox-soft); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.tdx-prog{ height:6px; border-radius:99px; background:color-mix(in srgb, var(--tc) 22%, #fff); margin-top:14px; overflow:hidden; }
+.tdx-prog i{ display:block; height:100%; border-radius:99px; background:var(--tc); }
+.tdx-due{ margin-top:9px; font-size:12px; color:var(--ox-soft); }
+.tdx-due.soon{ color:#9A7A4F; }
+.tdx-due.overdue{ color:var(--ox-over); }
+.tdx-add{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:14px 16px; cursor:pointer; border:1px dashed #D9C3BA; border-radius:16px; background:rgba(255,255,255,.55); }
+.tdx-plus{ width:48px; height:48px; border-radius:50%; background:#F3EBE8; color:var(--ox-terra); display:flex; align-items:center; justify-content:center; flex:none; }
+.tdx-plus svg{ width:20px; height:20px; }
+.tdx-add-t{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.tdx-add-t b{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; line-height:1.1; color:var(--ox-terra); }
+.tdx-add-t em{ font-style:normal; font-size:12.5px; color:var(--ox-soft); }
+.tdx-grid{ display:block; }
+.tdx-aside{ margin-top:26px; }
+.tdx-sec-h{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.tdx-sec-h h2{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; line-height:1.1; color:var(--ox-ink); white-space:nowrap; }
+.tdx-sec-h::after{ content:''; flex:1; height:1px; background:var(--ox-line); }
+.tdx-notes{ display:flex; align-items:center; gap:14px; padding:14px 16px; background:#fff; border-radius:16px; box-shadow:0 1px 2px rgba(60,40,30,.04), 0 8px 22px rgba(60,40,30,.06); cursor:pointer; }
+.tdx-nico{ width:44px; height:44px; border-radius:50%; background:#F0EBE6; color:var(--ox-soft); display:flex; align-items:center; justify-content:center; flex:none; }
+.tdx-nico svg{ width:18px; height:18px; }
+.tdx-notes-t{ flex:1; min-width:0; font-size:14px; line-height:1.55; color:var(--ox-ink); white-space:pre-wrap; overflow-wrap:anywhere; }
+.tdx-notes-t.is-empty{ color:var(--ox-soft); }
+.tdx-notes > svg:last-child{ width:14px; height:14px; color:var(--ox-soft); flex:none; }
+@media (min-width:768px){
+  .tdx{ padding:0 32px 48px; }
+  .tdx-list{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+  .tdx-add{ grid-column:1/-1; }
+}
+@media (min-width:1024px){
+  .tdx{ padding:8px 40px 64px; }
+  .tdx-grid{ display:grid; grid-template-columns:minmax(0,1fr) 340px; column-gap:48px; align-items:start; }
+  .tdx-aside{ margin-top:0; position:sticky; top:96px; }
+  .tdx-list{ grid-template-columns:minmax(0,1fr); }
+}
+/* Modal Nova categoria */
+#todo-cat-sheet{ padding-bottom:26px; }
+#todo-cat-sheet .sheet-title{ text-align:left; font-weight:500; font-size:30px; color:var(--heading); margin:10px 0 18px 4px; }
+#todo-cat-sheet .sheet-field{ margin-bottom:16px; }
+#todo-cat-sheet .sheet-field label{ font-size:14px; font-weight:400; letter-spacing:0; text-transform:none; color:#302B29; margin-bottom:8px; }
+#todo-cat-sheet .sheet-field input[type=text], #todo-cat-sheet .sheet-field textarea{ width:100%; box-sizing:border-box; border:1px solid #EAE5E0; background:#fff; border-radius:8px; padding:0 14px; height:48px; font-size:15px; font-family:inherit; color:#302B29; outline:none; text-align:left; }
+#todo-cat-sheet .sheet-field textarea{ height:76px; padding:12px 14px; resize:none; line-height:1.4; }
+#todo-cat-sheet .sheet-field input[type=text]:focus, #todo-cat-sheet .sheet-field textarea:focus{ border-color:#B96750; }
+.tdx-icons, .tdx-cols{ display:flex; gap:6px; flex-wrap:wrap; justify-content:space-between; }
+.tdx-ic{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; background:color-mix(in srgb, var(--tc) 30%, #fff); color:color-mix(in srgb, var(--tc) 78%, #3a2f2b); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.tdx-ic svg{ width:19px; height:19px; }
+.tdx-ic.on{ box-shadow:0 0 0 2px #fff, 0 0 0 4px #B96750; }
+.tdx-co{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:50%; background:var(--tc); cursor:pointer; }
+.tdx-co.on{ box-shadow:0 0 0 2px #fff, 0 0 0 4px #B96750; }
+.tdx-ic:focus-visible, .tdx-co:focus-visible{ outline:2px solid #B96750; outline-offset:3px; }
+#todo-cat-sheet .sheet-btns{ margin-top:22px; gap:12px; }
+#todo-cat-sheet .btn-cancel, #todo-cat-sheet .btn-save{ height:50px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:15px; font-weight:500; }
+#todo-cat-sheet .btn-cancel{ background:#EFEAE6; color:#9A4F3D; }
 .pf-card, .pf-card *{ text-align:left; }
 .pf-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:0 6px 6px 8px; }
 .pf-head-t{ min-width:0; flex:1; }
@@ -3053,9 +3121,11 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
   <div class="sheet" id="todo-cat-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="tc-sheet-title" data-t="tcSheetTitleNew">Nova categoria</div>
+    <div class="sheet-field"><label data-t="tdxIcon">Ícone</label><div class="tdx-icons" id="tc-icons" role="radiogroup"><button type="button" class="tdx-ic" data-tcicon="doc" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="music" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="church" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="ring" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="glass" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="camera" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="heart" role="radio"></button><button type="button" class="tdx-ic" data-tcicon="gift" role="radio"></button></div><input type="hidden" id="tc-icon" value="doc"></div>
     <div class="sheet-field"><label data-t="labelTcLabel">Etiqueta (ex: Flores)</label><input type="text" id="tc-label" data-t-placeholder="phTcLabelExample" placeholder="Ex: Flores"></div>
     <div class="sheet-field"><label data-t="labelTcTitle">Título</label><input type="text" id="tc-title" data-t-placeholder="phTcTitleExample" placeholder="Ex: Decoração floral"></div>
-    <div class="sheet-field"><label data-t="labelTcDesc">Descrição</label><input type="text" id="tc-desc" data-t-placeholder="phTcDescExample" placeholder="Ex: As flores para o altar e as mesas."></div>
+    <div class="sheet-field"><label data-t="labelTcDesc">Descrição</label><textarea id="tc-desc" rows="2" data-t-placeholder="phTcDescExample" placeholder="Ex: As flores para o altar e as mesas."></textarea></div>
+    <div class="sheet-field"><label data-t="tdxColor">Cor da categoria</label><div class="tdx-cols" id="tc-colors" role="radiogroup"><button type="button" class="tdx-co" data-tccolor="#B96752" role="radio" style="--tc:#B96752"></button><button type="button" class="tdx-co" data-tccolor="#E3D8CF" role="radio" style="--tc:#E3D8CF"></button><button type="button" class="tdx-co" data-tccolor="#8E9F85" role="radio" style="--tc:#8E9F85"></button><button type="button" class="tdx-co" data-tccolor="#F2BFAE" role="radio" style="--tc:#F2BFAE"></button><button type="button" class="tdx-co" data-tccolor="#EFCF98" role="radio" style="--tc:#EFCF98"></button><button type="button" class="tdx-co" data-tccolor="#E3B0BF" role="radio" style="--tc:#E3B0BF"></button><button type="button" class="tdx-co" data-tccolor="#D3DECB" role="radio" style="--tc:#D3DECB"></button><button type="button" class="tdx-co" data-tccolor="#B3D3DE" role="radio" style="--tc:#B3D3DE"></button></div><input type="hidden" id="tc-color" value="#B96752"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="tc-cancel" data-t="btnCancel">Cancelar</button>
       <button class="btn-save" id="tc-save" data-t="btnSave">Guardar</button>
@@ -5466,7 +5536,7 @@ const APP_I18N = {
     cmpSt_review:"Por rever", cmpSt_stale:"Relatório desatualizado", cmpSt_ready:"Pronta a comparar", cmpSt_draft:"Em preparação", cmpSt_report:"Relatório atualizado", cmpSt_decided:"Proposta nas despesas",
     cmpNext_review:"Revê a análise das propostas antes de comparar.", cmpNext_stale:"Atualiza o relatório antes de exportar.", cmpNext_ready:"Gera o relatório da Weddy AI ou exporta a tabela.", cmpNext_draft:"Junta pelo menos duas propostas com dados confirmados.", cmpNext_report:"Pronta para exportar em PDF.", cmpNext_decided:"Já há uma proposta nas despesas.",
     cmpSearchPh:"Pesquisar por nome, categoria ou fornecedor", cmpFilterCat:"Categoria", cmpFilterStatus:"Estado", cmpFilterAll:"Todas", cmpFilterAllSt:"Todos", cmpFilterCount:(n,t)=>`${n} de ${t} comparações`, cmpFilterClear:"Limpar filtros", cmpNoResults:"Nenhuma comparação com estes filtros.",
-    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", cmpFullCompare:"Comparação completa", gtxMissingPay:x=>`Falta pagar ${x}`, gtxPaidFull:"Totalmente pago", gtxColMethod:"Método", gtxSeeAllCats:"Ver todas", gtxFilters:"Filtros", gtxSeeAll:"Ver todos", gtxSearch:"Procurar movimento", gtxAllCats:"Categoria", gtxAllSup:"Fornecedor", gtxAllMeth:"Método", gtxAllStatus:"Estado", gtxStPaid:"Pago", gtxStOpen:"Por pagar", gtxStOverdue:"Em atraso", gtxSortNew:"Data (mais recente)", gtxSortOld:"Data (mais antiga)", gtxSortVal:"Valor (maior)", gtxSortCat:"Categoria", gtxSortBy:"Ordenar por", gtxColState:"Estado", gtxColExp:"Despesa", gtxColCat:"Categoria", gtxColDate:"Data", gtxColSup:"Fornecedor", gtxColTotal:"Total", gtxColPaid:"Pago", gtxColMiss:"Em falta", gtxMissing:"Falta", gtxUntil:"até", gtxOfTotal:"do total", gtxOfBudget:"do orçamento", gtxBudgetTotal:"Orçamento total", gtxNoMatch:"Nenhum movimento com estes filtros.", gtxCount:n=>`${n} ${n===1?'movimento':'movimentos'}`, gtxDetailTotal:"Valor total", gtxPaidField:"Valor pago (€)", gtxDelete:"Eliminar movimento", gxSub:"Organiza a lista de convidados do teu casamento.", gxConfirmedWord:"confirmados", gxConfirmedOf:(c,t)=>`${c} de ${t} convidados confirmados`, gxAdd:"Adicionar convidado", gxColName:"Nome", gxColContact:"Contacto", gxNoResults:"Nenhum convidado encontrado.", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
+    cmpMoreN:n=>`+ ${n} mais`, cmpFullShow:"Ver texto completo", cmpPrioSub_price_low:"Valor total e condições", cmpPrioSub_more_services:"O que está contemplado", cmpPrioSub_longer_duration:"Horas de cobertura", cmpPrioSub_flexibility:"Personalização e alterações", cmpPrioSub_payment_terms:"Prazos e formas de pagamento", cmpPrioSub_fewer_extra_costs:"Taxas e serviços extra", cmpPdTitle:"Diferença de preço", cmpPdLowest:n=>`${n} tem o valor total mais baixo.`, cmpPdVat:"IVA incluído em todas.", cmpPdVatEx:"IVA não incluído em nenhuma.", cmpPdNote:"Só valores confirmados. Compara os preços, não a qualidade.", cmpFoldOpen:"Abrir", cmpDiffTitle:"Principais diferenças", cmpSameIn:"Igual em todas as propostas:", cmpDiffNone:"As propostas não diferem nos dados confirmados.", cmpMoreDetails:"Mais detalhes", cmpAttnTitle:"Pontos de atenção", cmpAiText:"Ver análise em texto", tdxIcon:"Ícone", tdxIcMusic:"Música", tdxIcChurch:"Cerimónia", tdxIcDoc:"Notas", tdxAddCat:"Adicionar categoria", tdxAddCatSub:"Cria uma nova categoria de tarefas.", tdxColor:"Cor da categoria", tdxIcRing:"Aliança", tdxIcGlass:"Brinde", tdxIcCamera:"Fotografia", tdxIcHeart:"Coração", tdxIcGift:"Presente", cmpFullCompare:"Comparação completa", gtxMissingPay:x=>`Falta pagar ${x}`, gtxPaidFull:"Totalmente pago", gtxColMethod:"Método", gtxSeeAllCats:"Ver todas", gtxFilters:"Filtros", gtxSeeAll:"Ver todos", gtxSearch:"Procurar movimento", gtxAllCats:"Categoria", gtxAllSup:"Fornecedor", gtxAllMeth:"Método", gtxAllStatus:"Estado", gtxStPaid:"Pago", gtxStOpen:"Por pagar", gtxStOverdue:"Em atraso", gtxSortNew:"Data (mais recente)", gtxSortOld:"Data (mais antiga)", gtxSortVal:"Valor (maior)", gtxSortCat:"Categoria", gtxSortBy:"Ordenar por", gtxColState:"Estado", gtxColExp:"Despesa", gtxColCat:"Categoria", gtxColDate:"Data", gtxColSup:"Fornecedor", gtxColTotal:"Total", gtxColPaid:"Pago", gtxColMiss:"Em falta", gtxMissing:"Falta", gtxUntil:"até", gtxOfTotal:"do total", gtxOfBudget:"do orçamento", gtxBudgetTotal:"Orçamento total", gtxNoMatch:"Nenhum movimento com estes filtros.", gtxCount:n=>`${n} ${n===1?'movimento':'movimentos'}`, gtxDetailTotal:"Valor total", gtxPaidField:"Valor pago (€)", gtxDelete:"Eliminar movimento", gxSub:"Organiza a lista de convidados do teu casamento.", gxConfirmedWord:"confirmados", gxConfirmedOf:(c,t)=>`${c} de ${t} convidados confirmados`, gxAdd:"Adicionar convidado", gxColName:"Nome", gxColContact:"Contacto", gxNoResults:"Nenhum convidado encontrado.", orcxSubMain:"Planeia, controla e faz as melhores escolhas para o teu grande dia.", orcxSubSum:"Vê o estado do teu orçamento de forma simples e objetiva.", orcxSubDesk:"Controla as despesas e acompanha o investimento do vosso casamento.", orcxShowVals:"Ver valores", orcxHideVals:"Ver percentagens", orcxCategories:"Categorias", orcxExceeds:p=>`Excede o orçamento em ${p}%`, orcxBudgetRef:"Orçamento", orcxColCat:"Categoria", orcxColSpent:"Gasto", orcxColPct:"% do total", orcxNear:(p,r)=>`Já utilizaste ${p}% do orçamento — restam ${r}.`, orcxOverNote:r=>`Ultrapassaste o orçamento em ${r}.`, hmxChosen:"Escolhida", hmxEditKicker:"Editar hipótese", hmxNewKicker:"Nova hipótese", hmxQuote:"Colecionar destinos também faz parte da história.", homeDySub:"A procura do vestido perfeito começa aqui.", homeDyCountOne:"visita realizada", homeDyCountMany:"visitas realizadas", homeDyNew:"Nova visita", homeDyLatest:"Última visita", homeDyScheduled:"Agendada", homeDyWith:"Com", homeDyMore:"Mais opções", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Adicionar fotografia", homeDyMoodCount:(n)=>`${n} de 6`, homeDyMoodRm:"Remover fotografia", homeDyTime:"Hora", homeDyEditSub:"Atualiza os detalhes da tua visita.", homeDyNewSub:"Regista a tua visita a uma loja de vestidos.", homeDySave:"Guardar alterações", homeDyMarkFav:"Marcar como favorita", homeDyEmpty:"Ainda não registaste nenhuma visita. Começa por «Nova visita».", homeDyNotesPh:"O que acharam, preços…", homeDyPhotosHint:"Até 6 imagens", homePfTitle:"Ferramentas Weddy", homePfSub:"Tudo o que precisas para organizar o teu casamento num só lugar.", homePfPill:"Weddy Premium", homePfRsvpT:"Convites RSVP", homePfRsvpD:"Confirma a presença dos convidados.", homePfChatT:"Chatbot", homePfChatD:"Tira as tuas dúvidas em tempo real.", homePfHealthT:"Wedding Health", homePfHealthD:"Um raio-x rápido ao estado do casamento.", homePfMemT:"Weddy Memories", homePfMemD:"Revive os melhores momentos do grande dia.", homePfDocT:"Documentos do casamento", homePfDocD:"Consulta os teus contratos e documentos.", homePfCalT:"Google Calendar", homePfCalD:"Sincroniza o teu calendário do casamento.", homeQuickNav:"Atalhos", cmpBnT:"Compare fornecedores de forma simples", cmpBnS:"Analise propostas, veja as diferenças e descubra qual se adapta melhor ao vosso casamento.", cmpDiffFound:n=>`${n} ${n===1?"diferença encontrada":"diferenças encontradas"}`, cmpSeeAll:"Ver todas", cmpPillDiff:"Diferença", cmpPillSame:"Sem diferença", cmpSeeDetails:"Ver detalhes", cmpNProps:n=>`${n} ${n===1?"proposta":"propostas"}`, cmpInfoBtn:"Mais informação", cmpGrpInc:"Incluído", cmpGrpOpt:"Opcional", cmpGrpCost:"Custos adicionais", cmpGrpExc:"Não incluído", cmpSameAll:n=>n===2?"Igual nas duas propostas":"Igual em todas as propostas", cmpSimilarTag:"Condição semelhante", cmpDiffTag:"Difere", cmpInAll:n=>n===2?"Em ambas as propostas":"Em todas as propostas", cmpOnlyEach:"Específico de cada proposta", cmpOnlyIn:names=>"Só em "+names, cmpOrigBtn:"Consultar informação original", cmpNothingExcl:"Nada de exclusivo", cmpSimilarHdr:"Condição semelhante (redação diferente)", cmpDeskDiff:"Diferenças relevantes", cmpDeskDiffShort:"Difere", cmpDeskSame:"Igual", cmpDeskExtracted:"Dados principais extraídos", cmpDeskEditProp:"Editar proposta", cmpStepOf:n=>`${n} de 3`, cmpStepNext:"Continuar", cmpStepBack:"Voltar", cmpStepReport:"Gerar relatório", cmpStepSeeReport:"Ver relatório", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"ponto exclusivo", cmpExclMany:"pontos exclusivos", cmpSimilar:"Textos semelhantes nas propostas.", cmpNoRelevantDiff:"Sem diferenças relevantes",  cmpHowRead:"Como ler", cmpSameShort:"igual", cmpActResume:"Retomar", cmpActOpen:"Abrir comparação", cmpActMore:"Mais opções", cmpEmptyTitle:"Ainda sem comparações", cmpEmptyHint:"Junta 2 ou 3 propostas do mesmo fornecedor e vê as diferenças lado a lado.", cmpActEdit:"Editar", cmpActDup:"Duplicar", cmpActDel:"Eliminar", cmpDupSuffix:"(cópia)",
     cmpDupConfirm:(n)=>`Duplicar esta comparação com ${n} proposta(s)? Copiam-se os dados das propostas. Os ficheiros, a análise de IA, o relatório e as ligações às despesas ficam só na original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Eliminar «${name}»? Vais perder ${np} proposta(s) e ${nf} ficheiro(s) guardados nesta comparação.${ne?` As ${ne} despesa(s) já criadas ficam no Orçamento.`:''} Esta ação não pode ser desfeita.`,
     cmpExpPdf:"Exportar PDF", cmpExpPdfBtn:"Exportar PDF", cmpExpPdfHint:"Relatório A4 com tabela, prioridades, relatório da Weddy AI, informação em falta e perguntas.", cmpExpHintStale:"O relatório está desatualizado: atualiza-o antes de exportar.", cmpExpHintNone:"Ainda sem relatório da Weddy AI: podes gerá-lo antes de exportar.",
@@ -6749,7 +6819,7 @@ const APP_I18N = {
     cmpSt_review:"To review", cmpSt_stale:"Report out of date", cmpSt_ready:"Ready to compare", cmpSt_draft:"In preparation", cmpSt_report:"Report up to date", cmpSt_decided:"Proposal in expenses",
     cmpNext_review:"Review the proposals' analysis before comparing.", cmpNext_stale:"Update the report before exporting.", cmpNext_ready:"Generate the Weddy AI report or export the table.", cmpNext_draft:"Add at least two proposals with confirmed data.", cmpNext_report:"Ready to export as PDF.", cmpNext_decided:"A proposal is already in expenses.",
     cmpSearchPh:"Search by name, category or supplier", cmpFilterCat:"Category", cmpFilterStatus:"Status", cmpFilterAll:"All", cmpFilterAllSt:"All", cmpFilterCount:(n,t)=>`${n} of ${t} comparisons`, cmpFilterClear:"Clear filters", cmpNoResults:"No comparisons match these filters.",
-    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", cmpFullCompare:"Full comparison", gtxMissingPay:x=>`${x} left to pay`, gtxPaidFull:"Fully paid", gtxColMethod:"Method", gtxSeeAllCats:"See all", gtxFilters:"Filters", gtxSeeAll:"See all", gtxSearch:"Search entries", gtxAllCats:"Category", gtxAllSup:"Supplier", gtxAllMeth:"Method", gtxAllStatus:"Status", gtxStPaid:"Paid", gtxStOpen:"To pay", gtxStOverdue:"Overdue", gtxSortNew:"Date (newest)", gtxSortOld:"Date (oldest)", gtxSortVal:"Amount (highest)", gtxSortCat:"Category", gtxSortBy:"Sort by", gtxColState:"Status", gtxColExp:"Expense", gtxColCat:"Category", gtxColDate:"Date", gtxColSup:"Supplier", gtxColTotal:"Total", gtxColPaid:"Paid", gtxColMiss:"Remaining", gtxMissing:"Left", gtxUntil:"by", gtxOfTotal:"of total", gtxOfBudget:"of budget", gtxBudgetTotal:"Total budget", gtxNoMatch:"No entries match these filters.", gtxCount:n=>`${n} ${n===1?'entry':'entries'}`, gtxDetailTotal:"Total amount", gtxPaidField:"Amount paid (€)", gtxDelete:"Delete entry", gxSub:"Organise your wedding guest list.", gxConfirmedWord:"confirmed", gxConfirmedOf:(c,t)=>`${c} of ${t} guests confirmed`, gxAdd:"Add guest", gxColName:"Name", gxColContact:"Contact", gxNoResults:"No guests found.", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
+    cmpMoreN:n=>`+ ${n} more`, cmpFullShow:"See full text", cmpPrioSub_price_low:"Total value and terms", cmpPrioSub_more_services:"What is included", cmpPrioSub_longer_duration:"Hours of coverage", cmpPrioSub_flexibility:"Customisation and changes", cmpPrioSub_payment_terms:"Deadlines and payment methods", cmpPrioSub_fewer_extra_costs:"Fees and extra services", cmpPdTitle:"Price difference", cmpPdLowest:n=>`${n} has the lowest total price.`, cmpPdVat:"VAT included in all.", cmpPdVatEx:"VAT not included in any.", cmpPdNote:"Confirmed values only. It compares prices, not quality.", cmpFoldOpen:"Open", cmpDiffTitle:"Main differences", cmpSameIn:"Same in every proposal:", cmpDiffNone:"The proposals do not differ in the confirmed data.", cmpMoreDetails:"More details", cmpAttnTitle:"Points to watch", cmpAiText:"See the written analysis", tdxIcon:"Icon", tdxIcMusic:"Music", tdxIcChurch:"Ceremony", tdxIcDoc:"Notes", tdxAddCat:"Add category", tdxAddCatSub:"Create a new task category.", tdxColor:"Category colour", tdxIcRing:"Ring", tdxIcGlass:"Toast", tdxIcCamera:"Photography", tdxIcHeart:"Heart", tdxIcGift:"Gift", cmpFullCompare:"Full comparison", gtxMissingPay:x=>`${x} left to pay`, gtxPaidFull:"Fully paid", gtxColMethod:"Method", gtxSeeAllCats:"See all", gtxFilters:"Filters", gtxSeeAll:"See all", gtxSearch:"Search entries", gtxAllCats:"Category", gtxAllSup:"Supplier", gtxAllMeth:"Method", gtxAllStatus:"Status", gtxStPaid:"Paid", gtxStOpen:"To pay", gtxStOverdue:"Overdue", gtxSortNew:"Date (newest)", gtxSortOld:"Date (oldest)", gtxSortVal:"Amount (highest)", gtxSortCat:"Category", gtxSortBy:"Sort by", gtxColState:"Status", gtxColExp:"Expense", gtxColCat:"Category", gtxColDate:"Date", gtxColSup:"Supplier", gtxColTotal:"Total", gtxColPaid:"Paid", gtxColMiss:"Remaining", gtxMissing:"Left", gtxUntil:"by", gtxOfTotal:"of total", gtxOfBudget:"of budget", gtxBudgetTotal:"Total budget", gtxNoMatch:"No entries match these filters.", gtxCount:n=>`${n} ${n===1?'entry':'entries'}`, gtxDetailTotal:"Total amount", gtxPaidField:"Amount paid (€)", gtxDelete:"Delete entry", gxSub:"Organise your wedding guest list.", gxConfirmedWord:"confirmed", gxConfirmedOf:(c,t)=>`${c} of ${t} guests confirmed`, gxAdd:"Add guest", gxColName:"Name", gxColContact:"Contact", gxNoResults:"No guests found.", orcxSubMain:"Plan, track and make the best choices for your big day.", orcxSubSum:"See the state of your budget, simply and clearly.", orcxSubDesk:"Keep track of expenses and follow the investment in your wedding.", orcxShowVals:"Show amounts", orcxHideVals:"Show percentages", orcxCategories:"Categories", orcxExceeds:p=>`Over budget by ${p}%`, orcxBudgetRef:"Budget", orcxColCat:"Category", orcxColSpent:"Spent", orcxColPct:"% of total", orcxNear:(p,r)=>`You have used ${p}% of the budget — ${r} left.`, orcxOverNote:r=>`You are over budget by ${r}.`, hmxChosen:"Chosen", hmxEditKicker:"Edit option", hmxNewKicker:"New option", hmxQuote:"Collecting destinations is part of the story too.", homeDySub:"The search for the perfect dress starts here.", homeDyCountOne:"visit made", homeDyCountMany:"visits made", homeDyNew:"New visit", homeDyLatest:"Latest visit", homeDyScheduled:"Scheduled", homeDyWith:"With", homeDyMore:"More options", homeDyMoodTitle:"Moodboard", homeDyMoodAdd:"Add photo", homeDyMoodCount:(n)=>`${n} of 6`, homeDyMoodRm:"Remove photo", homeDyTime:"Time", homeDyEditSub:"Update the details of your visit.", homeDyNewSub:"Record your visit to a bridal shop.", homeDySave:"Save changes", homeDyMarkFav:"Mark as favourite", homeDyEmpty:"You have not recorded any visits yet. Start with “New visit”.", homeDyNotesPh:"What you thought, prices…", homeDyPhotosHint:"Up to 6 images", homePfTitle:"Weddy Tools", homePfSub:"Everything you need to organise your wedding in one place.", homePfPill:"Weddy Premium", homePfRsvpT:"RSVP invitations", homePfRsvpD:"Confirm your guests' attendance.", homePfChatT:"Chatbot", homePfChatD:"Get your questions answered in real time.", homePfHealthT:"Wedding Health", homePfHealthD:"A quick X-ray of where your wedding stands.", homePfMemT:"Weddy Memories", homePfMemD:"Relive the best moments of the big day.", homePfDocT:"Wedding documents", homePfDocD:"Find your contracts and documents.", homePfCalT:"Google Calendar", homePfCalD:"Sync your wedding calendar.", homeQuickNav:"Shortcuts", cmpBnT:"Compare suppliers simply", cmpBnS:"Review proposals, see the differences and find which one suits your wedding best.", cmpDiffFound:n=>`${n} ${n===1?"difference found":"differences found"}`, cmpSeeAll:"See all", cmpPillDiff:"Difference", cmpPillSame:"No difference", cmpSeeDetails:"View details", cmpNProps:n=>`${n} ${n===1?"proposal":"proposals"}`, cmpInfoBtn:"More information", cmpGrpInc:"Included", cmpGrpOpt:"Optional", cmpGrpCost:"Additional costs", cmpGrpExc:"Not included", cmpSameAll:n=>n===2?"Same in both proposals":"Same in all proposals", cmpSimilarTag:"Similar condition", cmpDiffTag:"Differs", cmpInAll:n=>n===2?"In both proposals":"In all proposals", cmpOnlyEach:"Specific to each proposal", cmpOnlyIn:names=>"Only in "+names, cmpOrigBtn:"See original information", cmpNothingExcl:"Nothing exclusive", cmpSimilarHdr:"Similar condition (different wording)", cmpDeskDiff:"Relevant differences", cmpDeskDiffShort:"Differs", cmpDeskSame:"Same", cmpDeskExtracted:"Main extracted data", cmpDeskEditProp:"Edit proposal", cmpStepOf:n=>`${n} of 3`, cmpStepNext:"Continue", cmpStepBack:"Back", cmpStepReport:"Generate report", cmpStepSeeReport:"View report", cmpMoreFiles:n=>`+${n}`, cmpExclOne:"unique point", cmpExclMany:"unique points", cmpSimilar:"Similar texts in the proposals.", cmpNoRelevantDiff:"No relevant differences",  cmpHowRead:"How to read", cmpSameShort:"same", cmpActResume:"Resume", cmpActOpen:"Open comparison", cmpActMore:"More options", cmpEmptyTitle:"No comparisons yet", cmpEmptyHint:"Add 2 or 3 proposals from the same kind of supplier and see the differences side by side.", cmpActEdit:"Edit", cmpActDup:"Duplicate", cmpActDel:"Delete", cmpDupSuffix:"(copy)",
     cmpDupConfirm:(n)=>`Duplicate this comparison with ${n} proposal(s)? The proposal data is copied. Files, the AI analysis, the report and links to expenses stay only on the original.`,
     cmpDelConfirmFull:(name,np,nf,ne)=>`Delete «${name}»? You will lose ${np} proposal(s) and ${nf} file(s) stored in this comparison.${ne?` The ${ne} expense(s) already created stay in Budget.`:''} This cannot be undone.`,
     cmpExpPdf:"Export PDF", cmpExpPdfBtn:"Export PDF", cmpExpPdfHint:"A4 report with table, priorities, Weddy AI report, missing information and questions.", cmpExpHintStale:"The report is out of date: update it before exporting.", cmpExpHintNone:"No Weddy AI report yet: you can generate it before exporting.",
@@ -10480,7 +10550,22 @@ function supplierCardHTML(opts){
 /* ============================================================
    VIEW: To-do (categorias — músicas, igreja, geral)
 ============================================================ */
-const TODO_ICONS = { music:'musicnote', church:'church', doc:'docnote' };
+const TODO_ICONS = { music:'musicnote', church:'church', doc:'docnote', ring:'ring', glass:'tables', camera:'camera', heart:'heart', gift:'gift' };
+const TDX_SVG = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const TDX_EXTRA = {
+  ring: '<circle cx="12" cy="15" r="6"/><path d="M9.5 5.5 12 3l2.5 2.5L12 8Z"/>',
+  camera: '<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.5 4.3 4.3 0 0 1 19.5 10c0 5.400-7.500 10-7.500 10Z"/>',
+  gift: '<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.500V20h14v-7.500M12 8.500V20M12 8.500C10.500 8.500 8.500 8 8.500 6.200 8.500 4.800 10 4.300 11 5.200 11.700 5.800 12 8.500 12 8.500Zm0 0c1.500 0 3.500-.5 3.500-2.300 0-1.400-1.500-1.900-2.500-1Z"/>'
+};
+function tdxIcon(k){
+  if(k==='glass') return ICONS.tables;
+  if(TDX_EXTRA[k]) return TDX_SVG(TDX_EXTRA[k]);
+  return ICONS[TODO_ICONS[k]] || ICONS.docnote;
+}
+const TDX_COLORS = ['#B96752','#E3D8CF','#8E9F85','#F2BFAE','#EFCF98','#E3B0BF','#D3DECB','#B3D3DE'];
+const TDX_DEFCOL = { music:0, church:2, doc:3, ring:4, glass:5, camera:7, heart:5, gift:3 };
+function tdxColor(cat){ return (cat && /^#[0-9a-fA-F]{6}$/.test(cat.color||'')) ? cat.color : TDX_COLORS[TDX_DEFCOL[cat && cat.icon] ?? 0]; }
 function todoCatProgress(cat){
   const total = cat.items.length;
   const done = cat.items.filter(i=>i.done).length;
@@ -10510,42 +10595,52 @@ function viewTodo(){
   });
   const rows = filtered.map(cat=>{
     const {total,done} = todoCatProgress(cat);
+    const pct = total ? Math.round(done/total*100) : 0;
     const nextDue = todoCatNextDue(cat);
     const nextDueUrgency = nextDue ? dueUrgency(nextDue) : '';
+    const col = tdxColor(cat);
     return `
-    <div class="todo-cat-card" data-opencat="${cat.id}">
-      <div class="todo-cat-icon">${ICONS[TODO_ICONS[cat.icon]] || ICONS.docnote}</div>
-      <div class="todo-cat-mid">
-        <div class="todo-cat-toprow"><span class="todo-cat-label">${cat.label}</span><span class="todo-cat-count">${done}/${total}</span></div>
-        <div class="todo-cat-title">${cat.title}</div>
-        <div class="todo-cat-desc">${cat.desc} ${ICONS.chev}</div>
-        ${nextDue ? `<div style="margin-top:8px;"><span class="todo-cat-due-pill ${nextDueUrgency}">${ta('dueByLabel')(formatDateShortPT(nextDue))}</span></div>` : ''}
+    <div class="tdx-cat" data-opencat="${cat.id}" role="button" tabindex="0" style="--tc:${col}">
+      <div class="tdx-ico">${tdxIcon(cat.icon)}</div>
+      <div class="tdx-body">
+        <div class="tdx-top"><div class="tdx-name">${escapeHTML(cat.title)}</div><div class="tdx-side"><span>${done}/${total}</span>${ICONS.chev}</div></div>
+        <div class="tdx-desc">${escapeHTML(cat.desc)}</div>
+        <div class="tdx-prog" aria-hidden="true"><i style="width:${pct}%"></i></div>
+        ${nextDue ? `<div class="tdx-due ${nextDueUrgency}">${ta('dueByLabel')(formatDateShortPT(nextDue))}</div>` : ''}
       </div>
     </div>`;
   }).join('');
+  const notesTxt = state.todoNotes ? escapeHTML(state.todoNotes.slice(0,140))+(state.todoNotes.length>140?'…':'') : '';
 
   return `
   ${pageHeader('todo-back', 'To-do', ta('todoPageSubtitle'), `<button class="nav-action" id="add-todocat-btn" style="flex-shrink:0;">${ICONS.plus}</button>`)}
-
-  <div class="sup-chip-row">
-    <button class="sup-chip ${todoFilter==='todas'?'active':''}" data-todofilter="todas">${ta('filterAll')}</button>
-    <button class="sup-chip ${todoFilter==='porfazer'?'active':''}" data-todofilter="porfazer">${ta('statusTodo')}</button>
-    <button class="sup-chip ${todoFilter==='progresso'?'active':''}" data-todofilter="progresso">${ta('statusInProgress')}</button>
-    <button class="sup-chip ${todoFilter==='concluidas'?'active':''}" data-todofilter="concluidas">${ta('filterDone')}</button>
+  <div class="tdx">
+    <div class="tdx-tools">
+      <div class="tdx-chips">
+        <button class="sup-chip ${todoFilter==='todas'?'active':''}" data-todofilter="todas">${ta('filterAll')}</button>
+        <button class="sup-chip ${todoFilter==='porfazer'?'active':''}" data-todofilter="porfazer">${ta('statusTodo')}</button>
+        <button class="sup-chip ${todoFilter==='progresso'?'active':''}" data-todofilter="progresso">${ta('statusInProgress')}</button>
+        <button class="sup-chip ${todoFilter==='concluidas'?'active':''}" data-todofilter="concluidas">${ta('filterDone')}</button>
+      </div>
+      <div class="search-bar">${ICONS.search}<input type="text" id="todo-search" placeholder="${ta('placeholderSearchGeneric')}" value="${escapeHTML(todoQuery)}"></div>
+    </div>
+    <div class="tdx-grid">
+      <section class="tdx-main">
+        <div class="tdx-list">
+          ${rows || `<div class="empty-note" style="margin:6px 0;">${ta('emptyNothingFound')}</div>`}
+          <button type="button" class="tdx-add" data-tdx-add><span class="tdx-plus">${ICONS.plus}</span><span class="tdx-add-t"><b>${ta('tdxAddCat')}</b><em>${ta('tdxAddCatSub')}</em></span></button>
+        </div>
+      </section>
+      <aside class="tdx-aside">
+        <div class="tdx-sec-h"><h2>${ta('myNotesLabel')}</h2></div>
+        <div class="tdx-notes" id="open-todo-notes" role="button" tabindex="0">
+          <div class="tdx-nico">${ICONS.pencil}</div>
+          <div class="tdx-notes-t ${notesTxt?'':'is-empty'}">${notesTxt || ta('placeholderWriteNotesHere')}</div>
+          ${ICONS.chev}
+        </div>
+      </aside>
+    </div>
   </div>
-  <div class="search-bar" style="margin:0 16px 14px;">${ICONS.search}<input type="text" id="todo-search" placeholder="${ta('placeholderSearchGeneric')}" value="${todoQuery}"></div>
-
-  <div class="todo-cat-list">
-    ${rows || `<div class="empty-note" style="margin:0 16px;">${ta('emptyNothingFound')}</div>`}
-  </div>
-
-  <div class="section-label-v2">${ta('myNotesLabel')}</div>
-  <div class="todo-notes-card" id="open-todo-notes">
-    <div class="todo-notes-icon">${ICONS.pencil}</div>
-    <div class="todo-notes-text">${state.todoNotes ? state.todoNotes.slice(0,60)+(state.todoNotes.length>60?'…':'') : ta('placeholderWriteNotesHere')}</div>
-    ${ICONS.chev}
-  </div>
-  <div style="height:10px;"></div>
   `;
 }
 function viewTodoCategory(cat){
@@ -19537,6 +19632,7 @@ function bindHandlers(){
     document.getElementById('tc-label').value = '';
     document.getElementById('tc-title').value = '';
     document.getElementById('tc-desc').value = '';
+    tdxSyncIcons('doc');
     document.getElementById('todo-cat-sheet').classList.add('show');
     document.getElementById('sheet-backdrop').classList.add('show');
   });
@@ -19550,6 +19646,7 @@ function bindHandlers(){
     document.getElementById('tc-label').value = cat.label;
     document.getElementById('tc-title').value = cat.title;
     document.getElementById('tc-desc').value = cat.desc;
+    tdxSyncIcons(cat.icon, cat.color);
     document.getElementById('todo-cat-sheet').classList.add('show');
     document.getElementById('sheet-backdrop').classList.add('show');
   });
@@ -22839,6 +22936,51 @@ document.getElementById('todo-notes-delete').addEventListener('click', async ()=
   }
 });
 let editingTodoCatId = null;
+function tdxIconValue(){
+  const v = document.getElementById('tc-icon').value;
+  return TODO_ICONS[v] ? v : 'doc';
+}
+function tdxColorValue(){
+  const v = document.getElementById('tc-color').value;
+  return /^#[0-9a-fA-F]{6}$/.test(v) ? v : TDX_COLORS[0];
+}
+function tdxSyncIcons(val, col){
+  const v = TODO_ICONS[val] ? val : 'doc';
+  document.getElementById('tc-icon').value = v;
+  const names = { doc:'tdxIcDoc', music:'tdxIcMusic', church:'tdxIcChurch', ring:'tdxIcRing', glass:'tdxIcGlass', camera:'tdxIcCamera', heart:'tdxIcHeart', gift:'tdxIcGift' };
+  document.querySelectorAll('#tc-icons .tdx-ic').forEach(b=>{
+    const k = b.dataset.tcicon, on = k === v;
+    if(!b.firstChild) b.innerHTML = tdxIcon(k);
+    b.style.setProperty('--tc', TDX_COLORS[TDX_DEFCOL[k]]);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+    b.setAttribute('aria-label', ta(names[k]));
+    b.setAttribute('title', ta(names[k]));
+  });
+  const c = (col && /^#[0-9a-fA-F]{6}$/.test(col)) ? col : TDX_COLORS[TDX_DEFCOL[v]];
+  tdxSyncColor(c);
+}
+function tdxSyncColor(c){
+  document.getElementById('tc-color').value = c;
+  document.querySelectorAll('#tc-colors .tdx-co').forEach(b=>{
+    const on = b.dataset.tccolor.toLowerCase() === c.toLowerCase();
+    b.classList.toggle('on', on); b.setAttribute('aria-checked', on?'true':'false');
+  });
+}
+document.addEventListener('click', e=>{
+  const ic = e.target.closest && e.target.closest('#tc-icons .tdx-ic');
+  if(ic){ tdxSyncIcons(ic.dataset.tcicon); return; }
+  const co = e.target.closest && e.target.closest('#tc-colors .tdx-co');
+  if(co){ tdxSyncColor(co.dataset.tccolor); return; }
+  if(e.target.closest && e.target.closest('[data-tdx-add]')){
+    const b = document.getElementById('add-todocat-btn'); if(b) b.click();
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const t = e.target.closest && e.target.closest('.tdx-cat, .tdx-notes');
+  if(t && t===e.target){ e.preventDefault(); t.click(); }
+});
 function closeTodoCatSheet(){
   document.getElementById('todo-cat-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
@@ -23032,10 +23174,10 @@ document.getElementById('tc-save').addEventListener('click', ()=>{
   if(!title){ flagRequiredField(titleEl); return; }
   if(editingTodoCatId){
     const cat = state.todoCategories.find(c=>c.id===editingTodoCatId);
-    if(cat){ cat.label = label||'Geral'; cat.title = title; cat.desc = desc; }
+    if(cat){ cat.label = label||'Geral'; cat.title = title; cat.desc = desc; cat.icon = tdxIconValue(); cat.color = tdxColorValue(); }
   } else {
     const id = 'tc'+Date.now()+Math.random().toString(36).slice(2,6);
-    state.todoCategories.push({ id, icon:'doc', label:label||'Geral', title, desc, items:[] });
+    state.todoCategories.push({ id, icon:tdxIconValue(), color:tdxColorValue(), label:label||'Geral', title, desc, items:[] });
   }
   closeTodoCatSheet();
   render();
