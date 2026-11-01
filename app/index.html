@@ -11105,10 +11105,72 @@ const HMX_DEST = [
   [/t[oó]quio|tokyo|jap[aã]o|japan|quioto|kyoto/, 'japao'], [/safari|qu[eé]nia|kenya|tanz[aâ]nia|serengeti|[aá]frica do sul|namibia|botswana/, 'safari']
 ];
 function hmxNorm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+// Nomes alternativos de cada destino (PT/EN/ES, sem acentos). Servem para
+// reconhecer grafias diferentes ou com gralhas: Havaí/Hawai/Hawaii, Espanha/Spain,
+// Nova Iorque/Nova York/New York… Só entram em ação se as regras acima não acertarem.
+const HMX_ALIAS = {
+  maldivas:['maldivas','maldives'], tropical:['seychelles','mauricia','mauritius','bora bora','polinesia','tahiti','zanzibar','bahamas','caribe','caribbean','cabo verde','punta cana','fiji','jamaica','cuba'],
+  bali:['bali','indonesia','lombok'], paris:['paris','franca','france'], roma:['roma','rome','italia','italy'], veneza:['veneza','venice','venezia'],
+  nova_iorque:['nova iorque','nova york','nova yorque','new york','manhattan'], santorini:['santorini','grecia','greece','mykonos','creta','crete'],
+  suica:['suica','switzerland','zermatt','interlaken','genebra','geneva','zurique','zurich'], dolomitas:['dolomitas','dolomites'],
+  japao:['japao','japon','japan','toquio','tokyo','quioto','kyoto','osaka'], safari:['safari','quenia','kenya','tanzania','serengeti','namibia','botswana','masai mara'],
+  acores:['acores','azores','ponta delgada','sao miguel'], madeira:['madeira','funchal'], algarve:['algarve','portugal','albufeira','portimao','tavira'],
+  tailandia:['tailandia','thailand','phuket','krabi','bangkok','banguecoque','chiang mai'], dubai:['dubai','emirados','abu dhabi'],
+  mexico:['mexico','cancun','tulum','playa del carmen','riviera maya'], espanha:['espanha','spain','espana','barcelona','madrid','sevilha','seville'],
+  islandia:['islandia','iceland','reykjavik'], croacia:['croacia','croatia','dubrovnik','hvar'], turquia:['turquia','turkey','turkiye','capadocia','cappadocia','istambul','istanbul'],
+  toscana:['toscana','tuscany','florenca','florence','siena'], canada:['canada','banff','vancouver','montreal','toronto'],
+  lisboa:['lisboa','lisbon','lissabon','cascais','estoril'], sintra:['sintra'], porto:['porto','oporto','douro'], londres:['londres','london','inglaterra','england','reino unido'],
+  marrocos:['marrocos','morocco','marraquexe','marrakech','marrakesh','casablanca'], vietname:['vietname','vietnam','hanoi','ha long','saigon'],
+  peru:['peru','machu picchu','cusco','cuzco'], costarica:['costa rica','guanacaste'], havai:['havai','hawaii','hawai','maui','kauai','oahu','honolulu'],
+  amalfi:['amalfi','positano','ravello','sorrento','capri'], egito:['egito','egipto','egypt','cairo','luxor'], nzelandia:['nova zelandia','new zealand','auckland','queenstown'],
+  australia:['australia','sydney','sidney','melbourne'], praga:['praga','prague','praha'], amesterdao:['amesterdao','amsterdam','holanda','netherlands','paises baixos'],
+  jordania:['jordania','jordan','petra','wadi rum'], capetown:['cidade do cabo','cape town','capetown','stellenbosch']
+};
+// Forma "canónica" para comparar: sem acentos/pontuação, y=i, w=v, k=c, ph=f, letras duplas simples.
+function hmxCanon(str){
+  return hmxNorm(str).replace(/[^a-z0-9 ]+/g,' ').replace(/ph/g,'f').replace(/y/g,'i').replace(/w/g,'v').replace(/k/g,'c')
+    .replace(/(.)\1+/g,'$1').replace(/\s+/g,' ').trim();
+}
+function hmxLev(a,b){
+  if(a===b) return 0;
+  let prev = Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){
+    const cur=[i];
+    for(let j=1;j<=b.length;j++) cur[j] = Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+const HMX_STOP = new Set(['praia','praias','cidade','cidades','montanha','cruzeiro','aventura','relax','viagem','ilha','ilhas','resort','hotel','romance','passeio','surpresa','campo','deserto']);
+let _hmxAliasList = null;
+function hmxFuzzyKey(text){
+  if(!_hmxAliasList){
+    _hmxAliasList = [];
+    Object.keys(HMX_ALIAS).forEach(k=>HMX_ALIAS[k].forEach(al=>_hmxAliasList.push({k, a:hmxCanon(al)})));
+  }
+  const tokens = hmxCanon(text).split(' ').filter(Boolean);
+  let best = null;
+  for(let n=1;n<=3;n++){
+    for(let i=0;i+n<=tokens.length;i++){
+      const g = tokens.slice(i,i+n).join(' ');
+      if(HMX_STOP.has(g)) continue;
+      for(const al of _hmxAliasList){
+        if(g===al.a) return al.k;                       // igual na forma canónica
+        if(al.a.length<6 || g.length<5) continue;        // nomes curtos só por igualdade
+        const lim = al.a.length>=9 ? 2 : 1;               // gralhas: 1 letra (2 em nomes longos)
+        if(Math.abs(g.length-al.a.length)>lim) continue;
+        const d = hmxLev(g, al.a);
+        if(d<=lim && (!best || d<best.d)) best = {k:al.k, d};
+      }
+    }
+  }
+  return best ? best.k : null;
+}
 function hmxPhotoKey(o){
-  const text = hmxNorm([o.name].concat(o.cities||[]).join(' '));
+  const raw = [o.name].concat(o.cities||[]).join(' ');
+  const text = hmxNorm(raw);
   for(const [re,key] of HMX_DEST){ if(new RegExp(re.source.normalize('NFD').replace(/[̀-ͯ]/g,''),'i').test(text)) return key; }
-  return HMX_TYPE_PH[o.type] || null;
+  return hmxFuzzyKey(raw) || HMX_TYPE_PH[o.type] || null;
 }
 function hmxImgURL(key, w, h){ return `https://images.unsplash.com/${HMX_PH[key]}?auto=format&fit=crop&crop=entropy&w=${w}&h=${h}&q=72`; }
 function hmxPhotoHTML(o, kind, eager){
