@@ -9538,6 +9538,8 @@ Object.assign(APP_I18N.en, {
   cbInspDesc:'Description', cbInspNotes:'Personal notes', cbInspSaveBtn:'Save', cbInspCancel:'Cancel', cbInspRemove:'Remove inspiration', cbInspRemoveQ:'Remove this inspiration?'
 });
 
+Object.assign(APP_I18N.pt, { expErrPaidOver:'O valor já pago não pode ser maior que o valor total.', expErrTooBig:'Esse valor é demasiado grande. Confirma os zeros.' });
+Object.assign(APP_I18N.en, { expErrPaidOver:'The amount already paid cannot be greater than the total.', expErrTooBig:'That amount is too large. Please check the zeros.' });
 function ta(key){
   const dict = APP_I18N[appLang] || APP_I18N.pt;
   return (key in dict) ? dict[key] : APP_I18N.pt[key];
@@ -15678,6 +15680,11 @@ function softUpdateSupplierPayments(){
 function bindFornecedorDetalheHandlers(){
   const backBtn = document.getElementById('fornecedor-detail-back');
   if(backBtn) backBtn.addEventListener('click', ()=>{
+    // Fornecedor acabado de criar e deixado em branco: não fica na lista.
+    const _s = state.suppliers.find(x=>x.id===openSupplierDetailId);
+    if(_s && _s.name===ta('defaultNewSupplierName') && !_s.contact && !_s.email && !_s.website && !_s.price && !_s.notas && !_s.valorTotal && !(_s.payments||[]).length && !_s.nextStep && !_s.lastContact && !_s.nextPaymentDate){
+      state.suppliers = state.suppliers.filter(x=>x!==_s); pushRemote(true);
+    }
     openSupplierDetailId = null;
     if(cmpReturnTo && cmpGet(cmpReturnTo.cid)){ const r = cmpReturnTo; cmpReturnTo = null; cmpGo(r.view, r.cid, r.pid); return; }
     cmpReturnTo = null; fornecedoresSubview = 'lista'; _origRender();
@@ -23680,6 +23687,7 @@ function weddyBackStep(){
 ============================================================ */
 document.getElementById('sf-cancel').addEventListener('click', closeExpenseSheet);
 document.getElementById('sf-save').addEventListener('click', ()=>{
+  if(!document.getElementById('expense-sheet').classList.contains('show')) return; // duplo toque: a folha já fechou
   const descEl = document.getElementById('sf-desc');
   const desc = descEl.value.trim();
   const dateEl = document.getElementById('sf-date');
@@ -23697,6 +23705,8 @@ document.getElementById('sf-save').addEventListener('click', ()=>{
   if(paidEl.value.trim()===''){ flagRequiredField(paidEl); return; }
   const value = Math.max(0, Number(valueEl.value)||0);
   const paid = Math.max(0, Number(paidEl.value)||0);
+  if(value>1e9 || paid>1e9){ flagRequiredField(value>1e9?valueEl:paidEl); weddyAlert(ta('expErrTooBig')); return; }
+  if(paid>value){ flagRequiredField(paidEl); weddyAlert(ta('expErrPaidOver')); return; }
   state.expenses.unshift({id:'exp'+Date.now()+Math.random().toString(36).slice(2,6),date,desc,value,paid,category,dueDate,method,supplierId});
   closeExpenseSheet();
   render();
@@ -25121,11 +25131,14 @@ document.getElementById('hm-option-save').addEventListener('click', ()=>{
 // (name, category, contact, price, status, notas) e todos os campos novos
 // (email, website, valorTotal, payments, etc.) têm "|| valor por omissão"
 // em todo o código, para não rebentar com dados já sincronizados.
+let _lastSupCreate = 0;
 function createSupplier(presetCat){
+  if(Date.now()-_lastSupCreate < 350) return; // duplo toque
+  _lastSupCreate = Date.now();
   closeAllSheets();
   const category = presetCat || (state.categories[0] ? state.categories[0].id : '');
   const id = 'sup'+Date.now()+Math.random().toString(36).slice(2,6);
-  state.suppliers.push({ id, name:'Novo fornecedor', category, contact:'', email:'', website:'', price:'', status:'considerar', notas:'', valorTotal:0, payments:[], nextPaymentDate:'', nextPaymentAmount:0, nextStep:'', lastContact:'' });
+  state.suppliers.push({ id, name:ta('defaultNewSupplierName'), category, contact:'', email:'', website:'', price:'', status:'considerar', notas:'', valorTotal:0, payments:[], nextPaymentDate:'', nextPaymentAmount:0, nextStep:'', lastContact:'' });
   openSupplierCat[category] = true;
   openSupplierDetail(id);
   pushRemote(true);
