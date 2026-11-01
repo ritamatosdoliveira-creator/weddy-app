@@ -2589,6 +2589,10 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .gx-back svg{ width:18px; height:18px; }
 .gx-back:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:4px; }
 .gx-dhead{ padding-top:2px; }
+.gx-dhead-row{ display:flex; align-items:flex-start; gap:12px; padding-top:8px; }
+.gx-dtxt{ min-width:0; flex:1; }
+.gx-back-i{ height:32px; margin-left:-6px; } .gx-back-i svg{ width:22px; height:22px; stroke-width:1.4; }
+.gx-back-i:focus-visible{ outline:2px solid var(--ox-terra); outline-offset:2px; border-radius:4px; }
 .gx-dhead .orcx-title{ font-size:29px; }
 .gx-prog{ display:flex; align-items:center; gap:14px; margin:4px 0 20px; }
 .gx-prog .orcx-prog{ flex:1; margin:0; }
@@ -9781,10 +9785,12 @@ function viewConvidados(){
       const st = gxCatStats(s,c);
       return `
       <div class="orcx gx gx-detail">
-        <div class="gx-top"><button type="button" class="gx-back" id="gx-back">${ICONS.chevleft}<span>${ta('navGuestsTitle')}</span></button></div>
-        <header class="orcx-head gx-dhead">
-          <h1 class="orcx-title">${escapeHTML(cat ? gxCatLabel(cat) : c)}</h1>
-          <p class="orcx-sub" id="gx-dsub">${ta('gxConfirmedOf')(fmtGuestCount(st.confirmed), fmtGuestCount(st.total))}</p>
+        <header class="orcx-head gx-dhead gx-dhead-row">
+          <button type="button" class="nav-back gx-back-i" id="gx-back" aria-label="${ta('navGuestsTitle')}">${ICONS.chevleft}</button>
+          <div class="gx-dtxt">
+            <h1 class="orcx-title">${escapeHTML(cat ? gxCatLabel(cat) : c)}</h1>
+            <p class="orcx-sub" id="gx-dsub">${ta('gxConfirmedOf')(fmtGuestCount(st.confirmed), fmtGuestCount(st.total))}</p>
+          </div>
         </header>
         <div class="gx-prog" id="gx-dprog"><div class="orcx-prog"><i style="width:${Math.round(st.pct*100)}%"></i></div><span>${st.label}</span></div>
         <div class="search-bar gx-search">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${escapeHTML(guestFilter)}"></div>
