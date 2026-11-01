@@ -2463,6 +2463,7 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .orcx-cat-chev svg{ width:8px; height:14px; }
 .orcx-cat.is-open .orcx-cat-chev{ transform:rotate(90deg); }
 .orcx-cat-expand{ padding:0 0 16px 22px; }
+.orcx-cat-pphint{ font-size:11.5px; color:var(--ox-soft); padding:0 0 6px; line-height:1.4; }
 .orcx-cat-pg{ font-size:12.5px; color:var(--ox-soft); padding-bottom:4px; }
 .orcx-cat-actions{ display:flex; gap:18px; padding:6px 0 12px; }
 .orcx-act{ all:unset; box-sizing:border-box; cursor:pointer; display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ox-soft); padding:8px 0; text-decoration:underline; text-underline-offset:3px; }
@@ -6080,6 +6081,9 @@ const APP_I18N = {
     budgetBreakdownLabel:'Repartição por categoria',
     budgetCategoriesHint:'Categorias · toca para ver detalhe',
     valueEurLabel:'Valor (€)',
+    catPerPersonLabel:'€ por pessoa',
+    catPerPersonHint:(n,v)=>`× ${n} convidados = ${v}`,
+    catPerPersonNote:'Preço por pessoa (ex.: quinta). O valor da categoria acompanha o nº de convidados.',
     perGuestSuffix:' / convidado',
     placeholderNewCategory:'Nova categoria…',
 
@@ -7325,6 +7329,9 @@ const APP_I18N = {
     budgetBreakdownLabel:'Breakdown by category',
     budgetCategoriesHint:'Categories · tap to see details',
     valueEurLabel:'Amount (€)',
+    catPerPersonLabel:'€ per person',
+    catPerPersonHint:(n,v)=>`× ${n} guests = ${v}`,
+    catPerPersonNote:'Price per person (e.g. venue). The category amount follows the guest count.',
     perGuestSuffix:' / guest',
     placeholderNewCategory:'New category…',
 
@@ -9191,6 +9198,21 @@ function buildDonutSection(){
     <ul class="orcx-legend ${orcxShowVals?'show-vals':''}">${legend}</ul>
   </div>`;
 }
+// Preço por pessoa em "Espaço e Catering": sempre o valor da categoria ÷ convidados da
+// estimativa (recalcula quando um deles muda). Escrever aqui define o valor = preço × convidados.
+function catPPShown(c){
+  const g = Number(state.budget.guestsEstimate)||0;
+  return g ? Math.round((Number(c.value)||0)/g*100)/100 : '';
+}
+function syncCatPPField(c){
+  const inp = document.querySelector(`[data-catpp="${c.id}"]`);
+  if(inp && document.activeElement!==inp) inp.value = catPPShown(c);
+  const vin = document.querySelector(`[data-catvalue="${c.id}"]`);
+  if(vin && document.activeElement!==vin) vin.value = Math.round(Number(c.value)||0);
+  const hint = document.querySelector(`[data-catpphint="${c.id}"]`);
+  const g = Number(state.budget.guestsEstimate)||0;
+  if(hint) hint.textContent = g ? ta('catPerPersonHint')(g, fmtEUR(Number(c.value)||0)) : ta('catPerPersonNote');
+}
 function softUpdateCategoryValue(id, newValue){
   const cat = state.categories.find(c=>c.id===id);
   if(!cat) return;
@@ -9209,6 +9231,7 @@ function softUpdateCategoryValue(id, newValue){
   if(barEl) barEl.style.width = pctDisplay+'%';
   const perGuestEl = document.querySelector(`[data-catperguest="${id}"]`);
   if(perGuestEl) perGuestEl.textContent = fmtEUR(catPerGuest)+ta('perGuestSuffix');
+  syncCatPPField(cat);
 
   const donutWrap = document.getElementById('donut-section');
   if(donutWrap) donutWrap.innerHTML = buildDonutSection();
@@ -9313,6 +9336,13 @@ function viewOrcamentoPlano(){
       ${open? `
       <div class="orcx-cat-expand">
         <div class="orcx-cat-pg" data-catperguest="${c.id}">${fmtEUR(catPerGuest)}${ta('perGuestSuffix')}</div>
+        ${c.id==='quinta' ? `
+        <div class="table-config-row" style="padding:6px 0;">
+          <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('catPerPersonLabel')}</span>
+          <input type="number" class="field-input" data-catpp="${c.id}" min="0" inputmode="decimal" step="any" placeholder="—" aria-label="${ta('catPerPersonLabel')}" value="${catPPShown(c)}" style="max-width:110px; text-align:right; font-size:14px;">
+        </div>
+        <div class="orcx-cat-pphint" data-catpphint="${c.id}">${guests ? ta('catPerPersonHint')(guests, fmtEUR(catTotal)) : ta('catPerPersonNote')}</div>
+        ` : ''}
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('valueEurLabel')}</span>
           <input type="number" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
@@ -21466,6 +21496,25 @@ function bindHandlers(){
     inGuests.addEventListener('input', e=>{ state.budget.guestsEstimate = Math.max(0, Number(e.target.value)||0); softUpdateBudget(); });
     inGuests.addEventListener('change', e=>{ e.target.value = Math.round(Number(state.budget.guestsEstimate)||0); });
   }
+  document.querySelectorAll('[data-catpp]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const id = e.currentTarget.dataset.catpp;
+      const cat = state.categories.find(c=>c.id===id);
+      if(!cat) return;
+      const pp = Math.max(0, Number(e.currentTarget.value)||0);
+      if(pp>0){
+        softUpdateCategoryValue(id, Math.round(pp*(Number(state.budget.guestsEstimate)||0)));
+      } else {
+        // vazio: o valor da categoria mantém-se
+        syncCatPPField(cat);
+        pushRemote();
+      }
+    });
+    inp.addEventListener('change', e=>{
+      const cat = state.categories.find(c=>c.id===e.currentTarget.dataset.catpp);
+      if(cat) e.currentTarget.value = catPPShown(cat);
+    });
+  });
   document.querySelectorAll('[data-catvalue]').forEach(inp=>{
     inp.addEventListener('input', e=>{
       const id = e.currentTarget.dataset.catvalue;
@@ -21882,6 +21931,7 @@ function softUpdateBudget(){
     if(elPerGuest) elPerGuest.textContent = fmtEUR(catPerGuest)+ta('perGuestSuffix');
     const elValueInput = document.querySelector(`[data-catvalue="${c.id}"]`);
     if(elValueInput && document.activeElement!==elValueInput) elValueInput.value = Math.round(catTotal);
+    if(c.id==='quinta') syncCatPPField(c);
     const elPct = document.querySelector(`[data-catpctdisplay="${c.id}"]`);
     if(elPct) elPct.textContent = pctDisplay+'%';
     const elBar = document.querySelector(`[data-catbar="${c.id}"]`);
