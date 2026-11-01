@@ -2175,7 +2175,8 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 /* v276 — «Ferramentas Weddy» */
 .pf-card{ margin:0 16px 14px; padding:18px 12px 8px; border-radius:26px; background:linear-gradient(170deg,#F8ECE6 0%,#F6EEE9 55%,#F9F3EF 100%); border:1px solid #F0E2DB; box-shadow:0 1px 8px rgba(120,80,60,.05); }
 /* v277 — Say Yes to the Dress: composição editorial */
-.dy-page{ padding:0 24px 56px; color:#2B2522; }
+.dy-page{ padding:6px 24px 56px; color:#2B2522; }
+@media (max-width:767px){ .dy-page{ zoom:.9; } }
 .dy-head{ padding-top:4px; }
 .dy-back{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; justify-content:flex-start; width:40px; height:40px; margin:6px 0 14px -6px; color:#2B2522; }
 .dy-back svg{ width:22px; height:22px; stroke-width:1.4; }
@@ -10821,11 +10822,9 @@ function viewVestido(){
   const done = visits.filter(v=>!v.data || v.data<=today).length;
   const list = visits.map((v,i)=>homeDyVisitHTML(v,i,i===0));
   return `
+${pageHeader('vestido-back', 'Say Yes to the Dress', ta('homeDySub'))}
 <div class="dy-page">
   <header class="dy-head">
-    <button type="button" class="nav-back dy-back" id="vestido-back" aria-label="${ta('cmpStepBack')}">${ICONS.chevleft}</button>
-    <h1 class="dy-title">Say Yes <em>to the Dress</em></h1>
-    <p class="dy-sub">${ta('homeDySub')}</p>
     <div class="dy-count"><b>${String(done).padStart(2,'0')}</b> <span>${done===1?ta('homeDyCountOne'):ta('homeDyCountMany')}</span><i></i><button type="button" class="dy-new" id="add-visit-btn">+ ${ta('homeDyNew')}</button></div>
   </header>
   ${visits.length ? `
