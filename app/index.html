@@ -2174,6 +2174,199 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 /* v275 — atalhos da página inicial: uma só faixa, ícones Lucide em contorno */
 /* v276 — «Ferramentas Weddy» */
 .pf-card{ margin:0 16px 14px; padding:18px 12px 8px; border-radius:26px; background:linear-gradient(170deg,#F8ECE6 0%,#F6EEE9 55%,#F9F3EF 100%); border:1px solid #F0E2DB; box-shadow:0 1px 8px rgba(120,80,60,.05); }
+/* v316 — Bolo, Votos, Papelaria e estilo do vestido (caderno The Wedding Edit) */
+.cd-page{ padding:6px 24px 56px; color:#2B2522; }
+.cd-sec{ margin:26px 0 0; }
+.cd-h{ margin:0 0 10px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:#8B7D74; font-weight:600; }
+.cd-intro{ margin:6px 0 0; font-size:13px; line-height:1.5; color:#8B7D74; }
+.cd-ta{ display:block; width:100%; box-sizing:border-box; border:1px solid #E6DCD4; border-radius:14px; background:#FFFDFB; padding:14px 16px; font-family:inherit; font-size:15px; line-height:1.6; color:#2B2522; resize:vertical; min-height:120px; }
+.cd-ta.cd-big{ min-height:260px; }
+.cd-ta:focus{ outline:2px solid #AD624F; outline-offset:1px; }
+.cd-cake{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:18px; align-items:center; }
+.cd-cake svg{ width:100%; height:auto; display:block; color:#AD624F; }
+.cd-tier{ padding:8px 0; border-bottom:1px solid #E6DCD4; }
+.cd-tier:last-child{ border-bottom:0; }
+.cd-tier b{ display:block; font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:19px; color:#AD624F; margin-bottom:4px; }
+.cd-tier label{ display:inline-flex; align-items:baseline; gap:6px; font-size:12px; color:#8B7D74; }
+.cd-tier input{ width:52px; border:0; border-bottom:1px solid #C9B9AE; background:transparent; font:inherit; font-size:15px; color:#2B2522; padding:2px 0; text-align:center; border-radius:0; }
+.cd-tier input:focus{ outline:none; border-bottom-color:#AD624F; }
+.cd-tier .cd-row{ display:flex; flex-wrap:wrap; gap:6px 14px; }
+.cd-stat-head, .cd-stat-row{ display:grid; grid-template-columns:minmax(0,1fr) repeat(3,60px); align-items:center; gap:0; }
+.cd-stat-head{ padding:0 0 8px; border-bottom:1px solid rgba(43,37,34,.55); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:#AD624F; font-weight:600; text-align:center; }
+.cd-stat-head span:first-child{ text-align:left; }
+.cd-stat-row{ padding:11px 0; border-bottom:1px solid #E6DCD4; font-size:14.5px; }
+.cd-stat-row .cd-it{ min-width:0; overflow-wrap:anywhere; }
+.cd-chk{ all:unset; box-sizing:border-box; justify-self:center; width:26px; height:26px; border:1.4px solid #C98E80; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; }
+.cd-chk svg{ width:15px; height:15px; opacity:0; }
+.cd-chk[aria-pressed="true"]{ background:#AD624F; border-color:#AD624F; }
+.cd-chk[aria-pressed="true"] svg{ opacity:1; }
+.cd-chk:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
+.cd-count{ margin-top:10px; font-size:12px; color:#8B7D74; }
+.cd-sil-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px 10px; }
+.cd-sil{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 4px; border-radius:14px; color:#AD624F; }
+.cd-sil svg{ width:100%; max-width:64px; height:92px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linejoin:round; }
+.cd-sil span{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:#2B2522; text-align:center; }
+.cd-sil i{ width:14px; height:14px; border:1.4px solid #C98E80; border-radius:50%; display:block; }
+.cd-sil[aria-pressed="true"]{ background:rgba(173,98,79,.09); }
+.cd-sil[aria-pressed="true"] i{ background:#AD624F; border-color:#AD624F; box-shadow:inset 0 0 0 2.5px #fff; }
+.cd-sil:focus-visible, .cd-chip:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
+.cd-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.cd-chip{ all:unset; box-sizing:border-box; cursor:pointer; padding:8px 16px; border:1.2px solid #C98E80; border-radius:999px; font-size:13.5px; color:#2B2522; }
+.cd-chip[aria-pressed="true"]{ background:#AD624F; border-color:#AD624F; color:#fff; }
+/* v317 — O bolo: Detalhes, Provas, Inspirações */
+.cb-page{ padding:2px 20px 56px; color:#2B2522; }
+.cb-tabs{ display:flex; gap:2px; padding:3px; margin:6px 0 4px; background:rgba(173,98,79,.08); border-radius:999px; }
+.cb-tab{ all:unset; box-sizing:border-box; flex:1; min-height:38px; display:flex; align-items:center; justify-content:center; border-radius:999px; font-size:13.5px; color:#6E5F57; cursor:pointer; text-align:center; }
+.cb-tab[aria-selected="true"]{ background:#AD624F; color:#fff; }
+.cb-tab:focus-visible, .cb-shape:focus-visible, .cb-chip:focus-visible, .cb-row:focus-visible, .cb-star:focus-visible, .cb-step:focus-visible, .cb-link:focus-visible, .cb-btn:focus-visible, .cb-tile:focus-visible, .cb-back:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
+.cb-h{ margin:26px 0 4px; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:27px; line-height:1.1; color:#2B2522; }
+.cb-h.sm{ font-size:23px; }
+.cb-sub{ margin:0 0 14px; font-size:13px; line-height:1.45; color:#8B7D74; }
+.cb-shapes{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
+.cb-shape{ all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; gap:7px; padding:10px 2px 9px; border:1px solid transparent; border-radius:18px; cursor:pointer; color:#AD624F; text-align:center; }
+.cb-shape svg{ width:100%; max-width:46px; height:32px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.cb-shape span{ font-size:11px; line-height:1.15; color:#6E5F57; }
+.cb-shape[aria-pressed="true"]{ border-color:#C98E80; background:rgba(173,98,79,.06); }
+.cb-shape[aria-pressed="true"] span{ color:#2B2522; font-weight:600; }
+.cb-rule{ height:1px; background:#E6DCD4; margin:22px 0 0; border:0; }
+.cb-conf-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:22px 0 10px; }
+.cb-conf-head .cb-h{ margin:0; }
+.cb-stepper{ display:flex; align-items:center; gap:10px; font-size:12.5px; color:#6E5F57; }
+.cb-step{ all:unset; box-sizing:border-box; width:34px; height:34px; border-radius:50%; border:1px solid #D9C7BD; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#AD624F; font-size:18px; line-height:1; }
+.cb-step[disabled]{ opacity:.35; cursor:default; }
+.cb-stepper b{ min-width:14px; text-align:center; font-weight:600; color:#2B2522; }
+.cb-trow{ display:grid; grid-template-columns:26px minmax(0,1fr) auto auto; align-items:center; gap:8px; padding:8px 0; }
+.cb-num{ width:26px; height:26px; border-radius:50%; background:rgba(173,98,79,.12); color:#AD624F; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600; }
+.cb-tname{ font-size:13.5px; color:#2B2522; line-height:1.2; }
+.cb-pill{ display:inline-flex; align-items:center; gap:5px; min-height:40px; padding:0 12px; border:1px solid #E1D3CA; border-radius:999px; background:#FFFDFB; font-size:12.5px; color:#6E5F57; }
+.cb-pill input{ all:unset; box-sizing:border-box; width:34px; text-align:right; font-size:15px; color:#2B2522; }
+.cb-pill:focus-within{ border-color:#AD624F; }
+.cb-fields{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.cb-f{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.cb-f.full{ grid-column:1 / -1; }
+.cb-f > span{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#8B7D74; }
+.cb-in, .cb-ta{ box-sizing:border-box; width:100%; border:1px solid #E1D3CA; border-radius:14px; background:#FFFDFB; padding:0 14px; min-height:44px; font:inherit; font-size:15px; color:#2B2522; }
+.cb-ta{ padding:12px 14px; line-height:1.55; min-height:110px; resize:vertical; }
+.cb-in:focus, .cb-ta:focus{ outline:none; border-color:#AD624F; }
+details.cb-acc{ border-top:1px solid #E6DCD4; }
+details.cb-acc:last-of-type{ border-bottom:1px solid #E6DCD4; }
+details.cb-acc > summary{ list-style:none; display:flex; align-items:center; gap:14px; min-height:62px; padding:10px 2px; cursor:pointer; }
+details.cb-acc > summary::-webkit-details-marker{ display:none; }
+.cb-acc-ico{ width:26px; height:26px; color:#AD624F; flex:none; }
+.cb-acc-ico svg{ width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.cb-acc-t{ flex:1; min-width:0; }
+.cb-acc-t b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; line-height:1.15; color:#2B2522; }
+.cb-acc-t small{ display:block; margin-top:2px; font-size:12px; color:#8B7D74; line-height:1.35; }
+.cb-acc-chev{ width:16px; height:16px; color:#8B7D74; transition:transform .15s; flex:none; }
+details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
+.cb-acc-body{ padding:2px 2px 18px; display:flex; flex-direction:column; gap:12px; }
+.cb-tf{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.cb-tf-h{ grid-column:1 / -1; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px; color:#AD624F; margin-top:4px; }
+.cb-btn{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:100%; min-height:48px; margin-top:22px; border-radius:999px; background:#AD624F; color:#fff; font-size:14px; letter-spacing:.02em; cursor:pointer; }
+.cb-btn.ghost{ background:transparent; color:#AD624F; border:1px solid #C98E80; margin-top:12px; }
+.cb-link{ all:unset; cursor:pointer; font-size:13px; color:#AD624F; border-bottom:1px solid currentColor; padding-bottom:1px; }
+.cb-link.danger{ color:#A5483A; }
+.cb-list{ border-top:1px solid #E6DCD4; }
+.cb-row{ all:unset; box-sizing:border-box; width:100%; display:grid; grid-template-columns:34px minmax(0,1fr) auto 16px; align-items:center; gap:12px; min-height:64px; padding:10px 2px; border-bottom:1px solid #E6DCD4; cursor:pointer; }
+.cb-row svg.ci{ width:26px; height:26px; fill:none; stroke:#AD624F; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.cb-row b{ display:block; font-size:14.5px; font-weight:600; color:#2B2522; overflow-wrap:anywhere; }
+.cb-row small{ display:block; margin-top:2px; font-size:12px; color:#8B7D74; }
+.cb-row .chev{ width:16px; height:16px; color:#8B7D74; }
+.cb-st{ font-size:11.5px; padding:5px 11px; border-radius:999px; background:rgba(173,98,79,.1); color:#8A4A3C; white-space:nowrap; }
+.cb-st.done{ background:rgba(122,150,105,.18); color:#4F6B41; }
+.cb-st.cancelled{ background:rgba(20,20,20,.07); color:#6E5F57; }
+.cb-empty{ padding:22px 2px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px; color:#8B7D74; }
+.cb-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.cb-chip{ all:unset; box-sizing:border-box; cursor:pointer; min-height:36px; display:inline-flex; align-items:center; padding:0 15px; border:1px solid #D9C7BD; border-radius:999px; font-size:13px; color:#6E5F57; }
+.cb-chip[aria-pressed="true"]{ background:#AD624F; border-color:#AD624F; color:#fff; }
+.cb-stars{ display:flex; gap:6px; }
+.cb-star{ all:unset; cursor:pointer; width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:#C98E80; }
+.cb-star svg{ width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linejoin:round; }
+.cb-star[aria-pressed="true"] svg{ fill:#AD624F; stroke:#AD624F; }
+.cb-fin{ margin-top:6px; }
+.cb-back{ all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:4px; margin:12px 0 2px; font-size:13px; color:#AD624F; min-height:36px; }
+.cb-back svg{ width:16px; height:16px; }
+.cb-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 14px; margin-top:16px; }
+.cb-tile{ all:unset; box-sizing:border-box; cursor:pointer; display:block; min-width:0; }
+.cb-ph{ width:100%; aspect-ratio:1/1; border-radius:18px; overflow:hidden; background:rgba(173,98,79,.07); display:flex; align-items:center; justify-content:center; color:#C98E80; }
+.cb-ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+.cb-ph svg{ width:34px; height:34px; fill:none; stroke:currentColor; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; }
+.cb-cap{ margin-top:8px; font-size:13px; line-height:1.3; color:#2B2522; overflow-wrap:anywhere; }
+.cb-cap small{ display:block; margin-top:2px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#8B7D74; }
+.cb-draft-ph{ margin:14px 0 6px; max-width:320px; }
+@media (min-width:768px){ .cb-page{ max-width:640px; } .cb-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+/* v318 — Votos e palavras */
+.vw-sum{ display:grid; grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,.9fr)); align-items:center; margin:6px 0 16px; padding:14px 6px 14px 14px; border:1px solid #E6DCD4; border-radius:20px; background:#FFFDFB; }
+.vw-sum-t{ display:flex; align-items:center; gap:8px; font-family:'Cormorant Garamond',serif; font-size:16.5px; line-height:1.12; color:#2B2522; padding-right:8px; }
+.vw-sum-t svg{ width:20px; height:20px; flex:none; fill:none; stroke:#AD624F; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.vw-stat{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:2px 4px; border-left:1px solid #E6DCD4; min-width:0; }
+.vw-stat svg{ width:19px; height:19px; fill:none; stroke:#AD624F; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.vw-stat span{ font-size:10.5px; color:#6E5F57; }
+.vw-stat b{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:19px; color:#2B2522; line-height:1.1; }
+.vw-ed{ display:block; width:100%; box-sizing:border-box; min-height:46vh; margin-top:10px; padding:16px; border:1px solid #E1D3CA; border-radius:18px; background:#FFFDFB; font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.65; color:#2B2522; resize:vertical; }
+.vw-ed:focus{ outline:none; border-color:#AD624F; }
+.vw-meta{ margin:8px 2px 0; font-size:12px; color:#8B7D74; display:flex; flex-wrap:wrap; gap:4px 12px; }
+.vw-help{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.vw-help button{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:8px; min-height:84px; padding:12px; border:1px solid #E6DCD4; border-radius:16px; background:#FFFDFB; font-size:13px; line-height:1.25; color:#2B2522; }
+.vw-help button:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
+.vw-help svg{ width:20px; height:20px; fill:none; stroke:#AD624F; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.vw-note{ display:flex; align-items:center; gap:8px; margin:22px 2px 0; font-size:12px; color:#8B7D74; }
+.vw-note svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.4; flex:none; }
+.vw-sec{ display:flex; align-items:baseline; justify-content:space-between; margin:26px 0 6px; }
+.vw-sec .cb-h{ margin:0; }
+.vw-doc h3{ margin:20px 0 6px; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:21px; color:#2B2522; }
+.vw-doc p, .vw-doc li{ font-size:14.5px; line-height:1.6; color:#4A3F39; }
+.vw-doc ul, .vw-doc ol{ padding-left:20px; margin:6px 0; }
+.vw-doc blockquote{ margin:10px 0; padding:2px 0 2px 14px; border-left:2px solid #C98E80; font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.55; color:#2B2522; }
+@media (min-width:768px){ .vw-ed{ min-height:380px; } }
+
+/* v319 — Premium + A papelaria */
+.pm-badge{ display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin:6px 2px 0 auto; padding:6px 12px; border-radius:999px; background:rgba(173,98,79,.1); color:#8A4A3C; font-size:12.5px; white-space:nowrap; }
+.pm-badge svg{ width:15px; height:15px; }
+.pm-lock{ text-align:center; padding:40px 8px 20px; }
+.pm-lock-ico{ width:60px; height:60px; margin:0 auto; border-radius:50%; background:rgba(173,98,79,.1); color:#AD624F; display:flex; align-items:center; justify-content:center; }
+.pm-lock-ico svg{ width:28px; height:28px; }
+.sd-prog{ display:flex; align-items:center; gap:14px; margin:6px 0 14px; padding:14px 16px; border:1px solid #E6DCD4; border-radius:20px; background:#FFFDFB; }
+.sd-prog-ico{ width:30px; height:30px; color:#AD624F; flex:none; }
+.sd-prog-t{ flex:1; min-width:0; }
+.sd-prog-t b{ display:block; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:#2B2522; line-height:1.15; }
+.sd-prog-t small{ display:block; margin-top:2px; font-size:12px; color:#8B7D74; }
+.sd-ringw{ position:relative; width:48px; height:48px; flex:none; }
+.sd-ring{ width:100%; height:100%; display:block; }
+.sd-ringw span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#2B2522; font-weight:600; }
+.sd-row{ grid-template-columns:24px minmax(0,1fr) repeat(3,54px) !important; gap:0 !important; }
+.sd-head{ grid-template-columns:24px minmax(0,1fr) repeat(3,54px) !important; gap:0 !important; }
+.sd-head span:first-child{ grid-column:1 / 3; }
+.sd-ico{ width:20px; height:20px; color:#AD624F; }
+.sd-add{ margin-top:16px; display:flex; flex-direction:column; gap:10px; }
+.sd-add-b{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sd-sub{ margin:22px 0 8px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#2B2522; }
+.sd-sws{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.sd-sw{ all:unset; box-sizing:border-box; width:38px; height:38px; border-radius:50%; background:var(--c,#eee); border:1px solid rgba(43,37,34,.18); cursor:pointer; position:relative; }
+.sd-sw[aria-pressed="false"]{ opacity:.38; }
+.sd-sw[aria-pressed="true"]{ box-shadow:0 0 0 2px #FAF8F5, 0 0 0 3.5px #AD624F; }
+.sd-sw.plus{ background:transparent; border:1px solid #D9C7BD; color:#AD624F; display:flex; align-items:center; justify-content:center; font-size:20px; opacity:1; }
+.sd-sw:focus-visible{ outline:2px solid #AD624F; outline-offset:3px; }
+.sd-hexrow{ display:flex; align-items:center; gap:10px; margin-top:12px; }
+.sd-hexrow input[type=color]{ width:44px; height:44px; border:0; padding:0; background:none; flex:none; }
+.sd-hexlist{ margin-top:10px; font-size:12px; color:#8B7D74; letter-spacing:.04em; }
+.sd-fontbox{ display:flex; align-items:center; gap:10px; }
+.sd-fontbox .cb-in{ flex:1; min-width:0; }
+.sd-aa{ text-transform:none !important; letter-spacing:0 !important; font-size:26px; color:#AD624F; width:34px; flex:none; font-style:italic; }
+.sd-mono-v{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:40px; color:#AD624F; text-align:center; padding:14px 0 10px; }
+.sd-mrow{ grid-template-columns:34px minmax(0,1fr) 0 16px !important; }
+.sd-file{ padding:12px 0; border-bottom:1px solid #E6DCD4; display:flex; flex-direction:column; gap:8px; }
+.sd-file-main{ all:unset; cursor:pointer; display:grid; grid-template-columns:26px minmax(0,1fr); gap:10px; align-items:center; }
+.sd-file-main svg.ci{ width:24px; height:24px; fill:none; stroke:#AD624F; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.sd-file-main b{ display:block; font-size:14px; font-weight:600; overflow-wrap:anywhere; color:#2B2522; }
+.sd-file-main small{ display:block; font-size:12px; color:#8B7D74; }
+.sd-file-act{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; }
+.sd-sel{ min-height:36px; border:1px solid #E1D3CA; border-radius:999px; background:#FFFDFB; padding:0 12px; font:inherit; font-size:13px; color:#2B2522; max-width:100%; }
+.sd-note{ min-height:38px !important; font-size:13.5px !important; }
+.sd-libadd{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; align-items:center; }
+.sd-libadd .sd-sel{ min-height:48px; }
+
 /* v277 — Say Yes to the Dress: composição editorial */
 .dy-page{ padding:6px 24px 56px; color:#2B2522; }
 @media (max-width:767px){ .dy-page{ zoom:.9; } }
@@ -2923,9 +3116,10 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 }
 @media (max-width:389px){ .pf-title{ font-size:19px; } }
 @media (max-width:359px){ .pf-t{ font-size:13.5px; } .pf-d{ font-size:10px; } .pf-title{ font-size:19px; } .pf-pill span{ display:none; } }
-.ql-strip{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); margin:4px 16px 20px; padding:0; background:transparent; border:0; border-radius:0; box-shadow:none; }
+.ql-strip{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:4px 16px 20px; padding:0; background:transparent; border:0; border-radius:0; box-shadow:none; }
 .ql-item{ all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; min-width:0; min-height:68px; padding:10px 2px; cursor:pointer; position:relative; color:#AD624F; -webkit-tap-highlight-color:transparent; }
 .ql-item + .ql-item::before{ content:''; position:absolute; left:0; top:22%; bottom:22%; width:1px; background:rgba(120,100,90,.14); }
+.ql-item:nth-child(4n+1)::before{ display:none; }
 .ql-ico{ width:23px; height:23px; display:flex; align-items:center; justify-content:center; color:#AD624F; }
 .ql-ico svg{ width:100%; height:100%; display:block; }
 .ql-lbl{ max-width:100%; font-size:11px; line-height:1.2; font-weight:400; letter-spacing:0; color:var(--ink); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:clip; }
@@ -2938,8 +3132,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
   html [data-panel="inicio"] .ql-ico{ width:26px; height:26px; }
   html [data-panel="inicio"] .ql-lbl{ font-size:14px; }
 }
-@media (max-width:429px){ .ql-strip{ margin-left:8px; margin-right:8px; } .ql-item{ padding-left:0; padding-right:0; } .ql-lbl{ font-size:10.5px; letter-spacing:-.01em; } }
-@media (max-width:359px){ .ql-lbl{ font-size:9.5px; } }
+@media (max-width:429px){ .ql-item{ padding-left:0; padding-right:0; } .ql-lbl{ font-size:10.5px; letter-spacing:-.01em; } }
 .section-label-v2{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--ink); margin:22px 16px 12px; display:flex; align-items:center; gap:12px; }
 .section-label-v2::after{ content:''; flex:1; height:1px; background:var(--line); }
 .day-card{ display:flex; align-items:center; gap:12px; margin:0 16px 18px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; position:relative; overflow:hidden; box-shadow:var(--shadow); }
@@ -3589,6 +3782,8 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 
   <input type="file" id="insp-file-input" accept="image/*" multiple style="display:none;">
   <input type="file" id="dress-insp-file-input" accept="image/*" multiple style="display:none;">
+  <input type="file" id="cake-insp-file-input" accept="image/*" style="display:none;">
+  <input type="file" id="stat-file-input" accept="application/pdf,image/*" multiple style="display:none;">
   <input type="file" id="def-reportar-photo-input" accept="image/*" multiple style="display:none;">
 
   <div class="save-toast" id="save-toast"></div>
@@ -5182,6 +5377,12 @@ function seedData(){
     checklistPersonal:[],
     dressChecklistDone:{},
     dressVisits:[],
+    dressStyle:{ silhouette:'', necklines:[] },
+    cake:{ shape:'tiers', tiers:[{cm:'',portions:'',flavor:'',filling:''},{cm:'',portions:'',flavor:'',filling:''},{cm:'',portions:'',flavor:'',filling:''}], single:{form:'',cm:'',portions:''}, rect:{length:'',width:'',height:'',portions:''}, square:{side:'',height:'',portions:''}, other:{desc:'',dims:'',portions:''}, flavor:'', filling:'', flavors:'', allergies:'', desserts:'', tastings:[], chosen:{flavors:'',fillings:'',tier:'',notes:''}, inspirations:[] },
+    vows:{ bride:{text:'',updated:'',done:false}, groom:{text:'',updated:'',done:false}, speeches:[], readings:[], songs:[], moments:[] },
+    stationery:{},
+    stationeryCustom:[],
+    stationeryDesign:{ palette:[], fontMain:'', fontSecond:'', monogram:{initials:'',notes:''}, items:{}, files:[] },
     favoriteVisitId:null,
     suppliers:[],
     todos:[],
@@ -5322,6 +5523,7 @@ function goNavBack(){
   _origRender();
 }
 let dressInspirations = [];
+let cakeInspPhotos = {};
 let editingSeatKey = null;
 let seatQuery = '';
 let guestFilter = '';
@@ -8346,6 +8548,984 @@ function weddyA11yPass(){
     });
   }catch(e){}
 }
+Object.assign(APP_I18N.pt, {
+  cdQlCake:'Bolo', cdQlVows:'Votos', cdQlStationery:'Papelaria',
+  cdCakeTitle:'O bolo', cdCakeSub:'Definam pisos, tamanhos e porções.', cdTier:n=>`Piso ${n}`, cdCm:'cm', cdPortions:'porções',
+  cdFlavors:'Sabores, recheios, alergias', cdDesserts:'Pastelaria, doces, mesa de sobremesas',
+  cdVowsTitle:'Votos e palavras', cdVowsSub:'Só para vocês. Escrevam, riscem, reescrevam.', cdVowsMine:'Os meus votos', cdVowsReadings:'Leituras, músicas, momentos especiais',
+  cdStatTitle:'A papelaria', cdStatSub:'Marquem cada passo.', cdStatItem:'Item', cdStatCreated:'Criado', cdStatPrinted:'Impresso', cdStatSent:'Enviado', cdStatDone:(a,b)=>`${a} de ${b} passos concluídos`,
+  cdStyleTitle:'O meu estilo', cdStyleSil:'Silhueta', cdStyleNeck:'Decote', cdStyleHint:'Marquem a silhueta de que mais gostam.',
+  cdSilSereia:'Sereia', cdSilLinhaA:'Linha A', cdSilPrincesa:'Princesa', cdSilColuna:'Coluna', cdSilImperio:'Império', cdSilMidi:'Saia midi',
+  cdNeckCoracao:'Coração', cdNeckV:'V', cdNeckQuadrado:'Quadrado', cdNeckOmbros:'Ombros caídos', cdNeckAlcas:'Alças', cdNeckGola:'Gola alta',
+  cdStat_save:'Save the date', cdStat_convites:'Convites', cdStat_rsvp:'Cartão de RSVP', cdStat_menus:'Menus', cdStat_marcadores:'Marcadores de mesa', cdStat_numeros:'Números de mesa',
+  cdStat_plano:'Plano de mesas', cdStat_programa:'Programa da cerimónia', cdStat_placa:'Placa de boas-vindas', cdStat_agradecimento:'Cartões de agradecimento', cdStat_padrinhos:'Convites para os padrinhos', cdStat_presentes:'Lista de presentes'
+});
+Object.assign(APP_I18N.en, {
+  cdQlCake:'Cake', cdQlVows:'Vows', cdQlStationery:'Stationery',
+  cdCakeTitle:'The cake', cdCakeSub:'Define tiers, sizes and servings.', cdTier:n=>`Tier ${n}`, cdCm:'cm', cdPortions:'servings',
+  cdFlavors:'Flavours, fillings, allergies', cdDesserts:'Pastries, sweets, dessert table',
+  cdVowsTitle:'Vows and words', cdVowsSub:'Just for you two. Write, cross out, rewrite.', cdVowsMine:'My vows', cdVowsReadings:'Readings, songs, special moments',
+  cdStatTitle:'Stationery', cdStatSub:'Tick off each step.', cdStatItem:'Item', cdStatCreated:'Designed', cdStatPrinted:'Printed', cdStatSent:'Sent', cdStatDone:(a,b)=>`${a} of ${b} steps done`,
+  cdStyleTitle:'My style', cdStyleSil:'Silhouette', cdStyleNeck:'Neckline', cdStyleHint:'Mark the silhouette you like most.',
+  cdSilSereia:'Mermaid', cdSilLinhaA:'A-line', cdSilPrincesa:'Ball gown', cdSilColuna:'Column', cdSilImperio:'Empire', cdSilMidi:'Midi skirt',
+  cdNeckCoracao:'Sweetheart', cdNeckV:'V-neck', cdNeckQuadrado:'Square', cdNeckOmbros:'Off-shoulder', cdNeckAlcas:'Straps', cdNeckGola:'High neck',
+  cdStat_save:'Save the date', cdStat_convites:'Invitations', cdStat_rsvp:'RSVP card', cdStat_menus:'Menus', cdStat_marcadores:'Place cards', cdStat_numeros:'Table numbers',
+  cdStat_plano:'Seating chart', cdStat_programa:'Ceremony programme', cdStat_placa:'Welcome sign', cdStat_agradecimento:'Thank-you cards', cdStat_padrinhos:'Invitations for the wedding party', cdStat_presentes:'Gift list'
+});
+
+/* ============================================================
+   Bolo, Votos, Papelaria e estilo do vestido (v316)
+============================================================ */
+const CD_STATIONERY_IDS = ['save','convites','rsvp','menus','marcadores','numeros','plano','programa','placa','agradecimento','padrinhos','presentes'];
+const CD_SIL = [
+  ['sereia','cdSilSereia','M20 8 L40 8 C41 30 42 45 40 60 C40 72 50 90 54 96 L6 96 C10 90 20 72 20 60 C18 45 19 30 20 8Z'],
+  ['linhaa','cdSilLinhaA','M20 8 L40 8 L42 30 L58 96 L2 96 L18 30Z'],
+  ['princesa','cdSilPrincesa','M20 8 L40 8 L41 34 C50 50 58 80 58 96 L2 96 C2 80 10 50 19 34Z'],
+  ['coluna','cdSilColuna','M20 8 L40 8 L42 40 L41 96 L19 96 L18 40Z'],
+  ['imperio','cdSilImperio','M20 8 L40 8 L41 24 L44 28 L50 96 L10 96 L16 28 L19 24Z'],
+  ['midi','cdSilMidi','M20 8 L40 8 L41 34 C48 40 56 60 56 76 L4 76 C4 60 12 40 19 34Z']
+];
+const CD_NECK = [['coracao','cdNeckCoracao'],['v','cdNeckV'],['quadrado','cdNeckQuadrado'],['ombros','cdNeckOmbros'],['alcas','cdNeckAlcas'],['gola','cdNeckGola']];
+function cdEnsure(){
+  if(!state) return;
+  if(!state.dressStyle || typeof state.dressStyle!=='object') state.dressStyle = {};
+  if(typeof state.dressStyle.silhouette!=='string') state.dressStyle.silhouette = '';
+  if(!Array.isArray(state.dressStyle.necklines)) state.dressStyle.necklines = [];
+  if(!state.cake || typeof state.cake!=='object') state.cake = {};
+  const ck = state.cake;
+  if(['tiers','single','rect','square','other'].indexOf(ck.shape)<0) ck.shape = 'tiers';
+  if(!Array.isArray(ck.tiers)) ck.tiers = [];
+  while(ck.tiers.length<3) ck.tiers.push({cm:'',portions:'',flavor:'',filling:''});
+  ck.tiers.forEach(t=>{ if(t.flavor===undefined) t.flavor=''; if(t.filling===undefined) t.filling=''; });
+  [['single',{form:'',cm:'',portions:''}],['rect',{length:'',width:'',height:'',portions:''}],['square',{side:'',height:'',portions:''}],['other',{desc:'',dims:'',portions:''}],['chosen',{flavors:'',fillings:'',tier:'',notes:''}]].forEach(x=>{
+    if(!ck[x[0]] || typeof ck[x[0]]!=='object') ck[x[0]] = x[1];
+    else Object.keys(x[1]).forEach(k=>{ if(ck[x[0]][k]===undefined) ck[x[0]][k] = ''; });
+  });
+  ['flavor','filling','flavors','allergies','desserts'].forEach(k=>{ if(typeof ck[k]!=='string') ck[k] = ''; });
+  if(!Array.isArray(ck.tastings)) ck.tastings = [];
+  if(!Array.isArray(ck.inspirations)) ck.inspirations = [];
+  if(!state.vows || typeof state.vows!=='object') state.vows = {};
+  if(!state.stationery || typeof state.stationery!=='object' || Array.isArray(state.stationery)) state.stationery = {};
+}
+function cdDressStyleHTML(){
+  cdEnsure();
+  const ds = state.dressStyle;
+  const sils = CD_SIL.map(x=>`
+    <button type="button" class="cd-sil" data-cdsil="${x[0]}" aria-pressed="${ds.silhouette===x[0]?'true':'false'}">
+      <svg viewBox="0 0 60 100" aria-hidden="true"><path d="${x[2]}"/></svg><span>${escapeHTML(ta(x[1]))}</span><i></i>
+    </button>`).join('');
+  const necks = CD_NECK.map(x=>`<button type="button" class="cd-chip" data-cdneck="${x[0]}" aria-pressed="${ds.necklines.indexOf(x[0])>=0?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  return `
+  <section class="dy-mood cd-style" aria-labelledby="cd-style-h">
+    <div class="dy-mood-head"><h2 id="cd-style-h">${ta('cdStyleTitle')}</h2></div>
+    <p class="cd-intro">${ta('cdStyleHint')}</p>
+    <div class="cd-sec"><div class="cd-sil-grid" role="group" aria-label="${escapeHTML(ta('cdStyleSil'))}">${sils}</div></div>
+    <div class="cd-sec"><div class="cd-h">${ta('cdStyleNeck')}</div><div class="cd-chips" role="group" aria-label="${escapeHTML(ta('cdStyleNeck'))}">${necks}</div></div>
+  </section>`;
+}
+
+/* ============================================================
+   Premium (Bolo, Papelaria, Votos) + A papelaria: Itens e Design (v319)
+============================================================ */
+function pmBadge(){ return `<span class="pm-badge">${ICONS.crown||''}<span>Premium</span></span>`; }
+function pmLocked(backId, title, sub, descKey){
+  return `
+${pageHeader(backId, title, sub, pmBadge())}
+<div class="cb-page"><div class="pm-lock">
+  <div class="pm-lock-ico">${ICONS.crown||''}</div>
+  <h2 class="cb-h" style="margin:14px 0 6px">${ta('pmIncluded')}</h2>
+  <p class="cb-sub" style="max-width:300px;margin:0 auto 18px">${ta(descKey)}</p>
+  <button type="button" class="cb-btn" style="max-width:300px;margin:0 auto" data-premiumgoto="subscricao">${ta('pmCta')}</button>
+</div></div>`;
+}
+let sdTab = 'itens', sdOpen = null, sdAdding = false, sdLib = 'todos', sdUploadCtx = null, sdPalOpen = false;
+const SD_PRESETS = ['#F6EFE8','#E3C3A4','#C98E80','#A5483A','#8B6B4F','#7A8B5C','#2B2522','#FFFFFF'];
+const SD_FONTS = ['Cormorant Garamond','Playfair Display','Great Vibes','Allura','Montserrat','Manrope','Lora','Libre Baskerville','Josefin Sans','Raleway'];
+const SD_KINDS = ['ref','prop','final'];
+const SD_ICO = {
+  mail:'<rect width="20" height="14" x="2" y="5" rx="2"/><path d="m22 8-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 8"/>',
+  doc:'<path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8.500 12h7M8.500 15.500h5"/>',
+  menu:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 2-3 5-3 8h3"/>',
+  mark:'<path d="M6 3h12v18l-6-4-6 4z"/>',
+  num:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 8v8M10 10l2-2"/>',
+  plan:'<path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M4 11h16v4H4zM6 15v4M18 15v4"/>',
+  prog:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  sign:'<path d="M12 3v18M6 21h12M5 6h14l2 3-2 3H5z"/>',
+  heart:'<path d="M12 20s-7.500-4.600-9-9.500C2 7 4 4.500 7 4.500c2 0 3.800 1.200 5 3 1.200-1.800 3-3 5-3 3 0 5 2.500 4 6C19.500 15.400 12 20 12 20z"/>',
+  users:'<circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-3.500 3-5.500 6.500-5.500s6 2 6.500 5.500M16 5a3.500 3.500 0 0 1 0 7M18 14.800c2 .6 3.200 2.400 3.500 5.200"/>',
+  gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8C9 8 8 4.500 10 4s2 4 2 4zM12 8c3 0 4-3.500 2-4s-2 4-2 4z"/>'
+};
+const SD_ITEMS = [['save','mail'],['convites','mail'],['rsvp','doc'],['menus','menu'],['marcadores','mark'],['numeros','num'],['plano','plan'],['programa','prog'],['placa','sign'],['agradecimento','heart'],['padrinhos','users'],['presentes','gift']];
+function sdIco(k, cls){ return `<svg class="${cls||'sd-ico'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SD_ICO[k]||SD_ICO.doc}</svg>`; }
+function sdEnsure(){
+  cdEnsure();
+  if(!Array.isArray(state.stationeryCustom)) state.stationeryCustom = [];
+  let d = state.stationeryDesign;
+  if(!d || typeof d!=='object' || Array.isArray(d)) d = state.stationeryDesign = {};
+  if(!Array.isArray(d.palette)) d.palette = [];
+  if(typeof d.fontMain!=='string') d.fontMain = '';
+  if(typeof d.fontSecond!=='string') d.fontSecond = '';
+  if(!d.monogram || typeof d.monogram!=='object') d.monogram = {};
+  if(typeof d.monogram.initials!=='string') d.monogram.initials = '';
+  if(typeof d.monogram.notes!=='string') d.monogram.notes = '';
+  if(!d.items || typeof d.items!=='object' || Array.isArray(d.items)) d.items = {};
+  if(!Array.isArray(d.files)) d.files = [];
+}
+function sdAllItems(){
+  sdEnsure();
+  return SD_ITEMS.map(x=>({ id:x[0], name:ta('cdStat_'+x[0]), ico:x[1], custom:false }))
+    .concat(state.stationeryCustom.map(c=>({ id:c.id, name:c.name, ico:'doc', custom:true })));
+}
+function sdItemData(id){
+  sdEnsure(); const m = state.stationeryDesign.items;
+  if(!m[id] || typeof m[id]!=='object') m[id] = {};
+  const o = m[id];
+  ['text','format','dims','notes'].forEach(k=>{ if(typeof o[k]!=='string') o[k] = ''; });
+  if(!Array.isArray(o.colors)) o.colors = [];
+  return o;
+}
+function sdProgress(){
+  const items = sdAllItems(); let done = 0, full = 0;
+  items.forEach(it=>{ const r = state.stationery[it.id]||{}; const n = (r.c?1:0)+(r.p?1:0)+(r.e?1:0); done += n; if(n===3) full++; });
+  const total = items.length*3;
+  return { done, total, full, items:items.length, pct: total ? Math.round(done/total*100) : 0 };
+}
+function sdRing(pct){
+  const r = 18, c = 2*Math.PI*r;
+  return `<svg class="sd-ring" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="${r}" fill="none" stroke="#EADFD7" stroke-width="3.500"/><circle cx="22" cy="22" r="${r}" fill="none" stroke="#AD624F" stroke-width="3.500" stroke-linecap="round" stroke-dasharray="${(c*pct/100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 22 22)"/></svg>`;
+}
+function sdNormHex(v){
+  let s = String(v||'').trim().replace(/^#/,'');
+  if(/^[0-9a-fA-F]{3}$/.test(s)) s = s.split('').map(ch=>ch+ch).join('');
+  return /^[0-9a-fA-F]{6}$/.test(s) ? '#'+s.toUpperCase() : '';
+}
+function sdSwatch(hex, on, attr){
+  return `<button type="button" class="sd-sw" ${attr} aria-pressed="${on?'true':'false'}" aria-label="${hex}" style="--c:${hex}"></button>`;
+}
+function sdFileRow(f){
+  const it = sdAllItems().find(x=>x.id===f.itemId);
+  const isImg = !/\.pdf$/i.test(f.name||'');
+  const opts = [`<option value="">${escapeHTML(ta('sdGeneral'))}</option>`, `<option value="monogram" ${f.itemId==='monogram'?'selected':''}>${escapeHTML(ta('sdMonogram'))}</option>`]
+    .concat(sdAllItems().map(x=>`<option value="${escapeHTML(x.id)}" ${f.itemId===x.id?'selected':''}>${escapeHTML(x.name)}</option>`)).join('');
+  return `<div class="sd-file">
+    <button type="button" class="sd-file-main" data-sdopenfile="${f.id}">${isImg?CB_ICO.img.replace('<svg ','<svg class="ci" '):sdIco('doc','ci')}<span><b>${escapeHTML(f.name)}</b><small>${escapeHTML(ta('sdKind_'+f.kind))}${f.approved?' · '+escapeHTML(ta('sdApproved')):''}</small></span></button>
+    <div class="sd-file-act">
+      <select class="sd-sel" data-sdfileitem="${f.id}" aria-label="${escapeHTML(ta('sdAssoc'))}">${opts}</select>
+      <button type="button" class="cb-chip" data-sdapprove="${f.id}" aria-pressed="${f.approved?'true':'false'}">${escapeHTML(ta('sdApproved'))}</button>
+      <button type="button" class="cb-link danger" data-sddelfile="${f.id}">${ta('vwDelete')}</button>
+    </div>
+    <input class="cb-in sd-note" type="text" data-sdfilenote="${f.id}" value="${escapeHTML(f.note||'')}" placeholder="${escapeHTML(ta('sdNotePh'))}" aria-label="${escapeHTML(ta('sdNotePh'))}">
+  </div>`;
+}
+function sdItensTab(){
+  const items = sdAllItems();
+  const rows = items.map(it=>{
+    const r = state.stationery[it.id]||{};
+    const btn = (col,key)=>`<button type="button" class="cd-chk" data-cdstat="${escapeHTML(it.id)}:${col}" aria-pressed="${r[col]?'true':'false'}" aria-label="${escapeHTML(it.name+' — '+ta(key))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></button>`;
+    return `<div class="cd-stat-row sd-row">${sdIco(it.ico)}<span class="cd-it">${escapeHTML(it.name)}</span>${btn('c','cdStatCreated')}${btn('p','cdStatPrinted')}${btn('e','cdStatSent')}</div>`;
+  }).join('');
+  const add = sdAdding
+    ? `<div class="sd-add"><input class="cb-in" id="sd-new-name" type="text" maxlength="60" placeholder="${escapeHTML(ta('sdNewPh'))}" aria-label="${escapeHTML(ta('sdNewPh'))}"><div class="sd-add-b"><button type="button" class="cb-btn" style="margin:0" data-sdaddok>${ta('sdAddOk')}</button><button type="button" class="cb-btn ghost" style="margin:0" data-sdaddno>${ta('vwSaveBackCancel')}</button></div></div>`
+    : `<button type="button" class="cb-btn" data-sdaddopen>+ ${ta('sdAddItem')}</button>`;
+  return `
+  <h2 class="cb-h" style="font-style:italic">${ta('sdItemsTitle')}</h2><p class="cb-sub">${ta('sdItemsSub')}</p>
+  <div class="cd-stat-head sd-head"><span>${ta('cdStatItem')}</span><span>${ta('cdStatCreated')}</span><span>${ta('cdStatPrinted')}</span><span>${ta('cdStatSent')}</span></div>
+  ${rows}${add}`;
+}
+function sdPaletteBlock(){
+  const d = state.stationeryDesign;
+  const all = SD_PRESETS.concat(d.palette.filter(h=>SD_PRESETS.indexOf(h)<0));
+  const sws = all.map(h=>sdSwatch(h, d.palette.indexOf(h)>=0, `data-sdpal="${h}"`)).join('');
+  const addBox = sdPalOpen
+    ? `<div class="sd-hexrow"><input type="color" id="sd-hex-pick" value="#C98E80" aria-label="${escapeHTML(ta('sdColor'))}"><input class="cb-in" id="sd-hex-txt" type="text" maxlength="7" placeholder="#C98E80" aria-label="HEX"><button type="button" class="cb-link" data-sdhexadd>${ta('sdAddOk')}</button></div>`
+    : '';
+  return `<div class="sd-sub">${ta('sdPalette')}</div>
+    <div class="sd-sws">${sws}<button type="button" class="sd-sw plus" data-sdpalplus aria-label="${escapeHTML(ta('sdColor'))}">+</button></div>${addBox}
+    ${d.palette.length ? `<div class="sd-hexlist">${d.palette.map(escapeHTML).join(' · ')}</div>` : ''}`;
+}
+function sdDesignTab(){
+  sdEnsure(); const d = state.stationeryDesign;
+  if(sdOpen) return sdItemEditor();
+  const dl = `<datalist id="sd-fonts">${SD_FONTS.map(f=>`<option value="${escapeHTML(f)}"></option>`).join('')}</datalist>`;
+  const aa = (name)=>`<span class="sd-aa" style="font-family:'${escapeHTML(name||'Cormorant Garamond')}','Cormorant Garamond',serif">Aa</span>`;
+  const mats = sdAllItems().map(it=>{
+    const o = sdItemData(it.id), nf = d.files.filter(f=>f.itemId===it.id).length;
+    const bits = [o.text?ta('sdHasText'):'', o.colors.length?o.colors.length+' '+ta('sdColorsN'):'', o.format||'', nf?ta('sdFilesN')(nf):''].filter(Boolean).join(' · ');
+    return `<button type="button" class="cb-row sd-mrow" data-sdopen="${escapeHTML(it.id)}">${sdIco(it.ico,'ci')}<span><b>${escapeHTML(it.name)}</b><small>${escapeHTML(bits||ta('sdMatEmpty'))}</small></span><span></span>${CB_ICO.chev}</button>`;
+  }).join('');
+  const kinds = [['todos','sdLibAll'],['ref','sdKind_ref'],['prop','sdKind_prop'],['final','sdKind_final'],['aprov','sdApproved']];
+  const files = d.files.filter(f=> sdLib==='todos' || (sdLib==='aprov' ? f.approved : f.kind===sdLib));
+  const kindOpts = SD_KINDS.map(k=>`<option value="${k}">${escapeHTML(ta('sdKind_'+k))}</option>`).join('');
+  return `
+  <h2 class="cb-h" style="font-style:italic">${ta('sdIdTitle')}</h2><p class="cb-sub">${ta('sdIdSub')}</p>
+  ${sdPaletteBlock()}
+  <div class="sd-sub">${ta('sdTypo')}</div>
+  <div class="cb-fields" style="grid-template-columns:1fr">
+    <label class="cb-f"><span>${ta('sdFontMain')}</span><span class="sd-fontbox">${aa(d.fontMain)}<input class="cb-in" list="sd-fonts" type="text" data-cdtext="stationeryDesign.fontMain" value="${escapeHTML(d.fontMain)}" placeholder="${escapeHTML(ta('sdFontMainHint'))}"></span></label>
+    <label class="cb-f"><span>${ta('sdFontSecond')}</span><span class="sd-fontbox">${aa(d.fontSecond)}<input class="cb-in" list="sd-fonts" type="text" data-cdtext="stationeryDesign.fontSecond" value="${escapeHTML(d.fontSecond)}" placeholder="${escapeHTML(ta('sdFontSecondHint'))}"></span></label>
+  </div>${dl}
+  <div class="sd-sub">${ta('sdMonogram')}</div>
+  <div class="sd-mono"><div class="sd-mono-v" aria-hidden="true">${escapeHTML(d.monogram.initials||'R&T')}</div>
+    <div class="cb-fields" style="grid-template-columns:1fr">
+      <label class="cb-f"><span>${ta('sdInitials')}</span><input class="cb-in" type="text" maxlength="8" data-cdtext="stationeryDesign.monogram.initials" value="${escapeHTML(d.monogram.initials)}" placeholder="R&T"></label>
+      <label class="cb-f"><span>${ta('vwFNotes')}</span><textarea class="cb-ta" style="min-height:70px" data-cdtext="stationeryDesign.monogram.notes">${escapeHTML(d.monogram.notes)}</textarea></label>
+    </div>
+    <button type="button" class="cb-link" data-sdupload="monogram:final">${ta('sdUploadMono')}</button>
+    ${d.files.filter(f=>f.itemId==='monogram').map(sdFileRow).join('')}
+  </div>
+  <h2 class="cb-h" style="font-style:italic">${ta('sdMatTitle')}</h2><p class="cb-sub">${ta('sdMatSub')}</p>
+  <div class="cb-list">${mats}</div>
+  <h2 class="cb-h" style="font-style:italic">${ta('sdLibTitle')}</h2><p class="cb-sub">${ta('sdLibSub')}</p>
+  <div class="cb-chips" role="group" aria-label="${escapeHTML(ta('sdLibTitle'))}">${kinds.map(k=>`<button type="button" class="cb-chip" data-sdlib="${k[0]}" aria-pressed="${sdLib===k[0]?'true':'false'}">${escapeHTML(ta(k[1]))}</button>`).join('')}</div>
+  <div class="sd-libadd"><select class="sd-sel" id="sd-lib-kind" aria-label="${escapeHTML(ta('vwFType'))}">${kindOpts}</select><button type="button" class="cb-btn ghost" style="margin:0" data-sdupload="::lib">+ ${ta('sdAddFile')}</button></div>
+  ${files.length ? files.map(sdFileRow).join('') : `<div class="cb-empty">${ta('sdLibEmpty')}</div>`}`;
+}
+function sdItemEditor(){
+  const it = sdAllItems().find(x=>x.id===sdOpen); if(!it){ sdOpen = null; return sdDesignTab(); }
+  const o = sdItemData(it.id), d = state.stationeryDesign, r = state.stationery[it.id]||{};
+  const b = 'stationeryDesign.items.'+it.id+'.';
+  const st = [['c','cdStatCreated'],['p','cdStatPrinted'],['e','cdStatSent']].map(x=>`<button type="button" class="cb-chip" data-cdstat="${escapeHTML(it.id)}:${x[0]}" aria-pressed="${r[x[0]]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  const pal = d.palette.length ? d.palette.map(h=>sdSwatch(h, o.colors.indexOf(h)>=0, `data-sditemcolor="${h}"`)).join('') : `<span class="cb-sub" style="margin:0">${ta('sdNoPalette')}</span>`;
+  const kinds = SD_KINDS.map(k=>{
+    const fl = d.files.filter(f=>f.itemId===it.id && f.kind===k);
+    return `<div class="sd-sub" style="margin-top:18px">${ta('sdKind_'+k)}</div>${fl.map(sdFileRow).join('')}<button type="button" class="cb-link" data-sdupload="${escapeHTML(it.id)}:${k}">+ ${ta('sdAddFile')}</button>`;
+  }).join('');
+  return `<button type="button" class="cb-back" data-sdclose>${CB_ICO.back}${ta('cdStatTitle')}</button>
+  <h2 class="cb-h" style="margin-top:6px">${escapeHTML(it.name)}</h2>
+  <div class="cb-f" style="margin-top:6px"><span>${ta('sdState')}</span><div class="cb-chips">${st}</div></div>
+  <div class="cb-fields" style="margin-top:16px">
+    <label class="cb-f full"><span>${ta('sdText')}</span><textarea class="cb-ta" style="min-height:130px" data-cdtext="${b}text">${escapeHTML(o.text)}</textarea></label>
+    <div class="cb-f full"><span>${ta('sdColors')}</span><div class="sd-sws">${pal}</div></div>
+    <label class="cb-f"><span>${ta('sdFormat')}</span><input class="cb-in" type="text" data-cdtext="${b}format" value="${escapeHTML(o.format)}" placeholder="${escapeHTML(ta('sdFormatPh'))}"></label>
+    <label class="cb-f"><span>${ta('sdDims')}</span><input class="cb-in" type="text" data-cdtext="${b}dims" value="${escapeHTML(o.dims)}" placeholder="10 × 15 cm"></label>
+    <label class="cb-f full"><span>${ta('vwFNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cdtext="${b}notes">${escapeHTML(o.notes)}</textarea></label>
+  </div>
+  ${kinds}
+  ${it.custom ? `<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>` : ''}`;
+}
+function viewPapelaria(){
+  if(!hasActiveSubscription()) return pmLocked('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), 'pmDescStat');
+  sdEnsure();
+  const pg = sdProgress();
+  const tabs = [['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  return `
+${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
+<div class="cb-page">
+  <div class="sd-prog">${sdIco('doc','sd-prog-ico')}<div class="sd-prog-t"><b>${ta('sdProgress')}</b><small>${escapeHTML(ta('cdStatDone')(pg.done, pg.total))}</small></div><div class="sd-ringw">${sdRing(pg.pct)}<span>${pg.pct}%</span></div></div>
+  <div class="cb-tabs" role="tablist">${tabs}</div>
+  ${sdTab==='design' ? sdDesignTab() : sdItensTab()}
+</div>`;
+}
+(function sdBind(){
+  if(window.__sdBound) return; window.__sdBound = true;
+  const scrollTop = ()=>{ const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; };
+  const fi = document.getElementById('stat-file-input');
+  document.addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target : null; if(!t) return;
+    if(t.closest('#papelaria-back') && sdOpen){ e.stopImmediatePropagation(); sdOpen = null; _origRender(); return; }
+    const tab = t.closest('[data-sdtab]');
+    if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; _origRender(); return; }
+    if(t.closest('[data-sdaddopen]')){ sdAdding = true; _origRender(); const i = document.getElementById('sd-new-name'); if(i) i.focus(); return; }
+    if(t.closest('[data-sdaddno]')){ sdAdding = false; _origRender(); return; }
+    if(t.closest('[data-sdaddok]')){
+      const i = document.getElementById('sd-new-name'); const name = i ? i.value.trim().slice(0,60) : '';
+      if(!name){ if(i) flagRequiredField(i); return; }
+      sdEnsure(); const id = 'sc'+Date.now()+Math.random().toString(36).slice(2,5);
+      state.stationeryCustom.push({ id, name }); sdAdding = false; render(); return;
+    }
+    const op = t.closest('[data-sdopen]');
+    if(op){ sdOpen = op.dataset.sdopen; _origRender(); scrollTop(); return; }
+    if(t.closest('[data-sdclose]')){ sdOpen = null; render(); return; }
+    const dl = t.closest('[data-sddelitem]');
+    if(dl){ const id = dl.dataset.sddelitem; weddyConfirm(ta('sdRemoveQ')).then(ok=>{ if(!ok) return;
+      state.stationeryCustom = state.stationeryCustom.filter(c=>c.id!==id); delete state.stationery[id]; delete state.stationeryDesign.items[id];
+      state.stationeryDesign.files.forEach(f=>{ if(f.itemId===id) f.itemId = ''; });
+      sdOpen = null; render(); }); return; }
+    const pal = t.closest('[data-sdpal]');
+    if(pal){ sdEnsure(); const h = pal.dataset.sdpal, a = state.stationeryDesign.palette, i = a.indexOf(h); if(i>=0) a.splice(i,1); else a.push(h); render(); return; }
+    if(t.closest('[data-sdpalplus]')){ sdPalOpen = !sdPalOpen; _origRender(); return; }
+    if(t.closest('[data-sdhexadd]')){
+      const txt = document.getElementById('sd-hex-txt'), pick = document.getElementById('sd-hex-pick');
+      const hex = sdNormHex(txt && txt.value ? txt.value : (pick ? pick.value : ''));
+      if(!hex){ if(txt) flagRequiredField(txt); return; }
+      sdEnsure(); const a = state.stationeryDesign.palette; if(a.indexOf(hex)<0) a.push(hex);
+      sdPalOpen = false; render(); return;
+    }
+    const ic = t.closest('[data-sditemcolor]');
+    if(ic && sdOpen){ const o = sdItemData(sdOpen), h = ic.dataset.sditemcolor, i = o.colors.indexOf(h); if(i>=0) o.colors.splice(i,1); else o.colors.push(h); render(); return; }
+    const lb = t.closest('[data-sdlib]');
+    if(lb){ sdLib = lb.dataset.sdlib; _origRender(); return; }
+    const up = t.closest('[data-sdupload]');
+    if(up){
+      const [item,kind] = up.dataset.sdupload.split(':');
+      let k = kind, it = item;
+      if(kind==='' || up.dataset.sdupload==='::lib'){ const s = document.getElementById('sd-lib-kind'); k = s ? s.value : 'ref'; it = ''; }
+      sdUploadCtx = { itemId: it, kind: k }; if(fi) fi.click(); return;
+    }
+    const of = t.closest('[data-sdopenfile]');
+    if(of){
+      const f = state.stationeryDesign.files.find(q=>q.id===of.dataset.sdopenfile);
+      if(f && f.storagePath && storage){ storage.ref(f.storagePath).getDownloadURL().then(u=>previewAttachment(u, f.name)).catch(()=>weddyAlert(ta('cmpUploadFailed'))); }
+      return;
+    }
+    const ap = t.closest('[data-sdapprove]');
+    if(ap){ const f = state.stationeryDesign.files.find(q=>q.id===ap.dataset.sdapprove); if(f){ f.approved = !f.approved; render(); } return; }
+    const df = t.closest('[data-sddelfile]');
+    if(df){ const id = df.dataset.sddelfile; weddyConfirm(ta('sdDelFileQ')).then(ok=>{ if(!ok) return;
+      const f = state.stationeryDesign.files.find(q=>q.id===id);
+      if(f && f.storagePath && storage){ try{ storage.ref(f.storagePath).delete().catch(()=>{}); }catch(e){} }
+      state.stationeryDesign.files = state.stationeryDesign.files.filter(q=>q.id!==id); render(); }); return; }
+  }, true);
+  document.addEventListener('change', e=>{
+    const t = e.target; if(!t || !t.getAttribute) return;
+    const fs = t.getAttribute('data-sdfileitem');
+    if(fs){ const f = state.stationeryDesign.files.find(q=>q.id===fs); if(f){ f.itemId = t.value; render(); } return; }
+    const fn = t.getAttribute('data-sdfilenote');
+    if(fn){ const f = state.stationeryDesign.files.find(q=>q.id===fn); if(f){ f.note = t.value.slice(0,200); pushRemote(true); } }
+  });
+  if(fi) fi.addEventListener('change', async ev=>{
+    const list = Array.from(ev.target.files||[]); ev.target.value = '';
+    const ctx = sdUploadCtx; sdUploadCtx = null;
+    if(!ctx || !list.length) return;
+    sdEnsure(); let problem = '', added = 0;
+    for(const file of list){
+      const ok = file.type==='application/pdf' || (file.type && file.type.startsWith('image/'));
+      if(!ok){ problem = ta('cmpFileType'); continue; }
+      if(file.size > CMP_MAX_FILE){ problem = ta('cmpFileTooLarge'); continue; }
+      if(!(storage && FIREBASE_READY && auth && auth.currentUser && currentWeddingId)){ problem = ta('cmpUploadFailed'); continue; }
+      const safe = file.name.replace(/[^\w.\-]+/g,'_').slice(0,80);
+      const storagePath = `documents/${currentWeddingId}/${Date.now()}_stat_${safe}`;
+      try{ await storage.ref(storagePath).put(file); }catch(err){ problem = ta('cmpUploadFailed'); continue; }
+      state.stationeryDesign.files.push({ id:'sf'+Date.now()+Math.random().toString(36).slice(2,5), itemId:ctx.itemId, kind:ctx.kind, name:file.name, storagePath, uploadedAt:new Date().toISOString(), approved:false, note:'' });
+      added++;
+    }
+    if(added) render(); else _origRender();
+    if(problem) weddyAlert(problem);
+  });
+})();
+Object.assign(APP_I18N.pt, {
+  pmIncluded:'Incluído no Premium', pmCta:'Conhecer o Premium',
+  pmDescBolo:'Organizem o modelo, os sabores, as provas e as inspirações do bolo num só lugar.', pmDescVows:'Um espaço para preparar os votos, discursos e leituras da cerimónia.', pmDescStat:'Acompanhem cada material da papelaria e guardem a identidade visual e os ficheiros do casamento.',
+  sdTabItems:'Itens', sdTabDesign:'Design', sdProgress:'Progresso da papelaria', sdItemsTitle:'Itens da papelaria', sdItemsSub:'Acompanhem a criação, impressão e envio de cada elemento.',
+  sdAddItem:'Adicionar item', sdAddOk:'Adicionar', sdNewPh:'Nome do elemento', vwSaveBackCancel:'Cancelar',
+  sdIdTitle:'Identidade visual', sdIdSub:'Definam a linguagem visual que vai acompanhar toda a papelaria.', sdPalette:'Paleta de cores', sdColor:'Adicionar cor', sdTypo:'Tipografia',
+  sdFontMain:'Tipografia principal', sdFontMainHint:'Títulos e destaques', sdFontSecond:'Tipografia secundária', sdFontSecondHint:'Textos e detalhes',
+  sdMonogram:'Monograma', sdInitials:'Iniciais dos noivos', sdUploadMono:'+ Carregar ficheiro do monograma',
+  sdMatTitle:'Materiais e personalização', sdMatSub:'Definam o estilo e os detalhes de cada elemento.', sdMatEmpty:'Texto, cores, formato e ficheiros', sdHasText:'Texto', sdColorsN:'cores', sdFilesN:n=>`${n} ${n===1?'ficheiro':'ficheiros'}`,
+  sdLibTitle:'Biblioteca de ficheiros', sdLibSub:'Referências, propostas, ficheiros finais e versões aprovadas.', sdLibAll:'Todos', sdLibEmpty:'Ainda não há ficheiros.', sdAddFile:'Adicionar ficheiro',
+  sdKind_ref:'Referências', sdKind_prop:'Propostas', sdKind_final:'Finais', sdApproved:'Aprovado', sdGeneral:'Geral', sdAssoc:'Associar a elemento', sdNotePh:'Notas e alterações',
+  sdState:'Estado', sdText:'Texto e conteúdo', sdColors:'Cores', sdNoPalette:'Escolham primeiro as cores da paleta.', sdFormat:'Formato', sdFormatPh:'Ex.: A6, vertical', sdDims:'Dimensões',
+  sdRemoveItem:'Remover este elemento', sdRemoveQ:'Remover este elemento? Os ficheiros ficam na biblioteca como "Geral".', sdDelFileQ:'Eliminar este ficheiro?'
+});
+Object.assign(APP_I18N.en, {
+  pmIncluded:'Included in Premium', pmCta:'Discover Premium',
+  pmDescBolo:'Organise the cake model, flavours, tastings and inspiration in one place.', pmDescVows:'A space to prepare the vows, speeches and readings of the ceremony.', pmDescStat:'Track every stationery piece and keep your wedding visual identity and files together.',
+  sdTabItems:'Items', sdTabDesign:'Design', sdProgress:'Stationery progress', sdItemsTitle:'Stationery items', sdItemsSub:'Track the design, printing and sending of each piece.',
+  sdAddItem:'Add item', sdAddOk:'Add', sdNewPh:'Item name', vwSaveBackCancel:'Cancel',
+  sdIdTitle:'Visual identity', sdIdSub:'Define the visual language that will accompany all your stationery.', sdPalette:'Colour palette', sdColor:'Add colour', sdTypo:'Typography',
+  sdFontMain:'Main typeface', sdFontMainHint:'Titles and highlights', sdFontSecond:'Secondary typeface', sdFontSecondHint:'Text and details',
+  sdMonogram:'Monogram', sdInitials:"Couple's initials", sdUploadMono:'+ Upload monogram file',
+  sdMatTitle:'Materials and customisation', sdMatSub:'Define the style and details of each piece.', sdMatEmpty:'Text, colours, format and files', sdHasText:'Text', sdColorsN:'colours', sdFilesN:n=>`${n} ${n===1?'file':'files'}`,
+  sdLibTitle:'File library', sdLibSub:'References, proposals, final files and approved versions.', sdLibAll:'All', sdLibEmpty:'No files yet.', sdAddFile:'Add file',
+  sdKind_ref:'References', sdKind_prop:'Proposals', sdKind_final:'Final', sdApproved:'Approved', sdGeneral:'General', sdAssoc:'Link to piece', sdNotePh:'Notes and changes',
+  sdState:'Status', sdText:'Text and content', sdColors:'Colours', sdNoPalette:'Pick the palette colours first.', sdFormat:'Format', sdFormatPh:'E.g. A6, portrait', sdDims:'Dimensions',
+  sdRemoveItem:'Remove this piece', sdRemoveQ:'Remove this piece? Its files stay in the library as "General".', sdDelFileQ:'Delete this file?'
+});
+
+
+/* ============================================================
+   O bolo — Detalhes, Provas, Inspirações (v317)
+============================================================ */
+let cbTab = 'detalhes';
+let cbTastOpen = null;
+let cbInspFilter = 'todos';
+let cbDraft = null;
+const cbOpen = {};
+const CB_STY = ['classico','moderno','rustico','minimalista'];
+const CB_SHAPES = [
+  ['tiers','<rect x="17" y="3" width="14" height="8" rx="1.5"/><rect x="11" y="11" width="26" height="9" rx="1.5"/><rect x="5" y="20" width="38" height="11" rx="1.5"/>'],
+  ['single','<rect x="8" y="9" width="32" height="18" rx="3"/><path d="M8 15 q4 4 8 0 t8 0 t8 0 t8 0"/>'],
+  ['rect','<rect x="3" y="10" width="42" height="16" rx="2"/>'],
+  ['square','<rect x="10" y="5" width="28" height="26" rx="2"/>'],
+  ['other','<ellipse cx="24" cy="18" rx="19" ry="10"/>']
+];
+function cakeInspKey(){ return 'weddy-cake-inspiracoes-'+(currentWeddingId||'none'); }
+function saveCakeInspPhotos(){
+  try{ localStorage.setItem(cakeInspKey(), JSON.stringify(cakeInspPhotos)); }
+  catch(e){ showSaveToast(true); weddyAlert(ta('alertPhotoSaveError')); }
+}
+function loadCakeInspPhotos(){
+  try{ const raw = localStorage.getItem(cakeInspKey()); cakeInspPhotos = raw ? (JSON.parse(raw)||{}) : {}; }
+  catch(e){ cakeInspPhotos = {}; }
+}
+function cbStyleLabel(k){ return CB_STY.indexOf(k)>=0 ? ta('cbSty_'+k) : String(k||''); }
+function cbField(path, label, val, opts){
+  opts = opts||{};
+  return `<label class="cb-f${opts.full?' full':''}"><span>${escapeHTML(label)}</span><input class="cb-in" type="${opts.type||'text'}" ${opts.inputmode?`inputmode="${opts.inputmode}"`:''} data-cdtext="${path}" value="${escapeHTML(String(val==null?'':val))}" ${opts.ph?`placeholder="${escapeHTML(opts.ph)}"`:''}></label>`;
+}
+function cbPill(path, val, suffix, label){
+  return `<label class="cb-pill"><input type="text" inputmode="decimal" data-cdtext="${path}" value="${escapeHTML(String(val==null?'':val))}" aria-label="${escapeHTML(label)}">${escapeHTML(suffix)}</label>`;
+}
+function cbAcc(key, ico, title, sub, body){
+  return `<details class="cb-acc" data-cbopen="${key}" ${cbOpen[key]?'open':''}><summary><span class="cb-acc-ico">${ico}</span><span class="cb-acc-t"><b>${escapeHTML(title)}</b><small>${escapeHTML(sub)}</small></span><svg class="cb-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="cb-acc-body">${body}</div></details>`;
+}
+const CB_ICO = {
+  flav:'<svg viewBox="0 0 24 24"><path d="M3 15c0-4 4-7 9-7s9 3 9 7"/><path d="M3 15h18l-1.5 4h-15z"/><path d="M8 11v-1M12 10V8.5M16 11v-1"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24"><path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19 13 11"/></svg>',
+  dome:'<svg viewBox="0 0 24 24"><path d="M3 17h18"/><path d="M5 17a7 7 0 0 1 14 0"/><path d="M12 7V5"/><path d="M10 5h4"/><path d="M2 20h20"/></svg>',
+  cal:'<svg class="ci" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>',
+  cake:'<svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="4" rx="1"/><rect x="6" y="8" width="12" height="5" rx="1"/><rect x="3" y="13" width="18" height="6" rx="1"/></svg>',
+  chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>',
+  img:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-9 9"/></svg>',
+  star:'<svg viewBox="0 0 24 24"><path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>'
+};
+function cbDetalhes(){
+  const c = state.cake, sh = c.shape;
+  const shapes = CB_SHAPES.map(x=>`<button type="button" class="cb-shape" data-cbshape="${x[0]}" aria-pressed="${sh===x[0]?'true':'false'}"><svg viewBox="0 0 48 36" aria-hidden="true">${x[1]}</svg><span>${escapeHTML(ta('cbShape_'+x[0]))}</span></button>`).join('');
+  let conf = '';
+  if(sh==='tiers'){
+    const n = c.tiers.length;
+    const rows = c.tiers.map((t,i)=>`
+      <div class="cb-trow"><span class="cb-num">${i+1}</span><span class="cb-tname">${escapeHTML(ta('cbTierName')(i+1,i===0))}</span>
+      ${cbPill('cake.tiers.'+i+'.cm', t.cm, ta('cbCm'), ta('cbTierName')(i+1,false)+' '+ta('cbCm'))}
+      ${cbPill('cake.tiers.'+i+'.portions', t.portions, ta('cbPortions'), ta('cbTierName')(i+1,false)+' '+ta('cbPortions'))}</div>`).join('');
+    conf = `<div class="cb-conf-head"><h2 class="cb-h sm">${ta('cbConfig')}</h2><div class="cb-stepper"><span>${ta('cbTiersN')}</span><button type="button" class="cb-step" data-cbtiers="-1" aria-label="−" ${n<=1?'disabled':''}>−</button><b>${n}</b><button type="button" class="cb-step" data-cbtiers="1" aria-label="+" ${n>=8?'disabled':''}>+</button></div></div>${rows}`;
+  } else if(sh==='single'){
+    conf = `<h2 class="cb-h sm" style="margin-top:22px">${ta('cbConfig')}</h2><div class="cb-fields" style="margin-top:12px">${cbField('cake.single.form',ta('cbFormLbl'),c.single.form,{full:true,ph:ta('cbFormPh')})}${cbField('cake.single.cm',ta('cbSizeCm'),c.single.cm,{inputmode:'decimal'})}${cbField('cake.single.portions',ta('cbPortLbl'),c.single.portions,{inputmode:'numeric'})}</div>`;
+  } else if(sh==='rect'){
+    conf = `<h2 class="cb-h sm" style="margin-top:22px">${ta('cbConfig')}</h2><div class="cb-fields" style="margin-top:12px">${cbField('cake.rect.length',ta('cbLen'),c.rect.length,{inputmode:'decimal'})}${cbField('cake.rect.width',ta('cbWid'),c.rect.width,{inputmode:'decimal'})}${cbField('cake.rect.height',ta('cbHei'),c.rect.height,{inputmode:'decimal'})}${cbField('cake.rect.portions',ta('cbPortLbl'),c.rect.portions,{inputmode:'numeric'})}</div>`;
+  } else if(sh==='square'){
+    conf = `<h2 class="cb-h sm" style="margin-top:22px">${ta('cbConfig')}</h2><div class="cb-fields" style="margin-top:12px">${cbField('cake.square.side',ta('cbSide'),c.square.side,{inputmode:'decimal'})}${cbField('cake.square.height',ta('cbHei'),c.square.height,{inputmode:'decimal'})}${cbField('cake.square.portions',ta('cbPortLbl'),c.square.portions,{inputmode:'numeric',full:true})}</div>`;
+  } else {
+    conf = `<h2 class="cb-h sm" style="margin-top:22px">${ta('cbConfig')}</h2><div class="cb-fields" style="margin-top:12px"><label class="cb-f full"><span>${ta('cbDescLbl')}</span><textarea class="cb-ta" style="min-height:80px" data-cdtext="cake.other.desc" placeholder="${escapeHTML(ta('cbDescPh'))}">${escapeHTML(c.other.desc)}</textarea></label>${cbField('cake.other.dims',ta('cbDimsLbl'),c.other.dims,{ph:ta('cbDimsPh')})}${cbField('cake.other.portions',ta('cbPortLbl'),c.other.portions,{inputmode:'numeric'})}</div>`;
+  }
+  let flav = '';
+  if(sh==='tiers'){
+    flav = `<div class="cb-tf">${c.tiers.map((t,i)=>`<div class="cb-tf-h">${escapeHTML(ta('cbTierName')(i+1,false))}</div>${cbField('cake.tiers.'+i+'.flavor',ta('cbFlavor'),t.flavor)}${cbField('cake.tiers.'+i+'.filling',ta('cbFilling'),t.filling)}`).join('')}</div>`;
+  } else {
+    flav = `<div class="cb-tf">${cbField('cake.flavor',ta('cbFlavor'),c.flavor)}${cbField('cake.filling',ta('cbFilling'),c.filling)}</div>`;
+  }
+  flav += `<label class="cb-f"><span>${ta('cbFlavNotes')}</span><textarea class="cb-ta" data-cdtext="cake.flavors">${escapeHTML(c.flavors)}</textarea></label>`;
+  return `
+  <h2 class="cb-h">${ta('cbModelTitle')}</h2><p class="cb-sub">${ta('cbModelSub')}</p>
+  <div class="cb-shapes" role="group" aria-label="${escapeHTML(ta('cbModelTitle'))}">${shapes}</div>
+  <hr class="cb-rule">
+  ${conf}
+  <div style="height:14px"></div>
+  ${cbAcc('flav', CB_ICO.flav, ta('cbFlavTitle'), sh==='tiers'?ta('cbFlavSub'):ta('cbFlavSubOne'), flav)}
+  ${cbAcc('ale', CB_ICO.leaf, ta('cbAllTitle'), ta('cbAllSub'), `<textarea class="cb-ta" data-cdtext="cake.allergies" aria-label="${escapeHTML(ta('cbAllTitle'))}" placeholder="${escapeHTML(ta('cbAllPh'))}">${escapeHTML(c.allergies)}</textarea>`)}
+  ${cbAcc('pas', CB_ICO.dome, ta('cbDesTitle'), ta('cbDesSub'), `<textarea class="cb-ta" data-cdtext="cake.desserts" aria-label="${escapeHTML(ta('cbDesTitle'))}" placeholder="${escapeHTML(ta('cbDesPh'))}">${escapeHTML(c.desserts)}</textarea>`)}
+  <button type="button" class="cb-btn" data-cbsave>${ta('cbSave')}</button>`;
+}
+function cbStatusPill(st){ return `<span class="cb-st ${st==='done'?'done':st==='cancelled'?'cancelled':''}">${escapeHTML(ta('cbSt_'+(['scheduled','done','cancelled'].indexOf(st)>=0?st:'scheduled')))}</span>`; }
+function cbProvas(){
+  const c = state.cake;
+  if(cbTastOpen){
+    const idx = c.tastings.findIndex(t=>t.id===cbTastOpen);
+    if(idx<0){ cbTastOpen = null; }
+    else {
+      const t = c.tastings[idx], b = 'cake.tastings.'+idx+'.';
+      const sts = ['scheduled','done','cancelled'].map(k=>`<button type="button" class="cb-chip" data-cbstatus="${k}" aria-pressed="${t.status===k?'true':'false'}">${escapeHTML(ta('cbSt_'+k))}</button>`).join('');
+      const stars = [1,2,3,4,5].map(n=>`<button type="button" class="cb-star" data-cbrate="${n}" aria-pressed="${t.rating>=n?'true':'false'}" aria-label="${n}/5">${CB_ICO.star}</button>`).join('');
+      return `
+      <button type="button" class="cb-back" data-cbtastback>${CB_ICO.back}${ta('cbTastBack')}</button>
+      <div class="cb-fields" style="margin-top:8px">
+        ${cbField(b+'name',ta('cbTastName'),t.name,{full:true,ph:ta('cbTastDefault')(idx+1)})}
+        ${cbField(b+'date',ta('cbTastDate'),t.date,{type:'date'})}
+        ${cbField(b+'vendor',ta('cbTastVendor'),t.vendor)}
+        <div class="cb-f full"><span>${ta('cbTastStatus')}</span><div class="cb-chips">${sts}</div></div>
+        ${cbField(b+'flavors',ta('cbTastFlav'),t.flavors,{full:true})}
+        ${cbField(b+'fillings',ta('cbTastFill'),t.fillings,{full:true})}
+        ${cbField(b+'textures',ta('cbTastTex'),t.textures,{full:true})}
+        <label class="cb-f full"><span>${ta('cbTastNotes')}</span><textarea class="cb-ta" data-cdtext="${b}notes" placeholder="${escapeHTML(ta('cbTastNotesPh'))}">${escapeHTML(t.notes)}</textarea></label>
+        <div class="cb-f full"><span>${ta('cbTastRate')}</span><div class="cb-stars">${stars}</div></div>
+      </div>
+      <div style="margin-top:22px"><button type="button" class="cb-link danger" data-cbtastdel>${ta('cbTastDel')}</button></div>`;
+    }
+  }
+  const rows = c.tastings.map((t,i)=>`
+    <button type="button" class="cb-row" data-cbtast="${t.id}">${CB_ICO.cal}<span><b>${escapeHTML(t.name||ta('cbTastDefault')(i+1))}</b><small>${t.date?escapeHTML(formatDatePT(t.date)):escapeHTML(ta('cbNoDate'))}${t.vendor?' · '+escapeHTML(t.vendor):''}</small></span>${cbStatusPill(t.status)}${CB_ICO.chev}</button>`).join('');
+  const ch = c.chosen;
+  const parts = [ch.flavors, ch.fillings].map(x=>String(x||'').trim()).filter(Boolean);
+  const sum = parts.length ? parts.join(' · ') : ta('cbFinalEmpty');
+  const tierOpts = [`<option value="">—</option>`, `<option value="all" ${ch.tier==='all'?'selected':''}>${escapeHTML(ta('cbFinalAll'))}</option>`]
+    .concat(c.shape==='tiers' ? c.tiers.map((t,i)=>`<option value="${i+1}" ${String(ch.tier)===String(i+1)?'selected':''}>${escapeHTML(ta('cbTierName')(i+1,false))}</option>`) : []).join('');
+  const finBody = `${cbField('cake.chosen.flavors',ta('cbFinalFlav'),ch.flavors)}${cbField('cake.chosen.fillings',ta('cbFinalFill'),ch.fillings)}
+    <label class="cb-f"><span>${ta('cbFinalTier')}</span><select class="cb-in" data-cdtext="cake.chosen.tier">${tierOpts}</select></label>
+    <label class="cb-f"><span>${ta('cbFinalNotes')}</span><textarea class="cb-ta" style="min-height:80px" data-cdtext="cake.chosen.notes">${escapeHTML(ch.notes)}</textarea></label>`;
+  return `
+  <h2 class="cb-h">${ta('cbTastTitle')}</h2><p class="cb-sub">${ta('cbTastSub')}</p>
+  ${rows ? `<div class="cb-list">${rows}</div>` : `<div class="cb-empty">${ta('cbTastEmpty')}</div>`}
+  <button type="button" class="cb-btn ghost" data-cbaddtast>+ ${ta('cbAddTast')}</button>
+  <h2 class="cb-h sm" style="margin-top:30px">${ta('cbFinalTitle')}</h2>
+  <div class="cb-fin">${cbAcc('fin', CB_ICO.cake, ta('cbFinalSummary'), sum, finBody)}</div>`;
+}
+function cbInspiracoes(){
+  const c = state.cake;
+  if(cbDraft){
+    const d = cbDraft;
+    const isCustom = d.style==='custom';
+    const chips = CB_STY.map(k=>`<button type="button" class="cb-chip" data-cbdstyle="${k}" aria-pressed="${d.style===k?'true':'false'}">${escapeHTML(ta('cbSty_'+k))}</button>`).join('')
+      + `<button type="button" class="cb-chip" data-cbdstyle="custom" aria-pressed="${isCustom?'true':'false'}">${escapeHTML(ta('cbInspOther'))}</button>`;
+    return `
+    <button type="button" class="cb-back" data-cbinspcancel>${CB_ICO.back}${ta('cbInspTitle')}</button>
+    <div class="cb-ph cb-draft-ph">${d.photo ? `<img src="${d.photo}" alt="">` : CB_ICO.img}</div>
+    <button type="button" class="cb-link" data-cbinspphoto>${d.photo?ta('cbInspChange'):ta('cbInspPhoto')}</button>
+    <div class="cb-fields" style="margin-top:18px">
+      <div class="cb-f full"><span>${ta('cbInspStyle')}</span><div class="cb-chips">${chips}</div></div>
+      ${isCustom ? `<label class="cb-f full"><span>${ta('cbInspOther')}</span><input class="cb-in" type="text" data-cbdraft="customStyle" value="${escapeHTML(d.customStyle||'')}" placeholder="${escapeHTML(ta('cbInspOtherPh'))}"></label>` : ''}
+      <label class="cb-f full"><span>${ta('cbInspDesc')}</span><input class="cb-in" type="text" data-cbdraft="desc" value="${escapeHTML(d.desc||'')}"></label>
+      <label class="cb-f full"><span>${ta('cbInspNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cbdraft="notes">${escapeHTML(d.notes||'')}</textarea></label>
+    </div>
+    <button type="button" class="cb-btn" data-cbinspsave>${ta('cbInspSaveBtn')}</button>
+    <button type="button" class="cb-btn ghost" data-cbinspcancel>${ta('cbInspCancel')}</button>
+    ${d.id ? `<div style="margin-top:20px"><button type="button" class="cb-link danger" data-cbinspdel>${ta('cbInspRemove')}</button></div>` : ''}`;
+  }
+  const used = []; c.inspirations.forEach(i=>{ if(CB_STY.indexOf(i.style)<0 && i.style && used.indexOf(i.style)<0) used.push(i.style); });
+  const styles = CB_STY.concat(used);
+  if(cbInspFilter!=='todos' && styles.indexOf(cbInspFilter)<0) cbInspFilter = 'todos';
+  const chips = [`<button type="button" class="cb-chip" data-cbfilter="todos" aria-pressed="${cbInspFilter==='todos'?'true':'false'}">${ta('cbStyAll')}</button>`]
+    .concat(styles.map(k=>`<button type="button" class="cb-chip" data-cbfilter="${escapeHTML(k)}" aria-pressed="${cbInspFilter===k?'true':'false'}">${escapeHTML(cbStyleLabel(k))}</button>`)).join('');
+  const list = c.inspirations.filter(i=>cbInspFilter==='todos' || i.style===cbInspFilter);
+  const tiles = list.map(i=>`<button type="button" class="cb-tile" data-cbinsp="${i.id}"><div class="cb-ph">${cakeInspPhotos[i.id] ? `<img src="${cakeInspPhotos[i.id]}" alt="${escapeHTML(i.desc||'')}" loading="lazy">` : CB_ICO.img}</div><div class="cb-cap">${escapeHTML(i.desc||'')}<small>${escapeHTML(cbStyleLabel(i.style))}</small></div></button>`).join('');
+  return `
+  <h2 class="cb-h">${ta('cbInspTitle')}</h2><p class="cb-sub">${ta('cbInspSub')}</p>
+  <div class="cb-chips" role="group" aria-label="${escapeHTML(ta('cbInspStyle'))}">${chips}</div>
+  <button type="button" class="cb-btn ghost" data-cbinspnew>+ ${ta('cbInspAdd')}</button>
+  ${tiles ? `<div class="cb-grid">${tiles}</div>` : `<div class="cb-empty">${ta('cbInspEmpty')}</div>`}`;
+}
+function viewBolo(){
+  if(!hasActiveSubscription()) return pmLocked('bolo-back', ta('cdCakeTitle'), ta('cbSub'), 'pmDescBolo');
+  cdEnsure();
+  const tabs = [['detalhes','cbTabDet'],['provas','cbTabTast'],['inspiracoes','cbTabInsp']].map(x=>`<button type="button" role="tab" class="cb-tab" data-cbtab="${x[0]}" aria-selected="${cbTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  const body = cbTab==='provas' ? cbProvas() : cbTab==='inspiracoes' ? cbInspiracoes() : cbDetalhes();
+  return `
+${pageHeader('bolo-back', ta('cdCakeTitle'), ta('cbSub'), pmBadge())}
+<div class="cb-page"><div class="cb-tabs" role="tablist">${tabs}</div>${body}</div>`;
+}
+
+/* ============================================================
+   Votos e palavras — Votos, Discursos, Leituras (v318)
+============================================================ */
+let vwTab = 'votos';
+let vwView = null; // {kind:'vow'|'speech'|'reading'|'song'|'moment'|'help', id}
+let vwTimer = null;
+const VW_ROLES = ['padrinhos','pais','amigos','noivos','outros'];
+const VW_MKINDS = ['homenagem','surpresa','mensagem','outro'];
+const VW_ICO = {
+  spark:'<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.5C2 7 4 4.5 7 4.5c2 0 3.8 1.2 5 3 1.2-1.8 3-3 5-3 3 0 5 2.500 4 6C19.500 15.400 12 20 12 20z"/></svg>',
+  mic:'<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21M9 21h6"/></svg>',
+  book:'<svg viewBox="0 0 24 24"><path d="M12 6.500C10 5 7 4.500 3.500 5v13c3.500-.5 6.500 0 8.500 1.500 2-1.500 5-2 8.500-1.500V5C17 4.500 14 5 12 6.500z"/><path d="M12 6.500V19.500"/></svg>',
+  note:'<svg class="ci" viewBox="0 0 24 24"><path d="M6 3.500h9l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.500a1 1 0 0 1 1-1z"/><path d="M14.500 3.500V8H19M8.500 12h7M8.500 15.500h5"/></svg>',
+  music:'<svg class="ci" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.500" cy="18" r="2.500"/><circle cx="16.500" cy="16" r="2.500"/></svg>',
+  star:'<svg class="ci" viewBox="0 0 24 24"><path d="M12 3.500l2.500 5.200 5.700.8-4.100 4 1 5.700L12 16.500l-5.100 2.700 1-5.700-4.100-4 5.700-.8z"/></svg>',
+  pen:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.500 3.500a2.120 2.120 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
+};
+function vwEnsure(){
+  const v = state.vows;
+  if(!v.bride || typeof v.bride!=='object') v.bride = {};
+  if(!v.groom || typeof v.groom!=='object') v.groom = {};
+  [v.bride, v.groom].forEach(o=>{ if(typeof o.text!=='string') o.text=''; if(typeof o.updated!=='string') o.updated=''; o.done = !!o.done; });
+  const legacyReadings = (typeof v.readings==='string') ? v.readings.trim() : '';
+  if(typeof v.readings==='string') v.readings = [];
+  ['speeches','readings','songs','moments'].forEach(k=>{ if(!Array.isArray(v[k])) v[k] = []; });
+  if(typeof v.mine==='string'){ if(v.mine.trim() && !v.bride.text){ v.bride.text = v.mine; v.bride.updated = homeDyTodayISO(); } delete v.mine; }
+  if(legacyReadings) v.moments.push({ id:'vwlegacy', kind:'', title:'', text:legacyReadings, updated:homeDyTodayISO() });
+}
+function vwWords(t){ return String(t||'').trim().split(/\s+/).filter(Boolean).length; }
+function vwMins(t){ const w = vwWords(t); return w ? Math.max(1, Math.ceil(w/130)) : 0; }
+function vwMetaText(t){
+  const w = vwWords(t), m = vwMins(t);
+  return `${ta('vwWords')(w)} · ${m ? ta('vwReadTime')(m) : ta('vwReadTime0')}`;
+}
+function vwStatus(kind, o){
+  if(kind==='vow') return o.done ? 'done' : (String(o.text||'').trim() ? 'progress' : 'todo');
+  if(kind==='speech') return o.status==='done' ? 'done' : (o.status==='prep' || String(o.text||'').trim() ? 'progress' : 'todo');
+  if(kind==='reading') return (o.title && o.text) ? 'done' : ((o.title||o.text||o.author||o.reader||o.notes) ? 'progress' : 'todo');
+  if(kind==='song') return (o.name && o.artist) ? 'done' : ((o.name||o.artist||o.moment||o.link) ? 'progress' : 'todo');
+  return (o.title && o.text) ? 'done' : ((o.title||o.text) ? 'progress' : 'todo');
+}
+function vwPill(st){ return `<span class="cb-st ${st==='done'?'done':st==='todo'?'cancelled':''}">${escapeHTML(ta('vwSt_'+st))}</span>`; }
+function vwPreview(t, fallback, updated){
+  const s = String(t||'').replace(/\s+/g,' ').trim();
+  if(!s) return fallback;
+  const cut = s.length>70 ? s.slice(0,70).trim()+'…' : s;
+  return cut + (updated ? ' · ' + ta('vwEdited')(formatDatePT(updated)) : '');
+}
+function vwSummary(){
+  const v = state.vows;
+  const vowsDone = [v.bride,v.groom].filter(o=>vwStatus('vow',o)==='done').length;
+  const spDone = v.speeches.filter(o=>vwStatus('speech',o)==='done').length;
+  const rdDone = v.readings.filter(o=>vwStatus('reading',o)==='done').length;
+  const st = (ico,label,n,tot)=>`<div class="vw-stat">${ico}<span>${escapeHTML(label)}</span><b>${tot?`${n}/${tot}`:'—'}</b></div>`;
+  return `<div class="vw-sum" aria-label="${escapeHTML(ta('vwSumTitle'))}"><div class="vw-sum-t">${VW_ICO.spark}<span>${escapeHTML(ta('vwSumTitle'))}</span></div>
+    ${st(VW_ICO.heart, ta('vwTabVows'), vowsDone, 2)}${st(VW_ICO.mic, ta('vwTabSpeeches'), spDone, v.speeches.length)}${st(VW_ICO.book, ta('vwTabReadings'), rdDone, v.readings.length)}</div>`;
+}
+function vwEditorHead(backKey, title){
+  return `<button type="button" class="cb-back" data-vwback>${CB_ICO.back}${escapeHTML(ta(backKey))}</button><h2 class="cb-h" style="margin-top:6px">${escapeHTML(title)}</h2>`;
+}
+function vwTextBlock(path, text, ph){
+  return `<textarea class="vw-ed" id="vw-ed" data-cdtext="${path}" placeholder="${escapeHTML(ph||'')}" aria-label="${escapeHTML(ph||'')}">${escapeHTML(text)}</textarea>
+  <div class="vw-meta"><span id="vw-count">${escapeHTML(vwMetaText(text))}</span><span>${escapeHTML(ta('vwAutosave'))}</span></div>`;
+}
+function vwVotosList(){
+  const v = state.vows;
+  const row = (key, title, emptyTxt)=>{
+    const o = v[key]; const st = vwStatus('vow',o);
+    return `<button type="button" class="cb-row" data-vwopen="vow:${key}">${VW_ICO.note}<span><b>${escapeHTML(title)}</b><small>${escapeHTML(vwPreview(o.text, emptyTxt, o.updated))}</small></span>${vwPill(st)}${CB_ICO.chev}</button>`;
+  };
+  const help = [['tips','pen','vwHelpTips'],['examples','book','vwHelpExamples'],['structure','heart','vwHelpStructure']]
+    .map(x=>`<button type="button" data-vwhelp="${x[0]}">${VW_ICO[x[1]]}<span>${escapeHTML(ta(x[2]))}</span></button>`).join('');
+  return `
+  <h2 class="cb-h">${ta('vwVowsTitle')}</h2><p class="cb-sub">${ta('vwVowsSub')}</p>
+  <div class="cb-list">${row('bride', ta('vwBride'), ta('vwBrideEmpty'))}${row('groom', ta('vwGroom'), ta('vwGroomEmpty'))}</div>
+  <div class="vw-sec"><h2 class="cb-h sm">${ta('vwSupport')}</h2></div>
+  <div class="vw-help">${help}</div>
+  <div class="vw-note">${VW_ICO.lock}<span>${ta('vwPrivate')}</span></div>`;
+}
+function vwSpeechesList(){
+  const rows = state.vows.speeches.map(o=>`<button type="button" class="cb-row" data-vwopen="speech:${o.id}">${VW_ICO.mic.replace('<svg ','<svg class="ci" ')}<span><b>${escapeHTML(o.name||ta('vwNoName'))}</b><small>${escapeHTML([o.role?ta('vwRole_'+o.role):'', vwMins(o.text)?ta('vwReadTime')(vwMins(o.text)):'', o.updated?ta('vwEdited')(formatDatePT(o.updated)):''].filter(Boolean).join(' · ') || ta('vwSpeechEmpty'))}</small></span>${vwPill(vwStatus('speech',o))}${CB_ICO.chev}</button>`).join('');
+  return `
+  <h2 class="cb-h">${ta('vwSpeechTitle')}</h2><p class="cb-sub">${ta('vwSpeechSub')}</p>
+  ${rows ? `<div class="cb-list">${rows}</div>` : `<div class="cb-empty">${ta('vwSpeechNone')}</div>`}
+  <button type="button" class="cb-btn ghost" data-vwadd="speech">+ ${ta('vwSpeechAdd')}</button>`;
+}
+function vwReadingsList(){
+  const v = state.vows;
+  const sec = (title, kind, items, ico, label, sub, addKey)=>`
+    <div class="vw-sec"><h2 class="cb-h sm">${escapeHTML(title)}</h2></div>
+    ${items.length ? `<div class="cb-list">${items.map(o=>`<button type="button" class="cb-row" data-vwopen="${kind}:${o.id}">${ico}<span><b>${escapeHTML(label(o)||ta('vwNoName'))}</b><small>${escapeHTML(sub(o))}</small></span>${vwPill(vwStatus(kind,o))}${CB_ICO.chev}</button>`).join('')}</div>` : `<div class="cb-empty" style="padding:12px 2px">${ta('vwNone_'+kind)}</div>`}
+    <button type="button" class="cb-link" data-vwadd="${kind}" style="display:inline-block;margin-top:10px">+ ${ta(addKey)}</button>`;
+  return `
+  <h2 class="cb-h">${ta('vwReadTitle')}</h2><p class="cb-sub">${ta('vwReadSub')}</p>
+  ${sec(ta('vwSecReadings'),'reading',v.readings,VW_ICO.book.replace('<svg ','<svg class="ci" '),o=>o.title,o=>[o.author,o.reader?ta('vwReadBy')(o.reader):''].filter(Boolean).join(' · ')||ta('vwNoDetails'),'vwAddReading')}
+  ${sec(ta('vwSecSongs'),'song',v.songs,VW_ICO.music,o=>o.name,o=>[o.artist,o.moment].filter(Boolean).join(' · ')||ta('vwNoDetails'),'vwAddSong')}
+  ${sec(ta('vwSecMoments'),'moment',v.moments,VW_ICO.star,o=>o.title,o=>[o.kind?ta('vwMk_'+o.kind):'', String(o.text||'').replace(/\s+/g,' ').slice(0,40)].filter(Boolean).join(' · ')||ta('vwNoDetails'),'vwAddMoment')}`;
+}
+function vwEditor(){
+  const v = state.vows, w = vwView; if(!w) return '';
+  const idx = (arr,id)=>arr.findIndex(q=>q.id===id);
+  if(w.kind==='help'){
+    const T = ta('vwDoc_'+w.id);
+    return `<button type="button" class="cb-back" data-vwback>${CB_ICO.back}${ta('vwBackVows')}</button><div class="vw-doc"><h2 class="cb-h" style="margin-top:6px">${escapeHTML(ta(w.id==='tips'?'vwHelpTips':w.id==='examples'?'vwHelpExamples':'vwHelpStructure'))}</h2>${T}</div><button type="button" class="cb-btn" data-vwback>${ta('vwBackBtn')}</button>`;
+  }
+  if(w.kind==='vow'){
+    const o = v[w.id]; if(!o){ vwView = null; return ''; }
+    const title = w.id==='bride' ? ta('vwBride') : ta('vwGroom');
+    return `${vwEditorHead('vwBackVows', title)}
+    ${vwTextBlock('vows.'+w.id+'.text', o.text, ta('vwVowPh'))}
+    <button type="button" class="cb-btn" data-vwback>${ta('vwSaveBack')}</button>
+    <button type="button" class="cb-btn ghost" data-vwdone="${w.id}">${o.done?ta('vwReopen'):ta('vwMarkDone')}</button>`;
+  }
+  if(w.kind==='speech'){
+    const i = idx(v.speeches, w.id); if(i<0){ vwView = null; return ''; } const o = v.speeches[i], b = 'vows.speeches.'+i+'.';
+    const roles = VW_ROLES.map(k=>`<button type="button" class="cb-chip" data-vwrole="${k}" aria-pressed="${o.role===k?'true':'false'}">${escapeHTML(ta('vwRole_'+k))}</button>`).join('');
+    const sts = [['todo','vwSp_todo'],['prep','vwSp_prep'],['done','vwSp_done']].map(x=>`<button type="button" class="cb-chip" data-vwspst="${x[0]}" aria-pressed="${(o.status||'todo')===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+    return `${vwEditorHead('vwBackSpeech', o.name||ta('vwNoName'))}
+    <div class="cb-fields" style="margin-top:14px">
+      <label class="cb-f full"><span>${ta('vwPerson')}</span><input class="cb-in" type="text" data-cdtext="${b}name" value="${escapeHTML(o.name||'')}"></label>
+      <div class="cb-f full"><span>${ta('vwRole')}</span><div class="cb-chips">${roles}</div></div>
+      <div class="cb-f full"><span>${ta('cbTastStatus')}</span><div class="cb-chips">${sts}</div></div>
+    </div>
+    ${vwTextBlock(b+'text', o.text, ta('vwSpeechPh'))}
+    <label class="cb-f" style="margin-top:14px"><span>${ta('vwPrivNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cdtext="${b}notes">${escapeHTML(o.notes||'')}</textarea></label>
+    <button type="button" class="cb-btn" data-vwback>${ta('vwSaveBack')}</button>
+    <div style="margin-top:18px"><button type="button" class="cb-link danger" data-vwdel>${ta('vwDelete')}</button></div>`;
+  }
+  const map = { reading:'readings', song:'songs', moment:'moments' };
+  const arr = v[map[w.kind]]; const i = idx(arr, w.id); if(i<0){ vwView = null; return ''; }
+  const o = arr[i], b = 'vows.'+map[w.kind]+'.'+i+'.';
+  const f = (k,label,opts)=>`<label class="cb-f full"><span>${escapeHTML(label)}</span><input class="cb-in" type="${(opts&&opts.type)||'text'}" data-cdtext="${b}${k}" value="${escapeHTML(o[k]||'')}"></label>`;
+  const ta2 = (k,label,min)=>`<label class="cb-f full"><span>${escapeHTML(label)}</span><textarea class="cb-ta" style="min-height:${min||90}px" data-cdtext="${b}${k}">${escapeHTML(o[k]||'')}</textarea></label>`;
+  let body = '';
+  if(w.kind==='reading') body = f('title',ta('vwFTitle'))+ta2('text',ta('vwFText'),180)+f('author',ta('vwFAuthor'))+f('reader',ta('vwFReader'))+ta2('notes',ta('vwFNotes'));
+  else if(w.kind==='song') body = f('name',ta('vwFSong'))+f('artist',ta('vwFArtist'))+f('moment',ta('vwFMoment'))+f('link',ta('vwFLink'),{type:'url'});
+  else {
+    const ks = VW_MKINDS.map(k=>`<button type="button" class="cb-chip" data-vwmk="${k}" aria-pressed="${o.kind===k?'true':'false'}">${escapeHTML(ta('vwMk_'+k))}</button>`).join('');
+    body = `<div class="cb-f full"><span>${ta('vwFType')}</span><div class="cb-chips">${ks}</div></div>${f('title',ta('vwFTitle'))}${ta2('text',ta('vwFText'),160)}`;
+  }
+  const title = (w.kind==='song' ? o.name : o.title) || ta('vwNoName');
+  return `${vwEditorHead('vwBackRead', title)}<div class="cb-fields" style="margin-top:14px">${body}</div>
+    <button type="button" class="cb-btn" data-vwback>${ta('vwSaveBack')}</button>
+    <div style="margin-top:18px"><button type="button" class="cb-link danger" data-vwdel>${ta('vwDelete')}</button></div>`;
+}
+function viewVotos(){
+  if(!hasActiveSubscription()) return pmLocked('votos-back', ta('cdVowsTitle'), ta('cdVowsSub'), 'pmDescVows');
+  cdEnsure(); vwEnsure();
+  const tabs = [['votos','vwTabVows'],['discursos','vwTabSpeeches'],['leituras','vwTabReadings']].map(x=>`<button type="button" role="tab" class="cb-tab" data-vwtab="${x[0]}" aria-selected="${vwTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  let body;
+  if(vwView) body = vwEditor();
+  else body = `${vwSummary()}<div class="cb-tabs" role="tablist">${tabs}</div>` + (vwTab==='discursos' ? vwSpeechesList() : vwTab==='leituras' ? vwReadingsList() : vwVotosList());
+  return `
+${pageHeader('votos-back', ta('cdVowsTitle'), ta('cdVowsSub'), pmBadge())}
+<div class="cb-page">${body}</div>`;
+}
+(function vwBind(){
+  if(window.__vwBound) return; window.__vwBound = true;
+  function flush(){ if(vwTimer){ clearTimeout(vwTimer); vwTimer = null; pushRemote(true); } }
+  window.__vwFlush = flush;
+  function touch(path){
+    const parts = path.split('.'); let o = state;
+    for(let i=0;i<parts.length-1;i++){ o = o[parts[i]]; if(o==null) return; }
+    if(o && typeof o==='object') o.updated = homeDyTodayISO();
+  }
+  document.addEventListener('input', e=>{
+    const t = e.target; if(!t || !t.getAttribute) return;
+    const path = t.getAttribute('data-cdtext');
+    if(!path || path.indexOf('vows.')!==0) return;
+    touch(path);
+    if(t.id==='vw-ed'){ const c = document.getElementById('vw-count'); if(c) c.textContent = vwMetaText(t.value); }
+    if(vwTimer) clearTimeout(vwTimer);
+    vwTimer = setTimeout(()=>{ vwTimer = null; pushRemote(true); }, 1500);
+  });
+  document.addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target : null; if(!t) return;
+    if(t.closest('#votos-back') && vwView){ e.stopImmediatePropagation(); flush(); vwView = null; _origRender(); return; }
+    const tab = t.closest('[data-vwtab]');
+    if(tab){ vwTab = tab.dataset.vwtab; vwView = null; _origRender(); return; }
+    const op = t.closest('[data-vwopen]');
+    if(op){ const [k,id] = op.dataset.vwopen.split(':'); vwView = { kind:k, id }; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const hp = t.closest('[data-vwhelp]');
+    if(hp){ vwView = { kind:'help', id:hp.dataset.vwhelp }; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    if(t.closest('[data-vwback]')){ flush(); vwView = null; render(); return; }
+    const ad = t.closest('[data-vwadd]');
+    if(ad){
+      cdEnsure(); vwEnsure(); const k = ad.dataset.vwadd, id = 'vw'+Date.now()+Math.random().toString(36).slice(2,5);
+      const v = state.vows;
+      if(k==='speech') v.speeches.push({ id, name:'', role:'', text:'', notes:'', status:'todo', updated:'' });
+      else if(k==='reading') v.readings.push({ id, title:'', text:'', author:'', reader:'', notes:'', updated:'' });
+      else if(k==='song') v.songs.push({ id, name:'', artist:'', moment:'', link:'', updated:'' });
+      else v.moments.push({ id, kind:'', title:'', text:'', updated:'' });
+      vwView = { kind:k, id }; render(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return;
+    }
+    const dn = t.closest('[data-vwdone]');
+    if(dn){ const o = state.vows[dn.dataset.vwdone]; if(o){ o.done = !o.done; o.updated = o.updated || homeDyTodayISO(); flush(); render(); } return; }
+    const rl = t.closest('[data-vwrole]');
+    if(rl && vwView){ const o = state.vows.speeches.find(q=>q.id===vwView.id); if(o){ o.role = (o.role===rl.dataset.vwrole)?'':rl.dataset.vwrole; render(); } return; }
+    const ss = t.closest('[data-vwspst]');
+    if(ss && vwView){ const o = state.vows.speeches.find(q=>q.id===vwView.id); if(o){ o.status = ss.dataset.vwspst; o.updated = homeDyTodayISO(); render(); } return; }
+    const mk = t.closest('[data-vwmk]');
+    if(mk && vwView){ const o = state.vows.moments.find(q=>q.id===vwView.id); if(o){ o.kind = (o.kind===mk.dataset.vwmk)?'':mk.dataset.vwmk; render(); } return; }
+    if(t.closest('[data-vwdel]') && vwView){
+      const w = vwView, map = { speech:'speeches', reading:'readings', song:'songs', moment:'moments' };
+      weddyConfirm(ta('vwDeleteQ')).then(ok=>{ if(!ok) return; const k = map[w.kind]; state.vows[k] = state.vows[k].filter(q=>q.id!==w.id); vwView = null; render(); });
+      return;
+    }
+  }, true);
+})();
+
+Object.assign(APP_I18N.pt, {
+  vwSumTitle:'Preparação das palavras', vwTabVows:'Votos', vwTabSpeeches:'Discursos', vwTabReadings:'Leituras',
+  vwVowsTitle:'Os nossos votos', vwVowsSub:'Palavras que queremos guardar para sempre.',
+  vwBride:'Votos da noiva', vwGroom:'Votos do noivo', vwBrideEmpty:'Ainda não começaste a escrever.', vwGroomEmpty:'Ainda não começou a escrever.',
+  vwSupport:'Sugestões e apoio', vwHelpTips:'Dicas para os vossos votos', vwHelpExamples:'Exemplos de votos', vwHelpStructure:'Como estruturar',
+  vwPrivate:'Estes textos só são vistos por vocês e podem ser editados sempre que quiserem.',
+  vwSt_todo:'Por começar', vwSt_progress:'Em progresso', vwSt_done:'Concluído',
+  vwSp_todo:'Por preparar', vwSp_prep:'Em preparação', vwSp_done:'Concluído',
+  vwWords:n=>`${n} ${n===1?'palavra':'palavras'}`, vwReadTime:m=>`~${m} min de leitura`, vwReadTime0:'0 min de leitura', vwAutosave:'Guardado automaticamente',
+  vwEdited:d=>`Editado a ${d}`, vwSaveBack:'Guardar e voltar', vwMarkDone:'Marcar como concluído', vwReopen:'Voltar a editar',
+  vwBackVows:'Votos', vwBackSpeech:'Discursos', vwBackRead:'Leituras', vwBackBtn:'Voltar',
+  vwVowPh:'Escrevam aqui as vossas palavras…', vwSpeechPh:'Escrevam aqui o discurso…',
+  vwSpeechTitle:'Discursos', vwSpeechSub:'Quem vai falar e o que vai dizer.', vwSpeechAdd:'Adicionar discurso', vwSpeechNone:'Ainda não há discursos.', vwSpeechEmpty:'Ainda sem texto.',
+  vwNoName:'Sem título', vwPerson:'Nome da pessoa', vwRole:'Papel no casamento', vwPrivNotes:'Notas privadas', vwDelete:'Eliminar', vwDeleteQ:'Eliminar este elemento?',
+  vwRole_padrinhos:'Padrinhos', vwRole_pais:'Pais', vwRole_amigos:'Amigos', vwRole_noivos:'Noivos', vwRole_outros:'Outros',
+  vwReadTitle:'Leituras, músicas e momentos', vwReadSub:'Tudo o que vai acontecer na cerimónia, organizado.',
+  vwSecReadings:'Leituras', vwSecSongs:'Músicas', vwSecMoments:'Momentos especiais',
+  vwAddReading:'Adicionar leitura', vwAddSong:'Adicionar música', vwAddMoment:'Adicionar momento',
+  vwNone_reading:'Ainda não há leituras.', vwNone_song:'Ainda não há músicas.', vwNone_moment:'Ainda não há momentos.', vwNoDetails:'Sem detalhes',
+  vwReadBy:n=>`Lê ${n}`, vwFTitle:'Título', vwFText:'Texto', vwFAuthor:'Autor ou origem', vwFReader:'Quem vai ler', vwFNotes:'Notas',
+  vwFSong:'Nome da música', vwFArtist:'Artista', vwFMoment:'Momento da cerimónia', vwFLink:'Link externo (opcional)', vwFType:'Tipo',
+  vwMk_homenagem:'Homenagem', vwMk_surpresa:'Surpresa', vwMk_mensagem:'Mensagem especial', vwMk_outro:'Outro',
+  vwDoc_tips:'<ul><li>Escrevam como falam: frases curtas e a vossa voz.</li><li>Contem um momento concreto em vez de usar só adjetivos.</li><li>Uma promessa pequena e verdadeira vale mais do que dez grandes.</li><li>Leiam em voz alta e cronometrem: entre 1 e 2 minutos é o ideal.</li><li>Escrevam em partes e reescrevam sem pressa.</li></ul>',
+  vwDoc_examples:'<p>São apenas pontos de partida. Adaptem às vossas palavras.</p><blockquote>Prometo ouvir-te nos dias em que estiveres cansada e rir contigo quando tudo correr mal. Prometo que a nossa casa será sempre o sítio para onde queremos voltar.</blockquote><blockquote>Escolho-te hoje e escolher-te-ei amanhã, nos dias fáceis e nos outros. Prometo partilhar o sofá, fazer o café e nunca deixar de te agradecer.</blockquote>',
+  vwDoc_structure:'<ol><li>Começar por quem é a pessoa para ti.</li><li>Contar um momento que vos marcou.</li><li>Dizer o que aprendeste com ela ou com ele.</li><li>Fazer entre 3 e 5 promessas.</li><li>Fechar com uma frase curta.</li></ol>'
+});
+Object.assign(APP_I18N.en, {
+  vwSumTitle:'Preparing your words', vwTabVows:'Vows', vwTabSpeeches:'Speeches', vwTabReadings:'Readings',
+  vwVowsTitle:'Our vows', vwVowsSub:'Words we want to keep forever.',
+  vwBride:"Bride's vows", vwGroom:"Groom's vows", vwBrideEmpty:'You have not started writing yet.', vwGroomEmpty:'Has not started writing yet.',
+  vwSupport:'Tips and support', vwHelpTips:'Tips for your vows', vwHelpExamples:'Vow examples', vwHelpStructure:'How to structure',
+  vwPrivate:'Only the two of you can see these texts, and you can edit them any time.',
+  vwSt_todo:'Not started', vwSt_progress:'In progress', vwSt_done:'Done',
+  vwSp_todo:'To prepare', vwSp_prep:'In preparation', vwSp_done:'Done',
+  vwWords:n=>`${n} ${n===1?'word':'words'}`, vwReadTime:m=>`~${m} min read`, vwReadTime0:'0 min read', vwAutosave:'Saved automatically',
+  vwEdited:d=>`Edited ${d}`, vwSaveBack:'Save and go back', vwMarkDone:'Mark as done', vwReopen:'Edit again',
+  vwBackVows:'Vows', vwBackSpeech:'Speeches', vwBackRead:'Readings', vwBackBtn:'Back',
+  vwVowPh:'Write your words here…', vwSpeechPh:'Write the speech here…',
+  vwSpeechTitle:'Speeches', vwSpeechSub:'Who will speak and what they will say.', vwSpeechAdd:'Add speech', vwSpeechNone:'No speeches yet.', vwSpeechEmpty:'No text yet.',
+  vwNoName:'Untitled', vwPerson:'Name of the person', vwRole:'Role at the wedding', vwPrivNotes:'Private notes', vwDelete:'Delete', vwDeleteQ:'Delete this item?',
+  vwRole_padrinhos:'Best man / maid of honour', vwRole_pais:'Parents', vwRole_amigos:'Friends', vwRole_noivos:'Couple', vwRole_outros:'Others',
+  vwReadTitle:'Readings, music and moments', vwReadSub:'Everything planned for the ceremony, organised.',
+  vwSecReadings:'Readings', vwSecSongs:'Music', vwSecMoments:'Special moments',
+  vwAddReading:'Add reading', vwAddSong:'Add song', vwAddMoment:'Add moment',
+  vwNone_reading:'No readings yet.', vwNone_song:'No songs yet.', vwNone_moment:'No moments yet.', vwNoDetails:'No details',
+  vwReadBy:n=>`Read by ${n}`, vwFTitle:'Title', vwFText:'Text', vwFAuthor:'Author or source', vwFReader:'Who will read it', vwFNotes:'Notes',
+  vwFSong:'Song name', vwFArtist:'Artist', vwFMoment:'Moment of the ceremony', vwFLink:'External link (optional)', vwFType:'Type',
+  vwMk_homenagem:'Tribute', vwMk_surpresa:'Surprise', vwMk_mensagem:'Special message', vwMk_outro:'Other',
+  vwDoc_tips:'<ul><li>Write the way you speak: short sentences, your own voice.</li><li>Tell one concrete moment instead of only using adjectives.</li><li>One small, true promise beats ten big ones.</li><li>Read it aloud and time it: 1 to 2 minutes is ideal.</li><li>Write in parts and rewrite without rushing.</li></ul>',
+  vwDoc_examples:'<p>These are only starting points. Make them your own.</p><blockquote>I promise to listen on the days you are tired and to laugh with you when everything goes wrong. I promise our home will always be the place we want to come back to.</blockquote><blockquote>I choose you today and I will choose you tomorrow, on the easy days and the others. I promise to share the sofa, make the coffee and never stop thanking you.</blockquote>',
+  vwDoc_structure:'<ol><li>Start with who this person is to you.</li><li>Tell a moment that marked you both.</li><li>Say what you learned from them.</li><li>Make 3 to 5 promises.</li><li>Close with one short sentence.</li></ol>'
+});
+
+(function cdBind(){
+  if(window.__cdBound) return; window.__cdBound = true;
+  function setDeep(path, val){
+    cdEnsure();
+    const parts = path.split('.'); let o = state;
+    for(let i=0;i<parts.length-1;i++){ o = o[parts[i]]; if(o==null) return; }
+    o[parts[parts.length-1]] = val;
+  }
+  async function changeTiers(delta){
+    cdEnsure(); const t = state.cake.tiers;
+    if(delta>0){ if(t.length<8) t.push({cm:'',portions:'',flavor:'',filling:''}); }
+    else if(t.length>1){
+      const last = t[t.length-1];
+      if(last.cm||last.portions||last.flavor||last.filling){ if(!(await weddyConfirm(ta('cbTierRemoveQ')))) return; }
+      t.pop();
+    }
+    render();
+  }
+  document.addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target : null; if(!t) return;
+    const back = t.closest('#bolo-back, #votos-back, #papelaria-back');
+    if(back){
+      if(back.id==='bolo-back' && (cbDraft || cbTastOpen)){ cbDraft = null; cbTastOpen = null; _origRender(); return; }
+      closeAllSheets(); activeTab = 'inicio'; _origRender(); return;
+    }
+    const sil = t.closest('[data-cdsil]');
+    if(sil){ cdEnsure(); const id = sil.dataset.cdsil; state.dressStyle.silhouette = (state.dressStyle.silhouette===id) ? '' : id; render(); return; }
+    const neck = t.closest('[data-cdneck]');
+    if(neck){ cdEnsure(); const id = neck.dataset.cdneck, a = state.dressStyle.necklines, i = a.indexOf(id); if(i>=0) a.splice(i,1); else a.push(id); render(); return; }
+    const stat = t.closest('[data-cdstat]');
+    if(stat){ cdEnsure(); const [id,col] = stat.dataset.cdstat.split(':'); const r = state.stationery[id] || (state.stationery[id] = {}); r[col] = !r[col]; render(); return; }
+    const tab = t.closest('[data-cbtab]');
+    if(tab){ cbTab = tab.dataset.cbtab; cbTastOpen = null; cbDraft = null; _origRender(); return; }
+    const shp = t.closest('[data-cbshape]');
+    if(shp){ cdEnsure(); state.cake.shape = shp.dataset.cbshape; render(); return; }
+    const tc = t.closest('[data-cbtiers]');
+    if(tc){ changeTiers(Number(tc.dataset.cbtiers)); return; }
+    if(t.closest('[data-cbsave]')){ pushRemote(true); showSaveToast(); return; }
+    if(t.closest('[data-cbaddtast]')){
+      cdEnsure(); const id = 'tast'+Date.now()+Math.random().toString(36).slice(2,5);
+      state.cake.tastings.push({ id, name:'', date:'', status:'scheduled', vendor:'', flavors:'', fillings:'', textures:'', notes:'', rating:0 });
+      cbTastOpen = id; render(); return;
+    }
+    const to = t.closest('[data-cbtast]');
+    if(to){ cbTastOpen = to.dataset.cbtast; _origRender(); return; }
+    if(t.closest('[data-cbtastback]')){ cbTastOpen = null; _origRender(); return; }
+    const stb = t.closest('[data-cbstatus]');
+    if(stb){ const x = state.cake.tastings.find(q=>q.id===cbTastOpen); if(x){ x.status = stb.dataset.cbstatus; render(); } return; }
+    const rt = t.closest('[data-cbrate]');
+    if(rt){ const x = state.cake.tastings.find(q=>q.id===cbTastOpen); if(x){ const n = Number(rt.dataset.cbrate); x.rating = (x.rating===n)?0:n; render(); } return; }
+    if(t.closest('[data-cbtastdel]')){
+      weddyConfirm(ta('cbTastDelQ')).then(ok=>{ if(!ok) return; state.cake.tastings = state.cake.tastings.filter(q=>q.id!==cbTastOpen); cbTastOpen = null; render(); });
+      return;
+    }
+    const fl = t.closest('[data-cbfilter]');
+    if(fl){ cbInspFilter = fl.dataset.cbfilter; _origRender(); return; }
+    if(t.closest('[data-cbinspnew]')){ cbDraft = { id:null, style:'classico', customStyle:'', desc:'', notes:'', photo:'' }; _origRender(); return; }
+    const ins = t.closest('[data-cbinsp]');
+    if(ins){
+      cdEnsure(); const it = state.cake.inspirations.find(q=>q.id===ins.dataset.cbinsp); if(!it) return;
+      const known = CB_STY.indexOf(it.style)>=0;
+      cbDraft = { id:it.id, style: known?it.style:'custom', customStyle: known?'':it.style, desc:it.desc||'', notes:it.notes||'', photo:cakeInspPhotos[it.id]||'' };
+      _origRender(); return;
+    }
+    const ds = t.closest('[data-cbdstyle]');
+    if(ds && cbDraft){ cbDraft.style = ds.dataset.cbdstyle; _origRender(); return; }
+    if(t.closest('[data-cbinspphoto]')){ const fi = document.getElementById('cake-insp-file-input'); if(fi) fi.click(); return; }
+    if(t.closest('[data-cbinspcancel]')){ cbDraft = null; _origRender(); return; }
+    if(t.closest('[data-cbinspsave]') && cbDraft){
+      cdEnsure(); const d = cbDraft;
+      let style = d.style==='custom' ? String(d.customStyle||'').trim() : d.style;
+      if(!style) style = 'classico';
+      if(d.id){
+        const it = state.cake.inspirations.find(q=>q.id===d.id);
+        if(it){ it.style = style; it.desc = String(d.desc||'').trim(); it.notes = String(d.notes||'').trim(); }
+      } else {
+        d.id = 'cinsp'+Date.now()+Math.random().toString(36).slice(2,5);
+        state.cake.inspirations.unshift({ id:d.id, style, desc:String(d.desc||'').trim(), notes:String(d.notes||'').trim() });
+      }
+      if(d.photo) cakeInspPhotos[d.id] = d.photo; else delete cakeInspPhotos[d.id];
+      saveCakeInspPhotos(); cbDraft = null; render(); return;
+    }
+    if(t.closest('[data-cbinspdel]') && cbDraft){
+      weddyConfirm(ta('cbInspRemoveQ')).then(ok=>{
+        if(!ok || !cbDraft) return;
+        state.cake.inspirations = state.cake.inspirations.filter(q=>q.id!==cbDraft.id);
+        delete cakeInspPhotos[cbDraft.id]; saveCakeInspPhotos(); cbDraft = null; render();
+      });
+      return;
+    }
+  });
+  document.addEventListener('input', e=>{
+    const t = e.target; if(!t || !t.getAttribute) return;
+    const path = t.getAttribute('data-cdtext');
+    if(path){ setDeep(path, t.value); return; }
+    const df = t.getAttribute('data-cbdraft');
+    if(df && cbDraft) cbDraft[df] = t.value;
+  });
+  document.addEventListener('change', e=>{
+    const t = e.target; if(!t || !t.getAttribute) return;
+    if(t.getAttribute('data-cdtext')) pushRemote(true);
+  });
+  document.addEventListener('toggle', e=>{
+    const d = e.target; if(d && d.getAttribute && d.getAttribute('data-cbopen')) cbOpen[d.getAttribute('data-cbopen')] = !!d.open;
+  }, true);
+  const fi = document.getElementById('cake-insp-file-input');
+  if(fi) fi.addEventListener('change', async ev=>{
+    const f = ev.target.files && ev.target.files[0];
+    if(f && cbDraft){ try{ cbDraft.photo = await resizeImageFile(f, 1080, 0.82); }catch(err){} _origRender(); }
+    ev.target.value = '';
+  });
+})();
+Object.assign(APP_I18N.pt, { cbTierRemoveQ:'Remover o último piso? Os dados dele perdem-se.' });
+Object.assign(APP_I18N.en, { cbTierRemoveQ:'Remove the last tier? Its data will be lost.' });
+
+Object.assign(APP_I18N.pt, {
+  cbSub:'Define o modelo, pisos, tamanhos, sabores e todos os detalhes.', cbTabDet:'Detalhes', cbTabTast:'Provas', cbTabInsp:'Inspirações',
+  cbModelTitle:'Modelo do bolo', cbModelSub:'Escolhe o formato que mais se adapta ao teu casamento.',
+  cbShape_tiers:'Vários pisos', cbShape_single:'Um piso', cbShape_rect:'Retangular', cbShape_square:'Quadrado', cbShape_other:'Outro',
+  cbConfig:'Configuração', cbTiersN:'Nº de pisos', cbTierName:(n,top)=>`Piso ${n}${top?' (topo)':''}`, cbCm:'cm', cbPortions:'porções',
+  cbFormLbl:'Formato', cbFormPh:'Ex.: redondo, oval', cbSizeCm:'Dimensão (cm)', cbLen:'Comprimento (cm)', cbWid:'Largura (cm)', cbHei:'Altura (cm, opcional)', cbSide:'Lado (cm)',
+  cbDescLbl:'Descreve o formato', cbDescPh:'Ex.: em forma de coração, naked cake…', cbDimsLbl:'Dimensões', cbDimsPh:'Ex.: 30 × 20 cm', cbPortLbl:'Porções',
+  cbFlavTitle:'Sabores e recheios', cbFlavSub:'Define os sabores e recheios de cada piso.', cbFlavSubOne:'Define o sabor e o recheio do bolo.', cbFlavor:'Sabor', cbFilling:'Recheio', cbFlavNotes:'Combinações personalizadas e observações',
+  cbAllTitle:'Alergias e restrições', cbAllSub:'Ex.: sem glúten, sem lactose, frutos secos, etc.', cbAllPh:'Alergias, intolerâncias, restrições alimentares e outras indicações importantes…',
+  cbDesTitle:'Pastelaria, doces e mesa de sobremesas', cbDesSub:'Complementa o bolo com outras opções.', cbDesPh:'Pastelaria, doces, sobremesas, mesa de sobremesas, quantidades e observações…',
+  cbSave:'Guardar detalhes',
+  cbTastTitle:'Provas do bolo', cbTastSub:'Regista as provas, avalia sabores e escolhe a tua combinação favorita.', cbTastEmpty:'Ainda não registaste nenhuma prova.', cbAddTast:'Adicionar prova', cbTastDefault:n=>`Prova ${n}`, cbNoDate:'Sem data',
+  cbSt_scheduled:'Agendada', cbSt_done:'Realizada', cbSt_cancelled:'Cancelada',
+  cbTastName:'Nome da prova', cbTastDate:'Data', cbTastVendor:'Pastelaria ou fornecedor', cbTastStatus:'Estado', cbTastFlav:'Sabores experimentados', cbTastFill:'Recheios experimentados', cbTastTex:'Texturas',
+  cbTastNotes:'Notas da prova', cbTastNotesPh:'O que gostámos, o que queremos alterar, combinações favoritas…', cbTastRate:'Avaliação', cbTastDel:'Remover prova', cbTastDelQ:'Remover esta prova?', cbTastBack:'Provas',
+  cbFinalTitle:'A nossa escolha', cbFinalSummary:'Combinação final', cbFinalEmpty:'Ainda sem escolha. Toca para definir.', cbFinalFlav:'Sabores finais', cbFinalFill:'Recheios finais', cbFinalTier:'Piso correspondente', cbFinalAll:'Todos os pisos', cbFinalNotes:'Observações finais',
+  cbInspTitle:'Inspirações', cbInspSub:'Guarda as referências de bolos de que gostas.', cbStyAll:'Todos', cbSty_classico:'Clássico', cbSty_moderno:'Moderno', cbSty_rustico:'Rústico', cbSty_minimalista:'Minimalista',
+  cbInspAdd:'Adicionar inspiração', cbInspEmpty:'Ainda não guardaste nenhuma referência.', cbInspPhoto:'Adicionar fotografia', cbInspChange:'Trocar fotografia', cbInspStyle:'Estilo', cbInspOther:'Outro', cbInspOtherPh:'Nome do estilo',
+  cbInspDesc:'Descrição', cbInspNotes:'Notas pessoais', cbInspSaveBtn:'Guardar', cbInspCancel:'Cancelar', cbInspRemove:'Remover inspiração', cbInspRemoveQ:'Remover esta inspiração?'
+});
+Object.assign(APP_I18N.en, {
+  cbSub:'Set the model, tiers, sizes, flavours and every detail.', cbTabDet:'Details', cbTabTast:'Tastings', cbTabInsp:'Inspiration',
+  cbModelTitle:'Cake model', cbModelSub:'Choose the shape that best suits your wedding.',
+  cbShape_tiers:'Tiered', cbShape_single:'Single tier', cbShape_rect:'Rectangular', cbShape_square:'Square', cbShape_other:'Other',
+  cbConfig:'Setup', cbTiersN:'No. of tiers', cbTierName:(n,top)=>`Tier ${n}${top?' (top)':''}`, cbCm:'cm', cbPortions:'servings',
+  cbFormLbl:'Shape', cbFormPh:'E.g. round, oval', cbSizeCm:'Size (cm)', cbLen:'Length (cm)', cbWid:'Width (cm)', cbHei:'Height (cm, optional)', cbSide:'Side (cm)',
+  cbDescLbl:'Describe the shape', cbDescPh:'E.g. heart-shaped, naked cake…', cbDimsLbl:'Dimensions', cbDimsPh:'E.g. 30 × 20 cm', cbPortLbl:'Servings',
+  cbFlavTitle:'Flavours and fillings', cbFlavSub:'Set the flavours and fillings for each tier.', cbFlavSubOne:'Set the flavour and filling of the cake.', cbFlavor:'Flavour', cbFilling:'Filling', cbFlavNotes:'Custom combinations and notes',
+  cbAllTitle:'Allergies and restrictions', cbAllSub:'E.g. gluten-free, lactose-free, nuts, etc.', cbAllPh:'Allergies, intolerances, dietary restrictions and other important notes…',
+  cbDesTitle:'Pastries, sweets and dessert table', cbDesSub:'Complement the cake with other options.', cbDesPh:'Pastries, sweets, desserts, dessert table, quantities and notes…',
+  cbSave:'Save details',
+  cbTastTitle:'Cake tastings', cbTastSub:'Log your tastings, rate flavours and pick your favourite combination.', cbTastEmpty:'You have not logged any tasting yet.', cbAddTast:'Add tasting', cbTastDefault:n=>`Tasting ${n}`, cbNoDate:'No date',
+  cbSt_scheduled:'Scheduled', cbSt_done:'Done', cbSt_cancelled:'Cancelled',
+  cbTastName:'Tasting name', cbTastDate:'Date', cbTastVendor:'Bakery or supplier', cbTastStatus:'Status', cbTastFlav:'Flavours tried', cbTastFill:'Fillings tried', cbTastTex:'Textures',
+  cbTastNotes:'Tasting notes', cbTastNotesPh:'What we liked, what we want to change, favourite combinations…', cbTastRate:'Rating', cbTastDel:'Remove tasting', cbTastDelQ:'Remove this tasting?', cbTastBack:'Tastings',
+  cbFinalTitle:'Our choice', cbFinalSummary:'Final combination', cbFinalEmpty:'Nothing chosen yet. Tap to set.', cbFinalFlav:'Final flavours', cbFinalFill:'Final fillings', cbFinalTier:'Matching tier', cbFinalAll:'All tiers', cbFinalNotes:'Final notes',
+  cbInspTitle:'Inspiration', cbInspSub:'Save the cake references you like.', cbStyAll:'All', cbSty_classico:'Classic', cbSty_moderno:'Modern', cbSty_rustico:'Rustic', cbSty_minimalista:'Minimalist',
+  cbInspAdd:'Add inspiration', cbInspEmpty:'You have not saved any reference yet.', cbInspPhoto:'Add photo', cbInspChange:'Change photo', cbInspStyle:'Style', cbInspOther:'Other', cbInspOtherPh:'Style name',
+  cbInspDesc:'Description', cbInspNotes:'Personal notes', cbInspSaveBtn:'Save', cbInspCancel:'Cancel', cbInspRemove:'Remove inspiration', cbInspRemoveQ:'Remove this inspiration?'
+});
+
 function ta(key){
   const dict = APP_I18N[appLang] || APP_I18N.pt;
   return (key in dict) ? dict[key] : APP_I18N.pt[key];
@@ -8436,6 +9616,9 @@ function render(){
     panel('inspiracao', viewInspiracao()) +
     panel('checklist', viewChecklist()) +
     panel('vestido', viewVestido()) +
+    panel('bolo', viewBolo()) +
+    panel('votos', viewVotos()) +
+    panel('papelaria', viewPapelaria()) +
     panel('todo', viewTodo()) +
     panel('luademel', viewLuademel()) +
     panel('fornecedores', viewFornecedores()) +
@@ -8940,6 +10123,9 @@ const QL_ICONS = {
   todo: QL_SVG('<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'),
   honeymoon: QL_SVG('<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'),
   checklist: QL_SVG('<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>'),
+  cake: QL_SVG('<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/>'),
+  vows: QL_SVG('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+  stationery: QL_SVG('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
   suppliers: QL_SVG('<path d="M12 12h.01"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M22 13a18.15 18.15 0 0 1-20 0"/><rect width="20" height="14" x="2" y="6" rx="2"/>')
 };
 function viewInicio(){
@@ -9014,6 +10200,9 @@ function viewInicio(){
     <button type="button" class="ql-item" data-goto="luademel"><span class="ql-ico">${QL_ICONS.honeymoon}</span><span class="ql-lbl">${ta('homeQuickHoneymoon')}</span></button>
     <button type="button" class="ql-item" data-goto="checklist"><span class="ql-ico">${QL_ICONS.checklist}</span><span class="ql-lbl">Checklist</span></button>
     <button type="button" class="ql-item" data-goto="fornecedores"><span class="ql-ico">${QL_ICONS.suppliers}</span><span class="ql-lbl">${ta('homeQuickSuppliers')}</span></button>
+    <button type="button" class="ql-item" data-goto="bolo"><span class="ql-ico">${QL_ICONS.cake}</span><span class="ql-lbl">${ta('cdQlCake')}</span></button>
+    <button type="button" class="ql-item" data-goto="votos"><span class="ql-ico">${QL_ICONS.vows}</span><span class="ql-lbl">${ta('cdQlVows')}</span></button>
+    <button type="button" class="ql-item" data-goto="papelaria"><span class="ql-ico">${QL_ICONS.stationery}</span><span class="ql-lbl">${ta('cdQlStationery')}</span></button>
   </nav>
 
   <div class="section-label-v2">${ta('homeProgressLabel')}</div>
@@ -10876,6 +12065,7 @@ ${pageHeader('vestido-back', 'Say Yes to the Dress', ta('homeDySub'))}
     <div class="dy-first">${list[0]}</div>
     <div class="dy-rest">${list.slice(1).join('')}</div>
   </section>` : `<div class="dy-empty">${ta('homeDyEmpty')}</div>`}
+  ${cdDressStyleHTML()}
   ${homeDyMoodHTML()}
 </div>`;
 }
@@ -26265,6 +27455,7 @@ function proceedIntoExistingWedding(user){
   // browser recarrega as inspirações certas para a nova conta.
   loadInspirations();
   loadDressInspirations();
+  loadCakeInspPhotos();
   attachFirestoreSync();
   CURRENT_DOC().update({
     ['lastLoginByEmail.'+sanitizeEmailKey(user.email.toLowerCase())]: firebase.firestore.FieldValue.serverTimestamp(),
@@ -26414,6 +27605,7 @@ function findOrCreateFlow(user, isRetry){
         currentWeddingId = null;
         inspirations = [];
         dressInspirations = [];
+        cakeInspPhotos = {};
         renderOnboarding();
         return;
       }
@@ -26434,6 +27626,7 @@ function findOrCreateFlow(user, isRetry){
       currentWeddingId = null;
       inspirations = [];
       dressInspirations = [];
+      cakeInspPhotos = {};
       const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
       renderOnboarding();
     }
