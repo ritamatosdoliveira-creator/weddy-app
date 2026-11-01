@@ -3149,15 +3149,6 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .table-chip{ all:unset; box-sizing:border-box; cursor:pointer; flex-shrink:0; width:34px; height:34px; border-radius:50%; background:var(--card); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--ink-soft); font-weight:600; }
 .table-chip.active{ background:var(--rust); color:#fff; }
 .table-chip:active{ transform:scale(0.92); }
-.mesa3d-canvas-wrap{ position:relative; margin:0 16px calc(64px + env(safe-area-inset-bottom,0px)); border-radius:20px; overflow:hidden; background:radial-gradient(ellipse at 50% 26%, #FFF9EE, #F0DFC8 82%); box-shadow:var(--shadow); flex:1; min-height:0; }
-#mesa3d-canvas{ width:100%; height:100%; display:block; touch-action:none; }
-.mesa3d-labels{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
-.mesa3d-label{ position:absolute; transform:translate(-50%,-100%); font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; background:rgba(255,253,248,0.96); box-shadow:0 1px 4px rgba(20,20,20,0.2); color:var(--ink-soft); white-space:nowrap; }
-.mesa3d-label::after{ content:''; position:absolute; left:50%; bottom:-4px; width:7px; height:7px; background:inherit; box-shadow:inherit; transform:translateX(-50%) rotate(45deg); border-radius:0 0 3px 0; z-index:-1; }
-.mesa3d-label.assigned.noiva{ background:var(--blush-dark); color:#fff; }
-.mesa3d-label.assigned.noivo{ background:var(--dusty-dark); color:#fff; }
-.mesa3d-label.assigned.conjunto{ background:var(--joint-dark); color:#fff; }
-.mesa3d-hint{ position:absolute; left:0; right:0; bottom:11px; text-align:center; font-size:10.5px; color:var(--ink-soft); opacity:.85; pointer-events:none; }
 .mesa3d-fillcount{ font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-left:auto; }
 .mini-ring{ position:relative; width:34px; height:34px; margin-left:auto; flex-shrink:0; }
 .mini-ring svg{ width:100%; height:100%; }
@@ -3191,6 +3182,39 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .sala-table-item{ position:absolute; width:108px; touch-action:none; cursor:grab; user-select:none; z-index:1; transition:box-shadow .15s; }
 .sala-table-item svg{ width:100%; height:auto; display:block; }
 .sala-table-item.dragging{ cursor:grabbing; z-index:5; filter:drop-shadow(0 8px 14px rgba(20,20,20,0.25)); }
+/* v303 — Lugares: mesa vista de cima */
+.lx-view{ display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; }
+.lx-cap{ display:flex; align-items:baseline; justify-content:center; gap:10px; padding:0 16px 2px; }
+.lx-cap-t{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; color:var(--heading); }
+.lx-cap-s{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
+.lx-stage{ flex:1; min-height:0; display:flex; overflow:auto; padding:6px 12px; -webkit-overflow-scrolling:touch; }
+.lx-svg{ display:block; margin:auto; flex:0 0 auto; overflow:visible; filter:drop-shadow(0 6px 10px rgba(110,80,60,.14)) drop-shadow(0 1px 2px rgba(110,80,60,.12)); }
+.lx-stage.fit .lx-svg{ width:100%; max-width:min(560px,100%); height:auto; max-height:100%; }
+.lx-chair{ cursor:pointer; outline:none; -webkit-tap-highlight-color:transparent; }
+.lx-chair .lx-seat{ fill:#F3EADD; stroke:#D8C6AF; stroke-width:1.2; transition:fill .15s; }
+.lx-chair .lx-back{ fill:#E8DAC6; stroke:#D8C6AF; stroke-width:1.2; }
+.lx-chair .lx-cush{ fill:none; stroke:#fff; stroke-width:1; opacity:.55; }
+.lx-chair .lx-badge{ fill:#FFFCF8; stroke:#E6D9C6; stroke-width:1.2; }
+.lx-chair .lx-bt{ font-family:'Manrope',sans-serif; font-weight:600; fill:#8B7B6D; pointer-events:none; }
+.lx-chair .lx-bt.init{ fill:var(--rust-dark); letter-spacing:.02em; }
+.lx-chair.occ .lx-seat{ fill:#EFD2C9; fill:color-mix(in srgb, var(--rust) 24%, #F6ECE2); }
+.lx-chair.occ .lx-back{ fill:#E3B8AC; fill:color-mix(in srgb, var(--rust) 40%, #F2E4D8); }
+.lx-chair.occ .lx-badge{ stroke-width:2; }
+.lx-chair:hover .lx-seat{ fill:#F8F0E4; } .lx-chair.occ:hover .lx-seat{ filter:brightness(.97); }
+.lx-chair.sel .lx-seat,.lx-chair:focus-visible .lx-seat{ stroke:var(--rust); stroke-width:2.6; }
+.lx-chair.sel .lx-badge,.lx-chair:focus-visible .lx-badge{ stroke:var(--rust); stroke-width:2.4; }
+.lx-foot{ flex:0 0 auto; padding:6px 16px calc(64px + env(safe-area-inset-bottom,0px)); }
+.lx-bar{ display:flex; align-items:center; gap:6px; max-width:520px; margin:0 auto; padding:6px 8px; border-radius:16px; background:rgba(255,252,247,.7); border:1px solid var(--line); }
+.lx-step{ flex:1; display:flex; align-items:center; justify-content:center; gap:10px; }
+.lx-step button{ all:unset; box-sizing:border-box; cursor:pointer; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:19px; line-height:1; color:var(--rust-dark); background:var(--card); }
+.lx-step button:active{ transform:scale(.92); } .lx-step button:focus-visible,.lx-edit:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; }
+.lx-n{ min-width:84px; text-align:center; font-size:14.5px; font-weight:500; color:var(--ink); }
+.lx-sep{ width:1px; align-self:stretch; background:var(--line); margin:4px 0; }
+.lx-edit{ all:unset; box-sizing:border-box; cursor:pointer; flex:1; display:flex; align-items:center; justify-content:center; gap:8px; min-height:42px; font-size:14px; font-weight:600; color:var(--rust-dark); }
+.lx-edit svg{ width:18px; height:18px; } .lx-edit .chev{ width:7px; height:12px; color:var(--ink-soft); } .lx-edit:active{ opacity:.6; }
+.lx-hint{ text-align:center; font-size:12px; color:var(--ink-soft); margin-top:12px; }
+.sl-svg{ filter:drop-shadow(0 3px 4px rgba(110,80,60,.14)); }
+@media (min-width:900px){ .lx-stage.fit .lx-svg{ max-width:min(640px,100%); } .lx-cap-t{ font-size:28px; } .lx-bar{ max-width:560px; } }
 #mesa3d-header{ min-width:0; flex-shrink:0; }
 
 
@@ -3380,11 +3404,9 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
     <div id="mesa3d-header"></div>
     <div class="mesa3d-view" id="mesa3d-view-mesa">
       <div class="table-chip-row" id="mesa3d-chips"></div>
-      <div class="mesa3d-canvas-wrap">
-        <canvas id="mesa3d-canvas"></canvas>
-        <div class="mesa3d-labels" id="mesa3d-labels"></div>
-        <div class="mesa3d-hint" data-t="mesa3dHint">arrasta para rodar · toca num lugar para atribuir</div>
-      </div>
+      <div class="lx-cap" id="lx-cap"></div>
+      <div class="lx-stage" id="lx-stage"></div>
+      <div class="lx-foot"><div class="lx-bar" id="lx-bar"></div><div class="lx-hint" data-t="mesa3dHint">toca num lugar para atribuir um convidado</div></div>
     </div>
     <div class="mesa3d-view" id="mesa3d-view-sala">
       <div class="sala-scroll" id="sala-scroll"></div>
@@ -5207,7 +5229,6 @@ const SIDE_COLOR = { noiva:'var(--blush-dark)', noivo:'var(--dusty-dark)', conju
 // acrescentámos a 3ª cor a condizer). Guardada tanto em texto ("#CB8577",
 // para CSS/canvas 2D) como em número (0xCB8577, para o Three.js do 3D).
 const SIDE_SEAT_COLOR_HEX = { noiva:'#CB8577', noivo:'#6C8296', conjunto:'#C9A480' };
-const SIDE_SEAT_COLOR_THREE = { noiva:0xCB8577, noivo:0x6C8296, conjunto:0xC9A480 };
 const SIDE_LABEL_KEY = { noiva:'sideBride', noivo:'sideGroom', conjunto:'sideJoint' };
 function sideLabel(side){ return ta(SIDE_LABEL_KEY[side] || SIDE_LABEL_KEY.noiva); }
 
@@ -6796,7 +6817,7 @@ const APP_I18N = {
     paymentMethodCard:'Cartão',
     seatSheetTitleDefault:'Atribuir lugar',
     phSearchGuestGeneric:'Procurar convidado',
-    mesa3dHint:'arrasta para rodar · toca num lugar para atribuir',
+    mesa3dHint:'Toca num lugar para atribuir um convidado',
     weekAgendaTitle:'Calendário da semana',
     weekAgendaSeeAll:'Ver todas',
     agendaEmptyDay:'Sem tarefas neste dia',
@@ -8064,7 +8085,7 @@ const APP_I18N = {
     paymentMethodCard:'Card',
     seatSheetTitleDefault:'Assign seat',
     phSearchGuestGeneric:'Search guest',
-    mesa3dHint:'drag to rotate · tap a seat to assign',
+    mesa3dHint:'Tap a seat to assign a guest',
     weekAgendaTitle:'This week\'s calendar',
     weekAgendaSeeAll:'See all',
     agendaEmptyDay:'No tasks on this day',
@@ -22304,6 +22325,7 @@ function closeSeatSheet(){
   document.getElementById('seat-sheet').classList.remove('show');
   document.getElementById('sheet-backdrop').classList.remove('show');
   editingSeatKey = null;
+  document.querySelectorAll('.lx-chair.sel').forEach(c=>c.classList.remove('sel'));
 }
 // Fase 8.0: o valor guardado em cada lugar é agora diretamente o guestId
 // do convidado (antes era "lado|categoria|índice::Nome", por isso a
@@ -22359,10 +22381,8 @@ document.getElementById('seat-picker-search').addEventListener('input', e=>{
    MESA 3D — pré-visualização em 3D dos lugares
    Reaproveita openSeatSheet() da tab Mesas para atribuir convidados.
 ============================================================ */
-let mesa3dReady = false;
 let mesa3dSelectedTable = 1;
 let mesa3dViewMode = 'mesa';
-const mesa3d = { scene:null, camera:null, renderer:null, tableGroup:null, chairs:[], dragging:false, startX:0, startRotY:0, moved:0, raf:null };
 
 // Fase 8.0: antes, o valor gravado em cada lugar já trazia o nome embutido
 // ("lado|cat|idx::Nome"), por isso bastava separar a string. Agora o valor
@@ -22376,8 +22396,8 @@ function resolveSeatGuest(guestId){
 
 function ensureMesa3DHeader(){
   const el = document.getElementById('mesa3d-header');
-  const filled = mesa3d.chairs.length ? mesa3d.chairs.filter(c=>c.name).length : 0;
   const selTable = getTable(mesa3dSelectedTable);
+  const filled = selTable ? lxFilled(selTable) : 0;
   const seatsPerTable = selTable ? selTable.seats : 0;
   const badge = mesa3dViewMode==='mesa'
     ? `<div class="mini-ring">${donutSVG(seatsPerTable? filled/seatsPerTable : 0, 'var(--blush-dark)', 34, 4)}<span class="mini-ring-txt">${filled}/${seatsPerTable}</span></div>`
@@ -22721,363 +22741,239 @@ function renderMesa3DChips(){
     btn.addEventListener('click', e=>{
       mesa3dSelectedTable = Number(e.currentTarget.dataset.mesa3dsel);
       renderMesa3DChips();
-      loadMesa3DTable();
+      renderMesa2D();
     });
   });
-}
-
-function buildMesa3DChairs(seatCount){
-  if(mesa3d.chairsGroup){
-    while(mesa3d.chairsGroup.children.length) mesa3d.chairsGroup.remove(mesa3d.chairsGroup.children[0]);
-  }
-  mesa3d.chairs = [];
-  for(let i=0; i<seatCount; i++){
-    const angle = (i/seatCount) * Math.PI * 2;
-    const radius = 2.75;
-    const group = new THREE.Group();
-    const mat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
-    const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), mat);
-    seatMesh.position.y = -0.02;
-    const backMat = new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.85 });
-    const backMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.5, 0.09), backMat);
-    backMesh.position.set(0, 0.25, -0.2);
-    const sash = new THREE.Mesh(
-      new THREE.BoxGeometry(0.48, 0.07, 0.11),
-      new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.4 })
-    );
-    sash.position.set(0, 0.1, -0.2);
-    group.add(seatMesh, backMesh, sash);
-    group.position.set(Math.sin(angle)*radius, 0, Math.cos(angle)*radius);
-    group.lookAt(0, 0.2, 0);
-    mesa3d.chairsGroup.add(group);
-    mesa3d.chairs.push({ group, seatMesh, backMesh, index:i+1, name:'', side:'', seatKey:'', worldPos:new THREE.Vector3() });
-  }
-  mesa3d.builtSeatCount = seatCount;
-}
-function initMesa3D(){
-  const canvas = document.getElementById('mesa3d-canvas');
-  const wrap = canvas.parentElement;
-  const w = Math.max(wrap.clientWidth, 10), h = Math.max(wrap.clientHeight, 10);
-
-  try{
-    mesa3d.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
-  }catch(err){
-    // Sem WebGL neste aparelho: usa a vista da sala (2D), que funciona sempre.
-    mesa3d.renderer = null; mesa3dReady = false; mesa3dViewMode = 'sala';
-    setTimeout(()=>{ try{ render(); }catch(e){} }, 0);
-    return;
-  }
-  mesa3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-  mesa3d.renderer.setSize(w, h, false);
-  if('outputColorSpace' in mesa3d.renderer) mesa3d.renderer.outputColorSpace = THREE.SRGBColorSpace;
-  else if('outputEncoding' in mesa3d.renderer) mesa3d.renderer.outputEncoding = THREE.sRGBEncoding;
-
-  mesa3d.scene = new THREE.Scene();
-  mesa3d.camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100);
-  mesa3d.camera.position.set(0, 5.7, 7.3);
-  mesa3d.camera.lookAt(0, 0, 0);
-
-  mesa3d.scene.add(new THREE.HemisphereLight(0xfff8ef, 0x7a6656, 1.5));
-  const dir = new THREE.DirectionalLight(0xfff5e0, 1.0);
-  dir.position.set(3, 6, 4);
-  mesa3d.scene.add(dir);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.45);
-  fill.position.set(-4, 3, -3);
-  mesa3d.scene.add(fill);
-
-  mesa3d.tableGroup = new THREE.Group();
-  mesa3d.scene.add(mesa3d.tableGroup);
-
-  const tableTop = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.15, 2.15, 0.16, 48),
-    new THREE.MeshStandardMaterial({ color:0xFFF9EE, roughness:0.92 })
-  );
-  mesa3d.tableGroup.add(tableTop);
-
-  // toalha a cair (sugere o pano de linho até ao chão)
-  const cloth = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.05, 2.28, 0.9, 48, 1, true),
-    new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.95, side:THREE.DoubleSide })
-  );
-  cloth.position.y = -0.48;
-  mesa3d.tableGroup.add(cloth);
-
-  const rim = new THREE.Mesh(
-    new THREE.TorusGeometry(2.15, 0.04, 12, 48),
-    new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.35, metalness:0.45 })
-  );
-  rim.rotation.x = Math.PI/2; rim.position.y = 0.085;
-  mesa3d.tableGroup.add(rim);
-
-  // corredor de mesa (runner) em tom blush
-  const runner = new THREE.Mesh(
-    new THREE.BoxGeometry(0.62, 0.012, 4.3),
-    new THREE.MeshStandardMaterial({ color:0xE3A79B, roughness:0.8 })
-  );
-  runner.position.y = 0.089;
-  mesa3d.tableGroup.add(runner);
-
-  // arranjo central: castiçal dourado + flores em tons pastel
-  const centerpiece = new THREE.Group();
-  const candlestick = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.03, 0.05, 0.42, 12),
-    new THREE.MeshStandardMaterial({ color:0xC9A02E, roughness:0.3, metalness:0.5 })
-  );
-  candlestick.position.y = 0.3;
-  centerpiece.add(candlestick);
-  const candle = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.028, 0.028, 0.14, 10),
-    new THREE.MeshStandardMaterial({ color:0xFFFCF4, roughness:0.7 })
-  );
-  candle.position.y = 0.58;
-  centerpiece.add(candle);
-  const flowerColors = [0xE3A79B, 0x93A87C, 0xCB8577, 0xC9A02E];
-  for(let f=0; f<6; f++){
-    const fAngle = (f/6)*Math.PI*2;
-    const bloom = new THREE.Mesh(
-      new THREE.SphereGeometry(0.075, 10, 10),
-      new THREE.MeshStandardMaterial({ color:flowerColors[f%flowerColors.length], roughness:0.75 })
-    );
-    bloom.position.set(Math.cos(fAngle)*0.14, 0.16+Math.random()*0.05, Math.sin(fAngle)*0.14);
-    centerpiece.add(bloom);
-  }
-  const foliage = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 10, 10),
-    new THREE.MeshStandardMaterial({ color:0x93A87C, roughness:0.85 })
-  );
-  foliage.position.y = 0.12;
-  foliage.scale.set(1, 0.55, 1);
-  centerpiece.add(foliage);
-  centerpiece.position.y = 0.08;
-  mesa3d.tableGroup.add(centerpiece);
-
-  const leg = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.16, 0.26, 1.0, 20),
-    new THREE.MeshStandardMaterial({ color:0xD8CBAE, roughness:0.9 })
-  );
-  leg.position.y = -0.58;
-  mesa3d.tableGroup.add(leg);
-  const base = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.55, 0.55, 0.06, 32),
-    new THREE.MeshStandardMaterial({ color:0xD8CBAE, roughness:0.9 })
-  );
-  base.position.y = -1.05;
-  mesa3d.tableGroup.add(base);
-
-  mesa3d.chairsGroup = new THREE.Group();
-  mesa3d.tableGroup.add(mesa3d.chairsGroup);
-  mesa3d.builtSeatCount = 0;
-  buildMesa3DChairs((getTable(mesa3dSelectedTable)||{seats:8}).seats);
-
-  canvas.addEventListener('pointerdown', e=>{
-    mesa3d.dragging = true; mesa3d.moved = 0;
-    mesa3d.startX = e.clientX; mesa3d.startRotY = mesa3d.tableGroup.rotation.y;
-    canvas.setPointerCapture(e.pointerId);
-    startDragLoop();
-  });
-  canvas.addEventListener('pointermove', e=>{
-    if(!mesa3d.dragging) return;
-    const dx = e.clientX - mesa3d.startX;
-    mesa3d.moved = Math.max(mesa3d.moved, Math.abs(dx));
-    mesa3d.tableGroup.rotation.y = mesa3d.startRotY + dx*0.012;
-  });
-  canvas.addEventListener('pointerup', e=>{
-    mesa3d.dragging = false;
-    stopDragLoop();
-    // Achado ao vivo da Fase 4 (Rita): "ao fazer tap to assign nos lugares,
-    // não fica assigned à primeira vez, tenho de fazer sempre 2x". Causa
-    // mais provável: este limiar de 6px (para distinguir um toque de um
-    // arrastar a rodar a mesa) é apertado a mais para um dedo real num ecrã
-    // tátil — jitter normal do toque facilmente passa de 6px, fazendo o
-    // PRIMEIRO toque ser interpretado como um arrastar minúsculo (roda a
-    // mesa por uma fração impercetível) em vez de um toque — silenciosamente
-    // ignorado — e só o SEGUNDO toque, mais parado, fica abaixo do limiar e
-    // funciona. Subido para 12px, mais alinhado com os limiares habituais
-    // de "toque vs. arrastar" em interfaces táteis (tipicamente 8-16px,
-    // nunca tão apertado como 6).
-    if(mesa3d.moved < 12){ handleMesa3DTap(e); }
-  });
-
-  if(!mesa3d.resizeBound){ window.addEventListener('resize', resizeMesa3D); mesa3d.resizeBound = true; }
-
-  // Se o navegador perder o contexto WebGL (acontece ao voltar à app depois de
-  // algum tempo, com pouca memória gráfica...), a mesa fica branca com uma carinha
-  // triste. Esperamos um pouco que o navegador o devolva e, se não voltar, criamos
-  // tudo de novo.
-  canvas.addEventListener('webglcontextlost', e=>{
-    e.preventDefault();
-    clearTimeout(mesa3d.lostTimer);
-    mesa3d.lostTimer = setTimeout(()=>{ if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()) rebuildMesa3D(); }, 1200);
-  });
-  canvas.addEventListener('webglcontextrestored', ()=>{ clearTimeout(mesa3d.lostTimer); renderMesa3DFrame(); });
-  if(!mesa3d.visBound){
-    mesa3d.visBound = true;
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.visibilityState==='visible' && activeTab==='mesa3d' && mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()){
-        setTimeout(()=>{ if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()) rebuildMesa3D(); }, 800);
-      }
-    });
-  }
-
-  loadMesa3DTable();
-}
-
-function rebuildMesa3D(){
-  try{
-    const old = document.getElementById('mesa3d-canvas');
-    if(!old) return;
-    const fresh = old.cloneNode(false);
-    old.parentNode.replaceChild(fresh, old);
-    try{ mesa3d.renderer && mesa3d.renderer.dispose(); }catch(e){}
-    if(mesa3d.raf){ cancelAnimationFrame(mesa3d.raf); mesa3d.raf = null; }
-    mesa3d.renderer = null; mesa3d.chairs = []; mesa3d.builtSeatCount = 0;
-    mesa3dReady = false;
-    if(activeTab==='mesa3d' && mesa3dViewMode==='mesa'){ renderMesa3DChips(); initMesa3D(); mesa3dReady = !!mesa3d.renderer; }
-  }catch(e){ console.error('Weddy mesa3d rebuild error:', e); }
-}
-function resizeMesa3D(){
-  if(!mesa3d.renderer) return;
-  const canvas = document.getElementById('mesa3d-canvas');
-  const wrap = canvas.parentElement;
-  const w = wrap.clientWidth, h = wrap.clientHeight;
-  if(w < 10 || h < 10) return;
-  mesa3d.camera.aspect = w/h;
-  mesa3d.camera.updateProjectionMatrix();
-  mesa3d.renderer.setSize(w, h, false);
-  renderMesa3DFrame();
-}
-
-function loadMesa3DTable(){
-  if(!getTable(mesa3dSelectedTable) && state.seating.tables.length){
-    mesa3dSelectedTable = state.seating.tables[0].id;
-  }
-  const table = getTable(mesa3dSelectedTable);
-  if(!table) return;
-  const t = table.id;
-  if(mesa3d.builtSeatCount !== table.seats) buildMesa3DChairs(table.seats);
-  mesa3d.chairs.forEach(ch=>{
-    const key = 't'+t+'-s'+ch.index;
-    const info = resolveSeatGuest(state.seating.assignments[key] || '');
-    const color = info ? (SIDE_SEAT_COLOR_THREE[info.side] !== undefined ? SIDE_SEAT_COLOR_THREE[info.side] : SIDE_SEAT_COLOR_THREE.noiva) : 0xFFFCF4;
-    ch.seatMesh.material.color.setHex(color);
-    ch.backMesh.material.color.setHex(color);
-    ch.name = info ? info.name : '';
-    ch.side = info ? info.side : '';
-    ch.seatKey = key;
-  });
-  ensureMesa3DHeader();
-  renderMesa3DFrame();
-}
-
-function renderMesa3DFrame(){
-  if(!mesa3d.renderer) return;
-  mesa3d.renderer.render(mesa3d.scene, mesa3d.camera);
-  updateMesa3DLabels();
-}
-function updateMesa3DLabels(){
-  const canvas = document.getElementById('mesa3d-canvas');
-  const labelsEl = document.getElementById('mesa3d-labels');
-  const rect = canvas.getBoundingClientRect();
-  if(rect.width < 10){ return; }
-  let html = '';
-  mesa3d.chairs.forEach(ch=>{
-    ch.group.getWorldPosition(ch.worldPos);
-    const above = ch.worldPos.clone(); above.y += 0.74;
-    const p = above.project(mesa3d.camera);
-    if(p.z > 1) return;
-    const x = (p.x*0.5+0.5) * rect.width;
-    const y = (1-(p.y*0.5+0.5)) * rect.height;
-    const cls = ch.name ? ('assigned '+ch.side) : '';
-    html += `<div class="mesa3d-label ${cls}" style="left:${x}px; top:${y}px;">${ch.name ? escapeHTML(ch.name) : ch.index}</div>`;
-  });
-  labelsEl.innerHTML = html;
-}
-
-function handleMesa3DTap(e){
-  const canvas = document.getElementById('mesa3d-canvas');
-  const rect = canvas.getBoundingClientRect();
-  const mouse = new THREE.Vector2(
-    ((e.clientX-rect.left)/rect.width)*2-1,
-    -((e.clientY-rect.top)/rect.height)*2+1
-  );
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, mesa3d.camera);
-  const hits = raycaster.intersectObjects(mesa3d.chairs.map(c=>c.seatMesh));
-  if(hits.length){
-    const chair = mesa3d.chairs.find(c=>c.seatMesh===hits[0].object);
-    if(chair) openSeatSheet(chair.seatKey);
-  }
-}
-
-function startDragLoop(){
-  if(mesa3d.raf) return;
-  const loop = ()=>{
-    mesa3d.raf = requestAnimationFrame(loop);
-    renderMesa3DFrame();
-  };
-  loop();
-}
-function stopDragLoop(){
-  if(mesa3d.raf){ cancelAnimationFrame(mesa3d.raf); mesa3d.raf = null; }
-  renderMesa3DFrame();
 }
 
 function syncMesa3DPanel(){
   const isMesa3D = activeTab === 'mesa3d';
   document.getElementById('app-body').style.display = isMesa3D ? 'none' : 'flex';
   document.getElementById('mesa3d-panel').classList.toggle('active', isMesa3D);
-  if(!isMesa3D){ stopDragLoop(); return; }
+  if(!isMesa3D) return;
 
   ensureMesa3DHeader();
   document.getElementById('mesa3d-view-mesa').classList.toggle('active', mesa3dViewMode==='mesa');
   document.getElementById('mesa3d-view-sala').classList.toggle('active', mesa3dViewMode==='sala');
 
   if(mesa3dViewMode==='mesa'){
-    if(!mesa3dReady){ renderMesa3DChips(); initMesa3D(); mesa3dReady = !!mesa3d.renderer; }
-    else {
-      if(mesa3d.renderer && mesa3d.renderer.getContext().isContextLost()){ rebuildMesa3D(); }
-      else { renderMesa3DChips(); loadMesa3DTable(); resizeMesa3D(); }
-    }
+    renderMesa3DChips(); renderMesa2D();
   } else {
     renderSalaView();
   }
 }
 
+/* ============================================================
+   v303 — Lugares: mesa vista de cima (SVG), composição de decoração
+   Só apresentação: os dados (tables/assignments), a atribuição e a
+   sincronização continuam exatamente os mesmos.
+   ============================================================ */
+const LX = {
+  pt:{ seatsN:(n)=>`${n} lugares`, edit:'Editar mesa', less:'Menos lugares', more:'Mais lugares', free:'livre', seat:'Lugar' },
+  en:{ seatsN:(n)=>`${n} seats`, edit:'Edit table', less:'Fewer seats', more:'More seats', free:'free', seat:'Seat' }
+};
+function lx(k){ const d = LX[appLang==='en'?'en':'pt']; return d[k]; }
+function lxInitials(name){
+  const p = String(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!p.length) return '';
+  const a = Array.from(p[0])[0] || '';
+  const b = p.length>1 ? (Array.from(p[p.length-1])[0] || '') : '';
+  return (a+b).toUpperCase();
+}
+function lxFilled(table){
+  let n = 0;
+  for(let s=1; s<=table.seats; s++){ if(resolveSeatGuest(state.seating.assignments['t'+table.id+'-s'+s] || '')) n++; }
+  return n;
+}
+// Cadeira vista de cima. (x,y) = centro; out = direção "para fora" em radianos (0 = direita).
+function lxChair(table, s, x, y, out, sc){
+  const key = 't'+table.id+'-s'+s;
+  const info = resolveSeatGuest(state.seating.assignments[key] || '');
+  const rot = (out*180/Math.PI + 90).toFixed(1);
+  const label = info ? lxInitials(info.name) : String(s);
+  const ring = info ? (SIDE_SEAT_COLOR_HEX[info.side] || SIDE_SEAT_COLOR_HEX.noiva) : '';
+  const aria = lx('seat')+' '+s+', '+(info ? info.name : lx('free'));
+  return `<g class="lx-chair${info?' occ':''}" data-lxseat="${key}" role="button" tabindex="0" aria-label="${escapeHTML(aria)}">
+    <g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot}) scale(${sc})">
+      <rect class="lx-back" x="-17" y="-21" width="34" height="10" rx="5"/>
+      <rect class="lx-seat" x="-15" y="-13" width="30" height="28" rx="10"/>
+      <rect class="lx-cush" x="-10.5" y="-8.5" width="21" height="19" rx="7"/>
+    </g>
+    <circle class="lx-badge" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(11.5*sc).toFixed(1)}" ${ring?`style="stroke:${ring}"`:''}/>
+    <text class="lx-bt${info?' init':''}" x="${x.toFixed(1)}" y="${(y+4*sc).toFixed(1)}" text-anchor="middle" style="font-size:${((info?10.5:12)*sc).toFixed(1)}px">${escapeHTML(label)}</text>
+    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(24*sc).toFixed(1)}" fill="transparent"/>
+  </g>`;
+}
+function lxDefs(id){
+  return `<defs>
+    <pattern id="${id}lin" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#FBF7F0"/><path d="M0 .5H6M.5 0V6" stroke="#EFE4D5" stroke-width=".5" opacity=".7"/></pattern>
+    <linearGradient id="${id}run" x1="0" x2="1"><stop offset="0" stop-color="#E5B1A5"/><stop offset=".5" stop-color="#EFC3B8"/><stop offset="1" stop-color="#E3AC9F"/></linearGradient>
+    <radialGradient id="${id}bl" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EBE0D0"/></radialGradient>
+  </defs>`;
+}
+function lxFlowers(id, cx, cy, sc){
+  let g = '';
+  for(let i=0;i<10;i++){ const a = i*36+12; const r = 24*sc;
+    g += `<ellipse cx="${(cx+Math.cos(a*Math.PI/180)*r).toFixed(1)}" cy="${(cy+Math.sin(a*Math.PI/180)*r).toFixed(1)}" rx="${15*sc}" ry="${5.5*sc}" transform="rotate(${a} ${(cx+Math.cos(a*Math.PI/180)*r).toFixed(1)} ${(cy+Math.sin(a*Math.PI/180)*r).toFixed(1)})" fill="${i%2?'#8C9F7C':'#76896A'}" opacity=".95"/>`; }
+  for(let i=0;i<7;i++){ const a = i*51+8; const r = 17*sc;
+    g += `<circle cx="${(cx+Math.cos(a*Math.PI/180)*r).toFixed(1)}" cy="${(cy+Math.sin(a*Math.PI/180)*r).toFixed(1)}" r="${11*sc}" fill="url(#${id}bl)" stroke="#E6DACA" stroke-width=".6"/>`; }
+  g += `<circle cx="${cx}" cy="${cy}" r="${14*sc}" fill="url(#${id}bl)" stroke="#E6DACA" stroke-width=".6"/>`;
+  for(let i=0;i<5;i++){ const a = i*72+30; const r = 29*sc;
+    g += `<circle cx="${(cx+Math.cos(a*Math.PI/180)*r).toFixed(1)}" cy="${(cy+Math.sin(a*Math.PI/180)*r).toFixed(1)}" r="${3.4*sc}" fill="#E3AFA3"/>`; }
+  return g;
+}
+function lxCandle(cx, cy, sc){
+  return `<circle cx="${cx}" cy="${cy}" r="${10*sc}" fill="#F7EBD6" opacity=".8"/><circle cx="${cx}" cy="${cy}" r="${7*sc}" fill="#FFF8EA" stroke="#E6D3AE" stroke-width=".8"/><circle cx="${cx}" cy="${cy}" r="${2.8*sc}" fill="#F2C57F"/>`;
+}
+function lxRound(table){
+  const n = table.seats, id = 'lx'+table.id, cx = 200, cy = 200, R = 116, orbit = 152;
+  const sc = Math.min(1.25, (2*Math.PI*orbit/n) / 38);
+  let s = lxDefs(id);
+  s += `<clipPath id="${id}clip"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath>`;
+  let chairs = '';
+  for(let i=1;i<=n;i++){ const a = (i-1)/n*Math.PI*2 - Math.PI/2; chairs += lxChair(table, i, cx+Math.cos(a)*orbit, cy+Math.sin(a)*orbit, a, sc); }
+  s += `<g class="lx-tbl"><circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#${id}lin)" stroke="#E2D2BF" stroke-width="1.5"/>
+    <circle cx="${cx}" cy="${cy}" r="${R-9}" fill="none" stroke="#EADCCB" stroke-width="1" stroke-dasharray="2 3"/>
+    <g clip-path="url(#${id}clip)"><rect x="${cx-31}" y="${cy-R}" width="62" height="${R*2}" fill="url(#${id}run)" opacity=".92"/><path d="M${cx-31} ${cy-R}V${cy+R}M${cx+31} ${cy-R}V${cy+R}" stroke="#D99D90" stroke-width=".8" opacity=".5"/></g>
+    ${lxFlowers(id, cx, cy, 1)}
+    ${lxCandle(cx-46, cy-34, 1)}${lxCandle(cx+48, cy-40, 1)}${lxCandle(cx+54, cy+36, 1)}${lxCandle(cx-42, cy+46, 1)}</g>`;
+  s += chairs;
+  return { w:400, h:400, fit:true, svg:s };
+}
+function lxLong(table, k){
+  const n = table.seats, id = 'lx'+table.id, perSide = Math.ceil(n/2);
+  const pitch = 44, len = Math.max(200, perSide*pitch+24), tw = 96;
+  const W = 300, H = len + 130, cx = W/2, top = 65;
+  let s = lxDefs(id);
+  s += `<g class="lx-tbl"><rect x="${cx-tw/2}" y="${top}" width="${tw}" height="${len}" rx="14" fill="url(#${id}lin)" stroke="#E2D2BF" stroke-width="1.5"/>
+    <rect x="${cx-tw/2+7}" y="${top+7}" width="${tw-14}" height="${len-14}" rx="9" fill="none" stroke="#EADCCB" stroke-width="1" stroke-dasharray="2 3"/>
+    <rect x="${cx-16}" y="${top}" width="32" height="${len}" fill="url(#${id}run)" opacity=".92"/>`;
+  const m = Math.max(1, Math.floor((len-40)/130));
+  for(let i=0;i<=m;i++){ const y = top + (len*(i+0.5)/(m+1)); s += lxFlowers(id, cx, y, 0.62); s += lxCandle(cx-26, y+24, .8) + lxCandle(cx+26, y-24, .8); }
+  s += `</g>`;
+  for(let i=1;i<=n;i++){
+    const onLeft = i<=perSide, idx = onLeft ? i-1 : i-perSide-1, cnt = onLeft ? perSide : n-perSide;
+    const y = cnt>1 ? top+22 + (len-44)*idx/(cnt-1) : top+len/2;
+    const x = onLeft ? cx-tw/2-26 : cx+tw/2+26;
+    s += lxChair(table, i, x, y, onLeft?Math.PI:0, 1.1);
+  }
+  return { w:W, h:H, fit:false, svg:s };
+}
+function lxSerp(table){
+  const n = table.seats, id = 'lx'+table.id, f = 2.5;
+  const P0={x:32*f,y:28*f}, P1={x:150*f,y:28*f}, P2={x:10*f,y:148*f}, P3={x:128*f,y:148*f};
+  const bez = tt=>{ const m=1-tt; return { x:m*m*m*P0.x+3*m*m*tt*P1.x+3*m*tt*tt*P2.x+tt*tt*tt*P3.x, y:m*m*m*P0.y+3*m*m*tt*P1.y+3*m*tt*tt*P2.y+tt*tt*tt*P3.y }; };
+  const tan = tt=>{ const m=1-tt; const dx=3*m*m*(P1.x-P0.x)+6*m*tt*(P2.x-P1.x)+3*tt*tt*(P3.x-P2.x), dy=3*m*m*(P1.y-P0.y)+6*m*tt*(P2.y-P1.y)+3*tt*tt*(P3.y-P2.y); const l=Math.hypot(dx,dy)||1; return {x:dx/l,y:dy/l}; };
+  const d = `M ${P0.x} ${P0.y} C ${P1.x} ${P1.y} ${P2.x} ${P2.y} ${P3.x} ${P3.y}`;
+  let s = lxDefs(id);
+  s += `<g class="lx-tbl"><path d="${d}" fill="none" stroke="#E2D2BF" stroke-width="58" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#FBF7F0" stroke-width="54" stroke-linecap="round"/>
+    <path d="${d}" fill="none" stroke="url(#${id}run)" stroke-width="22" stroke-linecap="butt" opacity=".92"/>`;
+  [0.2,0.5,0.8].forEach(tt=>{ const p = bez(tt); s += lxFlowers(id, p.x, p.y, 0.55); });
+  s += `</g>`;
+  // posições por comprimento de arco (espaçamento igual), alternando os dois lados
+  const N = 240, acc = [0]; let prev = bez(0);
+  for(let j=1;j<=N;j++){ const q = bez(j/N); acc.push(acc[j-1]+Math.hypot(q.x-prev.x,q.y-prev.y)); prev = q; }
+  const total = acc[N];
+  const tAt = len=>{ let j = 1; while(j<N && acc[j]<len) j++; const a = acc[j-1], b = acc[j]; return (j-1+(b>a?(len-a)/(b-a):0))/N; };
+  const nA = Math.ceil(n/2), nB = n-nA;
+  for(let i=1;i<=n;i++){
+    const odd = i%2===1, idx = Math.floor((i-1)/2), cnt = odd?nA:nB, side = odd?-1:1;
+    const tt = tAt(total*(0.04+0.92*(cnt>1 ? idx/(cnt-1) : .5)));
+    const p = bez(tt), t = tan(tt);
+    const px = -t.y*side, py = t.x*side;
+    s += lxChair(table, i, p.x+px*44, p.y+py*44, Math.atan2(py,px), .9);
+  }
+  return { w:Math.round(160*f), h:Math.round(176*f), fit:false, svg:s };
+}
+function renderMesa2D(){
+  const stage = document.getElementById('lx-stage'); if(!stage) return;
+  if(!getTable(mesa3dSelectedTable) && state.seating.tables.length) mesa3dSelectedTable = state.seating.tables[0].id;
+  const table = getTable(mesa3dSelectedTable);
+  const cap = document.getElementById('lx-cap'), bar = document.getElementById('lx-bar');
+  ensureMesa3DHeader();
+  if(!table){ stage.innerHTML = ''; if(cap) cap.innerHTML = ''; if(bar) bar.innerHTML = ''; return; }
+  const shape = TABLE_SHAPES[table.shape] ? table.shape : 'round';
+  const wide = window.innerWidth >= 900;
+  const g = shape==='long' ? lxLong(table) : shape==='serpentine' ? lxSerp(table) : lxRound(table);
+  const k = wide ? 1.2 : 1;
+  const style = g.fit ? '' : `style="width:${Math.round(g.w*k)}px;height:${Math.round(g.h*k)}px"`;
+  stage.className = 'lx-stage'+(g.fit?' fit':'');
+  stage.innerHTML = `<svg class="lx-svg" viewBox="0 0 ${g.w} ${g.h}" ${style} role="group" aria-label="${escapeHTML(ta('tableLabel')(table.id))}" xmlns="http://www.w3.org/2000/svg">${g.svg}</svg>`;
+  if(cap) cap.innerHTML = `<span class="lx-cap-t">${escapeHTML(ta('tableLabel')(table.id))}</span><span class="lx-cap-s">${escapeHTML(TABLE_SHAPES[shape].label)}</span>`;
+  if(bar) bar.innerHTML = `
+    <div class="lx-step"><button type="button" data-lxseats="-1" aria-label="${lx('less')}">−</button><span class="lx-n">${escapeHTML(lx('seatsN')(table.seats))}</span><button type="button" data-lxseats="1" aria-label="${lx('more')}">+</button></div>
+    <span class="lx-sep"></span>
+    <button type="button" class="lx-edit" data-lxedit>${ICONS.tableround||''}<span>${lx('edit')}</span>${ICONS.chev}</button>`;
+}
+async function lxChangeSeats(table, dir){
+  const newSeats = Math.max(2, Math.min(24, table.seats+dir));
+  if(newSeats === table.seats) return;
+  if(newSeats < table.seats && state.seating.assignments['t'+table.id+'-s'+table.seats]){
+    if(!await weddyConfirm(ta('confirmReduceSeatsOccupied'))) return;
+  }
+  if(newSeats < table.seats) clearSeatsAbove(table.id, newSeats);
+  table.seats = newSeats;
+  render();
+}
+(function lxBind(){
+  document.addEventListener('click', e=>{
+    const ch = e.target.closest && e.target.closest('[data-lxseat]');
+    if(ch){ document.querySelectorAll('.lx-chair.sel').forEach(c=>c.classList.remove('sel')); openSeatSheet(ch.getAttribute('data-lxseat')); ch.classList.add('sel'); return; }
+    const st = e.target.closest && e.target.closest('[data-lxseats]');
+    if(st){ const t = getTable(mesa3dSelectedTable); if(t) lxChangeSeats(t, Number(st.getAttribute('data-lxseats'))); return; }
+    if(e.target.closest && e.target.closest('[data-lxedit]')){
+      const t = getTable(mesa3dSelectedTable); if(!t) return;
+      openTable[t.id] = true; navBackSet('mesas', null, ta('tabSeating')); activeTab = 'mesas'; render();
+    }
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const ch = e.target.closest && e.target.closest('[data-lxseat]');
+    if(ch){ e.preventDefault(); ch.dispatchEvent(new MouseEvent('click', {bubbles:true})); }
+  });
+})();
+
 /* ---- Visão da sala: mapa 2D de todas as mesas, vista de cima ---- */
 function tableSVG(table){
   const t = table.id;
   const seatCount = table.seats;
-  const seatR = 5;
-
-  function seatDot(sx, sy, angle, s){
+  const id = 'sl'+t;
+  // cadeira miniatura vista de cima; out = direção para fora (radianos)
+  function seatDot(sx, sy, out, s){
     const info = resolveSeatGuest(state.seating.assignments['t'+t+'-s'+s] || '');
-    const dotColor = info ? (SIDE_SEAT_COLOR_HEX[info.side] || SIDE_SEAT_COLOR_HEX.noiva) : '#E7DEC8';
-    return `<circle cx="${sx}" cy="${sy}" r="${seatR}" fill="${dotColor}" stroke="#FFFDF8" stroke-width="1"/>`;
+    const fill = info ? (SIDE_SEAT_COLOR_HEX[info.side] || SIDE_SEAT_COLOR_HEX.noiva) : '#EFE4D3';
+    const back = info ? fill : '#E0D0BB';
+    const rot = (out*180/Math.PI + 90).toFixed(1);
+    return `<g transform="translate(${sx.toFixed(1)} ${sy.toFixed(1)}) rotate(${rot})"><rect x="-6.4" y="-8.6" width="12.8" height="4" rx="2" fill="${back}" stroke="#D5C3AC" stroke-width=".5"/><rect x="-5.8" y="-5.2" width="11.6" height="11" rx="4" fill="${fill}" stroke="#D5C3AC" stroke-width=".6"/></g>`;
   }
-
-  let inner = '';
+  function bloom(cx, cy, r){
+    let g = '';
+    for(let i=0;i<6;i++){ const a = i*60*Math.PI/180; g += `<circle cx="${(cx+Math.cos(a)*r*.7).toFixed(1)}" cy="${(cy+Math.sin(a)*r*.7).toFixed(1)}" r="${(r*.5).toFixed(1)}" fill="#7F9372"/>`; }
+    return g + `<circle cx="${cx}" cy="${cy}" r="${(r*.62).toFixed(1)}" fill="#FFFDF9" stroke="#E6DACA" stroke-width=".5"/>`;
+  }
+  const defs = `<defs><linearGradient id="${id}r" x1="0" x2="1"><stop offset="0" stop-color="#E5B1A5"/><stop offset="1" stop-color="#EFC3B8"/></linearGradient><clipPath id="${id}c"><circle cx="80" cy="78" r="34"/></clipPath></defs>`;
+  let inner = defs;
   if(table.shape==='long'){
     const cx=80, cy=78, halfW=42, halfH=15;
     const perSide = Math.ceil(seatCount/2);
-    inner += `<rect x="${cx-halfW}" y="${cy-halfH}" width="${halfW*2}" height="${halfH*2}" rx="7" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
-    inner += `<text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    inner += `<rect x="${cx-halfW}" y="${cy-halfH}" width="${halfW*2}" height="${halfH*2}" rx="7" fill="#FBF7F0" stroke="#E2D2BF" stroke-width="1.2"/>`;
+    inner += `<rect x="${cx-halfW+3}" y="${cy-4}" width="${halfW*2-6}" height="8" fill="url(#${id}r)" opacity=".9"/>`;
+    inner += bloom(cx-20, cy, 6) + bloom(cx+20, cy, 6);
+    inner += `<text x="${cx}" y="${cy-7}" font-size="9" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
     for(let s=1; s<=seatCount; s++){
       const onTop = s<=perSide;
       const idxOnSide = onTop? s-1 : s-perSide-1;
       const sideCount = onTop? perSide : seatCount-perSide;
       const spacing = sideCount>1 ? (halfW*2-14)/(sideCount-1) : 0;
       const sx = sideCount>1 ? (cx-halfW+7) + spacing*idxOnSide : cx;
-      const sy = onTop ? cy-halfH-16 : cy+halfH+16;
+      const sy = onTop ? cy-halfH-12 : cy+halfH+12;
       inner += seatDot(sx, sy, onTop?-Math.PI/2:Math.PI/2, s);
     }
   } else if(table.shape==='serpentine'){
     const P0={x:32,y:28}, P1={x:150,y:28}, P2={x:10,y:148}, P3={x:128,y:148};
     function bez(tt){
       const mt=1-tt;
-      return {
-        x: mt*mt*mt*P0.x + 3*mt*mt*tt*P1.x + 3*mt*tt*tt*P2.x + tt*tt*tt*P3.x,
-        y: mt*mt*mt*P0.y + 3*mt*mt*tt*P1.y + 3*mt*tt*tt*P2.y + tt*tt*tt*P3.y
-      };
+      return { x: mt*mt*mt*P0.x + 3*mt*mt*tt*P1.x + 3*mt*tt*tt*P2.x + tt*tt*tt*P3.x, y: mt*mt*mt*P0.y + 3*mt*mt*tt*P1.y + 3*mt*tt*tt*P2.y + tt*tt*tt*P3.y };
     }
     function tangent(tt){
       const mt=1-tt;
@@ -23087,27 +22983,30 @@ function tableSVG(table){
       return {x:dx/len, y:dy/len};
     }
     const pathD = `M ${P0.x} ${P0.y} C ${P1.x} ${P1.y} ${P2.x} ${P2.y} ${P3.x} ${P3.y}`;
-    inner += `<path d="${pathD}" fill="none" stroke="#FFF9EE" stroke-width="20" stroke-linecap="round"/>`;
-    inner += `<path d="${pathD}" fill="none" stroke="#C9A02E" stroke-width="1.3" stroke-linecap="round"/>`;
+    inner += `<path d="${pathD}" fill="none" stroke="#E2D2BF" stroke-width="22" stroke-linecap="round"/>`;
+    inner += `<path d="${pathD}" fill="none" stroke="#FBF7F0" stroke-width="20.6" stroke-linecap="round"/>`;
+    inner += `<path d="${pathD}" fill="none" stroke="url(#${id}r)" stroke-width="7" opacity=".9"/>`;
     const mid = bez(0.5);
-    inner += `<circle cx="${mid.x}" cy="${mid.y}" r="10" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.2"/>`;
-    inner += `<text x="${mid.x}" y="${mid.y+4}" font-size="11" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    inner += bloom(bez(0.25).x, bez(0.25).y, 5) + bloom(bez(0.75).x, bez(0.75).y, 5);
+    inner += `<circle cx="${mid.x}" cy="${mid.y}" r="9" fill="#FBF7F0" stroke="#E2D2BF" stroke-width="1"/>`;
+    inner += `<text x="${mid.x}" y="${mid.y+3.5}" font-size="11" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
     for(let s=1; s<=seatCount; s++){
       const tt = (s-0.5)/seatCount;
       const p = bez(tt);
       const tan = tangent(tt);
       const perp = {x:-tan.y, y:tan.x};
       const side = (s%2===0) ? 1 : -1;
-      const sx = p.x + perp.x*13*side;
-      const sy = p.y + perp.y*13*side;
+      const sx = p.x + perp.x*18*side;
+      const sy = p.y + perp.y*18*side;
       const angle = Math.atan2(perp.y*side, perp.x*side);
       inner += seatDot(sx, sy, angle, s);
     }
   } else {
-    const cx=80, cy=78, tableR=34, orbit=55;
-    inner += `<circle cx="${cx}" cy="${cy}" r="${tableR}" fill="#FFF9EE" stroke="#C9A02E" stroke-width="1.4"/>`;
-    inner += `<circle cx="${cx}" cy="${cy}" r="${tableR-9}" fill="none" stroke="#E3A79B" stroke-width="1" opacity="0.55"/>`;
-    inner += `<text x="${cx}" y="${cy+4}" font-size="13" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
+    const cx=80, cy=78, tableR=34, orbit=52;
+    inner += `<circle cx="${cx}" cy="${cy}" r="${tableR}" fill="#FBF7F0" stroke="#E2D2BF" stroke-width="1.2"/>`;
+    inner += `<g clip-path="url(#${id}c)"><rect x="${cx-9}" y="${cy-tableR}" width="18" height="${tableR*2}" fill="url(#${id}r)" opacity=".9"/></g>`;
+    inner += bloom(cx, cy, 9);
+    inner += `<text x="${cx}" y="${cy+tableR-6}" font-size="10" font-family="Cormorant Garamond, serif" font-weight="600" fill="#96453A" text-anchor="middle">${t}</text>`;
     for(let s=1; s<=seatCount; s++){
       const angle = (s/seatCount)*Math.PI*2 - Math.PI/2;
       const sx = cx + Math.cos(angle)*orbit;
@@ -23115,7 +23014,7 @@ function tableSVG(table){
       inner += seatDot(sx, sy, angle, s);
     }
   }
-  return `<svg viewBox="0 0 160 176" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+  return `<svg viewBox="0 0 160 176" xmlns="http://www.w3.org/2000/svg" class="sl-svg">${inner}</svg>`;
 }
 function ensureTablePositions(){
   const spacing = 132, perRow = 3, startX = 16, startY = 16, tol = 20;
