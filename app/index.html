@@ -22309,6 +22309,19 @@ function weddyBackStep(){
     closeAllSheets();
     return true;
   }
+  // Android: o gesto/botão de recuar sobe UM nível, como a seta da própria
+  // página (detalhe → lista → menu → Início), em vez de saltar logo para o Início.
+  // Procura a seta de voltar visível no ecrã atual e carrega nela; assim cada
+  // página usa a sua própria lógica de "voltar" (origem guardada, sub-páginas…).
+  const backBtn = Array.prototype.find.call(
+    document.querySelectorAll('#app .nav-back, #app .hmx-back, .screen .nav-back, .screen .hmx-back'),
+    el=>{
+      if(el.disabled || el.getAttribute('aria-hidden')==='true') return false;
+      const r = el.getBoundingClientRect();
+      if(!(r.width>0 && r.height>0)) return false;
+      return !el.closest('.sheet, .modal, #login-screen, [hidden]');
+    });
+  if(backBtn){ backBtn.click(); return true; }
   if(activeTab !== 'inicio'){
     closeAllSheets();
     activeTab = 'inicio';
