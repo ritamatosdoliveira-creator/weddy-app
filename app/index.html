@@ -5360,6 +5360,14 @@ document.addEventListener('focusout', e=>{
     }
   }, 0);
 });
+// Redesenhos que vêm de trás (resposta de rede, não de um toque): se a pessoa
+// estiver a escrever, adiam-se até sair do campo — senão a página era refeita
+// por baixo do campo e o teclado fechava (ex.: a sincronização do Google
+// Calendar, 3s depois de cada gravação, refazia o ecrã a meio da escrita).
+function renderUnlessTyping(){
+  if(isEditingTextField()){ pendingRenderAfterEdit = true; return; }
+  render();
+}
 function escapeHTML(str){
   if(str===undefined || str===null) return '';
   return String(str)
@@ -15427,12 +15435,12 @@ function loadGoogleCalendarIntegration(){
   return CURRENT_DOC().collection('integrations').doc('googleCalendar').get().then(snap=>{
     googleCalendarIntegration = snap.exists ? snap.data() : { connected:false };
     googleCalendarLoading = false;
-    render();
+    renderUnlessTyping();
   }).catch(err=>{
     console.error('Weddy GoogleCalendar load error:', err.code, err.message);
     googleCalendarIntegration = { connected:false };
     googleCalendarLoading = false;
-    render();
+    renderUnlessTyping();
   });
 }
 // Fase 8.0 (Set 2026): isto costumava ter de recalcular a posição atual
@@ -25442,7 +25450,8 @@ function loadActivity(){
   const cutoff = new Date(Date.now() - ACTIVITY_DAYS*24*60*60*1000);
   ACTIVITY().where('at','>=',cutoff).orderBy('at','desc').limit(300).get().then(qs=>{
     activityItems = qs.docs.map(d=>({ id:d.id, ...d.data() }));
-    activityLoading = false; activityLoaded = true; _origRender();
+    activityLoading = false; activityLoaded = true;
+    if(isEditingTextField()) pendingRenderAfterEdit = true; else _origRender();
   }).catch(err=>{
     console.error('Weddy load activity error:', err && err.code, err && err.message);
     activityLoading = false; activityError = true; _origRender();
@@ -26572,10 +26581,17 @@ document.getElementById('payment-alert-popup').addEventListener('click', e=>{
   function updateForcePortrait(){
     const body = document.body;
     const wasRotated = body.classList.contains('force-portrait-a') || body.classList.contains('force-portrait-b');
+    // Teclado aberto (Android): a altura visível encolhe e pode ficar menor que a
+    // largura — isso NÃO é o telemóvel de lado. Rodar a página nesse momento
+    // refazia o layout e fechava o teclado a cada letra/toque (visto ao escrever
+    // o nome do destino na Lua de mel). Com um campo de texto ativo, não mexemos.
+    const ae = document.activeElement;
+    if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && !wasRotated) return;
     body.classList.remove('force-portrait-a','force-portrait-b');
     let nowRotated = false;
     if(!isDesktopLike()){
-      const isLandscape = window.innerWidth > window.innerHeight;
+      const oType = (screen.orientation && screen.orientation.type) || '';
+      const isLandscape = window.innerWidth > window.innerHeight && !/^portrait/.test(oType);
       if(isLandscape && isTouchDevice()){
         let angle = null;
         if(screen.orientation && typeof screen.orientation.angle === 'number') angle = screen.orientation.angle;
