@@ -3126,6 +3126,10 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .ql-ico{ width:23px; height:23px; display:flex; align-items:center; justify-content:center; color:#AD624F; }
 .ql-ico svg{ width:100%; height:100%; display:block; }
 .ql-lbl{ max-width:100%; font-size:11px; line-height:1.2; font-weight:400; letter-spacing:0; color:var(--ink); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+.ql-ico{ position:relative; }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.ql-crown{ position:absolute; top:-7px; right:-12px; width:17px; height:17px; border-radius:50%; background:#AD624F; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #FAF8F5; }
+.ql-crown svg{ width:10px; height:10px; stroke:currentColor; fill:none; }
 .ql-item:focus-visible{ outline:2px solid #AD624F; outline-offset:-3px; border-radius:10px; }
 .ql-item:active .ql-ico{ opacity:.7; }
 @media (min-width:1024px){
@@ -10206,9 +10210,9 @@ function viewInicio(){
     <button type="button" class="ql-item" data-goto="luademel"><span class="ql-ico">${QL_ICONS.honeymoon}</span><span class="ql-lbl">${ta('homeQuickHoneymoon')}</span></button>
     <button type="button" class="ql-item" data-goto="checklist"><span class="ql-ico">${QL_ICONS.checklist}</span><span class="ql-lbl">Checklist</span></button>
     <button type="button" class="ql-item" data-goto="fornecedores"><span class="ql-ico">${QL_ICONS.suppliers}</span><span class="ql-lbl">${ta('homeQuickSuppliers')}</span></button>
-    <button type="button" class="ql-item" data-goto="bolo"><span class="ql-ico">${QL_ICONS.cake}</span><span class="ql-lbl">${ta('cdQlCake')}</span></button>
-    <button type="button" class="ql-item" data-goto="votos"><span class="ql-ico">${QL_ICONS.vows}</span><span class="ql-lbl">${ta('cdQlVows')}</span></button>
-    <button type="button" class="ql-item" data-goto="papelaria"><span class="ql-ico">${QL_ICONS.stationery}</span><span class="ql-lbl">${ta('cdQlStationery')}</span></button>
+    <button type="button" class="ql-item" data-goto="bolo"><span class="ql-ico">${QL_ICONS.cake}<span class="ql-crown" aria-hidden="true">${ICONS.crown||''}</span></span><span class="ql-lbl">${ta('cdQlCake')}<span class="sr-only"> — Premium</span></span></button>
+    <button type="button" class="ql-item" data-goto="votos"><span class="ql-ico">${QL_ICONS.vows}<span class="ql-crown" aria-hidden="true">${ICONS.crown||''}</span></span><span class="ql-lbl">${ta('cdQlVows')}<span class="sr-only"> — Premium</span></span></button>
+    <button type="button" class="ql-item" data-goto="papelaria"><span class="ql-ico">${QL_ICONS.stationery}<span class="ql-crown" aria-hidden="true">${ICONS.crown||''}</span></span><span class="ql-lbl">${ta('cdQlStationery')}<span class="sr-only"> — Premium</span></span></button>
   </nav>
 
   <div class="section-label-v2">${ta('homeProgressLabel')}</div>
