@@ -8790,8 +8790,7 @@ function sdItemEditor(){
     const fl = d.files.filter(f=>f.itemId===it.id && f.kind===k);
     return `<div class="sd-sub" style="margin-top:18px">${ta('sdKind_'+k)}</div>${fl.map(sdFileRow).join('')}<button type="button" class="cb-link" data-sdupload="${escapeHTML(it.id)}:${k}">+ ${ta('sdAddFile')}</button>`;
   }).join('');
-  return `<button type="button" class="cb-back" data-sdclose>${CB_ICO.back}${ta('cdStatTitle')}</button>
-  <h2 class="cb-h" style="margin-top:6px">${escapeHTML(it.name)}</h2>
+  return `<h2 class="cb-h" style="margin-top:6px">${escapeHTML(it.name)}</h2>
   <div class="cb-f" style="margin-top:6px"><span>${ta('sdState')}</span><div class="cb-chips">${st}</div></div>
   <div class="cb-fields" style="margin-top:16px">
     <label class="cb-f full"><span>${ta('sdText')}</span><textarea class="cb-ta" style="min-height:130px" data-cdtext="${b}text">${escapeHTML(o.text)}</textarea></label>
@@ -9029,8 +9028,7 @@ function cbProvas(){
       const sts = ['scheduled','done','cancelled'].map(k=>`<button type="button" class="cb-chip" data-cbstatus="${k}" aria-pressed="${t.status===k?'true':'false'}">${escapeHTML(ta('cbSt_'+k))}</button>`).join('');
       const stars = [1,2,3,4,5].map(n=>`<button type="button" class="cb-star" data-cbrate="${n}" aria-pressed="${t.rating>=n?'true':'false'}" aria-label="${n}/5">${CB_ICO.star}</button>`).join('');
       return `
-      <button type="button" class="cb-back" data-cbtastback>${CB_ICO.back}${ta('cbTastBack')}</button>
-      <div class="cb-fields" style="margin-top:8px">
+      <div class="cb-fields" style="margin-top:14px">
         ${cbField(b+'name',ta('cbTastName'),t.name,{full:true,ph:ta('cbTastDefault')(idx+1)})}
         ${cbField(b+'date',ta('cbTastDate'),t.date,{type:'date'})}
         ${cbField(b+'vendor',ta('cbTastVendor'),t.vendor)}
@@ -9069,7 +9067,6 @@ function cbInspiracoes(){
     const chips = CB_STY.map(k=>`<button type="button" class="cb-chip" data-cbdstyle="${k}" aria-pressed="${d.style===k?'true':'false'}">${escapeHTML(ta('cbSty_'+k))}</button>`).join('')
       + `<button type="button" class="cb-chip" data-cbdstyle="custom" aria-pressed="${isCustom?'true':'false'}">${escapeHTML(ta('cbInspOther'))}</button>`;
     return `
-    <button type="button" class="cb-back" data-cbinspcancel>${CB_ICO.back}${ta('cbInspTitle')}</button>
     <div class="cb-ph cb-draft-ph">${d.photo ? `<img src="${d.photo}" alt="">` : CB_ICO.img}</div>
     <button type="button" class="cb-link" data-cbinspphoto>${d.photo?ta('cbInspChange'):ta('cbInspPhoto')}</button>
     <div class="cb-fields" style="margin-top:18px">
@@ -9165,7 +9162,7 @@ function vwSummary(){
     ${st(VW_ICO.heart, ta('vwTabVows'), vowsDone, 2)}${st(VW_ICO.mic, ta('vwTabSpeeches'), spDone, v.speeches.length)}${st(VW_ICO.book, ta('vwTabReadings'), rdDone, v.readings.length)}</div>`;
 }
 function vwEditorHead(backKey, title){
-  return `<button type="button" class="cb-back" data-vwback>${CB_ICO.back}${escapeHTML(ta(backKey))}</button><h2 class="cb-h" style="margin-top:6px">${escapeHTML(title)}</h2>`;
+  return `<h2 class="cb-h" style="margin-top:6px">${escapeHTML(title)}</h2>`;
 }
 function vwTextBlock(path, text, ph){
   return `<textarea class="vw-ed" id="vw-ed" data-cdtext="${path}" placeholder="${escapeHTML(ph||'')}" aria-label="${escapeHTML(ph||'')}">${escapeHTML(text)}</textarea>
@@ -9210,7 +9207,7 @@ function vwEditor(){
   const idx = (arr,id)=>arr.findIndex(q=>q.id===id);
   if(w.kind==='help'){
     const T = ta('vwDoc_'+w.id);
-    return `<button type="button" class="cb-back" data-vwback>${CB_ICO.back}${ta('vwBackVows')}</button><div class="vw-doc"><h2 class="cb-h" style="margin-top:6px">${escapeHTML(ta(w.id==='tips'?'vwHelpTips':w.id==='examples'?'vwHelpExamples':'vwHelpStructure'))}</h2>${T}</div><button type="button" class="cb-btn" data-vwback>${ta('vwBackBtn')}</button>`;
+    return `<div class="vw-doc"><h2 class="cb-h" style="margin-top:6px">${escapeHTML(ta(w.id==='tips'?'vwHelpTips':w.id==='examples'?'vwHelpExamples':'vwHelpStructure'))}</h2>${T}</div>`;
   }
   if(w.kind==='vow'){
     const o = v[w.id]; if(!o){ vwView = null; return ''; }
