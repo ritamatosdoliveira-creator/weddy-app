@@ -1835,6 +1835,109 @@ textarea.se-in{ resize:vertical; line-height:1.45; } .se-in:focus{ outline:none;
 .se-errs{ list-style:none; margin:10px 0 0; padding:0; display:grid; gap:8px; } .se-errs li{ display:flex; gap:10px; align-items:center; justify-content:space-between; font-size:13.5px; background:rgba(179,64,46,.07); border-radius:12px; padding:8px 12px; } .se-errs .se-chip{ margin:0; flex:0 0 auto; }
 .se-ok{ display:flex; gap:8px; align-items:center; margin-top:10px; font-weight:600; color:#42703D; } .se-ok svg{ width:16px; height:16px; }
 .se-pub{ margin-top:0; } .se-pub[disabled]{ opacity:.5; } .se-unpub{ margin-top:10px; width:100%; }
+/* v302 — Site do casamento: novo design (editor de website) */
+.sx-wrap{ padding:0 16px 48px; max-width:1180px; margin:0 auto; }
+.sx-ic{ width:22px; height:22px; flex:0 0 22px; color:var(--rust-dark); }
+.sx-tabs{ display:flex; gap:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; border-bottom:1px solid var(--line); margin:4px 0 0; padding:0 2px; }
+.sx-tabs::-webkit-scrollbar{ display:none; }
+.sx-tab{ flex:0 0 auto; background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:12px 2px 11px; font:500 14px/1 'Manrope',sans-serif; letter-spacing:.01em; color:var(--ink-soft); cursor:pointer; white-space:nowrap; }
+.sx-tab.on{ color:var(--rust-dark); border-bottom-color:var(--rust); font-weight:600; }
+.sx-tab:focus-visible,.sx-link:focus-visible,.sx-btn:focus-visible,.sx-li:focus-visible,.sx-srow-main:focus-visible,.sx-tpl:focus-visible,.sx-pal:focus-visible,.sx-subtabs button:focus-visible{ outline:2px solid var(--rust-dark); outline-offset:2px; }
+.sx-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 2px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.sx-st{ display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink); } .sx-st b{ font-weight:600; }
+.sx-bar.st-published .se-dot{ background:#5F8F5A; } .sx-bar.st-unpublished .se-dot,.sx-bar.st-suspended .se-dot{ background:var(--gold); }
+.sx-bar-r{ display:flex; align-items:center; gap:14px; } .sx-bar-r .se-save{ margin:0; }
+.sx-link{ display:inline-flex; align-items:center; gap:7px; background:none; border:0; padding:6px 0; font:600 13px 'Manrope',sans-serif; color:var(--rust-dark); cursor:pointer; min-height:36px; }
+.sx-link .sx-ic{ width:18px; height:18px; flex-basis:18px; }
+.sx-body{ padding-top:18px; }
+.sx-split{ display:block; } .sx-side{ margin-top:8px; }
+.sx-sec{ padding:18px 0 20px; border-bottom:1px solid var(--line); }
+.sx-sec:last-child{ border-bottom:0; }
+.sx-sec-h{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.sx-sec h3,.sx-ed-h h2{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:23px; line-height:1.15; color:var(--heading); margin:0; letter-spacing:.005em; }
+.sx-eyebrow{ font:600 11px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); }
+.sx-p{ font-size:14px; line-height:1.55; color:var(--ink-soft); margin:6px 0 10px; } .sx-p.sm{ font-size:13px; margin:4px 0 0; }
+.sx-state{ display:flex; align-items:center; gap:9px; font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:500; color:var(--heading); }
+.sx-state .se-dot{ width:10px; height:10px; } .sx-state b{ font-weight:500; }
+.sx-names{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:34px; line-height:1.1; color:var(--heading); } .sx-names.sm{ font-size:26px; }
+.sx-date{ font-size:14px; color:var(--ink-soft); margin-top:4px; letter-spacing:.02em; }
+.sx-lbl{ font:600 11px 'Manrope',sans-serif; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:18px 0 8px; }
+.sx-linkrow{ display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+.sx-url{ flex:1; min-width:0; font-size:15px; font-weight:500; color:var(--ink); word-break:break-all; }
+.sx-iconbtn{ display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border:0; background:none; border-radius:10px; color:var(--rust-dark); cursor:pointer; text-decoration:none; }
+.sx-iconbtn:hover{ background:rgba(185,103,82,.08); } .sx-iconbtn .sx-ic{ width:19px; height:19px; flex-basis:19px; }
+.sx-btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 20px; margin-top:10px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--rust-dark); font:600 13.5px 'Manrope',sans-serif; cursor:pointer; }
+.sx-btn.primary{ background:var(--rust); border-color:var(--rust); color:#fff; } .sx-btn[disabled]{ opacity:.5; cursor:default; }
+.sx-btn.big{ width:100%; min-height:50px; font-size:14.5px; margin-top:0; } .sx-btn .sx-ic{ width:18px; height:18px; }
+.sx-actions .sx-btn + .sx-btn{ width:100%; margin-top:10px; }
+.sx-count{ font-size:13px; color:var(--ink-soft); }
+.sx-bar-track{ height:3px; border-radius:3px; background:var(--line); overflow:hidden; margin:2px 0 6px; } .sx-bar-track i{ display:block; height:100%; background:var(--rust); border-radius:3px; }
+.sx-list{ list-style:none; margin:0; padding:0; }
+.sx-li{ display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:6px 0; background:none; border:0; border-bottom:1px solid var(--line); text-align:left; cursor:pointer; font:500 14.5px 'Manrope',sans-serif; color:var(--ink); }
+.sx-list li:last-child .sx-li{ border-bottom:0; } .sx-li .chev{ width:7px; height:12px; margin-left:auto; color:var(--ink-soft); flex:0 0 auto; }
+.sx-li-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; } .sx-li-t b{ font-weight:600; } .sx-li-t i{ font-style:normal; font-size:12.5px; color:var(--ink-soft); font-weight:400; }
+.sx-li-big{ min-height:64px; } .sx-li-ic{ width:38px; height:38px; border-radius:50%; background:var(--soft,rgba(185,103,82,.08)); display:inline-flex; align-items:center; justify-content:center; flex:0 0 38px; }
+.sx-chk{ width:22px; height:22px; border-radius:50%; border:1.4px solid var(--line); display:inline-flex; align-items:center; justify-content:center; flex:0 0 22px; color:#fff; }
+.sx-chk.on{ background:var(--rust); border-color:var(--rust); } .sx-chk .sx-ic{ width:13px; height:13px; flex-basis:13px; color:#fff; stroke-width:2.2; }
+.sx-prevbox{ margin-top:6px; } .sx-prevhead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.sx-dev{ display:inline-flex; gap:2px; border:1px solid var(--line); border-radius:10px; padding:2px; }
+.sx-dev button{ width:36px; height:32px; border:0; background:none; border-radius:8px; color:var(--ink-soft); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.sx-dev button.on{ background:rgba(185,103,82,.12); color:var(--rust-dark); } .sx-dev .sx-ic{ width:18px; height:18px; flex-basis:18px; color:inherit; }
+.sx-stage{ display:flex; justify-content:center; padding:14px 0; background:rgba(120,95,80,.06); border-radius:14px; }
+.sx-frame{ position:relative; overflow:hidden; background:#fff; box-shadow:0 1px 2px rgba(60,40,30,.12), 0 8px 24px rgba(60,40,30,.10); }
+.sx-stage.mobile .sx-frame{ width:216px; height:400px; border-radius:22px; border:5px solid #2b2522; }
+.sx-stage.mobile iframe{ width:390px; height:735px; border:0; zoom:.53; display:block; }
+.sx-stage.desktop .sx-frame{ width:min(100%,340px); height:210px; border-radius:6px; border:1px solid var(--line); margin:0 8px; }
+.sx-stage.desktop iframe{ width:1280px; height:800px; border:0; zoom:.26; display:block; }
+.sx-subtabs{ display:flex; gap:20px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+.sx-subtabs button{ background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:6px 0 10px; font:500 13.5px 'Manrope',sans-serif; color:var(--ink-soft); cursor:pointer; }
+.sx-subtabs button.on{ color:var(--rust-dark); border-bottom-color:var(--rust); font-weight:600; }
+.sx-gallery{ display:flex; gap:14px; overflow-x:auto; padding:4px 2px 14px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.sx-gallery::-webkit-scrollbar{ display:none; }
+.sx-tpl{ position:relative; flex:0 0 158px; scroll-snap-align:start; background:none; border:0; padding:0; text-align:left; cursor:pointer; font-family:'Manrope',sans-serif; }
+.sx-thumb{ width:158px; height:280px; overflow:hidden; border-radius:12px; border:1px solid var(--line); background:#fff; position:relative; pointer-events:none; box-shadow:0 1px 2px rgba(60,40,30,.08); }
+.sx-thumb iframe{ width:390px; height:690px; border:0; zoom:.405; display:block; }
+.sx-tpl.on .sx-thumb{ border:2px solid var(--rust); box-shadow:0 6px 18px rgba(150,80,60,.18); }
+.sx-tick{ position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%; background:var(--rust); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.2); } .sx-tick .sx-ic{ width:14px; height:14px; flex-basis:14px; color:#fff; stroke-width:2.2; }
+.sx-tpl-t{ display:flex; flex-direction:column; gap:3px; margin-top:10px; } .sx-tpl-t b{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:20px; color:var(--heading); } .sx-tpl-t i{ font-style:normal; font-size:12px; line-height:1.4; color:var(--ink-soft); }
+.sx-pals{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.sx-pal{ position:relative; display:flex; flex-direction:column; gap:10px; padding:14px; border:1px solid var(--line); border-radius:12px; background:transparent; cursor:pointer; text-align:left; font-family:'Manrope',sans-serif; }
+.sx-pal.on{ border-color:var(--rust); box-shadow:inset 0 0 0 1px var(--rust); }
+.sx-sw3{ display:flex; } .sx-sw3 i{ width:34px; height:34px; border-radius:50%; border:2px solid var(--card,#fff); margin-left:-8px; } .sx-sw3 i:first-child{ margin-left:0; box-shadow:0 0 0 1px var(--line); }
+.sx-pal-n{ font:500 14px 'Manrope',sans-serif; color:var(--ink); } .sx-pal-c{ position:absolute; top:12px; right:12px; } .sx-pal-c .sx-ic{ width:16px; height:16px; flex-basis:16px; color:var(--rust); stroke-width:2.2; }
+.sx-secs{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+.sx-srow{ display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--line); } .sx-srow.cur{ background:rgba(185,103,82,.06); }
+.sx-srow-main{ flex:1; min-width:0; display:flex; align-items:center; gap:14px; padding:14px 2px; background:none; border:0; text-align:left; cursor:pointer; font-family:'Manrope',sans-serif; color:var(--ink); }
+.sx-srow.off .sx-ic{ color:var(--ink-soft); opacity:.7; } .sx-srow.off .sx-srow-t b{ color:var(--ink-soft); }
+.sx-srow-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; } .sx-srow-t b{ font-weight:600; font-size:15px; }
+.sx-srow-t i{ font-style:normal; font-size:12.5px; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.sx-sthumb{ width:44px; height:44px; border-radius:8px; overflow:hidden; flex:0 0 44px; background:var(--line); } .sx-sthumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.sx-sstate{ font-size:11.5px; color:var(--ink-soft); flex:0 0 auto; } .sx-srow-main .chev{ width:7px; height:12px; color:var(--ink-soft); flex:0 0 auto; }
+.sx-switch{ position:relative; display:inline-block; flex:0 0 44px; height:44px; margin-right:2px; cursor:pointer; }
+.sx-switch input{ position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; z-index:2; }
+.sx-switch .se-sw{ position:absolute; top:9px; left:0; } .sx-switch input:checked + .se-sw{ background:var(--rust); } .sx-switch input:checked + .se-sw::after{ transform:translateX(18px); } .sx-switch input:focus-visible + .se-sw{ outline:2px solid var(--rust-dark); outline-offset:2px; }
+.sx-editor{ padding-top:2px; } .sx-back{ display:inline-flex; align-items:center; gap:4px; background:none; border:0; padding:6px 0 10px; font:600 13px 'Manrope',sans-serif; color:var(--rust-dark); cursor:pointer; min-height:40px; }
+.sx-chevl svg{ width:16px; height:16px; display:block; } .sx-ed-h{ display:flex; align-items:center; gap:12px; } .sx-ed-h h2{ font-size:28px; }
+.sx-ed-b{ margin-top:6px; } .sx-ed-f{ margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
+.sx-ed-f .sx-btn{ width:100%; margin-top:0; }
+.sx-note{ margin-top:14px; padding:14px 0; font-size:13.5px; color:var(--ink-soft); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.sx-steps{ margin:0; padding:0 0 0 20px; font-size:14px; line-height:1.6; color:var(--ink-soft); } .sx-steps li{ margin-bottom:6px; } .sx-steps li::marker{ color:var(--rust); font-weight:600; }
+.sx-sum{ display:flex; gap:14px; align-items:center; } .sx-sum-ph{ width:64px; height:80px; border-radius:32px 32px 6px 6px; overflow:hidden; flex:0 0 64px; background:var(--line); } .sx-sum-ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+.sx-dl{ margin:14px 0 0; display:grid; gap:4px; } .sx-dl dt{ font:600 11px 'Manrope',sans-serif; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin-top:8px; } .sx-dl dd{ margin:0; font-size:14px; color:var(--ink); word-break:break-word; }
+.sx-tag{ display:inline-block; padding:2px 0; margin-right:10px; font-size:13.5px; border-bottom:1px solid var(--line); }
+.sx-two{ display:grid; gap:4px; } .sx-actions .se-hint{ text-align:center; }
+@media (min-width:1100px){
+  .sx-wrap{ padding:0 28px 56px; }
+  .sx-split{ display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:56px; align-items:start; }
+  .sx-side{ position:sticky; top:16px; margin-top:0; }
+  .sx-pubsplit{ grid-template-columns:minmax(0,1fr) 340px; }
+  .sx-two{ grid-template-columns:1fr 1fr; gap:28px; }
+  .sx-info{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; }
+  .sx-info-r .sx-back{ display:none; } .sx-info-r .sx-ed-f .sx-btn{ width:auto; }
+  .sx-stage.mobile .sx-frame{ width:236px; height:440px; } .sx-stage.mobile iframe{ zoom:.58; height:741px; }
+  .sx-stage.desktop .sx-frame{ width:100%; margin:0 12px; } .sx-stage.desktop iframe{ zoom:.26; }
+  .sx-gallery{ flex-wrap:wrap; overflow:visible; } .sx-tpl{ flex-basis:172px; } .sx-thumb{ width:172px; height:304px; } .sx-thumb iframe{ zoom:.441; }
+}
 .se-prev{ position:fixed; inset:0; z-index:9000; background:#2a2623; display:flex; flex-direction:column; }
 .se-crop{ position:fixed; inset:0; z-index:9100; background:#2a2623; color:#fff; display:flex; flex-direction:column; touch-action:none; user-select:none; -webkit-user-select:none; }
 .se-crop-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px; } .se-crop-bar b{ font-size:15px; } .se-crop-bar .se-chip{ margin:0; background:#fff; } .se-crop-bar .se-chip.pri{ background:var(--rust,#B96752); color:#fff; }
@@ -17624,6 +17727,7 @@ function siteMarkDirty(){
   clearTimeout(siteS.saveTimer);
   siteS.saveTimer = setTimeout(siteSaveNow, 900);
   siteRefreshBadges();
+  if(typeof sxRefreshLive==='function') sxRefreshLive();
 }
 function siteSaveNow(){
   clearTimeout(siteS.saveTimer);
@@ -17659,15 +17763,6 @@ function seField(path, label, o){
 function seToggle(path, label){
   return `<label class="se-toggle"><input type="checkbox" data-sitec="${path}" ${siteGet(path)?'checked':''}><span class="se-sw" aria-hidden="true"></span><span>${label}</span></label>`;
 }
-function seSection(key, title, desc, bodyHtml){
-  const on = !!siteGet('sections.'+key+'.on');
-  return `
-  <div class="se-card${on?'':' off'}">
-    <div class="se-card-h"><div><div class="se-card-t">${title}</div><div class="se-card-d">${desc}</div></div></div>
-    ${seToggle('sections.'+key+'.on', ts('secOn'))}
-    ${on ? `<div class="se-card-b">${bodyHtml}</div>` : ''}
-  </div>`;
-}
 function sePhoto(path, label){
   const url = siteGet(path);
   const img = WeddySite.safeImg(url);
@@ -17680,30 +17775,6 @@ function sePhoto(path, label){
     ${siteS.uploading && siteS.uploadPath===path ? `<div class="se-hint">${ts('uploading')}</div>`:''}
   </div>`;
 }
-function seTabGeral(){
-  const src = siteSource(); const names = src.names.filter(Boolean).join(' & ');
-  const published = siteStatus()==='published' || (siteS.doc && siteS.doc.slug);
-  if(!published && siteS.draft && !SITE_SLUG_CODE_RE.test(siteS.draft.slug||'')){ const nm = String(siteS.draft.slug||'').slice(0, WeddySite.siteLimits.slugMax-5); siteS.draft.slug = siteBuildSlug(nm, ''); }
-  const slugParts = siteSlugParts(siteS.draft && siteS.draft.slug);
-  const slugBlock = published
-    ? `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug locked"><span>${ts('slugPrefix')}</span><b>${escapeHTML(siteSlugNow())}</b></div><div class="se-hint">${ts('slugLocked')}</div></div>`
-    : `<div class="se-f"><span class="se-l">${ts('fSlug')}</span><div class="se-slug"><span>${ts('slugPrefix')}</span><input class="se-in" type="text" id="site-slug" data-siteslug autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${WeddySite.siteLimits.slugMax-5}" value="${escapeHTML(slugParts.name)}"><b class="se-slugcode">${slugParts.code?'-'+escapeHTML(slugParts.code):''}</b></div><div class="se-hint">${ts('slugHelp')}</div><div class="se-hint" id="site-slugmsg" role="status">${seSlugMsg()}</div></div>`;
-  return `
-  <div class="se-card">
-    <div class="se-card-t">${ts('namesDate')}</div>
-    <div class="se-kvs"><div><span>${ts('namesLabel')}</span><b>${names?escapeHTML(names):`<i>${ts('missing')}</i>`}</b></div><div><span>${ts('dateLabel')}</span><b>${src.date?escapeHTML(WeddySite.formatDate(src.date, appLang)):`<i>${ts('missing')}</i>`}</b></div></div>
-    <div class="se-hint">${ts('namesDateHelp')}</div>
-  </div>
-  <div class="se-card">
-    ${seField('title', ts('fTitle'), { max: WeddySite.siteLimits.title, ph: ts('fTitlePh') })}
-    ${seField('welcome', ts('fWelcome'), { rows:4, max: WeddySite.siteLimits.welcome, ph: ts('fWelcomePh') })}
-    <label class="se-f"><span class="se-l">${ts('fLang')}</span><select class="se-in" data-sitesel="lang"><option value="pt" ${siteS.draft.lang==='pt'?'selected':''}>${ts('langPt')}</option><option value="en" ${siteS.draft.lang==='en'?'selected':''}>${ts('langEn')}</option></select></label>
-    <label class="se-f"><span class="se-l">${ts('fTz')}</span><select class="se-in" data-sitesel="timezone">${WeddySite.TIMEZONES.map(z=>`<option value="${z}" ${siteS.draft.timezone===z?'selected':''}>${z}</option>`).join('')}</select></label>
-    ${seToggle('countdown.on', ts('fCount'))}
-    ${siteS.draft.countdown.on ? seField('countdown.expiredMessage', ts('fExpired'), { max: WeddySite.siteLimits.expired, ph: ts('fExpiredPh') }) : ''}
-  </div>
-  <div class="se-card">${slugBlock}</div>`;
-}
 function seSlugMsg(){
   const r = siteS.slugRes; const sl = (siteS.draft && siteS.draft.slug)||'';
   if(!sl) return '';
@@ -17714,70 +17785,364 @@ function seSlugMsg(){
   if(r.available) return `<span class="se-good">${ts('slugOk')}</span>`;
   return `<span class="se-bad">${ts('slugTaken')}</span>` + (r.suggestions&&r.suggestions.length ? ` ${ts('slugSuggest')} ${r.suggestions.map(s=>`<button type="button" class="se-chip" data-siteslugpick="${escapeHTML(s)}">${escapeHTML(s)}</button>`).join(' ')}` : '');
 }
-function seTabDesign(){
-  const tpls = [['editorial','tplEditorial','tplEditorialD'],['classic','tplClassic','tplClassicD'],['modern','tplModern','tplModernD']];
+// ===== v302 — Site do casamento: novo design (só apresentação; dados e publicação iguais) =====
+const SX = {
+  pt:{
+    stDot:{published:'Publicado',draft:'Rascunho',unpublished:'Despublicado',suspended:'Indisponível'},
+    secCover:'Capa e apresentação', secCoverD:'Título, mensagem de boas-vindas e contagem decrescente',
+    secActive:'Secção visível no site', secOff:'Desativada', secOnLbl:'Ativa', secOffNote:'Esta secção está desativada e não aparece no site. Ativa-a para editar o conteúdo.',
+    dStory:'Como se conheceram e o vosso percurso', dLocation:'Morada, mapa e informações úteis', dSchedule:'Horários e momentos principais', dDress:'Sugestões de estilo para os convidados', dLodging:'Alojamento, transportes e pontos de encontro', dFaq:'As dúvidas mais comuns dos convidados', dContact:'Quem os convidados podem contactar',
+    secs:'Secções', done:'Concluído', backSecs:'Secções', editLbl:'Editar',
+    identity:'Identidade do site', link:'Link do site', linkDraft:'O link fica ativo quando publicares.',
+    preview:'Pré-visualização', livePrev:'Pré-visualização ao vivo', previewFull:'Ecrã inteiro',
+    progress:'Progresso de criação', of:'de',
+    pr1:'Nomes e data do casamento', pr2:'Fotografia de capa', pr3:'Conteúdo do site', pr4:'RSVP configurado', pr5:'Publicação',
+    siteTexts:'Língua e contagem', details:'Detalhes',
+    dtModelos:'Modelos', dtCores:'Cores', dtFotos:'Fotografias',
+    modelsLead:'Escolhe o estilo do site. Podes mudar de modelo quando quiseres: o teu conteúdo mantém-se.',
+    colorsLead:'A cor principal aplica-se a títulos, botões e pormenores.',
+    photosLead:'A fotografia de capa é a primeira coisa que os convidados veem.',
+    selected:'Selecionado', choose:'Escolher',
+    tplEditorialD2:'Elegante e arejado, com fotografia em destaque.', tplClassicD2:'Tradicional, com moldura e ar de convite.', tplModernD2:'Limpo e contemporâneo, com tipografia forte.',
+    coverFrame:'Enquadramento', coverNone:'Ainda não tens fotografia de capa.',
+    rsvpIntro:'Os convidados confirmam presença no convite individual, nunca no site público.',
+    rsvpHow1:'Cada convidado recebe o seu link individual.', rsvpHow2:'No site, o convidado abre ou cola o seu link individual; sem ele, é convidado a falar com os noivos.', rsvpHow3:'Não há pesquisa pública por nome: ninguém vê a lista de convidados.',
+    rsvpDeadline:'Prazo de confirmação', rsvpNoDeadline:'Sem prazo definido', rsvpManage:'Gerir convites e respostas', rsvpManageD:'Convites individuais, estado e respostas.',
+    rsvpMsg:'Mensagem acima do botão',
+    prep:'Estado de preparação', readyAll:'Está tudo pronto para publicar.',
+    summary:'Resumo público', sumLink:'Link', sumSecs:'Secções ativas',
+    privacy:'Privacidade', pubWhat:'Fica público', pubWhatT:'Nomes, data, local, programa (só momentos para convidados), as secções ativas e as fotografias que escolheres.',
+    privWhat:'Permanece privado', indexTitle:'Aparecer nos motores de pesquisa',
+    indexOnT:'O Google e outros motores podem listar o site. Qualquer pessoa pode encontrá-lo pelos nomes.',
+    indexOffT:'O site só é aberto por quem tiver o link. É a opção mais discreta (recomendada).',
+    actions:'Publicar', sectionsOn:'secções ativas'
+  },
+  en:{
+    stDot:{published:'Published',draft:'Draft',unpublished:'Unpublished',suspended:'Unavailable'},
+    secCover:'Cover and welcome', secCoverD:'Title, welcome message and countdown',
+    secActive:'Section visible on the site', secOff:'Off', secOnLbl:'On', secOffNote:'This section is off and does not appear on the site. Turn it on to edit its content.',
+    dStory:'How you met and your journey', dLocation:'Address, map and useful info', dSchedule:'Times and main moments', dDress:'Style suggestions for guests', dLodging:'Stay, transport and meeting points', dFaq:'The most common guest questions', dContact:'Who guests can contact',
+    secs:'Sections', done:'Done', backSecs:'Sections', editLbl:'Edit',
+    identity:'Site identity', link:'Site link', linkDraft:'The link goes live when you publish.',
+    preview:'Preview', livePrev:'Live preview', previewFull:'Full screen',
+    progress:'Creation progress', of:'of',
+    pr1:'Names and wedding date', pr2:'Cover photo', pr3:'Site content', pr4:'RSVP set up', pr5:'Publishing',
+    siteTexts:'Language and countdown', details:'Details',
+    dtModelos:'Templates', dtCores:'Colours', dtFotos:'Photos',
+    modelsLead:'Pick the style of your site. You can switch any time: your content stays.',
+    colorsLead:'The main colour is used for headings, buttons and small details.',
+    photosLead:'The cover photo is the first thing your guests see.',
+    selected:'Selected', choose:'Choose',
+    tplEditorialD2:'Elegant and airy, with a big photo.', tplClassicD2:'Traditional, framed like an invitation.', tplModernD2:'Clean and contemporary, with bold type.',
+    coverFrame:'Framing', coverNone:'No cover photo yet.',
+    rsvpIntro:'Guests confirm on their personal invitation, never on the public site.',
+    rsvpHow1:'Each guest gets their own personal link.', rsvpHow2:'On the site, guests open or paste their own link; without it, they are asked to contact the couple.', rsvpHow3:'There is no public search by name: nobody sees the guest list.',
+    rsvpDeadline:'Reply deadline', rsvpNoDeadline:'No deadline set', rsvpManage:'Manage invitations and replies', rsvpManageD:'Personal invitations, status and replies.',
+    rsvpMsg:'Message above the button',
+    prep:'Readiness', readyAll:'Everything is ready to publish.',
+    summary:'Public summary', sumLink:'Link', sumSecs:'Active sections',
+    privacy:'Privacy', pubWhat:'Becomes public', pubWhatT:'Names, date, venue, schedule (only guest moments), the active sections and the photos you choose.',
+    privWhat:'Stays private', indexTitle:'Appear in search engines',
+    indexOnT:'Google and other engines may list the site. Anyone can find it by your names.',
+    indexOffT:'Only people with the link can open the site. The most discreet option (recommended).',
+    actions:'Publish', sectionsOn:'active sections'
+  }
+};
+function sx(k){ const d = SX[appLang==='en'?'en':'pt']; return (k in d) ? d[k] : SX.pt[k]; }
+const SX_IC = {
+  cover:'<rect x="4" y="5" width="16" height="14" rx="1.5"/><circle cx="9" cy="10" r="1.4"/><path d="m4 16 5-4 4 3 3-2 4 3"/>',
+  story:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  location:'<path d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
+  schedule:'<circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/>',
+  dresscode:'<path d="M9 4 4 7l2 3 2-1v11h8V9l2 1 2-3-5-3a3 3 0 0 1-6 0z"/>',
+  lodging:'<path d="M4 19V6M4 15h16v4M20 15v-2a3 3 0 0 0-3-3h-6v5"/><circle cx="7.5" cy="11.5" r="1.3"/>',
+  faq:'<circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.6a2.4 2.4 0 1 1 3.4 2.2c-.7.4-1.1.9-1.1 1.7M12 16.6v.1"/>',
+  contact:'<rect x="4" y="6" width="16" height="12" rx="1.5"/><path d="m4.5 7 7.5 6 7.5-6"/>',
+  copy:'<rect x="8" y="8" width="11" height="11" rx="1.5"/><path d="M5 15V6a1 1 0 0 1 1-1h9"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>', ext:'<path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/>',
+  phone:'<rect x="8" y="3.5" width="8" height="17" rx="2"/><path d="M11 18h2"/>', desk:'<rect x="3.5" y="5" width="17" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>',
+  users:'<circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5a5 5 0 0 1 3 4.5"/>'
+};
+function sxIc(k, cls){ return `<svg class="sx-ic ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SX_IC[k]||''}</svg>`; }
+const SX_SECS = ['cover','story','location','schedule','dresscode','lodging','faq','contact'];
+function sxSecName(k){ return k==='cover' ? sx('secCover') : ts({story:'secStory',location:'secLocation',schedule:'secSchedule',dresscode:'secDress',lodging:'secLodging',faq:'secFaq',contact:'secContact'}[k]); }
+function sxSecDesc(k){ return k==='cover' ? sx('secCoverD') : sx({story:'dStory',location:'dLocation',schedule:'dSchedule',dresscode:'dDress',lodging:'dLodging',faq:'dFaq',contact:'dContact'}[k]); }
+function sxSecPhoto(k){ const p = k==='cover' ? siteS.draft.coverUrl : k==='story' ? siteS.draft.sections.story.photoUrl : k==='dresscode' ? siteS.draft.sections.dresscode.imageUrl : ''; return WeddySite.safeImg(p) || ''; }
+function sxWide(){ try{ return window.matchMedia('(min-width:1100px)').matches; }catch(e){ return false; } }
+
+// ---------- pré-visualização real (iframe com o mesmo renderizador do site público) ----------
+function sxDoc(over){
+  const snap = Object.assign({}, siteSnapshotNow().snapshot, over||{});
+  return WeddySite.buildDocument(snap, { preview:true });
+}
+function sxLivePreview(){
+  const dev = siteS.previewDev==='desktop' ? 'desktop' : 'mobile';
   return `
-  <div class="se-card">
-    <div class="se-card-t">${ts('dTemplate')}</div>
-    <div class="se-tpls" role="radiogroup" aria-label="${ts('dTemplate')}">
-      ${tpls.map(([k,t,d])=>`<button type="button" role="radio" aria-checked="${siteS.draft.template===k}" class="se-tpl${siteS.draft.template===k?' on':''}" data-sitetpl="${k}"><b>${ts(t)}</b><span>${ts(d)}</span></button>`).join('')}
+  <div class="sx-prevbox">
+    <div class="sx-prevhead"><span class="sx-eyebrow">${sx('livePrev')}</span>
+      <span class="sx-dev" role="group">
+        <button type="button" data-siteinldev="mobile" class="${dev==='mobile'?'on':''}" aria-label="${ts('previewMobile')}">${sxIc('phone')}</button>
+        <button type="button" data-siteinldev="desktop" class="${dev==='desktop'?'on':''}" aria-label="${ts('previewDesktop')}">${sxIc('desk')}</button>
+      </span></div>
+    <div class="sx-stage ${dev}"><div class="sx-frame"><iframe data-sxlive title="${ts('preview')}" sandbox="allow-scripts" srcdoc="${escapeHTML(sxDoc())}"></iframe></div></div>
+    <button type="button" class="sx-link" data-sitepreview>${sxIc('eye')} ${sx('previewFull')}</button>
+  </div>`;
+}
+function sxRefreshLive(){
+  clearTimeout(siteS.liveT);
+  siteS.liveT = setTimeout(()=>{
+    const fr = document.querySelectorAll('iframe[data-sxlive]'); if(!fr.length || !siteS.draft) return;
+    let d; try{ d = sxDoc(); }catch(e){ return; }
+    fr.forEach(f=>{ f.srcdoc = d; });
+  }, 450);
+}
+
+// ---------- barra de estado e separadores ----------
+function sxBar(){
+  const st = siteStatus(); const pending = siteHasPending();
+  return `
+  <div class="sx-bar st-${st}">
+    <span class="sx-st"><span class="se-dot"></span><b>${sx('stDot')[st]||sx('stDot').draft}</b>
+      <span id="site-pendingbadge" class="se-badge ${pending?'warn':'ok'}" style="${st==='published'?'':'display:none'}">${pending?ts('pending'):ts('upToDate')}</span></span>
+    <span class="sx-bar-r"><span id="site-savestate" class="se-save ${siteS.saveState}" role="status" aria-live="polite"></span>
+      <button type="button" class="sx-link" data-sitepreview>${sxIc('eye')} ${ts('preview')}</button></span>
+  </div>`;
+}
+function sxTabs(){
+  const tabs = [['geral','tabGeral'],['design','tabDesign'],['info','tabInfo'],['rsvp','tabRsvp'],['pub','tabPub']];
+  return `<div class="sx-tabs" role="tablist">${tabs.map(([k,t])=>`<button type="button" role="tab" aria-selected="${siteS.tab===k}" class="sx-tab${siteS.tab===k?' on':''}" data-sitetab="${k}">${ts(t)}</button>`).join('')}</div>`;
+}
+
+// ---------- GERAL ----------
+function sxProgress(){
+  const src = siteSource(); const d = siteS.draft; const s = d.sections;
+  const hasNames = src.names.filter(Boolean).length===2 && !!src.date;
+  const hasCover = !!WeddySite.safeImg(d.coverUrl);
+  const hasContent = !!(s.location.on || s.story.on || s.schedule.on || s.dresscode.on || s.lodging.on || s.faq.on || s.contact.on);
+  const hasRsvp = !!(s.rsvp.on);
+  const isPub = siteStatus()==='published';
+  const items = [[hasNames,'pr1','geral'],[hasCover,'pr2','design'],[hasContent,'pr3','info'],[hasRsvp,'pr4','rsvp'],[isPub,'pr5','pub']];
+  const n = items.filter(i=>i[0]).length;
+  return `
+  <div class="sx-sec">
+    <div class="sx-sec-h"><h3>${sx('progress')}</h3><span class="sx-count">${n} ${sx('of')} ${items.length}</span></div>
+    <div class="sx-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="${items.length}" aria-valuenow="${n}"><i style="width:${Math.round(n/items.length*100)}%"></i></div>
+    <ul class="sx-list">${items.map(([ok,t,tab])=>`<li><button type="button" class="sx-li" data-sitetab="${tab}"><span class="sx-chk${ok?' on':''}">${ok?sxIc('check'):''}</span><span class="sx-li-t">${sx(t)}</span>${ICONS.chev}</button></li>`).join('')}</ul>
+  </div>`;
+}
+function seTabGeral(){
+  const src = siteSource(); const names = src.names.filter(Boolean).join(' & ');
+  const st = siteStatus();
+  const published = st==='published' || (siteS.doc && siteS.doc.slug);
+  if(!published && siteS.draft && !SITE_SLUG_CODE_RE.test(siteS.draft.slug||'')){ const nm = String(siteS.draft.slug||'').slice(0, WeddySite.siteLimits.slugMax-5); siteS.draft.slug = siteBuildSlug(nm, ''); }
+  const slugParts = siteSlugParts(siteS.draft && siteS.draft.slug);
+  const help = st==='suspended'?ts('stSuspHelp'):st==='unpublished'?ts('stUnpubHelp'):st==='draft'?ts('stDraftHelp'):ts('stPubHelp');
+  const slugBlock = published
+    ? `<div class="sx-linkrow"><span class="sx-url">${escapeHTML(siteUrl().replace('https://',''))}</span>${st==='published'?`<button type="button" class="sx-iconbtn" data-sitecopy aria-label="${ts('copy')}" title="${ts('copy')}">${sxIc('copy')}</button><a class="sx-iconbtn" href="${escapeHTML(siteUrl())}" target="_blank" rel="noopener" aria-label="${ts('open')}" title="${ts('open')}">${sxIc('ext')}</a>`:''}</div><div class="se-hint">${ts('slugLocked')}</div>`
+    : `<div class="se-slug"><span>${ts('slugPrefix')}</span><input class="se-in" type="text" id="site-slug" data-siteslug autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${WeddySite.siteLimits.slugMax-5}" value="${escapeHTML(slugParts.name)}"><b class="se-slugcode">-${escapeHTML(slugParts.code)}</b></div><div class="se-hint" id="site-slugmsg" role="status">${seSlugMsg()}</div><div class="se-hint">${sx('linkDraft')}</div>`;
+  return `
+  <div class="sx-split">
+    <div class="sx-main">
+      <div class="sx-sec">
+        <div class="sx-state"><span class="se-dot"></span><b>${sx('stDot')[st]||sx('stDot').draft}</b></div>
+        <p class="sx-p">${help}</p>
+        ${st==='suspended' ? `<button type="button" class="sx-btn primary" data-sitereactivate ${siteS.busy?'disabled':''}>${siteS.busy==='reactivate'?ts('reactivating'):ts('reactivate')}</button>` : ''}
+      </div>
+      <div class="sx-sec">
+        <div class="sx-sec-h"><h3>${sx('identity')}</h3></div>
+        <div class="sx-names">${names?escapeHTML(names):`<i>${ts('missing')}</i>`}</div>
+        <div class="sx-date">${src.date?escapeHTML(WeddySite.formatDate(src.date, appLang)):`<i>${ts('missing')}</i>`}</div>
+        <div class="se-hint">${ts('namesDateHelp')}</div>
+        <div class="sx-lbl">${sx('link')}</div>${slugBlock}
+      </div>
+      ${sxProgress()}
+      <div class="sx-sec">
+        <div class="sx-sec-h"><h3>${sx('siteTexts')}</h3></div>
+        <label class="se-f"><span class="se-l">${ts('fLang')}</span><select class="se-in" data-sitesel="lang"><option value="pt" ${siteS.draft.lang==='pt'?'selected':''}>${ts('langPt')}</option><option value="en" ${siteS.draft.lang==='en'?'selected':''}>${ts('langEn')}</option></select></label>
+        <label class="se-f"><span class="se-l">${ts('fTz')}</span><select class="se-in" data-sitesel="timezone">${WeddySite.TIMEZONES.map(z=>`<option value="${z}" ${siteS.draft.timezone===z?'selected':''}>${z}</option>`).join('')}</select></label>
+        ${seToggle('countdown.on', ts('fCount'))}
+        ${siteS.draft.countdown.on ? seField('countdown.expiredMessage', ts('fExpired'), { max: WeddySite.siteLimits.expired, ph: ts('fExpiredPh') }) : ''}
+      </div>
     </div>
-  </div>
-  <div class="se-card">
-    <div class="se-card-t">${ts('dPalette')}</div>
-    <div class="se-pals" role="radiogroup" aria-label="${ts('dPalette')}">
-      ${Object.keys(WeddySite.PALETTES).map(k=>{ const p = WeddySite.PALETTES[k]; return `<button type="button" role="radio" aria-checked="${siteS.draft.palette===k}" class="se-pal${siteS.draft.palette===k?' on':''}" data-sitepal="${k}"><i style="background:${p.accent}"></i><span>${p.name[appLang==='en'?'en':'pt']}</span></button>`; }).join('')}
+    <aside class="sx-side">${sxLivePreview()}</aside>
+  </div>`;
+}
+
+// ---------- DESIGN ----------
+function sxTplThumb(k){
+  let doc=''; try{ doc = sxDoc({ template:k }); }catch(e){}
+  return `<div class="sx-thumb"><iframe tabindex="-1" aria-hidden="true" title="" sandbox="allow-scripts" srcdoc="${escapeHTML(doc)}"></iframe></div>`;
+}
+function seTabDesign(){
+  const dt = siteS.dtab || 'modelos';
+  const subs = [['modelos','dtModelos'],['cores','dtCores'],['fotos','dtFotos']];
+  let body = '';
+  if(dt==='modelos'){
+    const tpls = [['editorial','tplEditorial','tplEditorialD2'],['classic','tplClassic','tplClassicD2'],['modern','tplModern','tplModernD2']];
+    body = `<p class="sx-p">${sx('modelsLead')}</p>
+    <div class="sx-gallery" role="radiogroup" aria-label="${ts('dTemplate')}">
+      ${tpls.map(([k,t,d])=>{ const on = siteS.draft.template===k; return `
+      <button type="button" role="radio" aria-checked="${on}" class="sx-tpl${on?' on':''}" data-sitetpl="${k}">
+        ${sxTplThumb(k)}${on?`<span class="sx-tick">${sxIc('check')}</span>`:''}
+        <span class="sx-tpl-t"><b>${ts(t)}</b><i>${sx(d)}</i></span>
+      </button>`; }).join('')}
+    </div>`;
+  } else if(dt==='cores'){
+    body = `<p class="sx-p">${sx('colorsLead')}</p>
+    <div class="sx-pals" role="radiogroup" aria-label="${ts('dPalette')}">
+      ${Object.keys(WeddySite.PALETTES).map(k=>{ const p = WeddySite.PALETTES[k]; const on = siteS.draft.palette===k; return `
+      <button type="button" role="radio" aria-checked="${on}" class="sx-pal${on?' on':''}" data-sitepal="${k}">
+        <span class="sx-sw3"><i style="background:${p.soft}"></i><i style="background:${p.accent}"></i><i style="background:${p.dark}"></i></span>
+        <span class="sx-pal-n">${p.name[appLang==='en'?'en':'pt']}</span>${on?`<span class="sx-pal-c">${sxIc('check')}</span>`:''}
+      </button>`; }).join('')}
+    </div>`;
+  } else {
+    body = `<p class="sx-p">${sx('photosLead')}</p>${sePhoto('coverUrl', ts('dCover'))}<div class="se-hint">${ts('coverHelp')}</div>
+    ${WeddySite.safeImg(siteS.draft.coverUrl) ? `<div class="sx-lbl">${sx('coverFrame')}</div>
+    <label class="se-f"><span class="se-l">${ts('focusX')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverX" value="${+siteS.draft.coverX>=0?+siteS.draft.coverX:50}" style="width:100%"></label>
+    <label class="se-f"><span class="se-l">${ts('focusY')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverY" value="${+siteS.draft.coverY>=0?+siteS.draft.coverY:50}" style="width:100%"></label><div class="se-hint">${ts('focusHelp')}</div>` : ''}`;
+  }
+  return `
+  <div class="sx-split">
+    <div class="sx-main">
+      <div class="sx-subtabs" role="tablist">${subs.map(([k,t])=>`<button type="button" role="tab" aria-selected="${dt===k}" class="${dt===k?'on':''}" data-sitedtab="${k}">${sx(t)}</button>`).join('')}</div>
+      ${body}
     </div>
-  </div>
-  <div class="se-card">${sePhoto('coverUrl', ts('dCover'))}<div class="se-hint">${ts('coverHelp')}</div>
-    ${WeddySite.safeImg(siteS.draft.coverUrl) ? `<label class="se-f"><span class="se-l">${ts('focusX')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverX" value="${+siteS.draft.coverX>=0?+siteS.draft.coverX:50}" style="width:100%"></label>
-    <label class="se-f"><span class="se-l">${ts('focusY')}</span><input type="range" min="0" max="100" step="1" data-sitefocus="coverY" value="${+siteS.draft.coverY>=0?+siteS.draft.coverY:50}" style="width:100%"></label><div class="se-hint">${ts('focusHelp')}</div>` : ''}</div>`;
+    <aside class="sx-side">${sxLivePreview()}</aside>
+  </div>`;
+}
+
+// ---------- INFORMAÇÃO ----------
+function sxSecBody(k){
+  const L = WeddySite.siteLimits;
+  if(k==='cover') return seField('title', ts('fTitle'), { max: L.title, ph: ts('fTitlePh') }) + seField('welcome', ts('fWelcome'), { rows:4, max: L.welcome, ph: ts('fWelcomePh') });
+  if(k==='story') return seField('sections.story.title', ts('fStoryTitle'), { max:L.storyTitle }) + seField('sections.story.text', ts('fStoryText'), { rows:6, max:L.story }) + sePhoto('sections.story.photoUrl', ts('fPhoto'));
+  if(k==='location') return seField('sections.location.name', ts('fVenue'), { max:L.venue }) + seField('sections.location.address', ts('fAddress'), { rows:2, max:L.address }) +
+    seField('sections.location.mapUrl', ts('fMapUrl'), { max:500, ph:ts('fMapPh'), inputmode:'url' }) + seField('sections.location.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.location.notes', ts('fNotes'), { rows:2, max:L.notes });
+  if(k==='schedule') return `<div class="se-hint" style="margin-top:0">${ts('schedCount')(siteSource().schedule.length)}</div>` + seField('sections.schedule.note', ts('schedNote'), { max:L.scheduleNote }) +
+    `<button type="button" class="sx-btn" data-sitegoto="inicio">${ts('schedManage')}</button>`;
+  if(k==='dresscode') return seField('sections.dresscode.title', ts('fStoryTitle'), { max:L.dressTitle }) + seField('sections.dresscode.text', ts('fDress'), { rows:4, max:L.dress }) + sePhoto('sections.dresscode.imageUrl', ts('fPhoto'));
+  if(k==='lodging'){
+    const links = (siteS.draft.sections.lodging.links||[]).map((l,i)=>`
+      <div class="se-sub"><div class="se-row2">
+        ${seField('sections.lodging.links.'+i+'.label', ts('linkLabel'), { max:L.linkLabel })}
+        ${seField('sections.lodging.links.'+i+'.url', 'URL', { max:300, ph:ts('linkUrl'), inputmode:'url' })}
+      </div><button type="button" class="se-del" data-sitedel="link:${i}">${ts('remove')}</button></div>`).join('');
+    return seField('sections.lodging.lodging', ts('fLodging'), { rows:3, max:L.lodging }) + seField('sections.lodging.transport', ts('fTransport'), { rows:3, max:L.transport }) +
+      seField('sections.lodging.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.lodging.meeting', ts('fMeeting'), { rows:2, max:L.meeting }) +
+      `<div class="se-l" style="margin-top:10px">${ts('fLinks')}</div>${links}` +
+      ((siteS.draft.sections.lodging.links||[]).length<L.linksMax ? `<button type="button" class="sx-btn" data-siteadd="link">${ICONS.plus} ${ts('addLink')}</button>` : '');
+  }
+  if(k==='faq'){
+    const faqs = (siteS.draft.sections.faq.items||[]).map((f,i)=>`
+      <div class="se-sub">
+        ${seField('sections.faq.items.'+i+'.q', ts('fQ'), { max:L.faqQ })}
+        ${seField('sections.faq.items.'+i+'.a', ts('fA'), { rows:3, max:L.faqA })}
+        <button type="button" class="se-del" data-sitedel="faq:${i}">${ts('remove')}</button></div>`).join('');
+    return faqs + ((siteS.draft.sections.faq.items||[]).length<L.faqMax ? `<button type="button" class="sx-btn" data-siteadd="faq">${ICONS.plus} ${ts('addFaq')}</button>` : `<div class="se-hint">${ts('faqMax')}</div>`);
+  }
+  if(k==='contact') return `<div class="se-hint" style="margin-top:0">${ts('contactWarn')}</div>` + seField('sections.contact.name', ts('fContactName'), { max:L.contactName }) +
+    seField('sections.contact.phone', ts('fContactPhone'), { max:24, type:'tel', inputmode:'tel' }) + seField('sections.contact.email', ts('fContactEmail'), { max:120, type:'email', inputmode:'email' }) + seField('sections.contact.note', ts('fContactNote'), { max:L.contactNote });
+  return '';
+}
+function sxSecList(active){
+  return `<ul class="sx-secs">${SX_SECS.map(k=>{
+    const on = k==='cover' ? true : !!siteGet('sections.'+k+'.on');
+    const ph = sxSecPhoto(k);
+    return `<li class="sx-srow${on?'':' off'}${active===k?' cur':''}">
+      <button type="button" class="sx-srow-main" data-siteopen="${k}" aria-label="${sx('editLbl')}: ${escapeHTML(sxSecName(k))}">
+        ${sxIc(k)}
+        <span class="sx-srow-t"><b>${escapeHTML(sxSecName(k))}</b><i>${escapeHTML(sxSecDesc(k))}</i></span>
+        ${ph?`<span class="sx-sthumb"><img src="${escapeHTML(ph)}" alt=""></span>`:''}
+        <span class="sx-sstate">${k==='cover'?'':(on?sx('secOnLbl'):sx('secOff'))}</span>
+        ${ICONS.chev}
+      </button>
+      ${k==='cover'?'':`<label class="sx-switch"><input type="checkbox" data-sitec="sections.${k}.on" ${on?'checked':''} aria-label="${escapeHTML(sxSecName(k))}"><span class="se-sw" aria-hidden="true"></span></label>`}
+    </li>`; }).join('')}</ul>`;
+}
+function sxEditor(k){
+  const on = k==='cover' ? true : !!siteGet('sections.'+k+'.on');
+  return `
+  <div class="sx-editor">
+    <button type="button" class="sx-back" data-siteseclose><span class="sx-chevl">${ICONS.chevleft}</span> ${sx('backSecs')}</button>
+    <div class="sx-ed-h">${sxIc(k)}<h2>${escapeHTML(sxSecName(k))}</h2></div>
+    <p class="sx-p">${escapeHTML(sxSecDesc(k))}</p>
+    ${k==='cover'?'':seToggle('sections.'+k+'.on', sx('secActive'))}
+    ${on ? `<div class="sx-ed-b">${sxSecBody(k)}</div>` : `<div class="sx-note">${sx('secOffNote')}</div>`}
+    <div class="sx-ed-f"><button type="button" class="sx-btn primary" data-siteseclose>${sx('done')}</button></div>
+  </div>`;
 }
 function seTabInfo(){
-  const L = WeddySite.siteLimits;
-  const links = (siteS.draft.sections.lodging.links||[]).map((l,i)=>`
-    <div class="se-sub"><div class="se-row2">
-      ${seField('sections.lodging.links.'+i+'.label', ts('linkLabel'), { max:L.linkLabel })}
-      ${seField('sections.lodging.links.'+i+'.url', 'URL', { max:300, ph:ts('linkUrl'), inputmode:'url' })}
-    </div><button type="button" class="se-del" data-sitedel="link:${i}">${ts('remove')}</button></div>`).join('');
-  const faqs = (siteS.draft.sections.faq.items||[]).map((f,i)=>`
-    <div class="se-sub">
-      ${seField('sections.faq.items.'+i+'.q', ts('fQ'), { max:L.faqQ })}
-      ${seField('sections.faq.items.'+i+'.a', ts('fA'), { rows:3, max:L.faqA })}
-      <button type="button" class="se-del" data-sitedel="faq:${i}">${ts('remove')}</button></div>`).join('');
-  const nSched = siteSource().schedule.length;
-  return `
-  ${seSection('story', ts('secStory'), ts('secStoryD'),
-    seField('sections.story.title', ts('fStoryTitle'), { max:L.storyTitle }) + seField('sections.story.text', ts('fStoryText'), { rows:6, max:L.story }) + sePhoto('sections.story.photoUrl', ts('fPhoto')))}
-  ${seSection('location', ts('secLocation'), ts('secLocationD'),
-    seField('sections.location.name', ts('fVenue'), { max:L.venue }) + seField('sections.location.address', ts('fAddress'), { rows:2, max:L.address }) +
-    seField('sections.location.mapUrl', ts('fMapUrl'), { max:500, ph:ts('fMapPh'), inputmode:'url' }) + seField('sections.location.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.location.notes', ts('fNotes'), { rows:2, max:L.notes }))}
-  ${seSection('schedule', ts('secSchedule'), ts('secScheduleD'),
-    `<div class="se-hint" style="margin-top:0">${ts('schedCount')(nSched)}</div>` + seField('sections.schedule.note', ts('schedNote'), { max:L.scheduleNote }) +
-    `<button type="button" class="rsvp-copy-btn se-btn" data-sitegoto="inicio">${ts('schedManage')}</button>`)}
-  ${seSection('dresscode', ts('secDress'), ts('secDressD'),
-    seField('sections.dresscode.title', ts('fStoryTitle'), { max:L.dressTitle }) + seField('sections.dresscode.text', ts('fDress'), { rows:4, max:L.dress }) + sePhoto('sections.dresscode.imageUrl', ts('fPhoto')))}
-  ${seSection('lodging', ts('secLodging'), ts('secLodgingD'),
-    seField('sections.lodging.lodging', ts('fLodging'), { rows:3, max:L.lodging }) + seField('sections.lodging.transport', ts('fTransport'), { rows:3, max:L.transport }) +
-    seField('sections.lodging.parking', ts('fParking'), { rows:2, max:L.parking }) + seField('sections.lodging.meeting', ts('fMeeting'), { rows:2, max:L.meeting }) +
-    `<div class="se-l" style="margin-top:6px">${ts('fLinks')}</div>${links}` +
-    ((siteS.draft.sections.lodging.links||[]).length<L.linksMax ? `<button type="button" class="rsvp-copy-btn se-btn" data-siteadd="link">${ICONS.plus} ${ts('addLink')}</button>` : ''))}
-  ${seSection('faq', ts('secFaq'), ts('secFaqD'),
-    faqs + ((siteS.draft.sections.faq.items||[]).length<L.faqMax ? `<button type="button" class="rsvp-copy-btn se-btn" data-siteadd="faq">${ICONS.plus} ${ts('addFaq')}</button>` : `<div class="se-hint">${ts('faqMax')}</div>`))}
-  ${seSection('contact', ts('secContact'), ts('secContactD'),
-    `<div class="se-hint" style="margin-top:0">${ts('contactWarn')}</div>` + seField('sections.contact.name', ts('fContactName'), { max:L.contactName }) +
-    seField('sections.contact.phone', ts('fContactPhone'), { max:24, type:'tel', inputmode:'tel' }) + seField('sections.contact.email', ts('fContactEmail'), { max:120, type:'email', inputmode:'email' }) + seField('sections.contact.note', ts('fContactNote'), { max:L.contactNote }))}`;
+  const wide = sxWide();
+  let cur = siteS.sec || null;
+  if(wide && !cur) cur = 'cover';
+  if(wide) return `<div class="sx-info"><div class="sx-info-l">${sxSecList(cur)}</div><div class="sx-info-r">${sxEditor(cur)}</div></div>`;
+  return cur ? sxEditor(cur) : sxSecList(null);
 }
+
+// ---------- RSVP (mesma lógica; só a apresentação) ----------
 function seTabRsvp(){
   const on = !!siteS.draft.sections.rsvp.on;
+  const dl = weddingSettings && weddingSettings.rsvpDeadline;
+  const dlTxt = dl ? WeddySite.formatDate(dl, appLang) : sx('rsvpNoDeadline');
   return `
-  <div class="se-card">
+  <div class="sx-sec">
+    <p class="sx-p">${sx('rsvpIntro')}</p>
     ${seToggle('sections.rsvp.on', ts('rsvpOn'))}
-    ${on ? seField('sections.rsvp.text', ts('rsvpText'), { rows:3, max:WeddySite.siteLimits.rsvpText }) : ''}
+    ${on ? `<div class="sx-ed-b">${seField('sections.rsvp.text', sx('rsvpMsg'), { rows:3, max:WeddySite.siteLimits.rsvpText })}</div>` : ''}
   </div>
-  <div class="se-card"><div class="se-card-t">${ts('rsvpHow')}</div><div class="se-card-d" style="margin-top:6px">${ts('rsvpHowText')}</div>
-    <button type="button" class="rsvp-copy-btn se-btn" style="margin-top:12px" data-sitegoto="rsvp">${ts('rsvpOpen')}</button></div>`;
+  <div class="sx-sec">
+    <div class="sx-sec-h"><h3>${ts('rsvpHow')}</h3></div>
+    <ol class="sx-steps"><li>${sx('rsvpHow1')}</li><li>${sx('rsvpHow2')}</li><li>${sx('rsvpHow3')}</li></ol>
+  </div>
+  <div class="sx-sec">
+    <button type="button" class="sx-li sx-li-big" data-sitegoto="rsvp"><span class="sx-li-ic">${sxIc('users')}</span><span class="sx-li-t"><b>${sx('rsvpDeadline')}</b><i>${escapeHTML(dlTxt)}</i></span>${ICONS.chev}</button>
+    <button type="button" class="sx-li sx-li-big" data-sitegoto="rsvp"><span class="sx-li-ic">${sxIc('contact')}</span><span class="sx-li-t"><b>${sx('rsvpManage')}</b><i>${sx('rsvpManageD')}</i></span>${ICONS.chev}</button>
+  </div>`;
 }
+
+// ---------- PUBLICAÇÃO ----------
+function seTabPub(){
+  const v = siteValidation(); const sum = siteSummary(v.snapshot);
+  const st = siteStatus(); const busy = siteS.busy;
+  const list = v.errors.length
+    ? `<ul class="se-errs">${v.errors.map(c=>`<li><span>${ts('v_'+c)}</span><button type="button" class="se-chip" data-sitetab="${siteErrTab(c)}">${ts('fix')}</button></li>`).join('')}</ul>`
+    : `<div class="se-ok">${sxIc('check')} ${sx('readyAll')}</div>`;
+  const pubLabel = busy==='publish' ? ts('publishing') : (st==='published' ? ts('republish') : ts('publish'));
+  const cover = WeddySite.safeImg(siteS.draft.coverUrl);
+  const idx = !!siteS.draft.indexable;
+  return `
+  <div class="sx-split sx-pubsplit">
+   <div class="sx-main">
+    <div class="sx-sec"><div class="sx-sec-h"><h3>${sx('prep')}</h3></div>${list}</div>
+    <div class="sx-sec">
+      <div class="sx-sec-h"><h3>${sx('summary')}</h3></div>
+      <div class="sx-sum">
+        ${cover?`<span class="sx-sum-ph"><img src="${escapeHTML(cover)}" alt=""></span>`:''}
+        <div><div class="sx-names sm">${escapeHTML(sum.names||'—')}</div><div class="sx-date">${escapeHTML(sum.date||'—')}</div></div>
+      </div>
+      <dl class="sx-dl"><dt>${sx('sumLink')}</dt><dd>${escapeHTML(siteUrl().replace('https://',''))}</dd>
+        <dt>${sx('sumSecs')}</dt><dd>${sum.secsList.length?sum.secsList.map(n=>`<span class="sx-tag">${escapeHTML(n)}</span>`).join(' '):'—'}</dd></dl>
+    </div>
+    <div class="sx-sec">
+      <div class="sx-sec-h"><h3>${sx('privacy')}</h3></div>
+      <div class="sx-two"><div><div class="sx-lbl">${sx('pubWhat')}</div><p class="sx-p sm">${sx('pubWhatT')}</p></div>
+      <div><div class="sx-lbl">${sx('privWhat')}</div><p class="sx-p sm">${ts('notPublicText')}</p></div></div>
+      ${seToggle('indexable', sx('indexTitle'))}
+      <div class="se-hint"><b>${idx?ts('indexYes'):ts('indexNo')}:</b> ${idx?sx('indexOnT'):sx('indexOffT')}</div>
+    </div>
+    <div class="sx-sec sx-actions">
+      <button type="button" class="sx-btn primary big se-pub" data-sitepublish ${busy||v.errors.length?'disabled':''}>${pubLabel}</button>
+      ${st==='published' ? `<button type="button" class="sx-btn" data-siteunpublish ${busy?'disabled':''}>${busy==='unpublish'?ts('unpublishing'):ts('unpublish')}</button>` : ''}
+      <div class="se-hint">${ts('pubExplain')}</div>
+      <div class="se-hint" id="site-pubmsg" role="status">${escapeHTML(siteS.msg||'')}</div>
+    </div>
+   </div>
+   <aside class="sx-side">${sxLivePreview()}</aside>
+  </div>`;
+}
+
 function siteValidation(){
   const r = siteSnapshotNow(); const errs = r.errors.slice();
   const p = WeddySite.siteSlugProblem(siteSlugNow());
@@ -17798,55 +18163,6 @@ function siteSummary(snap){
     secs: active.length ? active.join(', ') : '—', secsList: active
   };
 }
-function seTabPub(){
-  const v = siteValidation(); const sum = siteSummary(v.snapshot);
-  const st = siteStatus(); const shown = siteS.valErrors || v.errors;
-  const busy = siteS.busy;
-  const list = v.errors.length
-    ? `<ul class="se-errs">${v.errors.map(c=>`<li><span>${ts('v_'+c)}</span><button type="button" class="se-chip" data-sitetab="${siteErrTab(c)}">${ts('fix')}</button></li>`).join('')}</ul>`
-    : `<div class="se-ok">${ICONS.check} ${ts('allGood')}</div>`;
-  const pubLabel = busy==='publish' ? ts('publishing') : (st==='published' ? ts('republish') : ts('publish'));
-  return `
-  <div class="se-card"><div class="se-card-t">${ts('checklist')}</div>${list}</div>
-  <div class="se-card">
-    <div class="se-card-t">${ts('willBePublic')}</div>
-    <div class="se-kvs">
-      <div><span>${ts('wbpNames')}</span><b>${escapeHTML(sum.names||'—')} · ${escapeHTML(sum.date||'—')}</b></div>
-      <div><span>${ts('wbpSections')}</span><b>${escapeHTML(sum.secs)}</b></div>
-      <div><span>${ts('wbpCover')}</span><b>${v.snapshot.coverUrl?ts('yes'):ts('no')}</b></div>
-      <div><span>${ts('wbpIndex')}</span><b>${siteS.draft.indexable?ts('indexYes'):ts('indexNo')}</b></div>
-    </div>
-    <div class="se-card-t" style="margin-top:14px">${ts('notPublic')}</div><div class="se-card-d">${ts('notPublicText')}</div>
-  </div>
-  <div class="se-card">
-    ${seToggle('indexable', ts('fIndex'))}<div class="se-hint">${ts('fIndexHelp')}</div>
-  </div>
-  <div class="se-card">
-    <button type="button" class="login-btn se-pub" data-sitepublish ${busy||v.errors.length?'disabled':''}>${pubLabel}</button>
-    ${st==='published' ? `<button type="button" class="rsvp-copy-btn se-btn se-unpub" data-siteunpublish ${busy?'disabled':''}>${busy==='unpublish'?ts('unpublishing'):ts('unpublish')}</button>` : ''}
-    <div class="se-hint">${ts('pubExplain')}</div>
-    <div class="se-hint" id="site-pubmsg" role="status">${escapeHTML(siteS.msg||'')}</div>
-  </div>`;
-}
-function siteStatusCard(){
-  const st = siteStatus();
-  const label = st==='published'?ts('stPublished'):st==='suspended'?ts('stSuspended'):st==='unpublished'?ts('stUnpublished'):ts('stDraft');
-  const help = st==='suspended'?ts('stSuspHelp'):st==='unpublished'?ts('stUnpubHelp'):st==='draft'?ts('stDraftHelp'):'';
-  const pending = siteHasPending();
-  return `
-  <div class="se-status ${st}">
-    <div class="se-status-top"><span class="se-dot"></span><b>${label}</b>
-      <span id="site-pendingbadge" class="se-badge ${pending?'warn':'ok'}" style="${st==='published'?'':'display:none'}">${pending?ts('pending'):ts('upToDate')}</span></div>
-    ${help?`<div class="se-hint" style="margin:2px 0 0">${help}</div>`:''}
-    ${st==='published' ? `<div class="se-url"><a href="${escapeHTML(siteUrl())}" target="_blank" rel="noopener">${escapeHTML(siteUrl().replace('https://',''))}</a></div>` : ''}
-    ${st==='suspended' ? `<button type="button" class="login-btn se-pub" style="margin-top:10px" data-sitereactivate ${siteS.busy?'disabled':''}>${siteS.busy==='reactivate'?ts('reactivating'):ts('reactivate')}</button>` : ''}
-    <div class="se-row se-row-tight">
-      <button type="button" class="rsvp-deadline-save se-btn" data-sitepreview>${ICONS.eye} ${ts('preview')}</button>
-      ${st==='published' ? `<button type="button" class="rsvp-copy-btn se-btn" data-sitecopy>${ts('copy')}</button><a class="rsvp-copy-btn se-btn" href="${escapeHTML(siteUrl())}" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;display:inline-flex;align-items:center">${ts('open')}</a>` : ''}
-      <span id="site-savestate" class="se-save ${siteS.saveState}" role="status" aria-live="polite"></span>
-    </div>
-  </div>`;
-}
 function siteExpiredView(){
   return `
   ${defSubHeader(ts('title'))}
@@ -17864,14 +18180,13 @@ function viewDefSite(){
   if(!siteS.loaded){
     return `${defSubHeader(ts('title'), ts('intro'))}<div class="empty-note" style="margin:24px 16px;">${siteS.err ? ts('loadErr')+`<div style="margin-top:12px"><button type="button" class="rsvp-copy-btn se-btn" data-siteretry>${ts('retry')}</button></div>` : ts('loading')}</div>`;
   }
-  const tabs = [['geral','tabGeral'],['design','tabDesign'],['info','tabInfo'],['rsvp','tabRsvp'],['pub','tabPub']];
   const body = siteS.tab==='design'?seTabDesign():siteS.tab==='info'?seTabInfo():siteS.tab==='rsvp'?seTabRsvp():siteS.tab==='pub'?seTabPub():seTabGeral();
   return `
   ${defSubHeader(ts('title'), ts('intro'))}
-  <div class="se-wrap">
-    ${siteStatusCard()}
-    <div class="se-tabs" role="tablist">${tabs.map(([k,t])=>`<button type="button" role="tab" aria-selected="${siteS.tab===k}" class="se-tab${siteS.tab===k?' on':''}" data-sitetab="${k}">${ts(t)}</button>`).join('')}</div>
-    <div class="se-body">${body}</div>
+  <div class="se-wrap sx-wrap">
+    ${sxTabs()}
+    ${sxBar()}
+    <div class="se-body sx-body">${body}</div>
   </div>`;
 }
 
@@ -18108,7 +18423,7 @@ function siteCheckSlugSoon(){
     else if(t.matches && t.matches('[data-sitesel]')){ siteSet(t.getAttribute('data-sitesel'), t.value); siteMarkDirty(); }
   });
   document.addEventListener('click', e=>{
-    const el = e.target && e.target.closest ? e.target.closest('[data-sitetab],[data-sitetpl],[data-sitepal],[data-siteupload],[data-siteremovephoto],[data-siteadd],[data-sitedel],[data-sitepreview],[data-siteprevclose],[data-siteprevdev],[data-sitepublish],[data-siteunpublish],[data-sitecopy],[data-sitegoto],[data-siteslugpick],[data-siteretry],[data-sitefromrsvp],[data-siteretrysave],[data-sitereactivate]') : null;
+    const el = e.target && e.target.closest ? e.target.closest('[data-siteopen],[data-siteseclose],[data-sitedtab],[data-siteinldev],[data-sitetab],[data-sitetpl],[data-sitepal],[data-siteupload],[data-siteremovephoto],[data-siteadd],[data-sitedel],[data-sitepreview],[data-siteprevclose],[data-siteprevdev],[data-sitepublish],[data-siteunpublish],[data-sitecopy],[data-sitegoto],[data-siteslugpick],[data-siteretry],[data-sitefromrsvp],[data-siteretrysave],[data-sitereactivate]') : null;
     if(!el) return;
     const a = n=> el.getAttribute(n);
     if(el.hasAttribute('data-siteprevclose')){ closeSitePreview(); return; }
@@ -18119,7 +18434,11 @@ function siteCheckSlugSoon(){
     if(el.hasAttribute('data-siteretry')){ siteS.err = false; _origRender(); return; }
     if(el.hasAttribute('data-sitefromrsvp')){ closeAllSheets(); navBackSet('definicoes','site'); activeTab='definicoes'; definicoesSection='site'; rsvpSubScreen=null; _origRender(); return; }
     if(!inSite()) return;
-    if(el.hasAttribute('data-sitetab')){ siteS.tab = a('data-sitetab'); _origRender(); return; }
+    if(el.hasAttribute('data-siteopen')){ siteS.sec = a('data-siteopen'); _origRender(); return; }
+    if(el.hasAttribute('data-siteseclose')){ siteS.sec = null; siteSaveNow(); _origRender(); return; }
+    if(el.hasAttribute('data-sitedtab')){ siteS.dtab = a('data-sitedtab'); _origRender(); return; }
+    if(el.hasAttribute('data-siteinldev')){ siteS.previewDev = a('data-siteinldev')==='desktop'?'desktop':'mobile'; _origRender(); return; }
+    if(el.hasAttribute('data-sitetab')){ siteS.tab = a('data-sitetab'); siteS.sec = null; _origRender(); return; }
     if(el.hasAttribute('data-sitetpl')){ siteS.draft.template = a('data-sitetpl'); siteMarkDirty(); _origRender(); return; }
     if(el.hasAttribute('data-sitepal')){ siteS.draft.palette = a('data-sitepal'); siteMarkDirty(); _origRender(); return; }
     if(el.hasAttribute('data-siteupload')){ siteS.uploadPath = a('data-siteupload'); let inp = document.getElementById('site-file'); if(!inp){ inp = document.createElement('input'); inp.type='file'; inp.id='site-file'; inp.accept='image/jpeg,image/png,image/webp'; inp.style.display='none'; document.body.appendChild(inp); } inp.click(); return; }
