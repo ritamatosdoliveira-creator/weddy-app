@@ -6242,7 +6242,6 @@ const APP_I18N = {
     addSupplierLabel:'Adicionar fornecedor',
     otherSupplierLabel:'OUTRO FORNECEDOR',
     addSupplierHint:'Guarda aqui os teus próprios fornecedores.',
-    confirmDeleteSupplier:'Eliminar este fornecedor?',
     supplierDetailTitle:'Fornecedor',
     phSupplierName:'Nome do fornecedor',
     labelPhone:'Telefone',
@@ -7484,7 +7483,6 @@ const APP_I18N = {
     addSupplierLabel:'Add supplier',
     otherSupplierLabel:'OTHER SUPPLIER',
     addSupplierHint:'Keep track of your own suppliers here.',
-    confirmDeleteSupplier:'Delete this supplier?',
     supplierDetailTitle:'Supplier',
     phSupplierName:'Supplier name',
     labelPhone:'Phone',
@@ -8296,6 +8294,38 @@ const APP_I18N = {
     xlEmptySuppliers:'No suppliers yet.',
   }
 };
+/* v305 — Acessibilidade: nomes para botões só com ícone e campos sem etiqueta.
+   Idempotente; só acrescenta aria-label onde falta (não altera visual nem lógica). */
+const A11Y_NAMES = {
+  pt:{ back:'Voltar', add:'Adicionar', gear:'Definições', heart:'Inspiração', newEvent:'Novo momento', newCat:'Nova categoria', newItem:'Novo item', newSupplier:'Novo fornecedor', newTable:'Nova mesa', newPay:'Novo pagamento', addPhoto:'Adicionar fotografia' },
+  en:{ back:'Back', add:'Add', gear:'Settings', heart:'Inspiration', newEvent:'New moment', newCat:'New category', newItem:'New item', newSupplier:'New supplier', newTable:'New table', newPay:'New payment', addPhoto:'Add photo' }
+};
+function weddyA11yPass(){
+  try{
+    const N = A11Y_NAMES[appLang==='en'?'en':'pt'];
+    const byId = { 'add-event-btn':'newEvent', 'add-todocat-btn':'newCat', 'addbtn-personal':'newItem', 'addbtn-catitem':'newItem', 'add-supplier-btn':'newSupplier', 'add-table-btn':'newTable', 'supd-pay-add':'newPay', 'def-reportar-photo-btn':'addPhoto' };
+    document.querySelectorAll('button,[role="button"]').forEach(b=>{
+      if(b.hasAttribute('aria-label') || b.hasAttribute('aria-labelledby') || (b.textContent||'').trim() || b.title) return;
+      let k = byId[b.id];
+      if(!k){
+        if(b.classList.contains('nav-back')) k = 'back';
+        else if(b.classList.contains('home-icon-btn')) k = b.getAttribute('data-goto')==='definicoes' ? 'gear' : b.getAttribute('data-goto')==='inspiracao' ? 'heart' : 'add';
+        else if(b.classList.contains('add-circle') || b.classList.contains('nav-action') || b.classList.contains('sup-add-btn')) k = 'add';
+      }
+      if(k) b.setAttribute('aria-label', N[k]);
+    });
+    document.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,select').forEach(i=>{
+      if(i.hasAttribute('aria-label') || i.hasAttribute('aria-labelledby') || i.placeholder || i.title || i.closest('label') || (i.id && document.querySelector('label[for="'+i.id+'"]'))) return;
+      let el = i, txt = '';
+      for(let d=0; d<3 && el && !txt; d++){
+        let sib = el.previousElementSibling;
+        while(sib && !txt){ const t = (sib.textContent||'').trim(); if(t && t.length<60 && !sib.querySelector('input,select,textarea')) txt = t; sib = txt ? null : sib.previousElementSibling; if(!txt) break; }
+        el = el.parentElement;
+      }
+      if(txt) i.setAttribute('aria-label', txt);
+    });
+  }catch(e){}
+}
 function ta(key){
   const dict = APP_I18N[appLang] || APP_I18N.pt;
   return (key in dict) ? dict[key] : APP_I18N.pt[key];
@@ -8402,6 +8432,7 @@ function render(){
   }
   bindHandlers();
   syncMesa3DPanel();
+  weddyA11yPass();
   maybeShowPaymentAlert();
   updateChatFab();
   const newScroll = document.querySelector('.tabpanel.active .scroll');
@@ -18921,7 +18952,8 @@ function buildChatPanelBody(){
     </div>`;
   }
   const nowHHMM = new Date().toTimeString().slice(0,5);
-  const greetingName = weddingSettings.coupleName1 ? `, ${escapeHTML(weddingSettings.coupleName1)}` : '';
+  // o texto da mensagem já é escapado mais abaixo (escapeHTML(m.text)); escapar aqui duplicava (D'Arcy → D&#39;Arcy)
+  const greetingName = weddingSettings.coupleName1 ? `, ${weddingSettings.coupleName1}` : '';
   const history = assistChatHistory.length ? assistChatHistory : [
     { role:'bot', text:ta('assistGreeting1')(greetingName) },
     { role:'bot', text:ta('assistGreeting2') }
