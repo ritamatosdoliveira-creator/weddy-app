@@ -2937,6 +2937,66 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .mmx-refresh svg{ width:14px; height:14px; }
 .mem-lb-acts{ display:flex; gap:10px; }
 .mem-lb-bar .mem-lb-del{ all:unset; box-sizing:border-box; color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:20px; padding:8px 16px; font-size:12.5px; cursor:pointer; background:rgba(255,255,255,.14); }
+/* v300 — Google Calendar: calendário, eventos do dia e ligação */
+.gcx{ max-width:880px; padding:0 16px 28px; box-sizing:border-box; }
+.gcx-top{ display:flex; flex-direction:column; gap:14px; }
+.gcx-card{ background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:16px 14px; }
+.gcx-msg{ max-width:848px; display:flex; align-items:center; gap:12px; margin:0 16px 14px; padding:10px 14px; border-radius:16px; font-size:14px; background:rgba(122,142,110,.12); color:var(--sage-dark); }
+.gcx-msg.err{ background:rgba(185,103,82,.1); color:var(--rust-dark); }
+.gcx-msg-ic{ flex:none; width:30px; height:30px; border-radius:50%; background:rgba(122,142,110,.18); display:flex; align-items:center; justify-content:center; }
+.gcx-msg.err .gcx-msg-ic{ background:rgba(185,103,82,.16); }
+.gcx-msg-ic svg{ width:18px; height:18px; }
+.gcx-cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.gcx-nav{ all:unset; cursor:pointer; width:44px; height:40px; display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--ink); }
+.gcx-month{ all:unset; cursor:pointer; padding:9px 18px; border-radius:14px; background:rgba(0,0,0,.045); font-weight:600; font-size:15.5px; color:var(--ink); }
+.gcx-wd{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; color:var(--ink-soft); padding:4px 0 6px; }
+.gcx-grid{ display:grid; grid-template-columns:repeat(7,1fr); row-gap:4px; }
+.gcx-day{ all:unset; cursor:pointer; box-sizing:border-box; height:50px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:0 3px; border-radius:12px; color:var(--ink); }
+.gcx-day b{ font-weight:600; font-size:16px; line-height:1; }
+.gcx-dot{ width:5px; height:5px; border-radius:50%; background:var(--rust); display:block; }
+.gcx-day.on{ background:var(--rust); color:#fff; }
+.gcx-day.on .gcx-dot{ background:#fff; }
+.gcx-day.today{ box-shadow:inset 0 0 0 1.5px var(--rust); }
+.gcx-note{ padding:10px 4px 0; font-size:13px; color:var(--ink-soft); }
+.gcx-evsec{ display:flex; flex-direction:column; gap:12px; }
+.gcx-evhead{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 2px 0; }
+.gcx-evdate{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:22px; line-height:1.1; color:var(--heading); }
+.gcx-new{ all:unset; cursor:pointer; flex:none; padding:10px 18px; border-radius:999px; background:rgba(185,103,82,.12); color:var(--rust-dark); font-weight:600; font-size:14px; }
+.gcx-form{ background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:14px; }
+.gcx-ev{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:16px 16px 14px 14px; }
+.gcx-ev-ic{ flex:none; width:46px; height:46px; border-radius:50%; background:rgba(185,103,82,.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
+.gcx-ev-ic svg{ width:21px; height:21px; }
+.gcx-ev-sep{ flex:none; width:1px; align-self:stretch; background:var(--line); }
+.gcx-ev-b{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+.gcx-ev-time{ font-size:13px; color:var(--ink-soft); }
+.gcx-ev-t{ font-size:17px; font-weight:600; color:var(--ink); line-height:1.25; overflow-wrap:anywhere; }
+.gcx-ev-loc, .gcx-ev-link, .gcx-ev-done{ display:flex; align-items:center; gap:7px; font-size:14px; color:var(--ink-soft); }
+.gcx-ev-loc svg, .gcx-ev-link svg, .gcx-ev-done svg{ flex:none; width:16px; height:16px; }
+.gcx-ev-loc svg{ color:var(--rust); }
+.gcx-ev-link{ color:var(--rust-dark); text-decoration:underline; text-underline-offset:3px; }
+.gcx-ev-acts{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:2px; }
+.gcx-ev-btn{ all:unset; cursor:pointer; font-size:13.5px; color:var(--rust-dark); text-decoration:underline; text-underline-offset:3px; }
+.gcx-empty{ padding:16px 4px; font-size:14px; color:var(--ink-soft); }
+.gcx-conn{ margin-top:14px; padding:18px 16px; }
+.gcx-conn-h{ display:flex; align-items:flex-start; gap:14px; }
+.gcx-conn-ic{ flex:none; width:48px; height:48px; border-radius:50%; background:rgba(185,103,82,.12); color:var(--rust-dark); display:flex; align-items:center; justify-content:center; }
+.gcx-conn-ic svg{ width:22px; height:22px; }
+.gcx-conn-b{ flex:1; min-width:0; }
+.gcx-conn-t{ display:flex; align-items:center; gap:8px; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+.gcx-conn-ok{ display:flex; color:var(--sage-dark); }
+.gcx-conn-ok svg{ width:20px; height:20px; }
+.gcx-conn-d{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; overflow-wrap:anywhere; }
+.gcx-conn-acts{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+.gcx-btn{ all:unset; box-sizing:border-box; cursor:pointer; width:100%; height:48px; border-radius:24px; display:flex; align-items:center; justify-content:center; gap:10px; font-size:15px; font-weight:600; }
+.gcx-btn svg{ width:18px; height:18px; }
+.gcx-btn-main{ background:var(--rust); color:#fff; }
+.gcx-btn-alt{ background:transparent; color:var(--rust-dark); border:1.2px solid var(--line); }
+.gcx-btn[disabled], .gcx-off[disabled]{ opacity:.55; pointer-events:none; }
+.gcx-off{ all:unset; box-sizing:border-box; cursor:pointer; align-self:center; display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:14px; font-weight:600; color:var(--rust-dark); }
+.gcx-off svg{ width:17px; height:17px; }
+@media (min-width:900px){
+  .gcx-top{ display:grid; grid-template-columns:1.1fr 1fr; gap:20px; align-items:start; }
+}
 .memories-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 16px 20px; }
 .memory-tile{ position:relative; aspect-ratio:1; border-radius:12px; overflow:hidden; background:var(--line); }
 .memory-tile > a{ display:block; width:100%; height:100%; }
@@ -16886,36 +16946,37 @@ function gcalAgendaHTML(){
   const days = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
   const sel = gcalAgenda.selected || (m.getFullYear()===new Date().getFullYear() && m.getMonth()===new Date().getMonth() ? todayKey : gcalYMD(m));
   let cells = '';
-  for(let i=0;i<first;i++) cells += '<div></div>';
+  for(let i=0;i<first;i++) cells += '<span></span>';
   for(let d=1; d<=days; d++){
     const key = m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const has = (by[key]||[]).length;
     const isSel = key===sel, isToday = key===todayKey;
-    cells += `<button type="button" data-gagenda="day" data-day="${key}" style="all:unset; cursor:pointer; text-align:center; padding:6px 0; border-radius:10px; ${isSel?'background:var(--rust,#C1583E); color:#fff;':''} ${isToday&&!isSel?'box-shadow:inset 0 0 0 1.5px var(--rust,#C1583E);':''}">
-      <div style="font-size:14px; font-weight:600;">${d}</div>
-      <div style="height:6px; display:flex; justify-content:center; gap:2px; margin-top:2px;">${has?`<span style="width:5px;height:5px;border-radius:50%;background:${isSel?'#fff':'var(--rust,#C1583E)'};"></span>`:''}</div>
-    </button>`;
+    cells += `<button type="button" class="gcx-day${isSel?' on':''}${isToday&&!isSel?' today':''}" data-gagenda="day" data-day="${key}"><b>${d}</b><i class="gcx-dot" style="${has?'':'visibility:hidden;'}"></i></button>`;
   }
   const list = (by[sel]||[]).slice().sort((a,b)=> (a.allDay?'':a.start).localeCompare(b.allDay?'':b.start));
   const fmtTime = ev=> ev.allDay ? gcalT('Dia todo','All day') : new Date(ev.start).toLocaleTimeString(appLang==='en'?'en-GB':'pt-PT',{hour:'2-digit',minute:'2-digit'});
   const selLabel = new Date(sel+'T00:00:00').toLocaleDateString(appLang==='en'?'en-GB':'pt-PT',{weekday:'long', day:'numeric', month:'long'});
+  const GX_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  const GX_EXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>';
+  const GX_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   const rows = list.length ? list.map(ev=>`
-    <div style="padding:12px 14px; border-top:1px solid var(--line,#e5e1dc);">
-      <div style="display:flex; gap:10px; align-items:baseline;">
-        <div style="min-width:54px; font-size:13px; color:var(--ink-soft,#7A6F63);">${escapeHTML(fmtTime(ev))}</div>
-        <div style="flex:1; font-weight:600;">${escapeHTML(ev.summary)}</div>
+    <div class="gcx-ev">
+      <span class="gcx-ev-ic">${ICONS.calendar}</span><span class="gcx-ev-sep"></span>
+      <div class="gcx-ev-b">
+        <div class="gcx-ev-time">${escapeHTML(fmtTime(ev))}</div>
+        <div class="gcx-ev-t">${escapeHTML(ev.summary)}</div>
+        ${ev.location?`<div class="gcx-ev-loc">${GX_PIN}<span>${escapeHTML(ev.location)}</span></div>`:''}
+        ${ev.htmlLink?`<a class="gcx-ev-link" href="${escapeHTML(ev.htmlLink)}" target="_blank" rel="noopener">${GX_EXT}<span>${gcalT('Abrir no Google Calendar','Open in Google Calendar')}</span></a>`:''}
+        <div class="gcx-ev-acts">
+          ${gcalEventHasTodo(ev.id)
+            ? `<span class="gcx-ev-done">${GX_OK}<span>${gcalT('Adicionado às tarefas','Added to to-do')}</span></span>`
+            : `<button type="button" class="gcx-ev-btn" data-gagenda="addtodo" data-id="${escapeHTML(ev.id)}">${gcalT('Adicionar às tarefas e à semana','Add to to-do & week')}</button>`}
+          ${ev.createdInApp?`<button type="button" class="gcx-ev-btn" data-gagenda="del" data-id="${escapeHTML(ev.id)}">${gcalT('Apagar','Delete')}</button>`:''}
+        </div>
       </div>
-      ${ev.location?`<div style="margin:2px 0 0 64px; font-size:13px; color:var(--ink-soft,#7A6F63);">${escapeHTML(ev.location)}</div>`:''}
-      <div style="margin:6px 0 0 64px; display:flex; gap:14px; flex-wrap:wrap; font-size:13px;">
-        ${ev.htmlLink?`<a href="${escapeHTML(ev.htmlLink)}" target="_blank" rel="noopener" style="color:var(--rust-dark,#9A4F3D);">${gcalT('Abrir no Google Calendar','Open in Google Calendar')}</a>`:''}
-        ${gcalEventHasTodo(ev.id)
-          ? `<span style="color:var(--ink-soft,#7A6F63);">${gcalT('Adicionado às tarefas ✓','Added to to-do ✓')}</span>`
-          : `<button type="button" data-gagenda="addtodo" data-id="${escapeHTML(ev.id)}" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); text-decoration:underline;">${gcalT('Adicionar às tarefas e à semana','Add to to-do & week')}</button>`}
-        ${ev.createdInApp?`<button type="button" data-gagenda="del" data-id="${escapeHTML(ev.id)}" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); text-decoration:underline;">${gcalT('Apagar','Delete')}</button>`:''}
-      </div>
-    </div>`).join('') : `<div style="padding:14px; font-size:14px; color:var(--ink-soft,#7A6F63); border-top:1px solid var(--line,#e5e1dc);">${gcalT('Sem eventos neste dia.','No events on this day.')}</div>`;
+    </div>`).join('') : `<div class="gcx-empty">${gcalT('Sem eventos neste dia.','No events on this day.')}</div>`;
   const form = gcalAgenda.formOpen ? `
-    <div style="padding:14px; border-top:1px solid var(--line,#e5e1dc);">
+    <div class="gcx-form">
       <input id="gagenda-title" type="text" maxlength="200" placeholder="${gcalT('Título do evento','Event title')}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
       <input id="gagenda-date" type="date" value="${sel}" style="width:100%; box-sizing:border-box; margin-bottom:8px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
@@ -16928,29 +16989,33 @@ function gcalAgendaHTML(){
       <button type="button" class="login-btn" data-gagenda="save" ${gcalAgenda.saving?'disabled':''} style="margin-top:0;">${gcalAgenda.saving?gcalT('A guardar…','Saving…'):gcalT('Guardar no Google Calendar','Save to Google Calendar')}</button>
       <button type="button" class="login-btn" data-gagenda="cancel" style="margin-top:8px; background:transparent; color:var(--rust-dark,#9A4F3D); border:1.6px solid var(--line,#e5e1dc);">${gcalT('Cancelar','Cancel')}</button>
     </div>` : '';
-  return `
-  <div class="premium-upsell" style="text-align:left; padding:0; overflow:hidden; margin-bottom:14px;">
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px;">
-      <button type="button" data-gagenda="prev" aria-label="${gcalT('Mês anterior','Previous month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">‹</button>
-      <button type="button" data-gagenda="picker" style="all:unset; cursor:pointer; font-weight:700; padding:6px 12px; border-radius:10px; background:rgba(0,0,0,.04);">${escapeHTML(monthName.charAt(0).toUpperCase()+monthName.slice(1))} ▾</button>
-      <button type="button" data-gagenda="next" aria-label="${gcalT('Mês seguinte','Next month')}" style="all:unset; cursor:pointer; padding:6px 10px; font-size:18px;">›</button>
+  const cal = `
+  <div class="gcx-card gcx-cal">
+    <div class="gcx-cal-head">
+      <button type="button" class="gcx-nav" data-gagenda="prev" aria-label="${gcalT('Mês anterior','Previous month')}">‹</button>
+      <button type="button" class="gcx-month" data-gagenda="picker">${escapeHTML(monthName.charAt(0).toUpperCase()+monthName.slice(1))} ▾</button>
+      <button type="button" class="gcx-nav" data-gagenda="next" aria-label="${gcalT('Mês seguinte','Next month')}">›</button>
     </div>
-    ${gcalAgenda.pickerOpen ? `<div style="display:flex; gap:8px; padding:0 14px 12px;">
+    ${gcalAgenda.pickerOpen ? `<div style="display:flex; gap:8px; padding:0 4px 12px;">
       <select id="gagenda-pm" data-gagenda="pm" style="flex:2; min-width:0;">${Array.from({length:12},(_,i)=>{ const n=new Date(2000,i,1).toLocaleDateString(appLang==='en'?'en-GB':'pt-PT',{month:'long'}); return `<option value="${i}" ${i===m.getMonth()?'selected':''}>${escapeHTML(n.charAt(0).toUpperCase()+n.slice(1))}</option>`; }).join('')}</select>
       <select id="gagenda-py" data-gagenda="py" style="flex:1; min-width:0;">${Array.from({length:11},(_,i)=>{ const y=new Date().getFullYear()-2+i; return `<option value="${y}" ${y===m.getFullYear()?'selected':''}>${y}</option>`; }).join('')}</select>
       <button type="button" data-gagenda="today" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); font-weight:600; font-size:13px; align-self:center;">${gcalT('Hoje','Today')}</button>
     </div>` : ''}
-    <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 8px; gap:2px; font-size:11px; color:var(--ink-soft,#7A6F63); text-align:center;">${wd.map(x=>`<div>${x}</div>`).join('')}</div>
-    <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 12px; gap:2px;">${cells}</div>
-    ${gcalAgenda.loading ? `<div style="padding:10px 14px; font-size:13px; color:var(--ink-soft,#7A6F63);">${gcalT('A carregar eventos…','Loading events…')}</div>` : ''}
-    ${gcalAgenda.error ? `<div class="login-msg error" style="margin:0 14px 10px;">${escapeHTML(gcalAgenda.error)}</div>` : ''}
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--line,#e5e1dc);">
-      <div style="font-weight:600;">${escapeHTML(selLabel.charAt(0).toUpperCase()+selLabel.slice(1))}</div>
-      <button type="button" data-gagenda="new" style="all:unset; cursor:pointer; color:var(--rust-dark,#9A4F3D); font-weight:600; font-size:14px;">+ ${gcalT('Novo evento','New event')}</button>
+    <div class="gcx-wd">${wd.map(x=>`<span>${x}</span>`).join('')}</div>
+    <div class="gcx-grid">${cells}</div>
+    ${gcalAgenda.loading ? `<div class="gcx-note">${gcalT('A carregar eventos…','Loading events…')}</div>` : ''}
+    ${gcalAgenda.error ? `<div class="login-msg error" style="margin:8px 4px 0; max-width:none;">${escapeHTML(gcalAgenda.error)}</div>` : ''}
+  </div>`;
+  const evs = `
+  <div class="gcx-evsec">
+    <div class="gcx-evhead">
+      <div class="gcx-evdate">${escapeHTML(selLabel.charAt(0).toUpperCase()+selLabel.slice(1))}</div>
+      <button type="button" class="gcx-new" data-gagenda="new">+ ${gcalT('Novo evento','New event')}</button>
     </div>
     ${form}
     ${rows}
   </div>`;
+  return { cal, evs };
 }
 document.addEventListener('change', (e)=>{
   const t = e.target;
@@ -17044,18 +17109,32 @@ function viewDefGoogleCalendar(){
   if(gc.connected && hasCalendar && !needsReauth){
     const lastSyncDate = gc.lastSyncAt && typeof gc.lastSyncAt.toDate === 'function' ? gc.lastSyncAt.toDate() : null;
     const lastSync = lastSyncDate ? formatDateTimePT(lastSyncDate) : ta('googleCalendarNeverSynced');
+    const agenda = gcalAgendaHTML();
+    const GX_CHK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.8 12.4l3 3 5.4-6"/></svg>';
+    const gxMsg = googleCalendarActionMsg
+      ? `<div class="gcx-msg ${googleCalendarActionMsg.type==='error'?'err':'ok'}"><span class="gcx-msg-ic">${GX_CHK}</span><span>${escapeHTML(googleCalendarActionMsg.text)}</span></div>`
+      : '';
     return `
     ${defSubHeader(ta('googleCalendarTitle'))}
-    ${msgHtml}
-    <div style="margin:0 16px;">${gcalAgendaHTML()}</div>
-    <div class="premium-upsell" style="text-align:left;">
-      <div class="def-row-title" style="margin-bottom:6px;">${ICONS.checkCircle||'✓'} ${ta('googleCalendarConnectedTitle')}</div>
-      <div class="def-row-desc" style="margin-bottom:2px;"><strong>${ta('googleCalendarCalendarLabel')}:</strong> ${escapeHTML(gc.calendarName||'')}</div>
-      <div class="def-row-desc" style="margin-bottom:16px;"><strong>${ta('googleCalendarLastSyncLabel')}:</strong> ${escapeHTML(lastSync)}</div>
-      ${gc.lastSyncStatus==='error' ? `<div class="login-msg error" style="margin-bottom:12px;">${escapeHTML(gc.lastSyncError ? ta('googleCalendarSyncErrorPrefix')+': '+gc.lastSyncError : ta('googleCalendarGenericSyncError'))}</div>` : ''}
-      <button class="login-btn" id="gcal-sync-btn" style="margin-top:0;" ${googleCalendarBusy?'disabled':''}>${googleCalendarBusy? ta('googleCalendarSyncing') : ta('googleCalendarSyncNow')}</button>
-      <button class="login-btn" id="gcal-change-btn" style="margin-top:10px; background:transparent; color:var(--rust-dark,#9A4F3D); border:1.6px solid var(--line,#e5e1dc);" ${googleCalendarBusy?'disabled':''}>${ta('googleCalendarChangeCalendar')}</button>
-      <button class="delete-response-link" id="gcal-disconnect-btn" style="margin-top:16px;" ${googleCalendarBusy?'disabled':''}>${ta('googleCalendarDisconnect')}</button>
+    ${gxMsg}
+    <div class="gcx">
+      <div class="gcx-top">${agenda.cal}${agenda.evs}</div>
+      <div class="gcx-card gcx-conn">
+        <div class="gcx-conn-h">
+          <span class="gcx-conn-ic">${ICONS.calendar}</span>
+          <div class="gcx-conn-b">
+            <div class="gcx-conn-t"><span>${ta('googleCalendarConnectedTitle')}</span><span class="gcx-conn-ok">${GX_CHK}</span></div>
+            <div class="gcx-conn-d">${ta('googleCalendarCalendarLabel')}: ${escapeHTML(gc.calendarName||'')}</div>
+            <div class="gcx-conn-d">${ta('googleCalendarLastSyncLabel')}: ${escapeHTML(lastSync)}</div>
+          </div>
+        </div>
+        ${gc.lastSyncStatus==='error' ? `<div class="login-msg error" style="margin:12px 0 0; max-width:none;">${escapeHTML(gc.lastSyncError ? ta('googleCalendarSyncErrorPrefix')+': '+gc.lastSyncError : ta('googleCalendarGenericSyncError'))}</div>` : ''}
+        <div class="gcx-conn-acts">
+          <button class="gcx-btn gcx-btn-main" id="gcal-sync-btn" ${googleCalendarBusy?'disabled':''}>${ICONS.refresh}<span>${googleCalendarBusy? ta('googleCalendarSyncing') : ta('googleCalendarSyncNow')}</span></button>
+          <button class="gcx-btn gcx-btn-alt" id="gcal-change-btn" ${googleCalendarBusy?'disabled':''}>${ICONS.pencil}<span>${ta('googleCalendarChangeCalendar')}</span></button>
+          <button class="gcx-off" id="gcal-disconnect-btn" ${googleCalendarBusy?'disabled':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/><path d="M4 4l16 16"/></svg><span>${ta('googleCalendarDisconnect')}</span></button>
+        </div>
+      </div>
     </div>`;
   }
 
