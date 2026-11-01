@@ -2336,6 +2336,9 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
 .sd-ring{ width:100%; height:100%; display:block; }
 .sd-ringw span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#2B2522; font-weight:600; }
 .sd-row{ grid-template-columns:24px minmax(0,1fr) repeat(3,54px) !important; gap:0 !important; }
+.sd-rowm{ grid-template-columns:24px minmax(0,1fr) auto !important; }
+.sd-rowm .cd-it{ padding-left:8px; }
+.sd-rm{ padding:8px 4px; }
 .sd-head{ grid-template-columns:24px minmax(0,1fr) repeat(3,54px) !important; gap:0 !important; }
 .sd-head span:first-child{ grid-column:1 / 3; }
 .sd-ico{ width:20px; height:20px; color:#AD624F; }
@@ -5381,7 +5384,7 @@ function seedData(){
     cake:{ shape:'tiers', tiers:[{cm:'',portions:'',flavor:'',filling:''},{cm:'',portions:'',flavor:'',filling:''},{cm:'',portions:'',flavor:'',filling:''}], single:{form:'',cm:'',portions:''}, rect:{length:'',width:'',height:'',portions:''}, square:{side:'',height:'',portions:''}, other:{desc:'',dims:'',portions:''}, flavor:'', filling:'', flavors:'', allergies:'', desserts:'', tastings:[], chosen:{flavors:'',fillings:'',tier:'',notes:''}, inspirations:[] },
     vows:{ bride:{text:'',updated:'',done:false}, groom:{text:'',updated:'',done:false}, speeches:[], readings:[], songs:[], moments:[] },
     stationery:{},
-    stationeryCustom:[],
+    stationeryCustom:[], stationeryHidden:[],
     stationeryDesign:{ palette:[], fontMain:'', fontSecond:'', monogram:{initials:'',notes:''}, items:{}, files:[] },
     favoriteVisitId:null,
     suppliers:[],
@@ -8638,7 +8641,7 @@ ${pageHeader(backId, title, sub, pmBadge())}
   <button type="button" class="cb-btn" style="max-width:300px;margin:0 auto" data-premiumgoto="subscricao">${ta('pmCta')}</button>
 </div></div>`;
 }
-let sdTab = 'itens', sdOpen = null, sdAdding = false, sdLib = 'todos', sdUploadCtx = null, sdPalOpen = false;
+let sdManage = false, sdTab = 'itens', sdOpen = null, sdAdding = false, sdLib = 'todos', sdUploadCtx = null, sdPalOpen = false;
 const SD_PRESETS = ['#F6EFE8','#E3C3A4','#C98E80','#A5483A','#8B6B4F','#7A8B5C','#2B2522','#FFFFFF'];
 const SD_FONTS = ['Cormorant Garamond','Playfair Display','Great Vibes','Allura','Montserrat','Manrope','Lora','Libre Baskerville','Josefin Sans','Raleway'];
 const SD_KINDS = ['ref','prop','final'];
@@ -8660,6 +8663,7 @@ function sdIco(k, cls){ return `<svg class="${cls||'sd-ico'}" viewBox="0 0 24 24
 function sdEnsure(){
   cdEnsure();
   if(!Array.isArray(state.stationeryCustom)) state.stationeryCustom = [];
+  if(!Array.isArray(state.stationeryHidden)) state.stationeryHidden = [];
   let d = state.stationeryDesign;
   if(!d || typeof d!=='object' || Array.isArray(d)) d = state.stationeryDesign = {};
   if(!Array.isArray(d.palette)) d.palette = [];
@@ -8673,7 +8677,7 @@ function sdEnsure(){
 }
 function sdAllItems(){
   sdEnsure();
-  return SD_ITEMS.map(x=>({ id:x[0], name:ta('cdStat_'+x[0]), ico:x[1], custom:false }))
+  return SD_ITEMS.filter(x=>state.stationeryHidden.indexOf(x[0])<0).map(x=>({ id:x[0], name:ta('cdStat_'+x[0]), ico:x[1], custom:false }))
     .concat(state.stationeryCustom.map(c=>({ id:c.id, name:c.name, ico:'doc', custom:true })));
 }
 function sdItemData(id){
@@ -8722,6 +8726,7 @@ function sdItensTab(){
   const rows = items.map(it=>{
     const r = state.stationery[it.id]||{};
     const btn = (col,key)=>`<button type="button" class="cd-chk" data-cdstat="${escapeHTML(it.id)}:${col}" aria-pressed="${r[col]?'true':'false'}" aria-label="${escapeHTML(it.name+' — '+ta(key))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></button>`;
+    if(sdManage) return `<div class="cd-stat-row sd-row sd-rowm">${sdIco(it.ico)}<span class="cd-it">${escapeHTML(it.name)}</span><button type="button" class="cb-link danger sd-rm" data-sdrmitem="${escapeHTML(it.id)}" aria-label="${escapeHTML(ta('sdRemoveItem')+': '+it.name)}">${ta('vwDelete')}</button></div>`;
     return `<div class="cd-stat-row sd-row">${sdIco(it.ico)}<span class="cd-it">${escapeHTML(it.name)}</span>${btn('c','cdStatCreated')}${btn('p','cdStatPrinted')}${btn('e','cdStatSent')}</div>`;
   }).join('');
   const add = sdAdding
@@ -8730,7 +8735,8 @@ function sdItensTab(){
   return `
   <h2 class="cb-h" style="font-style:italic">${ta('sdItemsTitle')}</h2><p class="cb-sub">${ta('sdItemsSub')}</p>
   <div class="cd-stat-head sd-head"><span>${ta('cdStatItem')}</span><span>${ta('cdStatCreated')}</span><span>${ta('cdStatPrinted')}</span><span>${ta('cdStatSent')}</span></div>
-  ${rows}${add}`;
+  <div style="display:flex;justify-content:flex-end;gap:16px;margin:2px 0 6px"><button type="button" class="cb-link" data-sdmanage>${ta(sdManage?'sdManageDone':'sdManageOn')}</button></div>
+  ${rows}${sdManage ? (state.stationeryHidden.length ? `<button type="button" class="cb-link" style="margin-top:14px" data-sdrestore>${ta('sdRestore')}</button>` : '') : add}`;
 }
 function sdPaletteBlock(){
   const d = state.stationeryDesign;
@@ -8800,7 +8806,7 @@ function sdItemEditor(){
     <label class="cb-f full"><span>${ta('vwFNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cdtext="${b}notes">${escapeHTML(o.notes)}</textarea></label>
   </div>
   ${kinds}
-  ${it.custom ? `<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>` : ''}`;
+  ${`<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>`}`;
 }
 function viewPapelaria(){
   if(!hasActiveSubscription()) return pmLocked('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), 'pmDescStat');
@@ -8823,7 +8829,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
     const t = e.target && e.target.closest ? e.target : null; if(!t) return;
     if(t.closest('#papelaria-back') && sdOpen){ e.stopImmediatePropagation(); sdOpen = null; _origRender(); return; }
     const tab = t.closest('[data-sdtab]');
-    if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; _origRender(); return; }
+    if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; sdManage = false; _origRender(); return; }
     if(t.closest('[data-sdaddopen]')){ sdAdding = true; _origRender(); const i = document.getElementById('sd-new-name'); if(i) i.focus(); return; }
     if(t.closest('[data-sdaddno]')){ sdAdding = false; _origRender(); return; }
     if(t.closest('[data-sdaddok]')){
@@ -8835,8 +8841,11 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
     const op = t.closest('[data-sdopen]');
     if(op){ sdOpen = op.dataset.sdopen; _origRender(); scrollTop(); return; }
     if(t.closest('[data-sdclose]')){ sdOpen = null; render(); return; }
-    const dl = t.closest('[data-sddelitem]');
-    if(dl){ const id = dl.dataset.sddelitem; weddyConfirm(ta('sdRemoveQ')).then(ok=>{ if(!ok) return;
+    if(t.closest('[data-sdmanage]')){ sdManage = !sdManage; _origRender(); return; }
+    if(t.closest('[data-sdrestore]')){ state.stationeryHidden = []; render(); return; }
+    const dl = t.closest('[data-sddelitem],[data-sdrmitem]');
+    if(dl){ const id = dl.dataset.sddelitem || dl.dataset.sdrmitem; weddyConfirm(ta('sdRemoveQ')).then(ok=>{ if(!ok) return;
+      if(SD_ITEMS.some(x=>x[0]===id)){ if(state.stationeryHidden.indexOf(id)<0) state.stationeryHidden.push(id); }
       state.stationeryCustom = state.stationeryCustom.filter(c=>c.id!==id); delete state.stationery[id]; delete state.stationeryDesign.items[id];
       state.stationeryDesign.files.forEach(f=>{ if(f.itemId===id) f.itemId = ''; });
       sdOpen = null; render(); }); return; }
@@ -8914,7 +8923,7 @@ Object.assign(APP_I18N.pt, {
   sdLibTitle:'Biblioteca de ficheiros', sdLibSub:'Referências, propostas, ficheiros finais e versões aprovadas.', sdLibAll:'Todos', sdLibEmpty:'Ainda não há ficheiros.', sdAddFile:'Adicionar ficheiro',
   sdKind_ref:'Referências', sdKind_prop:'Propostas', sdKind_final:'Finais', sdApproved:'Aprovado', sdGeneral:'Geral', sdAssoc:'Associar a elemento', sdNotePh:'Notas e alterações',
   sdState:'Estado', sdText:'Texto e conteúdo', sdColors:'Cores', sdNoPalette:'Escolham primeiro as cores da paleta.', sdFormat:'Formato', sdFormatPh:'Ex.: A6, vertical', sdDims:'Dimensões',
-  sdRemoveItem:'Remover este elemento', sdRemoveQ:'Remover este elemento? Os ficheiros ficam na biblioteca como "Geral".', sdDelFileQ:'Eliminar este ficheiro?'
+  sdRemoveItem:'Remover este elemento', sdManageOn:'Remover itens', sdManageDone:'Concluído', sdRestore:'Repor itens removidos', sdRemoveQ:'Remover este elemento? Os ficheiros ficam na biblioteca como "Geral".', sdDelFileQ:'Eliminar este ficheiro?'
 });
 Object.assign(APP_I18N.en, {
   pmIncluded:'Included in Premium', pmCta:'Discover Premium',
@@ -8928,7 +8937,7 @@ Object.assign(APP_I18N.en, {
   sdLibTitle:'File library', sdLibSub:'References, proposals, final files and approved versions.', sdLibAll:'All', sdLibEmpty:'No files yet.', sdAddFile:'Add file',
   sdKind_ref:'References', sdKind_prop:'Proposals', sdKind_final:'Final', sdApproved:'Approved', sdGeneral:'General', sdAssoc:'Link to piece', sdNotePh:'Notes and changes',
   sdState:'Status', sdText:'Text and content', sdColors:'Colours', sdNoPalette:'Pick the palette colours first.', sdFormat:'Format', sdFormatPh:'E.g. A6, portrait', sdDims:'Dimensions',
-  sdRemoveItem:'Remove this piece', sdRemoveQ:'Remove this piece? Its files stay in the library as "General".', sdDelFileQ:'Delete this file?'
+  sdRemoveItem:'Remove this piece', sdManageOn:'Remove items', sdManageDone:'Done', sdRestore:'Restore removed items', sdRemoveQ:'Remove this piece? Its files stay in the library as "General".', sdDelFileQ:'Delete this file?'
 });
 
 
