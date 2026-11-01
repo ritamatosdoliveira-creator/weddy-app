@@ -2625,6 +2625,7 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
 .orcx-in:focus{ border-bottom-color:var(--ox-terra); }
 .orcx-edit{ flex:none; align-self:center; color:var(--ox-soft); display:flex; }
 .orcx-edit svg{ width:14px; height:14px; }
+.orcx-autolbl{ font-size:10.5px; font-style:italic; color:var(--ox-soft); margin-top:2px; line-height:1.25; }
 .orcx-stat-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:30px; line-height:1.1; color:var(--heading); }
 /* repartição */
 .orcx-alloc-top{ display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 8px; margin-bottom:12px; }
@@ -3430,6 +3431,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
   .orcx{ zoom:.9; }
   .gtx-title{ font-size:40px; }
   .orcx .gtx-title{ font-size:44px; }
+  .gtx-head-mesas{ zoom:.9; } .gtx-head-mesas .gtx-title{ font-size:44px; }
   .gx-dhead .orcx-title{ font-size:32px; } /* 32px × zoom .9 ≈ 29px, igual ao título de Movimentos */
   /* números grandes mais discretos */
   .orcx-hero-n{ font-size:40px; }
@@ -6285,7 +6287,7 @@ const APP_I18N = {
     orcNoExpenses:'Ainda não registaste gastos. Quando o fizeres, o resumo aparece aqui.', orcGoExpenses:'Ver gastos',
     orcSetTotal:'Define o orçamento total no separador Orçamento para veres a percentagem gasta.',
     budgetTotalLabel:'Orçamento total',
-    budgetGuestsEstLabel:'Convidados (est.)',
+    budgetGuestsEstLabel:'Convidados (est.)', budgetAutoCalc:'Calculado automaticamente',
     perGuestLabel:'€ / convidado',
     budgetBreakdownLabel:'Repartição por categoria',
     budgetCategoriesHint:'Categorias · toca para ver detalhe',
@@ -7533,7 +7535,7 @@ const APP_I18N = {
     orcNoExpenses:'No expenses recorded yet. Once you add some, the summary shows up here.', orcGoExpenses:'View expenses',
     orcSetTotal:'Set the total budget in the Budget tab to see the percentage spent.',
     budgetTotalLabel:'Total budget',
-    budgetGuestsEstLabel:'Guests (est.)',
+    budgetGuestsEstLabel:'Guests (est.)', budgetAutoCalc:'Calculated automatically',
     perGuestLabel:'€ / guest',
     budgetBreakdownLabel:'Breakdown by category',
     budgetCategoriesHint:'Categories · tap to see details',
@@ -10369,6 +10371,7 @@ const ORCX_COLORS = ['#B96750','#B76F7D','#D0AD87','#87947D','#CB9A8C','#8E7F78'
 function orcxColor(i){ return ORCX_COLORS[i % ORCX_COLORS.length]; }
 const ORCX_SVG = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ORCX_ICO = {
+  calc: ORCX_SVG('<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01M16 18h.01"/>'),
   pencil: ORCX_SVG('<path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>'),
   users: ORCX_SVG('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>'),
   up: ORCX_SVG('<path d="m18 15-6-6-6 6"/>'),
@@ -10572,7 +10575,8 @@ function viewOrcamentoPlano(){
     </div>
     <div class="orcx-stat">
       <div class="orcx-lbl">${ta('perGuestLabel')}</div>
-      <div class="orcx-stat-v"><span class="orcx-stat-n" id="perguest-display">${fmtEUR(perGuest)}</span></div>
+      <div class="orcx-stat-v"><span class="orcx-stat-n" id="perguest-display">${fmtEUR(perGuest)}</span><span class="orcx-edit orcx-auto" title="${escapeHTML(ta('budgetAutoCalc'))}" aria-hidden="true">${ORCX_ICO.calc}</span></div>
+      <div class="orcx-autolbl">${ta('budgetAutoCalc')}</div>
     </div>
   </section>
 
@@ -11427,7 +11431,7 @@ function viewMesas(){
   });
 
   return `
-  <header class="gtx-head" style="padding:14px 16px;">
+  <header class="gtx-head gtx-head-mesas" style="padding:14px 16px;">
     <h1 class="gtx-title">${ta('navTablesTitle')}</h1>
     <button class="nav-action gtx-add" id="add-table-btn" style="width:42px; height:42px; flex:none;">${ICONS.plus}</button>
   </header>
@@ -23796,7 +23800,7 @@ function ensureMesa3DHeader(){
     ? `<div class="mini-ring">${donutSVG(seatsPerTable? filled/seatsPerTable : 0, 'var(--blush-dark)', 34, 4)}<span class="mini-ring-txt">${filled}/${seatsPerTable}</span></div>`
     : `<span class="mesa3d-fillcount">${ta('mesa3dTablesCount')(state.seating.tables.length)}</span>`;
   el.innerHTML = `
-    <header class="gtx-head" style="padding:14px 16px;">
+    <header class="gtx-head gtx-head-mesas" style="padding:14px 16px;">
       <h1 class="gtx-title">${ta('tabSeating')}</h1>
       ${badge}
     </header>
