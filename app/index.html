@@ -14513,6 +14513,7 @@ let googleCalendarLoading = false;
 let googleCalendarCalendars = null; // lista devolvida por googleCalendarListCalendars, quando a pedir para escolher calendário
 let googleCalendarCalendarsLoading = false;
 let googleCalendarBusy = false; // true durante connect/sync/disconnect — desativa os botões para não haver duplo-clique
+let googleCalendarPrevCalId = null; // calendarId anterior, guardado ao tocar em "Alterar calendário" (para o Voltar repor a página do calendário)
 let googleCalendarActionMsg = null; // { type:'error'|'success', text } — mensagem da última ação, mostrada uma vez
 let memoriesLoaded = false;
 let memoriesLoading = false;
@@ -17158,7 +17159,7 @@ function viewDefGoogleCalendar(){
     }
     const cals = googleCalendarCalendars || [];
     return `
-    ${defSubHeader(ta('googleCalendarTitle'))}
+    ${defSubHeader(ta('googleCalendarTitle'), undefined, undefined, googleCalendarPrevCalId ? 'id="gcal-pick-back"' : undefined)}
     ${msgHtml}
     <div class="def-row-desc" style="margin:0 16px 14px;">${ta('googleCalendarPickCalendarText')}</div>
     <div class="list-group">
@@ -21225,6 +21226,7 @@ function bindGoogleCalendarHandlers(){
         googleCalendarBusy = false;
         googleCalendarCalendars = null; // força recarregar se voltar a este ecrã
         if(res.ok){
+          googleCalendarPrevCalId = null;
           googleCalendarActionMsg = { type:'success', text: ta('googleCalendarConnectSuccess') };
           loadGoogleCalendarIntegration();
         } else {
@@ -21256,7 +21258,17 @@ function bindGoogleCalendarHandlers(){
   const changeBtn = document.getElementById('gcal-change-btn');
   if(changeBtn) changeBtn.addEventListener('click', ()=>{
     googleCalendarCalendars = null;
+    googleCalendarPrevCalId = googleCalendarIntegration && googleCalendarIntegration.calendarId || null;
+    googleCalendarActionMsg = null; // não arrastar o erro/sucesso anterior para a lista
     googleCalendarIntegration = { ...googleCalendarIntegration, calendarId: null }; // só localmente, força mostrar a lista já — não escreve nada
+    render();
+  });
+  const pickBack = document.getElementById('gcal-pick-back');
+  if(pickBack) pickBack.addEventListener('click', ()=>{
+    // Voltar da lista de calendários → página inicial do Google Calendar (não o menu de Definições).
+    googleCalendarIntegration = { ...googleCalendarIntegration, calendarId: googleCalendarPrevCalId };
+    googleCalendarPrevCalId = null;
+    googleCalendarActionMsg = null;
     render();
   });
 
