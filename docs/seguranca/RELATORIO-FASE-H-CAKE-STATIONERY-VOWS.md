@@ -24,6 +24,9 @@ Branch `v325-import-guests`, commit inicial `fd7a686`. Tudo local: **sem push, m
 - Firestore: sem regras específicas (dados no documento do casamento, já isolado por dono/weddingId — testado nas fases B–G).
 - Storage: ficheiros em `documents/{weddingId}/` — A vs B (ler/criar/apagar/atualizar), anon, e-mail não verificado, expirado/cancelado, tipos, tamanho: cobertos por `rules-memdocs` (agora com casos `_cakeinsp_`). **Nenhuma regra alterada nesta fase → nada novo a publicar nas regras.**
 
+## 4b. Resultado dos testes
+Suite completa 42/42 (commit 426ec1d+docs). 1.ª execução: `ui-robust-state` e `ui-robust-paths` falharam porque o modo «Premium terminado» desenhava vistas com dados corrompidos; corrigido (try/catch → página de venda) e suite repetida na íntegra.
+
 ## 5. Não validado / limitações
 - Upload real para o Storage de produção e sincronização entre dois dispositivos reais: não executados (só emulador e testes de cliente).
 - Teste manual em browsers reais: não executado.
