@@ -5859,15 +5859,45 @@ async function contactReserve(ip, email, msg, now) {
     return { status: 'ok', refs: specs.map((s) => s[0]), dedupeRef };
   });
 }
+// Contenção do Firestore (rajada de pedidos nos mesmos contadores): a transação é abortada.
+// Antes isto caía no "fail-open" e deixava passar o pedido SEM contar — uma rajada podia
+// contornar os limites (medido no emulador: 40 pedidos em paralelo → 40 passaram). Agora
+// repete com espera aleatória e, se continuar contendido, trata como limitado (a contenção
+// num contador é, em si, sinal de rajada). Só falhas que NÃO são contenção continuam fail-open.
+function contactIsContention(e) {
+  return !!e && (e.code === 10 || e.code === 'aborted' || /contention|aborted/i.test(String(e.message || '')));
+}
+const contactSleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function contactReserveRetry(ip, email, msg, now) {
+  const ATTEMPTS = 8;
+  for (let i = 0; i < ATTEMPTS; i++) {
+    try {
+      return await contactReserve(ip, email, msg, now);
+    } catch (e) {
+      if (!contactIsContention(e)) throw e;
+      if (i === ATTEMPTS - 1) return { status: 'limited' };
+      await contactSleep(Math.random() * Math.min(1000, 40 * 2 ** i));
+    }
+  }
+  return { status: 'limited' };
+}
 // Se o SMTP falhar, devolve a quota (o visitante pode tentar de novo).
 async function contactRelease(r) {
-  try {
+  for (let i = 0; i < 6; i++) {
+    try { await contactReleaseOnce(r); return; } catch (e) {
+      if (!contactIsContention(e) || i === 5) { console.warn('sendContactMessage: release falhou', e.message || e); return; }
+      await contactSleep(Math.random() * Math.min(800, 40 * 2 ** i));
+    }
+  }
+}
+async function contactReleaseOnce(r) {
+  {
     await db.runTransaction(async (tx) => {
       const snaps = await Promise.all(r.refs.map((ref) => tx.get(ref)));
       snaps.forEach((s, k) => { if (s.exists && s.data().count > 0) tx.update(r.refs[k], { count: s.data().count - 1 }); });
       tx.delete(r.dedupeRef);
     });
-  } catch (e) { console.warn('sendContactMessage: release falhou', e.message || e); }
+  }
 }
 
 exports.sendContactMessage = onRequest(
@@ -5886,7 +5916,7 @@ exports.sendContactMessage = onRequest(
     // Proteção contra abuso (única alteração ao comportamento original).
     let resv = null;
     try {
-      resv = await contactReserve(contactClientIp(req), email, msg, Date.now());
+      resv = await contactReserveRetry(contactClientIp(req), email, msg, Date.now());
     } catch (e) {
       console.warn('sendContactMessage: limite indisponível, a deixar passar', e.message || e); // fail-open
     }
