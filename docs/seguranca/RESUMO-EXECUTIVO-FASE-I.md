@@ -1,6 +1,6 @@
 # Resumo executivo — Fase I (Google Calendar e Wedding Website)
 
-**Estado:** (preenchido no fecho — ver fim do ficheiro)
+**Estado:** Fase I concluída **localmente**, com a ressalva de que as integrações reais (Google, publicação) não foram validadas por exigirem credenciais externas. Suite completa **47/47** (41+1 anteriores + 5 novas: `gcal`, `site`, `rules-site`, `ui-gcal-lapsed`, `ui-site`). Sem P0/P1 em aberto.
 
 - Ambas as integrações **já existiam e estavam bem construídas** no servidor; faltavam testes e havia 2 problemas P1 e 3 P2, todos corrigidos (ver relatório): login-CSRF no OAuth, impossibilidade de desligar o Calendar sem Premium, e-mail da conta nunca obtido, falhas parciais ocultas, `oauthStates` sem limpeza.
 - Google Calendar: unidirecional Weddy→Google, scopes mínimos, tokens cifrados no servidor, sync sem duplicados, desligar não apaga eventos nem dados.

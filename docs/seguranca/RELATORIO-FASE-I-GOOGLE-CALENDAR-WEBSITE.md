@@ -59,7 +59,7 @@ Branch `v325-import-guests`, commit inicial `ece8dff`. Tudo local: **sem push, m
 | `rules-site` | regras reais no emulador | 38 |
 | `ui-gcal-lapsed` | UI Playwright, 390/768/1360, PT/EN | 69 |
 | `ui-site` | UI + renderizador, 390/768/1360, PT/EN | 90 |
-Suite completa: ver resumo executivo (resultado final).
+Suite completa: **47/47** (execução final após todas as alterações; uma execução anterior foi descartada por ter sido interrompida ao alterar o OAuth).
 
 **NÃO validado (exige credenciais/serviços externos):** troca real de code por tokens, refresh/revogação reais, criação real de eventos no Google, quotas reais, verificação da app OAuth, publicação real do site e leitura pública em produção, upload real ao Storage de produção, regresso do navegador ao `?googleCalendar=pending` (o fluxo do cliente foi revisto no código, não executado de ponta a ponta com o Google).
 
