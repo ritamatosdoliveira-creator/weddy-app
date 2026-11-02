@@ -273,6 +273,11 @@ exports.cleanupActivityLog = onSchedule(
         logger.error(`cleanupActivityLog: falhou no casamento ${w.id}. ${err.message || err}`);
       }
     }
+    // Fase I: estados OAuth (uso único, TTL 10 min) com mais de 24 h já não servem a nada.
+    try {
+      const oldStates = await db.collection('oauthStates').where('createdAt', '<', new Date(Date.now() - 24 * 60 * 60 * 1000)).limit(400).get();
+      if (!oldStates.empty) { const b = db.batch(); oldStates.docs.forEach((d) => b.delete(d.ref)); await b.commit(); }
+    } catch (err) { logger.error(`cleanupActivityLog: limpeza de oauthStates. ${err.message || err}`); }
     logger.info(`cleanupActivityLog: ${deleted} registos antigos apagados.`);
   }
 );
@@ -4046,14 +4051,20 @@ async function revokeGoogleToken(token) {
   }
 }
 
+// Fase I: identifica a conta ligada SEM pedir mais scopes. O endpoint /userinfo
+// exigia o scope "email" (que não pedimos — menor privilégio), por isso devolvia
+// sempre 401/403 e o e-mail nunca era mostrado. O id do calendário principal
+// (calendarList, "primary: true") é o e-mail da conta e já está coberto por
+// calendar.calendarlist.readonly.
 async function fetchGoogleUserEmail(accessToken) {
   try {
-    const res = await fetchWithBackoff('https://www.googleapis.com/oauth2/v2/userinfo', {
+    const res = await fetchWithBackoff('https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250&fields=items(id,primary)', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.email || null;
+    const primary = (Array.isArray(data.items) ? data.items : []).find((c) => c && c.primary === true && typeof c.id === 'string' && c.id.includes('@'));
+    return primary ? primary.id : null;
   } catch (err) {
     return null;
   }
@@ -4344,6 +4355,7 @@ async function performGoogleCalendarSync(weddingId) {
 
   let status = 'success';
   let errorMessage = null;
+  let failedItems = 0; // Fase I: falhas parciais deixam de aparecer como «success»
   try {
     const integrationSnap = await integrationRef.get();
     const integration = integrationSnap.data() || {};
@@ -4384,6 +4396,7 @@ async function performGoogleCalendarSync(weddingId) {
         }
         if (!res.ok) {
           logger.error(`performGoogleCalendarSync: falha a criar item ${item.weddyEventId} (HTTP ${res.status}).`);
+          failedItems++;
           continue;
         }
       } else {
@@ -4395,10 +4408,12 @@ async function performGoogleCalendarSync(weddingId) {
           const createRes = await googleEventRequest('POST', accessToken, calendarId, null, payload);
           if (!createRes.ok) {
             logger.error(`performGoogleCalendarSync: falha a recriar item ${item.weddyEventId} (HTTP ${createRes.status}).`);
+            failedItems++;
             continue;
           }
         } else if (!res.ok) {
           logger.error(`performGoogleCalendarSync: falha a atualizar item ${item.weddyEventId} (HTTP ${res.status}).`);
+          failedItems++;
           continue;
         }
       }
@@ -4421,10 +4436,12 @@ async function performGoogleCalendarSync(weddingId) {
       const res = await googleEventRequest('DELETE', accessToken, calendarId, mapping.googleEventId);
       if (!res.ok && res.status !== 404 && res.status !== 410) {
         logger.error(`performGoogleCalendarSync: falha a apagar evento ${weddyEventId} (HTTP ${res.status}).`);
+        failedItems++;
         continue;
       }
       await mappingsCol.doc(weddyEventId).delete();
     }
+    if (failedItems > 0) { status = 'partial'; errorMessage = `PARTIAL_${failedItems}`; }
   } catch (err) {
     status = 'error';
     errorMessage = (err instanceof HttpsError) ? err.message : String((err && err.message) || err);
@@ -4435,6 +4452,7 @@ async function performGoogleCalendarSync(weddingId) {
       lastSyncAt: admin.firestore.FieldValue.serverTimestamp(),
       lastSyncStatus: status,
       lastSyncError: errorMessage,
+      lastSyncFailedItems: failedItems,
     }, { merge: true });
   }
 }
@@ -4516,29 +4534,80 @@ exports.googleCalendarOAuthCallback = onRequest(
       }
       const googleAccountEmail = await fetchGoogleUserEmail(tokens.access_token);
 
-      const weddingRef = db.collection('weddings').doc(weddingId);
-      await weddingRef.collection('privateIntegrations').doc('googleCalendar').set({
-        provider: 'google_calendar',
-        encryptedRefreshToken: encryptOAuthToken(tokens.refresh_token),
-        tokenType: tokens.token_type || 'Bearer',
-        scope: tokens.scope || GOOGLE_CALENDAR_SCOPE,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      // Fase I (OAuth login-CSRF): o callback NÃO liga nada ao casamento. O `state` só prova que
+      // o fluxo foi iniciado por alguém com sessão — não que quem completou o consentimento no
+      // Google seja a mesma pessoa/browser (um atacante podia iniciar o fluxo e levar a vítima a
+      // autorizar). Por isso os tokens ficam "em espera" no próprio documento do state e só são
+      // ligados por googleCalendarFinalizeOAuth, que exige (1) a sessão do mesmo uid que iniciou
+      // e (2) um segredo que só vai no redirect para o browser que voltou do Google.
+      const finalizeSecret = crypto.randomBytes(24).toString('hex');
+      await stateRef.update({
+        pending: {
+          encryptedRefreshToken: encryptOAuthToken(tokens.refresh_token),
+          tokenType: tokens.token_type || 'Bearer',
+          scope: tokens.scope || GOOGLE_CALENDAR_SCOPE,
+          googleAccountEmail: googleAccountEmail || null,
+          finalizeHash: crypto.createHash('sha256').update(finalizeSecret).digest('hex'),
+        },
+        pendingAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-      await weddingRef.collection('integrations').doc('googleCalendar').set({
-        provider: 'google_calendar',
-        connected: true,
-        status: 'CONNECTED', // ainda falta escolher o calendário — o cliente trata disso a seguir
-        googleAccountEmail: googleAccountEmail || null,
-        scope: tokens.scope || GOOGLE_CALENDAR_SCOPE,
-        connectedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
 
-      res.redirect(`${APP_BASE_URL}?googleCalendar=success`);
+      res.redirect(`${APP_BASE_URL}?googleCalendar=pending&gstate=${encodeURIComponent(state)}&gfs=${finalizeSecret}`);
+      return;
     } catch (err) {
       logger.error(`googleCalendarOAuthCallback: falha a trocar code por tokens. ${err.message || err}`);
       res.redirect(`${APP_BASE_URL}?googleCalendar=error`);
     }
+  }
+);
+
+// --- Callable: finalizar a ligação (Fase I) ---------------------------------
+// Só o browser que voltou do Google conhece `gfs`; só a sessão que iniciou o fluxo (mesmo uid) o aceita.
+exports.googleCalendarFinalizeOAuth = onCall(
+  { region: 'europe-west1' },
+  async (request) => {
+    if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
+      throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
+    }
+    const weddingId = await resolveWeddingId(request, /* isCouple */ true);
+    if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+    await assertPremiumWedding(weddingId);
+    const state = request.data && request.data.state;
+    const secret = request.data && request.data.secret;
+    const invalid = () => new HttpsError('failed-precondition', 'OAUTH_FINALIZE_INVALID');
+    if (typeof state !== 'string' || !/^[0-9a-f]{48}$/.test(state) || typeof secret !== 'string' || !/^[0-9a-f]{48}$/.test(secret)) throw invalid();
+    const stateRef = db.collection('oauthStates').doc(state);
+    const pending = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(stateRef);
+      if (!snap.exists) throw invalid();
+      const d = snap.data();
+      if (!d.pending || d.finalized === true || d.uid !== request.auth.uid || d.weddingId !== weddingId) throw invalid();
+      const age = Date.now() - (d.pendingAt ? d.pendingAt.toMillis() : 0);
+      const given = Buffer.from(crypto.createHash('sha256').update(secret).digest('hex'));
+      const want = Buffer.from(String(d.pending.finalizeHash || ''));
+      const same = given.length === want.length && crypto.timingSafeEqual(given, want);
+      tx.delete(stateRef); // uso único: os tokens em espera desaparecem — também numa tentativa falhada (queima o state)
+      return (age > GOOGLE_OAUTH_STATE_TTL_MS || !same) ? null : d.pending;
+    });
+    if (!pending) throw invalid();
+    const weddingRef = db.collection('weddings').doc(weddingId);
+    await weddingRef.collection('privateIntegrations').doc('googleCalendar').set({
+      provider: 'google_calendar',
+      encryptedRefreshToken: pending.encryptedRefreshToken,
+      tokenType: pending.tokenType,
+      scope: pending.scope,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    await weddingRef.collection('integrations').doc('googleCalendar').set({
+      provider: 'google_calendar',
+      connected: true,
+      status: 'CONNECTED', // ainda falta escolher o calendário — o cliente trata disso a seguir
+      googleAccountEmail: pending.googleAccountEmail || null,
+      scope: pending.scope,
+      connectedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return { ok: true };
   }
 );
 

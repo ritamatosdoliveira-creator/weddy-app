@@ -22,7 +22,7 @@ window.__t={get state(){return state;}, set state(v){state=v;}, get gimp(){retur
    ready:function(){ if(!auth||!auth.currentUser) auth={currentUser:{}}; currentWeddingId='W'; firstSyncDone=true; render=function(){ _origRender(); }; },
    setRsvp:function(r,loaded){ rsvpResponses=r; rsvpResponsesLoaded=loaded!==false; },
    setSettings:function(o){ Object.assign(weddingSettings,o); }, dirty:function(v){ pendingSaveDirty=v; }, isOpen:function(){ return ntOpen; } },
- sec:function(sec){ activeTab='definicoes'; definicoesSection=sec; render(); }, section:function(){ return definicoesSection; }, mem:function(list){ weddingMemories=list; memoriesLoaded=true; memoriesLoading=false; memoriesLapsedProbed=true; },
+ sec:function(sec){ activeTab='definicoes'; definicoesSection=sec; render(); }, section:function(){ return definicoesSection; }, site:function(d){ siteS.wid=currentWeddingId; siteS.loaded=true; siteS.loading=false; siteS.err=false; siteS.doc=d; }, gcal:function(c){ googleCalendarIntegration=c; googleCalendarLoading=false; googleCalendarActionMsg=null; }, mem:function(list){ weddingMemories=list; memoriesLoaded=true; memoriesLoading=false; memoriesLapsedProbed=true; },
  back:function(){return weddyBackStep();}, lang:function(l){ appLang=l; },
  mesas:{ open:function(id){ openTable[id]=true; }, go:function(){ activeTab='mesas'; render(); }, seat:function(k){ return openSeatSheet(k); } },
  hc:function(){ return getWeddingHealthChecks().map(function(c){ return {id:c.id,text:c.text,severity:c.severity}; }); }, setDate:function(d){ weddingSettings.weddingDate=d; },
