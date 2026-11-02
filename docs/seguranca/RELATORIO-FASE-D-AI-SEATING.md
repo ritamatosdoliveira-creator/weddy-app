@@ -51,7 +51,7 @@ Estilo editorial existente. Novo: escolha de modo (só quando já há lugares at
 | `seating-engine` (A, B, C, D, E, F, G, H, I, L, M, N, O, P, Q + limites/desempenho + validador adulterado) | 97/97 |
 | `ui-seating-ai` (A, C–F, I, J, K, L, M, P, Q, R; 390/768/1360; EN) | 80/80 |
 | `rules-phasec` (+ coleções internas) | 31/31 |
-| Suite completa | __SUITE__ |
+| Suite completa | 36/36 suites (antes 34/34), incluindo concorrência, Premium, segurança, RSVP e logística |
 
 Desempenho medido: 600 convidados / 60 mesas / 120 famílias — distribuição e otimização em milissegundos a poucos segundos (ver teste "Perf").
 
