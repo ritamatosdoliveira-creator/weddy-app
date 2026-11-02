@@ -23,6 +23,10 @@ await rec('convidado não lista por weddingId',true,()=>getDocs(query(collection
 await rec('convidado não lê o documento do casamento (orçamento/estado)',true,()=>getDoc(doc(F(anon),'weddings/W1')));
 await rec('convidado não escreve no casamento',true,()=>updateDoc(doc(F(anon),'weddings/W1'),{json:'{}'}));
 await rec('só com o token (ID) lê o seu documento',false,()=>getDoc(G(anon,'g1')));
+// Fase D: coleções internas do AI Seating (só servidor)
+await rec('ninguém lê seatingRuns (só servidor)',true,()=>getDoc(doc(F(A),'seatingRuns/W1')));
+await rec('o casal não escreve em seatingRuns (limitador do servidor)',true,()=>setDoc(doc(F(A),'seatingRuns/W1'),{lastMs:0}));
+await rec('o casal não repõe o contador de IA (aiUsage)',true,()=>setDoc(doc(F(A),'aiUsage/W1'),{count:0}));
 // 2: convidado altera "outro": só com o token do outro; e só campos de resposta
 await rec('convidado com token errado/inexistente não cria documentos',true,()=>setDoc(G(anon,'novo'),{weddingId:'W1',name:'x'}));
 await rec('convidado não altera nome/email/weddingId do seu documento',true,()=>updateDoc(G(anon,'g1'),{name:'x'}));

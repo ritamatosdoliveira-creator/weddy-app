@@ -27,6 +27,8 @@ const SUITES = [
   { id: 'rsvp-reminders-logistics', group: 'rsvp', name: 'Lembretes × logística (Fase C, teste G)', cmd: ['node', 'rsvp/reminders-logistics.test.js'], emu: true },
   { id: 'migrate', group: 'migrate', name: 'Migração de consentimentos', cmd: ['node', 'consent/migrate-consents.test.js'], emu: true },
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
+  { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
+  { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },
   { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
   { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
   { id: 'contact-stress', group: 'contact', name: 'Formulário de contacto: concorrência repetida', cmd: ['node', 'contact/concurrency-stress.test.js'], emu: true },

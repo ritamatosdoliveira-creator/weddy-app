@@ -1439,9 +1439,21 @@ const SEATING_TYPES = ['TOGETHER', 'APART', 'NEAR'];
 // nenhuma mesa e nunca deixa um convidado em duas mesas ao mesmo tempo;
 // quando não existe solução válida, devolve { ok:false, reason, message }
 // em vez de forçar uma distribuição inválida.
-function solveSeating(guests, tables, rawConstraints) {
+function solveSeating(guests, tables, rawConstraints, opts = {}) {
   const guestIds = new Set(guests.map((g) => g.guestId));
-  const totalSeats = tables.reduce((s, t) => s + (Number(t.seats) || 0), 0);
+  // Fase D: lugares ocupados por quem NÃO é elegível (ficam intocáveis) reduzem a capacidade efetiva.
+  const outsiders = opts.outsiders || {};
+  const attrs = opts.attrs || {};
+  const occupiedSeats = new Set(Object.keys(outsiders));
+  const capOf = new Map(tables.map((t) => {
+    let used = 0; for (let n = 1; n <= (Number(t.seats) || 0); n++) if (occupiedSeats.has(`t${t.id}-s${n}`)) used++;
+    return [t.id, Math.max(0, (Number(t.seats) || 0) - used)];
+  }));
+  const freeSeatsOf = new Map(tables.map((t) => {
+    const arr = []; for (let n = 1; n <= (Number(t.seats) || 0); n++) if (!occupiedSeats.has(`t${t.id}-s${n}`)) arr.push(n);
+    return [t.id, arr];
+  }));
+  const totalSeats = tables.reduce((s, t) => s + capOf.get(t.id), 0);
 
   if (!tables.length) {
     return { ok: false, reason: 'NO_TABLES', message: 'Ainda não há mesas criadas — cria as mesas primeiro na aba Mesas antes de pedir à Weddy para as organizar.' };
@@ -1505,7 +1517,7 @@ function solveSeating(guests, tables, rawConstraints) {
     if (ra === rb) return true;
     if (wouldConflict(ra, rb, minPriority)) return false;
     if (enforceCapacity) {
-      const maxCap = Math.max(...tables.map((t) => Number(t.seats) || 0));
+      const maxCap = Math.max(...tables.map((t) => capOf.get(t.id)));
       if (clusterOf(ra).length + clusterOf(rb).length > maxCap) return false;
     }
     parent.set(ra, rb);
@@ -1532,7 +1544,7 @@ function solveSeating(guests, tables, rawConstraints) {
     }
   }
   // Confirma que nenhum grupo HARD ficou maior do que a maior mesa.
-  const maxCapacity = Math.max(...tables.map((t) => Number(t.seats) || 0));
+  const maxCapacity = Math.max(...tables.map((t) => capOf.get(t.id)));
   const seenRoots = new Set();
   for (const g of guests) {
     const root = find(g.guestId);
@@ -1560,6 +1572,11 @@ function solveSeating(guests, tables, rawConstraints) {
   constraints.filter((c) => c.type === 'NEAR').forEach((c) => {
     for (let i = 1; i < c.guestIds.length; i++) tryUnion(c.guestIds[0], c.guestIds[i], c.priority, true);
   });
+  // Fase D: famílias (identificador opaco vindo dos convites) ficam juntas quando cabem e não colidem
+  // com um "separados"; nunca é obrigatório — se não couber, a família separa-se e é sinalizado no relatório.
+  seatingFamilies(guests.map((g) => g.guestId), attrs).forEach((f) => {
+    for (let i = 1; i < f.ids.length; i++) tryUnion(f.ids[0], f.ids[i], 'STRONG', true);
+  });
 
   // 3) Bin-packing determinístico (Best-Fit-Decreasing pelos clusters
   // finais, maiores primeiro): para cada cluster, escolhe a mesa com
@@ -1571,7 +1588,7 @@ function solveSeating(guests, tables, rawConstraints) {
   const clusterRoots = new Set(guests.map((g) => find(g.guestId)));
   const clusterList = Array.from(clusterRoots).map((root) => clusterOf(root)).sort((a, b) => b.length - a.length);
 
-  const tableRemaining = new Map(tables.map((t) => [t.id, Number(t.seats) || 0]));
+  const tableRemaining = new Map(tables.map((t) => [t.id, capOf.get(t.id)]));
   const tableMembers = new Map(tables.map((t) => [t.id, []]));
   const assignments = {};
   const unplaced = [];
@@ -1592,8 +1609,8 @@ function solveSeating(guests, tables, rawConstraints) {
         .sort((a, b) => tableRemaining.get(a.id) - tableRemaining.get(b.id))[0];
     }
     if (!chosen) { unplaced.push(...cluster); return; }
-    let seat = (Number(chosen.seats) || 0) - tableRemaining.get(chosen.id) + 1;
-    cluster.forEach((gid) => { assignments[`t${chosen.id}-s${seat}`] = gid; seat++; });
+    const freeSeats = freeSeatsOf.get(chosen.id);
+    cluster.forEach((gid) => { assignments[`t${chosen.id}-s${freeSeats.shift()}`] = gid; });
     tableRemaining.set(chosen.id, tableRemaining.get(chosen.id) - cluster.length);
     tableMembers.set(chosen.id, tableMembers.get(chosen.id).concat(cluster));
   });
@@ -1757,6 +1774,11 @@ function interpretSeatingFreeTextByRegex(freeText, guestNames) {
 // IA não sabe guestIds, só os nomes que existem nesta lista, que lhe
 // damos explicitamente para ela nunca inventar gente que não existe).
 async function interpretSeatingFreeText(freeText, guestNames) {
+  // Fase D (privacidade): a IA nunca recebe a lista de convidados nem nomes — o texto é pseudonimizado
+  // localmente (nomes → P1, P2…) e só se chama a IA se houver pelo menos dois nomes reconhecidos.
+  const regexFallback = () => interpretSeatingFreeTextByRegex(freeText, guestNames);
+  const pseudo = pseudonymizeSeatingText(freeText, guestNames);
+  if (pseudo.tokens.size < 2) return regexFallback();
   const schema = {
     type: 'object',
     properties: {
@@ -1780,47 +1802,417 @@ async function interpretSeatingFreeText(freeText, guestNames) {
   const prompt = [
     'Interpretas pedidos em português sobre lugares à mesa num casamento, e transformas SÓ em constraints estruturadas — nunca decides onde ninguém se senta.',
     'Tipos: TOGETHER (ficar na mesma mesa), APART (nunca na mesma mesa), NEAR (perto, não necessariamente a mesma mesa).',
-    'Prioridade: HARD (obrigatório, ex: "nunca", "tem de", "não pode"), STRONG (muito importante, ex: "gostava muito", "é importante"), SOFT (desejável, ex: "se der", "gostava").',
-    'Cada "names" tem de conter SÓ nomes que aparecem literalmente nesta lista de convidados confirmados (não inventes nem corrijas nomes): ' + guestNames.join(', ') + '.',
-    'Se um pedido mencionar alguém que NÃO está nesta lista, ignora esse pedido por completo (não o incluas nas constraints).',
-    'Se não conseguires perceber nenhuma preferência clara, devolve constraints: [].',
-    `Texto: "${String(freeText).replace(/"/g, '\\"').slice(0, 1000)}"`,
+    'Prioridade: HARD (obrigatório, ex: "nunca", "tem de", "não pode"), STRONG (muito importante), SOFT (desejável, ex: "se der", "gostava").',
+    'As pessoas aparecem no texto como marcadores ' + Array.from(pseudo.tokens.keys()).join(', ') + '. Em "names" usa SÓ esses marcadores, exatamente como escritos.',
+    'Se um pedido mencionar alguém que não seja um destes marcadores, ignora esse pedido. Se não perceberes nenhuma preferência clara, devolve constraints: [].',
+    `Texto: "${String(pseudo.text).replace(/"/g, '\\"').slice(0, SEATING_LIMITS.MAX_FREE_TEXT)}"`,
   ].join('\n');
   const parsed = await callOpenAIStructured(prompt, 'weddy_seating_constraints', schema);
   if (parsed && Array.isArray(parsed.constraints)) {
-    return parsed.constraints.filter((c) => c && SEATING_TYPES.includes(c.type) && SEATING_PRIORITIES.includes(c.priority) && Array.isArray(c.names) && c.names.length >= 2);
+    return parsed.constraints
+      .filter((c) => c && SEATING_TYPES.includes(c.type) && SEATING_PRIORITIES.includes(c.priority) && Array.isArray(c.names) && c.names.length >= 2)
+      .map((c) => ({ type: c.type, priority: c.priority, names: c.names.map((t) => pseudo.tokens.get(String(t))).filter(Boolean) }))
+      .filter((c) => c.names.length >= 2);
   }
-  // callOpenAIStructured devolve null sempre que a chave não está
-  // configurada ou a chamada falhou por qualquer razão (nunca por a IA ter
-  // decidido que não há preferências — isso vem como constraints: [], que
-  // já foi tratado acima). Nestes casos, cai para o interpretador por
-  // regras simples em vez de deixar o campo de texto livre sem efeito.
-  return interpretSeatingFreeTextByRegex(freeText, guestNames);
+  return regexFallback();
 }
 
 // Gera uma explicação em português do resultado já calculado — nunca lhe
 // pedimos para "decidir" nada, só para pôr em palavras o que o
 // solveSeating() já fez. Se a IA não estiver disponível, cai num resumo
 // gerado por template (menos natural, mas sempre correto).
-async function explainSeatingResult(result, tables) {
-  const templateFallback = () => {
-    const bits = [`${result.satisfiedPct}% das preferências foram respeitadas.`];
-    if (result.violations && result.violations.length) bits.push(...result.violations.map((v) => `⚠️ ${v}`));
-    if (result.warnings && result.warnings.length) bits.push(...result.warnings.slice(0, 5).map((w) => `• ${w}`));
-    return bits.join(' ');
+// Explicação 100% determinística (sem IA): só factos verificáveis do resultado já calculado.
+function explainSeatingResult(result, tables) {
+  const bits = [`${result.satisfiedPct}% das preferências foram respeitadas.`];
+  if (result.violations && result.violations.length) bits.push(...result.violations.map((v) => `⚠️ ${v}`));
+  if (result.warnings && result.warnings.length) bits.push(...result.warnings.slice(0, 5).map((w) => `• ${w}`));
+  return bits.join(' ');
+}
+
+// ---------------------------------------------------------------------------
+// Fase D — AI Seating consolidado. Tudo o que decide lugares é determinístico
+// e local (sem IA). A IA só interpreta texto livre, com nomes substituídos por
+// marcadores anónimos (P1, P2…) — nunca recebe a lista de convidados, contactos,
+// alergias, acessibilidade nem a proposta.
+// ---------------------------------------------------------------------------
+const SEATING_LIMITS = Object.freeze({ MAX_GUESTS: 800, MAX_TABLES: 150, MAX_SEATS_PER_TABLE: 60, MAX_CONSTRAINTS: 50, MAX_IDS_PER_CONSTRAINT: 20, MAX_ATTRS: 800, MAX_FREE_TEXT: 1000, MAX_MOVES: 60, MIN_INTERVAL_MS: 2000 });
+const SEATING_MODES = ['auto', 'optimize'];
+const SEAT_KEY_RE = /^t(\d+)-s(\d+)$/;
+
+// Convidados elegíveis = confirmados (política atual: state.confirmed), sem duplicados.
+function seatingEligibleGuests(clientState) {
+  const FIXED_CAT_LABELS = { familia: 'Família', amigos: 'Amigos', duvida: 'Na dúvida', staff: 'Staff/fornecedores' };
+  const FIXED_CATS = ['familia', 'amigos', 'duvida', 'staff'];
+  const guests = [];
+  const seen = new Set();
+  ['noiva', 'noivo', 'conjunto'].forEach((side) => {
+    const root = clientState && clientState.guests && clientState.guests[side];
+    if (!root) return;
+    const arrays = [
+      ...FIXED_CATS.map((catId) => ({ catLabel: FIXED_CAT_LABELS[catId], arr: root[catId] })),
+      ...(Array.isArray(root.custom) ? root.custom.map((c) => ({ catLabel: (c && (c.label || c.id)) || 'Categoria própria', arr: c && c.names })) : []),
+    ].filter((x) => Array.isArray(x.arr));
+    arrays.forEach(({ catLabel, arr }) => {
+      arr.forEach((entry) => {
+        if (!entry || typeof entry !== 'object' || typeof entry.guestId !== 'string' || !entry.guestId) return;
+        if (!(clientState.confirmed && clientState.confirmed[entry.guestId])) return;
+        if (seen.has(entry.guestId)) return;
+        seen.add(entry.guestId);
+        guests.push({ guestId: entry.guestId, name: typeof entry.name === 'string' ? entry.name : '', side, catLabel });
+      });
+    });
+  });
+  return guests;
+}
+
+function seatingNormalizeTables(rawTables) {
+  return (Array.isArray(rawTables) ? rawTables : [])
+    .filter((t) => t && Number.isInteger(Number(t.id)) && Number(t.id) > 0)
+    .map((t) => ({ id: Number(t.id), seats: Math.max(0, Math.min(SEATING_LIMITS.MAX_SEATS_PER_TABLE, Math.floor(Number(t.seats) || 0))) }));
+}
+
+// Atributos minimizados vindos do cliente: só marcadores 0/1 e um identificador de família opaco.
+// Só influenciam PREFERÊNCIAS (agrupar famílias, sinalizar necessidades) — nunca capacidade nem permissões.
+function sanitizeSeatingAttrs(raw, eligibleIds) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  let n = 0;
+  for (const gid of Object.keys(raw)) {
+    if (n >= SEATING_LIMITS.MAX_ATTRS) break;
+    if (!eligibleIds.has(gid)) continue;
+    const a = raw[gid];
+    if (!a || typeof a !== 'object') continue;
+    const clean = {};
+    if (typeof a.f === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(a.f)) clean.f = a.f;
+    if (a.a === 1 || a.a === true) clean.a = 1;
+    if (a.c === 1 || a.c === true) clean.c = 1;
+    if (a.k === 1 || a.k === true) clean.k = 1;
+    if (Object.keys(clean).length) { out[gid] = clean; n++; }
+  }
+  return out;
+}
+
+function seatingFamilies(guestIds, attrs) {
+  const fam = new Map();
+  guestIds.forEach((gid) => {
+    const f = attrs[gid] && attrs[gid].f;
+    if (!f) return;
+    if (!fam.has(f)) fam.set(f, []);
+    fam.get(f).push(gid);
+  });
+  return Array.from(fam.entries()).filter(([, ids]) => ids.length >= 2).map(([key, ids]) => ({ key, ids }));
+}
+
+// Lugares atuais separados em: dos elegíveis (válidos / inválidos) e de "outros" (não elegíveis — ficam intocáveis e ocupam lugar).
+function seatingSplitCurrent(rawAssign, tables, eligibleIds) {
+  const tableSeats = new Map(tables.map((t) => [t.id, t.seats]));
+  const eligible = {}; const outsiders = {}; const invalid = [];
+  const seatUsed = new Set(); const guestSeen = new Set();
+  const entries = rawAssign && typeof rawAssign === 'object' ? Object.entries(rawAssign) : [];
+  entries.sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  for (const [key, gid] of entries) {
+    if (!gid || typeof gid !== 'string') continue;
+    const m = SEAT_KEY_RE.exec(key);
+    const valid = m && tableSeats.has(Number(m[1])) && Number(m[2]) >= 1 && Number(m[2]) <= tableSeats.get(Number(m[1])) && !seatUsed.has(key);
+    if (!valid) { if (eligibleIds.has(gid)) invalid.push(gid); continue; }
+    if (eligibleIds.has(gid)) {
+      if (guestSeen.has(gid)) { invalid.push(gid); continue; }
+      guestSeen.add(gid); seatUsed.add(key); eligible[key] = gid;
+    } else { seatUsed.add(key); outsiders[key] = gid; }
+  }
+  return { eligible, outsiders, invalid };
+}
+
+function seatingTableOfMap(assignments) {
+  const m = new Map();
+  for (const [key, gid] of Object.entries(assignments || {})) {
+    const k = SEAT_KEY_RE.exec(key);
+    if (k && gid) m.set(gid, Number(k[1]));
+  }
+  return m;
+}
+
+// Violações das restrições duras (HARD) numa distribuição: devolve lista de {type, guestIds}.
+function seatingHardViolations(assignments, constraints) {
+  const tof = seatingTableOfMap(assignments);
+  const out = [];
+  (constraints || []).filter((c) => c.priority === 'HARD').forEach((c) => {
+    const tids = c.guestIds.map((g) => tof.get(g));
+    if (c.type === 'TOGETHER') { if (tids.some((t) => t == null) || new Set(tids).size !== 1) out.push({ type: c.type, guestIds: c.guestIds }); }
+    else if (c.type === 'APART') { const placed = tids.filter((t) => t != null); if (new Set(placed).size !== placed.length) out.push({ type: c.type, guestIds: c.guestIds }); }
+  });
+  return out;
+}
+
+// Validação integral ANTES de devolver/aplicar — independente do que o motor ou a IA tenham produzido.
+function validateSeatingProposal({ assignments, eligible, tables, constraints, outsiders, original }) {
+  const errors = [];
+  const tableSeats = new Map(tables.map((t) => [t.id, t.seats]));
+  const eligibleIds = new Set(eligible.map((g) => g.guestId));
+  const seen = new Set(); const perTable = new Map();
+  for (const [key, gid] of Object.entries(assignments || {})) {
+    const m = SEAT_KEY_RE.exec(key);
+    if (!m) { errors.push({ code: 'BAD_SEAT_KEY', key }); continue; }
+    const tid = Number(m[1]), seat = Number(m[2]);
+    if (!tableSeats.has(tid)) { errors.push({ code: 'UNKNOWN_TABLE', key }); continue; }
+    if (seat < 1 || seat > tableSeats.get(tid)) { errors.push({ code: 'SEAT_OUT_OF_RANGE', key }); continue; }
+    if (!gid) continue;
+    if (outsiders && outsiders[key] === gid) { perTable.set(tid, (perTable.get(tid) || 0) + 1); continue; }
+    if (!eligibleIds.has(gid)) { errors.push({ code: 'UNKNOWN_GUEST', key, guestId: gid }); continue; }
+    if (seen.has(gid)) errors.push({ code: 'DUPLICATE_GUEST', guestId: gid });
+    seen.add(gid);
+    perTable.set(tid, (perTable.get(tid) || 0) + 1);
+  }
+  for (const [tid, n] of perTable) if (n > tableSeats.get(tid)) errors.push({ code: 'OVER_CAPACITY', tableId: tid });
+  eligible.forEach((g) => { if (!seen.has(g.guestId)) errors.push({ code: 'GUEST_OMITTED', guestId: g.guestId }); });
+  // atribuições de quem não é elegível não podem desaparecer nem mudar
+  for (const [key, gid] of Object.entries(outsiders || {})) if (assignments[key] !== gid) errors.push({ code: 'OUTSIDER_CHANGED', key });
+  seatingHardViolations(assignments, constraints).forEach((v) => errors.push({ code: 'HARD_VIOLATED', type: v.type, guestIds: v.guestIds }));
+  // nada de atribuições anteriores apagadas em silêncio (modo otimizar): quem estava sentado continua sentado
+  if (original) for (const [key, gid] of Object.entries(original)) {
+    if (!outsiders || outsiders[key] !== gid) { if (gid && eligibleIds.has(gid) && !seen.has(gid)) errors.push({ code: 'ASSIGNMENT_LOST', guestId: gid }); }
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+// Relatório estruturado (só ids e códigos; o cliente escreve as frases e resolve os nomes localmente).
+function buildSeatingReport({ assignments, eligible, tables, attrs, constraints }) {
+  const tof = seatingTableOfMap(assignments);
+  const eligibleIds = eligible.map((g) => g.guestId);
+  const perTable = new Map(tables.map((t) => [t.id, { id: t.id, seats: t.seats, used: 0, familiesTogether: 0, accessibility: 0, catering: 0, children: 0 }]));
+  const issues = [];
+  eligibleIds.forEach((gid) => {
+    const t = tof.get(gid);
+    if (t == null || !perTable.has(t)) return;
+    const r = perTable.get(t); const a = attrs[gid] || {};
+    r.used++; if (a.a) r.accessibility++; if (a.c) r.catering++; if (a.k) r.children++;
+  });
+  assignments && Object.keys(assignments).forEach((key) => {
+    const m = SEAT_KEY_RE.exec(key); if (!m || !assignments[key]) return;
+    const r = perTable.get(Number(m[1])); if (r && !eligibleIds.includes(assignments[key])) r.used++;
+  });
+  const unseated = eligibleIds.filter((g) => !tof.has(g));
+  if (unseated.length) issues.push({ code: 'UNSEATED', guestIds: unseated });
+  seatingFamilies(eligibleIds, attrs).forEach((f) => {
+    const tids = f.ids.map((g) => tof.get(g)).filter((t) => t != null);
+    const distinct = Array.from(new Set(tids));
+    if (distinct.length === 1 && tids.length === f.ids.length) perTable.get(distinct[0]).familiesTogether++;
+    else if (distinct.length > 1) issues.push({ code: 'FAMILY_SPLIT', guestIds: f.ids, tableIds: distinct.sort((a, b) => a - b) });
+  });
+  (constraints || []).forEach((c) => {
+    const tids = c.guestIds.map((g) => tof.get(g));
+    const placed = tids.filter((t) => t != null);
+    const ok = c.type === 'APART' ? new Set(placed).size === placed.length : (placed.length === tids.length && new Set(placed).size === 1);
+    if (!ok) issues.push({ code: c.priority === 'HARD' ? 'HARD_UNMET' : 'PREFERENCE_UNMET', type: c.type, priority: c.priority, guestIds: c.guestIds });
+  });
+  const tablesOut = Array.from(perTable.values()).sort((a, b) => a.id - b.id);
+  const accTables = tablesOut.filter((t) => t.accessibility > 0).map((t) => t.id);
+  const accGuests = eligibleIds.filter((g) => attrs[g] && attrs[g].a);
+  if (accGuests.length) issues.push({ code: 'ACCESS_CHECK', count: accGuests.length, tableIds: accTables });
+  const cateringCount = eligibleIds.filter((g) => attrs[g] && attrs[g].c).length;
+  if (cateringCount) issues.push({ code: 'CATERING_NOTE', count: cateringCount });
+  const free = tablesOut.reduce((s, t) => s + Math.max(0, t.seats - t.used), 0);
+  return { tables: tablesOut, issues, freeSeats: free };
+}
+
+// Custo (menor = melhor) usado só pela otimização. Trabalha sobre um Map guestId → mesa.
+function seatingEvalCost(T, constraints, families) {
+  let cost = 0; let hard = 0;
+  constraints.forEach((c) => {
+    const placed = c.guestIds.map((g) => T.get(g));
+    const have = placed.filter((t) => t != null);
+    const ok = c.type === 'APART' ? new Set(have).size === have.length : (have.length === placed.length && new Set(have).size === 1);
+    if (!ok) { if (c.priority === 'HARD') { cost += 1000; hard++; } else cost += c.priority === 'STRONG' ? 30 : 10; }
+  });
+  families.forEach((f) => { const d = new Set(f.ids.map((g) => T.get(g)).filter((t) => t != null)); if (d.size > 1) cost += 20 * (d.size - 1); });
+  return { cost, hard };
+}
+
+// Modo "otimizar": parte da distribuição atual, nunca tira ninguém do sítio sem propor um destino,
+// e só devolve movimentos independentes (cada destino é um lugar livre no estado atual, usado uma vez).
+function optimizeSeating({ eligible, tables, constraints, current, outsiders, attrs }) {
+  const eligibleIds = eligible.map((g) => g.guestId);
+  const families = seatingFamilies(eligibleIds, attrs);
+  const famOf = new Map(); families.forEach((f) => f.ids.forEach((g) => famOf.set(g, f)));
+  const occupied = new Set([...Object.keys(current), ...Object.keys(outsiders)]);
+  const freeByTable = new Map(tables.map((t) => {
+    const seats = []; for (let s = 1; s <= t.seats; s++) if (!occupied.has(`t${t.id}-s${s}`)) seats.push(s);
+    return [t.id, seats];
+  }));
+  const claimed = new Set();
+  const asg = { ...current };
+  const seatOf = new Map(Object.entries(current).map(([k, g]) => [g, k]));
+  const T = seatingTableOfMap(current);
+  const moves = []; const movedGuests = new Set(); let swapGroup = 0;
+  const nextFree = (tid) => (freeByTable.get(tid) || []).find((s) => !claimed.has(`t${tid}-s${s}`));
+  const place = (gid, tid, reason) => {
+    const seat = nextFree(tid); if (seat == null) return false;
+    const to = `t${tid}-s${seat}`; claimed.add(to);
+    const from = seatOf.get(gid) || null;
+    if (from) delete asg[from];
+    asg[to] = gid; seatOf.set(gid, to); T.set(gid, tid); movedGuests.add(gid);
+    moves.push({ guestId: gid, from, to, reason });
+    return true;
   };
-  const key = OPENAI_API_KEY.value();
-  if (!key) return templateFallback();
-  const schema = { type: 'object', properties: { explanation: { type: 'string' } }, required: ['explanation'], additionalProperties: false };
-  const prompt = [
-    'Escreves, em português de Portugal, um resumo curto e simpático (3-5 frases) do resultado de uma distribuição de mesas de casamento que JÁ foi calculada — não decides nada, só explicas o que aconteceu.',
-    `Percentagem de preferências respeitadas: ${result.satisfiedPct}%.`,
-    result.warnings && result.warnings.length ? `Preferências não totalmente respeitadas: ${result.warnings.join(' | ')}` : 'Todas as preferências pedidas foram respeitadas.',
-    'Não inventes detalhes que não estão aqui. Não uses a palavra "algoritmo". Tom caloroso mas direto.',
-  ].join('\n');
-  const parsed = await callOpenAIStructured(prompt, 'weddy_seating_explanation', schema);
-  if (!parsed || typeof parsed.explanation !== 'string' || !parsed.explanation.trim()) return templateFallback();
-  return parsed.explanation.trim().slice(0, 800);
+  // avalia mover gid para a mesa tid (sem alterar o estado)
+  const tryCost = (gid, tid) => { const prev = T.get(gid); T.set(gid, tid); const r = seatingEvalCost(T, constraints, families); if (prev == null) T.delete(gid); else T.set(gid, prev); return r; };
+
+  // 1) sentar quem está por sentar (ou com lugar inválido): perto da família/parceiros, sem violar APART duro.
+  const unseated = eligibleIds.filter((g) => !seatOf.has(g));
+  unseated.sort((a, b) => ((famOf.get(b) ? famOf.get(b).ids.length : 0) - (famOf.get(a) ? famOf.get(a).ids.length : 0)) || (a < b ? -1 : 1));
+  unseated.forEach((gid) => {
+    let best = null;
+    tables.forEach((t) => {
+      if (nextFree(t.id) == null) return;
+      const r = tryCost(gid, t.id);
+      const base = seatingEvalCost(T, constraints, families);
+      if (r.hard > base.hard) return; // nunca criar violação dura nova
+      const mates = famOf.get(gid) ? famOf.get(gid).ids.filter((o) => T.get(o) === t.id && o !== gid).length : 0;
+      if (!best || r.cost < best.cost || (r.cost === best.cost && (-mates < best.negMates || (-mates === best.negMates && t.id < best.t.id)))) best = { t, cost: r.cost, negMates: -mates };
+    });
+    if (best) place(gid, best.t.id, 'unseated');
+  });
+
+  // 2) melhorar: mover quem está em famílias separadas / preferências por cumprir, se o custo descer
+  // e nenhuma restrição dura nova for violada.
+  for (let pass = 0; pass < 3 && moves.length < SEATING_LIMITS.MAX_MOVES; pass++) {
+    let improved = false;
+    const problem = new Set();
+    constraints.forEach((c) => {
+      const placed = c.guestIds.map((g) => T.get(g)); const have = placed.filter((t) => t != null);
+      const ok = c.type === 'APART' ? new Set(have).size === have.length : (have.length === placed.length && new Set(have).size === 1);
+      if (!ok) c.guestIds.forEach((g) => problem.add(g));
+    });
+    families.forEach((f) => { if (new Set(f.ids.map((g) => T.get(g))).size > 1) f.ids.forEach((g) => problem.add(g)); });
+    for (const gid of Array.from(problem).sort()) {
+      if (movedGuests.has(gid) || !seatOf.has(gid) || moves.length >= SEATING_LIMITS.MAX_MOVES) continue;
+      const base = seatingEvalCost(T, constraints, families); let best = null;
+      tables.forEach((t) => {
+        if (t.id === T.get(gid) || nextFree(t.id) == null) return;
+        const r = tryCost(gid, t.id);
+        if (r.hard > base.hard) return;
+        if (r.cost < base.cost && (!best || r.cost < best.cost || (r.cost === best.cost && t.id < best.t.id))) best = { t, cost: r.cost };
+      });
+      if (best) { place(gid, best.t.id, famOf.get(gid) ? 'family' : 'preference'); improved = true; continue; }
+      // Sem lugar livre que ajude: tenta TROCAR com alguém de outra mesa (troca atómica: os dois movimentos
+      // levam o mesmo "group" e têm de ser aplicados ou recusados juntos). Nunca troca quem já foi movido.
+      const here = T.get(gid); let bestSwap = null;
+      for (const [h, ht] of Array.from(T.entries()).sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+        if (h === gid || ht === here || movedGuests.has(h) || !seatOf.has(h)) continue;
+        T.set(gid, ht); T.set(h, here);
+        const r = seatingEvalCost(T, constraints, families);
+        T.set(gid, here); T.set(h, ht);
+        if (r.hard > base.hard || r.cost >= base.cost) continue;
+        if (!bestSwap || r.cost < bestSwap.cost) bestSwap = { h, ht, cost: r.cost };
+      }
+      if (bestSwap && moves.length + 2 <= SEATING_LIMITS.MAX_MOVES) {
+        const { h, ht } = bestSwap; const sg = seatOf.get(gid); const sh = seatOf.get(h);
+        asg[sg] = h; asg[sh] = gid; seatOf.set(gid, sh); seatOf.set(h, sg); T.set(gid, ht); T.set(h, here);
+        movedGuests.add(gid); movedGuests.add(h); swapGroup++;
+        moves.push({ guestId: gid, from: sg, to: sh, reason: famOf.get(gid) ? 'family' : 'preference', group: swapGroup });
+        moves.push({ guestId: h, from: sh, to: sg, reason: 'swap', group: swapGroup });
+        improved = true;
+      }
+    }
+    if (!improved) break;
+  }
+  return { assignments: asg, moves };
+}
+
+// Pseudonimização do texto livre: nomes de convidados → P1, P2… (só na chamada à IA).
+function pseudonymizeSeatingText(freeText, guestNames) {
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const names = [...new Set(guestNames.filter((n) => n && n.trim()))].sort((a, b) => b.length - a.length);
+  const lower = norm(freeText);
+  const map = new Map(); let out = ''; let i = 0; let n = 0;
+  const spans = [];
+  names.forEach((name) => {
+    const nn = norm(name); if (!nn) return;
+    let from = 0; let idx;
+    while ((idx = lower.indexOf(nn, from)) !== -1) {
+      const end = idx + nn.length;
+      if (!spans.some((s) => idx < s.end && end > s.start)) spans.push({ start: idx, end, name });
+      from = end;
+    }
+  });
+  spans.sort((a, b) => a.start - b.start);
+  spans.forEach((s) => {
+    out += String(freeText).slice(i, s.start);
+    let tok = Array.from(map.entries()).find(([, v]) => v === s.name);
+    if (!tok) { n++; map.set(`P${n}`, s.name); tok = [`P${n}`]; }
+    out += tok[0]; i = s.end;
+  });
+  out += String(freeText).slice(i);
+  return { text: out, tokens: map };
+}
+
+async function seatingThrottle(weddingId, nowMs) {
+  const ref = db.collection('seatingRuns').doc(weddingId);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const last = snap.exists ? Number(snap.data().lastMs) || 0 : 0;
+    if (nowMs - last < SEATING_LIMITS.MIN_INTERVAL_MS) return false;
+    tx.set(ref, { lastMs: nowMs }, { merge: true });
+    return true;
+  });
+}
+
+// Núcleo determinístico (sem rede, sem Firestore): estado + pedido já normalizado → resposta.
+function seatingCompute({ clientState, guests, tables, constraints, attrs, mode, unresolvedFreeText, ambiguousFreeText }) {
+  const guestIds = new Set(guests.map((g) => g.guestId));
+  // Lugares atuais: elegíveis (válidos/inválidos) e "outros" (intocáveis).
+  const rawCurrent = clientState && clientState.seating && clientState.seating.assignments;
+  const split = seatingSplitCurrent(rawCurrent, tables, guestIds);
+
+  let result; let assignments; let moves = [];
+  if (mode === 'optimize') {
+    if (!tables.length) return { ok: false, reason: 'NO_TABLES', message: 'Ainda não há mesas criadas — cria as mesas primeiro na aba Mesas.' };
+    if (!guests.length) return { ok: false, reason: 'NO_CONFIRMED_GUESTS', message: 'Ainda não há convidados confirmados para sentar.' };
+    const freeTotal = tables.reduce((s, t) => s + t.seats, 0) - Object.keys(split.outsiders).length;
+    if (freeTotal < guests.length) return { ok: false, reason: 'NOT_ENOUGH_SEATS', message: `Tens ${guests.length} convidados confirmados mas só ${freeTotal} lugares disponíveis às mesas.` };
+    const opt = optimizeSeating({ eligible: guests, tables, constraints, current: split.eligible, outsiders: split.outsiders, attrs });
+    assignments = { ...opt.assignments, ...split.outsiders }; moves = opt.moves;
+    result = { score: 0, satisfiedPct: 100, violations: [], warnings: [] };
+  } else {
+    result = solveSeating(guests, tables, constraints, { attrs, outsiders: split.outsiders });
+    if (!result.ok) return { ok: false, reason: result.reason, message: result.message };
+    assignments = { ...result.assignments, ...split.outsiders };
+  }
+
+  // Validação integral — uma proposta inválida nunca sai como "pronta".
+  const verdict = validateSeatingProposal({ assignments, eligible: guests, tables, constraints, outsiders: split.outsiders, original: mode === 'optimize' ? split.eligible : null });
+  if (!verdict.ok) {
+    logger.error(`generateSeatingProposal: proposta inválida (${weddingId}): ${verdict.errors.slice(0, 5).map((e) => e.code).join(',')}`);
+    return { ok: false, reason: 'INVALID_PROPOSAL', message: 'Não foi possível gerar uma proposta válida com os dados atuais. Revê as preferências e tenta de novo.' };
+  }
+
+  const report = buildSeatingReport({ assignments, eligible: guests, tables, attrs, constraints });
+  const before = mode === 'optimize' ? buildSeatingReport({ assignments: { ...split.eligible, ...split.outsiders }, eligible: guests, tables, attrs, constraints }) : null;
+  if (mode === 'optimize') {
+    const unmet = report.issues.filter((i) => i.code === 'HARD_UNMET' || i.code === 'PREFERENCE_UNMET').length;
+    result.satisfiedPct = constraints.length ? Math.max(0, Math.round((100 * (constraints.length - Math.min(unmet, constraints.length))) / constraints.length)) : 100;
+    result.warnings = report.issues.filter((i) => i.code === 'PREFERENCE_UNMET').map(() => 'Há preferências que não foi possível respeitar.');
+    result.violations = report.issues.filter((i) => i.code === 'HARD_UNMET').map(() => 'Há preferências obrigatórias por cumprir.');
+  }
+  return {
+    ok: true,
+    proposal: {
+      mode,
+      validated: true,
+      assignments,
+      moves,
+      score: result.score,
+      satisfiedPct: result.satisfiedPct,
+      violations: result.violations,
+      warnings: result.warnings,
+      explanation: explainSeatingResult(result, tables),
+      report,
+      before,
+      invalidCurrent: split.invalid.length,
+      unresolvedFreeText: Array.from(new Set(unresolvedFreeText)),
+      ambiguousFreeText,
+    },
+  };
 }
 
 // generateSeatingProposal — ponto de entrada único da Fase 8.1. Recebe
@@ -1835,104 +2227,56 @@ exports.generateSeatingProposal = onCall({ region: 'europe-west1', secrets: [OPE
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
+  // O casamento vem SEMPRE da sessão (nunca do pedido): outro casamento é inalcançável.
   const weddingId = await resolveWeddingId(request, /* isCouple */ true);
-  if (!weddingId) {
-    throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+  if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+  // Premium verificado no servidor (a UI não chega).
+  const weddingSnap = await assertPremiumWedding(weddingId);
+
+  const data = request.data && typeof request.data === 'object' ? request.data : {};
+  const mode = SEATING_MODES.includes(data.mode) ? data.mode : 'auto';
+  const rawConstraints = Array.isArray(data.constraints) ? data.constraints : [];
+  if (rawConstraints.length > SEATING_LIMITS.MAX_CONSTRAINTS) {
+    return { ok: false, reason: 'TOO_MANY_CONSTRAINTS', message: `Máximo de ${SEATING_LIMITS.MAX_CONSTRAINTS} preferências por pedido.` };
   }
-  // Fase Pagamentos (Set 2026) — auditoria de segurança: AI Seating é
-  // Weddy Premium (ver subscriptionFeatureAISeating no index.html), mas
-  // esta função nunca verificava isso — chamá-la diretamente (ex: pela
-  // consola do browser) funcionava na mesma, mesmo sem subscrição.
-  // Testado ao vivo e confirmado antes desta correção.
-  await assertPremiumWedding(weddingId);
+  const freeText = typeof data.freeText === 'string' ? data.freeText.trim().slice(0, SEATING_LIMITS.MAX_FREE_TEXT) : '';
 
-  const data = request.data || {};
-  // O cliente pode mandar constraints já resolvidas (guestIds, escolhidas
-  // no seletor de convidados da própria app) e/ou texto livre por
-  // interpretar. Nunca confiamos nos guestIds do cliente sem os validar
-  // contra a lista de convidados confirmados DESTE weddingId (ver mais
-  // abaixo) — impede um pedido tentar ler dados de outro casamento
-  // enviando guestIds que não existem aqui.
-  const clientConstraints = Array.isArray(data.constraints) ? data.constraints : [];
-  const freeText = typeof data.freeText === 'string' ? data.freeText.trim().slice(0, 1000) : '';
-
-  const usage = await checkAndIncrementAiUsage(weddingId);
-  if (!usage.allowed) {
-    throw new HttpsError('resource-exhausted', 'Limite diário de pedidos à Weddy AI atingido para este casamento. Tenta de novo amanhã.');
-  }
-
-  // Carrega convidados confirmados e mesas deste casamento (Admin SDK —
-  // ignora as Security Rules por desenho, mas só lê o que este weddingId,
-  // já resolvido a partir da sessão autenticada, tem).
-  //
-  // Importante: o documento weddings/{weddingId} NÃO guarda os
-  // convidados/mesas em campos Firestore separados — a app inteira grava
-  // (ver flushPendingSave/pushRemote em index.html) um único campo
-  // "json" com JSON.stringify(state) de tudo. Por isso lemos daqui, não
-  // de weddingData.guests/weddingData.seating diretamente.
-  const weddingSnap = await db.collection('weddings').doc(weddingId).get();
-  if (!weddingSnap.exists) throw new HttpsError('not-found', 'Casamento não encontrado.');
-  const weddingData = weddingSnap.data() || {};
+  // Estado do casamento (um único campo "json"; ver flushPendingSave/pushRemote no cliente).
   let clientState = {};
-  try { clientState = JSON.parse(weddingData.json || '{}'); } catch (err) {
+  try { clientState = JSON.parse((weddingSnap.data() || {}).json || '{}'); } catch (err) {
     logger.error(`generateSeatingProposal: json do casamento ${weddingId} inválido. ${err.message || err}`);
   }
-  const tables = Array.isArray(clientState?.seating?.tables) ? clientState.seating.tables : [];
-
-  // Categorias fixas (familia/amigos/duvida/staff) são arrays diretamente
-  // em state.guests[side][catId]; as criadas pelo casal vivem em
-  // state.guests[side].custom, cada uma com o seu próprio array "names"
-  // (ver FIXED_GUEST_CATS/allGuestCategoriesOf em index.html).
-  const FIXED_CAT_LABELS = { familia: 'Família', amigos: 'Amigos', duvida: 'Na dúvida', staff: 'Staff/fornecedores' };
-  const FIXED_CATS = ['familia', 'amigos', 'duvida', 'staff'];
-  const SIDE_LABELS = { noiva: 'noiva', noivo: 'noivo', conjunto: 'conjunto' };
-  const guests = [];
-  ['noiva', 'noivo', 'conjunto'].forEach((side) => {
-    const guestsRoot = clientState?.guests?.[side];
-    if (!guestsRoot) return;
-    const nameArrays = [
-      ...FIXED_CATS.map((catId) => ({ catLabel: FIXED_CAT_LABELS[catId], arr: guestsRoot[catId] })),
-      ...(Array.isArray(guestsRoot.custom) ? guestsRoot.custom.map((c) => ({ catLabel: c.label || c.id || 'Categoria própria', arr: c.names })) : []),
-    ].filter((x) => Array.isArray(x.arr));
-    nameArrays.forEach(({ catLabel, arr }) => {
-      arr.forEach((entry) => {
-        if (!entry || typeof entry !== 'object' || !entry.guestId) return;
-        const isConfirmed = clientState?.confirmed?.[entry.guestId];
-        if (!isConfirmed) return;
-        guests.push({ guestId: entry.guestId, name: entry.name || '', side: SIDE_LABELS[side], catLabel });
-      });
-    });
-  });
-
+  const tables = seatingNormalizeTables(clientState && clientState.seating && clientState.seating.tables);
+  const guests = seatingEligibleGuests(clientState);
+  if (guests.length > SEATING_LIMITS.MAX_GUESTS || tables.length > SEATING_LIMITS.MAX_TABLES) {
+    return { ok: false, reason: 'TOO_LARGE', message: `Esta ferramenta suporta até ${SEATING_LIMITS.MAX_GUESTS} convidados e ${SEATING_LIMITS.MAX_TABLES} mesas.` };
+  }
   const guestIds = new Set(guests.map((g) => g.guestId));
 
-  // Vários convidados confirmados podem legitimamente ter o mesmo nome
-  // (é um dado real, não um erro) — por isso não escolhemos um deles à
-  // sorte quando um pedido em texto livre os menciona: isso arriscava
-  // aplicar "separar o Nuno Ferreira" ao Nuno Ferreira errado, sem o
-  // casal alguma vez saber. Em vez disso, agrupamos por nome e, se um
-  // nome pedido por texto livre for ambíguo, pedimos ao casal para
-  // esclarecer (ver ambiguousFreeText mais abaixo) em vez de gerar uma
-  // proposta que pareça ter respeitado o pedido sem o ter feito.
-  const guestsByName = new Map();
-  guests.forEach((g) => {
-    const key = g.name.trim().toLowerCase();
-    if (!key) return;
-    if (!guestsByName.has(key)) guestsByName.set(key, []);
-    guestsByName.get(key).push(g);
-  });
-  const namesToId = new Map(guests.map((g) => [g.name.trim().toLowerCase(), g.guestId]));
+  // Proteção contra chamadas repetidas (duplo clique, scripts): intervalo mínimo por casamento.
+  if (!(await seatingThrottle(weddingId, Date.now()))) {
+    throw new HttpsError('resource-exhausted', 'Aguarda um instante antes de pedir outra proposta.');
+  }
 
-  // Valida as constraints vindas do cliente: só ficam guestIds que são
-  // mesmo convidados confirmados deste casamento.
-  const constraints = clientConstraints
+  const constraints = rawConstraints
     .filter((c) => c && SEATING_TYPES.includes(c.type) && SEATING_PRIORITIES.includes(c.priority))
-    .map((c) => ({ ...c, guestIds: (Array.isArray(c.guestIds) ? c.guestIds : []).filter((id) => guestIds.has(id)) }))
+    .map((c) => ({ type: c.type, priority: c.priority, guestIds: Array.from(new Set((Array.isArray(c.guestIds) ? c.guestIds : []).slice(0, SEATING_LIMITS.MAX_IDS_PER_CONSTRAINT).filter((id) => typeof id === 'string' && guestIds.has(id)))) }))
     .filter((c) => c.guestIds.length >= 2);
 
+  const attrs = sanitizeSeatingAttrs(data.attrs, guestIds);
+
+  // Texto livre → só aqui pode haver IA (e só com nomes anonimizados). O limite diário só conta quando a IA é mesmo chamada.
   const unresolvedFreeText = [];
   const ambiguousFreeText = [];
   if (freeText) {
+    const guestsByName = new Map();
+    guests.forEach((g) => { const key = g.name.trim().toLowerCase(); if (!key) return; if (!guestsByName.has(key)) guestsByName.set(key, []); guestsByName.get(key).push(g); });
+    const namesToId = new Map(guests.map((g) => [g.name.trim().toLowerCase(), g.guestId]));
+    const willCallAI = pseudonymizeSeatingText(freeText, guests.map((g) => g.name)).tokens.size >= 2;
+    if (willCallAI) {
+      const usage = await checkAndIncrementAiUsage(weddingId);
+      if (!usage.allowed) throw new HttpsError('resource-exhausted', 'Limite diário de pedidos à Weddy AI atingido para este casamento. Tenta de novo amanhã.');
+    }
     const interpreted = await interpretSeatingFreeText(freeText, guests.map((g) => g.name).filter(Boolean));
     interpreted.forEach((c) => {
       const ambiguousNames = c.names.filter((n) => (guestsByName.get(String(n).trim().toLowerCase()) || []).length > 1);
@@ -1940,10 +2284,9 @@ exports.generateSeatingProposal = onCall({ region: 'europe-west1', secrets: [OPE
         ambiguousNames.forEach((n) => {
           const key = String(n).trim().toLowerCase();
           if (ambiguousFreeText.some((a) => a.name.toLowerCase() === key)) return;
-          const options = guestsByName.get(key).map((g) => `${g.catLabel} (lado ${g.side})`);
-          ambiguousFreeText.push({ name: n, options });
+          ambiguousFreeText.push({ name: n, options: guestsByName.get(key).map((g) => `${g.catLabel} (lado ${g.side})`) });
         });
-        return; // não resolve às cegas — o pedido inteiro fica por aplicar até esclarecer
+        return;
       }
       const ids = c.names.map((n) => namesToId.get(String(n).trim().toLowerCase())).filter(Boolean);
       const notFound = c.names.filter((n) => !namesToId.has(String(n).trim().toLowerCase()));
@@ -1952,30 +2295,7 @@ exports.generateSeatingProposal = onCall({ region: 'europe-west1', secrets: [OPE
     });
   }
 
-  const result = solveSeating(guests, tables, constraints);
-  if (!result.ok) {
-    return { ok: false, reason: result.reason, message: result.message };
-  }
-
-  const explanation = await explainSeatingResult(result, tables);
-  return {
-    ok: true,
-    proposal: {
-      assignments: result.assignments,
-      score: result.score,
-      satisfiedPct: result.satisfiedPct,
-      violations: result.violations,
-      warnings: result.warnings,
-      explanation,
-      unresolvedFreeText: Array.from(new Set(unresolvedFreeText)),
-      // Nomes do texto livre que correspondem a MAIS DE UM convidado
-      // confirmado — a preferência para esse nome não foi aplicada, e o
-      // frontend mostra isto para o casal esclarecer (ex: renomear um dos
-      // dois na lista de convidados, ou definir a preferência manualmente
-      // pelo seletor em vez de por texto livre).
-      ambiguousFreeText,
-    },
-  };
+  return seatingCompute({ clientState, guests, tables, constraints, attrs, mode, unresolvedFreeText, ambiguousFreeText });
 });
 
 // ============================================================================
@@ -6347,5 +6667,5 @@ exports.validateWeddingStateOnWrite = onDocumentWritten(
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }
