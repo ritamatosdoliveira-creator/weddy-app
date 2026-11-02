@@ -1263,7 +1263,7 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
           ownerEmails: admin.firestore.FieldValue.arrayRemove(email),
           ownerUids: admin.firestore.FieldValue.arrayRemove(uid),
         });
-        logger.info(`deleteWeddingAccount: ${email} removido dos donos do casamento ${weddingId} (continua a existir para os restantes donos).`);
+        logger.info(`deleteWeddingAccount: utilizador ${uid} removido dos donos do casamento ${weddingId} (continua a existir para os restantes donos).`);
       }
     } catch (err) {
       logger.error('deleteWeddingAccount: erro durante o apagamento/remoção.', err.message || err);
@@ -5844,6 +5844,16 @@ exports.sendWhatsappRsvpReminder = onCall(
 //      usado em isValidMetaSignature/whatsappWebhook acima).
 const WEDDY_PREMIUM_PRICE_CENTS = 3000; // 30€
 
+// Fase K (hardening): o Stripe traz a pessoa de volta ao returnUrl; antes aceitava qualquer https
+// (redirecionamento aberto após pagamento). Só hosts da própria Weddy (produção e teste).
+const CHECKOUT_RETURN_HOSTS = ['weddy.pt', 'www.weddy.pt', 'ritamatosdoliveira-creator.github.io'];
+function isAllowedReturnUrl(u) {
+  try {
+    const url = new URL(u);
+    return url.protocol === 'https:' && !url.username && !url.password && !url.port && CHECKOUT_RETURN_HOSTS.includes(url.hostname) && u.length <= 500;
+  } catch (e) { return false; }
+}
+
 exports.createSubscriptionCheckout = onCall(
   { region: 'europe-west1', secrets: [STRIPE_SECRET_KEY] },
   async (request) => {
@@ -5855,7 +5865,7 @@ exports.createSubscriptionCheckout = onCall(
       throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
     }
     const returnUrl = request.data && typeof request.data.returnUrl === 'string' ? request.data.returnUrl : null;
-    if (!returnUrl || !/^https:\/\//.test(returnUrl)) {
+    if (!returnUrl || !/^https:\/\//.test(returnUrl) || !isAllowedReturnUrl(returnUrl)) {
       throw new HttpsError('invalid-argument', 'returnUrl em falta ou inválido.');
     }
     const stripe = require('stripe')(STRIPE_SECRET_KEY.value());
