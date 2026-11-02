@@ -60,10 +60,10 @@ Novo ecrã **Logística** no hub do RSVP (Definições › RSVP), no estilo edit
 | `ui-logistics-couple` (resumo, filtros, detalhe, follow-up, grupos, Health, EN; 390/1360) | 43/43 |
 | `ui-logistics-tables` (etiquetas, sugestões, distribuição intacta) | 24/24 |
 | `ui-logistics-concierge` (privacidade, IA não chamada, recusa limpa) | 20/20 |
-| Suite completa | ver secção 8 |
+| Suite completa | 31/31 suites |
 
 ## 8. Suite completa
-(preenchido após a execução)
+31/31 suites passaram (todas as existentes + 5 novas de B.2), incluindo i18n PT/EN, regras, B.1 (lembretes, STOP, contacto sob concorrência) e UI a 390/1360 px. O aviso de avaliação em `rules-premium` ("Property subscription is undefined") é uma mensagem de log esperada de um caso negativo; o conjunto passou.
 
 ## 9. Limitações / decisões que ficam contigo
 - Regras Firestore com `logistics` **não publicadas**: têm de ser publicadas antes de a nova versão do RSVP ser usada em produção (senão o envio com logística é recusado). Ordem sugerida: regras → site.

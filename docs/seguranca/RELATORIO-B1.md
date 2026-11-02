@@ -39,4 +39,4 @@ Diferença conhecida (não alterada): a UI usa 5 dias/3 lembretes como predefini
 ## 5. Testes e resultados
 - `tests/rsvp/reminders.test.js` (66 verificações): casamentos novos e antigos, várias configurações, respondidos, limites, falha SMTP e libertação, execuções simultâneas, família.
 - `tests/consent/stop-revocation.test.js` (67 verificações), `tests/contact/concurrency-stress.test.js`, `tests/ui/premium_lapsed.py` (72), `tests/ui/rsvp_autopilot.py`.
-- Suite completa: ver resultado final no relatório B.2 (secção "Suite completa").
+- Suite completa: 31/31 suites passaram (`rsvp-reminders` 66 OK, `stop` 67 OK, `contact-stress` 22 OK, `ui-autopilot` 59, `ui-premium-lapsed` 72).
