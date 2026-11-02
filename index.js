@@ -5865,7 +5865,7 @@ async function contactReserve(ip, email, msg, now) {
 // repete com espera aleatória e, se continuar contendido, trata como limitado (a contenção
 // num contador é, em si, sinal de rajada). Só falhas que NÃO são contenção continuam fail-open.
 function contactIsContention(e) {
-  return !!e && (e.code === 10 || e.code === 'aborted' || /contention|aborted/i.test(String(e.message || '')));
+  return !!e && (e.code === 10 || e.code === 'aborted' || /contention|aborted|transaction is invalid or closed/i.test(String(e.message || '')));
 }
 const contactSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function contactReserveRetry(ip, email, msg, now) {
