@@ -38,6 +38,8 @@ const SUITES = [
   { id: 'notify', group: 'notify', name: 'Email resumo (functions)', cmd: ['node', 'notify/email-digest.test.js'], emu: true },
   { id: 'backfill', group: 'backfill', name: 'Backfill premiumUntil', cmd: ['node', 'backfill/backfill-premium-until.test.js'], emu: true },
   { id: 'rules-premium', group: 'rules', name: 'Regras Firestore+Storage (Premium)', cmd: ['node', 'rules/premium-rules.test.mjs'], emu: true },
+  { id: 'rules-memdocs', group: 'rules', name: 'Regras Memories + Documents: isolamento, Premium, acesso direto (Fase G)', cmd: ['node', 'rules/memdocs-rules.test.mjs'], emu: true },
+  { id: 'ui-memdocs', group: 'ui', name: 'UI Memories + Documents: ciclo, Storage, Premium, PT/EN (Fase G)', cmd: py('memdocs.py') },
   { id: 'rules-state', group: 'rules', name: 'Regras do estado JSON + quarentena', cmd: ['node', 'rules/state-rules.test.mjs'], emu: true },
   { id: 'rules-consent', group: 'rules', name: 'Regras de consentimento', cmd: ['node', 'rules/consent-rules.test.mjs'], emu: true },
   { id: 'rules-logistics', group: 'rules', name: 'Regras da logística do convidado', cmd: ['node', 'rules/logistics-rules.test.mjs'], emu: true },

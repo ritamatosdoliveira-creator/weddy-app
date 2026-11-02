@@ -3297,6 +3297,8 @@ body.gimp-open{ overflow:hidden; }
 .mmx-col{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
 .mmx .memory-tile{ border-radius:14px; width:100%; }
 .mmx .memory-tile > a{ position:absolute; inset:0; }
+.mmx .memory-tile.memory-missing{ background:var(--card,#fbf7f2); border:1px dashed var(--line,#e7dcd4); min-height:96px; display:flex; align-items:center; justify-content:center; }
+.memory-missing-note{ padding:10px; text-align:center; font-size:12px; line-height:1.4; color:var(--ink-soft,#7a6a60); }
 .mmx .memory-caption{ left:6px; right:auto; bottom:6px; max-width:calc(100% - 12px); padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.88); color:var(--ink); font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mmx-priv{ display:flex; align-items:center; gap:10px; margin:20px 0 0; padding:11px 14px; border:1px solid var(--line); border-radius:999px; font-size:12.5px; color:var(--ink-soft); }
 .mmx-priv svg{ flex:none; width:16px; height:16px; color:var(--rust-dark); }
@@ -6937,6 +6939,11 @@ const APP_I18N = {
     btnActivatingEllipsis:'A ativar…',
     statusPdfOnly:'Só é possível carregar ficheiros PDF.',
     statusFileTooLarge:'Ficheiro grande demais (máx. 15MB).',
+    statusUploadFailed:'Não foi possível guardar o ficheiro. Verifica a ligação e tenta de novo.',
+    statusUploadDenied:'O ficheiro não foi guardado: carregar novos documentos exige Weddy Premium ativo.',
+    errAttachmentNoFile:'Este documento não tem ficheiro guardado, só o texto. Carrega-o de novo para o poderes abrir.',
+    mmxMissing:'Esta foto já não está disponível.',
+    memoriesLoadError:'Não foi possível carregar as fotos. Toca em «Atualizar» para tentar de novo.',
     statusReadingPdf:'A ler o PDF…',
     statusUploadingFile: (name)=>`A enviar "${name}"…`,
     statusPdfReadError:'Não foi possível ler este PDF. Tenta outro ficheiro.',
@@ -8338,6 +8345,11 @@ const APP_I18N = {
     btnActivatingEllipsis:'Activating…',
     statusPdfOnly:'Only PDF files can be uploaded.',
     statusFileTooLarge:'File too large (max 15MB).',
+    statusUploadFailed:'The file could not be saved. Check your connection and try again.',
+    statusUploadDenied:'The file was not saved: uploading new documents requires an active Weddy Premium.',
+    errAttachmentNoFile:'This document has no stored file, only its text. Upload it again to be able to open it.',
+    mmxMissing:'This photo is no longer available.',
+    memoriesLoadError:'The photos could not be loaded. Tap “Refresh” to try again.',
     statusReadingPdf:'Reading the PDF…',
     statusUploadingFile: (name)=>`Uploading "${name}"…`,
     statusPdfReadError:'Could not read this PDF. Try another file.',
@@ -14179,11 +14191,15 @@ const CMP_MAX_FILE = 15*1024*1024;
 function cmpList(){ if(!Array.isArray(state.compares)) state.compares = []; state.compares.forEach(c=>{ if(c && typeof c==='object' && !Array.isArray(c.proposals)) c.proposals = []; }); return state.compares; }
 // Fase F: apagar um ficheiro de proposta do Storage. «Já não existe» não é erro; qualquer outra falha deixa
 // rasto no _incident_log (caminho do ficheiro), em vez de criar um ficheiro órfão em silêncio.
-function cmpStorageDelete(path){
+// Fase G: apagar um ficheiro do Storage nunca falha em silêncio — se não for
+// possível (e o ficheiro existir), o caminho pendente fica em _incident_log
+// para se poder limpar depois. "Não encontrado" não é erro: já não existe.
+function weddyStorageDelete(path, type){
   if(!path || !storage) return;
-  const fail = ()=>logMassPropagationFailures('compare-file-delete-failed', [path]);
+  const fail = ()=>logMassPropagationFailures(type || 'storage-file-delete-failed', [path]);
   try{ storage.ref(path).delete().catch(err=>{ if(!(err && err.code==='storage/object-not-found')) fail(); }); }catch(e){ fail(); }
 }
+function cmpStorageDelete(path){ weddyStorageDelete(path, 'compare-file-delete-failed'); }
 function cmpGet(id){ return cmpList().find(c=>c.id===id) || null; }
 function cmpProp(c, pid){ return (c && c.proposals || []).find(p=>p.id===pid) || null; }
 function cmpNewId(prefix){ return prefix + Date.now() + Math.random().toString(36).slice(2,6); }
@@ -16849,7 +16865,7 @@ function cleanupDeletedSupplierLeftovers(supplierId){
   removeSupplierContract(supplierId);
   const synced = supplierContractDoc(supplierId);
   if(synced){
-    if(synced.storagePath && storage) storage.ref(synced.storagePath).delete().catch(()=>{});
+    weddyStorageDelete(synced.storagePath, 'document-file-delete-failed');
     state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>d!==synced);
   }
 }
@@ -17001,7 +17017,7 @@ async function uploadSupplierContract(supplierId, file){
   // fallback localStorage).
   const prev = state.weddingDocuments.find(d=>d.supplierId===supplierId);
   if(prev){
-    if(prev.storagePath && storage) storage.ref(prev.storagePath).delete().catch(()=>{});
+    weddyStorageDelete(prev.storagePath, 'document-file-delete-failed');
     state.weddingDocuments = state.weddingDocuments.filter(d=>d!==prev);
   }
   const doc = { name:file.name, text, storagePath, uploadedAt:new Date().toISOString(), supplierId };
@@ -17273,7 +17289,7 @@ function bindFornecedorDetalheHandlers(){
     if(await weddyConfirm(ta('confirmRemoveContract'))){
       const synced = supplierContractDoc(s.id);
       if(synced){
-        if(synced.storagePath && storage) storage.ref(synced.storagePath).delete().catch(()=>{});
+        weddyStorageDelete(synced.storagePath, 'document-file-delete-failed');
         state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>d!==synced);
         pushRemote(true);
       }else{
@@ -17517,6 +17533,7 @@ let googleCalendarPrevCalId = null; // calendarId anterior, guardado ao tocar em
 let googleCalendarActionMsg = null; // { type:'error'|'success', text } — mensagem da última ação, mostrada uma vez
 let memoriesLoaded = false;
 let memoriesLoading = false;
+let memoriesError = false; // Fase G: uma falha de leitura NÃO repete sozinha (antes: ciclo de pedidos); só o botão Atualizar tenta de novo
 let memFilter = 'all';
 // Carrega as fotos que os convidados partilharam (Weddy Memories). Só
 // funciona para o dono autenticado do casamento — as regras do Firestore
@@ -17524,7 +17541,7 @@ let memFilter = 'all';
 // tentar quando a app ainda não tem sessão.
 function loadMemories(){
   if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId) return Promise.resolve();
-  memoriesLoading = true;
+  memoriesLoading = true; memoriesError = false;
   return MEMORIES().where('weddingId','==',currentWeddingId).get().then(qs=>{
     const list = [];
     qs.forEach(doc=>list.push({ id: doc.id, ...doc.data() }));
@@ -17547,7 +17564,13 @@ function loadMemories(){
       return storage.ref(m.storagePath).getDownloadURL().then(liveUrl=>{
         m.url = liveUrl;
         return m;
-      }).catch(()=>m);
+      }).catch(err=>{
+        // Fase G: não esconder — ficheiro em falta (ou ilegível) fica marcado e a
+        // galeria mostra um aviso em vez de uma imagem vazia.
+        if(err && err.code==='storage/object-not-found') m.url = '';
+        m.missing = true;
+        return m;
+      });
     }));
   }).then(list=>{
     weddingMemories = list;
@@ -17556,14 +17579,14 @@ function loadMemories(){
     render();
   }).catch(err=>{
     console.error('Weddy memories load error:', err.code, err.message);
-    memoriesLoading = false;
+    memoriesLoading = false; memoriesError = true;
     render();
   });
 }
 async function deleteMemory(memoryId, storagePath){
   if(!await weddyConfirm(ta('confirmDeleteMemory'))) return;
   MEMORIES().doc(memoryId).delete().then(()=>{
-    if(storage && storagePath){ storage.ref(storagePath).delete().catch(()=>{}); }
+    weddyStorageDelete(storagePath, 'memory-file-delete-failed');
     weddingMemories = weddingMemories.filter(m=>m.id!==memoryId);
     render();
   }).catch(err=>{
@@ -20300,11 +20323,20 @@ async function extractPdfText(file){
   }
   return text.slice(0, WEDDING_DOC_TEXT_LIMIT).trim();
 }
+let documentUploadBusy = false;
+// Nome seguro para o Storage: só [A-Za-z0-9._-], sem caminhos nem acentos, tamanho limitado.
+function weddySafeFileName(name, fallback){
+  let n = String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9._-]+/g,'_').replace(/\.{2,}/g,'.').replace(/^[._-]+/,'');
+  const m = n.match(/^(.*?)(\.[A-Za-z0-9]{1,8})?$/); let base = (m && m[1]) || '', ext = (m && m[2]) || '';
+  base = base.slice(0,80).replace(/_+$/,'');
+  return (base || fallback || 'ficheiro') + ext;
+}
 async function handleDocumentUpload(fileList){
   const file = fileList && fileList[0];
   const statusEl = document.getElementById('document-upload-status');
   const input = document.getElementById('document-file-input');
   if(!file) return;
+  if(documentUploadBusy) return; // duplo envio: só um de cada vez
   if(file.type !== 'application/pdf'){
     if(statusEl) statusEl.textContent = ta('statusPdfOnly');
     return;
@@ -20313,15 +20345,25 @@ async function handleDocumentUpload(fileList){
     if(statusEl) statusEl.textContent = ta('statusFileTooLarge');
     return;
   }
+  documentUploadBusy = true;
   const uploadLabel = document.querySelector('label[for="document-file-input"]');
   if(statusEl) statusEl.innerHTML = `<span class="upload-status-row"><span class="upload-spin"></span>${escapeHTML(ta('statusReadingPdf'))}</span>`;
   if(uploadLabel) uploadLabel.style.cssText += 'pointer-events:none; opacity:.5;';
+  const unlock = ()=>{ if(uploadLabel) uploadLabel.style.cssText = uploadLabel.style.cssText.replace('pointer-events:none; opacity:.5;',''); };
   try{
     const text = await extractPdfText(file);
     let storagePath = null;
     if(storage && FIREBASE_READY && auth && auth.currentUser && currentWeddingId){
-      storagePath = `documents/${currentWeddingId}/${Date.now()}_${file.name}`;
-      try{ await storage.ref(storagePath).put(file); }catch(err){ storagePath = null; }
+      storagePath = `documents/${currentWeddingId}/${Date.now()}_${weddySafeFileName(file.name, 'documento.pdf')}`;
+      try{ await storage.ref(storagePath).put(file); }
+      catch(err){
+        // Fase G: antes, uma falha aqui ficava em silêncio e guardava um registo SEM ficheiro.
+        // Agora não se cria registo nenhum: a pessoa vê o motivo e pode tentar de novo.
+        console.error('Weddy document upload error:', err && err.code, err && err.message);
+        if(statusEl) statusEl.textContent = (err && (err.code==='storage/unauthorized' || err.code==='storage/unauthenticated')) ? ta('statusUploadDenied') : ta('statusUploadFailed');
+        unlock(); documentUploadBusy = false; if(input) input.value = '';
+        return;
+      }
     }
     if(!state.weddingDocuments) state.weddingDocuments = [];
     state.weddingDocuments.push({ name: file.name, text, storagePath, uploadedAt: new Date().toISOString() });
@@ -20331,8 +20373,9 @@ async function handleDocumentUpload(fileList){
   }catch(err){
     console.error('Weddy PDF extract error:', err);
     if(statusEl) statusEl.textContent = ta('statusPdfReadError');
-    if(uploadLabel) uploadLabel.style.cssText = uploadLabel.style.cssText.replace('pointer-events:none; opacity:.5;','');
+    unlock();
   }
+  documentUploadBusy = false;
   if(input) input.value = '';
 }
 
@@ -23091,7 +23134,7 @@ function viewDefMemories(){
   } else if(!weddingMemories.length){
     return viewDefPremiumLocked(ta('memoriesTitle'));
   }
-  if(!memoriesLoaded && !memoriesLoading) loadMemories();
+  if(!memoriesLoaded && !memoriesLoading && !memoriesError) loadMemories();
   // Pedido da Rita (Out 2026): dar para ver/guardar o original de cada
   // foto, sem ficar limitado à miniatura cortada em quadrado. Em vez de um
   // pequeno ícone pouco óbvio por cima da foto, a foto INTEIRA passa a ser
@@ -23102,20 +23145,24 @@ function viewDefMemories(){
   const memQr = weddingMemories.filter(m=>m.token==='publico');
   const memShown = memFilter==='invite' ? memInvite : memFilter==='qr' ? memQr : weddingMemories;
   const MMX_RATIOS = ['4/5','1/1','3/4','5/6'];
+  // Fase G: só ligações https (ou imagem em data:) chegam ao href/src — um "url" legado
+  // com javascript:/data:text/html nunca é renderizado. Sem ligação válida, aviso claro.
+  const memUrlOk = u=>typeof u==='string' && (/^https:\/\//i.test(u) || /^data:image\/(png|jpe?g|gif|webp);/i.test(u));
   const mmxTile = (m, col, row)=>`
-        <div class="memory-tile" style="aspect-ratio:${MMX_RATIOS[(col+row*2)%4]};">
-          ${m.url ? `<a href="${escapeHTML(m.url)}" target="_blank" rel="noopener" data-mid="${m.id}" data-mpath="${escapeHTML(m.storagePath||'')}" title="${ta('btnViewSaveMemory')}"><img src="${escapeHTML(m.url)}" loading="lazy" alt=""></a>` : `<img src="" loading="lazy" alt="">`}
+        <div class="memory-tile${memUrlOk(m.url)?'':' memory-missing'}" style="aspect-ratio:${MMX_RATIOS[(col+row*2)%4]};">
+          ${memUrlOk(m.url) ? `<a href="${escapeHTML(m.url)}" target="_blank" rel="noopener" data-mid="${m.id}" data-mpath="${escapeHTML(m.storagePath||'')}" title="${ta('btnViewSaveMemory')}"><img src="${escapeHTML(m.url)}" loading="lazy" alt=""></a>` : `<div class="memory-missing-note">${ta('mmxMissing')}</div>`}
           ${m.guestName ? `<div class="memory-caption">${escapeHTML(m.guestName)}</div>` : ''}
         </div>`;
   const mmxCols = [[],[],[]];
   memShown.forEach((m,i)=>mmxCols[i%3].push(mmxTile(m, i%3, Math.floor(i/3))));
-  const gridHtml = weddingMemories.length ? (memShown.length ? `
+  const loadErrHtml = memoriesError ? `<div class="empty-note" role="alert" style="margin:12px 16px;">${ta('memoriesLoadError')}</div>` : '';
+  const gridHtml = loadErrHtml + (weddingMemories.length ? (memShown.length ? `
     <div class="mmx-grid">
       ${mmxCols.map(c=>`<div class="mmx-col">${c.join('')}</div>`).join('')}
     </div>
-  ` : `<div class="empty-note" style="margin:24px 16px;">${ta('mmxNoneFilter')}</div>`) : `
+  ` : `<div class="empty-note" style="margin:24px 16px;">${ta('mmxNoneFilter')}</div>`) : (memoriesError ? '' : `
     <div class="empty-note" style="margin:24px 16px;">${memoriesLoading ? ta('memoriesLoadingText') : ta('memoriesEmptyText')}</div>
-  `;
+  `));
   const emptyIllustration = `
   <div style="position:relative; width:180px; height:150px; margin:10px auto 6px;">
     <div style="position:absolute; left:20px; top:14px; width:140px; height:120px; border-radius:50%; background:#F1DFDB; opacity:.55;"></div>
@@ -24063,7 +24110,7 @@ function bindHandlers(){
       if(d.storagePath && storage){
         try{ const url = await storage.ref(d.storagePath).getDownloadURL(); previewAttachment(url, d.name); }
         catch(err){ weddyAlert(ta('errOpenAttachmentFailed')); }
-      }
+      } else { weddyAlert(ta('errAttachmentNoFile')); }
     });
   });
   document.querySelectorAll('[data-delhmattach]').forEach(btn=>{
@@ -24073,7 +24120,7 @@ function bindHandlers(){
       const d = state.weddingDocuments && state.weddingDocuments[i];
       if(!d) return;
       if(await weddyConfirm(ta('confirmDeleteHoneymoonAttachment'))){
-        if(d.storagePath && storage) storage.ref(d.storagePath).delete().catch(()=>{});
+        weddyStorageDelete(d.storagePath, 'document-file-delete-failed');
         state.weddingDocuments.splice(i,1);
         pushRemote(true);
         render();
@@ -24666,7 +24713,7 @@ function bindHandlers(){
       if(!await weddyConfirm(ta('confirmDeleteDocument'))) return;
       const doc = state.weddingDocuments[i];
       state.weddingDocuments.splice(i,1);
-      if(doc && doc.storagePath && storage){ storage.ref(doc.storagePath).delete().catch(()=>{}); }
+      if(doc) weddyStorageDelete(doc.storagePath, 'document-file-delete-failed');
       render();
       pushRemote(true);
     });
