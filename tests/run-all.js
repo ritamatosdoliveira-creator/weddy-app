@@ -34,6 +34,7 @@ const SUITES = [
   { id: 'rules-premium', group: 'rules', name: 'Regras Firestore+Storage (Premium)', cmd: ['node', 'rules/premium-rules.test.mjs'], emu: true },
   { id: 'rules-state', group: 'rules', name: 'Regras do estado JSON + quarentena', cmd: ['node', 'rules/state-rules.test.mjs'], emu: true },
   { id: 'rules-consent', group: 'rules', name: 'Regras de consentimento', cmd: ['node', 'rules/consent-rules.test.mjs'], emu: true },
+  { id: 'rules-logistics', group: 'rules', name: 'Regras da logística do convidado', cmd: ['node', 'rules/logistics-rules.test.mjs'], emu: true },
   { id: 'ui-notif-core', group: 'ui', name: 'UI notificações (núcleo)', cmd: py('notif_core.py') },
   { id: 'ui-notif-center', group: 'ui', name: 'UI centro de notificações', cmd: py('notif_center.py') },
   { id: 'ui-notif-email', group: 'ui', name: 'UI preferências do email resumo', cmd: py('notif_email_prefs.py') },
@@ -43,6 +44,7 @@ const SUITES = [
   { id: 'ui-robust-paths', group: 'ui', name: 'UI robustez: todos os caminhos', cmd: py('robustness_paths.py') },
   { id: 'ui-autopilot', group: 'ui', name: 'UI RSVP Autopilot (B.1)', cmd: py('rsvp_autopilot.py') },
   { id: 'ui-premium-lapsed', group: 'ui', name: 'UI Premium terminado: conteúdo antigo visível', cmd: py('premium_lapsed.py') },
+  { id: 'ui-logistics-rsvp', group: 'ui', name: 'UI RSVP com logística (B.2)', cmd: py('logistics_rsvp.py') },
   { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
   { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
 ];

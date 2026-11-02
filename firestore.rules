@@ -221,7 +221,39 @@ service cloud.firestore {
             && (!keys.hasAny(['transporte'])  || d.transporte == null  || d.transporte is bool)
             && (!keys.hasAny(['alojamento'])  || d.alojamento == null  || d.alojamento is bool)
             && (!keys.hasAny(['children'])    || d.children == null    || (d.children is list && d.children.size() <= 20))
-            && (!keys.hasAny(['responses'])   || d.responses == null   || (d.responses is map && d.responses.size() <= 40));
+            && (!keys.hasAny(['responses'])   || d.responses == null   || (d.responses is map && d.responses.size() <= 40))
+            && (!keys.hasAny(['logistics'])   || !('logistics' in d) || validLogistics(d.logistics));
+      }
+      // B.2 — logística do convidado (transporte, alojamento, alimentação,
+      // acessibilidade). Um único mapa opcional, com chaves e tamanhos
+      // limitados. Nos convites de família, cada membro leva o seu dentro de
+      // responses.<id> (as regras não validam o interior de "responses", tal
+      // como já acontece com meal/dietary/children dos membros).
+      function lgStrOk(m, k, n) { return !(k in m) || (m[k] is string && m[k].size() <= n); }
+      function lgIntOk(m, k, lo, hi) { return !(k in m) || (m[k] is int && m[k] >= lo && m[k] <= hi); }
+      function lgListOk(m, k) { return !(k in m) || (m[k] is list && m[k].size() <= 10); }
+      function validLogistics(l) {
+        return l == null || (l is map
+          && l.keys().hasOnly(['v', 'transport', 'lodging', 'food', 'access'])
+          && (!('transport' in l) || (l.transport is map
+                && l.transport.keys().hasOnly(['from', 'people', 'pref', 'notes'])
+                && lgStrOk(l.transport, 'from', 120) && lgIntOk(l.transport, 'people', 1, 20)
+                && lgStrOk(l.transport, 'pref', 10) && lgStrOk(l.transport, 'notes', 200)))
+          && (!('lodging' in l) || (l.lodging is map
+                && l.lodging.keys().hasOnly(['nights', 'arrive', 'depart', 'people', 'notes'])
+                && lgIntOk(l.lodging, 'nights', 1, 30) && lgIntOk(l.lodging, 'people', 1, 20)
+                && lgStrOk(l.lodging, 'arrive', 10) && lgStrOk(l.lodging, 'depart', 10)
+                && lgStrOk(l.lodging, 'notes', 200)))
+          && (!('food' in l) || (l.food is map
+                && l.food.keys().hasOnly(['allergies', 'intolerances', 'diets', 'pref'])
+                && lgListOk(l.food, 'allergies') && lgListOk(l.food, 'intolerances')
+                && (!('diets' in l.food) || (l.food.diets is list && l.food.diets.size() <= 8))
+                && lgStrOk(l.food, 'pref', 200)))
+          && (!('access' in l) || (l.access is map
+                && l.access.keys().hasOnly(['mobility', 'assistance', 'other'])
+                && (!('mobility' in l.access) || l.access.mobility is bool)
+                && (!('assistance' in l.access) || l.access.assistance is bool)
+                && lgStrOk(l.access, 'other', 200))));
       }
       allow get: if true;
       // Out 2026 (auditoria de segurança): era "allow update: if true" — quem
@@ -239,7 +271,7 @@ service cloud.firestore {
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'openedAt', 'respondedAt', 'responses',
         'attending', 'rsvpStatus', 'meal', 'dietary',
-        'transporte', 'alojamento', 'children'
+        'transporte', 'alojamento', 'children', 'logistics'
       ])
         && validGuestFieldTypes(request.resource.data.diff(resource.data).affectedKeys());
 

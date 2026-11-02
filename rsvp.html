@@ -58,6 +58,20 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
 .child-seg button{ all:unset; box-sizing:border-box; flex:1; text-align:center; padding:10px 0; border-radius:10px; border:1.6px solid var(--line); font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; }
 .child-seg button.active{ background:var(--sage); border-color:var(--sage); color:#fff; }
 .child-remove{ all:unset; box-sizing:border-box; width:34px; height:34px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:10px; background:rgba(154,79,61,0.1); color:var(--rust-dark); cursor:pointer; font-size:16px; margin-top:1px; }
+.lg-block{ text-align:left; border:1.6px solid var(--line); border-radius:14px; padding:14px; margin:-4px 0 14px; background:rgba(255,255,255,.55); }
+.lg-title{ font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--rust-dark); margin-bottom:10px; }
+.lg-hint,.lg-privacy{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px; text-align:left; }
+.lg-privacy{ margin:2px 2px 12px; }
+.lg-block .field{ margin-bottom:12px; }
+.lg-row{ display:flex; gap:10px; }
+.lg-row .field{ flex:1 1 0; min-width:0; }
+.lg-chips{ display:flex; flex-wrap:wrap; gap:7px; }
+.lg-chip{ all:unset; box-sizing:border-box; padding:8px 12px; border-radius:20px; border:1.6px solid var(--line); font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; background:#fff; }
+.lg-chip.on{ background:var(--sage); border-color:var(--sage); color:#fff; }
+.lg-check{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink); margin:2px 0 10px; cursor:pointer; text-align:left; }
+.lg-check input{ width:18px; height:18px; flex:0 0 18px; accent-color:var(--rust); }
+.child-flags{ flex:1 1 100%; display:flex; flex-wrap:wrap; gap:4px 18px; padding-left:2px; }
+@media (max-width:420px){ .lg-row{ flex-direction:column; gap:0; } }
 .add-child-btn{ all:unset; box-sizing:border-box; display:block; width:100%; text-align:center; padding:11px 0; border-radius:12px; border:1.6px dashed var(--line); font-size:13px; font-weight:600; color:var(--rust); cursor:pointer; }
 .state-hidden{ display:none !important; }
 .success-icon{ width:56px; height:56px; margin:0 auto 16px; color:var(--sage-dark); }
@@ -243,8 +257,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
             </select>
           </div>
           <div class="field">
-            <label data-t="dietaryLabel">Restrições alimentares ou alergias (opcional)</label>
-            <textarea id="dietary-text" maxlength="500" data-t-placeholder="dietaryPlaceholder" placeholder="Ex: alergia a marisco, sem glúten…"></textarea>
+            <label data-t="dietaryLabel">Outras notas sobre alimentação (opcional)</label>
+            <textarea id="dietary-text" maxlength="500" data-t-placeholder="dietaryPlaceholder" placeholder="Ex: prefiro porções pequenas…"></textarea>
           </div>
 
           <div class="children-block">
@@ -261,6 +275,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
             <div class="toggle-label"><span data-t="alojamentoLabel">Preciso de alojamento</span><small data-t="alojamentoSub">Ajuda a encontrar onde ficar</small></div>
             <button type="button" class="toggle-switch" id="toggle-alojamento"><span class="knob"></span></button>
           </div>
+          <div id="lg-single"></div>
         </div>
 
         <div class="msg state-hidden" id="maybe-note" data-t="maybeNote">Sem problema — quando souberes, volta a este link para nos dizeres. 🤍</div>
@@ -419,8 +434,15 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       mealFish: 'Peixe',
       mealBoth: 'Carne & Peixe',
       mealVeggie: 'Vegetariano',
-      dietaryLabel: 'Restrições alimentares ou alergias (opcional)',
-      dietaryPlaceholder: 'Ex: alergia a marisco, sem glúten…',
+      dietaryLabel: 'Outras notas sobre alimentação (opcional)',
+      dietaryPlaceholder: 'Ex: prefiro porções pequenas…',
+      lgTransportTitle:'Transporte', lgTransportFrom:'De onde partes / onde te recolhemos?', lgTransportFromPh:'Ex: Porto, estação de Campanhã', lgPeople:'Nº de pessoas', lgTransportPref:'Preferência', lgPrefAny:'Sem preferência', lgPrefBoth:'Ida e volta', lgPrefGo:'Só ida', lgPrefBack:'Só volta', lgNotesOpt:'Observações (opcional)',
+      lgLodgingTitle:'Alojamento', lgArrive:'Chegada', lgDepart:'Saída', lgNights:'Nº de noites',
+      lgFoodToggle:'Alergias ou restrições alimentares', lgFoodToggleSub:'Só se for o teu caso', lgFoodHint:'Indica separadamente o que é alergia (segurança) e o que é só preferência.', lgAllergies:'Alergias', lgAllergiesPh:'Ex: marisco, frutos secos (separa por vírgulas)', lgIntol:'Intolerâncias', lgIntolPh:'Ex: lactose', lgDiets:'Alimentação', lgFoodPref:'Preferências (não é alergia)', lgFoodPrefPh:'Ex: prefiro pouco picante',
+      lgDiet_vegetarian:'Vegetariano', lgDiet_vegan:'Vegano', lgDiet_glutenfree:'Sem glúten', lgDiet_lactosefree:'Sem lactose', lgDiet_halal:'Halal', lgDiet_kosher:'Kosher',
+      lgAccessToggle:'Acessibilidade ou apoio', lgAccessToggleSub:'Só se for o teu caso', lgMobility:'Mobilidade reduzida', lgAssistance:'Preciso de assistência', lgAccessOther:'Outra necessidade (opcional)',
+      lgHighchair:'Precisa de cadeira de bebé', lgKidsMeal:'Menu infantil', lgDatesError:'A data de chegada tem de ser anterior à de saída.',
+      lgPrivacyNote:'Estas informações ficam só com os noivos, para organizarem o dia. Não são partilhadas com outros convidados.',
       childrenLabel: 'Vais trazer crianças?',
       addChildBtn: '+ Adicionar criança',
       childNamePlaceholder: 'Nome da criança',
@@ -569,8 +591,15 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       mealFish: 'Fish',
       mealBoth: 'Meat & Fish',
       mealVeggie: 'Vegetarian',
-      dietaryLabel: 'Dietary restrictions or allergies (optional)',
-      dietaryPlaceholder: 'E.g.: shellfish allergy, gluten-free…',
+      dietaryLabel: 'Other notes about food (optional)',
+      dietaryPlaceholder: 'E.g.: I prefer small portions…',
+      lgTransportTitle:'Transport', lgTransportFrom:'Where will you leave from / be picked up?', lgTransportFromPh:'E.g. Porto, Campanhã station', lgPeople:'No. of people', lgTransportPref:'Preference', lgPrefAny:'No preference', lgPrefBoth:'Round trip', lgPrefGo:'Outbound only', lgPrefBack:'Return only', lgNotesOpt:'Notes (optional)',
+      lgLodgingTitle:'Accommodation', lgArrive:'Arrival', lgDepart:'Departure', lgNights:'No. of nights',
+      lgFoodToggle:'Allergies or dietary restrictions', lgFoodToggleSub:'Only if it applies to you', lgFoodHint:'Please separate what is an allergy (safety) from what is just a preference.', lgAllergies:'Allergies', lgAllergiesPh:'E.g. shellfish, nuts (separate with commas)', lgIntol:'Intolerances', lgIntolPh:'E.g. lactose', lgDiets:'Diet', lgFoodPref:'Preferences (not an allergy)', lgFoodPrefPh:'E.g. I prefer mild flavours',
+      lgDiet_vegetarian:'Vegetarian', lgDiet_vegan:'Vegan', lgDiet_glutenfree:'Gluten-free', lgDiet_lactosefree:'Lactose-free', lgDiet_halal:'Halal', lgDiet_kosher:'Kosher',
+      lgAccessToggle:'Accessibility or support', lgAccessToggleSub:'Only if it applies to you', lgMobility:'Reduced mobility', lgAssistance:'I need assistance', lgAccessOther:'Other need (optional)',
+      lgHighchair:'Needs a high chair', lgKidsMeal:"Children's menu", lgDatesError:'Arrival must be before departure.',
+      lgPrivacyNote:'This information is only shared with the couple, to organise the day. It is not shown to other guests.',
       childrenLabel: 'Will you be bringing children?',
       addChildBtn: '+ Add child',
       childNamePlaceholder: "Child's name",
@@ -888,6 +917,184 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // resposta guardada em guestData.responses[guestId]. familyMemberState guarda
   // o estado em memória de cada pessoa até se enviar tudo de uma vez.
   let familyMemberState = {};
+  // ============================================================
+  // B.2 — LOGÍSTICA DO CONVIDADO (transporte, alojamento, alimentação, acessibilidade)
+  // Perguntas condicionais, por pessoa, dentro da resposta que já existe
+  // (topo do documento no convite individual; responses.<id> na família).
+  // "precisa de transporte/alojamento" continua a ser o interruptor antigo
+  // (transporte/alojamento) — aqui só vão os DETALHES. Tudo opcional.
+  // ============================================================
+  const LG_DIETS = ['vegetarian','vegan','glutenfree','lactosefree','halal','kosher'];
+  const LG_PREFS = ['','ida-volta','ida','volta'];
+  const lgStr = v => (typeof v === 'string') ? v : '';
+  const lgNum = v => (v===undefined||v===null||v===''||isNaN(Number(v))) ? '' : String(Number(v));
+  const lgArr = v => Array.isArray(v) ? v.filter(x=>typeof x==='string') : [];
+  const lgEsc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function lgEmpty(){
+    return { transport:{from:'',people:'',pref:'',notes:''}, lodging:{nights:'',arrive:'',depart:'',people:'',notes:''},
+             food:{open:false,allergies:'',intolerances:'',diets:[],pref:''}, access:{open:false,mobility:false,assistance:false,other:''} };
+  }
+  function lgFromSaved(saved){
+    const s = lgEmpty();
+    if(!saved || typeof saved !== 'object') return s;
+    const tr = saved.transport||{}, lo = saved.lodging||{}, fo = saved.food||{}, ac = saved.access||{};
+    s.transport = { from:lgStr(tr.from), people:lgNum(tr.people), pref:LG_PREFS.includes(tr.pref)?tr.pref:'', notes:lgStr(tr.notes) };
+    s.lodging = { nights:lgNum(lo.nights), arrive:lgStr(lo.arrive), depart:lgStr(lo.depart), people:lgNum(lo.people), notes:lgStr(lo.notes) };
+    s.food = { open: !!(lgArr(fo.allergies).length||lgArr(fo.intolerances).length||lgArr(fo.diets).length||lgStr(fo.pref)),
+               allergies:lgArr(fo.allergies).join(', '), intolerances:lgArr(fo.intolerances).join(', '),
+               diets:lgArr(fo.diets).filter(d=>LG_DIETS.includes(d)), pref:lgStr(fo.pref) };
+    s.access = { open: !!(ac.mobility||ac.assistance||lgStr(ac.other)), mobility:!!ac.mobility, assistance:!!ac.assistance, other:lgStr(ac.other) };
+    return s;
+  }
+  function lgSplit(txt){ return String(txt||'').split(/[,;\n]/).map(x=>x.trim().slice(0,60)).filter(Boolean).slice(0,10); }
+  const lgInt = (v, lo, hi) => { const n = Math.round(Number(v)); return (v!=='' && isFinite(n) && n>=lo && n<=hi) ? n : null; };
+  const lgDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v||'')) ? String(v) : '';
+  // Só devolve o que foi mesmo preenchido (e que se aplica); null se não há nada.
+  function lgBuild(lg, needsT, needsL){
+    const out = { v:1 };
+    if(needsT){
+      const x = lg.transport, o = {};
+      if(x.from.trim()) o.from = x.from.trim().slice(0,120);
+      const p = lgInt(x.people,1,20); if(p!==null) o.people = p;
+      if(x.pref && LG_PREFS.includes(x.pref)) o.pref = x.pref;
+      if(x.notes.trim()) o.notes = x.notes.trim().slice(0,200);
+      if(Object.keys(o).length) out.transport = o;
+    }
+    if(needsL){
+      const x = lg.lodging, o = {};
+      const n = lgInt(x.nights,1,30); if(n!==null) o.nights = n;
+      if(lgDate(x.arrive)) o.arrive = lgDate(x.arrive);
+      if(lgDate(x.depart)) o.depart = lgDate(x.depart);
+      const p = lgInt(x.people,1,20); if(p!==null) o.people = p;
+      if(x.notes.trim()) o.notes = x.notes.trim().slice(0,200);
+      if(Object.keys(o).length) out.lodging = o;
+    }
+    if(lg.food.open){
+      const x = lg.food, o = {};
+      const al = lgSplit(x.allergies), it = lgSplit(x.intolerances), di = x.diets.filter(d=>LG_DIETS.includes(d)).slice(0,8);
+      if(al.length) o.allergies = al;
+      if(it.length) o.intolerances = it;
+      if(di.length) o.diets = di;
+      if(x.pref.trim()) o.pref = x.pref.trim().slice(0,200);
+      if(Object.keys(o).length) out.food = o;
+    }
+    if(lg.access.open){
+      const x = lg.access, o = {};
+      if(x.mobility) o.mobility = true;
+      if(x.assistance) o.assistance = true;
+      if(x.other.trim()) o.other = x.other.trim().slice(0,200);
+      if(Object.keys(o).length) out.access = o;
+    }
+    return Object.keys(out).length > 1 ? out : null;
+  }
+  // true se a chegada vier depois da saída (erro a mostrar).
+  function lgDatesBad(lg, needsL){
+    return !!(needsL && lgDate(lg.lodging.arrive) && lgDate(lg.lodging.depart) && lg.lodging.arrive > lg.lodging.depart);
+  }
+  function lgSet(lg, path, value){
+    const parts = path.split('.'); let o = lg;
+    for(let i=0;i<parts.length-1;i++){ o = o[parts[i]]; if(!o) return; }
+    o[parts[parts.length-1]] = value;
+  }
+  function lgField(path, label, value, opts){
+    opts = opts || {};
+    const attrs = `data-lg="${path}"` + (opts.type?` type="${opts.type}"`:' type="text"') + (opts.min!==undefined?` min="${opts.min}" max="${opts.max}"`:'') + (opts.max2?` maxlength="${opts.max2}"`:'') + (opts.ph?` placeholder="${lgEsc(opts.ph)}"`:'');
+    return `<div class="field lg-f"><label>${lgEsc(label)}</label><input ${attrs} value="${lgEsc(value)}"></div>`;
+  }
+  function lgToggleRow(key, label, sub, on){
+    return `<div class="toggle-row"><div class="toggle-label"><span>${lgEsc(label)}</span><small>${lgEsc(sub)}</small></div><button type="button" class="toggle-switch ${on?'on':''}" data-lgtoggle="${key}" aria-pressed="${on?'true':'false'}" aria-label="${lgEsc(label)}"><span class="knob"></span></button></div>`;
+  }
+  // HTML das perguntas de logística de UMA pessoa (depende dos interruptores antigos).
+  function lgHTML(lg, needsT, needsL){
+    let h = '';
+    if(needsT){
+      h += `<div class="lg-block"><div class="lg-title">${t('lgTransportTitle')}</div>
+        ${lgField('transport.from', t('lgTransportFrom'), lg.transport.from, {max2:120, ph:t('lgTransportFromPh')})}
+        <div class="lg-row">
+          ${lgField('transport.people', t('lgPeople'), lg.transport.people, {type:'number', min:1, max:20})}
+          <div class="field lg-f"><label>${t('lgTransportPref')}</label><select data-lg="transport.pref">
+            <option value="" ${lg.transport.pref===''?'selected':''}>${t('lgPrefAny')}</option>
+            <option value="ida-volta" ${lg.transport.pref==='ida-volta'?'selected':''}>${t('lgPrefBoth')}</option>
+            <option value="ida" ${lg.transport.pref==='ida'?'selected':''}>${t('lgPrefGo')}</option>
+            <option value="volta" ${lg.transport.pref==='volta'?'selected':''}>${t('lgPrefBack')}</option></select></div>
+        </div>
+        ${lgField('transport.notes', t('lgNotesOpt'), lg.transport.notes, {max2:200})}</div>`;
+    }
+    if(needsL){
+      h += `<div class="lg-block"><div class="lg-title">${t('lgLodgingTitle')}</div>
+        <div class="lg-row">
+          ${lgField('lodging.arrive', t('lgArrive'), lg.lodging.arrive, {type:'date'})}
+          ${lgField('lodging.depart', t('lgDepart'), lg.lodging.depart, {type:'date'})}
+        </div>
+        <div class="lg-row">
+          ${lgField('lodging.nights', t('lgNights'), lg.lodging.nights, {type:'number', min:1, max:30})}
+          ${lgField('lodging.people', t('lgPeople'), lg.lodging.people, {type:'number', min:1, max:20})}
+        </div>
+        ${lgField('lodging.notes', t('lgNotesOpt'), lg.lodging.notes, {max2:200})}</div>`;
+    }
+    h += lgToggleRow('food', t('lgFoodToggle'), t('lgFoodToggleSub'), lg.food.open);
+    if(lg.food.open){
+      h += `<div class="lg-block"><div class="lg-hint">${t('lgFoodHint')}</div>
+        ${lgField('food.allergies', t('lgAllergies'), lg.food.allergies, {max2:300, ph:t('lgAllergiesPh')})}
+        ${lgField('food.intolerances', t('lgIntol'), lg.food.intolerances, {max2:300, ph:t('lgIntolPh')})}
+        <div class="field lg-f"><label>${t('lgDiets')}</label><div class="lg-chips">${LG_DIETS.map(d=>`<button type="button" class="lg-chip ${lg.food.diets.includes(d)?'on':''}" data-lgdiet="${d}" aria-pressed="${lg.food.diets.includes(d)?'true':'false'}">${t('lgDiet_'+d)}</button>`).join('')}</div></div>
+        ${lgField('food.pref', t('lgFoodPref'), lg.food.pref, {max2:200, ph:t('lgFoodPrefPh')})}</div>`;
+    }
+    h += lgToggleRow('access', t('lgAccessToggle'), t('lgAccessToggleSub'), lg.access.open);
+    if(lg.access.open){
+      h += `<div class="lg-block">
+        <label class="lg-check"><input type="checkbox" data-lgcheck="access.mobility" ${lg.access.mobility?'checked':''}> <span>${t('lgMobility')}</span></label>
+        <label class="lg-check"><input type="checkbox" data-lgcheck="access.assistance" ${lg.access.assistance?'checked':''}> <span>${t('lgAssistance')}</span></label>
+        ${lgField('access.other', t('lgAccessOther'), lg.access.other, {max2:200})}</div>`;
+    }
+    h += `<div class="lg-privacy">${t('lgPrivacyNote')}</div>`;
+    return h;
+  }
+  // Delegação de eventos: `resolve(el)` devolve { lg, rerender } para o elemento clicado/alterado.
+  function lgBind(root, resolve){
+    root.addEventListener('input', e=>{
+      const el = e.target.closest('[data-lg]'); if(!el) return;
+      const r = resolve(el); if(!r) return;
+      lgSet(r.lg, el.dataset.lg, el.value);
+    });
+    root.addEventListener('change', e=>{
+      const sel = e.target.closest('select[data-lg]');
+      if(sel){ const r = resolve(sel); if(r) lgSet(r.lg, sel.dataset.lg, sel.value); return; }
+      const ck = e.target.closest('[data-lgcheck]');
+      if(ck){ const r = resolve(ck); if(r) lgSet(r.lg, ck.dataset.lgcheck, ck.checked); }
+    });
+    root.addEventListener('click', e=>{
+      const tg = e.target.closest('[data-lgtoggle]');
+      if(tg){ const r = resolve(tg); if(!r) return; const k = tg.dataset.lgtoggle; r.lg[k].open = !r.lg[k].open; r.rerender(); return; }
+      const ch = e.target.closest('[data-lgdiet]');
+      if(ch){ const r = resolve(ch); if(!r) return; const d = ch.dataset.lgdiet, a = r.lg.food.diets; const i = a.indexOf(d); if(i>=0) a.splice(i,1); else a.push(d); r.rerender(); }
+    });
+  }
+  // Cada criança: cadeira de bebé (≤4 anos) e menu infantil (≤12 anos), só quando a idade o justifica.
+  function childFlagsHTML(c, attrs){
+    const age = (c.age===''||c.age===undefined||c.age===null) ? null : Number(c.age);
+    if(age===null || isNaN(age)) return '';
+    let h = '';
+    if(age<=4) h += `<label class="lg-check"><input type="checkbox" ${attrs} data-flag="highchair" ${c.highchair?'checked':''}> <span>${t('lgHighchair')}</span></label>`;
+    if(age<=12) h += `<label class="lg-check"><input type="checkbox" ${attrs} data-flag="kidsMeal" ${c.kidsMeal?'checked':''}> <span>${t('lgKidsMeal')}</span></label>`;
+    return h ? `<div class="child-flags">${h}</div>` : '';
+  }
+  const childFromSaved = c => ({ name:c.name||'', age:c.age===undefined?'':c.age, attending: c.attending!==false, highchair: c.highchair===true, kidsMeal: c.kidsMeal===true });
+  function childPayload(c){
+    const age = c.age===''||c.age===undefined ? null : Number(c.age);
+    const o = { name:c.name.trim(), age, attending:c.attending!==false };
+    if(c.highchair && age!==null && age<=4) o.highchair = true;
+    if(c.kidsMeal && age!==null && age<=12) o.kidsMeal = true;
+    return o;
+  }
+  let lgSingle = lgEmpty();
+  function lgRenderSingle(){
+    const root = document.getElementById('lg-single'); if(!root) return;
+    const nt = document.getElementById('toggle-transporte').classList.contains('on');
+    const nl = document.getElementById('toggle-alojamento').classList.contains('on');
+    root.innerHTML = lgHTML(lgSingle, nt, nl);
+  }
+
   // Weddy Concierge — chat do convidado. Tudo respostas por regras
   // (keyword matching), nunca um modelo de IA real, tal como o Assistente
   // Weddy do lado dos noivos em index.html. conciergePendingAction guarda
@@ -910,8 +1117,15 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
           <button type="button" data-childattend="no" data-idx="${i}" class="${c.attending===false?'active':''}">${t('childNo')}</button>
         </div>
         <button type="button" class="child-remove" data-childremove="${i}">×</button>
+        ${childFlagsHTML(c, 'data-childflag="1" data-idx="'+i+'"')}
       </div>
     `).join('');
+    list.querySelectorAll('[data-childflag]').forEach(el=>{
+      el.addEventListener('change', ()=>{ children[Number(el.dataset.idx)][el.dataset.flag] = el.checked; });
+    });
+    list.querySelectorAll('[data-childfield="age"]').forEach(el=>{
+      el.addEventListener('change', ()=>{ renderChildren(); });
+    });
     list.querySelectorAll('[data-childfield]').forEach(el=>{
       el.addEventListener('input', e=>{
         const idx = Number(e.target.dataset.idx);
@@ -1095,8 +1309,10 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         if(selectedAttend==='yes'){
           document.getElementById('meal-select').value = guestData.meal || '';
           document.getElementById('dietary-text').value = guestData.dietary || '';
-          children = Array.isArray(guestData.children) ? guestData.children.map(c=>({ name:c.name||'', age:c.age===undefined?'':c.age, attending: c.attending!==false })) : [];
+          children = Array.isArray(guestData.children) ? guestData.children.map(childFromSaved) : [];
           renderChildren();
+          lgSingle = lgFromSaved(guestData.logistics);
+          lgRenderSingle();
         }
         document.getElementById('send-btn').disabled = false;
         document.getElementById('send-btn').textContent = t('updateBtn');
@@ -1125,7 +1341,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         dietary: r.dietary || '',
         transporte: !!r.transporte,
         alojamento: !!r.alojamento,
-        children: Array.isArray(r.children) ? r.children.map(c=>({ name:c.name||'', age:c.age===undefined?'':c.age, attending: c.attending!==false })) : []
+        children: Array.isArray(r.children) ? r.children.map(childFromSaved) : [],
+        lg: lgFromSaved(r.logistics)
       };
     });
     document.getElementById('family-flow').classList.remove('state-hidden');
@@ -1147,6 +1364,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
           <button type="button" data-mchildattend="no" data-mid="${mid}" data-idx="${i}" class="${c.attending===false?'active':''}">${t('childNo')}</button>
         </div>
         <button type="button" class="child-remove" data-mchildremove="${i}" data-mid="${mid}">×</button>
+        ${childFlagsHTML(c, 'data-mchildflag="1" data-mid="'+mid+'" data-idx="'+i+'"')}
       </div>
     `).join('');
   }
@@ -1228,6 +1446,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
             <div class="toggle-label"><span>${t('alojamentoLabel')}</span><small>${t('alojamentoSub')}</small></div>
             <button type="button" class="toggle-switch ${st.alojamento?'on':''}" data-mtoggle="alojamento" data-mid="${mid}"><span class="knob"></span></button>
           </div>
+          <div class="lg-wrap" data-lgmid="${mid}">${lgHTML(st.lg, st.transporte, st.alojamento)}</div>
         </div>
       </div>`;
     }).join('');
@@ -1274,6 +1493,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         renderFamilyMembers();
       });
     });
+    document.querySelectorAll('[data-mchildflag]').forEach(el=>{
+      el.addEventListener('change', ()=>{ familyMemberState[el.dataset.mid].children[Number(el.dataset.idx)][el.dataset.flag] = el.checked; });
+    });
+    document.querySelectorAll('[data-mchildfield="age"]').forEach(el=>{
+      el.addEventListener('change', ()=>{ renderFamilyMembers(); });
+    });
     document.querySelectorAll('[data-mchildremove]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const idx = Number(btn.dataset.mchildremove);
@@ -1282,6 +1507,14 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       });
     });
   }
+
+  // Logística por membro: um só listener delegado no contentor da família.
+  lgBind(document.getElementById('family-members'), el=>{
+    const w = el.closest('[data-lgmid]'); if(!w) return null;
+    const st = familyMemberState[w.dataset.lgmid]; if(!st) return null;
+    return { lg: st.lg, rerender: ()=>{ renderFamilyMembers(); } };
+  });
+  lgBind(document.getElementById('lg-single'), ()=>({ lg: lgSingle, rerender: lgRenderSingle }));
 
   function updateFamilySendState(){
     const members = Array.isArray(guestData.members) ? guestData.members : [];
@@ -1302,6 +1535,11 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       }
       // Mesma regra do convidado individual: uma criança adicionada tem de
       // ficar com nome e idade preenchidos antes de poder enviar.
+      if(st.attend==='yes' && lgDatesBad(st.lg, st.alojamento)){
+        msgEl.textContent = t('lgDatesError');
+        msgEl.className = 'msg error';
+        return;
+      }
       if(st.attend==='yes' && (st.children||[]).some(c => !(c.name||'').trim() || c.age==='' || c.age===undefined || c.age===null)){
         msgEl.textContent = t('childDetailsRequired');
         msgEl.className = 'msg error';
@@ -1322,8 +1560,10 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         dietary: attending ? (st.dietary||'').trim() : '',
         transporte: attending ? !!st.transporte : false,
         alojamento: attending ? !!st.alojamento : false,
-        children: attending ? st.children.filter(c=>(c.name||'').trim()).map(c=>({ name:c.name.trim(), age:c.age===''||c.age===undefined?null:Number(c.age), attending:c.attending!==false })) : []
+        children: attending ? st.children.filter(c=>(c.name||'').trim()).map(childPayload) : []
       };
+      const lgOut = attending ? lgBuild(st.lg, st.transporte, st.alojamento) : null;
+      if(lgOut) responses[m.guestId].logistics = lgOut;
     });
     // Grava cada membro no seu próprio caminho ("responses.<id>"), em vez de
     // substituir o mapa "responses" inteiro. Isto evita que, se outra pessoa
@@ -1563,9 +1803,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       dietary: '',
       transporte: false,
       alojamento: false,
-      children: []
+      children: [],
+      logistics: firebase.firestore.FieldValue.delete()
     }).then(()=>{
       Object.assign(guestData, { attending:null, rsvpStatus:null, meal:'', dietary:'', transporte:false, alojamento:false, children:[] });
+      delete guestData.logistics;
+      lgSingle = lgEmpty();
       selectedAttend = null;
       children = [];
       renderChildren();
@@ -1576,6 +1819,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       document.getElementById('dietary-text').value = '';
       document.getElementById('toggle-transporte').classList.remove('on');
       document.getElementById('toggle-alojamento').classList.remove('on');
+      lgRenderSingle();
       document.getElementById('send-btn').disabled = true;
       document.getElementById('send-btn').textContent = t('sendBtn');
       const msgEl = document.getElementById('form-msg');
@@ -1591,7 +1835,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   });
 
   ['toggle-transporte','toggle-alojamento'].forEach(id=>{
-    document.getElementById(id).addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); });
+    document.getElementById(id).addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); lgRenderSingle(); });
   });
 
   document.querySelectorAll('#attend-seg button').forEach(btn=>{
@@ -1601,6 +1845,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       document.getElementById('extra-fields').classList.toggle('show', selectedAttend==='yes');
       document.getElementById('maybe-note').classList.toggle('state-hidden', selectedAttend!=='maybe');
       document.getElementById('send-btn').disabled = false;
+      if(selectedAttend==='yes') lgRenderSingle();
     });
   });
 
@@ -1618,8 +1863,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     // meio não deve ser enviada como se fosse uma criança real.
     const childrenToSend = attending ? children
       .filter(c => (c.name||'').trim())
-      .map(c => ({ name: c.name.trim(), age: c.age===''||c.age===undefined ? null : Number(c.age), attending: c.attending!==false }))
+      .map(childPayload)
       : [];
+    const lgOut = attending ? lgBuild(lgSingle, transporte, alojamento) : null;
     if(attending && !meal){
       msgEl.textContent = t('chooseMealError');
       msgEl.className = 'msg error';
@@ -1632,10 +1878,15 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       msgEl.className = 'msg error';
       return;
     }
+    if(attending && lgDatesBad(lgSingle, alojamento)){
+      msgEl.textContent = t('lgDatesError');
+      msgEl.className = 'msg error';
+      return;
+    }
     btn.disabled = true;
     msgEl.textContent = t('sending');
     msgEl.className = 'msg';
-    db.collection('guests').doc(guestToken).update({
+    const singlePayload = {
       attending: attending,
       rsvpStatus: selectedAttend,
       meal: meal,
@@ -1644,8 +1895,13 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       alojamento: alojamento,
       children: childrenToSend,
       respondedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(()=>{
+    };
+    // Só mexe em "logistics" se há algo a gravar, ou se havia algo antes (para limpar).
+    if(lgOut) singlePayload.logistics = lgOut;
+    else if(guestData.logistics) singlePayload.logistics = firebase.firestore.FieldValue.delete();
+    db.collection('guests').doc(guestToken).update(singlePayload).then(()=>{
       Object.assign(guestData, { attending, rsvpStatus:selectedAttend, meal, dietary, transporte, alojamento, children:childrenToSend });
+      if(lgOut) guestData.logistics = lgOut; else delete guestData.logistics;
       updateDeleteLinkVisibility();
       if(selectedAttend==='maybe'){
         document.getElementById('done-title').textContent = t('doneTitleMaybe');
