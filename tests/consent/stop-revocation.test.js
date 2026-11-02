@@ -77,7 +77,7 @@ async function grant() { const r = await call('setGuestWhatsappConsent', { token
   ok((await rec('g1')).history.filter((h) => h.event === 'revoked').length === 1, 'STOP concorrente (6 em paralelo): exatamente 1 revogação registada');
   await seed(); await grant(); await stop('STOP');
   const e1 = (await entryOf('g1')).communicationPreferences.whatsapp.optedOutAt; await new Promise((r) => setTimeout(r, 15)); await stop('STOP');
-  gap((await entryOf('g1')).communicationPreferences.whatsapp.optedOutAt === e1, 'STOP repetido mantém a data da PRIMEIRA revogação também no espelho do json');
+  ok((await entryOf('g1')).communicationPreferences.whatsapp.optedOutAt === e1, 'STOP repetido mantém a data da PRIMEIRA revogação também no espelho do json');
 
   // 6. Alteração posterior do número
   await seed(); await grant();
@@ -105,15 +105,25 @@ async function grant() { const r = await call('setGuestWhatsappConsent', { token
   // 8. Reconhecimento do STOP
   const variants = [['STOP', true], ['  Stop. ', true], ['stop!!', true], ['PARAR', true], ['Parar de enviar', true], ['Unsubscribe', true], ['Sair', true], ['cancelar', true], ['Stop all', true]];
   for (const [txt, expect] of variants) { await seed(); await grant(); await stop(txt); ok(((await rec('g1')).status === 'revoked') === expect, `reconhecido: «${txt.trim()}»`); }
-  const wanted = ['Pare', 'pára', 'Cancel', 'QUIT', 'END', 'Remover', 'Não quero receber mais mensagens', 'nao quero mais'];
-  for (const txt of wanted) { await seed(); await grant(); await stop(txt); gap((await rec('g1')).status === 'revoked', `STOP também reconhece «${txt}»`); }
-  for (const txt of ['Sim, obrigada', 'A que horas é o jantar?', 'ok']) { await seed(); await grant(); await stop(txt); ok((await rec('g1')).status === 'granted', `não revoga com «${txt}»`); }
+  const wanted = ['Pare', 'pára', 'Pára!', 'PÁRA', 'Para', 'Cancel', 'QUIT', 'END', 'Remover', 'Não quero receber mais mensagens', 'nao quero mais', 'Deixem de me enviar mensagens', 'não me mandem mais nada', 'opt out', 'Opt-out', '🛑 STOP', '  sTOp  \n', 'PARE JÁ', 'Quit please', 'Remove me'];
+  for (const txt of wanted) { await seed(); await grant(); await stop(txt); ok((await rec('g1')).status === 'revoked', `STOP também reconhece «${txt}»`); }
+  for (const txt of ['Sim, obrigada', 'A que horas é o jantar?', 'ok', 'Para quando é o casamento?', 'Para a mesa 3, obrigada', 'Vou estar lá, sem falta', 'Podem enviar a morada?', '']) { await seed(); await grant(); await stop(txt); ok((await rec('g1')).status === 'granted', `não revoga com «${txt}»`); }
 
   // 9. Conteúdo desnecessário da mensagem
   await seed(); await grant(); await stop('STOP');
-  const inbox = (await db.collection('whatsappInbox').get()).docs.map((d) => d.data());
-  gap(inbox.length === 1 && !('raw' in inbox[0]) && !inbox[0].contactName, 'whatsappInbox não guarda o payload bruto nem o nome do contacto de uma mensagem STOP');
+  let inbox = (await db.collection('whatsappInbox').get()).docs.map((d) => d.data());
+  const keys = Object.keys(inbox[0] || {}).sort().join(',');
+  ok(inbox.length === 1 && inbox[0].kind === 'stop' && inbox[0].guestId === 'g1', 'whatsappInbox: um registo "stop" ligado ao convidado');
+  ok(keys === 'guestId,kind,receivedAt,type,waMessageId,weddingId', 'whatsappInbox: só campos mínimos (sem texto, sem número, sem nome, sem payload bruto): ' + keys);
+  ok(!JSON.stringify(inbox).includes('Nome Privado') && !JSON.stringify(inbox).includes('351912345678') && !JSON.stringify(inbox).includes('STOP'), 'whatsappInbox: nome, número e texto da mensagem não aparecem em lado nenhum');
+  await stop('Olá, tudo bem? Um segredo pessoal', '+351900000000');
+  inbox = (await db.collection('whatsappInbox').get()).docs.map((d) => d.data());
+  ok(inbox.length === 2 && inbox.filter((x) => x.kind === 'message' && x.guestId === null).length === 1 && !JSON.stringify(inbox).includes('segredo'), 'mensagem de número desconhecido: registo mínimo sem conteúdo');
+  // revogação com data e origem
+  const rv = await rec('g1');
+  ok(rv.status === 'revoked' && rv.revokedWhy === 'whatsapp_stop' && !!rv.revokedAtISO && rv.history.some((h) => h.event === 'revoked' && h.why === 'whatsapp_stop' && h.at), 'revogação registada com data e origem (whatsapp_stop)');
+  ok(!JSON.stringify(rv).toLowerCase().includes('"stop"'), 'registo de revogação não guarda o texto da mensagem');
 
-  console.log(`\n${pass} OK, ${fail} FAIL, ${gaps} GAP (lacunas conhecidas, não falham a suite)`);
+  console.log(`\n${pass} OK, ${fail} FAIL`);
   process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error('ERRO NO TESTE', e); process.exit(2); });

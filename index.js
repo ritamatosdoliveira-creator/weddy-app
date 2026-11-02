@@ -4872,11 +4872,10 @@ exports.setGuestWhatsappConsent = onCall({ region: 'europe-west1' }, async (requ
      convidados mandam para o número da Weddy, e atualizações de estado
      das mensagens que a Weddy mandar no futuro (sent/delivered/read/
      failed — a parte de ENVIAR ainda não existe, isto só regista).
-   Toda a mensagem recebida fica guardada em "whatsappInbox" (com o
-   weddingId/guestId já identificados, quando o número bate certo com o
-   guestPhoneIndex da Fase 9.2 parte 1) — para nunca se perder nada
-   enquanto não há ainda nenhum "Concierge por WhatsApp" a responder
-   sozinho. Se o convidado escrever "STOP"/"PARAR"/etc., o consentimento
+   Cada mensagem recebida deixa um registo mínimo em "whatsappInbox"
+   (tipo, id da mensagem, weddingId/guestId quando o número bate certo com o
+   guestPhoneIndex, e se foi um STOP) — sem o texto, o nome nem o número.
+   Se o convidado escrever "STOP"/"PARAR"/etc., o consentimento
    dele é desligado de imediato (comunicationPreferences.whatsapp.
    optedIn = false), tal como a Meta exige.
 
@@ -4941,7 +4940,33 @@ async function findGuestByPhone(phoneE164) {
   return idxSnap.data(); // { weddingId, guestId }
 }
 
-const WHATSAPP_STOP_WORDS = ['stop', 'parar', 'cancelar', 'sair', 'unsubscribe'];
+// Pedidos de "parar" reconhecidos (já sem acentos, em minúsculas). Revogar é sempre o lado
+// seguro: um falso positivo só obriga o convidado a dar novo consentimento no RSVP.
+const WHATSAPP_STOP_WORDS = [
+  'stop', 'parar', 'pare', 'cancel', 'cancelar', 'cancela', 'quit', 'end', 'sair', 'remover', 'remove',
+  'unsubscribe', 'unsub', 'descadastrar', 'desinscrever',
+];
+const WHATSAPP_STOP_PHRASES = [
+  /^opt ?out\b/,
+  /\bnao (me )?(quero|queremos) (receber|mais|ser contactad)/,
+  /\b(deixem?|deixa|parem?|pare) de (me )?(enviar|mandar|contactar|incomodar)/,
+  /\bnao (me )?(enviem|mandem|envies|mandes|contactem|contactes|incomodem)\b/,
+  /\bnao (envi|mand)\w* mais\b/,
+  /\b(do not|dont|don t) (contact|message|text|send)\b/,
+];
+// true se a mensagem é um pedido para deixar de receber mensagens. Normaliza espaços,
+// maiúsculas/minúsculas, acentos e pontuação/emojis.
+function isWhatsappStopText(text) {
+  const raw = String(text == null ? '' : text).slice(0, 500);
+  const norm = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!norm) return false;
+  const words = norm.split(' ');
+  if (WHATSAPP_STOP_WORDS.includes(words[0])) return true;
+  // "pára" (com acento) é o imperativo de parar; "para" sozinho ou com acento só conta
+  // se for a mensagem inteira — "para quando?" ou "para a mesa 3" não são pedidos de STOP.
+  if (words[0] === 'para' && (words.length === 1 || /^\s*p\u00e1ra\b/i.test(raw.normalize('NFC')))) return true;
+  return WHATSAPP_STOP_PHRASES.some((re) => re.test(norm));
+}
 
 // Regista um "opt-out" (STOP) de um convidado — mesma escrita
 // transacional do updateGuestPhone, para state.guests continuar a ser a
@@ -4963,6 +4988,9 @@ async function recordWhatsappOptOut(weddingId, guestId) {
     const entry = findGuestEntryByGuestId(state, guestId);
     if (!entry) return;
     const prevPrefs = (entry.communicationPreferences && entry.communicationPreferences.whatsapp) || {};
+    // STOP repetido: o espelho já diz "revogado" — preserva a data da PRIMEIRA revogação
+    // e não reescreve o estado (a revogação nunca é "renovada" por mensagens seguintes).
+    if (prevPrefs.optedIn === false && prevPrefs.optedOutAt) return;
     entry.communicationPreferences = {
       whatsapp: { optedIn: false, optedInAt: prevPrefs.optedInAt || null, optedOutAt: new Date().toISOString() },
     };
@@ -4974,9 +5002,9 @@ async function recordWhatsappOptOut(weddingId, guestId) {
 }
 
 
-// DORMENTE (decisão Nov 2026: sem WhatsApp Business API): nenhuma função/webhook a chama.
-// Confirmaria o double opt-in com "SIM <código>" enviado do WhatsApp do convidado, mas só seria
-// fiável com um canal autenticado (Meta). Mantida e testada para uma eventual fase futura autorizada.
+// NÃO LIGADA (decisão Nov 2026: sem WhatsApp Business API): nenhuma função/webhook a chama, por isso
+// uma resposta "SIM <código>" nunca confirma consentimento. Só poderia voltar a ser usada com uma
+// integração oficial e autenticada com a Meta, autorizada à parte. Mantida e testada isoladamente.
 // Devolve 'granted' | 'no_pending' | 'expired' | 'wrong_code' | 'locked' | 'phone_mismatch'.
 async function confirmWhatsappConsentByReply(owner, phoneE164, code) {
   const weddingRef = db.collection('weddings').doc(owner.weddingId);
@@ -5021,34 +5049,32 @@ async function confirmWhatsappConsentByReply(owner, phoneE164, code) {
   return outcome;
 }
 
-// Guarda a mensagem em bruto (mesmo de números que não reconhecemos) e
-// trata os pedidos de STOP. Isto é deliberadamente "burro" por agora —
-// só regista — para o Concierge por WhatsApp (responder sozinho) ficar
-// para uma fase à parte, depois do envio/pagamento estar tratado.
+// Regista (de forma mínima) a mensagem recebida e trata os pedidos de STOP.
+// Não responde a ninguém: o Concierge por WhatsApp fica para uma fase à parte.
 async function handleIncomingWhatsappMessage(msg, contacts) {
   const fromRaw = msg.from; // a Meta manda sem "+", ex.: "351912345678"
   const phoneE164 = fromRaw ? (fromRaw.startsWith('+') ? fromRaw : `+${fromRaw}`) : null;
   const text = (msg.text && typeof msg.text.body === 'string') ? msg.text.body.trim() : '';
-  const contactName = (Array.isArray(contacts) && contacts[0] && contacts[0].profile && contacts[0].profile.name) || '';
 
   const owner = phoneE164 ? await findGuestByPhone(phoneE164) : null;
 
+  const isStop = !!(owner && text && isWhatsappStopText(text));
+
+  // Minimização (RGPD): NÃO se guarda o texto, o nome do contacto, o número nem o payload bruto.
+  // Só o que é preciso para auditar: tipo, id da mensagem (deduplicação), a quem pertence
+  // (quando o número é de um convidado conhecido) e se foi um pedido de STOP.
   await db.collection('whatsappInbox').add({
-    from: phoneE164 || fromRaw || null,
-    contactName,
-    text,
+    kind: isStop ? 'stop' : 'message',
     type: msg.type || 'unknown',
     waMessageId: msg.id || null,
     weddingId: owner ? owner.weddingId : null,
     guestId: owner ? owner.guestId : null,
     receivedAt: admin.firestore.FieldValue.serverTimestamp(),
-    raw: msg,
   });
 
   // Decisão (Nov 2026): SEM confirmação automática do consentimento por esta via. Uma mensagem
-  // "SIM <código>" recebida aqui NÃO confirma nada (confirmWhatsappConsentByReply fica sem
-  // ligação; só poderia voltar a ser usada se for autorizada uma integração oficial com a Meta).
-  if (owner && text && WHATSAPP_STOP_WORDS.includes(String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').trim().split(/\s+/)[0])) {
+  // "SIM <código>" recebida aqui NÃO confirma nada (confirmWhatsappConsentByReply fica sem ligação).
+  if (isStop) {
     await recordWhatsappOptOut(owner.weddingId, owner.guestId);
     logger.info(`whatsappWebhook: opt-out registado via STOP (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
   }
@@ -6291,5 +6317,5 @@ exports.validateWeddingStateOnWrite = onDocumentWritten(
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }
