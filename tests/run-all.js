@@ -46,6 +46,7 @@ const SUITES = [
   { id: 'ui-premium-lapsed', group: 'ui', name: 'UI Premium terminado: conteúdo antigo visível', cmd: py('premium_lapsed.py') },
   { id: 'ui-logistics-rsvp', group: 'ui', name: 'UI RSVP com logística (B.2)', cmd: py('logistics_rsvp.py') },
   { id: 'ui-logistics-couple', group: 'ui', name: 'UI logística do casal (B.2)', cmd: py('logistics_couple.py') },
+  { id: 'ui-logistics-tables', group: 'ui', name: 'UI logística nas mesas (B.2)', cmd: py('logistics_tables.py') },
   { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
   { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
 ];

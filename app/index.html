@@ -2048,6 +2048,9 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
    texto quebrar letra a letra numa coluna vertical. */
 .picker-row .pick-check{ flex-shrink:0; width:16px; height:16px; color:var(--rust-dark); }
 .picker-row .pick-check svg{ width:100%; height:100%; }
+.seat-tags{ display:inline-flex; gap:5px; flex-wrap:wrap; margin-left:6px; vertical-align:middle; }
+.seat-tag{ font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:rgba(20,20,20,0.06); color:var(--ink-soft); white-space:nowrap; }
+.seat-tag.warn{ background:rgba(193,88,62,0.12); color:var(--rust-dark); }
 .pname-hint{ display:block; font-size:11px; font-weight:500; color:var(--ink-soft); margin-top:1px; }
 .privacy-text{ padding:0 16px 30px; font-size:13px; color:var(--ink); line-height:1.6; }
 /* Pedido direto da Rita (Set 2026): os ecrãs de Termos e Privacidade em
@@ -6264,6 +6267,12 @@ const APP_I18N = {
     logiFollowTodo:'por organizar', logiFollowDone:'organizado', logiFollowNeeds:'Necessidades', logiGroupLabel:'Grupo de transporte', logiGroupPh:'Ex: Carrinha 1',
     logiGroupsTitle:'Famílias e grupos a organizar em conjunto', logiFamilyOf:(n)=>`Família ${n}`, logiGroupNamed:(n)=>`Grupo ${n}`,
     logiPrivacy:'Informação sensível (alergias, acessibilidade) fica só nesta área. Não é enviada por email, notificações nem ao assistente.',
+    logiTagAllergy:'alergia', logiTagDiet:'dieta', logiTagAccess:'acessibilidade', logiTagKids:(n)=>`${n} ${n===1?'criança':'crianças'}`,
+    logiHintsTitle:'Para ter em conta nas mesas', logiHintsNote:'Só informação — nada muda sozinho.',
+    logiHintSplit:(fam,tbls)=>`${fam} está em mesas diferentes (${tbls}).`, logiHintAccessFree:(n)=>`${n} ${n===1?'convidado com acessibilidade ainda sem mesa':'convidados com acessibilidade ainda sem mesa'}.`,
+    logiHintKidsFree:(n)=>`${n} ${n===1?'família com crianças ainda sem mesa':'famílias com crianças ainda sem mesa'}.`,
+    logiTableSummary:(a,b,c,d)=>[a?`${a} ${a===1?'alergia':'alergias'}`:'', b?`${b} acessibilidade`:'', c?`${c} ${c===1?'criança':'crianças'}`:'', d?`${d} ${d===1?'dieta':'dietas'}`:''].filter(Boolean).join(' · '),
+
 
     rsvpLembretesNavTitle:'Lembretes automáticos', rsvpLembretesNavDesc:'Prazo de resposta e lembretes para quem falta responder',
     rsvpLembretesIntro:'Define o prazo de resposta e deixa a Weddy tratar de lembrar quem ainda não respondeu.',
@@ -7596,6 +7605,12 @@ const APP_I18N = {
     logiFollowTodo:'to organise', logiFollowDone:'organised', logiFollowNeeds:'Needs', logiGroupLabel:'Transport group', logiGroupPh:'E.g. Van 1',
     logiGroupsTitle:'Families and groups to organise together', logiFamilyOf:(n)=>`${n} family`, logiGroupNamed:(n)=>`Group ${n}`,
     logiPrivacy:'Sensitive information (allergies, accessibility) stays in this area only. It is not sent by email, notifications or to the assistant.',
+    logiTagAllergy:'allergy', logiTagDiet:'diet', logiTagAccess:'accessibility', logiTagKids:(n)=>`${n} ${n===1?'child':'children'}`,
+    logiHintsTitle:'Worth considering for the tables', logiHintsNote:'Information only — nothing changes by itself.',
+    logiHintSplit:(fam,tbls)=>`${fam} is seated at different tables (${tbls}).`, logiHintAccessFree:(n)=>`${n} ${n===1?'guest with accessibility needs has no table yet':'guests with accessibility needs have no table yet'}.`,
+    logiHintKidsFree:(n)=>`${n} ${n===1?'family with children has no table yet':'families with children have no table yet'}.`,
+    logiTableSummary:(a,b,c,d)=>[a?`${a} ${a===1?'allergy':'allergies'}`:'', b?`${b} accessibility`:'', c?`${c} ${c===1?'child':'children'}`:'', d?`${d} ${d===1?'diet':'diets'}`:''].filter(Boolean).join(' · '),
+
 
     rsvpLembretesNavTitle:'Automatic reminders', rsvpLembretesNavDesc:'Response deadline and reminders for anyone yet to reply',
     rsvpLembretesIntro:'Set the response deadline and let Weddy handle reminding anyone who hasn\'t answered yet.',
@@ -12433,6 +12448,66 @@ document.addEventListener('change', e=>{
 /* ============================================================
    VIEW: Mesas
 ============================================================ */
+
+// B.2 — logística nas mesas: só informação para o casal decidir. Nada é
+// movido nem sugerido automaticamente nos lugares.
+function logiSeatMap(){
+  const map = {};
+  try{
+    flattenAllGuestsForRSVP().forEach(it=>{
+      const x = logiInfo(it);
+      if(x && x.any && it.entry && it.entry.guestId) map[it.entry.guestId] = x;
+    });
+  }catch(e){}
+  return map;
+}
+function logiSeatTags(x){
+  if(!x) return '';
+  const tags = [];
+  if(x.hasAllergy) tags.push(`<span class="seat-tag warn">${ta('logiTagAllergy')}</span>`);
+  else if(x.food) tags.push(`<span class="seat-tag">${ta('logiTagDiet')}</span>`);
+  if(x.access) tags.push(`<span class="seat-tag warn">${ta('logiTagAccess')}</span>`);
+  if(x.hasKids) tags.push(`<span class="seat-tag">${ta('logiTagKids')(x.kids.length)}</span>`);
+  return tags.length ? `<span class="seat-tags">${tags.join('')}</span>` : '';
+}
+function logiTableSummaryText(table, map){
+  let a=0,b=0,c=0,d=0;
+  for(let n=1;n<=table.seats;n++){
+    const gid = state.seating.assignments['t'+table.id+'-s'+n];
+    const x = gid ? map[gid] : null;
+    if(!x) continue;
+    if(x.hasAllergy) a++; else if(x.food) d++;
+    if(x.access) b++;
+    c += x.kids.length;
+  }
+  return ta('logiTableSummary')(a,b,c,d);
+}
+function logiSeatHintsHTML(map){
+  const seatOf = {};
+  Object.entries(state.seating.assignments).forEach(([k,gid])=>{ if(gid){ const m = k.match(/^t(\d+)-s/); if(m) seatOf[gid] = Number(m[1]); } });
+  const hints = [];
+  // famílias (convite partilhado) em mesas diferentes
+  const fams = {};
+  Object.values(map).forEach(x=>{ if(x.famToken) (fams[x.famToken] = fams[x.famToken] || []).push(x); });
+  Object.keys(fams).forEach(tok=>{
+    const tbls = [...new Set(fams[tok].map(x=>seatOf[x.item.entry.guestId]).filter(v=>v!==undefined))];
+    if(tbls.length >= 2 && fams[tok].some(x=>x.hasKids)){
+      const nm = (rsvpResponses[tok] && rsvpResponses[tok].name) || fams[tok][0].item.name;
+      hints.push(ta('logiHintSplit')(ta('logiFamilyOf')(nm), tbls.sort((a,b)=>a-b).map(t=>ta('tableLabel')(t)).join(', ')));
+    }
+  });
+  const accFree = Object.values(map).filter(x=>x.access && seatOf[x.item.entry.guestId]===undefined).length;
+  if(accFree) hints.push(ta('logiHintAccessFree')(accFree));
+  const kidFams = new Set(); 
+  Object.values(map).forEach(x=>{ if(x.hasKids && seatOf[x.item.entry.guestId]===undefined) kidFams.add(x.famToken || x.item.entry.guestId); });
+  if(kidFams.size) hints.push(ta('logiHintKidsFree')(kidFams.size));
+  if(!hints.length) return '';
+  return `<div class="stat-card" style="margin:0 16px 12px; text-align:left;">
+    <div class="l" style="margin:0 0 6px;">${ta('logiHintsTitle')}</div>
+    ${hints.map(h=>`<div class="visit-detail" data-logihint>${escapeHTML(h)}</div>`).join('')}
+    <div class="empty-note" style="margin:6px 0 0; padding:0; font-style:normal; font-size:11px; text-align:left;">${ta('logiHintsNote')}</div>
+  </div>`;
+}
 function viewMesas(){
   // Fase 8.1 — AI Seating: quando o casal entrou no fluxo "Organizar com
   // Weddy AI", a tab Mesas mostra esse ecrã em vez da lista de mesas
@@ -12446,6 +12521,7 @@ function viewMesas(){
   const tables = [...state.seating.tables].sort((a,b)=>a.id-b.id);
   const totalSeats = totalSeatsCount();
   const assignedCount = assignedSeatsCount();
+  const logiMap = rsvpResponsesLoaded ? logiSeatMap() : {};
 
   let tablesHTML = '';
   tables.forEach((table,ti)=>{
@@ -12465,7 +12541,7 @@ function viewMesas(){
         // nome correto mesmo que o convidado tenha sido editado depois.
         const seatGuest = val ? resolveSeatGuest(val) : null;
         const name = seatGuest ? seatGuest.name : ta('tapToAssign');
-        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${escapeHTML(name)}</span>${ICONS.chev}</div>`;
+        seatsHTML += `<div class="seat-row ${val?'filled':''}" data-openseat="${key}"><span class="seat-n">${s}</span><span class="seat-name">${escapeHTML(name)}${val?logiSeatTags(logiMap[val]):''}</span>${ICONS.chev}</div>`;
       }
       bodyHTML = `
       <div class="tcx">
@@ -12488,6 +12564,7 @@ function viewMesas(){
       <div style="padding:8px 14px 12px;">
         <button class="del-table-btn" data-deltable="${t}">${ICONS.trash} ${ta('btnDeleteTable')}</button>
       </div>
+      ${(()=>{ const sm = logiTableSummaryText(table, logiMap); return sm ? `<div class="visit-detail" data-logitable style="padding:2px 16px 8px;">${escapeHTML(sm)}</div>` : ''; })()}
       <div class="seat-list">${seatsHTML}</div>`;
     }
     // Out 2026 (bug Android, "reading 'icon'"): uma mesa com forma desconhecida
@@ -12528,6 +12605,7 @@ function viewMesas(){
     ${ICONS.sparkle||'✨'} ${ta('aiSeatingOpenBtn')}
   </button>` : ''}
 
+  ${logiSeatHintsHTML(logiMap)}
   <div class="section-label">${ta('tablesHint')}</div>
   ${tablesHTML}
   <div style="height:6px;"></div>
@@ -25252,6 +25330,7 @@ function renderSeatPickerList(){
   const list = document.getElementById('seat-picker-list');
   const current = state.seating.assignments[editingSeatKey] || '';
   const q = seatQuery.toLowerCase();
+  const pickerLogi = rsvpResponsesLoaded ? logiSeatMap() : {};
   let rows = `<div class="picker-row ${current===''?'is-selected':''}" data-pick=""><span class="side-tag" style="background:var(--ink-soft);">—</span><span class="pname">${ta('seatFreeLabel')}</span></div>`;
   allAdultGuests().forEach(g=>{
     if(!g.key) return; // sem guestId (não devia acontecer após a migração), ignora
@@ -25262,7 +25341,7 @@ function renderSeatPickerList(){
     const childTag = childInfo ? `<span class="pname-hint">${ta('childLabel')}${childInfo.age?' · '+ta('childAgeYears')(escapeHTML(String(childInfo.age))):''}</span>` : '';
     rows += `<div class="picker-row ${current===val?'is-selected':''}" data-pick="${escapeHTML(val)}">
       <span class="side-tag" style="background:${SIDE_COLOR[g.side]||SIDE_COLOR.noiva};">${sideLabel(g.side)}</span>
-      <span class="pname">${escapeHTML(g.name)}${elsewhere?`<span class="pname-hint">${ta('alreadyAtLabel')(seatLabel(elsewhere))}</span>`:childTag}</span>
+      <span class="pname">${escapeHTML(g.name)}${logiSeatTags(pickerLogi[g.key])}${elsewhere?`<span class="pname-hint">${ta('alreadyAtLabel')(seatLabel(elsewhere))}</span>`:childTag}</span>
     </div>`;
   });
   list.innerHTML = rows;
