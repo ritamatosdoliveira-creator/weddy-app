@@ -119,8 +119,9 @@ const GOOGLE_CALENDAR_CLIENT_ID = defineSecret('GOOGLE_CALENDAR_CLIENT_ID');
 const GOOGLE_CALENDAR_CLIENT_SECRET = defineSecret('GOOGLE_CALENDAR_CLIENT_SECRET');
 const GOOGLE_TOKEN_ENCRYPTION_KEY = defineSecret('GOOGLE_TOKEN_ENCRYPTION_KEY');
 // Fase Pagamentos (Set 2026) — Stripe. A Weddy Premium é um pagamento
-// ÚNICO de 29,99€ (válido 24 meses — o limite é aplicado no cliente, ver
-// SUBSCRIPTION_MAX_MONTHS em index.html), não uma subscrição recorrente
+// ÚNICO de 30€ (válido 12 meses — o limite é aplicado no cliente, ver
+// SUBSCRIPTION_MAX_MONTHS em index.html; Fase K.1: comentário corrigido, antes
+// dizia 29,99€/24 meses), não uma subscrição recorrente
 // no Stripe. STRIPE_SECRET_KEY e STRIPE_WEBHOOK_SECRET são credenciais
 // reais, por isso ficam no Secret Manager (defineSecret), nunca em texto
 // simples num .env — mesmo padrão do SMTP/Google Calendar acima.
@@ -5826,7 +5827,7 @@ exports.sendWhatsappRsvpReminder = onCall(
 // ============================================================
 // STRIPE — Checkout da Weddy Premium (Fase Pagamentos, Set 2026)
 // ============================================================
-// Pagamento único de 29,99€, válido 24 meses (ver comentário junto às
+// Pagamento único de 30€, válido 12 meses (Fase K.1: corrigido, antes dizia 29,99€/24 meses) (ver comentário junto às
 // constantes STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET, no topo do
 // ficheiro). Duas peças:
 //
