@@ -9753,8 +9753,10 @@ function cdHasContentVows(){
 const CD_LAPSED_WRITE = ['cbaddtast','cbinspnew','cbinspphoto','cbinspsave','cbdstyle','cbrate','cbstatus','cbshape','cbtiers','cbsave','cdstat','sdaddno','sdaddok','sdaddopen','sdapprove','sdhexadd','sditemcolor','sdpal','sdpalplus','sdrestore','sdupload','sdfileitem','sdfilenote','sdmanage','sdrmitem','vwadd','vwdone','vwmk','vwrole','vwspst'];
 function cdLapsedView(core, hasContent, backId, titleKey, subKey, descKey, noteKey){
   if(hasActiveSubscription()) return core();
-  if(!hasContent()) return pmLocked(backId, ta(titleKey), ta(subKey), descKey);
-  let html = core();
+  let has = false; try{ has = hasContent(); }catch(e){}
+  if(!has) return pmLocked(backId, ta(titleKey), ta(subKey), descKey);
+  let html;
+  try{ html = core(); }catch(e){ return pmLocked(backId, ta(titleKey), ta(subKey), descKey); } // dados corrompidos: nunca partir a página
   html = html.replace(/<input /g,'<input readonly ').replace(/<textarea /g,'<textarea readonly ').replace('<div class="cb-page">','<div class="cb-page" data-cdlapsed="1">'+lapsedPremiumNoteHtml(ta(noteKey)));
   return html;
 }
