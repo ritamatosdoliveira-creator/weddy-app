@@ -38,3 +38,10 @@ A produção de 27/10 (`index.js` do zip do `sendContactMessage`, deploy 20:24:3
 ## 4. Antes de alterar qualquer uma
 1. Recuperar os zips e correr a comparação acima (se as duas saírem idênticas a `origin/main`, esta tabela passa de indício a confirmação).
 2. Só então decidir, com autorização tua, o alinhamento do `sendRsvpReminders` com o Autopilot (2–30 dias, 1–10 lembretes, defeitos 5 e 3, idempotência) e a publicação da revogação por STOP.
+
+## 5. Resultado com os zips de produção (02/11/2026)
+- Os `index.js` extraídos de `sendRsvpReminders` e de `whatsappWebhook` são **o mesmo ficheiro** (mesmo SHA-256, 228 855 bytes) e são idênticos ao de 27/10 (`index.js.producao-2026-10-27-contactos`).
+- `sendRsvpReminders`: 21 unidades de que depende, idênticas a produção e ao código local (0 diferenças).
+- `whatsappWebhook`: handler idêntico; a única diferença local é `recordWhatsappOptOut` (revogação em `whatsappConsents`) e as novas `consentRevocationPatch` e `WHATSAPP_CONSENT_HISTORY_MAX` (A.1–A.3, minhas).
+- A comparação indireta anterior estava correta.
+- Facto novo: produção ≠ `origin/main` (`APP_BASE_URL` `/app/` em produção vs `/index.html` no `main`; `sendContactMessage` só existe em produção). Não afeta estas duas funções; o código local já tem `/app/`. Publicar o `main` por cima de produção desfaria ambos.
