@@ -1,7 +1,7 @@
 // B.2 — regras do campo "logistics" no convite do convidado (escrita sem sessão).
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import fs from 'fs';
-import { doc, setDoc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, deleteField, deleteDoc } from 'firebase/firestore';
 const env = await initializeTestEnvironment({ projectId:'demo-weddy',
   firestore:{ host:'127.0.0.1', port:8085, rules:fs.readFileSync(new URL('../../firestore.rules', import.meta.url),'utf8') } });
 const res=[]; const rec=async(name,expectBlocked,p)=>{ let blocked; try{ await p(); blocked=false; }catch(e){ blocked=true; }
@@ -12,6 +12,8 @@ await env.withSecurityRulesDisabled(async ctx=>{
   await setDoc(doc(db,'weddings/W1'),{ownerEmails:['a@x.pt'],json:'{}'});
   await setDoc(doc(db,'weddings/W2'),{ownerEmails:['b@x.pt'],json:'{}'});
   await setDoc(doc(db,'guests/tokA'),{weddingId:'W1',name:'Ana',email:'ana@x.pt',attending:null});
+  await setDoc(doc(db,'guests/tokFam'),{weddingId:'W1',isFamily:true,members:[{rsvpMemberId:'m1'},{rsvpMemberId:'m2'}],responses:{m1:{attending:true,logistics:{v:1,food:{allergies:['x']}}},m2:{attending:true}}});
+  await setDoc(doc(db,'guests/tokDel'),{weddingId:'W1',name:'Del',logistics:{v:1,food:{allergies:['marisco']}}});
   await setDoc(doc(db,'guests/tokOld'),{weddingId:'W1',name:'Velho',attending:true,meal:'carne',transporte:true,children:[]});
 });
 const anon=env.unauthenticatedContext(); const A=env.authenticatedContext('A',{email:'a@x.pt',email_verified:true}); const B=env.authenticatedContext('B',{email:'b@x.pt',email_verified:true});
@@ -34,6 +36,13 @@ await rec('resposta antiga (sem logística) continua válida',false,()=>updateDo
 await rec('casal dono grava logística no seu convidado',false,()=>updateDoc(G(A),{logistics:good}));
 await rec('outro casal (autenticado) não altera campos do casal (nome)',true,()=>updateDoc(G(B),{name:'X'}));
 await rec('casal dono lê',false,()=>getDoc(G(A)));
+await rec('casal remove um membro da família (responses.m1 inclui a logística)',false,()=>updateDoc(G(A,'tokFam'),{members:[{rsvpMemberId:'m2'}],'responses.m1':deleteField()}));
+await rec('convidado/anónimo não apaga o documento',true,()=>deleteDoc(G(anon,'tokDel')));
+await rec('outro casal não apaga o documento',true,()=>deleteDoc(G(B,'tokDel')));
+await rec('casal apaga o convidado (documento com logística)',false,()=>deleteDoc(G(A,'tokDel')));
+await rec('depois de apagado já não existe',true,async()=>{ const s=await getDoc(G(A,'tokDel')); if(s.exists()) throw new Error('ainda existe'); else throw new Error('não existe'); });
+const fam=(await getDoc(G(A,'tokFam'))).data();
+res.push([(!fam.responses.m1 && fam.responses.m2)?'OK  ':'FAIL','logística do membro removido desapareceu e a do outro ficou','']);
 let bad=0; for(const r of res){ console.log(r.join('  ')); if(r[0]==='FAIL') bad++; }
 console.log(`\n${res.length-bad} OK, ${bad} FALHAS`);
 await env.cleanup(); process.exit(bad?1:0);
