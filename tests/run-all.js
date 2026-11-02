@@ -26,6 +26,8 @@ const SUITES = [
   { id: 'rsvp-reminders', group: 'rsvp', name: 'Lembretes RSVP: legado, Autopilot, idempotência', cmd: ['node', 'rsvp/reminders.test.js'], emu: true },
   { id: 'rsvp-reminders-logistics', group: 'rsvp', name: 'Lembretes × logística (Fase C, teste G)', cmd: ['node', 'rsvp/reminders-logistics.test.js'], emu: true },
   { id: 'migrate', group: 'migrate', name: 'Migração de consentimentos', cmd: ['node', 'consent/migrate-consents.test.js'], emu: true },
+  { id: 'privacy-static', group: 'privacy', name: 'RGPD: sem terceiros/analítica/cookies, OpenAI store:false, regras (Fase J)', cmd: ['node', 'privacy/privacy-static.test.js'], emu: false },
+  { id: 'privacy-deletion', group: 'privacy', name: 'RGPD: eliminação de conta em cascata, isolamento, co-dono, falha parcial (Fase J)', cmd: ['node', 'privacy/deletion.test.js'], emu: true },
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
   { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },

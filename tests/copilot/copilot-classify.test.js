@@ -53,7 +53,8 @@ const Q = (q, extra) => Object.assign({ question: q, role: 'couple' }, extra || 
   const sent = JSON.stringify(body);
   ok(!/Convidado Secreto|Fornecedor Privado|912345678|priv@x\.pt|Despesa W1|12345/.test(sent), 'Q1: nenhum dado do casamento (convidados, fornecedores, contactos, valores) é enviado');
   ok(!/a@x\.pt|uid-a|W1|W2/.test(sent), 'Q2: nem o email, uid ou weddingId');
-  ok(Object.keys(body).sort().join() === 'input,model,text', 'Q3: o corpo só tem input/model/text');
+  ok(Object.keys(body).sort().join() === 'input,model,store,text', 'Q3: o corpo só tem input/model/store/text (Fase J: store)');
+  ok(body.store === false, 'Q3b: store:false — a pergunta não fica retida na plataforma da OpenAI (Fase J)');
   ok(body.input.length === 1 && body.input[0].role === 'user', 'Q4: uma única mensagem de utilizador');
   const enumList = body.text.format.schema.properties.intent.enum;
   const WRITE_FORBIDDEN = ['DELETE_TASK', 'COMPLETE_TASK', 'REOPEN_TASK', 'SET_SUPPLIER_PAYMENT_DATE', 'UNSUPPORTED_ACTION', 'CONFIRM_PENDING', 'CANCEL_PENDING', 'DELETE_GUEST', 'MARK_PAID'];

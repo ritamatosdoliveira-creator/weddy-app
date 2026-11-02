@@ -821,6 +821,7 @@ async function callOpenAI(question, allowedIntents) {
   };
   const body = {
     model: OPENAI_MODEL,
+    store: false, // Fase J (RGPD): a pergunta não fica guardada na plataforma da OpenAI
     input: [{ role: 'user', content: buildClassifyPrompt(question, allowedIntents) }],
     text: {
       format: {
@@ -1236,6 +1237,12 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
           for (const d of rl.docs) await d.ref.delete().catch(() => {});
         } catch (e) { logger.error(`deleteWeddingAccount: limpeza de whatsappReminderRateLimit falhou. ${e.message || e}`); }
         await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
+        // Fase J (RGPD): cópias do estado em quarentena (contêm o JSON do casamento, com
+        // nomes/contactos de convidados) e estado auxiliar por casamento ficavam para trás.
+        await deleteAllByWeddingId('weddingStateQuarantine', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de weddingStateQuarantine falhou. ${e.message || e}`));
+        for (const col of ['seatingRuns', 'notifState']) {
+          await db.collection(col).doc(weddingId).delete().catch(() => {});
+        }
         // Registos de incidente com cópias do estado do casamento, e relatórios
         // de feedback desta conta — dados pessoais que ficavam órfãos.
         await deleteAllByWeddingId('_incident_log', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de _incident_log falhou. ${e.message || e}`));
@@ -1737,6 +1744,7 @@ async function callOpenAIStructured(prompt, schemaName, schema) {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: OPENAI_MODEL,
+        store: false, // Fase J (RGPD)
         input: [{ role: 'user', content: prompt }],
         text: { format: { type: 'json_schema', name: schemaName, schema, strict: true } },
       }),
