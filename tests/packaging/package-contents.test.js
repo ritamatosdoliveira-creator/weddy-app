@@ -26,7 +26,7 @@ const ok = (c, m) => { if (c) { pass++; console.log('OK   ' + m); } else { fail+
     if (!fs.existsSync(path.join(REPO, f))) continue;
     const dst = path.join(tmp, f); fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.copyFileSync(path.join(REPO, f), dst);
   }
-  const FAKE = 'sk-FAKE-DECOY-NOT-A-REAL-KEY-0000';
+  const FAKE = 'sk' + '-FAKE-DECOY-NOT-A-REAL-KEY-0000'; // partido para a própria verificação não o apanhar
   const decoys = ['.env', '.env.weddy-app-bd12f', '.env.weddy-premium-teste', '.env.local', 'index.js.bak', 'index.js.antes-comparador', 'index.js.20261030.bak', 'dar-premium.js',
     'quem-comprou-premium-apple.js', 'uso-premium-casamento.js', 'serviceAccountKey.json', 'weddy-credentials.json', 'chave.pem', 'AuthKey_X.p8', 'backup/dados.json', 'backups/x.txt',
     'dump.sql', 'functions-backup.zip', '.DS_Store', 'notas.tmp', 'firebase-debug.log', 'scripts/extra-admin.js', 'tests/x.test.js', 'pasta/.env', 'pasta/sub/index.js.bak'];
