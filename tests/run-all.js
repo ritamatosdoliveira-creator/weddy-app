@@ -22,6 +22,7 @@ const SUITES = [
   { id: 'i18n-parity', group: 'unit', name: 'Paridade PT/EN (app + rsvp)', cmd: ['node', 'unit/i18n-parity.test.js'] },
   { id: 'validate-state', group: 'validate', name: 'Validação servidor do estado JSON', cmd: ['node', 'validate/state-validation.test.js'], emu: true },
   { id: 'consent', group: 'consent', name: 'Consentimento WhatsApp (functions)', cmd: ['node', 'consent/whatsapp-consent.test.js'], emu: true },
+  { id: 'stop', group: 'consent', name: 'WhatsApp STOP: revogação robusta', cmd: ['node', 'consent/stop-revocation.test.js'], emu: true },
   { id: 'migrate', group: 'migrate', name: 'Migração de consentimentos', cmd: ['node', 'consent/migrate-consents.test.js'], emu: true },
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
