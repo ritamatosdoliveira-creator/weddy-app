@@ -29,4 +29,5 @@ Legenda de evidência: **AUT-C** teste automatizado de cliente (`tests/ui/memdoc
 | Contornar a interface | chamada direta ao upload sem Premium → registo não é criado | OK | AUT-C + AUT-R | OK |
 | Interface 390/768/1360, PT/EN | sem scroll horizontal, sem português em EN, sem erros JS | OK | AUT-C | OK |
 | Atualização entre dispositivos | Documents segue o estado do casamento (sincronização existente, testada noutras fases); Memories relê ao abrir/Atualizar | — | INSP | não testado em dois dispositivos reais |
-| Regressão | suite completa | ver relatório | `run-all.js` | ver relatório |
+| Regressão | suite completa | 41/41 suites | `run-all.js` (`last-run.json`) | OK |
+| Limitador do formulário de contacto | 40/60 simultâneos: 1–8 aceites, nunca >8, sem duplicados; 10/20 exatos | OK | `contact-stress` 22/22 | OK |
