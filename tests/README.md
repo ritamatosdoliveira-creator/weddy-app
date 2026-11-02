@@ -28,6 +28,8 @@ Relatórios: `tests/reports/last-run.md` e `.json`, e um `.log` completo por sui
 | `validate/` | validação do estado JSON no servidor (A.4.3) | Node + emulador Firestore |
 | `consent/` | consentimento WhatsApp (functions) e migração | Node + emulador |
 | `contact/` | formulário de contacto `sendContactMessage` | Node + emulador (SMTP simulado) |
+| `compare/` | Comparador Premium (`analyzeCompareProposal`, `generateCompareReport`): autenticação, posse, Premium, ficheiros, quotas, falhas da IA, texto não confiável | Node + emulador (Storage e OpenAI simulados) |
+| `packaging/` | pacote de deploy (usa o empacotador do firebase-tools sobre uma cópia com ficheiros-isco), sem segredos; `OPENAI_API_KEY` via Secret Manager nas 4 funções | Node (sem emulador) |
 | `notify/` | email resumo (A.2) | Node + emulador (SMTP simulado) |
 | `backfill/` | `premiumUntil` | Node + emulador |
 | `rules/` | regras Firestore/Storage (Premium, consentimento, estado JSON/quarentena) | Node + emulador |

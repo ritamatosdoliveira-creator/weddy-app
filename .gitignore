@@ -14,3 +14,10 @@ serviceAccount*.json
 node_modules/
 tests/.build/
 tests/node_modules/
+firebase-debug*.log
+.runtimeconfig.json
+.firebase/
+.DS_Store
+*.p8
+*.p12
+*.tgz

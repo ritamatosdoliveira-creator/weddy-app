@@ -23,6 +23,8 @@ const SUITES = [
   { id: 'validate-state', group: 'validate', name: 'Validação servidor do estado JSON', cmd: ['node', 'validate/state-validation.test.js'], emu: true },
   { id: 'consent', group: 'consent', name: 'Consentimento WhatsApp (functions)', cmd: ['node', 'consent/whatsapp-consent.test.js'], emu: true },
   { id: 'migrate', group: 'migrate', name: 'Migração de consentimentos', cmd: ['node', 'consent/migrate-consents.test.js'], emu: true },
+  { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
+  { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
   { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
   { id: 'notify', group: 'notify', name: 'Email resumo (functions)', cmd: ['node', 'notify/email-digest.test.js'], emu: true },
   { id: 'backfill', group: 'backfill', name: 'Backfill premiumUntil', cmd: ['node', 'backfill/backfill-premium-until.test.js'], emu: true },
@@ -90,7 +92,7 @@ for (const s of selected) {
   const out = (r.stdout || '') + (r.stderr || '');
   fs.writeFileSync(path.join(REPORTS, s.id + '.log'), out);
   const lines = out.split('\n').map((l) => l.trim()).filter(Boolean);
-  const summary = [...lines].reverse().find((l) => /(\d+\s*\/\s*\d+\s*OK|\d+\s*OK,\s*\d+\s*FALHAS|FAILS:|verificações OK|RESULT passed)/.test(l)) || lines[lines.length - 1] || '';
+  const summary = [...lines].reverse().find((l) => /(\d+\s*\/\s*\d+\s*OK|\d+\s*OK,\s*\d+\s*(?:FALHAS|FAIL)|FAILS:|verificações OK|RESULT passed)/.test(l)) || lines[lines.length - 1] || '';
   const passed = r.status === 0;
   results.push({ id: s.id, name: s.name, group: s.group, passed, status: r.status, seconds: Math.round((Date.now() - t0) / 100) / 10, summary });
   console.log(passed ? `OK  (${results[results.length - 1].seconds}s) ${summary}` : `FALHOU (exit ${r.status}) ${summary}`);
