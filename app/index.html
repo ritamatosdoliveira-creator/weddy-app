@@ -6959,6 +6959,9 @@ const APP_I18N = {
     btnRefresh:'Atualizar',
     charsExtractedLabel:(n)=>`${n} caracteres extraídos`,
     docsEmptyText:'Ainda não carregaste nenhum documento.',
+    docsLapsedNote:'O teu Premium terminou. Os documentos que já carregaste continuam disponíveis para ver e apagar, mas para carregar novos precisas de reativar o Premium.',
+    memoriesLapsedNote:'O teu Premium terminou. As fotos que já recebeste continuam aqui para ver e apagar, mas os convidados já não conseguem enviar novas fotos até reativares o Premium.',
+    lapsedSeePremium:'Ver o Premium',
     docsCardTitle:'Mantém os teus documentos organizados', uploadedDocumentsLabel:'Documentos carregados',
     docsIntroText:'Carrega contratos ou documentos em PDF — o Assistente Weddy passa a conseguir procurar e mostrar-te o trecho relevante quando perguntares algo sobre eles (ex: "o que diz o contrato do espaço sobre o pagamento final?"). Tudo processado aqui no telemóvel/computador, sem nenhuma IA nem servidor externo — é só uma pesquisa por palavras-chave, não uma resposta inventada.',
     btnUploadPDF:'Carregar PDF',
@@ -8263,6 +8266,9 @@ const APP_I18N = {
     btnRefresh:'Refresh',
     charsExtractedLabel:(n)=>`${n} characters extracted`,
     docsEmptyText:'You haven\'t uploaded any documents yet.',
+    docsLapsedNote:'Your Premium has ended. The documents you already uploaded remain available to view and delete, but you need to reactivate Premium to upload new ones.',
+    memoriesLapsedNote:'Your Premium has ended. The photos you already received are still here to view and delete, but guests can no longer send new photos until you reactivate Premium.',
+    lapsedSeePremium:'See Premium',
     docsCardTitle:'Keep your documents organized', uploadedDocumentsLabel:'Uploaded documents',
     docsIntroText:'Upload contracts or PDF documents — the Weddy Assistant will then be able to search and show you the relevant excerpt when you ask about them (e.g. "what does the venue contract say about the final payment?"). Everything is processed here on your phone/computer, with no AI or external server — it\'s just a keyword search, not a made-up answer.',
     btnUploadPDF:'Upload PDF',
@@ -21958,8 +21964,23 @@ function viewDefSeguranca(){
 // Galeria das fotos partilhadas pelos convidados através do link de RSVP
 // (rsvp.html → "Weddy Memories"). Só o casal vê esta página — as regras do
 // Firestore impedem qualquer outra pessoa de listar esta coleção.
+// Premium terminado: o que já existe continua visível (as regras permitem ler e apagar); só
+// carregar coisa nova exige Premium. Este aviso explica-o e leva à página do Premium.
+let memoriesLapsedProbed = false; // só uma tentativa de ler as fotos sem Premium (evita ciclos se a leitura falhar)
+function lapsedPremiumNoteHtml(text){
+  return `<div class="stat-card" style="margin:0 16px 16px;"><p style="font-size:13px; color:var(--ink-soft); margin:0 0 12px; line-height:1.6;">${text}</p><button type="button" class="login-btn" id="lapsed-premium-btn" style="margin-top:0;">${ta('lapsedSeePremium')}</button></div>`;
+}
 function viewDefMemories(){
-  if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('memoriesTitle'));
+  const memLapsed = !hasActiveSubscription();
+  if(!memLapsed || !memoriesLoaded){
+    if(memLapsed){
+      // Sem Premium: só mostramos a galeria se já houver fotos; até saber, a página de venda.
+      if(!memoriesLoading && !memoriesLapsedProbed){ memoriesLapsedProbed = true; loadMemories(); }
+      return viewDefPremiumLocked(ta('memoriesTitle'));
+    }
+  } else if(!weddingMemories.length){
+    return viewDefPremiumLocked(ta('memoriesTitle'));
+  }
   if(!memoriesLoaded && !memoriesLoading) loadMemories();
   // Pedido da Rita (Out 2026): dar para ver/guardar o original de cada
   // foto, sem ficar limitado à miniatura cortada em quadrado. Em vez de um
@@ -22000,13 +22021,14 @@ function viewDefMemories(){
   const MMX_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>';
   return `
   ${defSubHeader(ta('memoriesTitle'), ta('memoriesIntroText'))}
+  ${memLapsed ? lapsedPremiumNoteHtml(ta('memoriesLapsedNote')) : ''}
   <div class="mmx">
-    <div class="mmx-link">
+    ${memLapsed ? '' : `<div class="mmx-link">
       <button type="button" class="mmx-link-main" id="memories-public-link-btn" aria-label="${ta('mmxLinkAria')}"><span class="mmx-link-ic">${MMX_LINK}</span><span class="mmx-link-t">${ta('btnMemoriesPublicLink')}</span></button>
       <span class="mmx-link-sep"></span>
       <button type="button" class="mmx-link-qr" id="memories-qr-btn" aria-label="${ta('mmxQrAria')}">${ICONS.qrcode||''}</button>
     </div>
-    <div class="mmx-hint">${ta('memoriesPublicLinkHint')}</div>
+    <div class="mmx-hint">${ta('memoriesPublicLinkHint')}</div>`}
     ${weddingMemories.length ? `<div class="mmx-seg" role="tablist">
       <button type="button" role="tab" class="${memFilter==='all'?'on':''}" data-memfilter="all">${ta('mmxAll')} (${weddingMemories.length})</button>
       <button type="button" role="tab" class="${memFilter==='invite'?'on':''}" data-memfilter="invite">${ta('mmxInvite')}</button>
@@ -22026,7 +22048,8 @@ function viewDefMemories(){
 // O Assistente Weddy depois pesquisa por palavras-chave nesse texto — ver
 // searchWeddingDocuments() e a sua utilização em respondeAssistente().
 function viewDefDocumentos(){
-  if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('documentsTitle'));
+  const docsLapsed = !hasActiveSubscription();
+  if(docsLapsed && !(state.weddingDocuments || []).some(d=>d && !d.supplierId && !d.honeymoonOptionId && !d.compareId)) return viewDefPremiumLocked(ta('documentsTitle'));
   // Fase 6.1 — contratos ligados a um fornecedor (d.supplierId) já são
   // mostrados na própria ficha do fornecedor, por isso ficam de fora desta
   // lista geral para não duplicar. Fase Anexos Lua de Mel (Set 2026): o
@@ -22048,7 +22071,7 @@ function viewDefDocumentos(){
   `).join('') : `<div class="empty-note" style="margin:16px;">${ta('docsEmptyText')}</div>`;
   return `
   ${defSubHeader(ta('documentsTitle'), '', true)}
-  <div class="stat-card" style="margin:0 16px 16px;">
+  ${docsLapsed ? lapsedPremiumNoteHtml(ta('docsLapsedNote')) : `<div class="stat-card" style="margin:0 16px 16px;">
     <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:10px;">
       <div class="def-row-icon" style="background:rgba(193,88,62,0.12); color:var(--rust-dark); width:44px; height:44px; flex-shrink:0;">${ICONS.docnote||ICONS.checklist}</div>
       <div class="l" style="margin:4px 0 0; font-size:19px; line-height:1.25; color:var(--heading); font-family:'Cormorant Garamond',serif; font-weight:600;">${ta('docsCardTitle')}</div>
@@ -22057,7 +22080,7 @@ function viewDefDocumentos(){
     <label class="login-btn" for="document-file-input" style="margin-top:0; display:flex; align-items:center; justify-content:center; gap:8px;">${ICONS.download} ${ta('btnUploadPDF')}</label>
     <input type="file" id="document-file-input" accept="application/pdf" style="display:none;">
     <div id="document-upload-status" class="empty-note" style="margin:10px 0 0; padding:0;"></div>
-  </div>
+  </div>`}
   <div class="section-label">${ta('uploadedDocumentsLabel')}</div>
   <div class="list-group" style="margin:0 16px;">${listHtml}</div>
   `;
@@ -23512,6 +23535,13 @@ function bindHandlers(){
     btn.addEventListener('click', e=>{
       deleteMemory(e.currentTarget.dataset.memorydel, e.currentTarget.dataset.memorypath);
     });
+  });
+  const lapsedPremiumBtn = document.getElementById('lapsed-premium-btn');
+  if(lapsedPremiumBtn) lapsedPremiumBtn.addEventListener('click', ()=>{
+    navBackSet('definicoes', 'subscricao');
+    activeTab = 'definicoes'; definicoesSection = 'subscricao';
+    rsvpSubScreen = null; rsvpSubScreenReturnTo = null; rsvpAutopilotReview = null;
+    _origRender();
   });
   const documentFileInput = document.getElementById('document-file-input');
   if(documentFileInput) documentFileInput.addEventListener('change', e=>{ handleDocumentUpload(e.target.files); });

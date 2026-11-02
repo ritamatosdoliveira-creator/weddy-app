@@ -41,6 +41,7 @@ const SUITES = [
   { id: 'ui-robust-state', group: 'ui', name: 'UI robustez: estados corrompidos', cmd: py('robustness_state.py') },
   { id: 'ui-robust-paths', group: 'ui', name: 'UI robustez: todos os caminhos', cmd: py('robustness_paths.py') },
   { id: 'ui-autopilot', group: 'ui', name: 'UI RSVP Autopilot (B.1)', cmd: py('rsvp_autopilot.py') },
+  { id: 'ui-premium-lapsed', group: 'ui', name: 'UI Premium terminado: conteúdo antigo visível', cmd: py('premium_lapsed.py') },
   { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
   { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
 ];
