@@ -22,7 +22,8 @@ window.__t={get state(){return state;}, set state(v){state=v;}, get gimp(){retur
    ready:function(){ if(!auth||!auth.currentUser) auth={currentUser:{}}; currentWeddingId='W'; firstSyncDone=true; render=function(){ _origRender(); }; },
    setRsvp:function(r,loaded){ rsvpResponses=r; rsvpResponsesLoaded=loaded!==false; },
    setSettings:function(o){ Object.assign(weddingSettings,o); }, dirty:function(v){ pendingSaveDirty=v; }, isOpen:function(){ return ntOpen; } },
- back:function(){return weddyBackStep();}, lang:function(l){ appLang=l; }};
+ back:function(){return weddyBackStep();}, lang:function(l){ appLang=l; },
+ ap:{ insights:function(){ return rsvpAutopilotInsights(); }, list:function(){ return rsvpAutopilotList().map(function(x){ return {name:x.item.name, bucket:x.bucket}; }); }, cfg:function(){ return rsvpAutopilotConfig(); }, settings:function(){ return weddingSettings; }, screen:function(){ activeTab='definicoes'; definicoesSection='rsvp'; rsvpSubScreen='deadline'; render(); } }};
 window.__a4={ san:a4SanitizeState, sanIn:a4SanitizeIncoming, seed:seedData, get state(){return state;}, set state(v){state=v;}, render:function(){ return render(); }, errs:function(){ return a4ViewErrors; },
  attach:function(){ if(!auth||!auth.currentUser) auth={currentUser:{}}; currentWeddingId='W'; attachFirestoreSync(); }, firstSync:function(){ return firstSyncDone; }, go:function(t){ activeTab=t; }, sub:function(v){ currentSubscription = v?{active:true}:null; }, lang:function(l){ appLang=l; }, i18n:APP_I18N, T:ta };
 """
