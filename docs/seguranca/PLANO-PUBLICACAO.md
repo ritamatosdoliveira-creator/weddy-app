@@ -34,13 +34,23 @@ O site vai **antes** das regras (diferente da ordem em que me pediste as secçõ
 - **Rollback (imediato, sem rebuild):** `gcloud run revisions list --service=<nome-em-minúsculas> --region europe-west1 --project weddy-app-bd12f` e `gcloud run services update-traffic <nome-em-minúsculas> --to-revisions=<revisao-anterior>=100 --region europe-west1 --project weddy-app-bd12f` (revisão anterior em `~/revisoes-antes.txt`).
 
 ## 2b. Cloud Functions — lote 2 (consentimento WhatsApp, Premium, resumo por email) — só com autorização
-- **Funções (11):** novas `getGuestWhatsappConsent`, `setGuestWhatsappConsent`, `sendCoupleEmailDigest` (desligada: `NOTIFY_EMAIL_ENABLED=false` por defeito), `unsubscribeNotify`; alteradas `updateGuestPhone`, `whatsappWebhook` (STOP revoga o consentimento no servidor), `sendWhatsappRsvpReminder`, `stripeWebhook`, `revenueCatWebhook` (gravam `premiumUntil`), `deleteWeddingAccount`, `googleCalendarOAuthCallback` (URL base).
+- **Funções (11, o `whatsappWebhook` inclui agora o reconhecimento alargado de STOP e o `whatsappInbox` mínimo):** novas `getGuestWhatsappConsent`, `setGuestWhatsappConsent`, `sendCoupleEmailDigest` (desligada: `NOTIFY_EMAIL_ENABLED=false` por defeito), `unsubscribeNotify`; alteradas `updateGuestPhone`, `whatsappWebhook` (STOP revoga o consentimento no servidor), `sendWhatsappRsvpReminder`, `stripeWebhook`, `revenueCatWebhook` (gravam `premiumUntil`), `deleteWeddingAccount`, `googleCalendarOAuthCallback` (URL base).
 - **Comando:** `firebase deploy --only functions:getGuestWhatsappConsent,functions:setGuestWhatsappConsent,functions:sendCoupleEmailDigest,functions:unsubscribeNotify,functions:updateGuestPhone,functions:whatsappWebhook,functions:sendWhatsappRsvpReminder,functions:stripeWebhook,functions:revenueCatWebhook,functions:deleteWeddingAccount,functions:googleCalendarOAuthCallback --project weddy-app-bd12f`
-- **Fora deste lote (de propósito):** `validateWeddingStateOnWrite` (custo por escrita; `STATE_VALIDATE_MODE` fica `off`), `sendRsvpReminders` (aguarda zips + autorização).
+- **Fora deste lote (de propósito):** `validateWeddingStateOnWrite` (custo por escrita; `STATE_VALIDATE_MODE` fica `off`) e `sendRsvpReminders` (ver 2c).
 - **Antes (local):** `cd tests && npm test` completo.
 - **Depois:** página RSVP de um convite de teste mostra o consentimento (sem texto de confirmação automática); GET ao webhook com token errado → 403; compra de teste/webhook de teste só em modo teste do Stripe; `gcloud functions logs read` sem erros.
 - **Sucesso:** 11 revisões “Ready”, sem erros nos logs, compra/renovação Stripe de teste grava `subscription.premiumUntil`.
 - **Rollback:** igual a 2a, função a função (ou todas).
+
+## 2c. Cloud Functions — lembretes de RSVP (Autopilot no servidor) — só com autorização
+- **Função:** `sendRsvpReminders` (agendada, 09:00 Lisboa). Zips de produção comparados: a base é idêntica ao código local (ver `COMPARACAO-RSVP-WEBHOOK.md` §5).
+- **Mudança de comportamento:** casamentos **sem** definições continuam a 7/3/1 dias, máx. 3; casamentos **com** `settings.rsvpAutopilot` passam a seguir o intervalo (2–30) e o máximo (1–10); reserva transacional contra duplicados (coleção nova `rsvpReminderSends`, só servidor).
+- **Comando:** `firebase deploy --only functions:sendRsvpReminders --project weddy-app-bd12f`
+- **Antes (local):** `cd tests && npm test -- --only rsvp-reminders`. **Fora das 09:00** (publicar depois das 10:00 para não apanhar uma execução a meio).
+- **Depois:** `gcloud functions describe sendRsvpReminders --gen2 --region europe-west1 --project weddy-app-bd12f --format='value(updateTime,state)'`; no dia seguinte, `gcloud functions logs read sendRsvpReminders --gen2 --region europe-west1 --project weddy-app-bd12f --limit 30` com a linha “Lembretes de RSVP: X/Y enviados”, sem erros; um casamento de teste Premium com Autopilot recebe no máximo 1 email por intervalo.
+- **Índices:** a descoberta de casamentos com Autopilot usa consultas de um só campo (`settings.rsvpAutopilot.intervalDays` / `maxReminders`), cobertas pelos índices automáticos do Firestore; não é preciso criar índice.
+- **Sucesso:** revisão “Ready”; execução diária sem erros; sem emails duplicados.
+- **Rollback:** repor o tráfego para a revisão anterior (como em 2a). As reservas `rsvpReminderSends` existentes são inofensivas para a versão antiga (ignorada por ela).
 
 ## 3. Site (GitHub Pages)
 - **Ficheiros:** `app/index.html`, `app/sw.js` (cache `weddy-v325-comparador`), `rsvp.html`.
