@@ -1,12 +1,12 @@
-/* Testes da sendContactMessage (formulário público de contactos).
- * Correr (emulador Firestore em 127.0.0.1:8085):
- *   NODE_PATH=<node_modules> FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 GCLOUD_PROJECT=demo-weddy \
- *   WEDDY_EXPOSE_INTERNALS_FOR_TESTS=1 node tests/contact/send-contact.test.js
- * Usa um "sendMail" simulado: nunca envia email real.
+/* Testes da sendContactMessage ORIGINAL de produção + proteção contra abuso.
+ * Corre com emulador Firestore (ver tests/run-all.js). O envio é simulado
+ * (nodemailer.createTransport substituído): nunca envia email real.
  */
 'use strict';
 const path = require('path');
+const fs = require('fs');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 const fns = require(path.join(__dirname, '..', '..', 'index.js'));
 const T = fns._test;
 const db = admin.firestore();
@@ -14,128 +14,114 @@ const db = admin.firestore();
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; console.log('OK   ' + m); } else { fail++; console.log('FAIL ' + m); } };
 
-// SMTP_FROM é defineString: sem valor no teste.
-process.env.SMTP_FROM = 'Weddy <geral@weddy.pt>';
+process.env.SMTP_FROM = 'Weddy <geral@weddy.pt>'; process.env.SMTP_HOST = 'smtp.test'; process.env.SMTP_PORT = '465'; process.env.SMTP_USER = 'u'; process.env.SMTP_PASS = 'p';
+let mails = [], smtpFail = false;
+nodemailer.createTransport = () => ({ sendMail: async (m) => { if (smtpFail) throw new Error('smtp down'); mails.push(m); } });
 
-function mkRes() {
-  const r = { code: null, body: null, headers: {} };
-  r.set = (k, v) => { r.headers[k] = v; return r; };
-  r.status = (c) => { r.code = c; return r; };
-  r.json = (b) => { r.body = b; return r; };
-  r.send = (b) => { r.body = b; return r; };
-  return r;
+const http = require('http');
+let server, base;
+const good = { nome: 'Ana Silva', email: 'ana@example.com', assunto: 'Suporte', msg: 'Olá, preciso de ajuda.', website: '' };
+let n = 0;
+async function post(body, o) {
+  o = o || {};
+  const r = await fetch(base, {
+    method: o.method || 'POST',
+    headers: Object.assign({ origin: 'https://www.weddy.pt', 'content-type': 'application/json' }, o.headers || {}),
+    body: (o.method === 'GET') ? undefined : JSON.stringify(body),
+  });
+  let b = null; try { b = await r.json(); } catch (e) { /* sem corpo */ }
+  return { code: r.status, body: b, headers: Object.fromEntries(r.headers) };
 }
-const good = { nome: 'Ana Silva', email: 'ana@example.com', assunto: 'Suporte', msg: 'Olá, preciso de ajuda com o meu casamento.', website: '' };
-async function post(body, over) {
-  const mails = [];
-  const req = Object.assign({
-    method: 'POST', ip: '203.0.113.7', body,
-    headers: { origin: 'https://www.weddy.pt', 'content-type': 'application/json', 'content-length': '200' },
-  }, over || {});
-  if (over && over.headers) req.headers = Object.assign({ origin: 'https://www.weddy.pt', 'content-type': 'application/json' }, over.headers);
-  const res = mkRes();
-  await T.handleContactRequest(req, res, async (m) => { mails.push(m); });
-  return { res, mails };
-}
-async function clear() {
-  const s = await db.collection('siteRateLimits').get();
-  await Promise.all(s.docs.map((d) => d.ref.delete()));
-}
+const uniq = (extra) => Object.assign({}, good, { msg: 'mensagem ' + (++n) + ' ' + Math.random() }, extra || {});
+const xff = (ip) => ({ headers: { 'x-forwarded-for': ip } });
+async function clear() { const s = await db.collection('siteRateLimits').get(); await Promise.all(s.docs.map((d) => d.ref.delete())); mails = []; }
 
 (async () => {
+  const express = require('express'); const app = express(); app.use(express.json()); app.all('/', fns.sendContactMessage); server = http.createServer(app);
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  base = 'http://127.0.0.1:' + server.address().port;
   await clear();
-  // --- caminho feliz
-  let { res, mails } = await post(good);
-  ok(res.code === 200 && res.body.ok === true, 'pedido válido → 200');
-  ok(mails.length === 1 && mails[0].to === 'geral@weddy.pt', 'destinatário fixo geral@weddy.pt');
-  ok(mails[0].replyTo === 'ana@example.com', 'email do visitante só em Reply-To');
-  ok(res.headers['Access-Control-Allow-Origin'] === 'https://www.weddy.pt', 'CORS: origem da Weddy aceite');
-
-  // --- método / origem / tipo / tamanho
-  ({ res, mails } = await post(good, { method: 'GET' }));
-  ok(res.code === 405 && !mails.length, 'GET → 405');
-  ({ res, mails } = await post(good, { method: 'OPTIONS' }));
-  ok(res.code === 204 && !mails.length, 'OPTIONS (preflight) → 204 sem enviar');
-  ({ res, mails } = await post(good, { headers: { origin: 'https://evil.example', 'content-type': 'application/json' } }));
-  ok(res.code === 403 && !mails.length, 'origem estranha → 403');
-  ok(!res.headers['Access-Control-Allow-Origin'], 'origem estranha não recebe CORS');
-  ({ res, mails } = await post(good, { headers: { 'content-type': 'text/plain' } }));
-  ok(res.code === 415 && !mails.length, 'text/plain → 415');
-  ({ res, mails } = await post(good, { headers: { 'content-type': 'application/json', 'content-length': '999999' } }));
-  ok(res.code === 413 && !mails.length, 'corpo grande → 413');
-
-  // --- validação / tipos
-  for (const [name, b] of [
-    ['sem nome', { ...good, nome: '  ' }],
-    ['email inválido', { ...good, email: 'sem-arroba' }],
-    ['email com vírgula (2 destinatários)', { ...good, email: 'a@example.com,b@example.com' }],
-    ['email com <>', { ...good, email: 'a<b>@example.com' }],
-    ['mensagem curta', { ...good, msg: 'oi' }],
-    ['mensagem enorme', { ...good, msg: 'x'.repeat(4001) }],
-    ['nome objeto', { ...good, nome: { $ne: 1 } }],
-    ['email array', { ...good, email: ['a@example.com'] }],
-    ['msg número', { ...good, msg: 12345678901 }],
-    ['corpo array', [good]],
-    ['corpo nulo', null],
-    ['corpo string', 'olá'],
-  ]) {
-    ({ res, mails } = await post(b));
-    ok(res.code === 400 && !mails.length, 'rejeita: ' + name);
+  // Comportamento original
+  let r = await post(uniq(), xff('198.51.100.1'));
+  ok(r.code === 200 && r.body.ok === true && mails.length === 1, 'válido → 200 {ok:true} e 1 email');
+  ok(mails[0].to === 'geral@weddy.pt' && mails[0].replyTo === 'ana@example.com', 'destinatário fixo e Reply-To do visitante');
+  ok(/^\[Site\] Suporte \| Ana Silva$/.test(mails[0].subject), 'assunto no formato original');
+  ok(mails[0].text.startsWith('Nome: Ana Silva\nEmail: ana@example.com\nAssunto: Suporte\n\n'), 'corpo no formato original');
+  mails = [];
+  r = await post(uniq({ nome: 'A\r\nBcc: x@evil.com' }), xff('198.51.100.2'));
+  ok(!/[\r\n]/.test(mails[0].subject), 'CR/LF removidos do assunto');
+  mails = [];
+  r = await post(uniq({ website: 'spam' }), xff('198.51.100.3'));
+  ok(r.code === 200 && r.body.ok && !mails.length, 'honeypot → 200 sem enviar');
+  r = await post(uniq({ email: 'mau' }), xff('198.51.100.3'));
+  ok(r.code === 400 && r.body.ok === false, 'email inválido → 400');
+  r = await post(uniq({ nome: '' }), xff('198.51.100.3'));
+  ok(r.code === 400, 'nome vazio → 400');
+  r = await post(uniq({ msg: '' }), xff('198.51.100.3'));
+  ok(r.code === 400, 'mensagem vazia → 400');
+  r = await post(uniq(), { method: 'GET' });
+  ok(r.code === 405, 'GET → 405');
+  mails = [];
+  r = await post(uniq({ msg: 'x'.repeat(9000) }), xff('198.51.100.4'));
+  ok(mails[0].text.length < 4300, 'mensagem truncada a 4000');
+  // todos os assuntos do frontend aceites
+  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'contactos.html'), 'utf8');
+  ok(/nome/.test(html) && /assunto/.test(html) && /website/.test(html), 'frontend envia nome/assunto/website');
+  mails = [];
+  for (const a of ['Pedido de informação', 'Weddy Premium', 'Parcerias e fornecedores', 'Suporte', 'Outro assunto']) {
+    await clear(); mails = [];
+    r = await post(uniq({ assunto: a }), xff('198.51.100.5'));
+    ok(r.code === 200 && mails.length === 1, 'assunto do frontend aceite: ' + a);
   }
 
-  // --- injeção de cabeçalhos
-  ({ res, mails } = await post({ ...good, nome: 'Ana\r\nBcc: vitima@example.com', email: 'ana@example.com' }));
-  ok(res.code === 200 && mails.length === 1 && !/[\r\n]/.test(mails[0].subject), 'CRLF no nome não chega ao assunto');
-  ok(!/Bcc/i.test(Object.keys(mails[0]).join(',')) && !mails[0].bcc, 'sem Bcc injetado');
-  ({ res, mails } = await post({ ...good, email: 'ana@example.com\r\nBcc: vitima@example.com' }));
-  ok(res.code === 400 && !mails.length, 'CRLF no email → rejeitado');
-  ({ res, mails } = await post({ ...good, assunto: 'Qualquer\r\nBcc: x@y.pt' }));
-  ok(res.code === 200 && mails[0].subject.includes('Outro assunto') && !/Bcc/.test(mails[0].subject), 'assunto fora da lista → "Outro assunto"');
-
-  // --- HTML escapado
-  ({ res, mails } = await post({ ...good, nome: '<img src=x onerror=alert(1)>', msg: '<script>alert(1)</script> mensagem comprida' }));
-  ok(res.code === 200 && !/<script>|<img/.test(mails[0].html), 'HTML do visitante escapado');
-
-  // --- honeypot
-  ({ res, mails } = await post({ ...good, website: 'http://spam.example' }));
-  ok(res.code === 200 && !mails.length, 'honeypot → 200 mas não envia');
-
-  // --- erro de SMTP
-  {
-    const rq = { method: 'POST', ip: '198.51.100.1', body: good, headers: { origin: 'https://www.weddy.pt', 'content-type': 'application/json' } };
-    const r = mkRes();
-    await T.handleContactRequest(rq, r, async () => { throw new Error('smtp down'); });
-    ok(r.code === 502 && r.body.error === 'send_failed' && !/smtp/.test(JSON.stringify(r.body)), 'SMTP em baixo → 502 sem detalhes');
-  }
-
-  // --- limite por IP (5/hora): o IP 203.0.113.7 já usou 4 envios aceites acima
+  // Limite por IP (8/h)
   await clear();
   let codes = [];
-  for (let i = 0; i < 7; i++) { const r = await post(good, { ip: '192.0.2.50' }); codes.push(r.res.code); }
-  ok(codes.slice(0, 5).every((c) => c === 200) && codes[5] === 429 && codes[6] === 429, 'limite por IP: 5 ok, depois 429 (' + codes.join(',') + ')');
-  const other = await post(good, { ip: '192.0.2.51' });
-  ok(other.res.code === 200, 'outro IP não é afetado');
-
-  // --- limite global diário (200)
+  for (let i = 0; i < 9; i++) codes.push((await post(uniq(), xff('203.0.113.9'))).code);
+  ok(codes.slice(0, 8).every((c) => c === 200) && codes[8] === 429, 'IP: 8 passam, a 9.ª → 429');
+  ok(mails.length === 8, 'IP: só 8 emails enviados');
+  r = await post(uniq(), xff('203.0.113.10'));
+  ok(r.code === 200, 'outro IP não é afetado');
+  // IP: não confiar no início do X-Forwarded-For
   await clear();
-  const day = new Date().toISOString().slice(0, 10);
-  await db.collection('siteRateLimits').doc('contact_day_' + day).set({ start: Date.now(), count: 200 });
-  const g = await post(good, { ip: '192.0.2.99' });
-  ok(g.res.code === 429 && !g.mails.length, 'limite global diário → 429');
-
-  // --- concorrência: 10 pedidos em simultâneo do mesmo IP → no máximo 5 enviados
+  codes = [];
+  for (let i = 0; i < 9; i++) codes.push((await post(uniq(), xff('1.1.1.' + i + ', 203.0.113.50'))).code);
+  ok(codes[8] === 429, 'IP forjado à esquerda no XFF não contorna o limite');
+  ok(T.contactClientIp({ headers: { 'x-forwarded-for': 'a, b, c' } }) === 'c', 'IP = último do X-Forwarded-For');
+  ok(T.contactClientIp({ headers: {}, ip: '9.9.9.9' }) === '9.9.9.9', 'sem XFF → req.ip');
+  // Limite global horário (30)
   await clear();
-  const conc = await Promise.all(Array.from({ length: 10 }, () => post(good, { ip: '192.0.2.77' })));
-  const sent = conc.reduce((n, r) => n + r.mails.length, 0);
-  ok(sent <= 5, 'concorrência: no máximo 5 enviados (enviados=' + sent + ')');
-
-  // --- pura: validateContactBody
-  const v = T.validateContactBody({ ...good, nome: 'A'.repeat(500) });
-  ok(v.ok && v.nome.length === 100, 'nome cortado a 100');
-  const v2 = T.validateContactBody({ ...good, msg: 'linha1\r\nlinha2 com texto suficiente\u0000' });
-  ok(v2.ok && !/\u0000/.test(v2.msg), 'caracteres de controlo removidos da mensagem');
-
+  codes = [];
+  for (let i = 0; i < 31; i++) codes.push((await post(uniq(), xff('192.0.2.' + (i + 1)))).code);
+  ok(codes.slice(0, 30).every((c) => c === 200) && codes[30] === 429, 'global: 30/h passam, a 31.ª → 429');
+  // Duplicado
   await clear();
-  console.log(`\n${pass} OK, ${fail} FALHAS`);
+  const d = uniq();
+  await post(d, xff('203.0.113.20'));
+  r = await post(d, xff('203.0.113.21'));
+  ok(r.code === 200 && r.body.ok && mails.length === 1, 'duplicado → {ok:true} sem 2.º email');
+  // SMTP falha → devolve quota e permite repetir
+  await clear();
+  smtpFail = true;
+  const f = uniq();
+  r = await post(f, xff('203.0.113.30'));
+  ok(r.code === 500 && r.body.ok === false, 'SMTP falha → 500');
+  smtpFail = false;
+  r = await post(f, xff('203.0.113.30'));
+  ok(r.code === 200 && mails.length === 1, 'após falha SMTP, repetir funciona (quota devolvida)');
+  const ipDoc = (await db.collection('siteRateLimits').get()).docs.filter((x) => x.id.startsWith('contact_ip_h_'))[0].data();
+  ok(ipDoc.count === 1 && ipDoc.start && ipDoc.expireAt, 'contador 1 com start/expireAt; sem IP em claro');
+  ok(!(await db.collection('siteRateLimits').get()).docs.some((x) => /203\.0\.113/.test(x.id)), 'IDs não contêm o IP');
+  // Concorrência
+  await clear();
+  const rs = await Promise.all(Array.from({ length: 20 }, () => post(uniq(), xff('203.0.113.40'))));
+  ok(rs.filter((x) => x.code === 200).length === 8 && rs.filter((x) => x.code === 429).length === 12, 'concorrência: 20 em paralelo → exatamente 8 passam');
+
+  // Exports de produção preservados
+  for (const e of ['sendContactMessage', 'analyzeCompareProposal', 'generateCompareReport', 'sendRsvpReminders', 'whatsappWebhook', 'classifyWeddyIntent', 'generateSeatingProposal']) {
+    ok(typeof fns[e] === 'function', 'export presente: ' + e);
+  }
+  console.log(`\n${pass} OK, ${fail} FAIL`);
+  server.close();
   process.exit(fail ? 1 : 0);
-})().catch((e) => { console.error(e); process.exit(2); });
+})().catch((e) => { console.error(e); process.exit(1); });

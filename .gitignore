@@ -1,0 +1,16 @@
+# Segredos e configuração local — nunca no repositório nem no pacote de deploy
+.env
+.env.*
+*.env
+*.pem
+*.key
+serviceAccount*.json
+# Cópias de segurança e artefactos
+*.bak
+*.orig
+*.rej
+*.antes-*
+*.zip
+node_modules/
+tests/.build/
+tests/node_modules/
