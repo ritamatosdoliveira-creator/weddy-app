@@ -325,7 +325,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     <div class="privacy-block">
       <button type="button" class="privacy-toggle" id="privacy-toggle" data-t="privacyToggle">Como tratamos os teus dados</button>
       <div class="privacy-text" id="privacy-text" data-t="privacyText">
-        Os dados que dás aqui (nome, resposta, refeição, restrições alimentares, transporte/alojamento) são vistos apenas pelos noivos e usados só para organizar este casamento — nunca são partilhados com mais ninguém. Este link não te mostra a lista de outros convidados nem informações do orçamento. Podes atualizar ou apagar a tua resposta a qualquer momento, neste mesmo link.
+        Os dados que dás aqui (nome, resposta, refeição, alergias e restrições alimentares, necessidades de acessibilidade, crianças, transporte/alojamento) são vistos apenas pelos noivos e usados só para organizar este casamento — nunca são partilhados com outros convidados nem usados para treinar modelos de IA. Este link não te mostra a lista de outros convidados nem informações do orçamento. Podes atualizar ou apagar a tua resposta a qualquer momento, neste mesmo link.
       </div>
       <button type="button" class="delete-response-link state-hidden" id="delete-response-btn" data-t="deleteResponseLink">Apagar a minha resposta</button>
     </div>
@@ -502,7 +502,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesError: 'Não foi possível enviar esta foto. Verifica a internet e tenta novamente.',
       memoriesUnavailable: 'Neste momento este álbum não está a receber fotos. Fala com os noivos.',
       privacyToggle: 'Como tratamos os teus dados',
-      privacyText: 'Os dados que dás aqui (nome, resposta, refeição, restrições alimentares, transporte/alojamento) são vistos apenas pelos noivos e usados só para organizar este casamento — nunca são partilhados com mais ninguém. Este link não te mostra a lista de outros convidados nem informações do orçamento. Podes atualizar ou apagar a tua resposta a qualquer momento, neste mesmo link. O assistente de conversa (Weddy Concierge) responde só com base na informação que os noivos escreveram, nunca inventa respostas, e nunca altera a tua resposta sem primeiro pedires confirmação. Quando não reconhece a tua mensagem por regras simples, pode enviar só o texto da pergunta (nunca os teus dados) a um modelo de inteligência artificial só para perceber que tipo de pedido é — nunca para decidir ou escrever a resposta final. A conversa em si fica só neste dispositivo, não é guardada nem lida pelos noivos.',
+      privacyText: 'Os dados que dás aqui (nome, resposta, refeição, alergias e restrições alimentares, necessidades de acessibilidade, crianças, transporte/alojamento) são vistos apenas pelos noivos e usados só para organizar este casamento — nunca são partilhados com outros convidados nem usados para treinar modelos de IA. Este link não te mostra a lista de outros convidados nem informações do orçamento. Podes atualizar ou apagar a tua resposta a qualquer momento, neste mesmo link. O assistente de conversa (Weddy Concierge) responde só com base na informação que os noivos escreveram, nunca inventa respostas, e nunca altera a tua resposta sem primeiro pedires confirmação. Quando não reconhece a tua mensagem por regras simples, pode enviar só o texto da pergunta (nunca os teus dados) a um modelo de inteligência artificial só para perceber que tipo de pedido é — nunca para decidir ou escrever a resposta final. A conversa em si fica só neste dispositivo, não é guardada nem lida pelos noivos.',
       deleteResponseLink: 'Apagar a minha resposta',
       deleteConfirm: 'Tens a certeza que queres apagar a tua resposta (presença, refeição, restrições, transporte e alojamento)? Isto não apaga o teu nome nem o link do convite — só a tua resposta.',
       deleteSuccessMsg: 'A tua resposta foi apagada. Podes responder de novo quando quiseres.',
@@ -529,6 +529,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       conciergeReplyNoParking: 'Ainda não tenho informação sobre estacionamento.',
       conciergeReplyTransport: v => `Sobre transporte: ${v}`,
       conciergeReplyNoTransport: 'Ainda não tenho informação sobre transporte.',
+      conciergeReplyOthersPrivate: 'Por privacidade, não partilho informação sobre outros convidados (alergias, acessibilidade, transporte ou alojamento). Se precisares, fala diretamente com os noivos.',
       conciergeReplyAccommodation: v => `Sobre alojamento: ${v}`,
       conciergeReplyNoAccommodation: 'Ainda não tenho informação sobre alojamento.',
       conciergeReplyGifts: v => `Sobre presentes: ${v}`,
@@ -659,7 +660,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesError: 'Could not upload this photo. Check your connection and try again.',
       memoriesUnavailable: 'This album is not receiving photos right now. Please talk to the couple.',
       privacyToggle: 'How we handle your data',
-      privacyText: "The data you give here (name, response, meal, dietary restrictions, transport/accommodation) is only seen by the couple and used solely to organize this wedding — it's never shared with anyone else. This link never shows you the other guests' list or budget information. You can update or delete your response at any time, on this same link. The chat assistant (Weddy Concierge) only answers based on information the couple wrote, never makes up answers, and never changes your response without first asking you to confirm. When it doesn't recognize your message through simple rules, it may send just the question's text (never your data) to an AI model only to work out what kind of request it is — never to decide or write the final answer. The conversation itself stays on this device only — it isn't saved or read by the couple.",
+      privacyText: "The data you give here (name, response, meal, allergies and dietary restrictions, accessibility needs, children, transport/accommodation) is only seen by the couple and used solely to organize this wedding — it's never shared with other guests or used to train AI models. This link never shows you the other guests' list or budget information. You can update or delete your response at any time, on this same link. The chat assistant (Weddy Concierge) only answers based on information the couple wrote, never makes up answers, and never changes your response without first asking you to confirm. When it doesn't recognize your message through simple rules, it may send just the question's text (never your data) to an AI model only to work out what kind of request it is — never to decide or write the final answer. The conversation itself stays on this device only — it isn't saved or read by the couple.",
       deleteResponseLink: 'Delete my response',
       deleteConfirm: "Are you sure you want to delete your response (attendance, meal, restrictions, transport and accommodation)? This does not delete your name or the invitation link — only your response.",
       deleteSuccessMsg: 'Your response has been deleted. You can respond again whenever you like.',
@@ -686,6 +687,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       conciergeReplyNoParking: "I don't have parking information yet.",
       conciergeReplyTransport: v => `About transport: ${v}`,
       conciergeReplyNoTransport: "I don't have transport information yet.",
+      conciergeReplyOthersPrivate: "For privacy, I don't share information about other guests (allergies, accessibility, transport or accommodation). If you need to, please talk to the couple directly.",
       conciergeReplyAccommodation: v => `About accommodation: ${v}`,
       conciergeReplyNoAccommodation: "I don't have accommodation information yet.",
       conciergeReplyGifts: v => `About gifts: ${v}`,
@@ -1944,6 +1946,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     GET_TABLE:'GET_TABLE', GET_RSVP:'GET_RSVP', ASK_CHILDREN:'ASK_CHILDREN',
     CONFIRM_ATTENDANCE:'CONFIRM_ATTENDANCE', DECLINE_ATTENDANCE:'DECLINE_ATTENDANCE', SET_RSVP_UNDECIDED:'SET_RSVP_UNDECIDED',
     ADD_COMPANION:'ADD_COMPANION', SET_DIETARY_RESTRICTION:'SET_DIETARY_RESTRICTION',
+    ASK_OTHERS_PRIVATE:'ASK_OTHERS_PRIVATE',
     UNKNOWN:'UNKNOWN'
   };
   // Intenções que ESCREVEM no Firestore (todas as outras só leem/informam).
@@ -1957,6 +1960,14 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // como responder — isso é o trabalho dos dois passos seguintes.
   function classifyIntent(pergunta){
     const p = pergunta.toLowerCase();
+    // B.2 — privacidade: perguntas sobre alergias, acessibilidade, transporte
+    // ou alojamento DE OUTRAS PESSOAS nunca são respondidas (o Concierge só
+    // conhece o documento deste convidado e o que os noivos publicaram).
+    if(/(alerg|intoler|restri[cç][õo]es alimentares|acessibilid|mobilidade|necessidades especiais|allerg|intoleran|accessib|dietary|wheelchair)/i.test(p) && /(outr[oa]s?|convidados|quem|alguém|alguem|ninguém|fam[ií]lia d|mesa|others?\b|other guests|guests|who\b|anyone|someone|everyone|todos|table)/i.test(p)
+       || /(quem|who|(que|quais|which|what)\s+(outr[oa]s?\s+|other\s+)?(convidados|pessoas|guests|people))\b.*(transporte|alojamento|carrinha|boleia|transport|accommodation|ride|lodging)/i.test(p)
+       || /(transporte|alojamento|transport|accommodation).*(d[oa]s? (outros|convidados|restantes)|of (the )?(other|guests))/i.test(p)){
+      return { intent: WEDDY_INTENTS.ASK_OTHERS_PRIVATE };
+    }
     // Nota de ordem: verificações mais específicas (alojamento, transporte,
     // estacionamento…) têm de vir ANTES da pergunta genérica de "onde"
     // (\bonde\b), senão "onde posso ficar/dormir" seria sempre apanhado
@@ -2097,10 +2108,16 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       } else if(status==='no'){
         updates.attending = false; updates.rsvpStatus = 'no';
         updates.meal = ''; updates.dietary = ''; updates.transporte = false; updates.alojamento = false; updates.children = [];
+        if(context.guestData.logistics) updates.logistics = firebase.firestore.FieldValue.delete();
       } else {
         updates.attending = null; updates.rsvpStatus = 'maybe';
       }
-      return db.collection('guests').doc(context.guestToken).update(updates).then(()=>updates);
+      return db.collection('guests').doc(context.guestToken).update(updates).then(()=>{
+        // O marcador de apagar (FieldValue.delete) nunca deve ir parar ao estado local.
+        const local = Object.assign({}, updates);
+        if('logistics' in local){ delete local.logistics; delete context.guestData.logistics; }
+        return local;
+      });
     },
     setDietaryRestriction(text, context){
       // Defesa extra (Auditoria Out 2026): um "text" undefined/vazio aqui
@@ -2169,6 +2186,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     }
 
     switch(classified.intent){
+      case I.ASK_OTHERS_PRIVATE:
+        return { text: t('conciergeReplyOthersPrivate') };
       case I.ASK_CHILDREN:
         return { text: t('conciergeReplyChildrenGeneric') };
       case I.GET_DRESS_CODE: {
