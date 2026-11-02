@@ -80,6 +80,21 @@ async def main():
         await pg.evaluate(SETUP); await pg.evaluate("window.__t.lang('en'); window.__t.lg.screen()"); await pg.wait_for_timeout(200)
         body = await pg.inner_text('.logi-sum')+await pg.inner_text('#logi-list')
         ok('Allergies: marisco' in body and 'Accommodation' in body and 'high chair' in body and not re.search(r'\b(Alergias|Transporte|Alojamento|Crianças)\b', body), 'EN: sem texto PT na logística')
+        # Wedding Health: só contagem, só perto da data
+        pg = await newpage(b,390,844)
+        await pg.evaluate(SETUP)
+        await pg.evaluate("(()=>{ const x=new Date(); x.setDate(x.getDate()+400); window.__t.setDate(x.toISOString().slice(0,10)); })()")
+        ok(not any(c['id']=='logistics' for c in await pg.evaluate("window.__t.hc()")), 'Health: longe da data não há aviso de logística')
+        await pg.evaluate("(()=>{ const x=new Date(); x.setDate(x.getDate()+60); window.__t.setDate(x.toISOString().slice(0,10)); })()")
+        hc = [c for c in await pg.evaluate("window.__t.hc()") if c['id']=='logistics']
+        ok(len(hc)==1 and hc[0]['severity']=='yellow' and '4 convidados' in hc[0]['text'], f'Health: a menos de 120 dias avisa só com a contagem {hc}')
+        ok(not re.search(r'marisco|amendoim|cadeira|lactose|Porto', hc[0]['text']), 'Health: o aviso não contém detalhes sensíveis')
+        await pg.evaluate("window.__t.state.guests.noiva.familia.forEach(e=>{ e.logi={transport:'done',lodging:'done',needs:'done'}; })")
+        ok(not any(c['id']=='logistics' for c in await pg.evaluate("window.__t.hc()")), 'Health: tudo organizado → aviso desaparece')
+        await pg.evaluate("window.__t.state.guests.noiva.familia.forEach(e=>{ delete e.logi; }); window.__t.lang('en')")
+        hc = [c for c in await pg.evaluate("window.__t.hc()") if c['id']=='logistics']
+        ok(hc and 'still to organise' in hc[0]['text'], 'Health EN')
+        await pg.context.close()
         await b.close()
     summary()
 asyncio.run(main())

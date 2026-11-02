@@ -6296,6 +6296,7 @@ const APP_I18N = {
     healthCheckBudgetOver: pct => `O orçamento está ${pct}% acima do planeado.`,
     healthCheckNoTable: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem mesa atribuída.`,
     healthCheckNoMeal: n => `${n} convidado${n===1?'':'s'} confirmado${n===1?'':'s'} ainda sem refeição escolhida.`,
+    healthCheckLogistics: n => `${n} convidado${n===1?'':'s'} com necessidades de logística por organizar.`,
     healthCheckSuppliers: n => `${n} fornecedor${n===1?'':'es'} ainda por contratar.`,
     navBackTo: l=>`Voltar a ${l}`,
     whEyebrow:"A saúde do vosso casamento",
@@ -7634,6 +7635,7 @@ const APP_I18N = {
     healthCheckBudgetOver: pct => `The budget is ${pct}% over what you planned.`,
     healthCheckNoTable: n => `${n} confirmed guest${n===1?'':'s'} still without a table.`,
     healthCheckNoMeal: n => `${n} confirmed guest${n===1?'':'s'} still without a meal choice.`,
+    healthCheckLogistics: n => `${n} guest${n===1?'':'s'} with logistics needs still to organise.`,
     healthCheckSuppliers: n => `${n} supplier${n===1?'':'s'} still not booked.`,
     navBackTo: l=>`Back to ${l}`,
     whEyebrow:"Your wedding's health",
@@ -10213,6 +10215,18 @@ function checkMissingMeals(){
   if(semMenu<=0) return null;
   return { id:'no-meal', severity:'yellow', text: ta('healthCheckNoMeal')(semMenu), goto:{ def:'rsvp' } };
 }
+// B.2 — logística dos convidados: só o NÚMERO de confirmados com transporte,
+// alojamento, alimentação ou acessibilidade por organizar (nunca o conteúdo).
+// Só aparece quando o casamento está a menos de 120 dias, para não pesar cedo.
+function checkLogisticsToOrganize(){
+  if(!weddingSettings.weddingDate || !rsvpResponsesLoaded) return null;
+  const dias = daysUntil(weddingSettings.weddingDate);
+  if(!(dias!==null && dias>=0 && dias<=120)) return null;
+  let n = 0;
+  try{ n = logiAll().filter(x=>x.todo).length; }catch(e){ return null; }
+  if(n<=0) return null;
+  return { id:'logistics', severity:'yellow', text: ta('healthCheckLogistics')(n), goto:{ def:'rsvp' } };
+}
 function checkUnbookedVendors(){
   // Só relevante quando o casamento já está perto (senão é normal ainda
   // se estar a comparar opções).
@@ -10234,7 +10248,8 @@ const healthRules = [
   checkPendingRSVP,
   checkUnseatedGuests,
   checkMissingMeals,
-  checkUnbookedVendors
+  checkUnbookedVendors,
+  checkLogisticsToOrganize
 ];
 const HEALTH_SEVERITY_ORDER = { red:0, yellow:1 };
 function getWeddingHealthChecks(){
