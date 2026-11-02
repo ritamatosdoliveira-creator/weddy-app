@@ -1,5 +1,5 @@
-import asyncio, json
-exec(open('/tmp/sx/a4/t4.py').read().split("BAD=[")[0])
+from common import *
+newpage = functools.partial(newpage, mode='bare')
 BAD=[None,'texto',5,True,[],{},[None,1,'a'],{'a':1}]
 async def main():
     async with async_playwright() as p:
@@ -13,8 +13,9 @@ async def main():
                   const body=document.getElementById('app-body'); return { viewerr:body.querySelectorAll('[data-viewerr]').length, kinds:Object.keys(a.errs()) }; }""",[k,k2,v]); n+=1
                 if 'thrown' in res or 'renderThrown' in res or res.get('viewerr',0)>0: fails.append((k+'.'+k2,json.dumps(v),res.get('kinds') or res))
         print(len(paths),'caminhos',n,'casos; falhas:',len(fails))
+        CHECKS.append(not fails)
         seen=set()
         for f in fails:
             if f[0] not in seen: seen.add(f[0]); print(f)
         await b.close()
-asyncio.run(main())
+asyncio.run(main()); sys.exit(0 if all(CHECKS) else 1)

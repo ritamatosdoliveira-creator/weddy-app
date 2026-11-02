@@ -4136,7 +4136,7 @@ const CURRENT_PRIVACY_VERSION = '2026-10-02';
   /* ==== MODO MANUTENÇÃO — ativado manualmente antes da migração para Weddy 2.0 ==== */
   /* Para reativar a app: mudar MAINTENANCE_MODE para false. */
   const MAINTENANCE_MODE = false;
-  const MAINTENANCE_MSG = "a Weddy 2.0 está a chegar. Estaremos em manutenção até amanhã às 14h";
+  const MAINTENANCE_MSG = (String((typeof navigator!=='undefined' && navigator.language) || '').toLowerCase().indexOf('en')===0) ? "Weddy 2.0 is coming. We will be under maintenance until tomorrow at 2 pm" : "a Weddy 2.0 está a chegar. Estaremos em manutenção até amanhã às 14h";
   if(MAINTENANCE_MODE){
     document.body.innerHTML = `
       <div style="position:fixed;inset:0;z-index:999999;background:#FBF4E8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 30px;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;">
@@ -7175,7 +7175,7 @@ const APP_I18N = {
     viewErrTitle:'Esta secção não abriu',
     viewErrBody:'Os teus dados estão guardados. Tenta outra vez ou continua noutra página.',
     viewErrRetry:'Tentar de novo',
-    gpConsentAwaiting:'A aguardar confirmação: o convidado marcou a caixa, mas ainda tem de enviar “SIM” e o código do seu WhatsApp. Só depois podes enviar mensagens.',
+    gpConsentAwaiting:'Pedido pendente: o convidado marcou a caixa, mas o consentimento ainda não está confirmado (a confirmação não é automática). Não lhe envies mensagens por WhatsApp para já.',
     gpConsentRevoked:'Retirado pelo convidado. Não envies mensagens por WhatsApp.',
     gpConsentRenew:'Consentimento antigo por renovar: o convidado tem de confirmar no link do convite.',
     labelSide:'Lado',
@@ -8453,7 +8453,7 @@ const APP_I18N = {
     viewErrTitle:'This section did not open',
     viewErrBody:'Your data is safe. Try again or continue on another page.',
     viewErrRetry:'Try again',
-    gpConsentAwaiting:'Awaiting confirmation: the guest ticked the box but still has to send “YES” and the code from their own WhatsApp. Only then can you send messages.',
+    gpConsentAwaiting:'Pending request: the guest ticked the box, but consent is not confirmed yet (confirmation is not automatic). Do not send them WhatsApp messages for now.',
     gpConsentRevoked:'Withdrawn by the guest. Do not send WhatsApp messages.',
     gpConsentRenew:'Old consent needs renewal: the guest must confirm on the invitation link.',
     labelSide:'Side',
@@ -24370,6 +24370,7 @@ function resetWhatsAppInvitePhonePrompt(){
 // "+"). A lista fica ordenada por tamanho de código decrescente antes de
 // se tentar "adivinhar" o indicativo de um número já gravado, para nunca
 // confundir, por exemplo, +1 com +1264.
+const GUEST_PHONE_COUNTRY_EN = { '+34':'🇪🇸 Spain (+34)', '+33':'🇫🇷 France (+33)', '+44':'🇬🇧 United Kingdom (+44)', '+49':'🇩🇪 Germany (+49)', '+39':'🇮🇹 Italy (+39)', '+31':'🇳🇱 Netherlands (+31)', '+41':'🇨🇭 Switzerland (+41)', '+353':'🇮🇪 Ireland (+353)', '+55':'🇧🇷 Brazil (+55)', '+1':'🇺🇸🇨🇦 USA / Canada (+1)', 'other':'Other country…' };
 const GUEST_PHONE_COUNTRY_CODES = [
   { cc:'+351', label:'🇵🇹 Portugal (+351)' },
   { cc:'+34',  label:'🇪🇸 Espanha (+34)' },
@@ -24386,9 +24387,11 @@ const GUEST_PHONE_COUNTRY_CODES = [
 ];
 function populateGuestPhoneCountrySelect(){
   const sel = document.getElementById('gp-phone-cc');
-  if(!sel || sel.dataset.filled) return;
-  sel.dataset.filled = '1';
-  sel.innerHTML = GUEST_PHONE_COUNTRY_CODES.map(c=>`<option value="${c.cc}">${c.label}</option>`).join('');
+  if(!sel || sel.dataset.filled===appLang) return;
+  const cur = sel.value;
+  sel.dataset.filled = appLang;
+  sel.innerHTML = GUEST_PHONE_COUNTRY_CODES.map(c=>`<option value="${c.cc}">${appLang==='en' && GUEST_PHONE_COUNTRY_EN[c.cc] ? GUEST_PHONE_COUNTRY_EN[c.cc] : c.label}</option>`).join('');
+  if(cur) sel.value = cur;
 }
 // Dado um número já gravado em E.164 (ex: "+34911223344"), tenta
 // adivinhar qual dos indicativos conhecidos foi usado, devolvendo
@@ -25971,7 +25974,7 @@ async function reauthenticateForAccountDeletion(user, pass){
   }
   if(ids.includes('apple.com')){
     const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
-    if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+    if(!SignInWithApple) throw new Error(appLang==='en' ? 'Sign in with Apple is unavailable' : 'Sign in with Apple indisponível');
     const rawNonce = appleSignInRandomNonce();
     const hashedNonce = await appleSignInSha256Hex(rawNonce);
     const result = await SignInWithApple.authorize({
@@ -25990,7 +25993,7 @@ async function reauthenticateForAccountDeletion(user, pass){
     const credential = new firebase.auth.OAuthProvider('apple.com').credential({ idToken: identityToken, rawNonce });
     return user.reauthenticateWithCredential(credential);
   }
-  throw new Error('Fornecedor de login não suportado para reautenticação.');
+  throw new Error(appLang==='en' ? 'Sign-in provider not supported for re-authentication.' : 'Fornecedor de login não suportado para reautenticação.');
 }
 function openDeleteAccountSheet(){
   const isSoleOwner = currentWeddingOwners.length<=1;
@@ -26041,7 +26044,7 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
     // apaga a conta de autenticação depois de confirmar que os dados foram
     // tratados. Precisa do deploy do Fix 2 — ver SEGURANCA-RGPD-README.md.
     if(!cloudFunctions){
-      return Promise.reject(new Error('Função de eliminação de conta não disponível (Cloud Functions não configuradas).'));
+      return Promise.reject(new Error(appLang==='en' ? 'Account deletion is not available (Cloud Functions not configured).' : 'Função de eliminação de conta não disponível (Cloud Functions não configuradas).'));
     }
     const call = cloudFunctions.httpsCallable('deleteWeddingAccount');
     const codeForRevoke = pendingAppleAuthCode; pendingAppleAuthCode = null;
@@ -26935,7 +26938,7 @@ function isAppleRelayEmail(email){ return /@privaterelay\.appleid\.com$/i.test(S
 // Pede à Apple (folha nativa) e devolve a credencial Firebase, sem iniciar sessão.
 async function acquireAppleCredential(){
   const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
-  if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+  if(!SignInWithApple) throw new Error(appLang==='en' ? 'Sign in with Apple is unavailable' : 'Sign in with Apple indisponível');
   const rawNonce = appleSignInRandomNonce();
   const hashedNonce = await appleSignInSha256Hex(rawNonce);
   const result = await SignInWithApple.authorize({
@@ -27051,7 +27054,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     const msgEl = document.getElementById('al-msg'); if(msgEl){ msgEl.textContent=''; msgEl.className='login-msg'; }
     document.querySelectorAll('#login-inner button').forEach(b=>b.disabled=true);
     try{
-      if(!auth.currentUser) throw new Error('sem sessão');
+      if(!auth.currentUser) throw new Error(appLang==='en' ? 'no session' : 'sem sessão');
       let gcred = null;
       try{
         if(nativeGooglePlugin()){ const gc0 = await nativeGoogleCredential(); await auth.currentUser.linkWithCredential(gc0); }
@@ -27977,7 +27980,7 @@ async function restoreSnapshot(snapshotId){
   let restoredState, restoredSettings;
   try{
     restoredState = a4SanitizeIncoming(JSON.parse(snap.json), 'restore');
-    if(!restoredState) throw new Error('estado inválido');
+    if(!restoredState) throw new Error(appLang==='en' ? 'invalid state' : 'estado inválido');
     restoredSettings = snap.settings;
   }catch(e){
     weddyAlert(ta('alertRestoreError'));
@@ -29069,7 +29072,7 @@ if(FIREBASE_READY){
       }
       user.getIdToken(true).catch(()=>{}).then(()=>{
         try{
-          if(!user.email) throw new Error('Conta sem email (Apple não partilhou o email).');
+          if(!user.email) throw new Error(appLang==='en' ? 'Account without email (Apple did not share the email).' : 'Conta sem email (Apple não partilhou o email).');
           findOrCreateFlow(user);
         }catch(e){
           console.error('Weddy login flow error:', e && e.message);

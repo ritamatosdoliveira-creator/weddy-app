@@ -1,24 +1,5 @@
-import asyncio, json
-from playwright.async_api import async_playwright
-STUB="""
-(function(){
- window.__snap=null;
- function mk(){ var f=function(){ return p; }; var p=new Proxy(f,{get:function(t,k){ if(k==='then') return undefined; if(k==='onSnapshot') return function(cb){ window.__snap=cb; return function(){}; }; if(k==='onAuthStateChanged') return function(cb){ setTimeout(function(){cb(null)},0); return function(){}; }; if(k===Symbol.toPrimitive) return function(){return ''}; return p; }, apply:function(){ return p; }}); return p; }
- window.firebase = mk();
-})();
-"""
-RES=[]
-def ok(c,m): RES.append(bool(c)); print(('OK   ' if c else 'FAIL ')+m)
-async def newpage(b,w=390,h=844):
-    ctx=await b.new_context(viewport={'width':w,'height':h}); pg=await ctx.new_page()
-    pg.errs=[]; pg.on('pageerror',lambda e:pg.errs.append(str(e)[:200]))
-    pg.cons=[]; pg.on('console',lambda m: pg.cons.append(m.text[:200]) if m.type=='error' else None)
-    pg.on('dialog',lambda d:asyncio.ensure_future(d.dismiss()))
-    await pg.route('**/*',lambda r: r.continue_() if r.request.url.startswith('file:///tmp/sx') else r.abort())
-    await pg.add_init_script(STUB)
-    await pg.goto('file:///tmp/sx/app_a4.html'); await pg.wait_for_timeout(700)
-    await pg.add_style_tag(content='#login-screen,.login-screen{display:none !important}')
-    return pg
+from common import *
+newpage = functools.partial(newpage, mode='bare')
 BAD=[None,'texto',5,True,[],{},[None,1,'a'],{'a':1}]
 async def main():
     async with async_playwright() as p:
@@ -109,9 +90,9 @@ async def main():
             ov=await pg.evaluate("document.documentElement.scrollWidth>document.documentElement.clientWidth")
             ok(not ov,f'[{name}] sem overflow horizontal')
             await pg.evaluate("()=>{ const a=window.__a4; const s=a.seed(); s.expenses='lixo'; a.state=s; a.go('gastos'); a.render(); }")
-            await pg.screenshot(path=f'/tmp/sx/a4/viewerr_{name}.png')
+            await pg.screenshot(path=str(SHOTS/f'viewerr_{name}.png'))
             ok(not pg.errs,f'[{name}] sem erros JS não tratados {pg.errs[:2]}')
             await pg.context.close()
         await b.close()
-    print(f"\n{sum(RES)}/{len(RES)} OK")
+    print(f'\n{sum(RES)}/{len(RES)} OK'); sys.exit(0 if all(RES) else 1)
 asyncio.run(main())

@@ -238,15 +238,13 @@ const rec = async (w, g) => { const s = await db.collection('whatsappConsents').
   { await call('setGuestWhatsappConsent', { token: T1, optedIn: true, version: V });
     await call('updateGuestPhone', { guestId: 'g1', phone: '+351912345678', optedIn: true }, couple);
     ok((await rec('W1', 'g1')).status === 'pending', 'o casal não consegue passar pendente a dado'); }
-  // webhook de ponta a ponta (mensagem da Meta, remetente = telemóvel do convidado)
+  // webhook: sem confirmação automática; STOP continua a cancelar
   await seed();
   { const r1 = (await call('setGuestWhatsappConsent', { token: T1, optedIn: true, version: V })).data;
-    await fns._test.handleIncomingWhatsappMessage({ from: '351933333333', id: 'wamid.X1', type: 'text', text: { body: 'SIM ' + r1.code } }, []);
-    ok((await rec('W1', 'g1')).status === 'pending', 'mensagem de OUTRO número com o código certo não confirma');
     await fns._test.handleIncomingWhatsappMessage({ from: '351912345678', id: 'wamid.X2', type: 'text', text: { body: 'SIM ' + r1.code } }, []);
-    ok((await rec('W1', 'g1')).status === 'granted', 'webhook: SIM + código do próprio número confirma');
+    ok((await rec('W1', 'g1')).status === 'pending', 'decisão: o webhook NÃO confirma "SIM + código" (sem confirmação automática)');
     await fns._test.handleIncomingWhatsappMessage({ from: '351912345678', id: 'wamid.X3', type: 'text', text: { body: 'STOP' } }, []);
-    ok((await rec('W1', 'g1')).status === 'revoked', 'webhook: STOP depois revoga'); }
+    ok((await rec('W1', 'g1')).status === 'revoked', 'webhook: STOP cancela o pedido pendente'); }
   // ---------- limite de pedidos ----------
   await seed();
   let last = 'none';

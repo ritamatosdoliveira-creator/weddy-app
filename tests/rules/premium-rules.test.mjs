@@ -111,5 +111,5 @@ await rec('A escreve siteRateLimits',true,()=>setDoc(doc(F(A),'siteRateLimits/sa
 await rec('A lê privateIntegrations (refresh token)',true,()=>getDoc(doc(F(A),'weddings/W1/privateIntegrations/googleCalendar')));
 await rec('A escreve privateIntegrations',true,()=>setDoc(doc(F(A),'weddings/W1/privateIntegrations/googleCalendar'),{encryptedRefreshToken:'x'}));
 await rec('A escreve aiUsage (repor quota)',true,()=>setDoc(doc(F(A),'aiUsage/W1'),{count:0}));
-console.log(res.map(r=>r.join(' | ')).join('\n')); console.log('FAILS:',res.filter(r=>r[0]==='FAIL').length,'/',res.length);
-await env.cleanup();
+console.log(res.map(r=>r.join(' | ')).join('\n')); const nFail=res.filter(r=>r[0]==='FAIL').length; console.log('FAILS:',nFail,'/',res.length);
+await env.cleanup(); process.exit(nFail?1:0);

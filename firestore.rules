@@ -37,6 +37,10 @@ service cloud.firestore {
       // permitida, é só a ativação que fica fechada ao cliente.
       allow update: if request.auth != null
         && request.auth.token.email_verified == true
+        // A.4.3: o estado do casamento (campo "json") tem de ser uma string e caber no
+        // documento. O conteúdo é validado no servidor (validateWeddingStateOnWrite);
+        // aqui só se impede o que as regras conseguem ver: tipo e tamanho.
+        && (!('json' in request.resource.data) || (request.resource.data.json is string && request.resource.data.json.size() <= 900000))
         && (
           request.auth.token.email in resource.data.ownerEmails
           || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
@@ -75,6 +79,10 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
         && request.resource.data.ownerEmails.size() == 1
+        // A.4.3: o estado do casamento (campo "json") tem de ser uma string e caber no
+        // documento. O conteúdo é validado no servidor (validateWeddingStateOnWrite);
+        // aqui só se impede o que as regras conseguem ver: tipo e tamanho.
+        && (!('json' in request.resource.data) || (request.resource.data.json is string && request.resource.data.json.size() <= 900000))
         && request.resource.data.ownerEmails[0] == request.auth.token.email
         && (!('creatorEmail' in request.resource.data) || request.resource.data.creatorEmail == request.auth.token.email)
         && (!('ownerUids' in request.resource.data) || request.resource.data.ownerUids == [request.auth.uid])
@@ -369,6 +377,11 @@ service cloud.firestore {
     }
 
     // Estado de envio dos emails resumo (A.2): só o servidor.
+    // A.4.3: cópias de estados rejeitados pelo validador do servidor. Só o servidor lê/escreve.
+    match /weddingStateQuarantine/{docId} {
+      allow read, write: if false;
+    }
+
     match /notifState/{id} {
       allow read, write: if false;
     }

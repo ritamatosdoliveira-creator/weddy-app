@@ -76,6 +76,7 @@
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
+const { onDocumentWritten } = require('firebase-functions/v2/firestore');
 const { defineString, defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
@@ -3579,9 +3580,8 @@ function whatsappConsentTextHash(version, lang) {
 const WHATSAPP_CONSENT_HISTORY_MAX = 20;
 const WHATSAPP_CONSENT_RATE_PER_HOUR = 20;
 // Double opt-in (Nov 2026): marcar a caixa só deixa o consentimento "pending".
-// Passa a "granted" quando o convidado ENVIA, do próprio WhatsApp, "SIM <código>"
-// para o número da Weddy (o webhook identifica o remetente pela Meta, por isso
-// quem não controla o telemóvel do convidado — incluindo o casal — não confirma).
+// SEM integração oficial com a Meta não há confirmação automática: o pedido fica
+// pending (nenhum envio é permitido) e o casal NÃO o pode confirmar em nome do convidado.
 const WHATSAPP_CONSENT_PENDING_HOURS = 72;
 const WHATSAPP_CONSENT_MAX_ATTEMPTS = 5;
 const WHATSAPP_CONFIRM_WORDS = ['sim', 'yes', 'confirmo', 'confirmar', 'confirm'];
@@ -3893,7 +3893,9 @@ async function recordWhatsappOptOut(weddingId, guestId) {
 }
 
 
-// Confirmação do double opt-in: o convidado envia "SIM <código>" do SEU WhatsApp.
+// DORMENTE (decisão Nov 2026: sem WhatsApp Business API): nenhuma função/webhook a chama.
+// Confirmaria o double opt-in com "SIM <código>" enviado do WhatsApp do convidado, mas só seria
+// fiável com um canal autenticado (Meta). Mantida e testada para uma eventual fase futura autorizada.
 // Devolve 'granted' | 'no_pending' | 'expired' | 'wrong_code' | 'locked' | 'phone_mismatch'.
 async function confirmWhatsappConsentByReply(owner, phoneE164, code) {
   const weddingRef = db.collection('weddings').doc(owner.weddingId);
@@ -3962,13 +3964,9 @@ async function handleIncomingWhatsappMessage(msg, contacts) {
     raw: msg,
   });
 
-  if (owner && text) {
-    const confirmCode = parseConsentConfirmation(text);
-    if (confirmCode) {
-      const r = await confirmWhatsappConsentByReply(owner, phoneE164, confirmCode);
-      logger.info(`whatsappWebhook: confirmação de consentimento → ${r} (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
-    }
-  }
+  // Decisão (Nov 2026): SEM confirmação automática do consentimento por esta via. Uma mensagem
+  // "SIM <código>" recebida aqui NÃO confirma nada (confirmWhatsappConsentByReply fica sem
+  // ligação; só poderia voltar a ser usada se for autorizada uma integração oficial com a Meta).
   if (owner && text && WHATSAPP_STOP_WORDS.includes(String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').trim().split(/\s+/)[0])) {
     await recordWhatsappOptOut(owner.weddingId, owner.guestId);
     logger.info(`whatsappWebhook: opt-out registado via STOP (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
@@ -5084,8 +5082,147 @@ async function handleUnsubscribe(req, res) {
 }
 exports.unsubscribeNotify = onRequest({ region: 'europe-west1', maxInstances: 5 }, (req, res) => handleUnsubscribe(req, res));
 
+
+// ===========================================================================
+// A.4.3 — Validação do estado do casamento (campo `json` de weddings/{id})
+// ---------------------------------------------------------------------------
+// Todo o estado do casamento é uma STRING JSON escrita diretamente pelo cliente.
+// As regras do Firestore só conseguem validar o tipo e o tamanho dessa string,
+// não o conteúdo; por isso o conteúdo é validado aqui, depois da escrita.
+//
+// Princípios (não negociáveis):
+//  - NUNCA apaga nem reescreve informação válida. Campos inesperados são apenas
+//    registados (o cliente pode ter versões mais novas/antigas).
+//  - Campos em falta NÃO são erro (dados antigos são anteriores a muitos campos).
+//  - Só reverte quando a escrita é GRAVE (não é JSON, não é objeto, demasiado
+//    grande/profundo, ou tem chaves de poluição de protótipo). Reverte para o
+//    `before` do próprio evento (último estado que já era válido) e guarda a
+//    versão rejeitada em `weddingStateQuarantine` (nada se perde).
+//  - Tipos errados em campos conhecidos são "reparáveis": regista-se e deixa-se
+//    ao saneador do cliente (a4SanitizeState), que também é não destrutivo.
+//  - STATE_VALIDATE_MODE: off (defeito) | report (só regista) | enforce (reverte).
+// ===========================================================================
+const STATE_VALIDATE_MODE = defineString('STATE_VALIDATE_MODE', { default: 'off' });
+const STATE_MAX_JSON_CHARS = 900000;     // Firestore: 1 MiB por documento
+const STATE_MAX_DEPTH = 24;
+const STATE_MAX_KEYS = 4000;             // chaves num único objeto
+const STATE_MAX_ARRAY = 20000;           // itens num único array
+const STATE_MAX_NODES = 200000;          // nós no total (anti-abuso/CPU)
+const STATE_DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const STATE_QUARANTINE_DAYS = 30;
+// Estrutura esperada, gerada a partir de seedData() da app (tests/ui/state_shape.py
+// verifica que continua igual). 'object' com {} = mapa livre; 'null' = livre.
+const STATE_SHAPE = {"budget":{"total":"number","guestsEstimate":"number"},"categories":"array","guests":{"noiva":{"familia":"array","amigos":"array","duvida":"array","staff":"array","custom":"array"},"noivo":{"familia":"array","amigos":"array","duvida":"array","staff":"array","custom":"array"},"conjunto":{"familia":"array","amigos":"array","duvida":"array","staff":"array","custom":"array"}},"confirmed":{},"expenses":"array","seating":{"tables":"array","assignments":{},"items":"array"},"daySchedule":"array","checklistDone":{},"checklistPersonal":"array","dressChecklistDone":{},"dressVisits":"array","dressStyle":{"silhouette":"string","necklines":"array"},"cake":{"shape":"string","tiers":"array","single":{"form":"string","cm":"string","portions":"string"},"rect":{"length":"string","width":"string","height":"string","portions":"string"},"square":{"side":"string","height":"string","portions":"string"},"other":{"desc":"string","dims":"string","portions":"string"},"flavor":"string","filling":"string","flavors":"string","allergies":"string","desserts":"string","tastings":"array","chosen":{"flavors":"string","fillings":"string","tier":"string","notes":"string"},"inspirations":"array"},"vows":{"bride":{"text":"string","updated":"string","done":"boolean"},"groom":{"text":"string","updated":"string","done":"boolean"},"speeches":"array","readings":"array","songs":"array","moments":"array"},"stationery":{},"stationeryCustom":"array","stationeryHidden":"array","stationeryDesign":{"palette":"array","fontMain":"string","fontSecond":"string","monogram":{"initials":"string","notes":"string"},"items":{},"files":"array"},"favoriteVisitId":"null","suppliers":"array","todos":"array","todoCategories":"array","todoNotes":"string","honeymoon":{"options":"array"},"payments":"array","weddingDocuments":"array","compares":"array"};
+
+function stateKind(v) { return v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v; }
+
+// Percorre `val` contra `shape` e acumula problemas em `issues`. Não altera nada.
+function stateCheckShape(shape, val, p, issues) {
+  const sk = typeof shape === 'string' ? shape : 'object';
+  if (sk === 'null') return;
+  const vk = stateKind(val);
+  if (vk !== sk) { issues.push({ path: p, code: vk === 'null' ? 'null_value' : 'wrong_type', expected: sk, got: vk }); return; }
+  if (sk !== 'object') return;
+  for (const k of Object.keys(shape)) { if (k in val) stateCheckShape(shape[k], val[k], p ? p + '.' + k : k, issues); }
+}
+
+// Limites e chaves perigosas num único passo iterativo (sem recursão: sem stack overflow).
+function stateScanLimits(root, issues) {
+  let nodes = 0; const stack = [[root, 0, '']];
+  while (stack.length) {
+    const [v, d, p] = stack.pop();
+    if (++nodes > STATE_MAX_NODES) { issues.push({ path: p, code: 'too_many_nodes' }); return false; }
+    if (v === null || typeof v !== 'object') continue;
+    if (d > STATE_MAX_DEPTH) { issues.push({ path: p, code: 'too_deep' }); return false; }
+    if (Array.isArray(v)) {
+      if (v.length > STATE_MAX_ARRAY) { issues.push({ path: p, code: 'array_too_long', size: v.length }); return false; }
+      for (let i = 0; i < v.length; i++) stack.push([v[i], d + 1, p + '[' + i + ']']);
+    } else {
+      const ks = Object.keys(v);
+      if (ks.length > STATE_MAX_KEYS) { issues.push({ path: p, code: 'too_many_keys', size: ks.length }); return false; }
+      for (const k of ks) {
+        if (STATE_DANGEROUS_KEYS.has(k)) { issues.push({ path: p ? p + '.' + k : k, code: 'dangerous_key' }); return false; }
+        stack.push([v[k], d + 1, p ? p + '.' + k : k]);
+      }
+    }
+  }
+  return true;
+}
+
+// Devolve { severity: 'ok'|'repairable'|'invalid', issues, unexpected, size }.
+// `raw` é o valor do campo `json`. Não lança exceções.
+function validateWeddingState(raw) {
+  const issues = [];
+  const res = (severity, extra) => Object.assign({ severity, issues, unexpected: [], size: typeof raw === 'string' ? raw.length : 0 }, extra || {});
+  if (typeof raw !== 'string') return res('invalid', { issues: [{ path: 'json', code: 'not_string', got: stateKind(raw) }] });
+  if (raw.length > STATE_MAX_JSON_CHARS) return res('invalid', { issues: [{ path: 'json', code: 'too_large', size: raw.length }] });
+  let st;
+  try { st = JSON.parse(raw); } catch (e) { return res('invalid', { issues: [{ path: 'json', code: 'parse_error' }] }); }
+  if (stateKind(st) !== 'object') return res('invalid', { issues: [{ path: '', code: 'not_object', got: stateKind(st) }] });
+  if (!stateScanLimits(st, issues)) return res('invalid');
+  stateCheckShape(STATE_SHAPE, st, '', issues);
+  // Campos inesperados no topo: informação, nunca erro (compatibilidade entre versões).
+  const unexpected = Object.keys(st).filter((k) => !(k in STATE_SHAPE));
+  return { severity: issues.length ? 'repairable' : 'ok', issues, unexpected, size: raw.length };
+}
+
+// Lógica do trigger, separada para ser testável sem o emulador de eventos.
+// `before`/`after`: dados dos documentos (ou undefined). Devolve { action, ... }.
+async function handleWeddingStateWrite(weddingId, before, after, mode) {
+  mode = String(mode || 'off');
+  if (mode !== 'report' && mode !== 'enforce') return { action: 'off' };
+  if (!after) return { action: 'deleted' };
+  const rawAfter = after.json;
+  if (rawAfter === undefined) return { action: 'no_state' };
+  if (before && before.json === rawAfter) return { action: 'unchanged' };
+  const v = validateWeddingState(rawAfter);
+  if (v.severity === 'ok') return { action: 'ok', unexpected: v.unexpected.length };
+  const codes = v.issues.slice(0, 20).map((i) => ({ path: i.path, code: i.code }));
+  if (v.severity === 'repairable') {
+    logger.warn('Estado com tipos inesperados (reparável pelo cliente)', { weddingId, issues: codes.length, codes });
+    return { action: 'repairable', issues: v.issues };
+  }
+  // Grave: guarda sempre a cópia em quarentena (em report também, para diagnóstico).
+  const db = admin.firestore();
+  const now = Date.now();
+  const qid = weddingId + '_' + now;
+  const prev = before && typeof before.json === 'string' ? validateWeddingState(before.json) : null;
+  const canRestore = mode === 'enforce' && !!prev && prev.severity !== 'invalid';
+  const qdoc = {
+    weddingId, atMs: now, mode, issues: codes, size: v.size, restored: false,
+    expireAt: admin.firestore.Timestamp.fromMillis(now + STATE_QUARANTINE_DAYS * 86400000),
+  };
+  if (typeof rawAfter === 'string' && rawAfter.length <= STATE_MAX_JSON_CHARS) qdoc.json = rawAfter;
+  await db.collection('weddingStateQuarantine').doc(qid).set(qdoc);
+  let restored = false;
+  if (canRestore) {
+    // Só repõe se o documento ainda tem a versão rejeitada (não pisa uma escrita legítima mais recente).
+    restored = await db.runTransaction(async (tx) => {
+      const ref = db.collection('weddings').doc(weddingId);
+      const cur = await tx.get(ref);
+      if (!cur.exists || cur.data().json !== rawAfter) return false;
+      tx.update(ref, { json: before.json, stateGuard: { restoredAtMs: now, quarantineId: qid, codes: codes.map((c) => c.code) } });
+      return true;
+    });
+    if (restored) await db.collection('weddingStateQuarantine').doc(qid).update({ restored: true });
+  }
+  logger.error('Estado do casamento inválido', { weddingId, mode, restored, quarantineId: qid, codes });
+  return { action: restored ? 'restored' : 'quarantined', quarantineId: qid, issues: v.issues };
+}
+
+exports.validateWeddingStateOnWrite = onDocumentWritten(
+  { document: 'weddings/{weddingId}', region: 'europe-west1', memory: '256MiB', maxInstances: 10 },
+  async (event) => {
+    const mode = STATE_VALIDATE_MODE.value();
+    if (mode !== 'report' && mode !== 'enforce') return;
+    const ch = event.data;
+    if (!ch) return;
+    await handleWeddingStateWrite(event.params.weddingId, ch.before && ch.before.exists ? ch.before.data() : undefined, ch.after && ch.after.exists ? ch.after.data() : undefined, mode);
+  }
+);
+
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, handleContactRequest, validateContactBody, contactEmailHtml };
+  exports._test = { processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, handleContactRequest, validateContactBody, contactEmailHtml, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }
