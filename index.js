@@ -281,131 +281,308 @@ exports.cleanupActivityLog = onSchedule(
 // Corre todos os dias às 09:00 (hora de Lisboa). Ajusta a expressão cron
 // se quiseres outra hora/frequência.
 
-exports.sendRsvpReminders = onSchedule(
-  { schedule: '0 9 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS] },
-  async () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    // Auditoria Out 2026 (achado MÉDIO): isto costumava ler a coleção
-    // "guests" INTEIRA todos os dias, para todos os casamentos de todos os
-    // clientes da Weddy, só para descartar no código quase todos os
-    // documentos (só interessam os que têm rsvpDeadline a cair exatamente
-    // daqui a 7, 3 ou 1 dias). Isso cresce sem limite o custo de leitura à
-    // medida que a Weddy ganha casamentos. Como REMINDER_DAYS_BEFORE é uma
-    // lista curta e fixa, dá para pedir ao Firestore só os documentos cujo
-    // "rsvpDeadline" seja exatamente uma dessas 3 datas (where...in) — o
-    // filtro corre no servidor, não aqui, e só paga as leituras que
-    // realmente interessam.
-    const targetDeadlines = REMINDER_DAYS_BEFORE.map((d) => {
-      const dt = new Date(today);
-      dt.setDate(dt.getDate() + d);
-      return dt.toISOString().slice(0, 10);
-    });
-    const snap = await db.collection('guests').where('rsvpDeadline', 'in', targetDeadlines).get();
-    const jobs = [];
+// ---------------------------------------------------------------------------
+// Lembretes de RSVP por email — modos e idempotência (Nov 2026)
+//
+// Dois modos, decididos POR CASAMENTO:
+//  - LEGADO (casamento sem "settings.rsvpAutopilot" válido): exatamente o
+//    comportamento anterior — lembretes a 7, 3 e 1 dias do prazo, máx. 3.
+//    Nada é migrado nem alterado nas definições existentes.
+//  - AUTOPILOT (casamento com "settings.rsvpAutopilot" numérico): o casal
+//    escolhe o intervalo (2–30 dias, defeito 5) e o máximo (1–10, defeito 3),
+//    com os mesmos limites do cliente (rsvpAutopilotConfig em index.html).
+//    Envia a quem ainda não respondeu, enquanto o prazo não passou, no
+//    máximo 1 por intervalo e até ao máximo do casal.
+//
+// Nunca envia WhatsApp: este caminho é só email (o modo assistido do
+// WhatsApp continua a ser uma ação manual do casal).
+//
+// IDEMPOTÊNCIA: antes de enviar, uma transação confirma de novo a
+// elegibilidade e cria a reserva "rsvpReminderSends/{id}" (id = hash de
+// casamento+convite+membro+nº do lembrete). Duas execuções simultâneas não
+// conseguem reservar o mesmo lembrete. Só depois da confirmação do SMTP é
+// que o contador do convidado avança e a reserva passa a "sent". Se o SMTP
+// falhar, a reserva é libertada (apagada) e o lembrete volta a poder sair.
+// Limite conhecido: se o processo morrer entre o SMTP aceitar e o Firestore
+// confirmar, a reserva fica "reserved" e só pode ser retomada após o prazo
+// de RSVP_REMINDER_LEASE_MS (preferimos uma raríssima repetição a perder
+// o lembrete para sempre).
+// ---------------------------------------------------------------------------
+const RSVP_REMINDER_LEASE_MS = 30 * 60 * 1000;
+const RSVP_AUTOPILOT_INTERVAL = { min: 2, max: 30, def: 5 };
+const RSVP_AUTOPILOT_MAX = { min: 1, max: 10, def: 3 };
 
-    snap.forEach((doc) => {
-      const data = doc.data();
-      if (!data.rsvpDeadline) return;
-      const deadline = new Date(data.rsvpDeadline + 'T00:00:00');
-      const daysLeft = Math.ceil((deadline - today) / 86400000);
-      if (daysLeft < 0 || !REMINDER_DAYS_BEFORE.includes(daysLeft)) return;
+// null = casamento sem Autopilot configurado (modo legado). Só conta como
+// configurado um objeto com intervalDays e/ou maxReminders NUMÉRICOS (é o
+// que o cliente grava e o que a consulta de descoberta consegue encontrar).
+function rsvpAutopilotServerConfig(settings) {
+  const c = settings && typeof settings === 'object' ? settings.rsvpAutopilot : null;
+  if (!c || typeof c !== 'object') return null;
+  const isNum = (v) => typeof v === 'number' && isFinite(v);
+  if (!isNum(c.intervalDays) && !isNum(c.maxReminders)) return null;
+  const clamp = (v, r) => { const n = Math.round(Number(v)); return (isFinite(n) && n >= r.min && n <= r.max) ? n : r.def; };
+  return { intervalDays: clamp(c.intervalDays, RSVP_AUTOPILOT_INTERVAL), maxReminders: clamp(c.maxReminders, RSVP_AUTOPILOT_MAX) };
+}
 
-      if (data.isFamily) {
-        const members = Array.isArray(data.members) ? data.members : [];
-        const responses = data.responses || {};
-        const emails = data.emails || {};
-        const reminders = data.reminders || {};
-        members.forEach((m) => {
-          // Fase 8.0 (Set 2026): o id do membro dentro deste RSVP passou a
-          // chamar-se "rsvpMemberId" (antes era, de forma confusa,
-          // "guestId" — colidia com o guestId permanente do convidado).
-          // Lê o campo novo com fallback para o antigo, para continuar a
-          // funcionar em contas ainda não migradas por migrateFamilyGuestIds.
-          const mid = m.rsvpMemberId || m.guestId;
-          const r = responses[mid];
-          const answered = r && (r.attending === true || r.attending === false);
-          if (answered) return;
-          const email = emails[mid];
-          if (!email) return;
-          const rem = reminders[mid] || { remindersSent: 0, lastReminderDay: null };
-          if ((rem.remindersSent || 0) >= MAX_REMINDERS) return;
-          if (rem.lastReminderDay === daysLeft) return;
-          jobs.push({ docId: doc.id, isFamily: true, memberId: mid, name: m.name, email, daysLeft, data });
-        });
-      } else {
-        const answered = data.attending === true || data.attending === false;
-        if (answered) return;
-        const email = data.email;
-        if (!email) return;
-        if ((data.remindersSent || 0) >= MAX_REMINDERS) return;
-        if (data.lastReminderDay === daysLeft) return;
-        jobs.push({ docId: doc.id, isFamily: false, name: data.name, email, daysLeft, data });
-      }
-    });
+const RSVP_EMAIL_RE = /^[^\s@<>"',;]{1,64}@[^\s@<>"',;]{1,190}\.[A-Za-z]{2,}$/;
 
-    // Out 2026 (auditoria): só casamentos Premium recebem lembretes (as outras
-    // funções Premium já eram verificadas no servidor; esta não).
-    const premiumCache = new Map();
-    const emailsPerWedding = new Map();
-    const eligibleJobs = [];
-    for (const job of jobs) {
-      const wid = job.data && job.data.weddingId;
-      if (!wid) continue;
-      // Auditoria Out 2026 (achado ALTO): sem tetos nem validação, um casal
-      // podia criar milhares de convidados com emails de terceiros e usar o
-      // remetente da Weddy como relay de spam. Valida o formato do email e
-      // limita a MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN por casamento e dia.
-      if (!/^[^\s@<>"',;]{1,64}@[^\s@<>"',;]{1,190}\.[A-Za-z]{2,}$/.test(String(job.email || ''))) continue;
-      emailsPerWedding.set(wid, (emailsPerWedding.get(wid) || 0) + 1);
-      if (emailsPerWedding.get(wid) > MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN) continue;
-      if (!premiumCache.has(wid)) {
-        let ok = false;
-        try {
-          const ws = await db.collection('weddings').doc(wid).get();
-          ok = ws.exists && isSubscriptionStillValid(ws.data().subscription);
-        } catch (e) { ok = false; }
-        premiumCache.set(wid, ok);
-      }
-      if (premiumCache.get(wid)) eligibleJobs.push(job);
-    }
-    jobs.length = 0;
-    eligibleJobs.forEach((j) => jobs.push(j));
+function utcMidnightMs(ms) { const d = new Date(ms); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+function tsToMs(v) {
+  if (!v) return null;
+  const d = typeof v.toDate === 'function' ? v.toDate() : new Date(v);
+  const ms = d.getTime();
+  return isNaN(ms) ? null : ms;
+}
 
-    if (!jobs.length) {
-      logger.info('Lembretes de RSVP: nada para enviar hoje.');
-      return;
-    }
+// Estado de UM destinatário (convidado individual ou membro de uma família).
+function rsvpReminderUnit(data, memberId) {
+  if (memberId != null) {
+    const responses = data.responses || {};
+    const r = responses[memberId];
+    const rem = (data.reminders || {})[memberId] || {};
+    return {
+      answered: !!(r && (r.attending === true || r.attending === false)),
+      email: (data.emails || {})[memberId],
+      count: rem.remindersSent || 0,
+      lastDay: rem.lastReminderDay == null ? null : rem.lastReminderDay,
+      lastAtMs: tsToMs(rem.lastReminderAt),
+    };
+  }
+  return {
+    answered: data.attending === true || data.attending === false,
+    email: data.email,
+    count: data.remindersSent || 0,
+    lastDay: data.lastReminderDay == null ? null : data.lastReminderDay,
+    lastAtMs: tsToMs(data.lastReminderAt),
+  };
+}
 
-    const transporter = buildTransporter();
-    let sent = 0;
-    for (const job of jobs) {
-      try {
-        await sendReminderEmail(transporter, job);
+// Está na altura de mais um lembrete? (devolve true/false; sem efeitos)
+function rsvpReminderIsDue(mode, cfg, unit, daysLeft, todayMs) {
+  if (unit.answered || !unit.email) return false;
+  if (mode === 'autopilot') {
+    if (daysLeft < 0) return false;
+    if (unit.count >= cfg.maxReminders) return false;
+    if (unit.lastAtMs == null) return true;
+    return Math.floor((todayMs - utcMidnightMs(unit.lastAtMs)) / 86400000) >= cfg.intervalDays;
+  }
+  if (!REMINDER_DAYS_BEFORE.includes(daysLeft)) return false;
+  if (unit.count >= MAX_REMINDERS) return false;
+  return unit.lastDay !== daysLeft;
+}
+
+function rsvpReminderLedgerRef(job, n) {
+  const key = [job.data.weddingId, job.docId, job.isFamily ? job.memberId : '', n].join('\u0001');
+  return db.collection('rsvpReminderSends').doc('rs_' + crypto.createHash('sha256').update(key).digest('hex').slice(0, 40));
+}
+
+// Passo 1: reserva transacional. Devolve { ok, ref, n, email } ou { ok:false, why }.
+async function reserveRsvpReminder(job, todayMs, nowMs) {
+  const gRef = db.collection('guests').doc(job.docId);
+  return db.runTransaction(async (tx) => {
+    const gSnap = await tx.get(gRef);
+    if (!gSnap.exists) return { ok: false, why: 'gone' };
+    const data = gSnap.data();
+    if (data.weddingId !== job.data.weddingId) return { ok: false, why: 'gone' };
+    const unit = rsvpReminderUnit(data, job.isFamily ? job.memberId : null);
+    const n = unit.count + 1;
+    const ref = rsvpReminderLedgerRef(job, n);
+    const lSnap = await tx.get(ref);
+    if (lSnap.exists && lSnap.data().status === 'sent') {
+      // Já enviado mas o contador ficou para trás: repara e não reenvia.
+      if (unit.count < n) {
         if (job.isFamily) {
-          await db.collection('guests').doc(job.docId).update({
-            [`reminders.${job.memberId}.remindersSent`]: admin.firestore.FieldValue.increment(1),
+          tx.update(gRef, {
+            [`reminders.${job.memberId}.remindersSent`]: n,
             [`reminders.${job.memberId}.lastReminderDay`]: job.daysLeft,
-            [`reminders.${job.memberId}.lastReminderAt`]: admin.firestore.FieldValue.serverTimestamp(),
+            [`reminders.${job.memberId}.lastReminderAt`]: admin.firestore.Timestamp.fromMillis(nowMs),
           });
         } else {
-          await db.collection('guests').doc(job.docId).update({
-            remindersSent: admin.firestore.FieldValue.increment(1),
-            lastReminderDay: job.daysLeft,
-            lastReminderAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
+          tx.update(gRef, { remindersSent: n, lastReminderDay: job.daysLeft, lastReminderAt: admin.firestore.Timestamp.fromMillis(nowMs) });
         }
-        sent++;
-      } catch (err) {
-        // Fix 6 da auditoria RGPD/Segurança (Set 2026): nunca registar o
-        // email do convidado (dado pessoal) em texto simples nos logs
-        // persistentes do Cloud Functions — só o id do documento, que já
-        // chega para encontrar e investigar o caso na Consola Firebase.
-        logger.error(`Erro ao enviar lembrete (convite ${job.docId}): ${err.message || err}`);
       }
+      return { ok: false, why: 'already_sent' };
     }
-    logger.info(`Lembretes de RSVP: ${sent}/${jobs.length} enviados com sucesso.`);
+    if (!rsvpReminderIsDue(job.mode, job.cfg, unit, job.daysLeft, todayMs)) return { ok: false, why: 'not_due' };
+    if (!RSVP_EMAIL_RE.test(String(unit.email || ''))) return { ok: false, why: 'bad_email' };
+    if (lSnap.exists) {
+      const rs = lSnap.data() || {};
+      if (rs.status === 'reserved' && nowMs - (rs.reservedAtMs || 0) < RSVP_REMINDER_LEASE_MS) return { ok: false, why: 'in_progress' };
+    }
+    const runToken = crypto.randomBytes(8).toString('hex');
+    tx.set(ref, {
+      weddingId: job.data.weddingId, guestDoc: job.docId, memberId: job.isFamily ? job.memberId : null,
+      n, mode: job.mode, status: 'reserved', reservedAtMs: nowMs, runToken,
+      reservedAt: admin.firestore.Timestamp.fromMillis(nowMs),
+    });
+    return { ok: true, ref, n, email: unit.email, runToken };
+  });
+}
+
+// Se o SMTP falhou: liberta a reserva (só se ainda for a nossa).
+async function releaseRsvpReminder(res) {
+  try {
+    await db.runTransaction(async (tx) => {
+      const s = await tx.get(res.ref);
+      if (s.exists && s.data().status === 'reserved' && s.data().runToken === res.runToken) tx.delete(res.ref);
+    });
+    return true;
+  } catch (e) {
+    logger.error(`Lembrete RSVP: não foi possível libertar a reserva. ${e.message || e}`);
+    return false;
   }
+}
+
+// Passo 3: depois do SMTP confirmar, avança o contador e fecha a reserva.
+async function finalizeRsvpReminder(job, res, nowMs) {
+  const sentTs = admin.firestore.Timestamp.fromMillis(nowMs);
+  const gRef = db.collection('guests').doc(job.docId);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await db.runTransaction(async (tx) => {
+        const g = await tx.get(gRef);
+        if (g.exists) {
+          const unit = rsvpReminderUnit(g.data(), job.isFamily ? job.memberId : null);
+          if (unit.count < res.n) {
+            if (job.isFamily) {
+              tx.update(gRef, {
+                [`reminders.${job.memberId}.remindersSent`]: res.n,
+                [`reminders.${job.memberId}.lastReminderDay`]: job.daysLeft,
+                [`reminders.${job.memberId}.lastReminderAt`]: sentTs,
+              });
+            } else {
+              tx.update(gRef, { remindersSent: res.n, lastReminderDay: job.daysLeft, lastReminderAt: sentTs });
+            }
+          }
+        }
+        tx.update(res.ref, { status: 'sent', sentAt: admin.firestore.Timestamp.fromMillis(nowMs) });
+      });
+      return true;
+    } catch (e) {
+      if (attempt === 2) logger.error(`Lembrete RSVP enviado mas não confirmado no Firestore (convite ${job.docId}): ${e.message || e}`);
+    }
+  }
+  // Último recurso: marca só a reserva como enviada; a próxima execução repara o contador.
+  try { await res.ref.update({ status: 'sent', sentAt: admin.firestore.Timestamp.fromMillis(nowMs) }); } catch (e) { /* já registado acima */ }
+  return false;
+}
+
+// Recolhe os destinatários de um documento de convite para um dado modo.
+function collectRsvpJobs(doc, mode, cfg, todayMs, out) {
+  const data = doc.data();
+  if (!data.rsvpDeadline || !data.weddingId) return;
+  const dlMs = Date.parse(String(data.rsvpDeadline).slice(0, 10) + 'T00:00:00Z');
+  if (isNaN(dlMs)) return;
+  const daysLeft = Math.ceil((dlMs - todayMs) / 86400000);
+  if (daysLeft < 0) return;
+  if (data.isFamily) {
+    (Array.isArray(data.members) ? data.members : []).forEach((m) => {
+      // Fase 8.0: "rsvpMemberId" com fallback para o antigo "guestId".
+      const mid = m.rsvpMemberId || m.guestId;
+      if (!mid) return;
+      const unit = rsvpReminderUnit(data, mid);
+      if (rsvpReminderIsDue(mode, cfg, unit, daysLeft, todayMs)) out.push({ docId: doc.id, isFamily: true, memberId: mid, name: m.name, email: unit.email, daysLeft, data, mode, cfg });
+    });
+  } else {
+    const unit = rsvpReminderUnit(data, null);
+    if (rsvpReminderIsDue(mode, cfg, unit, daysLeft, todayMs)) out.push({ docId: doc.id, isFamily: false, name: data.name, email: unit.email, daysLeft, data, mode, cfg });
+  }
+}
+
+// Casamentos com Autopilot configurado (consulta por campo numérico; o
+// Firestore só devolve documentos onde o campo existe e é número).
+async function findAutopilotWeddingIds() {
+  const ids = new Set();
+  for (const f of ['settings.rsvpAutopilot.intervalDays', 'settings.rsvpAutopilot.maxReminders']) {
+    const s = await db.collection('weddings').where(f, '>=', 0).select().get();
+    s.forEach((d) => ids.add(d.id));
+  }
+  return [...ids];
+}
+
+async function runRsvpReminders(opts) {
+  opts = opts || {};
+  const nowMs = opts.nowMs != null ? opts.nowMs : Date.now();
+  const todayMs = utcMidnightMs(nowMs);
+  const summary = { candidates: 0, sent: 0, failed: 0, skipped: 0 };
+
+  const info = new Map(); // weddingId -> { premium, cfg }
+  async function weddingInfo(wid) {
+    if (!info.has(wid)) {
+      let v = { premium: false, cfg: null };
+      try {
+        const ws = await db.collection('weddings').doc(wid).get();
+        if (ws.exists) {
+          const w = ws.data() || {};
+          v = { premium: isSubscriptionStillValid(w.subscription), cfg: rsvpAutopilotServerConfig(w.settings) };
+        }
+      } catch (e) { v = { premium: false, cfg: null }; }
+      info.set(wid, v);
+    }
+    return info.get(wid);
+  }
+
+  // 1) Modo legado: só os convites cujo prazo cai a 7/3/1 dias (filtro no servidor).
+  const targetDeadlines = REMINDER_DAYS_BEFORE.map((d) => new Date(todayMs + d * 86400000).toISOString().slice(0, 10));
+  const legacySnap = await db.collection('guests').where('rsvpDeadline', 'in', targetDeadlines).get();
+  const candidates = [];
+  const legacyJobs = [];
+  legacySnap.forEach((doc) => collectRsvpJobs(doc, 'legacy', null, todayMs, legacyJobs));
+  for (const j of legacyJobs) {
+    const wi = await weddingInfo(j.data.weddingId);
+    if (wi.cfg) continue; // casamento com Autopilot: tratado no passo 2
+    candidates.push(j);
+  }
+
+  // 2) Modo Autopilot: só os casamentos configurados.
+  for (const wid of await findAutopilotWeddingIds()) {
+    const wi = await weddingInfo(wid);
+    if (!wi.cfg || !wi.premium) continue;
+    const gs = await db.collection('guests').where('weddingId', '==', wid).get();
+    gs.forEach((doc) => collectRsvpJobs(doc, 'autopilot', wi.cfg, todayMs, candidates));
+  }
+
+  // 3) Validação, Premium e teto por casamento e execução.
+  const perWedding = new Map();
+  const jobs = [];
+  for (const job of candidates) {
+    const wid = job.data.weddingId;
+    if (!RSVP_EMAIL_RE.test(String(job.email || ''))) continue;
+    perWedding.set(wid, (perWedding.get(wid) || 0) + 1);
+    if (perWedding.get(wid) > MAX_REMINDER_EMAILS_PER_WEDDING_PER_RUN) continue;
+    if ((await weddingInfo(wid)).premium) jobs.push(job);
+  }
+  summary.candidates = jobs.length;
+  if (!jobs.length) {
+    logger.info('Lembretes de RSVP: nada para enviar hoje.');
+    return summary;
+  }
+
+  const transporter = opts.transporter || buildTransporter();
+  for (const job of jobs) {
+    let res = null;
+    try {
+      res = await reserveRsvpReminder(job, todayMs, nowMs);
+      if (!res.ok) { summary.skipped++; continue; }
+      job.email = res.email;
+      await sendReminderEmail(transporter, job);
+    } catch (err) {
+      // Fix 6 (RGPD): nunca registar o email; só o id do documento.
+      logger.error(`Erro ao enviar lembrete (convite ${job.docId}): ${err.message || err}`);
+      if (res && res.ok) await releaseRsvpReminder(res);
+      summary.failed++;
+      continue;
+    }
+    await finalizeRsvpReminder(job, res, nowMs);
+    summary.sent++;
+  }
+  logger.info(`Lembretes de RSVP: ${summary.sent}/${jobs.length} enviados (${summary.skipped} ignorados, ${summary.failed} falhados).`);
+  return summary;
+}
+
+exports.sendRsvpReminders = onSchedule(
+  { schedule: '0 9 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS] },
+  async () => { await runRsvpReminders(); }
 );
 
 /**
@@ -6114,5 +6291,5 @@ exports.validateWeddingStateOnWrite = onDocumentWritten(
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }

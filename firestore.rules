@@ -386,6 +386,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Reservas de lembretes de RSVP (idempotência): só o servidor.
+    match /rsvpReminderSends/{id} {
+      allow read, write: if false;
+    }
+
     // Reserva de endereços: só o servidor.
     match /siteSlugs/{slug} {
       allow read, write: if false;
