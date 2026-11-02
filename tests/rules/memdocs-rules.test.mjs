@@ -70,6 +70,14 @@ await rec('F (subscription inválida) cria documento',true,()=>put(Fx,'documents
 await rec('F (subscription inválida) LÊ documento antigo',false,()=>getBytes(ref(S(Fx),'documents/W6/old.pdf')));
 await rec('C (expirado) APAGA documento antigo',false,()=>deleteObject(ref(S(C),'documents/W3/old.pdf')));
 await rec('E (cancelado) APAGA documento antigo',false,()=>deleteObject(ref(S(E),'documents/W5/old.pdf')));
+// Fase H: fotos de inspiração do bolo e ficheiros da Papelaria vivem em documents/{weddingId}/ (mesmas regras)
+await rec('A (Premium) cria foto de inspiração do bolo (jpeg)',false,()=>put(A,'documents/W1/1_cakeinsp_cinsp1.jpg','image/jpeg'));
+await rec('B cria foto de inspiração em W1',true,()=>put(B,'documents/W1/2_cakeinsp_x.jpg','image/jpeg'));
+await rec('C (expirado) cria foto de inspiração',true,()=>put(C,'documents/W3/2_cakeinsp_x.jpg','image/jpeg'));
+await rec('B lê foto de inspiração de W1',true,()=>getBytes(ref(S(B),'documents/W1/1_cakeinsp_cinsp1.jpg')));
+await rec('anon lê foto de inspiração de W1',true,()=>getBytes(ref(S(anon),'documents/W1/1_cakeinsp_cinsp1.jpg')));
+await rec('B apaga foto de inspiração de W1',true,()=>deleteObject(ref(S(B),'documents/W1/1_cakeinsp_cinsp1.jpg')));
+await rec('A apaga a sua foto de inspiração',false,()=>deleteObject(ref(S(A),'documents/W1/1_cakeinsp_cinsp1.jpg')));
 
 // ---------- MEMORIES (Storage) ----------
 await seed();

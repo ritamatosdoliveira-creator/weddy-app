@@ -5700,6 +5700,7 @@ function goNavBack(){
 }
 let dressInspirations = [];
 let cakeInspPhotos = {};
+let cakeInspRemote = {}, cakeInspPending = {}; // Fase H: URLs das fotos guardadas no Storage (photoPath)
 let editingSeatKey = null;
 let seatQuery = '';
 let guestFilter = '';
@@ -9247,8 +9248,7 @@ function sdItemEditor(){
   ${kinds}
   ${`<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>`}`;
 }
-function viewPapelaria(){
-  if(!hasActiveSubscription()) return pmLocked('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), 'pmDescStat');
+function viewPapelariaCore(){
   sdEnsure();
   const pg = sdProgress();
   const tabs = [['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
@@ -9320,7 +9320,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
     const df = t.closest('[data-sddelfile]');
     if(df){ const id = df.dataset.sddelfile; weddyConfirm(ta('sdDelFileQ')).then(ok=>{ if(!ok) return;
       const f = state.stationeryDesign.files.find(q=>q.id===id);
-      if(f && f.storagePath && storage){ try{ storage.ref(f.storagePath).delete().catch(()=>{}); }catch(e){} }
+      if(f && f.storagePath) weddyStorageDelete(f.storagePath,'stationery-file-delete-failed');
       state.stationeryDesign.files = state.stationeryDesign.files.filter(q=>q.id!==id); render(); }); return; }
   }, true);
   document.addEventListener('change', e=>{
@@ -9397,6 +9397,30 @@ const CB_SHAPES = [
   ['other','<ellipse cx="24" cy="18" rx="19" ry="10"/>']
 ];
 function cakeInspKey(){ return 'weddy-cake-inspiracoes-'+(currentWeddingId||'none'); }
+function cakeInspSrc(id){ return cakeInspPhotos[id] || cakeInspRemote[id] || ''; }
+// Fase H: a foto (já reduzida) vai para o Storage do casamento, para aparecer em todos os dispositivos.
+// A cópia local mantém-se como reserva: se o envio falhar, nada se perde.
+async function cakeInspUpload(id, dataUrl){
+  const it = state.cake && state.cake.inspirations.find(q=>q.id===id);
+  if(!it || !storage || !currentWeddingId || !hasActiveSubscription()) return;
+  try{
+    const blob = await (await fetch(dataUrl)).blob();
+    const path = 'documents/'+currentWeddingId+'/'+Date.now()+'_cakeinsp_'+weddySafeFileName(id,'foto')+'.jpg';
+    await storage.ref(path).put(blob, { contentType:'image/jpeg' });
+    const old = it.photoPath; it.photoPath = path; cakeInspRemote[id] = dataUrl;
+    if(old) weddyStorageDelete(old, 'cake-insp-delete-failed');
+    pushRemote(true);
+  }catch(e){ try{ logMassPropagationFailures('cake-insp-upload-failed', [id]); }catch(_){} }
+}
+function cakeInspResolve(list){
+  if(!storage) return;
+  list.forEach(i=>{
+    if(!i.photoPath && cakeInspPhotos[i.id] && !cakeInspPending[i.id] && hasActiveSubscription()){ cakeInspPending[i.id] = true; cakeInspUpload(i.id, cakeInspPhotos[i.id]); return; } // migra fotos antigas (só no browser)
+    if(!i.photoPath || cakeInspRemote[i.id] || cakeInspPending[i.id]) return;
+    cakeInspPending[i.id] = true;
+    storage.ref(i.photoPath).getDownloadURL().then(u=>{ cakeInspRemote[i.id] = u; if(typeof cbTab!=='undefined' && cbTab==='inspiracoes' && document.querySelector('.cb-tile')) _origRender(); }).catch(()=>{});
+  });
+}
 function saveCakeInspPhotos(){
   try{ localStorage.setItem(cakeInspKey(), JSON.stringify(cakeInspPhotos)); }
   catch(e){ showSaveToast(true); weddyAlert(ta('alertPhotoSaveError')); }
@@ -9533,15 +9557,15 @@ function cbInspiracoes(){
   const chips = [`<button type="button" class="cb-chip" data-cbfilter="todos" aria-pressed="${cbInspFilter==='todos'?'true':'false'}">${ta('cbStyAll')}</button>`]
     .concat(styles.map(k=>`<button type="button" class="cb-chip" data-cbfilter="${escapeHTML(k)}" aria-pressed="${cbInspFilter===k?'true':'false'}">${escapeHTML(cbStyleLabel(k))}</button>`)).join('');
   const list = c.inspirations.filter(i=>cbInspFilter==='todos' || i.style===cbInspFilter);
-  const tiles = list.map(i=>`<button type="button" class="cb-tile" data-cbinsp="${i.id}"><div class="cb-ph">${cakeInspPhotos[i.id] ? `<img src="${cakeInspPhotos[i.id]}" alt="${escapeHTML(i.desc||'')}" loading="lazy">` : CB_ICO.img}</div><div class="cb-cap">${escapeHTML(i.desc||'')}<small>${escapeHTML(cbStyleLabel(i.style))}</small></div></button>`).join('');
+  setTimeout(()=>cakeInspResolve(c.inspirations),0);
+  const tiles = list.map(i=>`<button type="button" class="cb-tile" data-cbinsp="${i.id}"><div class="cb-ph">${cakeInspSrc(i.id) ? `<img src="${cakeInspSrc(i.id)}" alt="${escapeHTML(i.desc||'')}" loading="lazy">` : CB_ICO.img}</div><div class="cb-cap">${escapeHTML(i.desc||'')}<small>${escapeHTML(cbStyleLabel(i.style))}</small></div></button>`).join('');
   return `
   <h2 class="cb-h">${ta('cbInspTitle')}</h2><p class="cb-sub">${ta('cbInspSub')}</p>
   <div class="cb-chips" role="group" aria-label="${escapeHTML(ta('cbInspStyle'))}">${chips}</div>
   <button type="button" class="cb-btn ghost" data-cbinspnew>+ ${ta('cbInspAdd')}</button>
   ${tiles ? `<div class="cb-grid">${tiles}</div>` : `<div class="cb-empty">${ta('cbInspEmpty')}</div>`}`;
 }
-function viewBolo(){
-  if(!hasActiveSubscription()) return pmLocked('bolo-back', ta('cdCakeTitle'), ta('cbSub'), 'pmDescBolo');
+function viewBoloCore(){
   cdEnsure();
   const tabs = [['detalhes','cbTabDet'],['provas','cbTabTast'],['inspiracoes','cbTabInsp']].map(x=>`<button type="button" role="tab" class="cb-tab" data-cbtab="${x[0]}" aria-selected="${cbTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
   const body = cbTab==='provas' ? cbProvas() : cbTab==='inspiracoes' ? cbInspiracoes() : cbDetalhes();
@@ -9697,8 +9721,7 @@ function vwEditor(){
     <button type="button" class="cb-btn" data-vwback>${ta('vwSaveBack')}</button>
     <div style="margin-top:18px"><button type="button" class="cb-link danger" data-vwdel>${ta('vwDelete')}</button></div>`;
 }
-function viewVotos(){
-  if(!hasActiveSubscription()) return pmLocked('votos-back', ta('cdVowsTitle'), ta('cdVowsSub'), 'pmDescVows');
+function viewVotosCore(){
   cdEnsure(); vwEnsure();
   const tabs = [['votos','vwTabVows'],['discursos','vwTabSpeeches'],['leituras','vwTabReadings']].map(x=>`<button type="button" role="tab" class="cb-tab" data-vwtab="${x[0]}" aria-selected="${vwTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
   let body;
@@ -9708,6 +9731,51 @@ function viewVotos(){
 ${pageHeader('votos-back', ta('cdVowsTitle'), ta('cdVowsSub'), pmBadge())}
 <div class="cb-page">${body}</div>`;
 }
+
+/* ============================================================
+   Fase H — Premium terminado em Bolo, Papelaria e Votos
+   Política (igual à de Memories/Documentos): o conteúdo já criado NÃO se apaga
+   e continua visível para consulta e remoção; criar/editar/carregar coisa nova
+   exige Premium. Sem conteúdo e sem Premium → página de venda.
+============================================================ */
+function cdHasContentCake(){
+  const c = state && state.cake; if(!c) return false;
+  return !!((c.tastings&&c.tastings.length)||(c.inspirations&&c.inspirations.length)||c.flavor||c.filling||c.allergies||c.desserts||(c.chosen&&(c.chosen.flavors||c.chosen.fillings||c.chosen.notes)));
+}
+function cdHasContentStat(){
+  const st = state || {}; const d = st.stationeryDesign||{};
+  return !!(Object.keys(st.stationery||{}).length||(st.stationeryCustom||[]).length||(d.files&&d.files.length)||(d.palette&&d.palette.length)||(d.monogram&&(d.monogram.initials||d.monogram.notes))||(d.items&&Object.keys(d.items).length));
+}
+function cdHasContentVows(){
+  const v = state && state.vows; if(!v) return false;
+  return !!((v.bride&&v.bride.text)||(v.groom&&v.groom.text)||['speeches','readings','songs','moments'].some(k=>v[k]&&v[k].length));
+}
+const CD_LAPSED_WRITE = ['cbaddtast','cbinspnew','cbinspphoto','cbinspsave','cbdstyle','cbrate','cbstatus','cbshape','cbtiers','cbsave','cdstat','sdaddno','sdaddok','sdaddopen','sdapprove','sdhexadd','sditemcolor','sdpal','sdpalplus','sdrestore','sdupload','sdfileitem','sdfilenote','sdmanage','sdrmitem','vwadd','vwdone','vwmk','vwrole','vwspst'];
+function cdLapsedView(core, hasContent, backId, titleKey, subKey, descKey, noteKey){
+  if(hasActiveSubscription()) return core();
+  if(!hasContent()) return pmLocked(backId, ta(titleKey), ta(subKey), descKey);
+  let html = core();
+  html = html.replace(/<input /g,'<input readonly ').replace(/<textarea /g,'<textarea readonly ').replace('<div class="cb-page">','<div class="cb-page" data-cdlapsed="1">'+lapsedPremiumNoteHtml(ta(noteKey)));
+  return html;
+}
+function viewBolo(){ return cdLapsedView(viewBoloCore, cdHasContentCake, 'bolo-back','cdCakeTitle','cbSub','pmDescBolo','cdLapsedNote'); }
+function viewPapelaria(){ return cdLapsedView(viewPapelariaCore, cdHasContentStat, 'papelaria-back','cdStatTitle','cdStatSub','pmDescStat','cdLapsedNote'); }
+function viewVotos(){ return cdLapsedView(viewVotosCore, cdHasContentVows, 'votos-back','cdVowsTitle','cdVowsSub','pmDescVows','cdLapsedNote'); }
+// Bloqueio em fase de captura: qualquer ação de escrita dentro de uma página em modo "Premium terminado".
+(function cdLapsedGuard(){
+  if(window.__cdLapsedGuard) return; window.__cdLapsedGuard = true;
+  const sel = CD_LAPSED_WRITE.map(k=>'[data-'+k+']').join(',');
+  ['click','input','change'].forEach(ev=>document.addEventListener(ev, e=>{
+    const t = e.target; if(!t || !t.closest) return;
+    const pg = t.closest('[data-cdlapsed]'); if(!pg) return;
+    const blocked = ev==='click' ? t.closest(sel) : (t.closest('[data-cdtext],[data-cbdraft]') || t.closest('input[type=file]'));
+    if(!blocked) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+  }, true));
+})();
+Object.assign(APP_I18N.pt, { cdLapsedNote:'O teu Premium terminou. O que já criaste continua aqui para consultar e apagar, mas não é possível criar nem editar até reativares o Premium.' });
+Object.assign(APP_I18N.en, { cdLapsedNote:'Your Premium has ended. What you already created is still here to view and delete, but you cannot create or edit anything until you reactivate Premium.' });
+
 (function vwBind(){
   if(window.__vwBound) return; window.__vwBound = true;
   function flush(){ if(vwTimer){ clearTimeout(vwTimer); vwTimer = null; pushRemote(true); } }
@@ -9876,7 +9944,7 @@ Object.assign(APP_I18N.en, {
     if(ins){
       cdEnsure(); const it = state.cake.inspirations.find(q=>q.id===ins.dataset.cbinsp); if(!it) return;
       const known = CB_STY.indexOf(it.style)>=0;
-      cbDraft = { id:it.id, style: known?it.style:'custom', customStyle: known?'':it.style, desc:it.desc||'', notes:it.notes||'', photo:cakeInspPhotos[it.id]||'' };
+      cbDraft = { id:it.id, style: known?it.style:'custom', customStyle: known?'':it.style, desc:it.desc||'', notes:it.notes||'', photo:cakeInspSrc(it.id) };
       _origRender(); return;
     }
     const ds = t.closest('[data-cbdstyle]');
@@ -9894,14 +9962,18 @@ Object.assign(APP_I18N.en, {
         d.id = 'cinsp'+Date.now()+Math.random().toString(36).slice(2,5);
         state.cake.inspirations.unshift({ id:d.id, style, desc:String(d.desc||'').trim(), notes:String(d.notes||'').trim() });
       }
-      if(d.photo) cakeInspPhotos[d.id] = d.photo; else delete cakeInspPhotos[d.id];
-      saveCakeInspPhotos(); cbDraft = null; render(); return;
+      const cur = state.cake.inspirations.find(q=>q.id===d.id);
+      if(d.photo && /^data:/.test(d.photo)){ cakeInspPhotos[d.id] = d.photo; saveCakeInspPhotos(); cakeInspUpload(d.id, d.photo); }
+      else if(!d.photo){ delete cakeInspPhotos[d.id]; delete cakeInspRemote[d.id]; if(cur && cur.photoPath){ weddyStorageDelete(cur.photoPath,'cake-insp-delete-failed'); delete cur.photoPath; } saveCakeInspPhotos(); }
+      cbDraft = null; render(); return;
     }
     if(t.closest('[data-cbinspdel]') && cbDraft){
       weddyConfirm(ta('cbInspRemoveQ')).then(ok=>{
         if(!ok || !cbDraft) return;
+        const gone = state.cake.inspirations.find(q=>q.id===cbDraft.id);
+        if(gone && gone.photoPath) weddyStorageDelete(gone.photoPath,'cake-insp-delete-failed');
         state.cake.inspirations = state.cake.inspirations.filter(q=>q.id!==cbDraft.id);
-        delete cakeInspPhotos[cbDraft.id]; saveCakeInspPhotos(); cbDraft = null; render();
+        delete cakeInspPhotos[cbDraft.id]; delete cakeInspRemote[cbDraft.id]; saveCakeInspPhotos(); cbDraft = null; render();
       });
       return;
     }
@@ -30102,7 +30174,7 @@ function findOrCreateFlow(user, isRetry){
         currentWeddingId = null;
         inspirations = [];
         dressInspirations = [];
-        cakeInspPhotos = {};
+        cakeInspPhotos = {}; cakeInspRemote = {}; cakeInspPending = {};
         renderOnboarding();
         return;
       }
@@ -30123,7 +30195,7 @@ function findOrCreateFlow(user, isRetry){
       currentWeddingId = null;
       inspirations = [];
       dressInspirations = [];
-      cakeInspPhotos = {};
+      cakeInspPhotos = {}; cakeInspRemote = {}; cakeInspPending = {};
       const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
       renderOnboarding();
     }

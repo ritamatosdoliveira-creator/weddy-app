@@ -53,6 +53,7 @@ const SUITES = [
   { id: 'ui-robust-paths', group: 'ui', name: 'UI robustez: todos os caminhos', cmd: py('robustness_paths.py') },
   { id: 'ui-autopilot', group: 'ui', name: 'UI RSVP Autopilot (B.1)', cmd: py('rsvp_autopilot.py') },
   { id: 'ui-premium-lapsed', group: 'ui', name: 'UI Premium terminado: conteúdo antigo visível', cmd: py('premium_lapsed.py') },
+  { id: 'ui-cakestatvows', group: 'ui', name: 'UI Bolo + Papelaria + Votos: Premium, preservação, escrita, PT/EN (Fase H)', cmd: py('cakestatvows.py') },
   { id: 'ui-logistics-rsvp', group: 'ui', name: 'UI RSVP com logística (B.2)', cmd: py('logistics_rsvp.py') },
   { id: 'ui-logistics-couple', group: 'ui', name: 'UI logística do casal (B.2)', cmd: py('logistics_couple.py') },
   { id: 'ui-logistics-tables', group: 'ui', name: 'UI logística nas mesas (B.2)', cmd: py('logistics_tables.py') },
