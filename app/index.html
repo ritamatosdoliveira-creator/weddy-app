@@ -1655,6 +1655,18 @@ html{
 .pn-later{ all:unset; display:block; width:100%; box-sizing:border-box; padding:12px 0 6px; margin-top:2px; font-size:14px; color:var(--ink-soft); cursor:pointer; text-align:center; }
 
 /* --- Weddy Premium: RSVP --- */
+.logi-sum{ margin:0 16px 16px; border-top:1px solid var(--line); }
+.logi-sum-row{ all:unset; box-sizing:border-box; width:100%; display:flex; align-items:baseline; gap:14px; padding:13px 2px; border-bottom:1px solid var(--line); cursor:pointer; }
+.logi-sum-n{ font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:600; color:var(--rust-dark); min-width:44px; line-height:1; }
+.logi-sum-l{ font-size:14px; font-weight:600; color:var(--ink); }
+.logi-sum-s{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+.logi-sum-row.active .logi-sum-l{ color:var(--rust-dark); text-decoration:underline; text-underline-offset:4px; }
+.logi-warn{ color:var(--rust-dark); font-weight:600; }
+.logi-follow{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:4px; }
+.logi-follow .assist-chip{ padding:6px 11px; font-size:11.5px; }
+.logi-follow .assist-chip.done{ background:rgba(122,150,105,0.18); color:var(--sage-dark); border-color:transparent; }
+.logi-group-input{ font-size:12px; padding:7px 10px; max-width:100%; text-align:left; border:1.2px solid var(--line); border-radius:10px; background:#fff; }
+.logi-block-title{ font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:var(--ink); margin:18px 16px 8px; }
 .rsvp-pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
 .rsvp-pill-pending{ background:rgba(20,20,20,0.07); color:var(--ink-soft); }
 .rsvp-pill-yes{ background:rgba(122,150,105,0.18); color:var(--sage-dark); }
@@ -6239,6 +6251,20 @@ const APP_I18N = {
     rsvpTitle:'Convites RSVP', rsvpDesc:'Envia e acompanha as respostas dos convidados',
     rsvpHubTitle:'Convites e respostas dos convidados',
     rsvpRespostasNavTitle:'Respostas dos convidados', rsvpRespostasNavDesc:'Vê, pesquisa e agrupa quem já respondeu',
+    logiNavTitle:'Logística dos convidados', logiNavDesc:'Transporte, alojamento, alimentação e necessidades',
+    logiTitle:'Logística', logiIntro:'O que os convidados confirmados indicaram no RSVP. Só tu vês isto.',
+    logiSumTransport:'Transporte', logiSumLodging:'Alojamento', logiSumFood:'Alimentação', logiSumAccess:'Necessidades especiais', logiSumKids:'Crianças', logiSumGroups:'Famílias e grupos',
+    logiSubTodo:(n)=>n?`${n} por organizar`:'tudo organizado', logiSubAllergy:(n)=>n?`${n} com alergia`:'sem alergias indicadas', logiSubFamilies:(n)=>n?`em ${n} ${n===1?'família':'famílias'}`:'', logiSubGroups:'a organizar em conjunto',
+    logiFilterAll:'Todos', logiFilterTodo:'Por organizar', logiListTitle:'Por convidado', logiNone:'Ainda ninguém indicou necessidades. Aparecem aqui quando os convidados confirmarem presença.', logiNoMatch:'Ninguém neste filtro.',
+    logiTransport:'Transporte', logiLodging:'Alojamento', logiFrom:'De', logiPeople:(n)=>`${n} ${n===1?'pessoa':'pessoas'}`, logiNights:(n)=>`${n} ${n===1?'noite':'noites'}`,
+    logiPrefBoth:'ida e volta', logiPrefGo:'só ida', logiPrefBack:'só volta',
+    logiAllergies:'Alergias', logiIntol:'Intolerâncias', logiDiet:'Alimentação', logiFoodPref:'Preferências', logiFoodNote:'Nota (resposta anterior)',
+    logiDiet_vegetarian:'vegetariano', logiDiet_vegan:'vegano', logiDiet_glutenfree:'sem glúten', logiDiet_lactosefree:'sem lactose', logiDiet_halal:'halal', logiDiet_kosher:'kosher',
+    logiAccess:'Acessibilidade', logiMobility:'mobilidade reduzida', logiAssistance:'precisa de assistência', logiKids:'Crianças', logiHighchair:'cadeira de bebé', logiKidsMeal:'menu infantil',
+    logiFollowTodo:'por organizar', logiFollowDone:'organizado', logiFollowNeeds:'Necessidades', logiGroupLabel:'Grupo de transporte', logiGroupPh:'Ex: Carrinha 1',
+    logiGroupsTitle:'Famílias e grupos a organizar em conjunto', logiFamilyOf:(n)=>`Família ${n}`, logiGroupNamed:(n)=>`Grupo ${n}`,
+    logiPrivacy:'Informação sensível (alergias, acessibilidade) fica só nesta área. Não é enviada por email, notificações nem ao assistente.',
+
     rsvpLembretesNavTitle:'Lembretes automáticos', rsvpLembretesNavDesc:'Prazo de resposta e lembretes para quem falta responder',
     rsvpLembretesIntro:'Define o prazo de resposta e deixa a Weddy tratar de lembrar quem ainda não respondeu.',
     rsvpDeadlineNavDesc:'Define até quando os convidados podem responder',
@@ -7557,6 +7583,20 @@ const APP_I18N = {
     rsvpTitle:'RSVP invitations', rsvpDesc:"Send and track your guests' responses",
     rsvpHubTitle:"Invitations & guest responses",
     rsvpRespostasNavTitle:'Guest responses', rsvpRespostasNavDesc:"See, search and group who's already replied",
+    logiNavTitle:'Guest logistics', logiNavDesc:'Transport, accommodation, food and needs',
+    logiTitle:'Logistics', logiIntro:'What confirmed guests told you in their RSVP. Only you can see this.',
+    logiSumTransport:'Transport', logiSumLodging:'Accommodation', logiSumFood:'Food', logiSumAccess:'Special needs', logiSumKids:'Children', logiSumGroups:'Families and groups',
+    logiSubTodo:(n)=>n?`${n} to organise`:'all organised', logiSubAllergy:(n)=>n?`${n} with allergies`:'no allergies listed', logiSubFamilies:(n)=>n?`in ${n} ${n===1?'family':'families'}`:'', logiSubGroups:'to organise together',
+    logiFilterAll:'All', logiFilterTodo:'To organise', logiListTitle:'By guest', logiNone:'Nobody has listed any needs yet. They show up here once guests confirm.', logiNoMatch:'Nobody in this filter.',
+    logiTransport:'Transport', logiLodging:'Accommodation', logiFrom:'From', logiPeople:(n)=>`${n} ${n===1?'person':'people'}`, logiNights:(n)=>`${n} ${n===1?'night':'nights'}`,
+    logiPrefBoth:'round trip', logiPrefGo:'outbound only', logiPrefBack:'return only',
+    logiAllergies:'Allergies', logiIntol:'Intolerances', logiDiet:'Diet', logiFoodPref:'Preferences', logiFoodNote:'Note (earlier reply)',
+    logiDiet_vegetarian:'vegetarian', logiDiet_vegan:'vegan', logiDiet_glutenfree:'gluten-free', logiDiet_lactosefree:'lactose-free', logiDiet_halal:'halal', logiDiet_kosher:'kosher',
+    logiAccess:'Accessibility', logiMobility:'reduced mobility', logiAssistance:'needs assistance', logiKids:'Children', logiHighchair:'high chair', logiKidsMeal:"children's menu",
+    logiFollowTodo:'to organise', logiFollowDone:'organised', logiFollowNeeds:'Needs', logiGroupLabel:'Transport group', logiGroupPh:'E.g. Van 1',
+    logiGroupsTitle:'Families and groups to organise together', logiFamilyOf:(n)=>`${n} family`, logiGroupNamed:(n)=>`Group ${n}`,
+    logiPrivacy:'Sensitive information (allergies, accessibility) stays in this area only. It is not sent by email, notifications or to the assistant.',
+
     rsvpLembretesNavTitle:'Automatic reminders', rsvpLembretesNavDesc:'Response deadline and reminders for anyone yet to reply',
     rsvpLembretesIntro:'Set the response deadline and let Weddy handle reminding anyone who hasn\'t answered yet.',
     rsvpDeadlineNavDesc:'Set the deadline for guests to respond',
@@ -17144,7 +17184,8 @@ let rsvpGroupSelection = [];
 // Reorganização (Set 2026): ecrã de gestão do RSVP passou a ser um pequeno
 // "hub" de navegação em vez de uma página única com tudo — rsvpSubScreen
 // guarda em que sub-ecrã estamos (null = ecrã principal do hub).
-let rsvpSubScreen = null; // null | 'deadline' | 'info' | 'faq' | 'respostas'
+let rsvpSubScreen = null; // null | 'deadline' | 'info' | 'faq' | 'respostas' | 'logistica'
+let logiFilter = 'all'; // B.2: 'all' | 'todo' | 'transport' | 'lodging' | 'food' | 'access' | 'kids'
 // Achado ao vivo (Rita, Set 2026): o botão "voltar" de dentro de "Respostas
 // dos convidados" ia sempre para o hub (Convidados RSVP), mesmo quando se
 // tinha entrado ali a partir de "Prazo para responder" — devia voltar para
@@ -21057,6 +21098,7 @@ function viewDefRSVP(){
   if(rsvpSubScreen==='info') return viewRSVPInfo();
   if(rsvpSubScreen==='faq') return viewRSVPFaq();
   if(rsvpSubScreen==='respostas') return viewRSVPRespostas();
+  if(rsvpSubScreen==='logistica') return viewRSVPLogistica();
   return viewRSVPHome();
 }
 // Reorganização (Set 2026): ecrã principal do RSVP passou a ser um "hub" de
@@ -21115,6 +21157,7 @@ function viewRSVPHome(){
   ${hubNavRow('deadline', ICONS.sparkle, ta('rsvpLembretesNavTitle'), ta('rsvpLembretesNavDesc'))}
   ${hubNavRow('info', ICONS.pencil, ta('guestInfoLabel'), ta('guestInfoSubLabel'))}
   ${hubNavRow('respostas', ICONS.guests, ta('rsvpHubTitle'), ta('rsvpRespostasNavDesc'))}
+  ${hubNavRow('logistica', ICONS.checklist, ta('logiNavTitle'), ta('logiNavDesc'))}
   <div class="rsvp-nav-row tappable" data-sitefromrsvp>
     <div class="rsvp-nav-row-icon" style="${rustChip}">${ICONS.globe}</div>
     <div class="rsvp-nav-row-mid"><div class="rsvp-nav-row-title">${ts('rsvpRowTitle')}</div><div class="rsvp-nav-row-desc">${ts('rsvpRowDesc')}</div></div>
@@ -21303,6 +21346,178 @@ function viewRSVPFaq(){
   ${newCardHtml}
   ${editing==='new' ? '' : `<button class="faq-add-btn" id="rsvp-faq-add">${ICONS.plus} ${ta('btnAddFaq')}</button>`}
   <button id="rsvp-faq-silent-save" hidden></button>
+  `;
+}
+
+// ============================================================
+// B.2 — Logística dos convidados (área do casal)
+// Lê o que cada convidado confirmado indicou no RSVP (resp.logistics + os
+// interruptores antigos transporte/alojamento + crianças) e junta o
+// acompanhamento PRIVADO do casal (entry.logi). Não há segunda fonte de
+// verdade: tudo vem da resposta do convidado; só o "organizado/por
+// organizar" e o grupo de transporte são do casal.
+// ============================================================
+function logiInfo(item){
+  const token = item.entry.rsvpToken;
+  const resp = token ? memberRSVPResponse(item) : null;
+  if(rsvpStatusOf(resp)!=='yes') return null;
+  const lg = (resp.logistics && typeof resp.logistics==='object') ? resp.logistics : {};
+  const arr = v => Array.isArray(v) ? v.filter(x=>typeof x==='string' && x.trim()) : [];
+  const fo = lg.food || {}, ac = lg.access || {};
+  const info = {
+    item, token, resp,
+    transport: resp.transporte===true, lodging: resp.alojamento===true,
+    tr: lg.transport || {}, lo: lg.lodging || {},
+    allergies: arr(fo.allergies), intol: arr(fo.intolerances), diets: arr(fo.diets),
+    foodPref: typeof fo.pref==='string' ? fo.pref.trim() : '',
+    dietaryNote: typeof resp.dietary==='string' ? resp.dietary.trim() : '',
+    mobility: ac.mobility===true, assistance: ac.assistance===true, accessOther: typeof ac.other==='string' ? ac.other.trim() : '',
+    kids: (Array.isArray(resp.children) ? resp.children : []).filter(c=>c && typeof c==='object' && c.attending!==false),
+    logi: (item.entry.logi && typeof item.entry.logi==='object') ? item.entry.logi : {},
+    famToken: (rsvpResponses[token] && rsvpResponses[token].isFamily) ? token : null
+  };
+  info.food = !!(info.allergies.length || info.intol.length || info.diets.length || info.dietaryNote);
+  info.hasAllergy = info.allergies.length > 0;
+  info.access = !!(info.mobility || info.assistance || info.accessOther);
+  info.hasKids = info.kids.length > 0;
+  info.any = info.transport || info.lodging || info.food || info.access || info.hasKids;
+  const L = info.logi;
+  info.todoTransport = info.transport && L.transport!=='done';
+  info.todoLodging = info.lodging && L.lodging!=='done';
+  info.todoNeeds = (info.food || info.access) && L.needs!=='done';
+  info.todo = info.todoTransport || info.todoLodging || info.todoNeeds;
+  return info;
+}
+function logiFmtDate(d){ return /^\d{4}-\d{2}-\d{2}$/.test(d||'') ? d.slice(8,10)+'/'+d.slice(5,7) : ''; }
+function logiAll(){
+  return flattenAllGuestsForRSVP().map(logiInfo).filter(Boolean).filter(x=>x.any);
+}
+function logiMatches(x, f){
+  return f==='all' ? true : f==='todo' ? x.todo : f==='transport' ? x.transport : f==='lodging' ? x.lodging
+       : f==='food' ? x.food : f==='access' ? x.access : f==='kids' ? x.hasKids : true;
+}
+// Famílias (convite partilhado) e grupos de transporte definidos pelo casal.
+function logiGroups(list){
+  const fam = {}, named = {};
+  list.forEach(x=>{
+    if(x.famToken) (fam[x.famToken] = fam[x.famToken] || []).push(x);
+    const g = (x.logi.group || '').trim();
+    if(g) (named[g.toLowerCase()] = named[g.toLowerCase()] || { label:g, members:[] }).members.push(x);
+  });
+  const out = [];
+  Object.keys(fam).forEach(tok=>{
+    const m = fam[tok];
+    const all = flattenAllGuestsForRSVP().filter(i=>i.entry.rsvpToken===tok && rsvpStatusOf(memberRSVPResponse(i))==='yes');
+    if(all.length >= 2 && m.some(x=>x.transport || x.lodging || x.hasKids)){
+      const fname = (rsvpResponses[tok] && rsvpResponses[tok].name) || '';
+      out.push({ title: fname ? ta('logiFamilyOf')(fname) : ta('logiFamilyOf')(m[0].item.name), names: all.map(i=>i.name), kids: m.reduce((a,x)=>a+x.kids.length,0), transport: m.some(x=>x.transport), lodging: m.some(x=>x.lodging) });
+    }
+  });
+  Object.keys(named).forEach(k=>{
+    const g = named[k];
+    if(g.members.length >= 2) out.push({ title: ta('logiGroupNamed')(g.label), names: g.members.map(x=>x.item.name), kids: 0, transport: true, lodging: false });
+  });
+  return out;
+}
+function logiDetailHTML(x){
+  const e = escapeHTML, lines = [];
+  if(x.transport){
+    const parts = [];
+    if(x.tr.from) parts.push(ta('logiFrom')+' '+e(x.tr.from));
+    if(x.tr.people) parts.push(e(ta('logiPeople')(x.tr.people)));
+    if(x.tr.pref) parts.push(e(ta(x.tr.pref==='ida-volta'?'logiPrefBoth':x.tr.pref==='ida'?'logiPrefGo':'logiPrefBack')));
+    if(x.tr.notes) parts.push(e(x.tr.notes));
+    lines.push(`<div class="visit-detail"><b>${ta('logiTransport')}</b>${parts.length?' · '+parts.join(' · '):''}</div>`);
+  }
+  if(x.lodging){
+    const parts = [];
+    if(x.lo.nights) parts.push(e(ta('logiNights')(x.lo.nights)));
+    const a = logiFmtDate(x.lo.arrive), d = logiFmtDate(x.lo.depart);
+    if(a || d) parts.push((a||'?')+' → '+(d||'?'));
+    if(x.lo.people) parts.push(e(ta('logiPeople')(x.lo.people)));
+    if(x.lo.notes) parts.push(e(x.lo.notes));
+    lines.push(`<div class="visit-detail"><b>${ta('logiLodging')}</b>${parts.length?' · '+parts.join(' · '):''}</div>`);
+  }
+  if(x.allergies.length) lines.push(`<div class="visit-detail logi-warn">${ta('logiAllergies')}: ${x.allergies.map(e).join(', ')}</div>`);
+  if(x.intol.length) lines.push(`<div class="visit-detail"><b>${ta('logiIntol')}</b>: ${x.intol.map(e).join(', ')}</div>`);
+  if(x.diets.length) lines.push(`<div class="visit-detail"><b>${ta('logiDiet')}</b>: ${x.diets.map(d=>e(ta('logiDiet_'+d))).join(', ')}</div>`);
+  if(x.foodPref) lines.push(`<div class="visit-detail">${ta('logiFoodPref')}: ${e(x.foodPref)}</div>`);
+  if(x.dietaryNote) lines.push(`<div class="visit-detail">${ta('logiFoodNote')}: ${e(x.dietaryNote)}</div>`);
+  if(x.access){
+    const parts = [];
+    if(x.mobility) parts.push(ta('logiMobility'));
+    if(x.assistance) parts.push(ta('logiAssistance'));
+    if(x.accessOther) parts.push(e(x.accessOther));
+    lines.push(`<div class="visit-detail logi-warn">${ta('logiAccess')}: ${parts.join(' · ')}</div>`);
+  }
+  if(x.hasKids){
+    lines.push(`<div class="visit-detail"><b>${ta('logiKids')}</b>: ${x.kids.map(c=>{
+      const fl = []; if(c.highchair) fl.push(ta('logiHighchair')); if(c.kidsMeal) fl.push(ta('logiKidsMeal'));
+      return e(c.name||'?') + (c.age!==undefined && c.age!==null && c.age!=='' ? ' ('+e(String(c.age))+')' : '') + (fl.length ? ' — '+fl.join(', ') : '');
+    }).join('; ')}</div>`);
+  }
+  return lines.join('');
+}
+function viewRSVPLogistica(){
+  const all = logiAll();
+  const cnt = f => all.filter(x=>logiMatches(x,f)).length;
+  const kidsTotal = all.reduce((a,x)=>a+x.kids.length,0);
+  const kidsFams = all.filter(x=>x.hasKids).length;
+  const groups = logiGroups(all);
+  const sumRow = (key, label, n, sub)=>`
+    <button type="button" class="logi-sum-row ${logiFilter===key?'active':''}" data-logifilter="${key}">
+      <span class="logi-sum-n">${n}</span>
+      <span><div class="logi-sum-l">${label}</div>${sub?`<div class="logi-sum-s">${sub}</div>`:''}</span>
+    </button>`;
+  const todoT = all.filter(x=>x.todoTransport).length, todoL = all.filter(x=>x.todoLodging).length, todoN = all.filter(x=>x.todoNeeds).length;
+  const summary = `
+  <div class="logi-sum">
+    ${sumRow('transport', ta('logiSumTransport'), cnt('transport'), escapeHTML(ta('logiSubTodo')(todoT)))}
+    ${sumRow('lodging', ta('logiSumLodging'), cnt('lodging'), escapeHTML(ta('logiSubTodo')(todoL)))}
+    ${sumRow('food', ta('logiSumFood'), cnt('food'), escapeHTML(ta('logiSubAllergy')(all.filter(x=>x.hasAllergy).length)))}
+    ${sumRow('access', ta('logiSumAccess'), cnt('access'), '')}
+    ${sumRow('kids', ta('logiSumKids'), kidsTotal, escapeHTML(ta('logiSubFamilies')(kidsFams)))}
+    <div class="logi-sum-row" style="cursor:default;"><span class="logi-sum-n">${groups.length}</span><span><div class="logi-sum-l">${ta('logiSumGroups')}</div><div class="logi-sum-s">${ta('logiSubGroups')}</div></span></div>
+  </div>`;
+  const chips = [['all',ta('logiFilterAll')],['todo',ta('logiFilterTodo')]].map(([k,l])=>{
+    const active = logiFilter===k;
+    return `<button class="assist-chip" style="padding:8px 13px; font-size:12px;${active?' background:var(--rust); color:#fff; border-color:var(--rust);':''}" data-logifilter="${k}">${escapeHTML(l)}</button>`;
+  }).join('');
+  const visible = all.filter(x=>logiMatches(x, logiFilter));
+  const rows = visible.map(x=>{
+    const key = `${x.item.side}|${x.item.catId}|${x.item.idx}`;
+    const fchip = (field, label, needed, todo)=> needed ? `<button type="button" class="assist-chip ${todo?'':'done'}" data-logifollow="${key}|${field}">${escapeHTML(label)} · ${ta(todo?'logiFollowTodo':'logiFollowDone')}</button>` : '';
+    const follow = [
+      fchip('transport', ta('logiTransport'), x.transport, x.todoTransport),
+      fchip('lodging', ta('logiLodging'), x.lodging, x.todoLodging),
+      fchip('needs', ta('logiFollowNeeds'), x.food || x.access, x.todoNeeds)
+    ].join('');
+    const groupInput = x.transport ? `<input type="text" class="field-input logi-group-input" maxlength="40" data-logigroup="${key}" placeholder="${escapeHTML(ta('logiGroupLabel')+' — '+ta('logiGroupPh'))}" value="${escapeHTML(x.logi.group||'')}">` : '';
+    return `
+    <div class="list-row" style="flex-direction:column; align-items:stretch; gap:5px;">
+      <div class="rsvp-row-top"><div class="rsvp-row-name">${escapeHTML(x.item.name)}</div>${x.famToken?`<span class="rsvp-pill" style="background:var(--cream); color:var(--rust-dark);">${ta('familyBadge')}</span>`:''}</div>
+      <div class="rsvp-row-meta">${sideLabel(x.item.side)} · ${escapeHTML(x.item.catLabel)}</div>
+      ${logiDetailHTML(x)}
+      ${follow?`<div class="logi-follow">${follow}</div>`:''}
+      ${groupInput}
+    </div>`;
+  }).join('');
+  const groupsHtml = groups.length ? `
+  <div class="logi-block-title">${ta('logiGroupsTitle')}</div>
+  <div class="list-group" style="margin-bottom:8px;">${groups.map(g=>`
+    <div class="list-row" style="flex-direction:column; align-items:stretch; gap:4px;">
+      <div class="rsvp-row-name">${escapeHTML(g.title)}</div>
+      <div class="visit-detail">${g.names.map(escapeHTML).join(', ')}${g.kids?' · '+escapeHTML(ta('logiKids')+': '+g.kids):''}${g.transport?' · '+escapeHTML(ta('logiTransport')):''}${g.lodging?' · '+escapeHTML(ta('logiLodging')):''}</div>
+    </div>`).join('')}</div>` : '';
+  return `
+  ${defSubHeader(ta('logiTitle'))}
+  <div class="empty-note" style="margin:0 16px 12px; font-style:normal;">${ta('logiIntro')}</div>
+  ${summary}
+  <div class="assist-chips" style="flex-direction:row; flex-wrap:wrap; margin:0 16px 12px;">${chips}</div>
+  <div class="logi-block-title" style="margin-top:4px;">${ta('logiListTitle')}</div>
+  ${visible.length ? `<div class="list-group" id="logi-list" style="margin-bottom:8px;">${rows}</div>` : `<div class="empty-note" style="margin:0 16px 16px;">${all.length ? ta('logiNoMatch') : ta('logiNone')}</div>`}
+  ${groupsHtml}
+  <div class="empty-note" style="margin:8px 16px 28px; font-size:11px;">${ta('logiPrivacy')}</div>
   `;
 }
 function viewRSVPRespostas(){
@@ -23815,6 +24030,40 @@ function bindHandlers(){
   }
   const rsvpExportCsv = document.getElementById('rsvp-export-csv');
   if(rsvpExportCsv) rsvpExportCsv.addEventListener('click', ()=>{ exportRSVPToCSV(); });
+  document.querySelectorAll('[data-logifilter]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const k = e.currentTarget.dataset.logifilter;
+      logiFilter = (logiFilter===k && k!=='all') ? 'all' : k;
+      _origRender();
+    });
+  });
+  document.querySelectorAll('[data-logifollow]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const [side, catId, idxStr, field] = e.currentTarget.dataset.logifollow.split('|');
+      const arr = getGuestNames(side, catId); const entry = arr && arr[Number(idxStr)];
+      if(!entry || !['transport','lodging','needs'].includes(field)) return;
+      entry.logi = (entry.logi && typeof entry.logi==='object') ? entry.logi : {};
+      if(entry.logi[field]==='done') delete entry.logi[field]; else entry.logi[field] = 'done';
+      if(!Object.keys(entry.logi).length) delete entry.logi;
+      pushRemote(true);
+      _origRender();
+    });
+  });
+  document.querySelectorAll('[data-logigroup]').forEach(el=>{
+    el.addEventListener('blur', e=>{
+      const [side, catId, idxStr] = e.currentTarget.dataset.logigroup.split('|');
+      const arr = getGuestNames(side, catId); const entry = arr && arr[Number(idxStr)];
+      if(!entry) return;
+      const v = e.currentTarget.value.trim().slice(0,40);
+      const cur = (entry.logi && entry.logi.group) || '';
+      if(v === cur) return;
+      entry.logi = (entry.logi && typeof entry.logi==='object') ? entry.logi : {};
+      if(v) entry.logi.group = v; else delete entry.logi.group;
+      if(!Object.keys(entry.logi).length) delete entry.logi;
+      pushRemote(true);
+      _origRender();
+    });
+  });
   document.querySelectorAll('[data-rsvpemail]').forEach(input=>{
     input.addEventListener('blur', e=>{
       const [side, catId, idxStr, token] = e.currentTarget.dataset.rsvpemail.split('|');
