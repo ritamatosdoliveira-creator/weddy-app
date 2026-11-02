@@ -50,6 +50,22 @@ Cuidado com a ordem: as 4 funções em produção ainda usam a chave do `.env`. 
    - **Não uses** `firebase functions:secrets:get/access`: esses comandos imprimem o valor.
 5. Apaga os zips antigos: `rm -rf ~/weddy-recuperacao` (contêm o `.env` antigo).
 
+### 4.1 Sequência segura (sem corte da IA) — recomendada se não há suspeita de uso indevido
+1. Criar a chave nova na OpenAI (nome com data; copiar uma única vez; não colar em chats, ficheiros ou emails).
+2. `firebase functions:secrets:set OPENAI_API_KEY --project weddy-app-bd12f` (escrita oculta).
+3. Remover a linha `OPENAI_API_KEY=` do `.env.weddy-app-bd12f` e confirmar `grep -c '^OPENAI_API_KEY=' .env.weddy-app-bd12f` → `0`.
+4. Deploy **só** das 4 funções (com autorização tua): `--only functions:classifyWeddyIntent,functions:generateSeatingProposal,functions:analyzeCompareProposal,functions:generateCompareReport --project weddy-app-bd12f`.
+5. Validação pós-deploy (nunca imprime o valor): (a) `gcloud secrets versions list OPENAI_API_KEY --project weddy-app-bd12f` → versão `enabled`; (b) `gcloud functions describe <fn> --gen2 --region europe-west1 --project weddy-app-bd12f --format="value(serviceConfig.secretEnvironmentVariables)"` nas 4; (c) o mesmo com `environmentVariables` + `| grep -c OPENAI_API_KEY` → `0`; (d) `gcloud secrets get-iam-policy OPENAI_API_KEY --project weddy-app-bd12f` → a conta de serviço das functions com *Secret Manager Secret Accessor*; (e) uma análise e um relatório de teste na app (usam 1 quota cada); (f) `gcloud functions logs read analyzeCompareProposal --gen2 --region europe-west1 --project weddy-app-bd12f --limit 20` sem erros 401/“não disponível”; (g) na OpenAI → *Usage*, consumo na chave nova.
+6. **Só depois** revogar a chave antiga e, passada uma hora, confirmar em *Usage* que não recebe pedidos (se receber, alguém ainda a usa fora das functions).
+7. Apagar `~/weddy-recuperacao/*.zip` e as pastas extraídas (têm o `.env` antigo).
+
+### 4.2 Revogação imediata (suspeita de uso indevido)
+Prioriza parar o gasto; aceita a IA parada até ao deploy.
+1. Revogar já a chave antiga (OpenAI → API keys → apagar) e definir um **limite mensal baixo** em *Billing → Limits*; ver *Usage* do último mês (picos, horas estranhas, modelos que a Weddy não usa).
+2. Efeito imediato: as 4 funções passam a responder com erro genérico; a quota diária do casal é devolvida (falha técnica). Nada mais depende da chave (o resto das functions, o site e o RSVP continuam a funcionar).
+3. Criar a chave nova → `secrets:set` → remover do `.env` → deploy das 4 → validação (5 acima). Idealmente em menos de uma hora.
+4. Se houver indício de que o `.env` ou os zips circularam, tratar também os outros segredos que estiveram no mesmo ficheiro (SMTP, Stripe, Google Calendar, WhatsApp, Apple): verifica se estavam no `.env` e roda os que estiverem; este relatório não os leu.
+
 ## 5. Packaging proposto
 Estrutura real: o repositório é o site (GitHub Pages, `CNAME www.weddy.pt`) **e** guarda `index.js` (todas as functions v2 num ficheiro) na raiz; as regras estão em `firestore.rules` e `storage.rules`; **não há Firebase Hosting**; scripts administrativos em `scripts/` (só computador da Rita); código recuperado em `recuperado-producao/`.
 - `package.json` (novo): `main: index.js`, Node 22, dependências de produção (`firebase-admin`, `firebase-functions`, `nodemailer`, `stripe`).
