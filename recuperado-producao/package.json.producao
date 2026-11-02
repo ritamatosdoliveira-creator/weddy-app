@@ -1,0 +1,15 @@
+{
+  "name": "weddy-functions",
+  "description": "Cloud Functions do Weddy: lembretes automáticos de RSVP por email, o classificador de intenção por IA (Fase 3B) usado pelo Weddy Concierge/Assistente, o motor de AI Seating (Fase 8.1), a integração Google Calendar (Fase 9.1), e o telefone/consentimento + webhook do WhatsApp (Fase 9.2). Tanto o Google Calendar como o webhook do WhatsApp usam só o 'fetch'/'crypto' nativos do Node 20 — não precisam de nenhuma dependência nova, por isso não é preciso mexer nas dependências abaixo.",
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.0",
+    "nodemailer": "^6.9.13",
+    "stripe": "^17.0.0"
+  },
+  "private": true
+}
