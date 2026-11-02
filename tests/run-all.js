@@ -28,6 +28,7 @@ const SUITES = [
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
   { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
+  { id: 'contact-stress', group: 'contact', name: 'Formulário de contacto: concorrência repetida', cmd: ['node', 'contact/concurrency-stress.test.js'], emu: true },
   { id: 'notify', group: 'notify', name: 'Email resumo (functions)', cmd: ['node', 'notify/email-digest.test.js'], emu: true },
   { id: 'backfill', group: 'backfill', name: 'Backfill premiumUntil', cmd: ['node', 'backfill/backfill-premium-until.test.js'], emu: true },
   { id: 'rules-premium', group: 'rules', name: 'Regras Firestore+Storage (Premium)', cmd: ['node', 'rules/premium-rules.test.mjs'], emu: true },
