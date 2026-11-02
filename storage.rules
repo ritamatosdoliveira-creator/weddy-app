@@ -15,7 +15,11 @@ service firebase.storage {
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
       // Auditoria A.3: Memories é Premium — os envios só são aceites enquanto o
       // casamento tiver Premium ativo e dentro da validade (ver premiumOn).
-      allow create: if request.resource.size < 8 * 1024 * 1024
+      // Fase G: "resource == null" — só se cria um ficheiro NOVO; substituir uma foto existente
+      // (por convidados ou por terceiros) fica recusado mesmo que o emulador/runtime trate o
+      // reenvio como "create" em vez de "update".
+      allow create: if resource == null
+        && request.resource.size < 8 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)')
         && premiumOn(firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data)
         && (token == 'publico'
