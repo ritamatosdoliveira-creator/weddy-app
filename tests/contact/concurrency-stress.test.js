@@ -1,7 +1,16 @@
 /* sendContactMessage: concorrência repetida (investigação do teste intermitente).
  * Mede, em cada repetição, quantos passam / são limitados / foram "fail-open" (limite indisponível,
  * normalmente "too much contention" do emulador). NÃO enfraquece nenhum limite: só observa.
- * REPS (defeito 25) repetições por cenário; CPU_LOAD=1 acrescenta carga de CPU para imitar a suite completa. */
+ * REPS (defeito 25) repetições por cenário; CPU_LOAD=1 acrescenta carga de CPU para imitar a suite completa.
+ *
+ * Expectativa sob contenção extrema (Fase G): nos cenários «IP único, 40/60 em paralelo» o resultado é
+ * `atMost` (1 ≤ passam ≤ 8), não «exatamente 8». Razão técnica: o limitador (contactReserveRetry) repete a
+ * transação até 12 vezes; se continuar contendida, trata o pedido como `limited` — a contenção num contador é
+ * ela própria sinal de rajada (antes isto era fail-open e deixava passar tudo; corrigido na Fase C). Com 40–60
+ * pedidos simultâneos no mesmo contador e CPU partilhada (suite completa), alguns dos 8 pedidos legítimos
+ * esgotam as tentativas e são recusados: é o lado SEGURO. O que continua proibido, e verificado: passar mais do
+ * que o limite, enviar mais emails do que reservas, emails duplicados, e recusar tudo (piso de 1).
+ * Os cenários de 10 e 20 pedidos mantêm a expectativa EXATA (8). */
 'use strict';
 const path = require('path');
 const http = require('http');
@@ -37,8 +46,8 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
   const scenarios = [
     { name: 'IP único, 20 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 20 }, () => post(uniq(), '203.0.113.40'))); return { c, expectOk: 8 }; } },
     { name: 'IP único, 10 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 10 }, () => post(uniq(), '203.0.113.41'))); return { c, expectOk: 8 }; } },
-    { name: 'IP único, 40 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 40 }, () => post(uniq(), '203.0.113.42'))); return { c, expectOk: 8 }; } },
-    { name: 'IP único, 60 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 60 }, () => post(uniq(), '203.0.113.43'))); return { c, expectOk: 8 }; } },
+    { name: 'IP único, 40 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 40 }, () => post(uniq(), '203.0.113.42'))); return { c, expectOk: 8, atMost: true }; } },
+    { name: 'IP único, 60 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 60 }, () => post(uniq(), '203.0.113.43'))); return { c, expectOk: 8, atMost: true }; } },
     { name: '40 IPs distintos misturados (limite global 30/h)', run: async () => { const ips = shuffle(Array.from({ length: 40 }, (_, i) => '192.0.2.' + (i + 1))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 30, atMost: true }; } },
     { name: '3 IPs × 6 pedidos entrelaçados (8/h por IP)', run: async () => { const ips = shuffle(['198.51.100.1', '198.51.100.2', '198.51.100.3'].flatMap((ip) => Array(6).fill(ip))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 18 }; } },
     { name: 'mesma mensagem 12× em paralelo (duplicados → 1 envio)', run: async () => { const b = uniq(); const c = await Promise.all(Array.from({ length: 12 }, (_, i) => post(b, '203.0.113.' + (60 + i)))); return { c, expectOk: 12, expectMails: 1 }; } },
@@ -56,6 +65,11 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
       if (mails.length > want) bypass++;                       // PROTEÇÃO CONTORNADA (mais envios do que o permitido)
       if (expectMails == null && !atMost && okN !== expectOk) bad++;
       if (atMost && okN > expectOk) bad++; // contenção extrema pode recusar de mais (lado seguro); nunca pode deixar passar de mais
+      // Piso: em concorrência otimista, em cada ronda pelo menos uma transação confirma, por isso ao menos
+      // 1 pedido tem de passar (um limitador que recusa TUDO seria uma falha real, não contenção).
+      if (atMost && okN < 1) bad++;
+      // Coerência: cada 200 corresponde a exatamente um email enviado (sem envios sem reserva, sem duplicados).
+      if (atMost && mails.length !== okN) bad++;
       if (atMost && okN < expectOk) underAdmit++;
       if (expectMails != null && mails.length !== want) bad++;
       const subjects = mails.map((m) => m.text); if (new Set(subjects).size !== subjects.length) dupMails++;
