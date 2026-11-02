@@ -988,7 +988,7 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
           deleteAllByWeddingId('memories', weddingId),
         ]);
         // Números de telefone e mensagens de WhatsApp deste casamento (RGPD).
-        for (const col of ['guestPhoneIndex', 'whatsappInbox', 'whatsappMessageStatus']) {
+        for (const col of ['guestPhoneIndex', 'whatsappInbox', 'whatsappMessageStatus', 'whatsappConsents']) {
           await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou. ${e.message || e}`));
         }
         await db.collection('whatsappReminderDailyUsage').doc(weddingId).delete().catch(() => {});
@@ -1856,6 +1856,13 @@ function subscriptionExpiryDate(sub) {
   const expiry = new Date(started);
   expiry.setMonth(expiry.getMonth() + SUBSCRIPTION_MAX_MONTHS);
   return expiry;
+}
+// Auditoria A.3: o fim da validade também é gravado como Timestamp
+// ("subscription.premiumUntil", só pelos webhooks) para as regras do Firestore/
+// Storage (Memories, Documentos) o poderem comparar com a hora do servidor.
+function premiumUntilTimestamp(startedAtIso) {
+  const e = subscriptionExpiryDate({ startedAt: startedAtIso });
+  return e ? admin.firestore.Timestamp.fromDate(e) : null;
 }
 function isSubscriptionStillValid(sub) {
   if (!sub || sub.active !== true) return false;
@@ -3493,33 +3500,45 @@ exports.updateGuestPhone = onCall({ region: 'europe-west1' }, async (request) =>
     const oldIndexRef = oldPhone ? db.collection('guestPhoneIndex').doc(oldPhone) : null;
 
     // --- Escritas ---
+    // Consentimento WhatsApp (A.3-bis, Nov 2026): o CASAL já não pode dar
+    // consentimento em nome do convidado — só o próprio convidado, pela
+    // função setGuestWhatsappConsent (rsvp.html). Aqui o consentimento só
+    // pode ser REMOVIDO/ANULADO: ao apagar o número, ao mudar o número (o
+    // consentimento era para o número antigo) ou quando o casal regista que o
+    // convidado pediu para parar (optedIn === false). optedIn === true vindo
+    // do cliente é ignorado de propósito (apps antigas ainda o enviam).
     const nowISO = new Date().toISOString();
+    const consentRef = db.collection('whatsappConsents').doc(`${weddingId}_${guestId}`);
+    const consentSnap = await tx.get(consentRef);
+    const consentGranted = consentSnap.exists && ['granted', 'pending'].includes(consentSnap.data().status);
+    const revokeConsent = (why) => {
+      if (!consentGranted) return;
+      tx.set(consentRef, consentRevocationPatch(consentSnap.data(), why), { merge: true });
+    };
     if (!normalizedPhone) {
       // Remover: limpa telefone + consentimento (nunca deixamos um
       // consentimento "órfão" associado a nenhum número).
       if (oldIndexRef) tx.delete(oldIndexRef);
+      revokeConsent('phone_removed');
       entry.phone = '';
       entry.communicationPreferences = { whatsapp: { optedIn: false, optedInAt: null, optedOutAt: null } };
     } else if (phoneChanged) {
       // Número novo ou alterado: nunca herda o consentimento do número
-      // anterior — obriga a nova confirmação.
+      // anterior — obriga a nova confirmação do convidado.
       if (oldIndexRef) tx.delete(oldIndexRef);
       tx.set(newIndexRef, { weddingId, guestId, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
-      const opted = optedInInput === true;
+      revokeConsent('phone_changed');
       entry.phone = normalizedPhone;
-      entry.communicationPreferences = {
-        whatsapp: { optedIn: opted, optedInAt: opted ? nowISO : null, optedOutAt: null },
-      };
-    } else if (optedInInput !== null) {
-      // Mesmo número — só a mudar o consentimento.
+      entry.communicationPreferences = { whatsapp: { optedIn: false, optedInAt: null, optedOutAt: null } };
+    } else if (optedInInput === false) {
+      // Mesmo número — o casal regista que o convidado pediu para parar.
       const prevPrefs = (entry.communicationPreferences && entry.communicationPreferences.whatsapp) || {};
+      revokeConsent('couple_request');
       entry.communicationPreferences = {
-        whatsapp: optedInInput
-          ? { optedIn: true, optedInAt: nowISO, optedOutAt: null }
-          : { optedIn: false, optedInAt: prevPrefs.optedInAt || null, optedOutAt: nowISO },
+        whatsapp: { optedIn: false, optedInAt: prevPrefs.optedInAt || null, optedOutAt: nowISO },
       };
     }
-    // (número igual + optedIn não indicado → nada para mudar)
+    // (número igual + optedIn true/não indicado → nada para mudar)
 
     tx.set(weddingRef, {
       json: JSON.stringify(state),
@@ -3528,6 +3547,237 @@ exports.updateGuestPhone = onCall({ region: 'europe-west1' }, async (request) =>
   });
 
   return { ok: true, phone: normalizedPhone };
+});
+
+/* ============================================================
+   CONSENTIMENTO WHATSAPP DO CONVIDADO (A.3-bis, Nov 2026)
+   ============================================================
+   Antes: o CASAL marcava "o convidado deu consentimento" e isso ficava num
+   campo do json do casamento (editável pelo cliente) — não é prova de
+   consentimento do convidado. Agora:
+   - Só o PRÓPRIO convidado dá consentimento, no rsvp.html, numa caixa
+     separada do RSVP, desmarcada por defeito (setGuestWhatsappConsent).
+   - O registo vive em whatsappConsents/{weddingId}_{guestId}, escrito apenas
+     por Cloud Functions (regras: write false), com data/hora do servidor,
+     versão do texto mostrado, língua, hash do texto e o número a que se
+     aplica. O número NUNCA vem do cliente: vem do state, validado contra o
+     guestPhoneIndex.
+   - Retirar o consentimento: pelo mesmo ecrã, por STOP no WhatsApp, ou
+     automaticamente se o número mudar/for removido. Fica histórico.
+   - sendWhatsappRsvpReminder só envia com este registo (status granted +
+     mesmo número). O campo do json passa a ser só um espelho para a UI.
+   ============================================================ */
+
+const WHATSAPP_CONSENT_VERSION = 'wa-2026-11-v1';
+const WHATSAPP_CONSENT_TEXTS = {
+  pt: 'Aceito receber mensagens da Weddy por WhatsApp, enviadas em nome dos noivos, sobre este casamento (por exemplo, lembretes para responder ao convite). Posso retirar o consentimento quando quiser, aqui neste link ou respondendo STOP a uma mensagem.',
+  en: 'I agree to receive WhatsApp messages from Weddy, sent on behalf of the couple, about this wedding (for example, reminders to reply to the invitation). I can withdraw my consent at any time, on this link or by replying STOP to a message.',
+};
+function whatsappConsentTextHash(version, lang) {
+  return crypto.createHash('sha256').update(`${version}|${lang}|${WHATSAPP_CONSENT_TEXTS[lang]}`).digest('hex');
+}
+const WHATSAPP_CONSENT_HISTORY_MAX = 20;
+const WHATSAPP_CONSENT_RATE_PER_HOUR = 20;
+// Double opt-in (Nov 2026): marcar a caixa só deixa o consentimento "pending".
+// Passa a "granted" quando o convidado ENVIA, do próprio WhatsApp, "SIM <código>"
+// para o número da Weddy (o webhook identifica o remetente pela Meta, por isso
+// quem não controla o telemóvel do convidado — incluindo o casal — não confirma).
+const WHATSAPP_CONSENT_PENDING_HOURS = 72;
+const WHATSAPP_CONSENT_MAX_ATTEMPTS = 5;
+const WHATSAPP_CONFIRM_WORDS = ['sim', 'yes', 'confirmo', 'confirmar', 'confirm'];
+const WHATSAPP_PUBLIC_NUMBER = defineString('WHATSAPP_PUBLIC_NUMBER', { default: '' });
+function consentCodeHash(weddingId, guestId, code) {
+  return crypto.createHash('sha256').update(`${weddingId}|${guestId}|${code}`).digest('hex');
+}
+function newConsentCode() { return String(crypto.randomInt(100000, 1000000)); }
+// "Sim 123456", "SIM: 123456", "confirmo-123456" → "123456"; qualquer outra coisa → null.
+function parseConsentConfirmation(text) {
+  const t = String(text == null ? '' : text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const m = /^([a-z]+)\s*[:\-]?\s*(\d{6})[\s.!]*$/.exec(t);
+  if (!m || !WHATSAPP_CONFIRM_WORDS.includes(m[1])) return null;
+  return m[2];
+}
+
+function maskPhone(e164) {
+  const p = String(e164 || '');
+  if (p.length < 8) return '';
+  return `${p.slice(0, 4)} ••• ••• ${p.slice(-3)}`;
+}
+
+// Patch de revogação (não apaga a prova: mantém quando foi dado e acrescenta
+// quando e porquê foi retirado).
+function consentRevocationPatch(prev, why) {
+  const nowISO = new Date().toISOString();
+  const history = Array.isArray(prev && prev.history) ? prev.history.slice(-(WHATSAPP_CONSENT_HISTORY_MAX - 1)) : [];
+  history.push({ event: 'revoked', at: nowISO, why });
+  return {
+    status: 'revoked',
+    revokedAt: admin.firestore.FieldValue.serverTimestamp(),
+    revokedAtISO: nowISO,
+    revokedWhy: why,
+    codeHash: null,
+    pendingExpiresAtMs: null,
+    history,
+  };
+}
+
+// Resolve o convite: token -> guests/{token} -> (weddingId, guestIds). O
+// documento guests/{token} só o casal consegue alterar (regras), por isso o
+// convidado não consegue apontar o token para outro convidado/casamento.
+async function resolveConsentInvite(token) {
+  if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{8,64}$/.test(token)) {
+    throw new HttpsError('invalid-argument', 'Link de convite inválido.');
+  }
+  const snap = await db.collection('guests').doc(token).get();
+  if (!snap.exists || typeof snap.data().weddingId !== 'string' || !snap.data().weddingId) {
+    throw new HttpsError('not-found', 'Convite não encontrado.');
+  }
+  const d = snap.data();
+  const members = [];
+  if (d.isFamily === true) {
+    for (const m of (Array.isArray(d.members) ? d.members : [])) {
+      if (m && typeof m.guestId === 'string' && m.guestId) members.push({ guestId: m.guestId, name: typeof m.name === 'string' ? m.name : '' });
+    }
+  } else if (typeof d.guestId === 'string' && d.guestId) {
+    members.push({ guestId: d.guestId, name: typeof d.name === 'string' ? d.name : '' });
+  }
+  return { weddingId: d.weddingId, members };
+}
+
+async function consentRateLimitOk(token) {
+  const ref = db.collection('whatsappConsentRateLimit').doc(token);
+  const now = Date.now();
+  return db.runTransaction(async (tx) => {
+    const s = await tx.get(ref);
+    const d = s.exists ? s.data() : {};
+    const fresh = !d.windowStartMs || (now - d.windowStartMs) > 3600 * 1000;
+    const count = fresh ? 0 : (d.count || 0);
+    if (count >= WHATSAPP_CONSENT_RATE_PER_HOUR) return false;
+    tx.set(ref, { windowStartMs: fresh ? now : d.windowStartMs, count: count + 1 });
+    return true;
+  });
+}
+
+// --- Callable (sem sessão): estado do consentimento de cada pessoa do convite ---
+exports.getGuestWhatsappConsent = onCall({ region: 'europe-west1' }, async (request) => {
+  const lang = (request.data && request.data.lang === 'en') ? 'en' : 'pt';
+  const invite = await resolveConsentInvite(request.data && request.data.token);
+  const weddingSnap = await db.collection('weddings').doc(invite.weddingId).get();
+  if (!weddingSnap.exists) throw new HttpsError('not-found', 'Convite não encontrado.');
+  let state;
+  try { state = JSON.parse(weddingSnap.data().json || '{}'); } catch (e) { state = {}; }
+  const people = [];
+  for (const m of invite.members) {
+    const entry = findGuestEntryByGuestId(state, m.guestId);
+    const phone = entry && typeof entry.phone === 'string' ? entry.phone : '';
+    if (!phone) continue; // sem número guardado pelo casal, não há nada a consentir
+    const idx = await db.collection('guestPhoneIndex').doc(phone).get();
+    if (!idx.exists || idx.data().weddingId !== invite.weddingId || idx.data().guestId !== m.guestId) continue;
+    const cs = await db.collection('whatsappConsents').doc(`${invite.weddingId}_${m.guestId}`).get();
+    const c = cs.exists ? cs.data() : null;
+    const granted = !!(c && c.status === 'granted' && c.phone === phone);
+    const pending = !!(c && c.status === 'pending' && c.phone === phone && Number(c.pendingExpiresAtMs) > Date.now());
+    people.push({
+      guestId: m.guestId,
+      name: m.name || (entry && entry.name) || '',
+      phoneMasked: maskPhone(phone),
+      granted,
+      pending,
+      pendingExpiresAt: pending ? new Date(c.pendingExpiresAtMs).toISOString() : null,
+      grantedAt: granted ? (c.grantedAtISO || null) : null,
+    });
+  }
+  return { version: WHATSAPP_CONSENT_VERSION, text: WHATSAPP_CONSENT_TEXTS[lang], whatsappNumber: String(WHATSAPP_PUBLIC_NUMBER.value() || '').replace(/[^0-9]/g, ''), people };
+});
+
+// --- Callable (sem sessão): dar ou retirar o consentimento ---
+exports.setGuestWhatsappConsent = onCall({ region: 'europe-west1' }, async (request) => {
+  const data = request.data || {};
+  if (typeof data.optedIn !== 'boolean') {
+    throw new HttpsError('invalid-argument', 'optedIn tem de ser verdadeiro ou falso.');
+  }
+  const lang = data.lang === 'en' ? 'en' : 'pt';
+  const invite = await resolveConsentInvite(data.token);
+  if (data.optedIn === true && data.version !== WHATSAPP_CONSENT_VERSION) {
+    // O texto mostrado já não é o atual — nunca registamos consentimento a um
+    // texto que o convidado não viu.
+    throw new HttpsError('failed-precondition', 'O texto de consentimento mudou. Recarrega a página.', { reason: 'text_outdated' });
+  }
+  if (data.guestId !== undefined && data.guestId !== null && typeof data.guestId !== 'string') {
+    throw new HttpsError('invalid-argument', 'guestId inválido.');
+  }
+  const targetId = typeof data.guestId === 'string' ? data.guestId : (invite.members.length === 1 ? invite.members[0].guestId : '');
+  if (!targetId || !invite.members.some((m) => m.guestId === targetId)) {
+    throw new HttpsError('permission-denied', 'Esta pessoa não pertence a este convite.');
+  }
+  if (!(await consentRateLimitOk(data.token))) {
+    throw new HttpsError('resource-exhausted', 'Demasiados pedidos. Tenta mais tarde.');
+  }
+
+  const weddingId = invite.weddingId;
+  const weddingRef = db.collection('weddings').doc(weddingId);
+  const consentRef = db.collection('whatsappConsents').doc(`${weddingId}_${targetId}`);
+  let result;
+  await db.runTransaction(async (tx) => {
+    const [weddingSnap, consentSnap] = await Promise.all([tx.get(weddingRef), tx.get(consentRef)]);
+    if (!weddingSnap.exists) throw new HttpsError('not-found', 'Convite não encontrado.');
+    let state;
+    try { state = JSON.parse(weddingSnap.data().json || '{}'); } catch (e) {
+      throw new HttpsError('internal', 'Não foi possível ler os dados do casamento.');
+    }
+    const entry = findGuestEntryByGuestId(state, targetId);
+    const phone = entry && typeof entry.phone === 'string' ? entry.phone : '';
+    const prev = consentSnap.exists ? consentSnap.data() : null;
+    const idxRef = phone ? db.collection('guestPhoneIndex').doc(phone) : null;
+    const idxSnap = idxRef ? await tx.get(idxRef) : null;
+    const phoneValid = !!(idxSnap && idxSnap.exists && idxSnap.data().weddingId === weddingId && idxSnap.data().guestId === targetId);
+    const nowISO = new Date().toISOString();
+    const history = Array.isArray(prev && prev.history) ? prev.history.slice(-(WHATSAPP_CONSENT_HISTORY_MAX - 1)) : [];
+
+    if (data.optedIn === true) {
+      if (!phoneValid) {
+        throw new HttpsError('failed-precondition', 'Não há um número validado para este convidado.', { reason: 'no_phone' });
+      }
+      // Já consentido para ESTE número: não volta a "pending" (nem pede nova confirmação).
+      if (prev && prev.status === 'granted' && prev.phone === phone) {
+        result = { granted: true, pending: false, grantedAt: prev.grantedAtISO || null };
+      } else {
+        const code = newConsentCode();
+        const expiresMs = Date.now() + WHATSAPP_CONSENT_PENDING_HOURS * 3600 * 1000;
+        history.push({ event: 'pending', at: nowISO, version: WHATSAPP_CONSENT_VERSION, lang });
+        tx.set(consentRef, {
+          weddingId, guestId: targetId, phone,
+          status: 'pending',
+          version: WHATSAPP_CONSENT_VERSION, lang,
+          textHash: whatsappConsentTextHash(WHATSAPP_CONSENT_VERSION, lang),
+          source: 'rsvp_page',
+          requestedAt: admin.firestore.FieldValue.serverTimestamp(),
+          requestedAtISO: nowISO,
+          pendingExpiresAtMs: expiresMs,
+          codeHash: consentCodeHash(weddingId, targetId, code),
+          attempts: 0,
+          grantedAt: null, grantedAtISO: null,
+          revokedAt: null, revokedAtISO: null, revokedWhy: null,
+          history,
+        });
+        if (entry) {
+          entry.communicationPreferences = { whatsapp: { optedIn: false, pending: true, optedInAt: null, optedOutAt: null, source: 'guest', version: WHATSAPP_CONSENT_VERSION } };
+        }
+        result = { granted: false, pending: true, code, expiresAt: new Date(expiresMs).toISOString(), whatsappNumber: String(WHATSAPP_PUBLIC_NUMBER.value() || '').replace(/[^0-9]/g, '') };
+      }
+    } else {
+      if (prev && (prev.status === 'granted' || prev.status === 'pending')) {
+        tx.set(consentRef, consentRevocationPatch(prev, prev.status === 'pending' ? 'guest_cancelled_pending' : 'guest_request'), { merge: true });
+      }
+      if (entry) {
+        const pp = (entry.communicationPreferences && entry.communicationPreferences.whatsapp) || {};
+        entry.communicationPreferences = { whatsapp: { optedIn: false, optedInAt: pp.optedInAt || null, optedOutAt: nowISO, source: 'guest' } };
+      }
+      result = { granted: false, pending: false };
+    }
+    tx.set(weddingRef, { json: JSON.stringify(state), updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  });
+  return { ok: true, ...result };
 });
 
 /* ============================================================
@@ -3617,8 +3867,15 @@ const WHATSAPP_STOP_WORDS = ['stop', 'parar', 'cancelar', 'sair', 'unsubscribe']
 // única fonte de verdade (nunca só o índice).
 async function recordWhatsappOptOut(weddingId, guestId) {
   const weddingRef = db.collection('weddings').doc(weddingId);
+  const consentRef = db.collection('whatsappConsents').doc(`${weddingId}_${guestId}`);
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(weddingRef);
+    const consentSnap = await tx.get(consentRef);
+    // O registo de consentimento (fonte de verdade) é revogado SEMPRE, mesmo
+    // que o casamento ou o convidado já não existam no json.
+    if (consentSnap.exists && ['granted', 'pending'].includes(consentSnap.data().status)) {
+      tx.set(consentRef, consentRevocationPatch(consentSnap.data(), 'whatsapp_stop'), { merge: true });
+    }
     if (!snap.exists) return;
     let state;
     try { state = JSON.parse(snap.data().json || '{}'); } catch (err) { return; }
@@ -3633,6 +3890,52 @@ async function recordWhatsappOptOut(weddingId, guestId) {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
   });
+}
+
+
+// Confirmação do double opt-in: o convidado envia "SIM <código>" do SEU WhatsApp.
+// Devolve 'granted' | 'no_pending' | 'expired' | 'wrong_code' | 'locked' | 'phone_mismatch'.
+async function confirmWhatsappConsentByReply(owner, phoneE164, code) {
+  const weddingRef = db.collection('weddings').doc(owner.weddingId);
+  const consentRef = db.collection('whatsappConsents').doc(`${owner.weddingId}_${owner.guestId}`);
+  let outcome = 'no_pending';
+  await db.runTransaction(async (tx) => {
+    const [consentSnap, weddingSnap] = await Promise.all([tx.get(consentRef), tx.get(weddingRef)]);
+    outcome = 'no_pending';
+    if (!consentSnap.exists) return;
+    const c = consentSnap.data();
+    if (c.status !== 'pending' || !c.codeHash) return;
+    if (c.phone !== phoneE164) { outcome = 'phone_mismatch'; return; }
+    if (!(Number(c.pendingExpiresAtMs) > Date.now())) { outcome = 'expired'; return; }
+    if ((c.attempts || 0) >= WHATSAPP_CONSENT_MAX_ATTEMPTS) { outcome = 'locked'; return; }
+    const given = Buffer.from(consentCodeHash(owner.weddingId, owner.guestId, code), 'hex');
+    const want = Buffer.from(c.codeHash, 'hex');
+    if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) {
+      tx.set(consentRef, { attempts: (c.attempts || 0) + 1 }, { merge: true });
+      outcome = 'wrong_code';
+      return;
+    }
+    const nowISO = new Date().toISOString();
+    const history = Array.isArray(c.history) ? c.history.slice(-(WHATSAPP_CONSENT_HISTORY_MAX - 1)) : [];
+    history.push({ event: 'granted', at: nowISO, version: c.version, via: 'whatsapp_reply' });
+    tx.set(consentRef, {
+      status: 'granted', source: 'rsvp_page+whatsapp_reply',
+      grantedAt: admin.firestore.FieldValue.serverTimestamp(), grantedAtISO: nowISO,
+      codeHash: null, pendingExpiresAtMs: null, attempts: 0, history,
+    }, { merge: true });
+    if (weddingSnap.exists) {
+      try {
+        const state = JSON.parse(weddingSnap.data().json || '{}');
+        const entry = findGuestEntryByGuestId(state, owner.guestId);
+        if (entry) {
+          entry.communicationPreferences = { whatsapp: { optedIn: true, optedInAt: nowISO, optedOutAt: null, source: 'guest', version: c.version } };
+          tx.set(weddingRef, { json: JSON.stringify(state), updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        }
+      } catch (e) { /* json ilegível: o registo de consentimento já é a fonte de verdade */ }
+    }
+    outcome = 'granted';
+  });
+  return outcome;
 }
 
 // Guarda a mensagem em bruto (mesmo de números que não reconhecemos) e
@@ -3659,6 +3962,13 @@ async function handleIncomingWhatsappMessage(msg, contacts) {
     raw: msg,
   });
 
+  if (owner && text) {
+    const confirmCode = parseConsentConfirmation(text);
+    if (confirmCode) {
+      const r = await confirmWhatsappConsentByReply(owner, phoneE164, confirmCode);
+      logger.info(`whatsappWebhook: confirmação de consentimento → ${r} (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
+    }
+  }
   if (owner && text && WHATSAPP_STOP_WORDS.includes(String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').trim().split(/\s+/)[0])) {
     await recordWhatsappOptOut(owner.weddingId, owner.guestId);
     logger.info(`whatsappWebhook: opt-out registado via STOP (weddingId=${owner.weddingId}, guestId=${owner.guestId}).`);
@@ -3832,8 +4142,13 @@ exports.sendWhatsappRsvpReminder = onCall(
     if (!phone) {
       throw new HttpsError('failed-precondition', 'Este convidado ainda não tem telefone guardado.', { reason: 'no_phone' });
     }
-    const optedIn = !!(entry.communicationPreferences && entry.communicationPreferences.whatsapp && entry.communicationPreferences.whatsapp.optedIn === true);
-    if (!optedIn) {
+    // Nov 2026 (A.3-bis): o consentimento vem do registo do servidor
+    // (whatsappConsents), dado pelo próprio convidado no rsvp.html — nunca do
+    // campo do "json", que o cliente consegue editar. O consentimento é para
+    // UM número: se o número mudou desde então, não vale.
+    const consentSnap = await db.collection('whatsappConsents').doc(`${weddingId}_${guestId}`).get();
+    const consent = consentSnap.exists ? consentSnap.data() : null;
+    if (!consent || consent.status !== 'granted' || consent.phone !== phone) {
       throw new HttpsError('failed-precondition', 'Este convidado ainda não deu consentimento para receber WhatsApp.', { reason: 'no_consent' });
     }
     const rsvpToken = (typeof entry.rsvpToken === 'string' && entry.rsvpToken) ? entry.rsvpToken : '';
@@ -4086,11 +4401,13 @@ exports.stripeWebhook = onRequest(
                 const sub = (fresh.data() || {}).subscription || {};
                 const seen = Array.isArray(sub.stripeCheckoutSessionIds) ? sub.stripeCheckoutSessionIds : [];
                 if (sub.stripeCheckoutSessionId === session.id || seen.includes(session.id)) return 'dup';
+                const newStartedAt = nextSubscriptionStartedAt(sub);
                 tx.update(weddingRef, {
                   subscription: {
                     active: true,
                     plan: 'premium-12meses',
-                    startedAt: nextSubscriptionStartedAt(sub),
+                    startedAt: newStartedAt,
+                    premiumUntil: premiumUntilTimestamp(newStartedAt),
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     stripeCheckoutSessionId: session.id,
                     stripeCheckoutSessionIds: seen.concat([session.id]).slice(-50),
@@ -4266,7 +4583,10 @@ exports.revenueCatWebhook = onRequest(
     // Premium em qualquer casamento só mandando um POST fabricado.
     const authHeader = req.headers['authorization'] || '';
     const expected = `Bearer ${REVENUECAT_WEBHOOK_AUTH.value()}`;
-    if (authHeader !== expected) {
+    // Auditoria A.3: comparação em tempo constante (antes "!==" revelava, pelo
+    // tempo de resposta, quantos caracteres do segredo estavam certos).
+    const authA = Buffer.from(authHeader), authB = Buffer.from(expected);
+    if (authA.length !== authB.length || !crypto.timingSafeEqual(authA, authB)) {
       logger.error('revenueCatWebhook: cabeçalho Authorization inválido ou em falta.');
       res.status(401).send('Unauthorized');
       return;
@@ -4317,11 +4637,13 @@ exports.revenueCatWebhook = onRequest(
                 if (event.transaction_id && (sub.revenueCatTransactionId === event.transaction_id || seen.includes(event.transaction_id))) {
                   return 'dup';
                 }
+                const newStartedAt = nextSubscriptionStartedAt(sub);
                 tx.update(weddingRef, {
                   subscription: {
                     active: true,
                     plan: 'premium-12meses',
-                    startedAt: nextSubscriptionStartedAt(sub),
+                    startedAt: newStartedAt,
+                    premiumUntil: premiumUntilTimestamp(newStartedAt),
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     revenueCatTransactionId: event.transaction_id || null,
                     revenueCatTransactionIds: event.transaction_id ? seen.concat([event.transaction_id]).slice(-50) : seen,
@@ -4379,3 +4701,391 @@ exports.revenueCatWebhook = onRequest(
     res.status(200).send('OK');
   }
 );
+
+// ---------------------------------------------------------------------------
+// sendContactMessage — formulário público de contactos.html (sem login).
+// REESCRITA LOCAL (Nov 2026): o código original não está no repositório, por
+// isso esta versão segue o contrato que contactos.html usa:
+//   POST JSON { nome, email, assunto, msg, website } → 200 se enviou, !=200 se não.
+// Defesas (é um endpoint anónimo que envia email com o remetente da Weddy):
+//  - Só POST, só JSON, corpo ≤ 8 KB; CORS só para as origens da Weddy.
+//  - O destinatário é FIXO (geral@weddy.pt): nunca é enviado nada ao email
+//    escrito no formulário (evita servir de relay/spam a terceiros). O email
+//    do visitante vai só em Reply-To.
+//  - Sem injeção de cabeçalhos: nome/email/assunto sem CR/LF; assunto só de uma
+//    lista fixa; corpo escapado em HTML.
+//  - Honeypot "website": responde 200 sem enviar (o bot não percebe).
+//  - Limites: por IP (5/hora) e global (200/dia), em transação.
+//  - Tamanhos: nome ≤ 100, email ≤ 254, mensagem 10–4000.
+//  - Nada de dados pessoais nos logs (só o motivo da recusa).
+// ---------------------------------------------------------------------------
+const CONTACT_TO = 'geral@weddy.pt';
+const CONTACT_SUBJECTS = ['Pedido de informação', 'Weddy Premium', 'Parcerias e fornecedores', 'Suporte', 'Outro assunto'];
+const CONTACT_ORIGINS = ['https://www.weddy.pt', 'https://weddy.pt'];
+const CONTACT_EMAIL_RE = /^[^\s@<>",;:]+@[^\s@<>",;:]+\.[^\s@<>",;:]{2,}$/;
+
+function cleanLine(v, max) {
+  return String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function validateContactBody(b) {
+  if (!b || typeof b !== 'object' || Array.isArray(b)) return { ok: false, reason: 'body' };
+  for (const k of ['nome', 'email', 'assunto', 'msg']) {
+    if (typeof b[k] !== 'string') return { ok: false, reason: 'tipo_' + k };
+  }
+  if (b.website !== undefined && typeof b.website !== 'string') return { ok: false, reason: 'tipo_website' };
+  if (b.website && b.website.trim()) return { ok: true, honeypot: true };
+  const nome = cleanLine(b.nome, 100);
+  const email = cleanLine(b.email, 254);
+  const msg = String(b.msg).replace(/\r\n/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim();
+  if (!nome) return { ok: false, reason: 'nome' };
+  if (!CONTACT_EMAIL_RE.test(email) || email.length > 254) return { ok: false, reason: 'email' };
+  if (msg.length < 10) return { ok: false, reason: 'msg_curta' };
+  if (msg.length > 4000) return { ok: false, reason: 'msg_longa' };
+  const assunto = CONTACT_SUBJECTS.includes(b.assunto) ? b.assunto : 'Outro assunto';
+  return { ok: true, nome, email, assunto, msg };
+}
+function contactEmailHtml({ nome, email, assunto, msg }) {
+  return '<div style="font-family:Helvetica,Arial,sans-serif;color:#2b2622;font-size:15px;line-height:1.55">'
+    + '<p style="margin:0 0 6px"><b>Assunto:</b> ' + escapeHtmlServer(assunto) + '</p>'
+    + '<p style="margin:0 0 6px"><b>Nome:</b> ' + escapeHtmlServer(nome) + '</p>'
+    + '<p style="margin:0 0 14px"><b>Email:</b> ' + escapeHtmlServer(email) + '</p>'
+    + '<div style="white-space:pre-wrap;border-left:3px solid #c9a89a;padding-left:12px">' + escapeHtmlServer(msg) + '</div>'
+    + '<p style="margin:18px 0 0;color:#8a8079;font-size:12.5px">Enviado pelo formulário de contactos de weddy.pt. Responder a este email responde ao visitante.</p></div>';
+}
+async function contactRateLimit(ip) {
+  const crypto = require('crypto');
+  const day = new Date().toISOString().slice(0, 10);
+  const ipKey = 'contact_ip_' + crypto.createHash('sha256').update(String(ip || 'x')).digest('hex').slice(0, 24);
+  const globalKey = 'contact_day_' + day;
+  const now = Date.now();
+  const ipRef = db.collection('siteRateLimits').doc(ipKey);
+  const gRef = db.collection('siteRateLimits').doc(globalKey);
+  return db.runTransaction(async (tx) => {
+    const [ipSnap, gSnap] = await Promise.all([tx.get(ipRef), tx.get(gRef)]);
+    let ipD = ipSnap.exists ? ipSnap.data() : {};
+    if (!ipD.start || now - ipD.start > 3600 * 1000) ipD = { start: now, count: 0 };
+    const gD = gSnap.exists ? gSnap.data() : { start: now, count: 0 };
+    if (ipD.count >= 5) return 'ip';
+    if (gD.count >= 200) return 'global';
+    tx.set(ipRef, { start: ipD.start, count: ipD.count + 1 });
+    tx.set(gRef, { start: gD.start || now, count: gD.count + 1 });
+    return null;
+  });
+}
+// Núcleo testável: recebe pedido/resposta simples e o envio de email.
+async function handleContactRequest(req, res, sendMail) {
+  const origin = String(req.headers && req.headers.origin || '');
+  if (CONTACT_ORIGINS.includes(origin)) {
+    res.set('Access-Control-Allow-Origin', origin);
+    res.set('Vary', 'Origin');
+  }
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.set('Cache-Control', 'no-store');
+  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+  if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'method' }); return; }
+  if (origin && !CONTACT_ORIGINS.includes(origin)) { res.status(403).json({ ok: false, error: 'origin' }); return; }
+  const ct = String(req.headers && req.headers['content-type'] || '');
+  if (!/^application\/json/i.test(ct)) { res.status(415).json({ ok: false, error: 'content_type' }); return; }
+  const len = Number(req.headers && req.headers['content-length'] || 0);
+  if (len > 8192) { res.status(413).json({ ok: false, error: 'too_large' }); return; }
+  const v = validateContactBody(req.body);
+  if (!v.ok) { logger.warn('sendContactMessage: recusado (' + v.reason + ')'); res.status(400).json({ ok: false, error: 'invalid' }); return; }
+  if (v.honeypot) { res.status(200).json({ ok: true }); return; }
+  let limited;
+  try { limited = await contactRateLimit(req.ip || (req.headers && req.headers['x-forwarded-for'])); }
+  catch (e) { logger.error('sendContactMessage: limite falhou'); res.status(503).json({ ok: false, error: 'unavailable' }); return; }
+  if (limited) { logger.warn('sendContactMessage: limite (' + limited + ')'); res.status(429).json({ ok: false, error: 'rate_limited' }); return; }
+  try {
+    await sendMail({
+      from: SMTP_FROM.value(),
+      to: CONTACT_TO,
+      replyTo: v.email,
+      subject: ('[Contacto weddy.pt] ' + v.assunto + ' — ' + v.nome).replace(/[\r\n]+/g, ' ').slice(0, 200),
+      text: 'Assunto: ' + v.assunto + '\nNome: ' + v.nome + '\nEmail: ' + v.email + '\n\n' + v.msg,
+      html: contactEmailHtml(v),
+    });
+  } catch (e) {
+    logger.error('sendContactMessage: envio falhou');
+    res.status(502).json({ ok: false, error: 'send_failed' });
+    return;
+  }
+  res.status(200).json({ ok: true });
+}
+exports.sendContactMessage = onRequest(
+  { region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS], maxInstances: 5 },
+  (req, res) => handleContactRequest(req, res, (mail) => buildTransporter().sendMail(mail))
+);
+
+// ---------------------------------------------------------------------------
+// A.2 — EMAIL RESUMO PARA O CASAL (Nov 2026)
+// Resumo semanal (segunda, 10:00 Lisboa) + alertas extraordinários (diário).
+//  - DESLIGADO por defeito: só envia com NOTIFY_EMAIL_ENABLED=true (parâmetro de
+//    deploy). Sem isso a função corre, calcula e regista, mas não envia.
+//  - Preferência do casal (json, editável no cliente — só preferências, nunca
+//    estado de envio): state.notif.prefs.email = { digest:'weekly'|'off', alerts:bool }.
+//    Defeito: resumo semanal ligado e alertas ligados.
+//  - Estado de envio no SERVIDOR (notifState/{weddingId}, regras: ninguém lê/escreve
+//    do cliente): tetos 1/dia e 3/semana, chaves de alertas já enviados, anulação.
+//  - Sem valores nem nomes de fornecedores no email: só contagens + títulos de
+//    tarefas escritos pelo próprio casal. Secção RSVP só em casamentos Premium.
+//  - Anular subscrição sem login: ligação com HMAC por casamento (segredo em
+//    notifState, nunca no cliente) + cabeçalhos List-Unsubscribe (one-click).
+// ---------------------------------------------------------------------------
+const NOTIFY_EMAIL_ENABLED = defineString('NOTIFY_EMAIL_ENABLED', { default: 'false' });
+const NOTIFY_UNSUB_BASE = 'https://europe-west1-weddy-app-bd12f.cloudfunctions.net/unsubscribeNotify';
+const NOTIFY_MAX_PER_WEEK = 3;
+const NOTIFY_ALERT_REPEAT_DAYS = 14;
+const NOTIFY_RUN_MAX_WEDDINGS = 2000;
+
+function lisbonYMD(d) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+}
+function lisbonWeekday(d) { // 0=domingo … 6=sábado
+  return ({ Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 })[new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Lisbon', weekday: 'short' }).format(d)];
+}
+function ymdDiffDays(a, b) { // b - a em dias, ambos YYYY-MM-DD válidos; senão null
+  const ok = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(Date.parse(v + 'T00:00:00Z'));
+  if (!ok(a) || !ok(b)) return null;
+  return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+}
+function notifyEmailPrefs(state) {
+  const e = state && state.notif && state.notif.prefs && typeof state.notif.prefs === 'object' ? state.notif.prefs.email : null;
+  const o = (e && typeof e === 'object' && !Array.isArray(e)) ? e : {};
+  return { digest: o.digest === 'off' ? 'off' : 'weekly', alerts: o.alerts !== false };
+}
+function tallyRsvpDocs(docs) {
+  const t = { yes: 0, no: 0, maybe: 0, pending: 0 };
+  const add = (r) => {
+    if (r && r.attending === true) t.yes++;
+    else if (r && r.attending === false) t.no++;
+    else if (r && r.rsvpStatus === 'maybe') t.maybe++;
+    else t.pending++;
+  };
+  for (const d of docs) {
+    if (!d || typeof d !== 'object') continue;
+    if (d.isFamily) {
+      const members = Array.isArray(d.members) ? d.members : [];
+      const resp = (d.responses && typeof d.responses === 'object') ? d.responses : {};
+      members.forEach((m) => { if (m && typeof m === 'object') add(resp[m.rsvpMemberId || m.guestId]); });
+    } else add(d);
+  }
+  return t;
+}
+function buildDigestData(state, rsvpTally, now, premium) {
+  const today = lisbonYMD(now);
+  const st = (state && typeof state === 'object') ? state : {};
+  const settings = (st.settings && typeof st.settings === 'object') ? st.settings : {};
+  const out = { today, daysToWedding: null, rsvp: null, rsvpDeadline: null, tasks: { overdue: 0, week: 0, names: [] }, payments: { overdue: 0, soon: 0 } };
+  const wd = ymdDiffDays(today, String(settings.weddingDate || '').slice(0, 10));
+  if (wd !== null && wd >= 0) out.daysToWedding = wd;
+  if (premium && rsvpTally) {
+    out.rsvp = rsvpTally;
+    const dl = ymdDiffDays(today, String(settings.rsvpDeadline || '').slice(0, 10));
+    if (dl !== null && dl >= -21 && rsvpTally.pending > 0) out.rsvpDeadline = { days: dl, pending: rsvpTally.pending };
+  }
+  const cats = Array.isArray(st.todoCategories) ? st.todoCategories : [];
+  const names = [];
+  for (const c of cats) {
+    for (const it of (c && Array.isArray(c.items) ? c.items : [])) {
+      if (!it || it.done || !it.due) continue;
+      const d = ymdDiffDays(today, String(it.due).slice(0, 10));
+      if (d === null) continue;
+      if (d < 0 && d >= -60) out.tasks.overdue++;
+      else if (d >= 0 && d <= 7) { out.tasks.week++; if (names.length < 3) names.push(String(it.text || '').replace(/\s+/g, ' ').trim().slice(0, 60)); }
+    }
+  }
+  out.tasks.names = names.filter(Boolean);
+  const exps = Array.isArray(st.expenses) ? st.expenses : [];
+  for (const e of exps) {
+    if (!e || !e.dueDate) continue;
+    const rem = (Number(e.value) || 0) - (Number(e.paid) || 0);
+    if (!(rem > 0)) continue;
+    const d = ymdDiffDays(today, String(e.dueDate).slice(0, 10));
+    if (d === null) continue;
+    if (d < 0 && d >= -60) out.payments.overdue++;
+    else if (d >= 0 && d <= 14) out.payments.soon++;
+  }
+  return out;
+}
+// Alertas extraordinários (a chave evita repetir o mesmo aviso).
+function pickDigestAlerts(data) {
+  const a = [];
+  if (data.payments.overdue > 0) a.push({ key: 'pay-od', code: 'payOverdue', n: data.payments.overdue });
+  if (data.tasks.overdue > 0) a.push({ key: 'task-od', code: 'taskOverdue', n: data.tasks.overdue });
+  if (data.rsvpDeadline && data.rsvpDeadline.days >= 0 && data.rsvpDeadline.days <= 3) a.push({ key: 'rsvp-dl', code: 'rsvpDeadline', n: data.rsvpDeadline.pending, days: data.rsvpDeadline.days });
+  if (data.daysToWedding !== null && data.daysToWedding <= 7) a.push({ key: 'wd-7', code: 'weddingSoon', n: data.daysToWedding });
+  return a;
+}
+const NOTIFY_ALERT_TEXT = {
+  payOverdue: (a) => `${a.n} ${a.n === 1 ? 'pagamento em atraso' : 'pagamentos em atraso'}`,
+  taskOverdue: (a) => `${a.n} ${a.n === 1 ? 'tarefa em atraso' : 'tarefas em atraso'}`,
+  rsvpDeadline: (a) => `${a.n} ${a.n === 1 ? 'convidado ainda sem resposta' : 'convidados ainda sem resposta'}, o prazo do RSVP termina ${a.days === 0 ? 'hoje' : (a.days === 1 ? 'amanhã' : `em ${a.days} dias`)}`,
+  weddingSoon: (a) => a.n === 0 ? 'O casamento é hoje' : `Faltam ${a.n} ${a.n === 1 ? 'dia' : 'dias'} para o casamento`,
+};
+// Decide o que enviar. Função pura (testada). st = notifState (do servidor).
+function planNotifyEmail({ now, prefs, st, data }) {
+  const s = st || {};
+  if (s.emailOff === true) return { kind: null, why: 'unsubscribed' };
+  if (prefs.digest === 'off' && !prefs.alerts) return { kind: null, why: 'prefs_off' };
+  const today = lisbonYMD(now);
+  const log = (Array.isArray(s.sentLog) ? s.sentLog : []).filter((x) => typeof x === 'string');
+  if (log.includes(today)) return { kind: null, why: 'daily_cap' };
+  const lastWeek = log.filter((x) => { const d = ymdDiffDays(x, today); return d !== null && d >= 0 && d < 7; }).length;
+  if (lastWeek >= NOTIFY_MAX_PER_WEEK) return { kind: null, why: 'weekly_cap' };
+  const alertKeys = (s.alertKeys && typeof s.alertKeys === 'object') ? s.alertKeys : {};
+  const fresh = pickDigestAlerts(data).filter((a) => {
+    const prev = alertKeys[a.key];
+    const d = ymdDiffDays(String(prev || ''), today);
+    return !(d !== null && d < NOTIFY_ALERT_REPEAT_DAYS);
+  });
+  const monday = lisbonWeekday(now) === 1;
+  if (monday && prefs.digest === 'weekly' && s.lastDigestDay !== today) return { kind: 'digest', alerts: fresh };
+  if (prefs.alerts && fresh.length) return { kind: 'alert', alerts: fresh };
+  return { kind: null, why: 'nothing_to_send' };
+}
+function notifyUnsubToken(secret, weddingId) {
+  return crypto.createHmac('sha256', String(secret)).update('unsub|' + weddingId).digest('hex');
+}
+function notifyUnsubUrl(secret, weddingId) {
+  return `${NOTIFY_UNSUB_BASE}?w=${encodeURIComponent(weddingId)}&t=${notifyUnsubToken(secret, weddingId)}`;
+}
+function renderNotifyEmail({ kind, names, data, alerts, unsubUrl }) {
+  const e = escapeHtmlServer;
+  const who = [names.n1, names.n2].map((x) => String(x || '').trim()).filter(Boolean).join(' & ');
+  const lines = [];
+  if (data.daysToWedding !== null) lines.push(data.daysToWedding === 0 ? 'O grande dia é hoje.' : `Faltam ${data.daysToWedding} ${data.daysToWedding === 1 ? 'dia' : 'dias'} para o casamento.`);
+  if (data.rsvp) {
+    const r = data.rsvp;
+    lines.push(`Convidados: ${r.yes} a confirmar, ${r.no} não podem, ${r.maybe} ainda não sabem, ${r.pending} sem resposta.`);
+  }
+  if (data.tasks.overdue || data.tasks.week) {
+    let l = `Tarefas: ${data.tasks.week} para os próximos 7 dias` + (data.tasks.overdue ? `, ${data.tasks.overdue} em atraso` : '') + '.';
+    if (data.tasks.names.length) l += ' (' + data.tasks.names.join('; ') + ')';
+    lines.push(l);
+  }
+  if (data.payments.overdue || data.payments.soon) {
+    lines.push(`Pagamentos: ${data.payments.soon} a vencer nas próximas 2 semanas` + (data.payments.overdue ? `, ${data.payments.overdue} em atraso` : '') + '.');
+  }
+  if (!lines.length) lines.push('Está tudo em dia por agora. Boa semana.');
+  const alertLines = (alerts || []).map((a) => NOTIFY_ALERT_TEXT[a.code](a));
+  const title = kind === 'digest' ? 'O teu resumo da semana' : 'Um aviso importante';
+  const subject = (kind === 'digest' ? 'O teu resumo semanal da Weddy' : 'Weddy: ' + (alertLines[0] || 'aviso importante')).replace(/[\r\n]+/g, ' ').slice(0, 150);
+  const font = "Georgia,'Times New Roman',serif";
+  const html = `<div style="background:#FAF8F5;padding:24px 12px"><div style="max-width:520px;margin:0 auto;background:#FFFDFC;border-radius:14px;padding:28px 24px;font-family:Helvetica,Arial,sans-serif;color:#302C29;font-size:15px;line-height:1.55">`
+    + `<div style="font-family:${font};font-size:26px;color:#9A4F3D;margin:0 0 4px">${e(title)}</div>`
+    + (who ? `<div style="color:#8E8780;font-size:13px;margin:0 0 18px">${e(who)}</div>` : '')
+    + (alertLines.length ? `<div style="border-left:3px solid #B96752;padding:2px 0 2px 12px;margin:0 0 16px">${alertLines.map((l) => `<div>${e(l)}</div>`).join('')}</div>` : '')
+    + lines.map((l) => `<p style="margin:0 0 10px">${e(l)}</p>`).join('')
+    + `<p style="margin:20px 0"><a href="https://www.weddy.pt/app/" style="background:#B96752;color:#FFFFFF;text-decoration:none;padding:11px 20px;border-radius:12px;font-weight:700;display:inline-block">Abrir a Weddy</a></p>`
+    + `<p style="margin:18px 0 0;color:#8E8780;font-size:12px">Recebes este email porque tens uma conta Weddy. <a href="${e(unsubUrl)}" style="color:#8E8780">Deixar de receber</a> ou desliga nas preferências de notificações da app.</p>`
+    + `</div></div>`;
+  const text = [title, who, '', ...alertLines, ...lines, '', 'Abrir a Weddy: https://www.weddy.pt/app/', '', 'Deixar de receber: ' + unsubUrl].join('\n');
+  return { subject, html, text };
+}
+// Processa UM casamento. Devolve { sent, why }. sendMail é injetado (testes).
+async function processNotifyWedding(wDoc, now, sendMail, enabled) {
+  const w = wDoc.data() || {};
+  const weddingId = wDoc.id;
+  const emails = (Array.isArray(w.ownerEmails) ? w.ownerEmails : []).filter((x) => typeof x === 'string' && /^[^\s@<>"',;]{1,64}@[^\s@<>"',;]{1,190}\.[A-Za-z]{2,}$/.test(x)).slice(0, 2);
+  if (!emails.length) return { sent: false, why: 'no_email' };
+  let state;
+  try { state = JSON.parse(w.json || '{}'); } catch (e) { return { sent: false, why: 'bad_json' }; }
+  if (!state || typeof state !== 'object' || Array.isArray(state)) return { sent: false, why: 'bad_json' };
+  const prefs = notifyEmailPrefs(state);
+  const stRef = db.collection('notifState').doc(weddingId);
+  const stSnap = await stRef.get();
+  const st = stSnap.exists ? stSnap.data() : {};
+  if (st.emailOff === true || (prefs.digest === 'off' && !prefs.alerts)) return { sent: false, why: st.emailOff ? 'unsubscribed' : 'prefs_off' };
+  const premium = isSubscriptionStillValid(w.subscription);
+  let tally = null;
+  if (premium) {
+    const gs = await db.collection('guests').where('weddingId', '==', weddingId).limit(2000).get();
+    tally = tallyRsvpDocs(gs.docs.map((d) => d.data()));
+  }
+  const data = buildDigestData(state, tally, now, premium);
+  const plan = planNotifyEmail({ now, prefs, st, data });
+  if (!plan.kind) return { sent: false, why: plan.why };
+  if (!enabled) return { sent: false, why: 'disabled', wouldSend: plan.kind };
+  let secret = st.unsubSecret;
+  if (!secret) secret = crypto.randomBytes(32).toString('hex');
+  const unsubUrl = notifyUnsubUrl(secret, weddingId);
+  const mail = renderNotifyEmail({ kind: plan.kind, names: { n1: (state.settings || {}).coupleName1, n2: (state.settings || {}).coupleName2 }, data, alerts: plan.alerts, unsubUrl });
+  await sendMail({
+    from: SMTP_FROM.value(), to: emails.join(', '), subject: mail.subject, html: mail.html, text: mail.text,
+    headers: { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+  });
+  const today = lisbonYMD(now);
+  const alertKeys = Object.assign({}, st.alertKeys || {});
+  (plan.alerts || []).forEach((a) => { alertKeys[a.key] = today; });
+  const sentLog = (Array.isArray(st.sentLog) ? st.sentLog : []).filter((x) => { const d = ymdDiffDays(x, today); return d !== null && d >= 0 && d < 14; }).concat(today);
+  await stRef.set({ unsubSecret: secret, sentLog, alertKeys, lastDigestDay: plan.kind === 'digest' ? today : (st.lastDigestDay || null), lastSentAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  return { sent: true, kind: plan.kind };
+}
+exports.sendCoupleEmailDigest = onSchedule(
+  { schedule: '0 10 * * *', timeZone: 'Europe/Lisbon', region: 'europe-west1', secrets: [SMTP_USER, SMTP_PASS], timeoutSeconds: 540, memory: '512MiB' },
+  async () => {
+    const enabled = String(NOTIFY_EMAIL_ENABLED.value()).toLowerCase() === 'true';
+    const now = new Date();
+    const transporter = enabled ? buildTransporter() : null;
+    const send = (m) => transporter.sendMail(m);
+    let last = null, seen = 0, sent = 0, wouldSend = 0, failed = 0;
+    while (seen < NOTIFY_RUN_MAX_WEDDINGS) {
+      let q = db.collection('weddings').orderBy(admin.firestore.FieldPath.documentId()).limit(100);
+      if (last) q = q.startAfter(last);
+      const snap = await q.get();
+      if (snap.empty) break;
+      for (const doc of snap.docs) {
+        seen++;
+        try {
+          const r = await processNotifyWedding(doc, now, send, enabled);
+          if (r.sent) sent++; else if (r.wouldSend) wouldSend++;
+        } catch (e) { failed++; logger.error('sendCoupleEmailDigest: falhou um casamento'); }
+      }
+      last = snap.docs[snap.docs.length - 1];
+      if (snap.size < 100) break;
+    }
+    logger.info(`sendCoupleEmailDigest: enabled=${enabled} analisados=${seen} enviados=${sent} semEnvio(desligado)=${wouldSend} falhas=${failed}`);
+  }
+);
+// Anular subscrição sem login. GET mostra uma página com botão (evita que um
+// pré-visualizador de links anule sozinho); POST (botão ou one-click do cliente
+// de email) anula.
+function unsubPage(title, body) {
+  return `<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Weddy</title></head>`
+    + `<body style="margin:0;background:#FAF8F5;font-family:Manrope,Helvetica,Arial,sans-serif;color:#302C29"><div style="max-width:440px;margin:12vh auto;padding:28px 24px;background:#FFFDFC;border-radius:16px;text-align:center">`
+    + `<div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;color:#9A4F3D;margin-bottom:10px">${escapeHtmlServer(title)}</div>${body}</div></body></html>`;
+}
+async function handleUnsubscribe(req, res) {
+  res.set('Cache-Control', 'no-store');
+  const q = req.query || {};
+  const w = typeof q.w === 'string' ? q.w : '';
+  const t = typeof q.t === 'string' ? q.t : '';
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(w) || !/^[0-9a-f]{64}$/.test(t)) { res.status(400).send(unsubPage('Ligação inválida', '<p>Esta ligação não é válida.</p>')); return; }
+  const ref = db.collection('notifState').doc(w);
+  const snap = await ref.get();
+  const secret = snap.exists ? snap.data().unsubSecret : null;
+  let valid = false;
+  if (secret) {
+    const a = Buffer.from(notifyUnsubToken(secret, w), 'hex'); const b = Buffer.from(t, 'hex');
+    valid = a.length === b.length && crypto.timingSafeEqual(a, b);
+  }
+  if (!valid) { res.status(400).send(unsubPage('Ligação inválida', '<p>Esta ligação não é válida.</p>')); return; }
+  if (req.method === 'POST') {
+    await ref.set({ emailOff: true, emailOffAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    res.status(200).send(unsubPage('Feito', '<p>Deixas de receber estes emails da Weddy. Podes voltar a ligá-los nas preferências de notificações da app.</p>'));
+    return;
+  }
+  if (req.method === 'GET') {
+    res.status(200).send(unsubPage('Deixar de receber?', `<p>Não vais receber mais resumos nem avisos por email.</p><form method="POST" action="?w=${encodeURIComponent(w)}&amp;t=${t}"><button style="background:#B96752;color:#fff;border:0;border-radius:12px;padding:12px 22px;font-weight:700;font-size:15px;cursor:pointer">Confirmar</button></form>`));
+    return;
+  }
+  res.status(405).send('');
+}
+exports.unsubscribeNotify = onRequest({ region: 'europe-west1', maxInstances: 5 }, (req, res) => handleUnsubscribe(req, res));
+
+// Só para os testes locais (emulador): expõe funções internas sem as publicar
+// como Cloud Functions. Nunca ativo em produção (precisa desta variável).
+if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
+  exports._test = { processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, handleContactRequest, validateContactBody, contactEmailHtml };
+}

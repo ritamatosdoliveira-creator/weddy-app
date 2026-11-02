@@ -2,6 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Auditoria A.3 (Nov 2026): Premium ativo e dentro da validade, lido do
+    // documento do casamento. "premiumUntil" (Timestamp) é escrito SÓ pelos
+    // webhooks de pagamento (Admin SDK); contas antigas ainda sem esse campo
+    // contam pelo "active" (como o servidor já fazia sem startedAt).
+    function premiumOn(w) {
+      return ('subscription' in w)
+        && w.subscription.active == true
+        && (!('premiumUntil' in w.subscription) || w.subscription.premiumUntil > request.time);
+    }
+
     match /weddings/{weddingId} {
       allow read: if request.auth != null
         && request.auth.token.email_verified == true
@@ -31,9 +41,17 @@ service cloud.firestore {
           request.auth.token.email in resource.data.ownerEmails
           || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
         )
+        // Auditoria A.3: antes bastava "active == false", e o cliente podia
+        // reescrever o resto do mapa (premiumUntil, ids de pagamento já
+        // processados...). Agora só pode desligar: mudam apenas "active" e
+        // "updatedAt" (e "plan", que o cancelar das versões antigas limpa).
         && (
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['subscription'])
-          || request.resource.data.subscription.active == false
+          || (
+            ('subscription' in resource.data)
+            && request.resource.data.subscription.active == false
+            && request.resource.data.subscription.diff(resource.data.subscription).affectedKeys().hasOnly(['active', 'updatedAt'])
+          )
         )
         // Out 2026 (auditoria): o criador do casamento não pode ser mudado nem
         // retirado dos donos por um parceiro (antes só a interface o impedia).
@@ -141,8 +159,13 @@ service cloud.firestore {
       // regra. Nunca escreve nada sensível aqui (o refresh token fica à
       // parte, em privateIntegrations, nunca lido pelo cliente — ver
       // comentário em index.html) — só o estado "ligado/desligado".
+      // Auditoria A.3: o cliente só LÊ este documento (index.html nunca o escreve;
+      // quem o escreve são as Cloud Functions do Google Calendar, com Admin SDK).
+      // Antes "write" estava aberto aos donos, que podiam forjar "connected" e
+      // "calendarId" — o servidor lê esses campos para decidir que agenda usar.
       match /integrations/{integrationId} {
-        allow read, write: if request.auth != null
+        allow write: if false;
+        allow read: if request.auth != null
           && request.auth.token.email_verified == true
           && (
             request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
@@ -249,7 +272,7 @@ service cloud.firestore {
         // Auditoria Out 2026: o casamento tem de existir e o token tem de ser
         // o do QR público ou um convite real DESTE casamento (antes dava para
         // encher a galeria de qualquer casamento com entradas falsas).
-        && exists(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId))
+        && premiumOn(get(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId)).data)
         && request.resource.data.token is string
         && (request.resource.data.token == 'publico'
             || get(/databases/$(database)/documents/guests/$(request.resource.data.token)).data.weddingId == request.resource.data.weddingId)
@@ -330,6 +353,24 @@ service cloud.firestore {
       allow get: if resource.data.status == 'published'
         && resource.data.validUntil > request.time;
       allow list, write: if false;
+    }
+
+    // Consentimento WhatsApp dos convidados (A.3-bis): registo escrito SÓ por
+    // Cloud Functions (Admin SDK ignora as regras). O casal pode LER o estado
+    // dos convidados do seu casamento (ecrã do convidado); ninguém escreve.
+    match /whatsappConsents/{id} {
+      allow get: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+      allow list, write: if false;
+    }
+    match /whatsappConsentRateLimit/{id} {
+      allow read, write: if false;
+    }
+
+    // Estado de envio dos emails resumo (A.2): só o servidor.
+    match /notifState/{id} {
+      allow read, write: if false;
     }
 
     // Reserva de endereços: só o servidor.

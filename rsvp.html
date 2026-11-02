@@ -102,6 +102,22 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
 .program-time{ flex:0 0 46px; font-weight:700; font-size:12.5px; color:var(--rust-dark); }
 .program-body .program-label{ font-size:13px; font-weight:600; }
 .program-body .program-place{ font-size:11.5px; color:var(--ink-soft); }
+.wa-consent{ text-align:left; margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
+.wa-consent .wa-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--rust-dark); margin-bottom:4px; }
+.wa-consent .wa-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:12px; line-height:1.5; }
+.wa-person{ padding:12px 14px; border:1.6px solid var(--line); border-radius:14px; margin-bottom:10px; }
+.wa-person .wa-who{ font-size:13px; font-weight:600; margin-bottom:8px; }
+.wa-person .wa-who small{ font-weight:400; color:var(--ink-soft); margin-left:6px; }
+.wa-check{ display:flex; gap:10px; align-items:flex-start; font-size:12.5px; line-height:1.5; cursor:pointer; }
+.wa-check input{ flex:0 0 auto; width:18px; height:18px; margin:1px 0 0; accent-color:var(--rust); cursor:pointer; }
+.wa-state{ font-size:11.5px; color:var(--sage-dark); margin-top:8px; }
+.wa-confirm{ margin-top:10px; padding:12px 14px; border-radius:12px; background:var(--cream, #FAF8F5); border:1.6px dashed var(--rust); }
+.wa-confirm .wa-ct{ font-size:12.5px; font-weight:700; color:var(--rust-dark); margin-bottom:4px; }
+.wa-confirm .wa-cb{ font-size:12px; color:var(--ink-soft); line-height:1.5; margin-bottom:8px; }
+.wa-confirm .wa-code{ display:block; font-weight:700; font-size:18px; letter-spacing:.08em; color:var(--ink); margin:6px 0 10px; user-select:all; }
+.wa-confirm a, .wa-confirm button{ all:unset; box-sizing:border-box; display:inline-block; padding:8px 14px; border-radius:10px; border:1.6px solid var(--rust); color:var(--rust); font-size:12.5px; font-weight:700; cursor:pointer; margin:0 8px 6px 0; }
+.wa-save{ all:unset; box-sizing:border-box; display:block; width:100%; text-align:center; padding:11px 0; border-radius:12px; border:1.6px solid var(--rust); color:var(--rust); font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
+.wa-save:disabled{ opacity:.5; cursor:default; }
 .memories-block{ text-align:left; margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
 .memories-title{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--rust-dark); margin-bottom:4px; }
 .memories-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:12px; }
@@ -271,6 +287,14 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       <div class="sub" id="done-sub"></div>
     </div>
 
+    <div class="wa-consent state-hidden" id="wa-consent">
+      <div class="wa-title" data-t="waConsentTitle">Lembretes por WhatsApp</div>
+      <div class="wa-sub" data-t="waConsentSub">Opcional e independente da tua resposta ao convite. Só recebes mensagens se marcares a caixa.</div>
+      <div id="wa-people"></div>
+      <button type="button" class="wa-save" id="wa-save" data-t="waConsentSave">Guardar preferência</button>
+      <div class="msg" id="wa-msg" role="status" aria-live="polite"></div>
+    </div>
+
     <div class="memories-block state-hidden" id="memories-block">
       <div class="memories-title" data-t="memoriesTitle">Weddy Memories</div>
       <div class="memories-sub" data-t="memoriesSub">Tens fotos deste casamento? Partilha-as com os noivos — só eles conseguem ver a galeria.</div>
@@ -429,6 +453,22 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       tableTitle: (table, seat) => `A tua mesa: Mesa ${table}${seat? ', lugar '+seat : ''}`,
       tableWith: names => `Com: ${names}`,
       tableAlone: 'Ainda sem mais ninguém atribuído a esta mesa.',
+      waConsentTitle: 'Lembretes por WhatsApp',
+      waConsentSub: 'Opcional e independente da tua resposta ao convite. Só recebes mensagens se marcares a caixa.',
+      waConsentSave: 'Guardar preferência',
+      waConsentSaved: 'Preferência guardada.',
+      waConsentRemoved: 'Consentimento retirado. Não vais receber mensagens por WhatsApp.',
+      waConsentGrantedOn: d => `Consentimento dado a ${d}.`,
+      waConsentError: 'Não foi possível guardar agora. Tenta novamente.',
+      waConsentOutdated: 'O texto foi atualizado. Recarrega a página e tenta de novo.',
+      waConsentNumber: 'Número',
+      waPendingTitle: 'Falta um passo: confirma no teu WhatsApp',
+      waPendingBody: d => `Envia a mensagem abaixo, a partir do WhatsApp deste número, para a Weddy. O consentimento só fica ativo quando a recebermos (pedido válido até ${d}).`,
+      waPendingNoLink: 'Envia-a para o número de WhatsApp da Weddy.',
+      waPendingOpen: 'Abrir o WhatsApp',
+      waPendingNew: 'Gerar novo código',
+      waPendingLost: 'Pedido de confirmação enviado. Responde “SIM” com o código que viste ou gera um novo.',
+      waConsentPendingSaved: 'Quase pronto: falta confirmares no WhatsApp.',
       memoriesTitle: 'Weddy Memories',
       memoriesSub: 'Tens fotos deste casamento? Partilha-as com os noivos — só eles conseguem ver a galeria.',
       memoriesUploadBtn: 'Adicionar fotografia',
@@ -562,6 +602,22 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       tableTitle: (table, seat) => `Your table: Table ${table}${seat? ', seat '+seat : ''}`,
       tableWith: names => `With: ${names}`,
       tableAlone: "No one else assigned to this table yet.",
+      waConsentTitle: 'WhatsApp reminders',
+      waConsentSub: 'Optional and independent of your reply to the invitation. You only get messages if you tick the box.',
+      waConsentSave: 'Save preference',
+      waConsentSaved: 'Preference saved.',
+      waConsentRemoved: 'Consent withdrawn. You will not receive WhatsApp messages.',
+      waConsentGrantedOn: d => `Consent given on ${d}.`,
+      waConsentError: 'Could not save right now. Please try again.',
+      waConsentOutdated: 'The text was updated. Reload the page and try again.',
+      waConsentNumber: 'Number',
+      waPendingTitle: 'One more step: confirm on your WhatsApp',
+      waPendingBody: d => `Send the message below, from the WhatsApp of this number, to Weddy. Consent only becomes active once we receive it (request valid until ${d}).`,
+      waPendingNoLink: 'Send it to Weddy’s WhatsApp number.',
+      waPendingOpen: 'Open WhatsApp',
+      waPendingNew: 'Get a new code',
+      waPendingLost: 'Confirmation requested. Reply “YES” with the code you saw, or get a new one.',
+      waConsentPendingSaved: 'Almost done: you still need to confirm on WhatsApp.',
       memoriesTitle: 'Weddy Memories',
       memoriesSub: 'Got photos from this wedding? Share them with the couple — only they can see the gallery.',
       memoriesUploadBtn: 'Add photo',
@@ -677,11 +733,12 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       currentLang = btn.dataset.lang;
       try{ localStorage.setItem('weddy_rsvp_lang', currentLang); }catch(e){}
       applyStaticTranslations();
+      document.getElementById('wa-msg').textContent = '';
       renderChildren();
       // keep=true: só volta a escrever os textos; nunca repõe as respostas
       // guardadas por cima do que a pessoa já escolheu e ainda não enviou, nem
       // tira o convidado do ecrã de "Obrigado".
-      if(guestData) renderForm({ keep:true });
+      if(guestData){ renderForm({ keep:true }); loadWaConsent(); }
     });
   });
   applyStaticTranslations();
@@ -692,6 +749,113 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     if(isNaN(d)) return '';
     return t('dateFormat')(d.getDate(), t('months')[d.getMonth()], d.getFullYear());
   }
+
+  // ============================================================
+  // CONSENTIMENTO WHATSAPP (A.3-bis) — caixa separada do RSVP, desmarcada
+  // por defeito. O texto, a versão e o estado vêm SEMPRE do servidor
+  // (getGuestWhatsappConsent) e o registo é gravado só pela Cloud Function
+  // setGuestWhatsappConsent, com data/hora do servidor. Se a função não
+  // existir ou falhar, a caixa simplesmente não aparece (o RSVP não depende
+  // disto).
+  // ============================================================
+  const waCodes = {}; // guestId -> { code, number, expiresAt } (só em memória; o servidor guarda apenas o hash)
+  let waConsent = null; // { version, text, people:[{guestId,name,phoneMasked,granted,grantedAt}] }
+  function waFmtDate(iso){
+    const d = new Date(iso); if(isNaN(d)) return '';
+    return d.toLocaleDateString(currentLang==='en' ? 'en-GB' : 'pt-PT');
+  }
+  function renderWaConsent(){
+    const box = document.getElementById('wa-consent');
+    if(!waConsent || !waConsent.people || !waConsent.people.length){ box.classList.add('state-hidden'); return; }
+    const list = document.getElementById('wa-people');
+    list.textContent = '';
+    waConsent.people.forEach((p, i)=>{
+      const row = document.createElement('div'); row.className = 'wa-person';
+      if(waConsent.people.length > 1 || p.name){
+        const who = document.createElement('div'); who.className = 'wa-who';
+        who.textContent = p.name || '';
+        const small = document.createElement('small'); small.textContent = p.phoneMasked;
+        who.appendChild(small); row.appendChild(who);
+      } else {
+        const who = document.createElement('div'); who.className = 'wa-who';
+        who.textContent = t('waConsentNumber') + ': ' + p.phoneMasked; row.appendChild(who);
+      }
+      const lab = document.createElement('label'); lab.className = 'wa-check';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!(p.granted || p.pending); cb.dataset.guestId = p.guestId; cb.id = 'wa-cb-' + i;
+      const tx = document.createElement('span'); tx.textContent = waConsent.text;
+      lab.appendChild(cb); lab.appendChild(tx); row.appendChild(lab);
+      if(p.granted && p.grantedAt){
+        const st = document.createElement('div'); st.className = 'wa-state'; st.textContent = t('waConsentGrantedOn')(waFmtDate(p.grantedAt)); row.appendChild(st);
+      }
+      if(p.granted) delete waCodes[p.guestId];
+      if(!p.granted && (p.pending || waCodes[p.guestId])){
+        const info = waCodes[p.guestId];
+        const conf = document.createElement('div'); conf.className = 'wa-confirm';
+        const ct = document.createElement('div'); ct.className = 'wa-ct'; ct.textContent = t('waPendingTitle'); conf.appendChild(ct);
+        if(info){
+          const cbd = document.createElement('div'); cbd.className = 'wa-cb'; cbd.textContent = t('waPendingBody')(waFmtDate(info.expiresAt)); conf.appendChild(cbd);
+          const code = document.createElement('span'); code.className = 'wa-code'; code.textContent = (currentLang==='en' ? 'YES ' : 'SIM ') + info.code; conf.appendChild(code);
+          if(info.number){
+            const a = document.createElement('a'); a.href = 'https://wa.me/' + encodeURIComponent(info.number) + '?text=' + encodeURIComponent((currentLang==='en' ? 'YES ' : 'SIM ') + info.code);
+            a.target = '_blank'; a.rel = 'noopener'; a.textContent = t('waPendingOpen'); conf.appendChild(a);
+          } else {
+            const nl = document.createElement('div'); nl.className = 'wa-cb'; nl.textContent = t('waPendingNoLink'); conf.appendChild(nl);
+          }
+        } else {
+          const cbd = document.createElement('div'); cbd.className = 'wa-cb'; cbd.textContent = t('waPendingLost'); conf.appendChild(cbd);
+        }
+        const nb = document.createElement('button'); nb.type = 'button'; nb.textContent = t('waPendingNew');
+        nb.addEventListener('click', ()=> waRequest(p.guestId, nb));
+        conf.appendChild(nb);
+        row.appendChild(conf);
+      }
+      list.appendChild(row);
+    });
+    box.classList.remove('state-hidden');
+  }
+  function loadWaConsent(){
+    if(!cloudFunctions || !guestToken) return;
+    cloudFunctions.httpsCallable('getGuestWhatsappConsent')({ token: guestToken, lang: currentLang }).then(res=>{
+      waConsent = res && res.data; renderWaConsent();
+    }).catch(()=>{ waConsent = null; renderWaConsent(); });
+  }
+  async function waRequest(guestId, btn){
+    const msg = document.getElementById('wa-msg'); btn.disabled = true; msg.className = 'msg'; msg.textContent = '';
+    try{
+      const r = await cloudFunctions.httpsCallable('setGuestWhatsappConsent')({ token: guestToken, guestId, optedIn: true, version: waConsent.version, lang: currentLang });
+      const d = r && r.data;
+      if(d && d.pending && d.code) waCodes[guestId] = { code: d.code, number: d.whatsappNumber || waConsent.whatsappNumber || '', expiresAt: d.expiresAt };
+      loadWaConsent();
+    }catch(err){ msg.className = 'msg error'; msg.textContent = t('waConsentError'); }
+    btn.disabled = false;
+  }
+  document.getElementById('wa-save').addEventListener('click', async ()=>{
+    if(!waConsent) return;
+    const btn = document.getElementById('wa-save'), msg = document.getElementById('wa-msg');
+    btn.disabled = true; msg.className = 'msg'; msg.textContent = '';
+    let anyErr = null, anyGrant = false, anyRevoke = false, anyPending = false;
+    for(const cb of document.querySelectorAll('#wa-people input[type=checkbox]')){
+      const person = waConsent.people.find(p=>p.guestId===cb.dataset.guestId);
+      if(!person || (person.granted || person.pending) === cb.checked) continue; // nada mudou: não grava nada
+      try{
+        const r = await cloudFunctions.httpsCallable('setGuestWhatsappConsent')({ token: guestToken, guestId: person.guestId, optedIn: cb.checked, version: waConsent.version, lang: currentLang });
+        const d = r && r.data;
+        if(cb.checked){
+          if(d && d.pending && d.code){ waCodes[person.guestId] = { code: d.code, number: d.whatsappNumber || waConsent.whatsappNumber || '', expiresAt: d.expiresAt }; anyPending = true; }
+          else anyGrant = true;
+        } else { delete waCodes[person.guestId]; anyRevoke = true; }
+      }catch(err){ anyErr = err; break; }
+    }
+    btn.disabled = false;
+    if(anyErr){
+      msg.className = 'msg error';
+      msg.textContent = (anyErr.details && anyErr.details.reason === 'text_outdated') ? t('waConsentOutdated') : t('waConsentError');
+      return;
+    }
+    msg.className = 'msg success';
+    msg.textContent = anyPending ? t('waConsentPendingSaved') : (anyRevoke && !anyGrant ? t('waConsentRemoved') : t('waConsentSaved'));
+    loadWaConsent();
+  });
 
   function show(id){
     ['loading-state','error-state','form-state','done-state'].forEach(s=>{
@@ -804,6 +968,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         guestData.members = guestData.members.map(m=>({ ...m, permanentGuestId: m.guestId || null, guestId: m.rsvpMemberId || m.guestId }));
       }
       renderForm();
+      loadWaConsent();
       // Regista que o convite foi aberto (só na primeira vez) — dá aos
       // noivos um estado intermédio ("visto, a pensar") antes de uma
       // resposta final, sem precisar de nenhuma notificação real.

@@ -13,10 +13,13 @@ service firebase.storage {
         && request.auth.token.email_verified == true
         && request.auth.token.email in
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      // Auditoria A.3: Memories é Premium — os envios só são aceites enquanto o
+      // casamento tiver Premium ativo e dentro da validade (ver premiumOn).
       allow create: if request.resource.size < 8 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)')
+        && premiumOn(firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data)
         && (token == 'publico'
-            ? firestore.exists(/databases/(default)/documents/weddings/$(weddingId))
+            ? true
             : firestore.get(/databases/(default)/documents/guests/$(token)).data.weddingId == weddingId);
       allow delete: if request.auth != null
         && request.auth.token.email_verified == true
@@ -69,18 +72,31 @@ service firebase.storage {
     }
 
     // Documentos do casamento (contratos, anexos) — só o casal dono.
+    // Auditoria A.3: Documentos é Premium — carregar/substituir exige Premium
+    // ativo e dentro da validade; ler e apagar continuam sempre permitidos ao
+    // casal (os ficheiros são deles, mesmo depois de o Premium acabar).
     match /documents/{weddingId}/{fileName} {
       allow read, delete: if request.auth != null
         && request.auth.token.email_verified == true
         && request.auth.token.email in
            firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
-      allow write: if request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email in
-           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
+      allow create, update: if canWriteDocument(weddingId)
         && request.resource.size < 15 * 1024 * 1024
         && (request.resource.contentType == 'application/pdf'
             || request.resource.contentType.matches('image/(jpeg|jpg|png|webp|heic|heif|gif)'));
+    }
+
+    function premiumOn(w) {
+      return ('subscription' in w)
+        && w.subscription.active == true
+        && (!('premiumUntil' in w.subscription) || w.subscription.premiumUntil > request.time);
+    }
+    function canWriteDocument(weddingId) {
+      let w = firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data;
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in w.ownerEmails
+        && premiumOn(w);
     }
 
     // Capturas de ecrã do "Reportar problema" (index.html). Em falta até

@@ -1,0 +1,14 @@
+{
+  "name": "weddy-rules-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulators": "firebase emulators:start --only firestore,storage --project demo-weddy",
+    "test": "node premium-rules.test.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.0",
+    "firebase": "^10.14.0",
+    "firebase-tools": "^13.0.0"
+  }
+}
