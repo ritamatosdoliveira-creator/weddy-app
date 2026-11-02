@@ -5869,14 +5869,14 @@ function contactIsContention(e) {
 }
 const contactSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function contactReserveRetry(ip, email, msg, now) {
-  const ATTEMPTS = 8;
+  const ATTEMPTS = 12;
   for (let i = 0; i < ATTEMPTS; i++) {
     try {
       return await contactReserve(ip, email, msg, now);
     } catch (e) {
       if (!contactIsContention(e)) throw e;
       if (i === ATTEMPTS - 1) return { status: 'limited' };
-      await contactSleep(Math.random() * Math.min(1000, 40 * 2 ** i));
+      await contactSleep(Math.random() * Math.min(1500, 40 * 2 ** i));
     }
   }
   return { status: 'limited' };

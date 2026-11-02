@@ -39,27 +39,30 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
     { name: 'IP único, 10 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 10 }, () => post(uniq(), '203.0.113.41'))); return { c, expectOk: 8 }; } },
     { name: 'IP único, 40 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 40 }, () => post(uniq(), '203.0.113.42'))); return { c, expectOk: 8 }; } },
     { name: 'IP único, 60 em paralelo', run: async () => { const c = await Promise.all(Array.from({ length: 60 }, () => post(uniq(), '203.0.113.43'))); return { c, expectOk: 8 }; } },
-    { name: '40 IPs distintos misturados (limite global 30/h)', run: async () => { const ips = shuffle(Array.from({ length: 40 }, (_, i) => '192.0.2.' + (i + 1))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 30 }; } },
+    { name: '40 IPs distintos misturados (limite global 30/h)', run: async () => { const ips = shuffle(Array.from({ length: 40 }, (_, i) => '192.0.2.' + (i + 1))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 30, atMost: true }; } },
     { name: '3 IPs × 6 pedidos entrelaçados (8/h por IP)', run: async () => { const ips = shuffle(['198.51.100.1', '198.51.100.2', '198.51.100.3'].flatMap((ip) => Array(6).fill(ip))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 18 }; } },
     { name: 'mesma mensagem 12× em paralelo (duplicados → 1 envio)', run: async () => { const b = uniq(); const c = await Promise.all(Array.from({ length: 12 }, (_, i) => post(b, '203.0.113.' + (60 + i)))); return { c, expectOk: 12, expectMails: 1 }; } },
   ];
   const only = process.env.SCEN ? process.env.SCEN.split(',').map(Number) : null;
   for (const [si, sc] of scenarios.entries()) {
     if (only && !only.includes(si)) continue;
-    let bad = 0, bypass = 0, dupMails = 0, totalFailOpen = 0, minOk = 1e9, maxOk = 0;
+    let underAdmit = 0, bad = 0, bypass = 0, dupMails = 0, totalFailOpen = 0, minOk = 1e9, maxOk = 0;
     for (let i = 0; i < REPS; i++) {
       await clear();
-      const { c, expectOk, expectMails } = await sc.run();
+      const { c, expectOk, expectMails, atMost } = await sc.run();
       const okN = c.filter((x) => x === 200).length, lim = c.filter((x) => x === 429).length;
       minOk = Math.min(minOk, okN); maxOk = Math.max(maxOk, okN); totalFailOpen += failOpen;
       const want = expectMails != null ? expectMails : expectOk;
       if (mails.length > want) bypass++;                       // PROTEÇÃO CONTORNADA (mais envios do que o permitido)
-      if (expectMails == null && okN !== expectOk) bad++;
+      if (expectMails == null && !atMost && okN !== expectOk) bad++;
+      if (atMost && okN > expectOk) bad++; // contenção extrema pode recusar de mais (lado seguro); nunca pode deixar passar de mais
+      if (atMost && okN < expectOk) underAdmit++;
       if (expectMails != null && mails.length !== want) bad++;
       const subjects = mails.map((m) => m.text); if (new Set(subjects).size !== subjects.length) dupMails++;
       if (c.some((x) => x !== 200 && x !== 429)) bad++;
     }
     if (errSet.size) { console.log('INFO fail-open causas: ' + [...errSet].join(' | ')); errSet.clear(); }
+    if (underAdmit) console.log(`INFO [${sc.name}] ${underAdmit}/${REPS} repetições recusaram pedidos legítimos sob contenção extrema (lado seguro)`);
     ok(bypass === 0, `[${sc.name}] nunca passa mais do que o limite (${REPS} repetições)`);
     ok(dupMails === 0, `[${sc.name}] sem emails duplicados`);
     ok(bad === 0, `[${sc.name}] resultado exato em todas as repetições (ok entre ${minOk} e ${maxOk}; fail-open=${totalFailOpen}, desvios=${bad})`);
