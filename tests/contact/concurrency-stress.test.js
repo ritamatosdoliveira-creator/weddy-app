@@ -18,8 +18,8 @@ let mails = [], smtpFailFirst = 0, smtpCalls = 0;
 nodemailer.createTransport = () => ({ sendMail: async (m) => { smtpCalls++; if (smtpFailFirst > 0) { smtpFailFirst--; throw new Error('smtp down'); } mails.push(m); } });
 let failOpen = 0, releaseFail = 0;
 const origWarn = console.warn;
-console.warn = (...a) => { const s = String(a[0] || ''); if (s.includes('limite indisponível')) { failOpen++; lastErr = String(a[1] || ''); } else if (s.includes('release falhou')) releaseFail++; else origWarn(...a); };
-let lastErr = '';
+console.warn = (...a) => { const s = String(a[0] || ''); if (s.includes('limite indisponível')) { failOpen++; lastErr = String(a[1] || ''); errSet.add(lastErr.slice(0, 160)); } else if (s.includes('release falhou')) releaseFail++; else origWarn(...a); };
+let lastErr = ''; const errSet = new Set();
 const origErr = console.error; console.error = (...a) => { if (String(a[0] || '').startsWith('sendContactMessage')) return; origErr(...a); };
 
 let base, n = 0;
@@ -43,7 +43,9 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
     { name: '3 IPs × 6 pedidos entrelaçados (8/h por IP)', run: async () => { const ips = shuffle(['198.51.100.1', '198.51.100.2', '198.51.100.3'].flatMap((ip) => Array(6).fill(ip))); const c = await Promise.all(ips.map((ip) => post(uniq(), ip))); return { c, expectOk: 18 }; } },
     { name: 'mesma mensagem 12× em paralelo (duplicados → 1 envio)', run: async () => { const b = uniq(); const c = await Promise.all(Array.from({ length: 12 }, (_, i) => post(b, '203.0.113.' + (60 + i)))); return { c, expectOk: 12, expectMails: 1 }; } },
   ];
-  for (const sc of scenarios) {
+  const only = process.env.SCEN ? process.env.SCEN.split(',').map(Number) : null;
+  for (const [si, sc] of scenarios.entries()) {
+    if (only && !only.includes(si)) continue;
     let bad = 0, bypass = 0, dupMails = 0, totalFailOpen = 0, minOk = 1e9, maxOk = 0;
     for (let i = 0; i < REPS; i++) {
       await clear();
@@ -57,6 +59,7 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
       const subjects = mails.map((m) => m.text); if (new Set(subjects).size !== subjects.length) dupMails++;
       if (c.some((x) => x !== 200 && x !== 429)) bad++;
     }
+    if (errSet.size) { console.log('INFO fail-open causas: ' + [...errSet].join(' | ')); errSet.clear(); }
     ok(bypass === 0, `[${sc.name}] nunca passa mais do que o limite (${REPS} repetições)`);
     ok(dupMails === 0, `[${sc.name}] sem emails duplicados`);
     ok(bad === 0, `[${sc.name}] resultado exato em todas as repetições (ok entre ${minOk} e ${maxOk}; fail-open=${totalFailOpen}, desvios=${bad})`);
