@@ -10219,7 +10219,7 @@ function checkMissingMeals(){
 // alojamento, alimentação ou acessibilidade por organizar (nunca o conteúdo).
 // Só aparece quando o casamento está a menos de 120 dias, para não pesar cedo.
 function checkLogisticsToOrganize(){
-  if(!weddingSettings.weddingDate || !rsvpResponsesLoaded) return null;
+  if(!weddingSettings.weddingDate || !rsvpResponsesLoaded || !hasActiveSubscription()) return null;
   const dias = daysUntil(weddingSettings.weddingDate);
   if(!(dias!==null && dias>=0 && dias<=120)) return null;
   let n = 0;
@@ -12468,6 +12468,7 @@ document.addEventListener('change', e=>{
 // movido nem sugerido automaticamente nos lugares.
 function logiSeatMap(){
   const map = {};
+  if(!hasActiveSubscription()) return map;
   try{
     flattenAllGuestsForRSVP().forEach(it=>{
       const x = logiInfo(it);
@@ -17907,6 +17908,7 @@ async function revokeRSVPLink(side, catId, idx, name){
   deleteGuestRSVPDoc(entry).then(()=>{
     entry.rsvpToken = null;
     entry.rsvpMemberId = null;
+    delete entry.logi; // acompanhamento privado da logística: sem convite não há dados a que se refira
     render();
   }).catch(err=>{
     console.error('Weddy RSVP revoke error:', err.code, err.message);
@@ -18924,13 +18926,25 @@ const WeddyActions = {
       return flattenAllGuestsForRSVP().filter(isRsvpPending).map(g=>g.name).filter(Boolean);
     },
     getDietaryList(){
-      return flattenAllGuestsForRSVP().filter(g=>{
+      // Fase C: inclui também a alimentação estruturada do RSVP (alergias,
+      // intolerâncias, dietas, preferências), além da nota livre antiga —
+      // senão o Assistente do casal só "via" metade do que os convidados indicaram.
+      // (Resposta mostrada localmente ao casal; nada disto vai para a IA.)
+      return flattenAllGuestsForRSVP().map(g=>{
         const resp = g.entry.rsvpToken ? memberRSVPResponse(g) : null;
-        return resp && resp.dietary && resp.dietary.trim();
-      }).map(g=>{
-        const resp = memberRSVPResponse(g);
-        return `${g.name} (${resp.dietary.trim()})`;
-      });
+        if(!resp) return null;
+        const x = logiInfo(g);
+        const parts = [];
+        if(x){
+          if(x.allergies.length) parts.push(ta('logiAllergies')+': '+x.allergies.join(', '));
+          if(x.intol.length) parts.push(ta('logiIntol')+': '+x.intol.join(', '));
+          if(x.diets.length) parts.push(x.diets.map(d=>ta('logiDiet_'+d)).join(', '));
+          if(x.foodPref) parts.push(ta('logiFoodPref')+': '+x.foodPref);
+        }
+        const note = (resp.dietary && typeof resp.dietary==='string') ? resp.dietary.trim() : '';
+        if(note) parts.push(note);
+        return parts.length ? `${g.name} (${parts.join('; ')})` : null;
+      }).filter(Boolean);
     },
     getRemainingPayments(){
       const gasto = totalExpenseValue();
@@ -21474,10 +21488,21 @@ function logiInfo(item){
   info.access = !!(info.mobility || info.assistance || info.accessOther);
   info.hasKids = info.kids.length > 0;
   info.any = info.transport || info.lodging || info.food || info.access || info.hasKids;
+  // Fase C: "organizado" guarda uma assinatura dos dados em que se baseou
+  // ('done@<hash>'). Se o convidado mudar depois as suas necessidades, a
+  // assinatura deixa de coincidir e volta a "por organizar" — nunca fica
+  // "organizado" com base em informação que já não é a atual. O valor
+  // antigo 'done' (sem assinatura) continua a valer como organizado.
+  info.sig = {
+    transport: ntHash(JSON.stringify([info.transport, info.tr])),
+    lodging: ntHash(JSON.stringify([info.lodging, info.lo])),
+    needs: ntHash(JSON.stringify([info.allergies, info.intol, info.diets, info.foodPref, info.dietaryNote, info.mobility, info.assistance, info.accessOther]))
+  };
   const L = info.logi;
-  info.todoTransport = info.transport && L.transport!=='done';
-  info.todoLodging = info.lodging && L.lodging!=='done';
-  info.todoNeeds = (info.food || info.access) && L.needs!=='done';
+  const isDone = f => L[f]==='done' || L[f]===('done@'+info.sig[f]);
+  info.todoTransport = info.transport && !isDone('transport');
+  info.todoLodging = info.lodging && !isDone('lodging');
+  info.todoNeeds = (info.food || info.access) && !isDone('needs');
   info.todo = info.todoTransport || info.todoLodging || info.todoNeeds;
   return info;
 }
@@ -24136,7 +24161,10 @@ function bindHandlers(){
       const arr = getGuestNames(side, catId); const entry = arr && arr[Number(idxStr)];
       if(!entry || !['transport','lodging','needs'].includes(field)) return;
       entry.logi = (entry.logi && typeof entry.logi==='object') ? entry.logi : {};
-      if(entry.logi[field]==='done') delete entry.logi[field]; else entry.logi[field] = 'done';
+      const cur = logiInfo({ entry, name: entry.name || '' });
+      const isDoneNow = cur ? !cur['todo'+field.charAt(0).toUpperCase()+field.slice(1)] : entry.logi[field]==='done';
+      if(isDoneNow && entry.logi[field]) delete entry.logi[field];
+      else entry.logi[field] = cur ? 'done@'+cur.sig[field] : 'done';
       if(!Object.keys(entry.logi).length) delete entry.logi;
       pushRemote(true);
       _origRender();

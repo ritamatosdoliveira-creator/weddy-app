@@ -41,6 +41,10 @@ async def main():
             ok('Alergias: marisco' in txt and 'Intolerâncias' in txt and 'vegano' in txt and 'cadeira de bebé' in txt and 'menu infantil' in txt, f'[{name}] detalhe por convidado completo')
             ok('Porto' in txt and '30/06 → 02/07' in txt and 'ida e volta' in txt, f'[{name}] transporte e alojamento no detalhe')
             ok('nota antiga' in txt, f'[{name}] nota antiga (dietary) preservada e identificada')
+            dl = await pg.evaluate("window.__t.diet()")
+            dj = ' | '.join(dl)
+            ok(any(x.startswith('Ana') and 'marisco' in x and 'lactose' in x and 'vegano' in x and 'nota antiga' in x for x in dl), f'[{name}] Assistente do casal lista alimentação estruturada + nota: {dj}')
+            ok(any('Fam2' in x and 'gluten' in x for x in dl) and 'amendoim' not in dj, f'[{name}] Assistente inclui família e exclui quem recusou')
             ok('amendoim' not in txt, f'[{name}] alergia de quem recusou nunca é mostrada')
             # filtros
             await pg.click('.logi-sum-row[data-logifilter=food]'); await pg.wait_for_timeout(100)
@@ -54,7 +58,7 @@ async def main():
             n0 = await pg.evaluate("window.__t.lg.all().filter(x=>x.todo).length")
             await pg.click('[data-logifollow^="noiva|familia|0|transport"]'); await pg.wait_for_timeout(100)
             logi = await pg.evaluate("window.__t.state.guests.noiva.familia[0].logi")
-            ok(logi=={'transport':'done'}, f'[{name}] marcar transporte como organizado → {logi}')
+            ok(isinstance(logi,dict) and list(logi)==['transport'] and logi['transport'].startswith('done@'), f'[{name}] marcar transporte como organizado → {logi}')
             await pg.click('[data-logifollow^="noiva|familia|0|transport"]')
             ok(await pg.evaluate("window.__t.state.guests.noiva.familia[0].logi")==None, f'[{name}] voltar a "por organizar" remove o campo')
             # grupo de transporte

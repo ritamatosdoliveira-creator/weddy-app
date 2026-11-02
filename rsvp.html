@@ -1346,6 +1346,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         children: Array.isArray(r.children) ? r.children.map(childFromSaved) : [],
         lg: lgFromSaved(r.logistics)
       };
+      familyBaseline[m.guestId] = JSON.stringify(familyMemberPayload(m.guestId));
     });
     document.getElementById('family-flow').classList.remove('state-hidden');
     renderFamilyMembers();
@@ -1523,6 +1524,24 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     document.getElementById('send-btn').disabled = !(members.length && members.every(m=>familyMemberState[m.guestId].attend));
   }
 
+  // Resposta (payload) de um membro da família, tal como é gravada no Firestore.
+  function familyMemberPayload(mid){
+    const st = familyMemberState[mid];
+    const attending = st.attend==='yes' ? true : st.attend==='no' ? false : null;
+    const out = {
+      attending,
+      rsvpStatus: st.attend,
+      meal: attending ? st.meal : '',
+      dietary: attending ? (st.dietary||'').trim() : '',
+      transporte: attending ? !!st.transporte : false,
+      alojamento: attending ? !!st.alojamento : false,
+      children: attending ? st.children.filter(c=>(c.name||'').trim()).map(childPayload) : []
+    };
+    const lgOut = attending ? lgBuild(st.lg, st.transporte, st.alojamento) : null;
+    if(lgOut) out.logistics = lgOut;
+    return out;
+  }
+  let familyBaseline = {};
   function submitFamilyResponse(){
     const msgEl = document.getElementById('form-msg');
     const btn = document.getElementById('send-btn');
@@ -1552,30 +1571,23 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     msgEl.textContent = t('sending');
     msgEl.className = 'msg';
     const responses = {};
-    members.forEach(m=>{
-      const st = familyMemberState[m.guestId];
-      const attending = st.attend==='yes' ? true : st.attend==='no' ? false : null;
-      responses[m.guestId] = {
-        attending,
-        rsvpStatus: st.attend,
-        meal: attending ? st.meal : '',
-        dietary: attending ? (st.dietary||'').trim() : '',
-        transporte: attending ? !!st.transporte : false,
-        alojamento: attending ? !!st.alojamento : false,
-        children: attending ? st.children.filter(c=>(c.name||'').trim()).map(childPayload) : []
-      };
-      const lgOut = attending ? lgBuild(st.lg, st.transporte, st.alojamento) : null;
-      if(lgOut) responses[m.guestId].logistics = lgOut;
-    });
+    members.forEach(m=>{ responses[m.guestId] = familyMemberPayload(m.guestId); });
     // Grava cada membro no seu próprio caminho ("responses.<id>"), em vez de
     // substituir o mapa "responses" inteiro. Isto evita que, se outra pessoa
     // da família estiver a responder ao mesmo tempo noutro telemóvel, uma
     // das respostas apague silenciosamente a da outra: cada escrita só toca
     // nos campos dos membros que este dispositivo está mesmo a enviar.
     const familyUpdatePayload = { respondedAt: firebase.firestore.FieldValue.serverTimestamp() };
-    members.forEach(m=>{ familyUpdatePayload['responses.' + m.guestId] = responses[m.guestId]; });
+    // Fase C: só se escrevem os membros que ESTE dispositivo realmente alterou
+    // (comparado com o que carregou). Antes, enviar a resposta de um membro
+    // reescrevia também os restantes com o estado que este telemóvel tinha
+    // carregado — se outro familiar tivesse respondido entretanto noutro
+    // telemóvel, a resposta (e a logística) dele era apagada em silêncio.
+    const written = members.filter(m=>JSON.stringify(responses[m.guestId]) !== familyBaseline[m.guestId]);
+    written.forEach(m=>{ familyUpdatePayload['responses.' + m.guestId] = responses[m.guestId]; });
     db.collection('guests').doc(guestToken).update(familyUpdatePayload).then(()=>{
-      guestData.responses = responses;
+      guestData.responses = Object.assign({}, guestData.responses || {}, ...written.map(m=>({ [m.guestId]: responses[m.guestId] })));
+      written.forEach(m=>{ familyBaseline[m.guestId] = JSON.stringify(responses[m.guestId]); });
       updateDeleteLinkVisibility();
       const anyYes = members.some(m=>responses[m.guestId].attending===true);
       const anyMaybe = members.some(m=>responses[m.guestId].rsvpStatus==='maybe');
@@ -1958,14 +1970,34 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
   // 1) CLASSIFICAÇÃO — hoje por keywords (nenhuma IA real). Devolve sempre
   // { intent, value? }; nunca decide sozinha se a intenção é permitida ou
   // como responder — isso é o trabalho dos dois passos seguintes.
+  // Deteta perguntas sobre dados privados de terceiros (tema sensível + referência
+  // a outra pessoa/grupo: "outros", "quem", nomes, ele/ela, familiares, mesa…).
+  const PRIV_TOPIC = /(alerg|allerg|intoler|dieta|dietary|restri[cç][õo]es alimentares|acessibilid|accessib|mobilidade|mobility|cadeira de rodas|wheelchair|necessidades especiais|special needs|deficien|disab|gl[uú]ten|gluten|lactose|vegetarian|vegan|cel[ií]ac)/i;
+  const PRIV_LOGI = /(transporte|alojamento|carrinha|boleia|transport|accommodation|lodging|\bride\b)/i;
+  const PRIV_OTHERS = /(outr[oa]s?|restantes|convidados|quem|alguém|alguem|ninguém|ninguem|fam[ií]lia|mesa\b|others?\b|other guests|guests|who\b|anyone|someone|everyone|todos|table|family|pessoas|people|persons|list(?:a|ar|e)?\b|ele\b|ela\b|eles\b|elas\b|dele|dela|deles|delas|\bhe\b|\bshe\b|\bhis\b|\bher\b|\bhim\b|\bthey\b|\btheir\b|marido|mulher|esposa|namorad|filh[oa]|\bpai\b|m[ãa]e\b|irm[ãa]o|irm[ãa]\b|amig[oa]|cunhad|prim[oa]|\btio\b|\btia\b|av[óo]|husband|wife|\bson\b|daughter|friend|mother|father|brother|sister|cousin|uncle|aunt)/i;
+  const PRIV_NAME = /(\b(?:d[oa]s?|of|for)\s+\p{Lu}\p{Ll}{2,}|\b(?:[Oo]|[Aa])\s+\p{Lu}\p{Ll}{2,}\s+(?:tem|vai|precisa|pediu|é|usa|has|needs|is|uses|asked))/u;
+  function asksAboutOthersPrivate(original, lower){
+    const t = String(original||'');
+    if(PRIV_TOPIC.test(lower) && (PRIV_OTHERS.test(lower) || PRIV_NAME.test(t))){
+      // Perguntas gerais sobre o menu ("há opções para pessoas com alergias?") não são sobre terceiros.
+      const generic = /(op[çc][õo]es|\bmenu\b|ementa|options|catering|cozinha|kitchen|dispon[ií]vel|available|adaptad|accommodate)/i.test(lower);
+      const strong = /(quem|who|outr[oa]s?|others?\b|convidados|guests|alguém|alguem|ninguém|anyone|someone|mesa\b|table|fam[ií]lia|family)/i.test(lower) || PRIV_NAME.test(t);
+      if(!(generic && !strong)) return true;
+    }
+    if(PRIV_LOGI.test(lower) && (/(quem|who|(que|quais|which|what)\s+(outr[oa]s?\s+|other\s+)?(convidados|pessoas|guests|people))\b/i.test(lower)
+        || /d[oa]s? (outros|convidados|restantes)|of (the )?(other|guests)/i.test(lower)
+        || (/(outr[oa]s?|others?\b|convidados|guests|pessoas|people)/i.test(lower) && /(precisa|pediu|vai(?:m)?\b|quer|need|asked|going|want)/i.test(lower))
+        || PRIV_NAME.test(t)
+        || /\b(ele|ela|dele|dela|he|she|his|her)\b/i.test(lower) && /(vai|precisa|pediu|needs|asked|going)/i.test(lower))) return true;
+    return false;
+  }
   function classifyIntent(pergunta){
     const p = pergunta.toLowerCase();
-    // B.2 — privacidade: perguntas sobre alergias, acessibilidade, transporte
-    // ou alojamento DE OUTRAS PESSOAS nunca são respondidas (o Concierge só
-    // conhece o documento deste convidado e o que os noivos publicaram).
-    if(/(alerg|intoler|restri[cç][õo]es alimentares|acessibilid|mobilidade|necessidades especiais|allerg|intoleran|accessib|dietary|wheelchair)/i.test(p) && /(outr[oa]s?|convidados|quem|alguém|alguem|ninguém|fam[ií]lia d|mesa|others?\b|other guests|guests|who\b|anyone|someone|everyone|todos|table)/i.test(p)
-       || /(quem|who|(que|quais|which|what)\s+(outr[oa]s?\s+|other\s+)?(convidados|pessoas|guests|people))\b.*(transporte|alojamento|carrinha|boleia|transport|accommodation|ride|lodging)/i.test(p)
-       || /(transporte|alojamento|transport|accommodation).*(d[oa]s? (outros|convidados|restantes)|of (the )?(other|guests))/i.test(p)){
+    // B.2/Fase C — privacidade: perguntas sobre alergias, acessibilidade, dieta,
+    // transporte ou alojamento DE OUTRAS PESSOAS nunca são respondidas (o
+    // Concierge só conhece o documento deste convidado e o que os noivos
+    // publicaram) e não chegam ao serviço de IA.
+    if(asksAboutOthersPrivate(pergunta, p)){
       return { intent: WEDDY_INTENTS.ASK_OTHERS_PRIVATE };
     }
     // Nota de ordem: verificações mais específicas (alojamento, transporte,

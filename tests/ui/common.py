@@ -26,6 +26,7 @@ window.__t={get state(){return state;}, set state(v){state=v;}, get gimp(){retur
  back:function(){return weddyBackStep();}, lang:function(l){ appLang=l; },
  mesas:{ open:function(id){ openTable[id]=true; }, go:function(){ activeTab='mesas'; render(); }, seat:function(k){ return openSeatSheet(k); } },
  hc:function(){ return getWeddingHealthChecks().map(function(c){ return {id:c.id,text:c.text,severity:c.severity}; }); }, setDate:function(d){ weddingSettings.weddingDate=d; },
+ diet:function(){ return WeddyActions.read.getDietaryList(); },
  lg:{ screen:function(f){ activeTab='definicoes'; definicoesSection='rsvp'; rsvpSubScreen='logistica'; if(f) logiFilter=f; render(); }, hub:function(){ activeTab='definicoes'; definicoesSection='rsvp'; rsvpSubScreen=null; render(); }, all:function(){ return logiAll().map(function(x){ return {name:x.item.name, todo:x.todo}; }); }, groups:function(){ return logiGroups(logiAll()); } },
  ap:{ insights:function(){ return rsvpAutopilotInsights(); }, list:function(){ return rsvpAutopilotList().map(function(x){ return {name:x.item.name, bucket:x.bucket}; }); }, cfg:function(){ return rsvpAutopilotConfig(); }, settings:function(){ return weddingSettings; }, screen:function(){ activeTab='definicoes'; definicoesSection='rsvp'; rsvpSubScreen='deadline'; render(); } }};
 window.__a4={ san:a4SanitizeState, sanIn:a4SanitizeIncoming, seed:seedData, get state(){return state;}, set state(v){state=v;}, render:function(){ return render(); }, errs:function(){ return a4ViewErrors; },

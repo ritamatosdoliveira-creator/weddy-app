@@ -21,3 +21,7 @@ firebase-debug*.log
 *.p8
 *.p12
 *.tgz
+
+# Python (testes de UI)
+__pycache__/
+*.pyc
