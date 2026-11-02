@@ -700,6 +700,16 @@ const COUPLE_INTENTS = [
   // Guests+Mesas; ver WeddyActions.read em clone-app/index.html).
   'GET_SUPPLIER_PAYMENT_INFO', 'GET_UNCONTRACTED_SUPPLIERS', 'GET_PAYMENTS_THIS_MONTH',
   'SEARCH_SUPPLIER_CONTRACT', 'GET_SUPPLIER_BUDGET_MISMATCHES', 'GET_GUESTS_WITHOUT_TABLE',
+  // Fase E — Copilot: novas intenções, TODAS de leitura (L1). A IA só
+  // escolhe a intenção; quem lê os dados e escreve a resposta é sempre o
+  // cliente (WeddyActions). CREATE_TASK é a única intenção de escrita que a
+  // IA pode sugerir, e o cliente nunca a executa sem o casal confirmar o
+  // texto exato (COPILOT_POLICY / checkCopilotIntentPermission). Nenhuma
+  // intenção de apagar/pagar/alterar dados é, nem pode ser, oferecida aqui.
+  'GET_WEDDING_INFO', 'GET_GUEST_STATUS', 'GET_DECLINED_GUESTS', 'GET_OVERDUE_TASKS',
+  'GET_TASK_SUMMARY', 'GET_TABLE_AVAILABILITY', 'GET_SUPPLIER_CONTACT',
+  'GET_SUPPLIERS_MISSING_INFO', 'GET_OVERDUE_PAYMENTS', 'GET_LOGISTICS_SUMMARY',
+  'GET_WEDDING_HEALTH', 'GET_SUPPLIER_OVERVIEW',
 ];
 
 // Correção estrutural (Set 2026, achado nos testes reais da Rita): o
@@ -734,6 +744,18 @@ const INTENT_DESCRIPTIONS = {
   SEARCH_SUPPLIER_CONTRACT: 'procurar informação dentro do contrato de um fornecedor nomeado na pergunta',
   GET_SUPPLIER_BUDGET_MISMATCHES: 'fornecedores cujo valor contratado não bate com o orçamento',
   GET_GUESTS_WITHOUT_TABLE: 'listar convidados confirmados sem mesa atribuída',
+  GET_WEDDING_INFO: 'dados gerais do casamento: nomes dos noivos, data, local',
+  GET_GUEST_STATUS: 'estado de RSVP (confirmou, recusou, sem resposta) de UM convidado nomeado na pergunta',
+  GET_DECLINED_GUESTS: 'listar convidados que recusaram o convite',
+  GET_OVERDUE_TASKS: 'listar tarefas em atraso (prazo já passou)',
+  GET_TASK_SUMMARY: 'quantas tarefas estão feitas, pendentes ou em atraso',
+  GET_TABLE_AVAILABILITY: 'lugares livres/ocupados e capacidade das mesas',
+  GET_SUPPLIER_CONTACT: 'contacto (telefone, email, site) de um fornecedor nomeado na pergunta',
+  GET_SUPPLIERS_MISSING_INFO: 'fornecedores com informação em falta (contacto, preço)',
+  GET_OVERDUE_PAYMENTS: 'pagamentos em atraso (data de pagamento já passou)',
+  GET_LOGISTICS_SUMMARY: 'resumo da logística dos convidados: transporte, alojamento, alimentação, acessibilidade, crianças',
+  GET_WEDDING_HEALTH: 'o que está atrasado ou precisa de atenção no casamento, no geral',
+  GET_SUPPLIER_OVERVIEW: 'visão geral dos fornecedores (quantos contratados, total orçado)',
   // Convidados (Weddy Concierge)
   GET_VENUE: 'onde é o casamento (local/morada)',
   GET_SCHEDULE: 'horário/agenda do dia do casamento',
@@ -778,7 +800,7 @@ function buildClassifyPrompt(question, allowedIntents) {
 
 async function callOpenAI(question, allowedIntents) {
   const key = OPENAI_API_KEY.value();
-  if (!key) return { intent: 'UNKNOWN' };
+  if (!key) return { intent: 'UNKNOWN', noKey: true };
   const schema = {
     type: 'object',
     properties: {
@@ -953,6 +975,29 @@ async function checkAndIncrementAiUsage(weddingId, isCouple = true) {
   });
 }
 
+// Fase E: uma chamada à OpenAI que FALHA (rede, 5xx, resposta vazia/inválida)
+// não deve gastar a quota diária do casal — o contador é incrementado antes
+// da chamada (para a quota ser atómica e não haver corridas), por isso
+// devolve-se aqui, na mesma transação, se a chamada não chegou a produzir
+// resposta. Nunca desce abaixo de 0 e só mexe no contador do dia corrente.
+async function refundAiUsage(weddingId, isCouple = true) {
+  if (!weddingId || typeof weddingId !== 'string') return;
+  const today = new Date().toISOString().slice(0, 10);
+  const ref = db.collection('aiUsage').doc(weddingId);
+  const field = isCouple ? 'count' : 'guestCount';
+  try {
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return;
+      const data = snap.data();
+      if (data.day !== today || !(data[field] > 0)) return;
+      tx.set(ref, { [field]: data[field] - 1 }, { merge: true });
+    });
+  } catch (e) {
+    logger.error(`refundAiUsage: ${e.message || e}`);
+  }
+}
+
 // Auditoria Out 2026 (achado ALTO): sendWhatsappRsvpReminder não tinha
 // nenhum limite — nada impedia o casal (ou um script com as credenciais
 // deles) de chamar isto em loop para o mesmo convidado, gerando custo na
@@ -1022,7 +1067,15 @@ exports.classifyWeddyIntent = onCall({ region: 'europe-west1', secrets: [OPENAI_
       logger.info(`classifyWeddyIntent: limite diário atingido para o casamento ${weddingId}.`);
       return { intent: 'UNKNOWN' };
     }
-    return await callOpenAI(question.trim(), allowedIntents);
+    let result;
+    try {
+      result = await callOpenAI(question.trim(), allowedIntents);
+    } catch (callErr) {
+      await refundAiUsage(weddingId, isCouple); // falhou antes de haver resposta: não consome quota
+      throw callErr;
+    }
+    if (result && result.noKey) { await refundAiUsage(weddingId, isCouple); return { intent: 'UNKNOWN' }; }
+    return result;
   } catch (err) {
     // Fix (Set 2026, encontrado ao testar ao vivo): o bloqueio Premium
     // (assertPremiumWedding, acima) lança de propósito um

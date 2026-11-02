@@ -7300,6 +7300,58 @@ const APP_I18N = {
     cpPermDenied:'Não consigo fazer isso por aqui.',
     cpTaskCreated:(value,label)=>`Criei a tarefa "${value}" em Tarefas → ${label}. Já a consegues ver e editar lá.`,
     cpTaskCreateFailed:(value)=>`Não consegui guardar a tarefa "${value}" — houve um problema a gravar agora. Tenta outra vez daqui a pouco.`,
+    // Fase E — Copilot: confirmações, escritas e novas consultas
+    cpPermNoSession:'Não consegui confirmar a tua sessão — volta a iniciar sessão e tenta outra vez. Não alterei nada.',
+    cpPermPremium:'O Assistente faz parte do plano Premium. Não alterei nada.',
+    cpPermAi:'Esse pedido tem de ser feito por ti diretamente — não o executo a partir de uma interpretação automática. Não alterei nada.',
+    cpUnsupportedAction:'Isso não o faço pelo chat — por segurança, esse tipo de alteração (apagar convidados ou fornecedores, marcar pagamentos, aplicar mesas, enviar mensagens) faz-se no ecrã respetivo da app, onde vês e confirmas tudo. Posso ajudar-te a consultar a informação ou a preparar o texto.',
+    cpYes:'Sim',
+    cpNo:'Não',
+    cpNoPending:'Não tenho nenhuma ação pendente para confirmar.',
+    cpCancelled:'Está bem, não alterei nada.',
+    cpPendingExpired:'Essa confirmação já expirou — não alterei nada. Pede-me outra vez se ainda quiseres.',
+    cpPendingStale:'Entretanto os dados mudaram, por isso não executei nada. Pede-me outra vez e preparo com os dados atuais.',
+    cpPendingBusy:'Ainda estou a tratar do pedido anterior — espera um instante.',
+    cpTaskNotFound:(q)=>`Não encontrei nenhuma tarefa parecida com "${q}".`,
+    cpTaskAmbiguous:(l)=>`Encontrei várias tarefas parecidas: ${l}. Qual delas?`,
+    cpTaskAlreadyDone:(t)=>`A tarefa "${t}" já estava concluída — não alterei nada.`,
+    cpTaskAlreadyOpen:(t)=>`A tarefa "${t}" já estava por fazer — não alterei nada.`,
+    cpTaskCompleted:(t)=>`Marquei a tarefa "${t}" como concluída.`,
+    cpTaskReopened:(t)=>`Reabri a tarefa "${t}".`,
+    cpTaskUpdateFailed:(t)=>`Não consegui guardar a alteração à tarefa "${t}" — houve um problema a gravar. Não ficou alterada; tenta outra vez daqui a pouco.`,
+    cpConfirmCreateTask:(t)=>`Vou criar a tarefa "${t}". Confirmas? (responde "sim" ou "não")`,
+    cpConfirmDeleteTask:(t,c,d)=>`Vou apagar a tarefa "${t}" (${c}${d?`, prazo ${d}`:''}). Confirmas? (responde "sim" ou "não")`,
+    cpTaskDeleted:(t)=>`Apaguei a tarefa "${t}".`,
+    cpTaskDeleteFailed:(t)=>`Não consegui apagar a tarefa "${t}" — houve um problema a gravar. A tarefa continua lá.`,
+    cpPayDateInvalid:'Não percebi a data. Indica-a como AAAA-MM-DD ou DD/MM/AAAA.',
+    cpNoDateWord:'sem data',
+    cpConfirmPayDate:(n,a,b)=>`Vou mudar a data do próximo pagamento a ${n}: de ${a} para ${b}. Confirmas? (responde "sim" ou "não")`,
+    cpPayDateChanged:(n,b)=>`A data do próximo pagamento a ${n} passou a ${b}.`,
+    cpPayDateFailed:(n)=>`Não consegui guardar a nova data do pagamento a ${n} — houve um problema a gravar. A data anterior mantém-se.`,
+    cpPayDateSame:(n,b)=>`O próximo pagamento a ${n} já está marcado para ${b} — não alterei nada.`,
+    cpWeddingInfo:(names,date,venue,days)=>`${names?`Casamento de ${names}. `:''}${date?`Data: ${date}${days!=null&&days>=0?` (faltam ${days} dias)`:''}. `:'Ainda não definiste a data. '}${venue?`Local: ${venue}.`:'Ainda não definiste o local.'}`,
+    cpWeddingInfoEmpty:'Ainda não tens nomes, data nem local definidos em Definições.',
+    cpGuestStatusYes:(n)=>`${n} confirmou presença.`,
+    cpGuestStatusNo:(n)=>`${n} recusou o convite.`,
+    cpGuestStatusPending:(n)=>`${n} ainda não respondeu.`,
+    cpDeclinedList:(l,m)=>`Recusaram o convite: ${l}${m}.`,
+    cpNoDeclined:'Ninguém recusou o convite até agora.',
+    cpOverdueTasks:(l,m)=>`Tarefas em atraso: ${l}${m}.`,
+    cpNoOverdueTasks:'Não tens nenhuma tarefa em atraso.',
+    cpTaskSummary:(d,p,o)=>`Tens ${d} tarefas concluídas e ${p} por fazer${o?`, das quais ${o} em atraso`:''}.`,
+    cpTableAvailability:(t,seats,occ,free,uns)=>`Tens ${t} mesas com ${seats} lugares: ${occ} ocupados e ${free} livres. ${uns?`Ainda há ${uns} convidados confirmados sem mesa.`:'Todos os convidados confirmados têm mesa.'}`,
+    cpNoTables:'Ainda não criaste nenhuma mesa.',
+    cpSupplierContact:(n,p)=>`${n}: ${p}.`,
+    cpSupplierNoContact:(n)=>`Não tens nenhum contacto guardado para ${n}.`,
+    cpSupplierContactNotFound:'Não encontrei esse fornecedor.',
+    cpSuppliersMissing:(l)=>`Fornecedores com informação em falta: ${l}.`,
+    cpNoSuppliersMissing:'Todos os fornecedores têm contacto e valor preenchidos.',
+    cpMissingContact:'contacto',
+    cpMissingPrice:'valor',
+    cpOverduePayments:(l,t)=>`Pagamentos em atraso: ${l}. Total em atraso: ${t}.`,
+    cpNoOverduePayments:'Não tens pagamentos em atraso.',
+    cpLogiSummary:(tr,lo,al,it,ac,kd,todo)=>`Logística dos convidados confirmados: ${tr} a precisar de transporte, ${lo} de alojamento, ${al} com alergias, ${it} com intolerâncias, ${ac} com necessidades de acessibilidade e ${kd} crianças. ${todo?`Ainda faltam organizar ${todo} convidados.`:'Está tudo organizado.'}`,
+    cpLogiNone:'Ainda nenhum convidado indicou necessidades de logística.',
     cpNoUpcomingTasks:'Não tens tarefas com prazo nos próximos 7 dias.',
     cpUpcomingTasksList:(lista,extra)=>`Esta semana tens: ${lista}${extra}.`,
     cpAndMore:(n)=>`, e mais ${n}`,
@@ -8645,6 +8697,58 @@ const APP_I18N = {
     cpPermDenied:"I can't do that from here.",
     cpTaskCreated:(value,label)=>`I created the task "${value}" in Tasks → ${label}. You can already see and edit it there.`,
     cpTaskCreateFailed:(value)=>`I couldn't save the task "${value}" — there was a problem saving it just now. Try again in a bit.`,
+    // Phase E — Copilot: confirmations, writes and new lookups
+    cpPermNoSession:"I couldn't verify your session — sign in again and try once more. I haven't changed anything.",
+    cpPermPremium:"The Assistant is part of the Premium plan. I haven't changed anything.",
+    cpPermAi:"That request has to come from you directly — I don't run it from an automatic interpretation. I haven't changed anything.",
+    cpUnsupportedAction:"I don't do that through chat — for safety, that kind of change (deleting guests or suppliers, marking payments, applying tables, sending messages) is done on the relevant screen of the app, where you see and confirm everything. I can help you look up the information or prepare the text.",
+    cpYes:"Yes",
+    cpNo:"No",
+    cpNoPending:"I have no pending action to confirm.",
+    cpCancelled:"Okay, I haven't changed anything.",
+    cpPendingExpired:"That confirmation has expired — I haven't changed anything. Ask me again if you still want it.",
+    cpPendingStale:"The data changed in the meantime, so I didn't run anything. Ask me again and I'll prepare it with the current data.",
+    cpPendingBusy:"I'm still handling the previous request — one moment.",
+    cpTaskNotFound:(q)=>`I couldn't find a task similar to "${q}".`,
+    cpTaskAmbiguous:(l)=>`I found several similar tasks: ${l}. Which one?`,
+    cpTaskAlreadyDone:(t)=>`The task "${t}" was already done — I haven't changed anything.`,
+    cpTaskAlreadyOpen:(t)=>`The task "${t}" was already open — I haven't changed anything.`,
+    cpTaskCompleted:(t)=>`I marked the task "${t}" as done.`,
+    cpTaskReopened:(t)=>`I reopened the task "${t}".`,
+    cpTaskUpdateFailed:(t)=>`I couldn't save the change to the task "${t}" — there was a problem saving. It wasn't changed; try again in a bit.`,
+    cpConfirmCreateTask:(t)=>`I'll create the task "${t}". Confirm? (reply "yes" or "no")`,
+    cpConfirmDeleteTask:(t,c,d)=>`I'll delete the task "${t}" (${c}${d?`, due ${d}`:''}). Confirm? (reply "yes" or "no")`,
+    cpTaskDeleted:(t)=>`I deleted the task "${t}".`,
+    cpTaskDeleteFailed:(t)=>`I couldn't delete the task "${t}" — there was a problem saving. The task is still there.`,
+    cpPayDateInvalid:"I didn't understand the date. Give it as YYYY-MM-DD or DD/MM/YYYY.",
+    cpNoDateWord:"no date",
+    cpConfirmPayDate:(n,a,b)=>`I'll change the next payment date for ${n}: from ${a} to ${b}. Confirm? (reply "yes" or "no")`,
+    cpPayDateChanged:(n,b)=>`The next payment date for ${n} is now ${b}.`,
+    cpPayDateFailed:(n)=>`I couldn't save the new payment date for ${n} — there was a problem saving. The previous date stays.`,
+    cpPayDateSame:(n,b)=>`The next payment for ${n} is already set for ${b} — I haven't changed anything.`,
+    cpWeddingInfo:(names,date,venue,days)=>`${names?`Wedding of ${names}. `:''}${date?`Date: ${date}${days!=null&&days>=0?` (${days} days to go)`:''}. `:"You haven't set the date yet. "}${venue?`Venue: ${venue}.`:"You haven't set the venue yet."}`,
+    cpWeddingInfoEmpty:"You haven't set names, date or venue in Settings yet.",
+    cpGuestStatusYes:(n)=>`${n} has confirmed attendance.`,
+    cpGuestStatusNo:(n)=>`${n} has declined the invitation.`,
+    cpGuestStatusPending:(n)=>`${n} hasn't replied yet.`,
+    cpDeclinedList:(l,m)=>`Declined the invitation: ${l}${m}.`,
+    cpNoDeclined:"Nobody has declined so far.",
+    cpOverdueTasks:(l,m)=>`Overdue tasks: ${l}${m}.`,
+    cpNoOverdueTasks:"You have no overdue tasks.",
+    cpTaskSummary:(d,p,o)=>`You have ${d} tasks done and ${p} to do${o?`, ${o} of them overdue`:''}.`,
+    cpTableAvailability:(t,seats,occ,free,uns)=>`You have ${t} tables with ${seats} seats: ${occ} taken and ${free} free. ${uns?`${uns} confirmed guests still have no table.`:'All confirmed guests have a table.'}`,
+    cpNoTables:"You haven't created any tables yet.",
+    cpSupplierContact:(n,p)=>`${n}: ${p}.`,
+    cpSupplierNoContact:(n)=>`You have no contact saved for ${n}.`,
+    cpSupplierContactNotFound:"I couldn't find that supplier.",
+    cpSuppliersMissing:(l)=>`Suppliers with missing information: ${l}.`,
+    cpNoSuppliersMissing:"All suppliers have a contact and an amount filled in.",
+    cpMissingContact:"contact",
+    cpMissingPrice:"amount",
+    cpOverduePayments:(l,t)=>`Overdue payments: ${l}. Total overdue: ${t}.`,
+    cpNoOverduePayments:"You have no overdue payments.",
+    cpLogiSummary:(tr,lo,al,it,ac,kd,todo)=>`Logistics for confirmed guests: ${tr} need transport, ${lo} need lodging, ${al} have allergies, ${it} have intolerances, ${ac} have accessibility needs and ${kd} are children. ${todo?`${todo} guests still need organising.`:'Everything is organised.'}`,
+    cpLogiNone:"No guest has reported logistics needs yet.",
     cpNoUpcomingTasks:'You have no tasks due in the next 7 days.',
     cpUpcomingTasksList:(lista,extra)=>`This week you have: ${lista}${extra}.`,
     cpAndMore:(n)=>`, and ${n} more`,
@@ -18406,7 +18510,10 @@ const ASSIST_CHAT_HISTORY_LIMIT = 30;
 // permissões. Reiniciada no logout (resetCopilotContext, ver perto do
 // logout) e sempre que uma pergunta não tem um tópico continuável.
 let lastCopilotContext = null;
-function resetCopilotContext(){ lastCopilotContext = null; }
+let copilotPending = null;      // ação à espera de confirmação (só em memória, só nesta sessão)
+let copilotExecuting = false;   // trinco: nunca duas escritas do Copilot em simultâneo
+let copilotSeq = 0;
+function resetCopilotContext(){ lastCopilotContext = null; copilotPending = null; }
 function saveAssistChatHistory(){
   // Out 2026: o histórico do chat deixou de ser gravado no Firestore. Era
   // escrita sem nenhuma leitura (nunca era carregado de volta), guardava
@@ -18512,8 +18619,37 @@ const WEDDY_COPILOT_INTENTS = {
   GET_APP_FEATURES:'GET_APP_FEATURES',
   GET_APP_HELP:'GET_APP_HELP',
   GET_SUPPLIER_OVERVIEW:'GET_SUPPLIER_OVERVIEW',
+  // Fase E — Copilot consolidado. Leituras novas (L1)…
+  GET_WEDDING_INFO:'GET_WEDDING_INFO', GET_GUEST_STATUS:'GET_GUEST_STATUS', GET_DECLINED_GUESTS:'GET_DECLINED_GUESTS',
+  GET_OVERDUE_TASKS:'GET_OVERDUE_TASKS', GET_TASK_SUMMARY:'GET_TASK_SUMMARY', GET_TABLE_AVAILABILITY:'GET_TABLE_AVAILABILITY',
+  GET_SUPPLIER_CONTACT:'GET_SUPPLIER_CONTACT', GET_SUPPLIERS_MISSING_INFO:'GET_SUPPLIERS_MISSING_INFO',
+  GET_OVERDUE_PAYMENTS:'GET_OVERDUE_PAYMENTS', GET_LOGISTICS_SUMMARY:'GET_LOGISTICS_SUMMARY',
+  // …escritas (L2 simples / L3 sensíveis, ver COPILOT_POLICY)…
+  COMPLETE_TASK:'COMPLETE_TASK', REOPEN_TASK:'REOPEN_TASK', DELETE_TASK:'DELETE_TASK',
+  SET_SUPPLIER_PAYMENT_DATE:'SET_SUPPLIER_PAYMENT_DATE',
+  // …controlo da confirmação e pedidos que o chat NUNCA executa (L4).
+  CONFIRM_PENDING:'CONFIRM_PENDING', CANCEL_PENDING:'CANCEL_PENDING', UNSUPPORTED_ACTION:'UNSUPPORTED_ACTION',
   UNKNOWN:'UNKNOWN'
 };
+// ============================================================
+// FASE E — POLÍTICA DE PERMISSÕES DO COPILOT
+//   L1 leitura (sem confirmação) · L2 escrita simples e reversível (mostra
+//   o que mudou) · L3 escrita sensível (confirmação explícita ligada à
+//   operação concreta) · L4 proibido/não suportado (recusa e encaminha).
+// A classificação (regex OU IA) nunca é uma autorização: quem decide é
+// checkCopilotIntentPermission (sessão, casamento, Premium, nível, origem).
+// ============================================================
+const COPILOT_POLICY = {
+  CREATE_TASK:2, COMPLETE_TASK:2, REOPEN_TASK:2,
+  DELETE_TASK:3, SET_SUPPLIER_PAYMENT_DATE:3,
+  UNSUPPORTED_ACTION:4
+};
+const COPILOT_PENDING_TTL_MS = 5*60*1000;
+const COPILOT_TEXT_MAX = 200;
+function copilotIntentLevel(intent){
+  if(!Object.prototype.hasOwnProperty.call(WEDDY_COPILOT_INTENTS, intent)) return 4;
+  return COPILOT_POLICY[intent] || 1;
+}
 // Palavras com menos de 3 letras ("e", "x", "a"...) ficam de fora — são
 // curtas demais para significarem alguma coisa numa comparação e, sem este
 // filtro, "trapezista" "batia" com "fotografia" só por ambas conterem "e".
@@ -18601,8 +18737,64 @@ function findSupplierByText(text){
 // 1) CLASSIFICAÇÃO — por keywords, nenhuma IA real. Devolve sempre
 // { intent, value? }; nunca decide sozinha se pode executar nem como
 // responder — isso é o trabalho dos passos seguintes.
+// Fase E — padrões novos (escritas, recusas L4 e leituras novas). Corre antes
+// dos blocos antigos porque as frases são mais específicas; devolve null
+// quando nada bate, para o classificador antigo continuar como estava.
+function classifyCopilotPhaseE(pergunta, p){
+  const I = WEDDY_COPILOT_INTENTS;
+  const clean = s => (s||'').replace(/[?!.]+$/,'').replace(/^["“'«]|["”'»]$/g,'').trim().slice(0, COPILOT_TEXT_MAX);
+  let m;
+  // L4 — o que o chat nunca faz (apagar pessoas/fornecedores, marcar pago, aplicar mesas, enviar mensagens, outro casamento)
+  if(/^(apaga|apagar|elimina|eliminar|remove|remover|delete|remove)\s+(o |a |os |as |the |all )?(convidad|fornecedor|guest|supplier|despesa|expense|casamento|wedding|todos|tudo|mesa|table)/.test(p)
+     || /^(marca|marcar|mark|set)\s+.*\b(como\s+pag[oa]|as\s+paid|paid)\b/.test(p)
+     || /^(aplica|aplicar|apply|aceita|aceitar|accept)\s+(a\s+|the\s+)?(proposta|sugest|proposal|suggestion|distribui)/.test(p)
+     || /^(muda|mudar|move|mover|senta|sentar|troca|trocar|move|seat)\s+.*\b(mesa|table)\b/.test(p)
+     || /^(envia|enviar|manda|mandar|send|contacta|contactar|liga|ligar|call|message)\s+.*(mensagem|email|e-mail|whatsapp|sms|message|supplier|fornecedor|convidad|guest|fot[oó]grafo)/.test(p)
+     || /(outro casamento|other wedding|another wedding|casamento d[eao]s? outr)/.test(p)
+     || /^(ativa|ativar|cancela|cancelar|activate|cancel)\s+.*(premium|subscri|assinatura|subscription)/.test(p)){
+    return { intent: I.UNSUPPORTED_ACTION };
+  }
+  // Escritas sobre tarefas
+  if((m = p.match(/^(?:reabre|reabrir|reopen)\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+(.+)$/))) return { intent: I.REOPEN_TASK, value: clean(pergunta.replace(/^\S+\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+/i,'')) };
+  if((m = p.match(/^(?:apaga|apagar|elimina|eliminar|remove|remover|delete)\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+(.+)$/))) return { intent: I.DELETE_TASK, value: clean(pergunta.replace(/^\S+\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+/i,'')) };
+  if((m = p.match(/^(?:conclui|concluir|completa|completar|termina|terminar|complete|finish)\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+(.+)$/))) return { intent: I.COMPLETE_TASK, value: clean(pergunta.replace(/^\S+\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+/i,'')) };
+  if((m = pergunta.match(/^(?:marca|marcar|mark)\s+(?:a\s+|the\s+)?(?:tarefa|task)\s+(.+?)\s+(?:como\s+(?:feita|conclu[ií]da|completa)|as\s+(?:done|complete(?:d)?))$/i))) return { intent: I.COMPLETE_TASK, value: clean(m[1]) };
+  // Escrita sensível — data do próximo pagamento a um fornecedor
+  const dre = '(\\d{4}-\\d{2}-\\d{2}|\\d{1,2}[\\/.-]\\d{1,2}[\\/.-]\\d{4})';
+  if((m = pergunta.match(new RegExp('^(?:muda|mudar|altera|alterar|define|definir|atualiza|atualizar)\\s+a\\s+data\\s+do\\s+(?:pr[oó]ximo\\s+)?pagamento\\s+(?:d[oa]s?|ao|à)\\s+(.+?)\\s+para\\s+(?:o\\s+dia\\s+)?'+dre+'$','i')))
+     || (m = pergunta.match(new RegExp('^(?:change|set|update)\\s+(?:the\\s+)?(?:next\\s+)?payment\\s+date\\s+(?:of|for)\\s+(.+?)\\s+to\\s+'+dre+'$','i')))){
+    return { intent: I.SET_SUPPLIER_PAYMENT_DATE, value: { supplier: clean(m[1]), date: m[2] } };
+  }
+  // Leituras novas
+  if(/(contacto|telefone|telem[oó]vel|e-?mail|\bsite\b|website|contact|phone number)\s+(d[oa]s?|of|for)\s+\S+/.test(p) && /fornecedor|florista|fot[oó]grafo|catering|dj\b|espa[cç]o|quinta|banda|supplier|photographer|florist|venue|contacto|phone|e-?mail/.test(p)){
+    return { intent: I.GET_SUPPLIER_CONTACT, value: pergunta };
+  }
+  if(/fornecedores?.*(sem contacto|sem e-?mail|sem pre[cç]o|sem valor|falta(m)? (informa|dados|contacto)|informa[cç][aã]o em falta|dados em falta)|suppliers?.*(missing|without|no) (contact|info|e-?mail|price|amount)/.test(p)) return { intent: I.GET_SUPPLIERS_MISSING_INFO };
+  if(/pagamentos?.*(atrasad|em atraso|vencid)|atrasad.*pagamentos?|overdue payments?|payments?.*overdue|late payments?/.test(p)) return { intent: I.GET_OVERDUE_PAYMENTS };
+  if(/tarefas?.*(atrasad|em atraso|vencid)|atrasad.*tarefas?|overdue tasks?|tasks?.*overdue|late tasks?/.test(p)) return { intent: I.GET_OVERDUE_TASKS };
+  if(/quantas tarefas|tarefas?\s+(feitas|conclu[ií]das|pendentes|por fazer)|how many tasks|tasks?\s+(done|completed|pending|left|remaining)/.test(p)) return { intent: I.GET_TASK_SUMMARY };
+  if(/lugares?\s+(livres|vagos|dispon[ií]veis|vazios)|cadeiras?\s+livres|quantos lugares|free seats|empty seats|available seats|seats (left|free)|capacidade das mesas/.test(p)) return { intent: I.GET_TABLE_AVAILABILITY };
+  if(/quem\s+(recusou|n[aã]o vai|n[aã]o vem|declinou)|convidados?\s+que\s+(recusaram|n[aã]o v[aã]o|n[aã]o vêm)|recusaram|who (declined|is not coming|isn'?t coming|can'?t come)|declined (the )?invit/.test(p)) return { intent: I.GET_DECLINED_GUESTS };
+  if((m = pergunta.match(/^(?:o|a)\s+(.+?)\s+(?:j[aá]\s+)?(?:confirmou|respondeu|recusou|vem|vai|est[aá]\s+confirmad[oa])(?:\s+(?:ao|o|presen[cç]a|casamento).*)?\??$/i))
+     || (m = pergunta.match(/^(?:has|did|is)\s+(.+?)\s+(?:rsvp'?d?|confirmed?|responded|replied|coming|attending|declined)\b.*$/i))){
+    const nm = clean(m[1]);
+    if(nm && nm.split(/\s+/).length<=5) return { intent: I.GET_GUEST_STATUS, value: nm };
+  }
+  if(/log[ií]stica|transporte|alojamento|mobilidade|acessibilidad|lodging|accommodation|accessib|transport needs|logistics/.test(p) && !/fornecedor|supplier|contrato|contract/.test(p)) return { intent: I.GET_LOGISTICS_SUMMARY };
+  if(/(dados|informa[cç][oõ]es|resumo|detalhes)\s+do\s+(meu\s+|nosso\s+)?casamento|local do (meu |nosso )?casamento|onde (é|vai ser|ser[aá])\s+o\s+(meu\s+|nosso\s+)?casamento|wedding (details|info|summary|venue)|where is (the|our|my) wedding|nomes? dos noivos/.test(p)) return { intent: I.GET_WEDDING_INFO };
+  return null;
+}
 function classifyCopilotIntent(pergunta, context){
   const p = pergunta.toLowerCase().trim();
+
+  // Fase E — confirmar/cancelar uma ação pendente (só frases curtas e
+  // inequívocas; nunca uma frase mais longa que por acaso contenha "sim").
+  if(/^(sim|s|confirmo|confirmado|confirma|pode (ser|apagar|avan[cç]ar|continuar)|avan[cç]a|ok|yes|y|confirm|go ahead|do it|proceed)[.!\s]*$/.test(p)) return { intent: WEDDY_COPILOT_INTENTS.CONFIRM_PENDING };
+  if(/^(n[aã]o|n|cancela|cancelar|deixa|deixa estar|esquece|no|cancel|stop|never ?mind)[.!\s]*$/.test(p)) return { intent: WEDDY_COPILOT_INTENTS.CANCEL_PENDING };
+  {
+    const fe = classifyCopilotPhaseE(pergunta, p);
+    if(fe) return fe;
+  }
 
   // === Resolução de contexto conversacional (achado "conversation
   // context: 1/6" do relatório final, Set 2026) ===
@@ -19070,8 +19262,83 @@ function classifyCopilotIntent(pergunta, context){
 // nenhuma distinção adicional a fazer; fica como ponto de extensão único
 // para o dia em que, por exemplo, uma ação de escrita precise de uma
 // verificação própria antes de correr.
+// Fase E: deixou de ser um stub. Devolve { allowed, level, requiresConfirmation, reason }.
+// `context.source==='ai'` marca uma intenção sugerida pela IA — que só é
+// aceite se for de leitura (L1), ou CREATE_TASK com confirmação do texto
+// exato; nunca apagar/alterar/pagar. A autorização NÃO depende do ecrã: o
+// Premium e a sessão/casamento são verificados aqui, em código, e as
+// escritas voltam a verificá-los no momento de confirmar/executar.
 function checkCopilotIntentPermission(intent, context){
-  return { allowed:true };
+  context = context || {};
+  const I = WEDDY_COPILOT_INTENTS;
+  if(!Object.prototype.hasOwnProperty.call(I, intent)) return { allowed:false, level:4, reason:'unknown-intent' };
+  const level = copilotIntentLevel(intent);
+  if(level>=4) return { allowed:false, level, reason:'unsupported' };
+  const fromAi = context.source==='ai';
+  if(fromAi){
+    const aiOk = level===1 && intent!==I.CONFIRM_PENDING && intent!==I.CANCEL_PENDING && intent!==I.NEEDS_CLARIFICATION
+              || intent===I.CREATE_TASK;
+    if(!aiOk) return { allowed:false, level, reason:'ai-not-authorised' };
+  }
+  if(!hasActiveSubscription()) return { allowed:false, level, reason:'premium' };
+  if(level>=2 || intent===I.CONFIRM_PENDING){
+    if(!(auth && auth.currentUser && currentWeddingId && firstSyncDone)) return { allowed:false, level, reason:'no-session' };
+  }
+  return { allowed:true, level, requiresConfirmation: level>=3 || (fromAi && level>=2), reason:null };
+}
+function copilotDeniedText(reason){
+  return reason==='premium' ? ta('cpPermPremium')
+       : reason==='no-session' ? ta('cpPermNoSession')
+       : reason==='ai-not-authorised' ? ta('cpPermAi')
+       : reason==='unsupported' ? ta('cpUnsupportedAction')
+       : ta('cpPermDenied');
+}
+// Texto vindo do utilizador ou da IA: sempre revalidado antes de ser gravado.
+function copilotCleanText(v){
+  if(typeof v!=='string') return '';
+  return v.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0, COPILOT_TEXT_MAX);
+}
+function copilotParseDate(v){
+  if(typeof v!=='string') return null;
+  let y,mo,d,m;
+  if((m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ y=+m[1]; mo=+m[2]; d=+m[3]; }
+  else if((m = v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/))){ d=+m[1]; mo=+m[2]; y=+m[3]; }
+  else return null;
+  if(y<2000 || y>2100) return null;
+  const dt = new Date(y, mo-1, d);
+  if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
+  return String(y).padStart(4,'0')+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
+// Tarefas não têm id próprio: a identidade é (categoria + texto + estado + prazo),
+// revalidada no momento de executar — se mudou, a operação é considerada desatualizada.
+function copilotTaskRef(cat, it){ return { catId:cat.id, catLabel:cat.label, text:it.text, done:!!it.done, due:it.due||'' }; }
+function copilotLocateTask(ref){
+  if(!ref || typeof ref.text!=='string' || typeof ref.catId!=='string') return null;
+  const cat = (state.todoCategories||[]).find(c=>c && c.id===ref.catId);
+  if(!cat || !Array.isArray(cat.items)) return null;
+  const idx = cat.items.findIndex(it=>it && it.text===ref.text && !!it.done===!!ref.done && (it.due||'')===(ref.due||''));
+  return idx<0 ? null : { cat, idx, item:cat.items[idx] };
+}
+// Procura tarefas por texto (todas as palavras com significado têm de bater).
+// Devolve refs únicas (tarefas idênticas contam como uma).
+function copilotFindTasks(query){
+  const norm = normalizeSearchText(copilotCleanText(query));
+  const tokens = norm.split(/[^a-z0-9]+/).filter(w=>w.length>=3 && !STOPWORDS_PT.has(w));
+  if(!norm) return [];
+  const all = [];
+  (state.todoCategories||[]).forEach(cat=>(cat.items||[]).forEach(it=>{
+    if(!it || typeof it.text!=='string') return;
+    all.push({ ref:copilotTaskRef(cat,it), n:normalizeSearchText(it.text) });
+  }));
+  let hits = all.filter(x=>x.n===norm);
+  if(!hits.length && tokens.length) hits = all.filter(x=>tokens.every(t=>x.n.includes(t)));
+  const seen = new Set(), out = [];
+  hits.forEach(x=>{ const k = x.ref.catId+'|'+x.ref.text+'|'+x.ref.done+'|'+x.ref.due; if(!seen.has(k)){ seen.add(k); out.push(x.ref); } });
+  return out;
+}
+function copilotPrepare(type, params){
+  copilotPending = { id:'cp'+(++copilotSeq)+'-'+Date.now().toString(36), type, params, createdAt:Date.now(), weddingId:currentWeddingId, uid:(auth && auth.currentUser && auth.currentUser.uid) || null, used:false };
+  return copilotPending;
 }
 
 // Correção global (Set 2026) — mesas/convidados: mesma técnica de
@@ -19363,6 +19630,67 @@ const WeddyActions = {
     // (permissões/Storage continuam exatamente como estão: nunca devolve
     // storagePath/url, só contagens e o guestName já denormalizado no
     // próprio documento).
+    // Fase E — leituras novas. Tudo local: nada disto vai para a IA.
+    getWeddingInfo(){
+      const w = weddingSettings || {};
+      const names = [w.coupleName1, w.coupleName2].filter(x=>typeof x==='string' && x.trim()).join(' & ');
+      return { names, date: w.weddingDate || '', venue: (typeof w.venue==='string' ? w.venue.trim() : ''), days: w.weddingDate ? daysUntil(w.weddingDate) : null };
+    },
+    getGuestStatus(query){
+      const found = findGuestsByName(query || '');
+      if(!found.length) return { found:false };
+      if(found.length>1) return { found:true, ambiguous:true, names: found.map(g=>g.name) };
+      const g = found[0];
+      let status = 'pending';
+      if(g.entry.rsvpToken){ const st = rsvpStatusOf(memberRSVPResponse(g)); status = st==='yes' ? 'yes' : st==='no' ? 'no' : 'pending'; }
+      else if(isConfirmed(g.side, g.catId, g.idx)) status = 'yes';
+      return { found:true, name:g.name, status };
+    },
+    getDeclinedGuests(){
+      return flattenAllGuestsForRSVP().filter(g=>g.entry.rsvpToken && rsvpStatusOf(memberRSVPResponse(g))==='no').map(g=>g.name).filter(Boolean);
+    },
+    getOverdueTasks(){
+      return getDuedTodoItems().filter(it=>it.days<0);
+    },
+    getTaskSummary(){
+      let done = 0, pending = 0, overdue = 0;
+      (state.todoCategories||[]).forEach(c=>(c.items||[]).forEach(it=>{ if(!it) return; if(it.done) done++; else { pending++; if(it.due && daysUntil(it.due)<0) overdue++; } }));
+      return { done, pending, overdue };
+    },
+    getTableAvailability(){
+      const tables = (state.seating && state.seating.tables) || [];
+      const ids = new Set(tables.map(t=>t.id));
+      const seats = tables.reduce((a,t)=>a+(Number(t.seats)||0), 0);
+      let occupied = 0;
+      Object.entries((state.seating && state.seating.assignments) || {}).forEach(([k,v])=>{
+        const m = k.match(/^t(\d+)-s\d+$/);
+        if(v && m && ids.has(Number(m[1]))) occupied++;
+      });
+      return { tables: tables.length, seats, occupied, free: Math.max(0, seats-occupied), unseated: WeddyActions.read.getGuestsWithoutTable().length };
+    },
+    getSupplierContact(pergunta){
+      const matches = findSupplierMatches(pergunta);
+      if(!matches.length) return { found:false };
+      if(matches.length>1) return { found:true, ambiguous:true, names: matches.map(m=>m.name) };
+      const s = matches[0];
+      return { found:true, name:s.name, contact:s.contact||'', email:s.email||'', website:s.website||'' };
+    },
+    getSuppliersMissingInfo(){
+      return (state.suppliers||[]).map(s=>{
+        const miss = [];
+        if(!(s.contact||'').trim() && !(s.email||'').trim()) miss.push(ta('cpMissingContact'));
+        if(!(Number(s.valorTotal)>0) && !(s.price||'').toString().trim()) miss.push(ta('cpMissingPrice'));
+        return miss.length ? { name:s.name, miss } : null;
+      }).filter(Boolean);
+    },
+    getOverduePayments(){
+      return getUpcomingPayments().filter(x=>x.overdue);
+    },
+    getLogisticsSummary(){
+      const l = logiAll();
+      return { transport:l.filter(x=>x.transport).length, lodging:l.filter(x=>x.lodging).length, allergies:l.filter(x=>x.hasAllergy).length,
+               intol:l.filter(x=>x.intol.length).length, access:l.filter(x=>x.access).length, kids:l.reduce((a,x)=>a+x.kids.length,0), todo:l.filter(x=>x.todo).length, any:l.length };
+    },
     getMemoriesInfo(pergunta){
       const list = (typeof weddingMemories!=='undefined' && weddingMemories) || [];
       if(!list.length) return { count:0, total:0 };
@@ -19393,9 +19721,52 @@ const WeddyActions = {
       if(!safeTexto) return Promise.reject(new Error('weddy-empty-task-text'));
       const cat = state.todoCategories.find(c=>c.id==='tc3') || state.todoCategories[0];
       if(!cat) return Promise.resolve(null);
-      cat.items.push({ text: safeTexto, done:false, due:'', time:'' });
+      const item = { text: safeTexto.slice(0, COPILOT_TEXT_MAX), done:false, due:'', time:'' };
+      cat.items.push(item);
       _origRender(); // atualiza o ecrã já, mas sem agendar o autosave debounced (fazemos a gravação imediata a seguir)
-      return pushRemoteImmediate().then(()=> cat);
+      // Fase E: se a gravação falhar, o estado local volta atrás — nunca
+      // fica no ecrã uma tarefa que não foi guardada.
+      return pushRemoteImmediate().then(()=> cat, err=>{
+        const i = cat.items.indexOf(item); if(i>=0) cat.items.splice(i,1);
+        _origRender();
+        throw err;
+      });
+    },
+    // Fase E — todas revalidam a referência contra o estado ATUAL e
+    // revertem o estado local se a gravação falhar. Lançam Error com
+    // código ('weddy-stale' | 'weddy-invalid' | 'weddy-noop-done' | 'weddy-noop-open' | 'weddy-noop-same').
+    async setTaskDone(ref, done){
+      const loc = copilotLocateTask(ref);
+      if(!loc) throw new Error('weddy-stale');
+      if(!!loc.item.done===!!done) throw new Error(done ? 'weddy-noop-done' : 'weddy-noop-open');
+      const prev = !!loc.item.done;
+      loc.item.done = !!done;
+      _origRender();
+      try{ await pushRemoteImmediate(); }
+      catch(err){ loc.item.done = prev; _origRender(); throw err; }
+      return loc.cat;
+    },
+    async deleteTask(ref){
+      const loc = copilotLocateTask(ref);
+      if(!loc) throw new Error('weddy-stale');
+      const [removed] = loc.cat.items.splice(loc.idx, 1);
+      _origRender();
+      try{ await pushRemoteImmediate(); }
+      catch(err){ loc.cat.items.splice(Math.min(loc.idx, loc.cat.items.length), 0, removed); _origRender(); throw err; }
+      return loc.cat;
+    },
+    async setSupplierPaymentDate(supplierId, from, to){
+      const date = copilotParseDate(to);
+      if(!date || typeof supplierId!=='string') throw new Error('weddy-invalid');
+      const s = (state.suppliers||[]).find(x=>x && x.id===supplierId);
+      if(!s || (s.nextPaymentDate||'')!==(from||'')) throw new Error('weddy-stale');
+      if((s.nextPaymentDate||'')===date) throw new Error('weddy-noop-same');
+      const prev = s.nextPaymentDate || '';
+      s.nextPaymentDate = date;
+      _origRender();
+      try{ await pushRemoteImmediate(); }
+      catch(err){ s.nextPaymentDate = prev; _origRender(); throw err; }
+      return s;
     }
   }
 };
@@ -19432,6 +19803,61 @@ function draftMessage(pergunta){
 // partir do WeddyActions. Sem chave de IA configurada (ou em caso de
 // erro), AIService.classify() devolve sempre UNKNOWN e o comportamento
 // fica idêntico ao de antes desta camada existir.
+// Fase E — execução segura das escritas do Copilot.
+// Um só trinco (copilotExecuting) impede duas escritas em simultâneo
+// (duplo clique, reenvio, confirmações repetidas); a ação pendente é de
+// uso único (limpa-se antes de executar) e expira; a referência é
+// revalidada contra o estado atual; falha de gravação reverte o estado
+// local (ver WeddyActions.write) e a resposta diz a verdade.
+async function copilotRunWrite(type, params){
+  if(copilotExecuting) return ta('cpPendingBusy');
+  copilotExecuting = true;
+  const W = WeddyActions.write;
+  try{
+    if(type==='SET_TASK_DONE'){
+      try{ await W.setTaskDone(params.ref, params.done); showSaveToast(false); return params.done ? ta('cpTaskCompleted')(params.ref.text) : ta('cpTaskReopened')(params.ref.text); }
+      catch(err){ return copilotWriteError(err, params.ref.text, 'cpTaskUpdateFailed'); }
+    }
+    if(type==='DELETE_TASK'){
+      try{ await W.deleteTask(params.ref); showSaveToast(false); return ta('cpTaskDeleted')(params.ref.text); }
+      catch(err){ return copilotWriteError(err, params.ref.text, 'cpTaskDeleteFailed'); }
+    }
+    if(type==='SET_SUPPLIER_PAYMENT_DATE'){
+      try{ await W.setSupplierPaymentDate(params.supplierId, params.from, params.to); showSaveToast(false); return ta('cpPayDateChanged')(params.name, formatDatePT(params.to)); }
+      catch(err){ return copilotWriteError(err, params.name, 'cpPayDateFailed', params.to); }
+    }
+    if(type==='CREATE_TASK'){
+      try{ const cat = await W.createTask(params.text); if(!cat) return ta('cpPermDenied'); showSaveToast(false); return ta('cpTaskCreated')(params.text, cat.label); }
+      catch(err){ showSaveToast(true); return ta('cpTaskCreateFailed')(params.text); }
+    }
+    return ta('cpPermDenied');
+  } finally {
+    copilotExecuting = false;
+  }
+}
+function copilotWriteError(err, label, failKey, extra){
+  const code = err && err.message;
+  if(code==='weddy-stale') return ta('cpPendingStale');
+  if(code==='weddy-noop-done') return ta('cpTaskAlreadyDone')(label);
+  if(code==='weddy-noop-open') return ta('cpTaskAlreadyOpen')(label);
+  if(code==='weddy-noop-same') return ta('cpPayDateSame')(label, formatDatePT(extra));
+  if(code==='weddy-invalid') return ta('cpPayDateInvalid');
+  showSaveToast(true);
+  return ta(failKey)(label);
+}
+async function copilotConfirm(){
+  if(copilotExecuting) return ta('cpPendingBusy');
+  const p = copilotPending;
+  if(!p || p.used) return ta('cpNoPending');
+  copilotPending = null; p.used = true;               // uso único: nunca volta a ser válida
+  if(Date.now() - p.createdAt > COPILOT_PENDING_TTL_MS) return ta('cpPendingExpired');
+  const uid = (auth && auth.currentUser && auth.currentUser.uid) || null;
+  if(p.weddingId!==currentWeddingId || p.uid!==uid) return ta('cpPendingStale');
+  // permissões revalidadas no momento de executar (sessão, casamento, Premium)
+  const perm = checkCopilotIntentPermission(p.type, {});
+  if(!perm.allowed) return copilotDeniedText(perm.reason);
+  return await copilotRunWrite(p.type, p.params);
+}
 async function respondeAssistente(pergunta){
   const context = {};
   // Correção global (Set 2026) — contexto conversacional: `lastCopilotContext`
@@ -19439,16 +19865,30 @@ async function respondeAssistente(pergunta){
   // completo perto da sua declaração). Passa a classifyCopilotIntent para
   // resolver perguntas de seguimento — NUNCA para saltar checkCopilotIntent
   // Permission nem para decidir dados sozinho.
+  pergunta = typeof pergunta==='string' ? pergunta.slice(0, 500) : '';
   let classified = classifyCopilotIntent(pergunta, lastCopilotContext);
+  context.source = 'rules';
   if(classified.intent === WEDDY_COPILOT_INTENTS.UNKNOWN){
     const aiGuess = await AIService.classify(pergunta, 'couple');
-    if(aiGuess && aiGuess.intent && aiGuess.intent!==WEDDY_COPILOT_INTENTS.UNKNOWN && WEDDY_COPILOT_INTENTS[aiGuess.intent]){
-      classified = aiGuess;
+    // Fase E: a sugestão da IA é só uma sugestão. Só passa se a política a
+    // aceitar (leitura, ou criar tarefa COM confirmação); o "value" da IA só
+    // é usado para o texto da tarefa e é sempre saneado — nunca para ids,
+    // números ou campos de outras ações.
+    if(aiGuess && typeof aiGuess.intent==='string' && aiGuess.intent!==WEDDY_COPILOT_INTENTS.UNKNOWN && Object.prototype.hasOwnProperty.call(WEDDY_COPILOT_INTENTS, aiGuess.intent)){
+      const aiPerm = checkCopilotIntentPermission(aiGuess.intent, { source:'ai' });
+      if(aiPerm.allowed || aiPerm.reason==='premium' || aiPerm.reason==='no-session'){
+        classified = { intent: aiGuess.intent };
+        if(aiGuess.intent===WEDDY_COPILOT_INTENTS.CREATE_TASK) classified.value = copilotCleanText(aiGuess.value);
+        context.source = 'ai';
+      }
     }
   }
   const permission = checkCopilotIntentPermission(classified.intent, context);
   const I = WEDDY_COPILOT_INTENTS;
-  if(!permission.allowed) return ta('cpPermDenied');
+  if(!permission.allowed) return copilotDeniedText(permission.reason);
+  // Qualquer mensagem que não seja confirmar/cancelar descarta a ação
+  // pendente: uma confirmação só vale para a pergunta imediatamente anterior.
+  if(classified.intent!==I.CONFIRM_PENDING && classified.intent!==I.CANCEL_PENDING) copilotPending = null;
 
   const totalConvidados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
   const totalConfirmados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
@@ -19460,22 +19900,111 @@ async function respondeAssistente(pergunta){
   lastCopilotContext = null;
 
   switch(classified.intent){
+    case I.CONFIRM_PENDING: return await copilotConfirm();
+    case I.CANCEL_PENDING: {
+      const had = !!copilotPending; copilotPending = null;
+      return had ? ta('cpCancelled') : ta('cpNoPending');
+    }
+    case I.COMPLETE_TASK:
+    case I.REOPEN_TASK:
+    case I.DELETE_TASK: {
+      const q = copilotCleanText(classified.value);
+      if(!q) return ta('cpNeedsClarification');
+      let refs = copilotFindTasks(q);
+      // completar procura entre as abertas; reabrir entre as concluídas
+      if(classified.intent===I.COMPLETE_TASK){ const open = refs.filter(r=>!r.done); if(open.length) refs = open; }
+      if(classified.intent===I.REOPEN_TASK){ const dn = refs.filter(r=>r.done); if(dn.length) refs = dn; }
+      if(!refs.length) return ta('cpTaskNotFound')(q);
+      if(refs.length>1) return ta('cpTaskAmbiguous')(refs.slice(0,6).map(r=>`"${r.text}"`).join(', '));
+      const ref = refs[0];
+      if(classified.intent===I.DELETE_TASK){
+        copilotPrepare('DELETE_TASK', { ref });
+        return ta('cpConfirmDeleteTask')(ref.text, ref.catLabel, ref.due ? formatDatePT(ref.due) : '');
+      }
+      const wantDone = classified.intent===I.COMPLETE_TASK;
+      if(!!ref.done===wantDone) return wantDone ? ta('cpTaskAlreadyDone')(ref.text) : ta('cpTaskAlreadyOpen')(ref.text);
+      return await copilotRunWrite('SET_TASK_DONE', { ref, done:wantDone });
+    }
+    case I.SET_SUPPLIER_PAYMENT_DATE: {
+      const v = classified.value || {};
+      const date = copilotParseDate(v.date);
+      if(!date) return ta('cpPayDateInvalid');
+      const matches = findSupplierMatches(v.supplier || '');
+      if(!matches.length) return ta('cpSupplierContactNotFound');
+      if(matches.length>1) return ta('cpSupplierAmbiguous')(matches.map(m=>m.name).join(', '));
+      const sup = matches[0];
+      const from = sup.nextPaymentDate || '';
+      if(from===date) return ta('cpPayDateSame')(sup.name, formatDatePT(date));
+      copilotPrepare('SET_SUPPLIER_PAYMENT_DATE', { supplierId:sup.id, name:sup.name, from, to:date });
+      return ta('cpConfirmPayDate')(sup.name, from ? formatDatePT(from) : ta('cpNoDateWord'), formatDatePT(date));
+    }
+    case I.GET_WEDDING_INFO: {
+      const w = WeddyActions.read.getWeddingInfo();
+      if(!w.names && !w.date && !w.venue) return ta('cpWeddingInfoEmpty');
+      return ta('cpWeddingInfo')(w.names, w.date ? formatDatePT(w.date) : '', w.venue, w.days);
+    }
+    case I.GET_GUEST_STATUS: {
+      const r = WeddyActions.read.getGuestStatus(classified.value || '');
+      if(!r.found) return ta('cpGuestNotFound')(classified.value || '');
+      if(r.ambiguous) return ta('cpGuestAmbiguous')(r.names.join(', '));
+      return r.status==='yes' ? ta('cpGuestStatusYes')(r.name) : r.status==='no' ? ta('cpGuestStatusNo')(r.name) : ta('cpGuestStatusPending')(r.name);
+    }
+    case I.GET_DECLINED_GUESTS: {
+      const l = WeddyActions.read.getDeclinedGuests();
+      if(!l.length) return ta('cpNoDeclined');
+      return ta('cpDeclinedList')(l.slice(0,15).join(', '), l.length>15 ? ta('cpAndMore')(l.length-15) : '');
+    }
+    case I.GET_OVERDUE_TASKS: {
+      const l = WeddyActions.read.getOverdueTasks();
+      if(!l.length) return ta('cpNoOverdueTasks');
+      return ta('cpOverdueTasks')(l.slice(0,10).map(it=>`${it.text} (${formatDatePT(it.due)})`).join('; '), l.length>10 ? ta('cpAndMore')(l.length-10) : '');
+    }
+    case I.GET_TASK_SUMMARY: {
+      const t = WeddyActions.read.getTaskSummary();
+      return ta('cpTaskSummary')(t.done, t.pending, t.overdue);
+    }
+    case I.GET_TABLE_AVAILABILITY: {
+      const t = WeddyActions.read.getTableAvailability();
+      if(!t.tables) return ta('cpNoTables');
+      return ta('cpTableAvailability')(t.tables, t.seats, t.occupied, t.free, t.unseated);
+    }
+    case I.GET_SUPPLIER_CONTACT: {
+      const r = WeddyActions.read.getSupplierContact(classified.value || pergunta);
+      if(!r.found) return ta('cpSupplierContactNotFound');
+      if(r.ambiguous) return ta('cpSupplierAmbiguous')(r.names.join(', '));
+      const parts = [r.contact, r.email, r.website].filter(x=>typeof x==='string' && x.trim());
+      return parts.length ? ta('cpSupplierContact')(r.name, parts.join(' · ')) : ta('cpSupplierNoContact')(r.name);
+    }
+    case I.GET_SUPPLIERS_MISSING_INFO: {
+      const l = WeddyActions.read.getSuppliersMissingInfo();
+      if(!l.length) return ta('cpNoSuppliersMissing');
+      return ta('cpSuppliersMissing')(l.slice(0,10).map(x=>`${x.name} (${x.miss.join(', ')})`).join('; '));
+    }
+    case I.GET_OVERDUE_PAYMENTS: {
+      const l = WeddyActions.read.getOverduePayments();
+      if(!l.length) return ta('cpNoOverduePayments');
+      return ta('cpOverduePayments')(l.slice(0,8).map(u=>`${u.label} — ${fmtEUR(u.amount)}`).join('; '), fmtEUR(l.reduce((a,u)=>a+u.amount,0)));
+    }
+    case I.GET_LOGISTICS_SUMMARY: {
+      const g = WeddyActions.read.getLogisticsSummary();
+      if(!g.any) return ta('cpLogiNone');
+      return ta('cpLogiSummary')(g.transport, g.lodging, g.allergies, g.intol, g.access, g.kids, g.todo);
+    }
     case I.CREATE_TASK: {
+      // Origem IA: nunca grava sem o casal ver e confirmar o texto exato.
+      if(permission.requiresConfirmation){
+        const t = copilotCleanText(classified.value);
+        if(!t) return ta('cpNeedsClarification');
+        copilotPrepare('CREATE_TASK', { text:t });
+        return ta('cpConfirmCreateTask')(t);
+      }
       // Fase 4A da auditoria (COPILOT-01, P1): só confirmamos sucesso ao
       // utilizador depois de a escrita no Firestore terminar com sucesso
       // (ver WeddyActions.write.createTask / pushRemoteImmediate). Se
       // falhar, dizemos que falhou em vez de fingir que gravámos — regra
       // explícita desta fase: "a IA nunca pode dizer que fez algo se não
       // tiver confirmação real da persistência".
-      try{
-        const cat = await WeddyActions.write.createTask(classified.value);
-        if(!cat) return null;
-        showSaveToast(false);
-        return ta('cpTaskCreated')(classified.value, cat.label);
-      }catch(err){
-        showSaveToast(true);
-        return ta('cpTaskCreateFailed')(classified.value);
-      }
+      return await copilotRunWrite('CREATE_TASK', { text: classified.value });
     }
     case I.GET_UPCOMING_TASKS: {
       const items = WeddyActions.read.getUpcomingTasks();
@@ -19616,6 +20145,7 @@ async function respondeAssistente(pergunta){
     }
     // Correção global (Set 2026) — mesas/convidados específicos.
     case I.GET_TABLE_GUESTS: {
+      if(!Number.isFinite(Number(classified.value)) || classified.value==null) return ta('cpNeedsClarification');
       const info = WeddyActions.read.getTableGuests(classified.value);
       if(!info.found) return ta('cpTableNotFound')(classified.value);
       if(!info.guests.length) return ta('cpTableEmpty')(info.tableId, info.seats);
@@ -22052,6 +22582,13 @@ function buildChatPanelBody(){
     <button class="assist-chip" data-assistchip="${ta('assistChipQuestion')}">${ta('assistChipQuestion')} ${ICONS.arrowright}</button>
     <button class="assist-chip" data-assistchip="${ta('assistChipFeatures')}">${ta('assistChipFeatures')} ${ICONS.arrowright}</button>
   </div>`;
+  // Fase E: com uma ação à espera de confirmação, mostra "Sim"/"Não" (atalhos
+  // para as mesmas frases que a pessoa pode escrever) — mesmo estilo dos chips.
+  const pendingHtml = copilotPending ? `
+  <div class="assist-chips">
+    <button class="assist-chip" data-assistchip="${ta('cpYes')}">${ta('cpYes')} ${ICONS.arrowright}</button>
+    <button class="assist-chip" data-assistchip="${ta('cpNo')}">${ta('cpNo')} ${ICONS.arrowright}</button>
+  </div>` : '';
   const suggestions = assistChatHistory.length ? [] : getProactiveSuggestions();
   const suggestionsHtml = suggestions.length ? `
   <div class="assist-suggestions">
@@ -22067,6 +22604,7 @@ function buildChatPanelBody(){
   ${suggestionsHtml}
   <div class="assist-chat-log" id="assist-chat-log">${bubbles}</div>
   ${chipsHtml}
+  ${pendingHtml}
   <div class="assist-input-row">
     <input type="text" id="assist-chat-input" maxlength="500" placeholder="${ta('assistInputPlaceholder')}" autocomplete="off">
     <button id="assist-chat-send" aria-label="${ta('assistSendLabel')}">${ICONS.arrowright}</button>
@@ -22161,6 +22699,11 @@ function bindChatPanelHandlers(){
       const freshInput = document.getElementById('assist-chat-input');
       if(freshInput) freshInput.focus();
       saveAssistChatHistory();
+    }).catch(()=>{
+      // Fase E: um erro inesperado nunca deixa o chat preso em "a pensar…".
+      if(needsAI) assistChatHistory.pop();
+      assistChatHistory.push({ role:'bot', text: ta('cpDemoFallback') });
+      renderChatPanelBody();
     });
   };
   if(assistSendBtn) assistSendBtn.addEventListener('click', ()=>sendAssistMessage());

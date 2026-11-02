@@ -29,6 +29,8 @@ const SUITES = [
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
   { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },
+  { id: 'copilot-classify', group: 'copilot', name: 'Copilot servidor: classificação, Premium, quota, privacidade (Fase E)', cmd: ['node', 'copilot/copilot-classify.test.js'], emu: true },
+  { id: 'ui-copilot', group: 'ui', name: 'UI Copilot: políticas, confirmação, escritas, isolamento, PT/EN (Fase E)', cmd: py('copilot.py') },
   { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
   { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
   { id: 'contact-stress', group: 'contact', name: 'Formulário de contacto: concorrência repetida', cmd: ['node', 'contact/concurrency-stress.test.js'], emu: true },
