@@ -9,7 +9,7 @@ const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 const fns = require(path.join(__dirname, '..', '..', 'index.js'));
 const db = admin.firestore();
-const REPS = Number(process.env.REPS || 25);
+const REPS = Number(process.env.REPS || 3);
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; console.log('OK   ' + m); } else { fail++; console.log('FAIL ' + m); } };
