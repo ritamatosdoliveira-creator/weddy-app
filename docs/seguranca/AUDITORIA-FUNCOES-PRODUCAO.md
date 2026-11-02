@@ -90,4 +90,4 @@ Legenda: **[original]** = código recuperado · **[artefacto]** = compilado · *
 ## 5. Ficheiros
 - **Recuperados:** nenhum (o fonte original das 3 funções não está disponível).
 - **Apenas analisados:** `index.js` (branch e `origin/main`), `contactos.html`, `app/index.html` (chamadas), `docs/seguranca/generateCompareReport-contrato.md`, `weddy-premium-app-teste/index.js`, histórico git de todas as branches.
-- **Alterados:** nenhum ficheiro de código. **Criado:** este documento (`docs/seguranca/AUDITORIA-FUNCOES-PRODUCAO.md`), ainda sem commit.
+- **Alterados:** nenhum ficheiro de código. **Criado:** este documento (`docs/seguranca/AUDITORIA-FUNCOES-PRODUCAO.md`).
