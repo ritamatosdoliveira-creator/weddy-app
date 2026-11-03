@@ -3,6 +3,7 @@
  * AINDA NÃO cumpre (informativo, não falha a suite) — ficam registadas para a correção depois da
  * comparação com os zips de produção. */
 'use strict';
+process.env.WHATSAPP_API_ENABLED = 'true'; // K.2: a flag está desligada por defeito; estes testes exercitam a lógica de consentimento com a flag ligada (só em teste)
 const path = require('path');
 const admin = require('firebase-admin');
 const fns = require(path.join(__dirname, '..', '..', 'index.js'));

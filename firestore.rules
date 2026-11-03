@@ -366,9 +366,27 @@ service cloud.firestore {
     // perda de dados). Antes não havia regra e todas as escritas falhavam em
     // silêncio. Só criar; nunca ler/alterar/apagar a partir da app.
     match /_incident_log/{logId} {
+      // Fase K.2: esquema fechado e tamanhos limitados (antes: qualquer conteúdo, até 1 MiB). Os registos
+      // financeiros (Stripe/RevenueCat) são escritos pelo servidor (Admin SDK) e não passam por aqui.
+      // NOTA: as regras não conseguem validar o tamanho de cada elemento de listas; o cliente mascara
+      // tokens (ver incidentSanitize em app/index.html). `expireAt` = +90 dias para uma futura política
+      // TTL — a TTL NÃO está ativa e não é criada por estas regras.
       allow create: if request.auth != null
         && request.auth.token.email_verified == true
-        && request.resource.data.size() <= 12;
+        && request.resource.data.keys().hasOnly(['weddingId', 'type', 'at', 'userAgent', 'errorMessage', 'error',
+             'paths', 'count', 'local', 'recebido', 'failedCount', 'failedTokens', 'before', 'after', 'expireAt'])
+        && request.resource.data.type is string && request.resource.data.type.size() <= 80
+        && (!('weddingId' in request.resource.data) || (request.resource.data.weddingId is string && request.resource.data.weddingId.size() <= 40))
+        && (!('userAgent' in request.resource.data) || (request.resource.data.userAgent is string && request.resource.data.userAgent.size() <= 200))
+        && (!('errorMessage' in request.resource.data) || (request.resource.data.errorMessage is string && request.resource.data.errorMessage.size() <= 300))
+        && (!('error' in request.resource.data) || (request.resource.data.error is string && request.resource.data.error.size() <= 300))
+        && (!('paths' in request.resource.data) || (request.resource.data.paths is list && request.resource.data.paths.size() <= 20))
+        && (!('failedTokens' in request.resource.data) || (request.resource.data.failedTokens is list && request.resource.data.failedTokens.size() <= 50))
+        && (!('before' in request.resource.data) || request.resource.data.before == null || request.resource.data.before is map)
+        && (!('after' in request.resource.data) || request.resource.data.after == null || request.resource.data.after is map)
+        && (!('before' in request.resource.data) || request.resource.data.before == null || request.resource.data.before.keys().hasOnly(['guests', 'todos', 'keys']))
+        && (!('after' in request.resource.data) || request.resource.data.after == null || request.resource.data.after.keys().hasOnly(['guests', 'todos', 'keys']))
+        && (!('expireAt' in request.resource.data) || request.resource.data.expireAt is timestamp);
     }
   
     // ── Site do casamento (Premium) ───────────────────────────────────────

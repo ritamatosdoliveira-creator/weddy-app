@@ -1,0 +1,32 @@
+/* Fase K.2 — minimização do `_incident_log` no cliente (código REAL de app/index.html extraído e executado em vm;
+ * sem rede, sem Firebase). Garante: tokens RSVP nunca completos; paths mascarados; sem estado do casamento
+ * (before/after só contagens); tamanhos limitados; expireAt = +90 dias; campos desconhecidos não aumentam o risco. */
+'use strict';
+const fs = require('fs'), path = require('path'), vm = require('vm');
+let pass = 0, fail = 0;
+const ok = (c, m) => { if (c) { pass++; console.log('OK   ' + m); } else { fail++; console.log('FAIL ' + m); } };
+const src = fs.readFileSync(path.join(__dirname, '..', '..', 'app', 'index.html'), 'utf8');
+const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) throw new Error('falta ' + name); let d = 0, j = src.indexOf('{', i); for (; j < src.length; j++) { if (src[j] === '{') d++; else if (src[j] === '}') { d--; if (!d) break; } } return src.slice(i, j + 1); };
+const retention = /const INCIDENT_RETENTION_DAYS = (\d+);/.exec(src);
+ok(retention && Number(retention[1]) === 90, 'retenção técnica = 90 dias (INCIDENT_RETENTION_DAYS)');
+const ctx = { firebase: { firestore: { Timestamp: { fromMillis: (ms) => ({ ms }) } } }, countMeaningfulData: (s) => ({ guests: (s.guests && s.guests.n) || 0, todos: 0 }), INCIDENT_RETENTION_DAYS: 90 };
+vm.createContext(ctx);
+vm.runInContext(['incidentRedact', 'incidentSummarize', 'incidentSanitize'].map(grab).join('\n') + '\nthis.san = incidentSanitize; this.red = incidentRedact;', ctx);
+const TOKEN = 'AbCdEfGhIjKlMnOpQrStUv123456';
+let r = ctx.red(TOKEN); ok(r === '…123456' && !r.includes('AbCdEf'), 'token longo → só os últimos 6 caracteres');
+ok(ctx.red('abc') === 'abc', 'texto curto mantém-se');
+r = ctx.red('memories/W1234567890123456789/' + TOKEN + '/1700_ab_foto.png'); ok(!r.includes(TOKEN) && !r.includes('W1234567890123456789') && r.includes('foto.png'), 'path com token: segmentos longos mascarados, nome curto mantém-se');
+let d = ctx.san({ weddingId: 'W1', type: 'sync_x', failedTokens: [TOKEN, 'curto', TOKEN + 'ZZZ'], at: 'ts', userAgent: 'U'.repeat(500) });
+ok(d.failedTokens.every((t) => !t.includes('AbCdEf')) && d.failedTokens.length === 3, 'failedTokens: nenhum token completo');
+ok(d.userAgent.length === 200, 'userAgent limitado a 200');
+ok(d.expireAt && Math.abs(d.expireAt.ms - (Date.now() + 90 * 864e5)) < 5000, 'expireAt ≈ agora + 90 dias');
+d = ctx.san({ type: 't', failedTokens: Array.from({ length: 200 }, (_, i) => 'tok' + i) }); ok(d.failedTokens.length === 50, 'failedTokens limitado a 50');
+d = ctx.san({ type: 'T'.repeat(300) }); ok(d.type.length === 80, 'type limitado a 80');
+d = ctx.san({ type: 'e', error: 'x'.repeat(1000), errorMessage: 'y'.repeat(1000) }); ok(d.error.length === 300 && d.errorMessage.length === 300, 'error/errorMessage limitados a 300');
+d = ctx.san({ type: 'outgoing_write_blocked_json', before: { guests: { n: 40 }, secretNames: ['Ana Ficticia'] }, after: { guests: { n: 0 } } });
+ok(JSON.stringify(d).indexOf('Ficticia') < 0 && d.before.guests === 40 && d.after.guests === 0, 'before/after: só contagens, nunca o estado do casamento');
+d = ctx.san({ type: 'settings', before: { coupleName1: 'Ana', coupleName2: 'Rui', venue: 'Quinta' }, after: null });
+ok(d.before.keys === 3 && d.after === null && JSON.stringify(d).indexOf('Quinta') < 0, 'settings: só nº de chaves');
+d = ctx.san({ type: 'paths', paths: Array.from({ length: 50 }, () => 'campo.' + 'x'.repeat(400)) }); ok(d.paths.length === 20 && d.paths.every((p) => p.length <= 200), 'paths limitados (20 × 200)');
+ok(/incidentAdd\(\{/.test(src) && !/collection\('_incident_log'\)\.add\(\{/.test(src), 'todas as escritas do cliente passam por incidentAdd (sem .add direto com objeto)');
+console.log(`\n${pass} ok, ${fail} falhas`); process.exit(fail ? 1 : 0);

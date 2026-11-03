@@ -32,6 +32,8 @@ const SUITES = [
   { id: 'hard-auth-matrix', group: 'hardening', name: 'Hardening: matriz de autenticação/autorização de todas as funções (Fase K)', cmd: ['node', 'hardening/auth-matrix.test.js'], emu: true },
   { id: 'hard-scale', group: 'hardening', name: 'Hardening: volume 50-1000 convidados e fusão de dois dispositivos (Fase K)', cmd: ['node', 'hardening/scale.test.js'], emu: false },
   { id: 'ui-sweep', group: 'ui', name: 'UI varrimento: secções × 390/768/1360 × PT/EN, sem overflow nem erros (Fase K)', cmd: py('sweep_viewports.py') },
+  { id: 'k2-incident-sanitize', group: 'k2', name: 'K.2 incident log: sem tokens/estado, tamanhos, 90 dias (código real do cliente) (Fase K.2)', cmd: ['node', 'k2/incident-sanitize.test.js'], emu: false },
+  { id: 'k2-whatsapp-tokens', group: 'k2', name: 'K.2 flag WhatsApp desligada por defeito + revogação de tokens ao remover co-dono (Storage simulado) (Fase K.2)', cmd: ['node', 'k2/k2.test.js'], emu: true },
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
   { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },

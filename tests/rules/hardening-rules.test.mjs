@@ -44,7 +44,16 @@ await rec('dono não apaga _incident_log',true,()=>deleteDoc(doc(F(A),'_incident
 await rec('dono não altera _incident_log',true,()=>updateDoc(doc(F(A),'_incident_log/i1'),{weddingId:'W2'}));
 await rec('anónimo não cria _incident_log',true,()=>setDoc(doc(F(anon),'_incident_log/n1'),{a:1}));
 await rec('email não verificado não cria _incident_log',true,()=>setDoc(doc(F(Aunv),'_incident_log/n2'),{a:1}));
-await rec('verificado cria _incident_log',false,()=>setDoc(doc(F(A),'_incident_log/n3'),{a:1}));
+const okInc={weddingId:'W1',type:'sync_x',at:'2026-11-03T10:00:00Z',userAgent:'UA',errorMessage:'falha',paths:['a.b'],failedTokens:['…123456'],before:{guests:3,todos:1},after:null,expireAt:new Date(Date.now()+90*864e5)};
+await rec('verificado cria _incident_log válido (esquema K.2)',false,()=>setDoc(doc(F(A),'_incident_log/n3'),okInc));
+await rec('_incident_log: campo desconhecido negado',true,()=>setDoc(doc(F(A),'_incident_log/n4'),{...okInc,extra:'x'}));
+await rec('_incident_log: sem type negado',true,()=>setDoc(doc(F(A),'_incident_log/n5'),{weddingId:'W1'}));
+await rec('_incident_log: erro >300 negado',true,()=>setDoc(doc(F(A),'_incident_log/n6'),{...okInc,error:'x'.repeat(301)}));
+await rec('_incident_log: userAgent >200 negado',true,()=>setDoc(doc(F(A),'_incident_log/n7'),{...okInc,userAgent:'u'.repeat(201)}));
+await rec('_incident_log: >20 paths negado',true,()=>setDoc(doc(F(A),'_incident_log/n8'),{...okInc,paths:Array.from({length:21},()=>'p')}));
+await rec('_incident_log: >50 failedTokens negado',true,()=>setDoc(doc(F(A),'_incident_log/n9'),{...okInc,failedTokens:Array.from({length:51},()=>'t')}));
+await rec('_incident_log: before com estado completo negado',true,()=>setDoc(doc(F(A),'_incident_log/n10'),{...okInc,before:{guests:{noiva:[{name:'Ana'}]}} ,after:{coupleName1:'Ana'}}));
+await rec('_incident_log: expireAt não-timestamp negado',true,()=>setDoc(doc(F(A),'_incident_log/n11'),{...okInc,expireAt:'amanha'}));
 // --- acesso cruzado Firestore
 await rec('B não lê casamento W1',true,()=>getDoc(doc(F(B),'weddings/W1')));
 await rec('B não lê snapshots de W1',true,()=>getDoc(doc(F(B),'weddings/W1/snapshots/s1')));

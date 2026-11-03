@@ -76,7 +76,7 @@
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
-const { onDocumentWritten } = require('firebase-functions/v2/firestore');
+const { onDocumentWritten, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { defineString, defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
@@ -1240,6 +1240,7 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
         await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
         // Fase J (RGPD): cópias do estado em quarentena (contêm o JSON do casamento, com
         // nomes/contactos de convidados) e estado auxiliar por casamento ficavam para trás.
+        await deleteAllByWeddingId('downloadTokenRevocations', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de downloadTokenRevocations falhou. ${e.message || e}`));
         await deleteAllByWeddingId('weddingStateQuarantine', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de weddingStateQuarantine falhou. ${e.message || e}`));
         for (const col of ['seatingRuns', 'notifState']) {
           await db.collection(col).doc(weddingId).delete().catch(() => {});
@@ -5661,6 +5662,12 @@ exports.whatsappWebhook = onRequest(
 const WHATSAPP_ACCESS_TOKEN = defineSecret('WHATSAPP_ACCESS_TOKEN');
 const WHATSAPP_PHONE_NUMBER_ID = defineSecret('WHATSAPP_PHONE_NUMBER_ID');
 const WHATSAPP_GRAPH_VERSION = 'v21.0';
+// Fase K.2: interruptor de SERVIDOR para o envio pela WhatsApp Business API (Meta). Desligado por
+// defeito: enquanto não for 'true' (parâmetro da função, não é segredo) nenhuma mensagem é enviada
+// por esta via e nem sequer se consulta a base de dados. Não afeta o webhook (STOP/consentimentos),
+// os emails, nem os lembretes manuais por wa.me. Ativar exige decisão expressa da administração.
+const WHATSAPP_API_ENABLED = defineString('WHATSAPP_API_ENABLED', { default: 'false' });
+function whatsappApiEnabled() { return String(WHATSAPP_API_ENABLED.value() || '').trim().toLowerCase() === 'true'; }
 const WHATSAPP_RSVP_REMINDER_TEMPLATE = 'rsvp_reminder';
 
 exports.sendWhatsappRsvpReminder = onCall(
@@ -5668,6 +5675,10 @@ exports.sendWhatsappRsvpReminder = onCall(
   async (request) => {
     if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
       throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
+    }
+    // Fase K.2: envio pela API desligado por defeito (ver WHATSAPP_API_ENABLED).
+    if (!whatsappApiEnabled()) {
+      throw new HttpsError('unavailable', 'O envio por WhatsApp não está ativo.', { reason: 'whatsapp_api_disabled' });
     }
     const weddingId = await resolveWeddingId(request, /* isCouple */ true);
     if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
@@ -6805,8 +6816,66 @@ exports.validateWeddingStateOnWrite = onDocumentWritten(
   }
 );
 
+// ---------------------------------------------------------------------------
+// Fase K.2 — remoção de co-dono: revoga os links de download existentes.
+// Um URL de download com token ignora as regras do Storage; por isso, quando um dono sai (ou é
+// removido) do casamento, os tokens de documents/, memories/ e sites/ desse casamento são
+// substituídos por valores novos. NUNCA apaga ficheiros. Os donos que ficam continuam a obter URLs
+// válidos (getDownloadURL, permitido pelas regras a quem está em ownerEmails). Idempotente (repetir
+// só muda tokens outra vez), por casamento (nada fora de `<pasta>/<weddingId>/`), e uma falha nunca
+// bloqueia nem reverte a remoção: fica registada em `downloadTokenRevocations` (só servidor).
+// ---------------------------------------------------------------------------
+const TOKEN_REVOKE_PREFIXES = (wid) => [`documents/${wid}/`, `memories/${wid}/`, `sites/${wid}/`];
+function removedOwners(before, after) {
+  const norm = (a) => (Array.isArray(a) ? a : []).map((x) => String(x || '').toLowerCase()).filter(Boolean);
+  const bE = norm(before && before.ownerEmails), aE = new Set(norm(after && after.ownerEmails));
+  const bU = (Array.isArray(before && before.ownerUids) ? before.ownerUids : []).map(String);
+  const aU = new Set((Array.isArray(after && after.ownerUids) ? after.ownerUids : []).map(String));
+  return { emails: bE.filter((e) => !aE.has(e)).length, uids: bU.filter((u) => !aU.has(u)).length };
+}
+async function revokeDownloadTokensForWedding(weddingId) {
+  const bucket = admin.storage().bucket();
+  let rotated = 0; const failed = [];
+  for (const prefix of TOKEN_REVOKE_PREFIXES(weddingId)) {
+    const [files] = await bucket.getFiles({ prefix });
+    for (let i = 0; i < files.length; i += 25) {
+      await Promise.all(files.slice(i, i + 25).map(async (f) => {
+        try { await f.setMetadata({ metadata: { firebaseStorageDownloadTokens: crypto.randomUUID() } }); rotated++; }
+        catch (e) { failed.push(prefix); }
+      }));
+    }
+  }
+  return { rotated, failed: failed.length };
+}
+async function handleOwnerRemoval(weddingId, before, after, eventId) {
+  if (!before || !after) return { action: 'skip' };            // criação ou apagamento do casamento
+  const r = removedOwners(before, after);
+  if (!r.emails && !r.uids) return { action: 'none' };         // ninguém saiu (inclui só acrescentar donos)
+  const ref = db.collection('downloadTokenRevocations').doc(String(eventId || (weddingId + '_' + Date.now())).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120));
+  try {
+    const prev = await ref.get();
+    if (prev.exists && prev.data().status === 'done') return { action: 'duplicate' };   // mesmo evento entregue duas vezes
+    const out = await revokeDownloadTokensForWedding(weddingId);
+    await ref.set({ weddingId, removedEmails: r.emails, removedUids: r.uids, rotated: out.rotated, failed: out.failed, status: out.failed ? 'partial' : 'done', at: admin.firestore.FieldValue.serverTimestamp() });
+    if (out.failed) logger.error(`revokeDownloadTokens: ${out.failed} ficheiro(s) sem rotação no casamento ${weddingId}.`);
+    return { action: 'revoked', rotated: out.rotated, failed: out.failed };
+  } catch (err) {
+    logger.error(`revokeDownloadTokens: falhou no casamento ${weddingId}. ${err.message || err}`);
+    try { await ref.set({ weddingId, status: 'failed', at: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) { /* best-effort */ }
+    return { action: 'failed' };
+  }
+}
+exports.revokeDownloadTokensOnOwnerRemoval = onDocumentUpdated(
+  { document: 'weddings/{weddingId}', region: 'europe-west1', memory: '256MiB', maxInstances: 10 },
+  async (event) => {
+    const ch = event.data;
+    if (!ch || !ch.before || !ch.after) return;
+    await handleOwnerRemoval(event.params.weddingId, ch.before.data(), ch.after.data(), event.id);
+  }
+);
+
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { handleOwnerRemoval, removedOwners, whatsappApiEnabled, seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }
