@@ -14,7 +14,7 @@ Object.defineProperty(admin, 'storage', { configurable: true, value: () => ({ bu
 Object.defineProperty(admin, 'auth', { configurable: true, value: () => ({ deleteUser: async () => {}, getUser: async () => ({ email: '' }) }) });
 const PUBLIC_BY_DESIGN = new Set(['getGuestWhatsappConsent', 'setGuestWhatsappConsent', 'classifyWeddyIntent']); // token do convidado / chatbot do convidado (rsvp.html)
 // Funções que ignoram IDs do cliente e atuam só nos casamentos DO chamador (sucesso legítimo; a prova é a vítima inalterada).
-const OWN_SCOPE = new Set(['deleteWeddingAccount', 'refreshWeddingSite', 'unpublishWeddingSite', 'googleCalendarDisconnect', 'migrateMemoriesGuestId', 'checkWeddingSiteSlug']);
+const OWN_SCOPE = new Set(['getWhatsappApiStatus', 'deleteWeddingAccount', 'refreshWeddingSite', 'unpublishWeddingSite', 'googleCalendarDisconnect', 'migrateMemoriesGuestId', 'checkWeddingSiteSlug']);
 const A = (email, v) => ({ uid: 'uid-' + email, token: { email, email_verified: v === undefined ? true : v } });
 const run = async (fn, auth, data) => { try { await fn.run({ auth, data, rawRequest: { headers: {}, ip: '1.1.1.1' } }); return 'SUCESSO'; } catch (e) { return e.code || ('erro:' + String(e.message).slice(0, 40)); } };
 const DENY = new Set(['unauthenticated', 'permission-denied', 'invalid-argument', 'not-found', 'failed-precondition', 'resource-exhausted', 'internal', 'unavailable', 'deadline-exceeded', 'already-exists', 'aborted']);

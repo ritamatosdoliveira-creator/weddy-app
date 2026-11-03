@@ -4430,8 +4430,22 @@ const GuestCommsService = {
   // no botão. A Cloud Function valida de novo tudo (telefone, consentimento,
   // link de RSVP) do lado do servidor — isto aqui é só para dar feedback
   // rápido antes de sequer chamar a função, quando já sabemos que vai falhar.
+  // K.3-A — a interface só mostra controlos da API do WhatsApp se o SERVIDOR disser que está ativa.
+  // Falha fechada: sem ligação, sem sessão, função indisponível ou resposta inesperada → false (botão oculto).
+  // Não afeta os fluxos manuais por link wa.me.
+  _waApiEnabled: false,
+  async refreshWhatsappApiStatus(){
+    try{
+      if(!cloudFunctions) { this._waApiEnabled=false; return false; }
+      const res = await cloudFunctions.httpsCallable('getWhatsappApiStatus')({});
+      this._waApiEnabled = !!(res && res.data && res.data.enabled === true);
+    }catch(err){ this._waApiEnabled=false; }
+    return this._waApiEnabled;
+  },
+  whatsappApiVisible(){ return this._waApiEnabled === true; },
   async sendWhatsappRsvpReminder(guestId){
     if(!cloudFunctions) return { ok:false, message:ta('svcNoConnection') };
+    if(!this.whatsappApiVisible()) return { ok:false, code:'unavailable', message:whatsappSendErrorMessage({code:'unavailable'}) };
     try{
       const call = cloudFunctions.httpsCallable('sendWhatsappRsvpReminder');
       const res = await call({ guestId });

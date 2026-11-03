@@ -76,8 +76,9 @@
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
-const { onDocumentWritten, onDocumentUpdated } = require('firebase-functions/v2/firestore');
-const { defineString, defineSecret } = require('firebase-functions/params');
+const { onDocumentWritten, onDocumentUpdated, onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
+const { defineString, defineSecret, defineInt } = require('firebase-functions/params');
+const { onObjectFinalized, onObjectDeleted } = require('firebase-functions/v2/storage');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
@@ -1240,6 +1241,12 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
         await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
         // Fase J (RGPD): cópias do estado em quarentena (contêm o JSON do casamento, com
         // nomes/contactos de convidados) e estado auxiliar por casamento ficavam para trás.
+        try { // K.3-B: contador de quota e respetivos registos por ficheiro
+          const qr = db.collection('memoryQuota').doc(weddingId);
+          const its = await qr.collection('items').get();
+          for (let i = 0; i < its.docs.length; i += 400) { const b = db.batch(); its.docs.slice(i, i + 400).forEach((x) => b.delete(x.ref)); await b.commit(); }
+          await qr.delete();
+        } catch (e) { logger.error(`deleteWeddingAccount: limpeza de memoryQuota falhou. ${e.message || e}`); }
         await deleteAllByWeddingId('downloadTokenRevocations', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de downloadTokenRevocations falhou. ${e.message || e}`));
         await deleteAllByWeddingId('weddingStateQuarantine', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de weddingStateQuarantine falhou. ${e.message || e}`));
         for (const col of ['seatingRuns', 'notifState']) {
@@ -5670,6 +5677,15 @@ const WHATSAPP_API_ENABLED = defineString('WHATSAPP_API_ENABLED', { default: 'fa
 function whatsappApiEnabled() { return String(WHATSAPP_API_ENABLED.value() || '').trim().toLowerCase() === 'true'; }
 const WHATSAPP_RSVP_REMINDER_TEMPLATE = 'rsvp_reminder';
 
+// K.3-A — estado da integração para a interface. Devolve só um booleano decidido no SERVIDOR; o cliente não
+// consegue ativá-la. Exige sessão (não expõe nada a anónimos). Não lê nem escreve dados de casamentos.
+exports.getWhatsappApiStatus = onCall({ region: 'europe-west1' }, async (request) => {
+  if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
+  const weddingId = await resolveWeddingId(request, /* isCouple */ true);
+  if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
+  return { enabled: whatsappApiEnabled() };
+});
+
 exports.sendWhatsappRsvpReminder = onCall(
   { region: 'europe-west1', secrets: [WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID] },
   async (request) => {
@@ -5895,6 +5911,8 @@ exports.createSubscriptionCheckout = onCall(
           quantity: 1,
         }],
         metadata: { weddingId },
+        // K.3-E: cobranças e reembolsos herdam o weddingId (ligação segura pagamento → casamento).
+        payment_intent_data: { metadata: { weddingId } },
         success_url: `${returnUrl}${sep}weddyCheckout=success`,
         cancel_url: `${returnUrl}${sep}weddyCheckout=cancelled`,
       });
@@ -5975,9 +5993,17 @@ exports.stripeWebhook = onRequest(
             try {
               const outcome = await db.runTransaction(async (tx) => {
                 const fresh = await tx.get(weddingRef);
+                const piId = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+                const payRef = piId ? db.collection('stripePayments').doc(piId) : null;
+                const paySnap = payRef ? await tx.get(payRef) : null;
+                const early = piId ? await tx.get(db.collection('stripeEvents').where('paymentIntentId', '==', piId).where('outcome', '==', 'unmatched')) : null; // reembolso chegou antes do pagamento
                 const sub = (fresh.data() || {}).subscription || {};
                 const seen = Array.isArray(sub.stripeCheckoutSessionIds) ? sub.stripeCheckoutSessionIds : [];
                 if (sub.stripeCheckoutSessionId === session.id || seen.includes(session.id)) return 'dup';
+                // K.3-E: registo financeiro auditável (só servidor, sem dados pessoais, sem prazo de apagamento).
+                if (payRef && !paySnap.exists) {
+                  tx.set(payRef, { weddingId, paymentIntentId: piId, checkoutSessionId: session.id, amount: Number.isFinite(session.amount_total) ? session.amount_total : null, currency: session.currency || null, status: 'paid', refundedAmount: 0, disputeStatus: null, reviewRequired: !!(early && !early.empty), paidAt: admin.firestore.FieldValue.serverTimestamp(), updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+                }
                 const newStartedAt = nextSubscriptionStartedAt(sub);
                 tx.update(weddingRef, {
                   subscription: {
@@ -6003,6 +6029,15 @@ exports.stripeWebhook = onRequest(
               await logStripeWebhookIncident('falha-ao-ativar', weddingId, event, session, writeErr);
             }
           }
+        }
+      } else if (event.type === 'charge.refunded' || event.type === 'charge.dispute.created' || event.type === 'charge.dispute.closed') {
+        // K.3-E: reembolsos/disputas. Falha de processamento → 500 para o Stripe voltar a tentar (o registo por event.id é idempotente).
+        try { await handleStripeRefundEvent(event); }
+        catch (refundErr) {
+          logger.error(`stripeWebhook: falhou o tratamento de ${event.type}. ${refundErr.message || refundErr}`);
+          await logStripeWebhookIncident('falha-reembolso', null, event, event.data.object, refundErr);
+          res.status(500).send('retry');
+          return;
         }
       } else if (event.type === 'checkout.session.async_payment_failed') {
         // Não desativamos nada aqui de propósito: se a pessoa já tinha uma
@@ -6031,6 +6066,63 @@ exports.stripeWebhook = onRequest(
     res.status(200).send('OK');
   }
 );
+
+// ===== K.3-E — Reembolsos e disputas Stripe =====
+// Separação deliberada: (1) DETEÇÃO TÉCNICA do evento (sempre ativa, regista no histórico financeiro) e (2) POLÍTICA comercial
+// sobre o Premium (parâmetro STRIPE_REFUND_POLICY; por defeito 'record_only' = nunca altera o Premium). A política de
+// reembolsos da Weddy NÃO está aprovada; 'revoke_on_full_refund' existe pronta mas desligada.
+//   record_only            → regista, marca "reviewRequired" e deixa um incidente para decisão humana.
+//   revoke_on_full_refund  → só em caso inequívoco (reembolso TOTAL, pagamento ligado, única compra paga do casamento): active=false.
+// Registos em `stripeEvents/{event.id}` (idempotência) e `stripePayments/{paymentIntent}` — financeiros: sem expireAt/TTL.
+const STRIPE_REFUND_POLICY = defineString('STRIPE_REFUND_POLICY', { default: 'record_only' });
+function stripeRefundPolicy() { const v = String(STRIPE_REFUND_POLICY.value() || '').trim().toLowerCase(); return v === 'revoke_on_full_refund' ? v : 'record_only'; }
+async function handleStripeRefundEvent(event) {
+  const obj = (event && event.data && event.data.object) || {};
+  const isDispute = event.type.startsWith('charge.dispute.');
+  const piId = typeof obj.payment_intent === 'string' ? obj.payment_intent : null;
+  const evRef = db.collection('stripeEvents').doc(String(event.id).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120));
+  const payRef = piId ? db.collection('stripePayments').doc(piId) : null;
+  return db.runTransaction(async (tx) => {
+    const evSnap = await tx.get(evRef);
+    if (evSnap.exists) return { action: 'duplicate' };
+    const paySnap = payRef ? await tx.get(payRef) : null;
+    const base = { type: event.type, paymentIntentId: piId, chargeId: isDispute ? (obj.charge || null) : (obj.id || null), currency: obj.currency || null, at: admin.firestore.FieldValue.serverTimestamp() };
+    if (!paySnap || !paySnap.exists) {
+      // Sem registo do pagamento (evento fora de ordem, pagamento anterior à K.3 ou sem payment_intent): NUNCA se altera o Premium.
+      tx.set(evRef, { ...base, weddingId: null, amount: obj.amount ?? null, refundedAmount: obj.amount_refunded ?? null, outcome: 'unmatched', reviewRequired: true });
+      return { action: 'unmatched' };
+    }
+    const pay = paySnap.data(); const weddingId = pay.weddingId;
+    const claimed = obj.metadata && obj.metadata.weddingId;
+    if (claimed && claimed !== weddingId) { // incoerência entre o pagamento registado e os metadados do Stripe
+      tx.set(evRef, { ...base, weddingId, outcome: 'inconsistent', reviewRequired: true });
+      tx.update(payRef, { reviewRequired: true, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+      return { action: 'inconsistent', weddingId };
+    }
+    if (isDispute) {
+      const st = event.type === 'charge.dispute.closed' ? ('closed_' + String(obj.status || 'unknown')) : 'open';
+      tx.update(payRef, { disputeStatus: st, reviewRequired: true, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+      tx.set(evRef, { ...base, weddingId, outcome: 'dispute_recorded', disputeStatus: st, reviewRequired: true });
+      return { action: 'dispute_recorded', weddingId };
+    }
+    const amount = Number.isFinite(pay.amount) ? pay.amount : (Number.isFinite(obj.amount) ? obj.amount : null);
+    const refunded = Math.max(Number(pay.refundedAmount) || 0, Number(obj.amount_refunded) || 0); // monótono: eventos fora de ordem não diminuem
+    const full = amount != null && refunded >= amount;
+    const status = full ? 'refunded' : (refunded > 0 ? 'partially_refunded' : pay.status);
+    let outcome = 'recorded_no_change', review = true, revoke = false;
+    if (stripeRefundPolicy() === 'revoke_on_full_refund' && full) {
+      const w = await tx.get(db.collection('weddings').doc(weddingId));
+      const others = await tx.get(db.collection('stripePayments').where('weddingId', '==', weddingId).where('status', 'in', ['paid', 'partially_refunded']));
+      const onlyThis = others.docs.every((d) => d.id === piId);
+      if (w.exists && onlyThis && pay.disputeStatus == null) { revoke = true; outcome = 'premium_revoked'; review = false; }
+      else outcome = 'ambiguous_review';
+    }
+    if (revoke) tx.update(db.collection('weddings').doc(weddingId), { 'subscription.active': false, 'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(), 'subscription.revokedReason': 'stripe_full_refund' });
+    tx.update(payRef, { refundedAmount: refunded, status, reviewRequired: review, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+    tx.set(evRef, { ...base, weddingId, amount, refundedAmount: refunded, outcome, reviewRequired: review, policy: stripeRefundPolicy() });
+    return { action: outcome, weddingId, status, refunded };
+  });
+}
 
 // Registo durável (fora dos logs do Cloud Run, que a Rita não tem como
 // consultar) de qualquer falha no webhook do Stripe que possa significar um
@@ -6874,8 +6966,142 @@ exports.revokeDownloadTokensOnOwnerRemoval = onDocumentUpdated(
   }
 );
 
+// ===== K.3-B — Quota de fotos públicas (Weddy Memories) =====
+// Fluxo: o convidado envia o ficheiro direto para o Storage e cria `memories/{id}`. As regras não conseguem contar,
+// por isso o servidor mantém um contador por casamento (`memoryQuota/{weddingId}`) com um registo idempotente por
+// ficheiro (`memoryQuota/{weddingId}/items/{sha256(path)}`). Cada ficheiro é contado UMA vez, numa transação, quer
+// o primeiro evento seja a criação do documento quer o ficheiro finalizado. Acima do limite o ficheiro e o
+// documento são apagados. Quando o álbum enche, `full=true` e as regras recusam novos documentos.
+// Limites (valores recomendados, por aprovar para produção; configuráveis sem alterar código):
+const MEMORIES_MAX_FILES = defineInt('MEMORIES_MAX_FILES_PER_WEDDING', { default: 2000 });
+const MEMORIES_MAX_BYTES_MB = defineInt('MEMORIES_MAX_MB_PER_WEDDING', { default: 5120 });
+const MEMORIES_MAX_PER_INVITE = defineInt('MEMORIES_MAX_FILES_PER_INVITE', { default: 20 });
+const MEMORIES_MAX_PUBLIC = defineInt('MEMORIES_MAX_FILES_PUBLIC_QR', { default: 300 });
+const MEMORIES_MAX_FILE_BYTES = 8 * 1024 * 1024; // = storage.rules
+const MEMORIES_ALLOWED_TYPES = /^image\/(jpeg|jpg|png|webp|heic|heif|gif)$/;
+function memoryQuotaLimits() {
+  return { files: Number(MEMORIES_MAX_FILES.value()), bytes: Number(MEMORIES_MAX_BYTES_MB.value()) * 1048576, perInvite: Number(MEMORIES_MAX_PER_INVITE.value()), publicQr: Number(MEMORIES_MAX_PUBLIC.value()) };
+}
+function memoryPathParts(p) {
+  const m = /^memories\/([^/]+)\/([^/]+)\/([^/]+)$/.exec(String(p || ''));
+  return m ? { weddingId: m[1], token: m[2], file: m[3] } : null;
+}
+const memoryHash = (s, n = 24) => crypto.createHash('sha256').update(String(s)).digest('hex').slice(0, n);
+
+// Conta um ficheiro (idempotente). `size` pode ser null (evento do documento: ainda não se conhece).
+async function memoryQuotaAccount(path, size, contentType, source) {
+  return memoryQuotaRetry(() => memoryQuotaAccountOnce(path, size, contentType, source));
+}
+// Contenção no contador (muitas fotos ao mesmo tempo no mesmo casamento): repete com espera aleatória. As operações são idempotentes.
+async function memoryQuotaRetry(fn, tries = 12) {
+  for (let i = 0; ; i++) {
+    try { return await fn(); } catch (e) {
+      const code = e && (e.code || e.status); const retriable = code === 10 || code === 'aborted' || code === 4 || /ABORTED|lock timeout|contention|DEADLINE/i.test(String(e && e.message));
+      if (!retriable || i >= tries) throw e;
+      await new Promise((r) => setTimeout(r, Math.min(2000, 40 * 2 ** Math.min(i, 5)) * (0.5 + Math.random())));
+    }
+  }
+}
+async function memoryQuotaAccountOnce(path, size, contentType, source) {
+  const parts = memoryPathParts(path);
+  if (!parts) return { action: 'ignore' };
+  const L = memoryQuotaLimits();
+  const qRef = db.collection('memoryQuota').doc(parts.weddingId);
+  const iRef = qRef.collection('items').doc(memoryHash(path, 40));
+  const tKey = parts.token === 'publico' ? 'publico' : 't' + memoryHash(parts.token, 12);
+  const res = await db.runTransaction(async (tx) => {
+    const [iS, qS] = await Promise.all([tx.get(iRef), tx.get(qRef)]);
+    const q = { files: 0, bytes: 0, perToken: {}, refused: 0, ...(qS.exists ? qS.data() : {}) };
+    q.files = Number(q.files) || 0; q.bytes = Number(q.bytes) || 0; q.perToken = q.perToken || {};
+    if (iS.exists) {
+      const it = iS.data();
+      if (it.status === 'accepted' && it.bytes == null && size != null) { // evento do documento chegou primeiro; acrescenta os bytes
+        const tooBig = size > MEMORIES_MAX_FILE_BYTES || (contentType && !MEMORIES_ALLOWED_TYPES.test(contentType));
+        if (tooBig || q.bytes + size > L.bytes) { // agora sabe-se que não cabe: reverte e recusa
+          tx.update(iRef, { status: 'refused', reason: tooBig ? 'invalid_file' : 'wedding_bytes', bytes: size });
+          tx.set(qRef, { files: Math.max(0, q.files - 1), perToken: { ...(q.perToken || {}), [tKey]: Math.max(0, ((q.perToken || {})[tKey] || 1) - 1) }, refused: (q.refused || 0) + 1, full: false, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+          return { action: 'refused', reason: tooBig ? 'invalid_file' : 'wedding_bytes' };
+        }
+        tx.update(iRef, { bytes: size });
+        const nb = q.bytes + size;
+        tx.set(qRef, { bytes: nb, full: q.files >= L.files || nb >= L.bytes, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      }
+      return { action: it.status === 'refused' ? 'refused' : 'duplicate', reason: it.reason };
+    }
+    const perToken = (q.perToken || {})[tKey] || 0;
+    const tokenLimit = parts.token === 'publico' ? L.publicQr : L.perInvite;
+    let reason = null;
+    if (size != null && size > MEMORIES_MAX_FILE_BYTES) reason = 'invalid_file';
+    else if (contentType && !MEMORIES_ALLOWED_TYPES.test(contentType)) reason = 'invalid_file';
+    else if (q.files >= L.files) reason = 'wedding_files';
+    else if (size != null && q.bytes + size > L.bytes) reason = 'wedding_bytes';
+    else if (perToken >= tokenLimit) reason = parts.token === 'publico' ? 'public_files' : 'invite_files';
+    const expireAt = admin.firestore.Timestamp.fromMillis(Date.now() + 90 * 86400000);
+    if (reason) {
+      // Registo da recusa: só o hash do token (nunca o token), com validade de 90 dias.
+      tx.set(iRef, { status: 'refused', reason, tokenKey: tKey, bytes: size, source, at: admin.firestore.FieldValue.serverTimestamp(), expireAt });
+      tx.set(qRef, { weddingId: parts.weddingId, refused: (q.refused || 0) + 1, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      return { action: 'refused', reason };
+    }
+    const nf = q.files + 1, nb = q.bytes + (size || 0);
+    tx.set(iRef, { status: 'accepted', tokenKey: tKey, bytes: size, source, at: admin.firestore.FieldValue.serverTimestamp() });
+    tx.set(qRef, { weddingId: parts.weddingId, files: nf, bytes: nb, perToken: { ...(q.perToken || {}), [tKey]: perToken + 1 }, full: nf >= L.files || nb >= L.bytes, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return { action: 'accepted' };
+  });
+  if (res.action === 'refused') await memoryQuotaCleanup(parts.weddingId, path);
+  return res;
+}
+// Apaga o ficheiro recusado e os documentos que o referem (nunca toca noutros ficheiros/casamentos).
+async function memoryQuotaCleanup(weddingId, path) {
+  try { await admin.storage().bucket().file(path).delete({ ignoreNotFound: true }); } catch (e) { logger.warn(`memoryQuota: apagar ficheiro recusado falhou (${e.code || e.message || e})`); }
+  try {
+    const snap = await db.collection('memories').where('weddingId', '==', weddingId).where('storagePath', '==', path).get();
+    for (const d of snap.docs) await d.ref.delete();
+  } catch (e) { logger.warn(`memoryQuota: apagar documento recusado falhou (${e.code || e.message || e})`); }
+}
+// Liberta a quota quando o casal apaga uma foto (idempotente).
+async function memoryQuotaRelease(path) { return memoryQuotaRetry(() => memoryQuotaReleaseOnce(path)); }
+async function memoryQuotaReleaseOnce(path) {
+  const parts = memoryPathParts(path);
+  if (!parts) return { action: 'ignore' };
+  const L = memoryQuotaLimits();
+  const qRef = db.collection('memoryQuota').doc(parts.weddingId);
+  const iRef = qRef.collection('items').doc(memoryHash(path, 40));
+  return db.runTransaction(async (tx) => {
+    const [iS, qS] = await Promise.all([tx.get(iRef), tx.get(qRef)]);
+    if (!iS.exists) return { action: 'none' };
+    const it = iS.data();
+    if (it.status !== 'accepted') return { action: 'kept_refused' }; // o registo da recusa fica (evita voltar a contar)
+    tx.delete(iRef);
+    if (!qS.exists) return { action: 'released' };
+    const q = qS.data(); const nf = Math.max(0, (Number(q.files) || 0) - 1), nb = Math.max(0, (Number(q.bytes) || 0) - (it.bytes || 0));
+    const pt = { ...(q.perToken || {}) }; pt[it.tokenKey] = Math.max(0, (pt[it.tokenKey] || 1) - 1);
+    tx.set(qRef, { files: nf, bytes: nb, perToken: pt, full: nf >= L.files || nb >= L.bytes, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return { action: 'released' };
+  });
+}
+exports.memoryQuotaOnDocCreated = onDocumentCreated({ document: 'memories/{memoryId}', region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
+  const d = event.data && event.data.data(); if (!d || !d.storagePath) return;
+  let size = null, ct = null;
+  try { const [md] = await admin.storage().bucket().file(d.storagePath).getMetadata(); size = Number(md.size); ct = md.contentType; } catch (e) { /* ficheiro ainda não visível: o evento do ficheiro trata */ }
+  await memoryQuotaAccount(d.storagePath, size, ct, 'doc');
+});
+exports.memoryQuotaOnObjectFinalized = onObjectFinalized({ region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
+  const o = event.data || {}; if (!String(o.name || '').startsWith('memories/')) return;
+  await memoryQuotaAccount(o.name, Number(o.size), o.contentType, 'object');
+});
+exports.memoryQuotaOnDocDeleted = onDocumentDeleted({ document: 'memories/{memoryId}', region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
+  const d = event.data && event.data.data(); if (!d || !d.storagePath) return;
+  // Se o apagamento foi feito pela própria quota (recusa), o registo é "refused" e nada é libertado.
+  await memoryQuotaRelease(d.storagePath);
+});
+exports.memoryQuotaOnObjectDeleted = onObjectDeleted({ region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
+  const o = event.data || {}; if (!String(o.name || '').startsWith('memories/')) return;
+  await memoryQuotaRelease(o.name);
+});
+
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { handleOwnerRemoval, removedOwners, whatsappApiEnabled, seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { handleStripeRefundEvent, stripeRefundPolicy, memoryQuotaAccount, memoryQuotaRelease, memoryQuotaLimits, memoryPathParts, handleOwnerRemoval, removedOwners, whatsappApiEnabled, seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }

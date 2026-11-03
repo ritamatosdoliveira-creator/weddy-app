@@ -299,6 +299,15 @@ service cloud.firestore {
     // ao resto deste fluxo de convidado. Ver/apagar a galeria completa
     // (index.html: carregarMemories/deleteMemory) só pode ser feito pelo(s)
     // dono(s) autenticados do casamento a que essas fotos pertencem.
+    // K.3-B: contador de fotos por casamento. Só o servidor escreve; os donos podem ler (para mostrar "X de N").
+    match /memoryQuota/{weddingId} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow write: if false;
+      match /items/{itemId} { allow read, write: if false; }
+    }
+
     match /memories/{memoryId} {
       // Out 2026 (auditoria de segurança): era "create: if true" sem validar
       // campos — dava para criar documentos com um "url" arbitrário (ex.:
@@ -316,7 +325,10 @@ service cloud.firestore {
         && request.resource.data.token is string
         && (request.resource.data.token == 'publico'
             || get(/databases/$(database)/documents/guests/$(request.resource.data.token)).data.weddingId == request.resource.data.weddingId)
-        && (!('guestName' in request.resource.data) || (request.resource.data.guestName is string && request.resource.data.guestName.size() <= 120));
+        && (!('guestName' in request.resource.data) || (request.resource.data.guestName is string && request.resource.data.guestName.size() <= 120))
+        // K.3-B: álbum cheio (contador mantido pelo servidor) → não aceita mais fotos.
+        && (!exists(/databases/$(database)/documents/memoryQuota/$(request.resource.data.weddingId))
+            || get(/databases/$(database)/documents/memoryQuota/$(request.resource.data.weddingId)).data.get('full', false) != true);
 
       allow read, delete: if request.auth != null
         && request.auth.token.email_verified == true
