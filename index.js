@@ -6976,11 +6976,16 @@ exports.revokeDownloadTokensOnOwnerRemoval = onDocumentUpdated(
 const MEMORIES_MAX_FILES = defineInt('MEMORIES_MAX_FILES_PER_WEDDING', { default: 2000 });
 const MEMORIES_MAX_BYTES_MB = defineInt('MEMORIES_MAX_MB_PER_WEDDING', { default: 5120 });
 const MEMORIES_MAX_PER_INVITE = defineInt('MEMORIES_MAX_FILES_PER_INVITE', { default: 20 });
-const MEMORIES_MAX_PUBLIC = defineInt('MEMORIES_MAX_FILES_PUBLIC_QR', { default: 300 });
+const MEMORIES_MAX_PUBLIC = defineInt('MEMORIES_MAX_FILES_PUBLIC_QR', { default: 500 });
 const MEMORIES_MAX_FILE_BYTES = 8 * 1024 * 1024; // = storage.rules
 const MEMORIES_ALLOWED_TYPES = /^image\/(jpeg|jpg|png|webp|heic|heif|gif)$/;
+// Valores aprovados (K.3). Se o parâmetro não estiver resolvido (ex.: execução fora do deploy, onde value() devolve 0)
+// ou for inválido, usa-se o valor aprovado — nunca 0, que recusaria todas as fotos.
+const MEMORIES_QUOTA_DEFAULTS = { files: 2000, megabytes: 5120, perInvite: 20, publicQr: 500 };
+const quotaParam = (p, d) => { let v; try { v = Number(p.value()); } catch (e) { v = NaN; } return Number.isFinite(v) && v > 0 ? v : d; };
 function memoryQuotaLimits() {
-  return { files: Number(MEMORIES_MAX_FILES.value()), bytes: Number(MEMORIES_MAX_BYTES_MB.value()) * 1048576, perInvite: Number(MEMORIES_MAX_PER_INVITE.value()), publicQr: Number(MEMORIES_MAX_PUBLIC.value()) };
+  const D = MEMORIES_QUOTA_DEFAULTS;
+  return { files: quotaParam(MEMORIES_MAX_FILES, D.files), bytes: quotaParam(MEMORIES_MAX_BYTES_MB, D.megabytes) * 1048576, perInvite: quotaParam(MEMORIES_MAX_PER_INVITE, D.perInvite), publicQr: quotaParam(MEMORIES_MAX_PUBLIC, D.publicQr) };
 }
 function memoryPathParts(p) {
   const m = /^memories\/([^/]+)\/([^/]+)\/([^/]+)$/.exec(String(p || ''));

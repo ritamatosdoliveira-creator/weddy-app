@@ -4,7 +4,7 @@ A publicação exige **autorização separada, expressa e específica** da Rita.
 
 ## A. Antes de qualquer publicação
 - [ ] Validação externa no projeto de teste concluída (App Check monitor, TTL, rotação OpenAI, Storage real, Stripe modo teste) — hoje **nenhuma** executada.
-- [ ] Decisão sobre os limites de quota (20/300/2000/5 GB) e sobre a política de reembolsos (`STRIPE_REFUND_POLICY`).
+- [x] Quotas **decididas**: 20 por convite / 500 QR público / 2.000 por casamento / 5 GB. Reembolsos: **review manual, `STRIPE_REFUND_POLICY=record_only`** (decidido).
 - [ ] Decisão sobre retenção de registos financeiros (contabilista) e sobre eliminação de conta × `stripePayments`/`stripeEvents`.
 - [ ] Backup/exportação do estado atual de produção (Rita).
 

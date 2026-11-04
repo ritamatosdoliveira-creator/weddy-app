@@ -27,3 +27,6 @@ Ativar no endpoint do webhook (teste e depois produção) os eventos `charge.ref
 
 ## Riscos
 Pagamentos anteriores à K.3 não têm registo ⇒ reembolsos aparecem `unmatched` (revisão manual; pode fazer-se um backfill manual a partir do painel). Registos financeiros: retenção fiscal a validar com contabilista; `deleteWeddingAccount` **não** os apaga (decisão a confirmar).
+
+## Decisão aprovada (consolidação K.3)
+**Reembolsos em revisão manual.** `STRIPE_REFUND_POLICY=record_only` é e continua o comportamento predefinido; nenhum reembolso (total, parcial), duplicado ou disputa revoga o Premium. Cada caso fica registado (`stripePayments.reviewRequired=true`, `stripeEvents`) para decisão humana. Confirmado por `k3-stripe-refunds`: política por defeito `record_only`, reembolso total/parcial/disputa sem alteração do Premium, valor desconhecido da flag ⇒ `record_only`. A opção `revoke_on_full_refund` fica no código, **desligada e não aprovada**. Nenhuma lógica financeira foi alterada nesta consolidação (não se identificou necessidade concreta).

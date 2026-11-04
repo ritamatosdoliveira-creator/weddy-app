@@ -20,7 +20,7 @@ Base: `v325-import-guests`, K.2 `ea85a2e`. Estado inicial confirmado (branch, co
 | Rotação OpenAI no teste | **Não executada** (precisa da Rita) |
 | Revogação com Storage real | **Preparada, não validada** |
 | Alertas/monitorização | Proposta documentada |
-| Regressão | **60/60** |
+| Regressão | **61/61** |
 | Documentação | 12 documentos + scripts |
 | Working tree limpo após commit | Ver entrega |
 
@@ -31,3 +31,13 @@ Base: `v325-import-guests`, K.2 `ea85a2e`. Estado inicial confirmado (branch, co
 
 ## Custos e dependências
 Sem serviços pagos novos. Custo variável: invocações de functions por foto (2 eventos) e por atualização de casamento; Firestore (contador). Dependências externas por aprovar: reCAPTCHA (App Check).
+
+---
+## Consolidação das decisões (K.3, 4 nov)
+**Decisões fechadas:** quota por convite **20** · QR público **500** · por casamento **2.000** · armazenamento **5 GB** por casamento · reembolsos Stripe em **revisão manual** (`record_only`, sem revogação automática) · retenção financeira: **só proposta técnica, sem prazo** · App Check: **apenas monitor** no projeto de teste.
+
+**Alterado:** QR público 300 → 500 (`index.js`); valores de recurso para os `defineInt`; novo teste `k3-quota-defaults`; documentação de quota/Stripe/checklists atualizada; novos `PROPOSTA-RETENCAO-FINANCEIRA.md` e `CHECKLIST-VALIDACOES-EXTERNAS-K3.md`; `VALIDACAO-APP-CHECK.md` com checklist de 14 dias. **Não alterado:** lógica financeira (nenhuma necessidade concreta identificada), regras Firebase, credenciais, configurações externas, política de reembolsos, prazo de retenção.
+
+**Confirmação Stripe:** `record_only` é o predefinido; reembolsos total/parcial, duplicados e disputas ficam registados (`reviewRequired`) e **não** revogam Premium (`k3-stripe-refunds`, 24/24).
+
+**Regressão completa: 61/61 suites** (56 da K.2 + 5 da K.3; nenhuma removida ou enfraquecida). **Nível dos testes:** automatizados em emulador/mocks. **Validações externas continuam por realizar** (TTL, rotação OpenAI, Storage real, Stripe test mode, iOS/Android reais, custos, App Check): ver `CHECKLIST-VALIDACOES-EXTERNAS-K3.md`.

@@ -12,9 +12,9 @@
 ## B. Decisões
 | # | Decisão |
 |---|---|
-| P-K3-6 | Aprovar/ajustar limites de quota; mostrar "X de N" ao casal; mensagem específica ao convidado quando o convite enche |
-| P-K3-7 | Política de reembolsos (quando perde Premium) → só então mudar `STRIPE_REFUND_POLICY`; texto nos Termos |
-| P-K3-8 | Retenção/eliminação de registos financeiros (`stripePayments`, `stripeEvents`) |
+| P-K3-6 | ~~Limites de quota~~ **decididos** (20/500/2.000/5 GB). Resta: mostrar "X de N" ao casal; mensagem específica ao convidado quando o convite enche |
+| P-K3-7 | ~~Política de reembolsos~~ **decidida: revisão manual (`record_only`)**. Resta: texto nos Termos e procedimento interno de revisão |
+| P-K3-8 | Retenção financeira: proposta técnica pronta (`PROPOSTA-RETENCAO-FINANCEIRA.md`); **prazo por definir** com contabilista/jurídico |
 | P-K3-9 | Pagamentos anteriores à K.3 sem `payment_intent` registado: backfill manual? |
 | P-K3-10 | reCAPTCHA/App Check: aprovação RGPD antes de qualquer produção |
 | P-K3-11 | Tetos de custos e alertas (`PLANO-MONITORIZACAO-CUSTOS.md`) |
