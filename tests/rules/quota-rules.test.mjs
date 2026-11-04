@@ -29,5 +29,14 @@ await rec('outro casal não lê o contador de W1',true,()=>getDoc(doc(F(B),'memo
 await rec('anónimo não lê o contador',true,()=>getDoc(doc(F(anon),'memoryQuota/W1')));
 await rec('registos por ficheiro (items) não são legíveis',true,()=>getDoc(doc(F(A),'memoryQuota/W1/items/x')));
 await rec('convidado de outro casamento não usa quota alheia (token G3 em W1)',true,()=>setDoc(doc(F(anon),'memories/m5'),mem('W1','G3','a')));
+// P1 (pós-auditoria K.3): o storagePath tem de ser memories/{weddingId}/{token}/{ficheiro}, coerente com o documento.
+await rec('caminho coerente (W3, G3): aceita',false,()=>setDoc(doc(F(anon),'memories/c1'),mem('W3','G3','b')));
+await rec('token do documento ≠ token do caminho (G3 vs publico): recusa',true,()=>setDoc(doc(F(anon),'memories/c2'),{...mem('W3','G3','b'),storagePath:'memories/W3/publico/b.png'}));
+await rec('documento publico a apontar para pasta de convite G3: recusa',true,()=>setDoc(doc(F(anon),'memories/c3'),{...mem('W3','publico','b'),storagePath:'memories/W3/G3/b.png'}));
+await rec('weddingId do documento ≠ caminho (W3 vs W2): recusa',true,()=>setDoc(doc(F(anon),'memories/c4'),{...mem('W3','publico','b'),storagePath:'memories/W2/publico/b.png'}));
+await rec('caminho com subpasta extra: recusa',true,()=>setDoc(doc(F(anon),'memories/c5'),{...mem('W3','G3','b'),storagePath:'memories/W3/G3/sub/b.png'}));
+await rec('caminho sem nome de ficheiro: recusa',true,()=>setDoc(doc(F(anon),'memories/c6'),{...mem('W3','G3','b'),storagePath:'memories/W3/G3/'}));
+await rec('caminho sem pasta de token: recusa',true,()=>setDoc(doc(F(anon),'memories/c7'),{...mem('W3','G3','b'),storagePath:'memories/W3/b.png'}));
+await rec('caminho fora de memories/: recusa',true,()=>setDoc(doc(F(anon),'memories/c8'),{...mem('W3','G3','b'),storagePath:'documents/W3/G3/b.png'}));
 console.log(res.map(r=>r.join(' | ')).join('\n')); const nFail=res.filter(r=>r[0]==='FAIL').length; console.log('FAILS:',nFail,'/',res.length);
 await env.cleanup(); process.exit(nFail?1:0);

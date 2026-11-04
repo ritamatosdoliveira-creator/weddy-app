@@ -39,6 +39,7 @@ const SUITES = [
   { id: 'k3-quota', group: 'k3', name: 'K.3-B quota de fotos: limites, concorrência, idempotência, recusas, libertação (Storage simulado) (Fase K.3)', cmd: ['node', 'k3/quota.test.js'], emu: true },
   { id: 'k3-stripe-refunds', group: 'k3', name: 'K.3-E reembolsos Stripe: persistência, idempotência, total/parcial, fora de ordem, política (SDK simulado) (Fase K.3)', cmd: ['node', 'k3/stripe-refunds.test.js'], emu: true },
   { id: 'k3-quota-defaults', group: 'k3', name: 'K.3 quota de fotos: valores efetivos aprovados 20/500/2000/5 GB e fronteiras (Fase K.3)', cmd: ['node', 'k3/quota-defaults.test.js'], emu: true },
+  { id: 'k3-quota-integrity', group: 'k3', name: 'K.3 pós-auditoria P1/P3: documentos sem ficheiro, coerência token/weddingId/caminho, ordem de eventos, limpeza com recuperação (Storage simulado) (Fase K.3)', cmd: ['node', 'k3/quota-integrity.test.js'], emu: true },
   { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
   { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
   { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },

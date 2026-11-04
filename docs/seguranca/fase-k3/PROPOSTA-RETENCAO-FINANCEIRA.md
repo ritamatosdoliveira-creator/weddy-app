@@ -33,7 +33,7 @@ Em qualquer opção: a TTL do Firestore só se aplica a documentos com um campo 
 ## 4. Riscos
 - **Eliminação prematura:** perder prova de cobrança/reembolso/disputa; impossibilidade de reconstruir o histórico; problemas com contabilidade ou fisco [VALIDAR].
 - **Retenção excessiva:** manter dados para além do necessário; contradiz a minimização/limitação da conservação; aumenta o impacto de um incidente.
-- **Conflito eliminação de conta × retenção:** hoje `deleteWeddingAccount` **não** apaga `stripePayments`/`stripeEvents` (decisão provisória, a confirmar). O cliente pode pedir apagamento; é preciso definir o que se informa e o que se conserva por obrigação [VALIDAR].
+- **Conflito eliminação de conta × retenção:** hoje `deleteWeddingAccount` **não** apaga `stripePayments`/`stripeEvents` (decisão provisória, a confirmar). Apaga, em contrapartida, tudo o que está em `_incident_log` com o `weddingId` da conta — **incluindo** os incidentes `type: stripeWebhook` ligados a esse casamento — e, a partir da correção pós-auditoria, as filas técnicas `memoryQuotaCleanupQueue` e `memoryQuotaPending`. Ou seja: os registos financeiros primários ficam, mas os incidentes técnicos de webhook com `weddingId` não; eventos Stripe sem casamento (`unmatched`, `weddingId` nulo) nunca são apagados por esta rotina. Esta assimetria é um facto do código, **não** uma decisão: cabe à validação externa dizer se os incidentes `stripeWebhook` devem seguir o regime dos registos financeiros. Nenhum prazo foi escolhido ou alterado. O cliente pode pedir apagamento; é preciso definir o que se informa e o que se conserva por obrigação [VALIDAR].
 - Pagamentos anteriores à K.3 não têm `stripePayments` (só a subscrição).
 
 ## 5. Questões para decisão externa (contabilista / jurídico)

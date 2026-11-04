@@ -11,7 +11,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { if (c) { pass++; console.log('OK 
 const store = {}; const st = { failDelete: false };
 Object.defineProperty(admin, 'storage', { configurable: true, value: () => ({ bucket: () => ({ file: (p) => ({
   delete: async () => { if (st.failDelete) throw new Error('storage down'); delete store[p]; },
-  getMetadata: async () => { if (!store[p]) throw new Error('nf'); return [{ size: String(store[p].size), contentType: store[p].ct }]; } }) }) }) });
+  getMetadata: async () => { if (!store[p]) { const e = new Error('No such object'); e.code = 404; throw e; } return [{ size: String(store[p].size), contentType: store[p].ct }]; } }) }) }) });
 const put = (p, size = 1000, ct = 'image/png') => { store[p] = { size, ct }; };
 const qd = async (w) => (await db.collection('memoryQuota').doc(w).get()).data() || {};
 const item = async (w, p) => { const s = await db.collection('memoryQuota').doc(w).collection('items').get(); return s.docs.map((d) => d.data()); };
@@ -53,10 +53,10 @@ const crypto = require('crypto'); const MAXT = 'AbCdEfGhIjKlMnOpQrStUv123456';
   put('memories/QW6/i/x.svg', 100, 'image/svg+xml'); r = await T.memoryQuotaAccount('memories/QW6/i/x.svg', 100, 'image/svg+xml', 'object'); ok(r.reason === 'invalid_file' && !store['memories/QW6/i/x.svg'], 'tipo inválido (SVG) recusado e apagado');
   put('memories/QW6/i/a.png', 700000); await T.memoryQuotaAccount('memories/QW6/i/a.png', 700000, 'image/png', 'object'); put('memories/QW6/i/b.png', 700000);
   r = await T.memoryQuotaAccount('memories/QW6/i/b.png', 700000, 'image/png', 'object'); ok(r.reason === 'wedding_bytes', 'limite de bytes do casamento (1 MB) respeitado ' + JSON.stringify(r) + JSON.stringify(await qd('QW6')));
-  // doc primeiro, bytes depois
+  // doc primeiro: P1 (pós-auditoria) — o evento do documento sem tamanho/objeto NÃO cria foto aceite; só o objeto conta
   await db.collection('memories').doc('m-e').set({ weddingId: 'QW7', token: 'publico', storagePath: 'memories/QW7/publico/e.png' }); put('memories/QW7/publico/e.png', 500);
-  r = await T.memoryQuotaAccount('memories/QW7/publico/e.png', null, null, 'doc'); ok(r.action === 'accepted', 'evento do documento primeiro: aceite sem tamanho');
-  r = await T.memoryQuotaAccount('memories/QW7/publico/e.png', 500, 'image/png', 'object'); ok((await qd('QW7')).bytes === 500 && (await qd('QW7')).files === 1, 'evento do ficheiro a seguir completa os bytes sem contar duas vezes');
+  r = await T.memoryQuotaAccount('memories/QW7/publico/e.png', null, null, 'doc'); ok(r.action === 'pending' && ((await qd('QW7')).files || 0) === 0, 'evento do documento sem tamanho: não conta (pendente)');
+  r = await T.memoryQuotaAccount('memories/QW7/publico/e.png', 500, 'image/png', 'object'); ok((await qd('QW7')).bytes === 500 && (await qd('QW7')).files === 1, 'evento do ficheiro a seguir conta a foto com o tamanho real');
   // 8. caminhos que não são de memórias ou sem forma válida
   r = await T.memoryQuotaAccount('documents/QW1/a.pdf', 10, 'application/pdf', 'object'); ok(r.action === 'ignore', 'fora de memories/: ignorado');
   r = await T.memoryQuotaAccount('memories/QW1/a.png', 10, 'image/png', 'object'); ok(r.action === 'ignore', 'caminho sem pasta de token: ignorado');
@@ -65,11 +65,11 @@ const crypto = require('crypto'); const MAXT = 'AbCdEfGhIjKlMnOpQrStUv123456';
   put(`memories/QW8/${MAXT}/1.png`); for (let i = 0; i < 4; i++) { put(`memories/QW8/${MAXT}/${i}.png`); await T.memoryQuotaAccount(`memories/QW8/${MAXT}/${i}.png`, 1000, 'image/png', 'object'); }
   const dump = JSON.stringify([await qd('QW8'), await item('QW8')]); ok(!dump.includes(MAXT) && !dump.includes('AbCdEf'), 'contador e registos não contêm o token completo');
   const refusedItems = (await item('QW8')).filter((x) => x.status === 'refused'); ok(refusedItems.length === 1 && refusedItems[0].expireAt && refusedItems[0].reason === 'invite_files', 'recusa registada com motivo e validade de 90 dias');
-  // 10. falha parcial: Storage indisponível durante a limpeza — o registo fica e não rebenta
+  // 10. falha da limpeza (P3): o erro sobe para o trigger repetir, a recusa fica registada e a repetição conclui a limpeza
   st.failDelete = true; put('memories/QW8/zzz/9.png'); for (let i = 0; i < 3; i++) { put(`memories/QW8/zzz/${i}.png`); await T.memoryQuotaAccount(`memories/QW8/zzz/${i}.png`, 1000, 'image/png', 'object'); }
-  put('memories/QW8/zzz/extra.png'); r = await T.memoryQuotaAccount('memories/QW8/zzz/extra.png', 1000, 'image/png', 'object');
-  ok(r.action === 'refused' && store['memories/QW8/zzz/extra.png'], 'falha do Storage na limpeza: recusa registada, sem exceção (ficheiro fica para nova tentativa)');
-  st.failDelete = false; r = await T.memoryQuotaAccount('memories/QW8/zzz/extra.png', 1000, 'image/png', 'object'); ok(r.action === 'refused' && !store['memories/QW8/zzz/extra.png'], 'repetição do evento conclui a limpeza (idempotente)');
+  put('memories/QW8/zzz/extra.png'); let thrown = null; try { await T.memoryQuotaAccount('memories/QW8/zzz/extra.png', 1000, 'image/png', 'object'); } catch (e) { thrown = e; }
+  ok(thrown && store['memories/QW8/zzz/extra.png'], 'falha do Storage na limpeza: o erro sobe (retry do trigger) e o ficheiro fica para nova tentativa');
+  st.failDelete = false; r = await T.memoryQuotaAccount('memories/QW8/zzz/extra.png', 1000, 'image/png', 'object'); ok(r.action === 'refused' && !store['memories/QW8/zzz/extra.png'], 'repetição do evento depois da falha: limpeza concluída');
   // 11. libertação ao apagar
   const before = (await qd('QW1')).files; r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png'); const afterQ = await qd('QW1');
   ok(r.action === 'released' && afterQ.files === before - 1, 'apagar uma foto liberta a quota');

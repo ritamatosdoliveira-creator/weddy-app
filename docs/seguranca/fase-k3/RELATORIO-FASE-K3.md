@@ -13,14 +13,14 @@ Base: `v325-import-guests`, K.2 `ea85a2e`. Estado inicial confirmado (branch, co
 | Critério | Estado |
 |---|---|
 | Botão WhatsApp oculto com flag desligada | **Feito** (observação: a app não tinha botão que chame a API; o estado vem do servidor e a UI futura só mostra se `true`) |
-| Quota de uploads local | **Feita e testada** (32+12 casos); valores propostos por aprovar |
+| Quota de uploads local | **Feita e testada** em emulador/Storage simulado (ver `MATRIZ-TESTES-K3.md`); valores **aprovados**: 20 por convite / 500 QR público / 2.000 por casamento / 5 GB / 8 MB por foto. Correções pós-auditoria (P1/P3) na secção final |
 | App Check monitor no teste | **Preparado, não validado** |
 | TTL 90 dias no teste | **Preparado, não ativado** |
 | Stripe reembolsos local | **Feito e testado (SDK simulado)**; política `record_only`; Stripe modo teste não validado |
 | Rotação OpenAI no teste | **Não executada** (precisa da Rita) |
 | Revogação com Storage real | **Preparada, não validada** |
 | Alertas/monitorização | Proposta documentada |
-| Regressão | **61/61** |
+| Regressão | **62/62** (61 + `k3-quota-integrity`, pós-auditoria) |
 | Documentação | 12 documentos + scripts |
 | Working tree limpo após commit | Ver entrega |
 
@@ -40,4 +40,12 @@ Sem serviços pagos novos. Custo variável: invocações de functions por foto (
 
 **Confirmação Stripe:** `record_only` é o predefinido; reembolsos total/parcial, duplicados e disputas ficam registados (`reviewRequired`) e **não** revogam Premium (`k3-stripe-refunds`, 24/24).
 
-**Regressão completa: 61/61 suites** (56 da K.2 + 5 da K.3; nenhuma removida ou enfraquecida). **Nível dos testes:** automatizados em emulador/mocks. **Validações externas continuam por realizar** (TTL, rotação OpenAI, Storage real, Stripe test mode, iOS/Android reais, custos, App Check): ver `CHECKLIST-VALIDACOES-EXTERNAS-K3.md`.
+**Regressão completa: 62/62 suites** (56 da K.2 + 5 da K.3 + 1 pós-auditoria `k3-quota-integrity`; nenhuma removida ou enfraquecida). **Nível dos testes:** automatizados em emulador/mocks. **Validações externas continuam por realizar** (TTL, rotação OpenAI, Storage real, Stripe test mode, iOS/Android reais, custos, App Check): ver `CHECKLIST-VALIDACOES-EXTERNAS-K3.md`.
+
+
+## Correções pós-auditoria K.3 (P1, P3 e documentação) — não commitado
+- **P1 corrigido:** documento `memories` sem ficheiro real já não conta como foto; `token`/`weddingId` do documento têm de coincidir com o caminho (regras Firestore + servidor). Detalhe e limites em `IMPLEMENTACAO-QUOTA-UPLOADS.md`.
+- **P3 corrigido:** limpeza falhada sobe para retry (máx. 5 no trigger), fila `memoryQuotaCleanupQueue` e rotina horária `memoryQuotaReconcile` (máx. 20 tentativas, depois `giveUp`).
+- **Testes:** nova suite `k3-quota-integrity` (28 casos) + 8 casos de regras; regressão **62/62** em emulador, com Storage simulado. Nada disto valida o Storage real, o Eventarc nem o Cloud Scheduler.
+- **Instabilidade observada (anterior a estas alterações):** o cenário de 40 pedidos simultâneos de `k3-quota` falhou/excedeu o tempo (`ABORTED: Transaction lock timeout` no emulador) de forma intermitente — reproduzido também com o código original da K.3 (1 em 4 execuções). Foi aumentado o número de tentativas internas (12→25); a contenção do contador único por casamento continua por validar em Firestore real.
+- **Documentação:** contradição "por aprovar" removida; fronteira `<`/`>` dos 8 MiB documentada; retenção alinhada com `deleteWeddingAccount` (sem escolher prazo).

@@ -316,8 +316,14 @@ service cloud.firestore {
       // estar na pasta deste casamento.
       allow create: if request.resource.data.keys().hasOnly(['weddingId', 'token', 'guestName', 'storagePath', 'createdAt'])
         && request.resource.data.weddingId is string
+        // P1 (pós-auditoria K.3): o caminho TEM de ser memories/{weddingId}/{token}/{ficheiro} com o MESMO weddingId e o MESMO token do
+        // documento — impede gastar a quota de outro convite/casamento manipulando o caminho.
         && request.resource.data.storagePath is string
-        && request.resource.data.storagePath.matches('memories/' + request.resource.data.weddingId + '/.*')
+        && request.resource.data.storagePath.split('/').size() == 4
+        && request.resource.data.storagePath.split('/')[0] == 'memories'
+        && request.resource.data.storagePath.split('/')[1] == request.resource.data.weddingId
+        && request.resource.data.storagePath.split('/')[2] == request.resource.data.token
+        && request.resource.data.storagePath.split('/')[3].size() > 0
         // Auditoria Out 2026: o casamento tem de existir e o token tem de ser
         // o do QR público ou um convite real DESTE casamento (antes dava para
         // encher a galeria de qualquer casamento com entradas falsas).
