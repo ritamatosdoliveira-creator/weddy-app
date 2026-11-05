@@ -49,3 +49,6 @@ Sem serviços pagos novos. Custo variável: invocações de functions por foto (
 - **Testes:** nova suite `k3-quota-integrity` (28 casos) + 8 casos de regras; regressão **62/62** em emulador, com Storage simulado. Nada disto valida o Storage real, o Eventarc nem o Cloud Scheduler.
 - **Instabilidade observada (anterior a estas alterações):** o cenário de 40 pedidos simultâneos de `k3-quota` falhou/excedeu o tempo (`ABORTED: Transaction lock timeout` no emulador) de forma intermitente — reproduzido também com o código original da K.3 (1 em 4 execuções). Foi aumentado o número de tentativas internas (12→25); a contenção do contador único por casamento continua por validar em Firestore real.
 - **Documentação:** contradição "por aprovar" removida; fronteira `<`/`>` dos 8 MiB documentada; retenção alinhada com `deleteWeddingAccount` (sem escolher prazo).
+
+## Fase K.4 (seguimento)
+Ver `docs/seguranca/fase-k4/RELATORIO-FASE-K4.md` (integridade 1:1, libertação pelo objeto, marcadores terminais, casamento eliminado, reconciliação robusta, sanitização de erros e inundação). Implementado só em emulador/mocks; sem commit.

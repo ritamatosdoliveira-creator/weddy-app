@@ -221,6 +221,7 @@ function reminderEmailHtml({ guestName, coupleName1, coupleName2, deadline, link
   coupleName1 = escapeHtmlServer(coupleName1);
   coupleName2 = escapeHtmlServer(coupleName2);
   deadline = escapeHtmlServer(deadline);
+  link = escapeHtmlServer(link); // auditoria pré-produção: o link nunca entra em bruto no HTML
   const prazoTxt = deadline ? `até ${deadline}` : 'brevemente';
   const diasTxt = daysLeft === 0 ? 'hoje' : daysLeft === 1 ? 'amanhã' : `daqui a ${daysLeft} dias`;
   return `
@@ -239,7 +240,7 @@ async function sendReminderEmail(transporter, job) {
     coupleName1: job.data.coupleName1,
     coupleName2: job.data.coupleName2,
     deadline: job.data.rsvpDeadline,
-    link: RSVP_BASE_URL + '?g=' + job.docId,
+    link: RSVP_BASE_URL + '?g=' + encodeURIComponent(String(job.docId)),
     daysLeft: job.daysLeft,
   });
   await transporter.sendMail({
@@ -1241,13 +1242,8 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
         await db.collection('aiUsage').doc(weddingId).delete().catch(() => {});
         // Fase J (RGPD): cópias do estado em quarentena (contêm o JSON do casamento, com
         // nomes/contactos de convidados) e estado auxiliar por casamento ficavam para trás.
-        try { // K.3-B: contador de quota e respetivos registos por ficheiro
-          const qr = db.collection('memoryQuota').doc(weddingId);
-          const its = await qr.collection('items').get();
-          for (let i = 0; i < its.docs.length; i += 400) { const b = db.batch(); its.docs.slice(i, i + 400).forEach((x) => b.delete(x.ref)); await b.commit(); }
-          await qr.delete();
-        } catch (e) { logger.error(`deleteWeddingAccount: limpeza de memoryQuota falhou. ${e.message || e}`); }
-        for (const col of ['memoryQuotaCleanupQueue', 'memoryQuotaPending']) await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou. ${e.message || e}`));
+        try { await memoryQuotaPurgeWedding(weddingId); } catch (e) { logger.error(`deleteWeddingAccount: limpeza de memoryQuota falhou (${memorySafeError(e).text})`); }
+        for (const col of ['memoryQuotaCleanupQueue', 'memoryQuotaPending', 'memoryQuotaOrphans']) await deleteAllByWeddingId(col, weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de ${col} falhou (${memorySafeError(e).text})`));
         await deleteAllByWeddingId('downloadTokenRevocations', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de downloadTokenRevocations falhou. ${e.message || e}`));
         await deleteAllByWeddingId('weddingStateQuarantine', weddingId).catch((e) => logger.error(`deleteWeddingAccount: limpeza de weddingStateQuarantine falhou. ${e.message || e}`));
         for (const col of ['seatingRuns', 'notifState']) {
@@ -1276,7 +1272,10 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
         logger.info(`deleteWeddingAccount: utilizador ${uid} removido dos donos do casamento ${weddingId} (continua a existir para os restantes donos).`);
       }
     } catch (err) {
-      logger.error('deleteWeddingAccount: erro durante o apagamento/remoção.', err.message || err);
+      logger.error(`deleteWeddingAccount: erro durante o apagamento/remoção (${memorySafeError(err).text}).`);
+      // K.4 (auditoria): se a eliminação falhou DEPOIS de o marcador `deleted` ter sido gravado mas o casamento continua vivo,
+      // o marcador desligaria a quota para sempre. Remove-o: a quota volta a ser aplicada com um contador novo (limitado pelos tetos).
+      if (isSoleOwner) { try { if ((await weddingRef.get()).exists) await db.collection('memoryQuota').doc(weddingId).delete(); } catch (e2) { logger.error(`deleteWeddingAccount: não consegui repor a quota (${memorySafeError(e2).text})`); } }
       throw new HttpsError('internal', 'Falha a apagar os dados (pode ter sido só a limpeza de ficheiros). A tua conta continua ativa e nenhum dado do Firestore foi removido — tenta novamente.');
     }
     return isSoleOwner;
@@ -6006,16 +6005,17 @@ exports.stripeWebhook = onRequest(
                   tx.set(payRef, { weddingId, paymentIntentId: piId, checkoutSessionId: session.id, amount: Number.isFinite(session.amount_total) ? session.amount_total : null, currency: session.currency || null, status: 'paid', refundedAmount: 0, disputeStatus: null, reviewRequired: !!(early && !early.empty), paidAt: admin.firestore.FieldValue.serverTimestamp(), updatedAt: admin.firestore.FieldValue.serverTimestamp() });
                 }
                 const newStartedAt = nextSubscriptionStartedAt(sub);
+                // Pré-produção: campos pontilhados — só os desta plataforma e do período comum; os ids da outra plataforma (Apple) ficam intactos.
                 tx.update(weddingRef, {
-                  subscription: {
-                    active: true,
-                    plan: 'premium-12meses',
-                    startedAt: newStartedAt,
-                    premiumUntil: premiumUntilTimestamp(newStartedAt),
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    stripeCheckoutSessionId: session.id,
-                    stripeCheckoutSessionIds: seen.concat([session.id]).slice(-50),
-                  },
+                  'subscription.active': true,
+                  'subscription.plan': 'premium-12meses',
+                  'subscription.startedAt': newStartedAt,
+                  'subscription.premiumUntil': premiumUntilTimestamp(newStartedAt),
+                  'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
+                  'subscription.stripeCheckoutSessionId': session.id,
+                  'subscription.stripeCheckoutSessionIds': seen.concat([session.id]).slice(-50),
+                  'subscription.lastPlatform': 'stripe',
+                  'subscription.revokedReason': admin.firestore.FieldValue.delete(),
                 });
                 return 'ok';
               });
@@ -6028,6 +6028,9 @@ exports.stripeWebhook = onRequest(
             } catch (writeErr) {
               logger.error(`stripeWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
               await logStripeWebhookIncident('falha-ao-ativar', weddingId, event, session, writeErr);
+              // Pré-produção: a ativação NÃO ficou gravada → erro temporário para o Stripe repetir o evento (a idempotência por sessão evita dupla extensão).
+              res.status(500).send('retry');
+              return;
             }
           }
         }
@@ -6062,6 +6065,8 @@ exports.stripeWebhook = onRequest(
     } catch (err) {
       logger.error(`stripeWebhook: erro a processar evento. ${err.message || err}`);
       await logStripeWebhookIncident('erro-geral', (event.data.object.metadata && event.data.object.metadata.weddingId) || null, event, event.data.object, err);
+      res.status(500).send('retry'); // erro inesperado antes de concluir: o Stripe repete (processamento idempotente)
+      return;
     }
 
     res.status(200).send('OK');
@@ -6115,7 +6120,9 @@ async function handleStripeRefundEvent(event) {
       const w = await tx.get(db.collection('weddings').doc(weddingId));
       const others = await tx.get(db.collection('stripePayments').where('weddingId', '==', weddingId).where('status', 'in', ['paid', 'partially_refunded']));
       const onlyThis = others.docs.every((d) => d.id === piId);
-      if (w.exists && onlyThis && pay.disputeStatus == null) { revoke = true; outcome = 'premium_revoked'; review = false; }
+      const wsub = (w.exists && (w.data() || {}).subscription) || {};
+      const hasApple = !!wsub.revenueCatTransactionId || (Array.isArray(wsub.revenueCatTransactionIds) && wsub.revenueCatTransactionIds.length > 0); // outra plataforma com compra: nunca revogar automaticamente
+      if (w.exists && onlyThis && pay.disputeStatus == null && !hasApple) { revoke = true; outcome = 'premium_revoked'; review = false; }
       else outcome = 'ambiguous_review';
     }
     if (revoke) tx.update(db.collection('weddings').doc(weddingId), { 'subscription.active': false, 'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(), 'subscription.revokedReason': 'stripe_full_refund' });
@@ -6175,7 +6182,7 @@ async function logStripeWebhookIncident(reason, weddingId, event, session, err) 
 // manda-nos esse appUserID como app_user_id no evento, e procuramos o
 // casamento pelo MESMO padrão de resolveWeddingId (array-contains), só que
 // por ownerUids em vez de ownerEmails.
-async function resolveWeddingIdByUid(uid) {
+async function resolveWeddingIdByUid(uid, opts = {}) {
   if (!uid) return null;
   try {
     const snap = await db.collection('weddings')
@@ -6192,6 +6199,7 @@ async function resolveWeddingIdByUid(uid) {
     return pickPrimaryWeddingId(snap.docs, email, await getActiveWeddingPref(uid));
   } catch (err) {
     logger.error(`resolveWeddingIdByUid: erro a procurar o casamento. ${err.message || err}`);
+    if (opts.throwOnError) throw err; // webhooks de pagamento: erro transitório ≠ "sem casamento" (tem de haver retry)
     return null;
   }
 }
@@ -6283,7 +6291,7 @@ exports.revenueCatWebhook = onRequest(
         logger.info(`revenueCatWebhook: evento ${event.type} de ambiente ${event.environment} ignorado.`);
       } else if (event.type === 'NON_RENEWING_PURCHASE') {
         const uid = event.app_user_id;
-        const weddingId = await resolveWeddingIdByUid(uid);
+        const weddingId = await resolveWeddingIdByUid(uid, { throwOnError: true });
         if (!weddingId) {
           logger.error(`revenueCatWebhook: nenhum casamento encontrado para o app_user_id ${uid}.`);
           await logRevenueCatWebhookIncident('casamento-nao-encontrado', null, event);
@@ -6307,22 +6315,25 @@ exports.revenueCatWebhook = onRequest(
                 if (event.transaction_id && (sub.revenueCatTransactionId === event.transaction_id || seen.includes(event.transaction_id))) {
                   return 'dup';
                 }
+                // REFUND que chegou antes da compra (fora de ordem): a compra reembolsada não ativa nada.
+                if (event.transaction_id && Array.isArray(sub.revenueCatRefundedTransactionIds) && sub.revenueCatRefundedTransactionIds.includes(event.transaction_id)) return 'refunded';
                 const newStartedAt = nextSubscriptionStartedAt(sub);
-                tx.update(weddingRef, {
-                  subscription: {
-                    active: true,
-                    plan: 'premium-12meses',
-                    startedAt: newStartedAt,
-                    premiumUntil: premiumUntilTimestamp(newStartedAt),
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    revenueCatTransactionId: event.transaction_id || null,
-                    revenueCatTransactionIds: event.transaction_id ? seen.concat([event.transaction_id]).slice(-50) : seen,
-                    revenueCatProductId: event.product_id || null,
-                  },
+                tx.update(weddingRef, { // campos pontilhados: os ids do Stripe ficam intactos
+                  'subscription.active': true,
+                  'subscription.plan': 'premium-12meses',
+                  'subscription.startedAt': newStartedAt,
+                  'subscription.premiumUntil': premiumUntilTimestamp(newStartedAt),
+                  'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
+                  'subscription.revenueCatTransactionId': event.transaction_id || null,
+                  'subscription.revenueCatTransactionIds': event.transaction_id ? seen.concat([event.transaction_id]).slice(-50) : seen,
+                  'subscription.revenueCatProductId': event.product_id || null,
+                  'subscription.lastPlatform': 'revenuecat',
+                  'subscription.revokedReason': admin.firestore.FieldValue.delete(),
                 });
                 return 'ok';
               });
               if (outcome === 'dup') logger.info(`revenueCatWebhook: transação ${event.transaction_id} já processada, ignorada.`);
+              else if (outcome === 'refunded') { logger.warn(`revenueCatWebhook: compra ${event.transaction_id} já reembolsada; não ativa.`); await logRevenueCatWebhookIncident('compra-ja-reembolsada', weddingId, event); }
               else {
                 logger.info(`revenueCatWebhook: subscrição ativada para o casamento ${weddingId} (uid=${uid}).`);
                 await notifySalesAlert('purchase', uid, weddingId, event);
@@ -6330,28 +6341,45 @@ exports.revenueCatWebhook = onRequest(
             } catch (writeErr) {
               logger.error(`revenueCatWebhook: falhou a ativar subscrição do casamento ${weddingId}. ${writeErr.message || writeErr}`);
               await logRevenueCatWebhookIncident('falha-ao-ativar', weddingId, event, writeErr);
+              res.status(500).send('retry'); // a ativação não ficou gravada: a RevenueCat repete o evento (idempotente por transaction_id)
+              return;
             }
           }
         }
       } else if (event.type === 'REFUND') {
-        // Reembolso da Apple: o acesso Premium acaba (antes ficava ativo).
-        const refundWeddingId = await resolveWeddingIdByUid(event.app_user_id);
+        // Reembolso da Apple. Pré-produção: só desativa se a transação reembolsada for CONHECIDA, for a última compra Apple e a
+        // última ativação do casamento não tiver sido do Stripe (um evento antigo de uma plataforma não altera a outra).
+        // Transação desconhecida/sem id → nada é alterado: fica incidente para decisão humana (e, se desconhecida, é memorizada para
+        // uma compra tardia dessa transação não ativar nada).
+        const refundWeddingId = await resolveWeddingIdByUid(event.app_user_id, { throwOnError: true });
         if (refundWeddingId) {
-          // Out 2026 (auditoria): reembolsar uma compra ANTIGA não pode cancelar
-          // uma compra mais recente ainda válida — só desativa se o reembolso
-          // for da última transação (ou se o evento não indicar qual é).
           const refRef = db.collection('weddings').doc(refundWeddingId);
-          const refSnap = await refRef.get();
-          const refSub = (refSnap.data() || {}).subscription || {};
-          if (event.transaction_id && refSub.revenueCatTransactionId && refSub.revenueCatTransactionId !== event.transaction_id) {
-            logger.info(`revenueCatWebhook: REFUND de uma transação antiga (${event.transaction_id}) ignorado — há uma compra mais recente.`);
-          } else {
-            await refRef.update({
-              'subscription.active': false,
-              'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
-            }).catch((e) => logger.error(`revenueCatWebhook: falhou a desativar após REFUND. ${e.message || e}`));
+          const rOut = await db.runTransaction(async (tx) => {
+            const rs = await tx.get(refRef);
+            if (!rs.exists) return 'no_wedding';
+            const rsub = (rs.data() || {}).subscription || {};
+            const txn = event.transaction_id;
+            if (!txn) return 'no_txn';
+            const rseen = Array.isArray(rsub.revenueCatTransactionIds) ? rsub.revenueCatTransactionIds : [];
+            const known = rsub.revenueCatTransactionId === txn || rseen.includes(txn);
+            if (!known) { tx.update(refRef, { 'subscription.revenueCatRefundedTransactionIds': admin.firestore.FieldValue.arrayUnion(txn) }); return 'unknown_txn'; }
+            if (rsub.revenueCatTransactionId !== txn) return 'old_txn';
+            if (rsub.lastPlatform === 'stripe') return 'other_platform';
+            if (rsub.active === false) return 'already_inactive';
+            tx.update(refRef, { 'subscription.active': false, 'subscription.updatedAt': admin.firestore.FieldValue.serverTimestamp(), 'subscription.revokedReason': 'apple_refund' });
+            return 'revoked';
+          });
+          if (rOut === 'revoked') {
             logger.info(`revenueCatWebhook: REFUND — Premium desativado no casamento ${refundWeddingId}.`);
             await notifySalesAlert('refund', event.app_user_id, refundWeddingId, event);
+          } else if (rOut === 'old_txn') {
+            logger.info(`revenueCatWebhook: REFUND de uma transação antiga (${event.transaction_id}) ignorado — há uma compra mais recente.`);
+          } else if (rOut === 'already_inactive') {
+            logger.info(`revenueCatWebhook: REFUND de ${event.transaction_id}: o Premium já estava inativo.`);
+          } else {
+            const why = { no_wedding: 'refund-sem-casamento', no_txn: 'refund-sem-transacao', unknown_txn: 'refund-transacao-desconhecida', other_platform: 'refund-ignorado-outra-plataforma' }[rOut] || 'refund-ignorado';
+            logger.warn(`revenueCatWebhook: REFUND não aplicado (${rOut}).`);
+            await logRevenueCatWebhookIncident(why, refundWeddingId, event);
           }
         } else {
           await logRevenueCatWebhookIncident('refund-sem-casamento', null, event);
@@ -6366,6 +6394,8 @@ exports.revenueCatWebhook = onRequest(
     } catch (err) {
       logger.error(`revenueCatWebhook: erro a processar evento. ${err.message || err}`);
       await logRevenueCatWebhookIncident('erro-geral', null, event, err);
+      res.status(500).send('retry'); // erro inesperado: a RevenueCat repete (processamento idempotente)
+      return;
     }
 
     res.status(200).send('OK');
@@ -6995,14 +7025,55 @@ function memoryPathParts(p) {
 }
 const memoryHash = (s, n = 24) => crypto.createHash('sha256').update(String(s)).digest('hex').slice(0, n);
 
-// Conta um ficheiro (idempotente). `size` pode ser null (evento do documento: ainda não se conhece).
-async function memoryQuotaAccount(path, size, contentType, source) {
-  const res = await memoryQuotaRetry(() => memoryQuotaAccountOnce(path, size, contentType, source));
+// ───────────────────────────── K.4 — integridade 1:1, libertação pelo objeto, marcadores terminais ─────────────────────────────
+// Modelo (ver docs/seguranca/fase-k3/IMPLEMENTACAO-QUOTA-UPLOADS.md, secção K.4):
+//  • O OBJETO do Storage é a unidade de quota. Cada objeto tem um item `items/{hash(caminho)}` com estado terminal progressivo:
+//    accepted → released (marcador; nunca volta a accepted) | refused (final). O item guarda `ownerMemoryId` (1:1 objeto↔documento).
+//  • A quota só é libertada depois de CONFIRMAR que o objeto já não existe (not-found); erro transitório sobe para retry.
+//  • Casamento eliminado: `memoryQuota/{id}` passa a marcador `{deleted:true}`; nenhum evento tardio recria estruturas.
+const MEMORIES_TERMINAL_MS = 30 * 86400000;  // retenção TÉCNICA de marcadores/filas (campo expireAt; sem TTL ativo não elimina sozinho)
+const MEMORIES_GIVEUP_MS = 90 * 86400000;    // idem, para entradas abandonadas (giveUp)
+const MEMORIES_ORPHAN_GRACE_MS = 6 * 3600000; // R4: janela de tolerância para uploads em curso/lentos antes de um objeto sem documento ser considerado órfão
+const MEMORIES_PENDING_MAX_PER_WEDDING = 200; // teto de documentos sem ficheiro em espera por casamento (limite brando)
+const MEMORIES_RECONCILE_BUDGET_MS = 200000; // orçamento de tempo por execução da rotina (timeout 300 s)
+const MEMORIES_RECONCILE_MAX_ENTRIES = 2000; // entradas por execução e por fila
+const MEMORIES_FAR_FUTURE = admin.firestore.Timestamp.fromMillis(4102444800000); // 2100-01-01: tira a entrada da consulta por `due`
+const memTs = (ms) => admin.firestore.Timestamp.fromMillis(Date.now() + ms);
+
+// Sanitização CENTRAL de erros: nunca devolve e.message (pode conter caminho/token); só código seguro + categoria.
+function memorySafeError(e) {
+  const raw = e && (e.code !== undefined ? e.code : e.status);
+  const code = (typeof raw === 'number' || (typeof raw === 'string' && /^[A-Za-z0-9_.:-]{1,40}$/.test(raw))) ? String(raw) : 'none';
+  const msg = String((e && e.message) || '');
+  let category = 'unknown';
+  if (memoryIsNotFound(e)) category = 'not_found';
+  else if (/ABORTED|lock timeout|contention|DEADLINE|timed? ?out|ETIMEDOUT/i.test(msg) || code === '10' || code === '4') category = 'contention_or_timeout';
+  else if (/permission|forbidden|unauthori[sz]ed|denied/i.test(msg) || code === '403' || code === '401' || code === '7') category = 'permission';
+  else if (/ECONN|ENOTFOUND|EAI_AGAIN|network|socket|fetch failed|unavailable/i.test(msg) || code === '503' || code === '14') category = 'network_or_unavailable';
+  return { code, category, text: `${category}/${code}` };
+}
+function memoryFail(op, e) { // erro seguro para subir ao runtime (o retry do trigger repete); marca-o para não voltar a ser embrulhado
+  if (e && e.memorySafe) return e;
+  const err = new Error(`memoryQuota: ${op} falhou (${memorySafeError(e).text})`); err.memorySafe = true; return err;
+}
+async function memoryGuard(op, fn) { try { return await fn(); } catch (e) { const f = memoryFail(op, e); if (!e || !e.memorySafe) logger.error(f.message); throw f; } }
+
+const memoryWeddingGone = async (weddingId) => { const s = await db.collection('memoryQuota').doc(weddingId).get(); return s.exists && s.data().deleted === true; };
+const memoryItemRef = (parts, path) => db.collection('memoryQuota').doc(parts.weddingId).collection('items').doc(memoryHash(path, 40));
+// Um documento só é coerente se weddingId e token coincidirem com o caminho `memories/{weddingId}/{token}/{ficheiro}`.
+const memoryDocCoherent = (d) => { const p = d && memoryPathParts(d.storagePath); return !!p && d.weddingId === p.weddingId && d.token === p.token; };
+async function memoryObjectMeta(path) { // [metadados] | null se não existe; qualquer outro erro sobe (retry)
+  try { const [md] = await admin.storage().bucket().file(path).getMetadata(); return md; } catch (e) { if (memoryIsNotFound(e)) return null; throw e; }
+}
+
+// Conta um ficheiro (idempotente). `size` tem de ser conhecido (objeto real). `memoryId` (opcional) = documento que o reclama.
+async function memoryQuotaAccount(path, size, contentType, source, memoryId = null) {
+  const res = await memoryQuotaRetry(() => memoryQuotaAccountOnce(path, size, contentType, source, memoryId));
   if (res.action === 'refused') {
-    // P3 (pós-auditoria K.3): a limpeza é idempotente e REPETÍVEL. Se falhar, o erro sobe (os triggers têm retry:true) até
-    // MEMORIES_CLEANUP_TRIGGER_TRIES tentativas; depois deixa de lançar (sem loop infinito) e a rotina de reconciliação retoma.
+    // A limpeza é idempotente e REPETÍVEL. Se falhar, o erro sobe (os triggers têm retry:true) até MEMORIES_CLEANUP_TRIGGER_TRIES
+    // tentativas; depois deixa de lançar (sem loop infinito) e a rotina de reconciliação retoma.
     const parts = memoryPathParts(path);
-    const c = await memoryQuotaCleanup(parts.weddingId, path);
+    const c = await memoryQuotaCleanup(parts.weddingId, path, { kind: 'refused' });
     if (!c.done && c.attempts < MEMORIES_CLEANUP_TRIGGER_TRIES) throw new Error(`memoryQuota: limpeza pendente (tentativa ${c.attempts})`);
   }
   return res;
@@ -7017,101 +7088,148 @@ async function memoryQuotaRetry(fn, tries = 25) {
     }
   }
 }
-async function memoryQuotaAccountOnce(path, size, contentType, source) {
+async function memoryQuotaAccountOnce(path, size, contentType, source, memoryId = null) {
   const parts = memoryPathParts(path);
   if (!parts) return { action: 'ignore' };
-  const L = memoryQuotaLimits();
   const qRef = db.collection('memoryQuota').doc(parts.weddingId);
-  const iRef = qRef.collection('items').doc(memoryHash(path, 40));
+  const iRef = memoryItemRef(parts, path);
+  // G (otimização segura): leitura prévia SEM bloquear o contador. Os estados refused/released são finais e accepted só avança para
+  // released, por isso uma leitura desatualizada só pode devolver um resultado que a transação também devolveria (ou equivalente).
+  const pre = await iRef.get();
+  if (pre.exists) {
+    const it = pre.data();
+    if (it.status === 'refused') return { action: 'refused', reason: it.reason };
+    if (it.status === 'released') return { action: 'released_ignored' };
+    if (it.status === 'accepted') {
+      if (!memoryId || it.ownerMemoryId === memoryId) return { action: 'duplicate' };
+      if (it.ownerMemoryId) return { action: 'duplicate_doc', owner: it.ownerMemoryId };
+      /* aceite mas sem dono e há documento a reclamar: precisa da transação */
+    }
+  }
+  if (size == null || !Number.isFinite(size) || size < 0) return { action: 'pending', reason: 'no_object' }; // só objetos reais contam
+  const L = memoryQuotaLimits();
   const tKey = parts.token === 'publico' ? 'publico' : 't' + memoryHash(parts.token, 12);
-  const res = await db.runTransaction(async (tx) => {
-    const [iS, qS] = await Promise.all([tx.get(iRef), tx.get(qRef)]);
+  const mRef = memoryId ? db.collection('memories').doc(String(memoryId)) : null;
+  return db.runTransaction(async (tx) => {
+    const [iS, qS, mS] = await Promise.all([tx.get(iRef), tx.get(qRef), mRef ? tx.get(mRef) : Promise.resolve(null)]);
+    if (qS.exists && qS.data().deleted === true) return { action: 'wedding_deleted' }; // C: casamento eliminado — nada é recriado
     const q = { files: 0, bytes: 0, perToken: {}, refused: 0, ...(qS.exists ? qS.data() : {}) };
     q.files = Number(q.files) || 0; q.bytes = Number(q.bytes) || 0; q.perToken = q.perToken || {};
     if (iS.exists) {
       const it = iS.data();
-      if (it.status === 'accepted' && it.bytes == null && size != null) { // evento do documento chegou primeiro; acrescenta os bytes
-        const tooBig = size > MEMORIES_MAX_FILE_BYTES || (contentType && !MEMORIES_ALLOWED_TYPES.test(contentType));
-        if (tooBig || q.bytes + size > L.bytes) { // agora sabe-se que não cabe: reverte e recusa
-          tx.update(iRef, { status: 'refused', reason: tooBig ? 'invalid_file' : 'wedding_bytes', bytes: size });
-          tx.set(qRef, { files: Math.max(0, q.files - 1), perToken: { ...(q.perToken || {}), [tKey]: Math.max(0, ((q.perToken || {})[tKey] || 1) - 1) }, refused: (q.refused || 0) + 1, full: false, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-          return { action: 'refused', reason: tooBig ? 'invalid_file' : 'wedding_bytes' };
-        }
-        tx.update(iRef, { bytes: size });
-        const nb = q.bytes + size;
-        tx.set(qRef, { bytes: nb, full: q.files >= L.files || nb >= L.bytes, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      }
-      return { action: it.status === 'refused' ? 'refused' : 'duplicate', reason: it.reason };
+      if (it.status === 'released') return { action: 'released_ignored' };  // B: marcador terminal — nunca ressuscita
+      if (it.status === 'refused') return { action: 'refused', reason: it.reason };
+      if (!memoryId || it.ownerMemoryId === memoryId) return { action: 'duplicate' };
+      if (it.ownerMemoryId) return { action: 'duplicate_doc', owner: it.ownerMemoryId };
+      if (!mS || !mS.exists) return { action: 'doc_gone' };                   // o documento já não existe: não reclama
+      tx.update(iRef, { ownerMemoryId: String(memoryId) });                   // A: o primeiro documento válido torna-se dono
+      tx.delete(db.collection('memoryQuotaOrphans').doc(memoryHash(path, 40))); // R4: deixa de ser candidato a órfão
+      return { action: 'duplicate', claimed: true };
     }
-    // P1 (pós-auditoria K.3): só um objeto real (tamanho conhecido) pode ser contado. Um evento de documento sem ficheiro nunca cria um item.
-    if (size == null || !Number.isFinite(size) || size < 0) return { action: 'pending', reason: 'no_object' };
+    if (mRef && !mS.exists) return { action: 'doc_gone' };                    // documento apagado entretanto: o evento do objeto contará
     const perToken = (q.perToken || {})[tKey] || 0;
     const tokenLimit = parts.token === 'publico' ? L.publicQr : L.perInvite;
     let reason = null;
-    if (size != null && size > MEMORIES_MAX_FILE_BYTES) reason = 'invalid_file';
+    if (size > MEMORIES_MAX_FILE_BYTES) reason = 'invalid_file';
     else if (contentType && !MEMORIES_ALLOWED_TYPES.test(contentType)) reason = 'invalid_file';
     else if (q.files >= L.files) reason = 'wedding_files';
-    else if (size != null && q.bytes + size > L.bytes) reason = 'wedding_bytes';
+    else if (q.bytes + size > L.bytes) reason = 'wedding_bytes';
     else if (perToken >= tokenLimit) reason = parts.token === 'publico' ? 'public_files' : 'invite_files';
-    const expireAt = admin.firestore.Timestamp.fromMillis(Date.now() + 90 * 86400000);
     if (reason) {
-      // Registo da recusa: só o hash do token (nunca o token), com validade de 90 dias.
-      tx.set(iRef, { status: 'refused', reason, tokenKey: tKey, bytes: size, source, at: admin.firestore.FieldValue.serverTimestamp(), expireAt });
-      // Fila de limpeza gravada na MESMA transação da recusa (nunca há recusa sem pedido de limpeza). Contém o caminho (com o token do
-      // convite) só até a limpeza ter sucesso; coleção só-servidor (sem regras de cliente).
-      tx.set(db.collection('memoryQuotaCleanupQueue').doc(memoryHash(path, 40)), { weddingId: parts.weddingId, path, reason, attempts: 0, giveUp: false, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+      // Registo da recusa: só o hash do token (nunca o token), com validade técnica de 90 dias.
+      tx.set(iRef, { status: 'refused', reason, tokenKey: tKey, bytes: size, source, at: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(90 * 86400000) });
+      // Fila de limpeza gravada na MESMA transação da recusa. Contém o caminho (com o token do convite) só até a limpeza ter sucesso.
+      tx.set(db.collection('memoryQuotaCleanupQueue').doc(memoryHash(path, 40)), { kind: 'refused', weddingId: parts.weddingId, path, reason, attempts: 0, giveUp: false, createdAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) });
       tx.set(qRef, { weddingId: parts.weddingId, refused: (q.refused || 0) + 1, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
       return { action: 'refused', reason };
     }
-    const nf = q.files + 1, nb = q.bytes + (size || 0);
-    tx.set(iRef, { status: 'accepted', tokenKey: tKey, bytes: size, source, at: admin.firestore.FieldValue.serverTimestamp() });
+    const nf = q.files + 1, nb = q.bytes + size;
+    tx.set(iRef, { status: 'accepted', tokenKey: tKey, bytes: size, source, ownerMemoryId: memoryId ? String(memoryId) : null, at: admin.firestore.FieldValue.serverTimestamp() });
+    // R4: objeto aceite SEM documento dono → candidato a órfão. Se nenhum documento o reivindicar dentro da janela, a reconciliação apaga-o e liberta a quota.
+    // Contém o caminho (com o token do convite) só até a entrada ser resolvida; coleção só do servidor (negada por omissão nas regras).
+    if (!memoryId) tx.set(db.collection('memoryQuotaOrphans').doc(memoryHash(path, 40)), { weddingId: parts.weddingId, path, due: memTs(MEMORIES_ORPHAN_GRACE_MS), attempts: 0, giveUp: false, createdAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) });
     tx.set(qRef, { weddingId: parts.weddingId, files: nf, bytes: nb, perToken: { ...(q.perToken || {}), [tKey]: perToken + 1 }, full: nf >= L.files || nb >= L.bytes, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
     return { action: 'accepted' };
   });
-  return res;
 }
-// Apaga o ficheiro recusado e os documentos que o referem (nunca toca noutros ficheiros/casamentos). P3: devolve {done}; se
-// falhar, regista a tentativa (contador, último erro) na fila `memoryQuotaCleanupQueue` para o retry do trigger e a reconciliação.
-// Idempotente: apagar o que já não existe é um sucesso; não mexe no contador (a libertação é separada e só para itens aceites).
+
+// Eliminação de casamento (K.4/C): o contador passa a MARCADOR `{deleted:true}` (um evento tardio que leia o contador vê-o e não escreve nada),
+// depois apagam-se os itens. Escolha: marcador no próprio documento do contador (sem coleção nova); ciclo de vida: `expireAt` +30 dias
+// (retenção técnica, TTL por ativar). Os IDs de casamento são gerados pelo Firestore (doc() automático), nunca reutilizados.
+async function memoryQuotaPurgeWedding(weddingId) {
+  const qr = db.collection('memoryQuota').doc(weddingId);
+  await qr.set({ deleted: true, weddingId, deletedAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) }); // substitui os contadores
+  const its = await qr.collection('items').get();
+  for (let i = 0; i < its.docs.length; i += 400) { const b = db.batch(); its.docs.slice(i, i + 400).forEach((x) => b.delete(x.ref)); await b.commit(); }
+}
+// Regista uma tentativa falhada numa entrada de fila (atómico). Guarda só código/categoria (nunca e.message). Não recria nada de um casamento eliminado.
+async function memoryQueueFail(ref, weddingId, base, errTexts, extra = {}, giveUpExtra = {}) {
+  const qRef = db.collection('memoryQuota').doc(weddingId);
+  return db.runTransaction(async (tx) => {
+    const [s, w] = await Promise.all([tx.get(ref), tx.get(qRef)]);
+    if (w.exists && w.data().deleted === true) return { attempts: 0, giveUp: false, skipped: 'wedding_deleted' };
+    const n = ((s.exists && Number(s.data().attempts)) || 0) + 1; const giveUp = n >= MEMORIES_CLEANUP_MAX_TRIES;
+    tx.set(ref, { ...(s.exists ? {} : { ...base, createdAt: admin.firestore.FieldValue.serverTimestamp() }), attempts: n, giveUp, lastError: errTexts.join('; ').slice(0, 120), lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(giveUp ? MEMORIES_GIVEUP_MS : MEMORIES_TERMINAL_MS), ...extra, ...(giveUp ? giveUpExtra : {}) }, { merge: true });
+    return { attempts: n, giveUp };
+  });
+}
 const MEMORIES_CLEANUP_TRIGGER_TRIES = 5; // tentativas pelo trigger antes de deixar de lançar erro (sem loop infinito)
 const MEMORIES_CLEANUP_MAX_TRIES = 20;    // tentativas totais (trigger + reconciliação) antes de giveUp
 const MEMORIES_PENDING_GRACE_MS = 60 * 60 * 1000; // documento sem ficheiro: prazo antes de a reconciliação decidir
-const memoryIsNotFound = (e) => !!e && (e.code === 404 || e.code === 'ENOENT' || /No such object|not found/i.test(String(e.message || '')));
-async function memoryQuotaCleanup(weddingId, path) {
+const memoryIsNotFound = (e) => !!e && (e.code === 404 || e.code === 'ENOENT' || /No such object|not found/i.test(String((e && e.message) || '')));
+// Apaga o objeto (e, para itens recusados, os documentos que o referem). Idempotente; apagar o que já não existe é sucesso.
+// kind 'refused': ficheiro recusado pela quota. kind 'owner_delete': o documento dono foi apagado e o objeto tem de ser apagado
+// antes de a quota ser libertada. Nunca altera contadores. Devolve {done, attempts}; falha → entrada de fila com tentativas.
+async function memoryQuotaCleanup(weddingId, path, opts = {}) {
+  const kind = opts.kind || 'refused';
   const qRef = db.collection('memoryQuotaCleanupQueue').doc(memoryHash(path, 40));
+  if (await memoryWeddingGone(weddingId)) { await qRef.delete().catch(() => {}); return { done: true, attempts: 0, skipped: 'wedding_deleted' }; }
   const errs = [];
-  try { await admin.storage().bucket().file(path).delete({ ignoreNotFound: true }); } catch (e) { errs.push('storage:' + (e.code || e.message || e)); }
-  try {
-    const snap = await db.collection('memories').where('weddingId', '==', weddingId).where('storagePath', '==', path).get();
-    for (const d of snap.docs) await d.ref.delete();
-  } catch (e) { errs.push('firestore:' + (e.code || e.message || e)); }
-  if (!errs.length) { try { await qRef.delete(); } catch (e) { /* a entrada fica; o próximo ciclo apaga-a (limpeza idempotente) */ } return { done: true, attempts: 0 }; }
+  try { await admin.storage().bucket().file(path).delete({ ignoreNotFound: true }); } catch (e) { errs.push('storage:' + memorySafeError(e).text); }
+  if (kind === 'refused') {
+    try {
+      const snap = await db.collection('memories').where('weddingId', '==', weddingId).where('storagePath', '==', path).get();
+      for (const d of snap.docs) await d.ref.delete();
+    } catch (e) { errs.push('firestore:' + memorySafeError(e).text); }
+  }
+  if (!errs.length) { try { if (kind !== 'owner_delete') await qRef.delete(); /* owner_delete: a entrada só sai depois de a quota ser libertada */ } catch (e) { /* a entrada fica; o próximo ciclo apaga-a (limpeza idempotente) */ } return { done: true, attempts: 0 }; }
   let attempts = 1;
-  try {
-    attempts = await db.runTransaction(async (tx) => {
-      const s = await tx.get(qRef); const n = ((s.exists && Number(s.data().attempts)) || 0) + 1;
-      tx.set(qRef, { weddingId, path, attempts: n, giveUp: n >= MEMORIES_CLEANUP_MAX_TRIES, lastError: errs.join('; ').slice(0, 300), lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(), ...(s.exists ? {} : { createdAt: admin.firestore.FieldValue.serverTimestamp(), reason: null }) }, { merge: true });
-      return n;
-    });
-  } catch (e) { logger.error(`memoryQuota: não consegui registar a falha de limpeza (${e.code || e.message || e})`); }
-  // Diagnóstico sem token: identifica por casamento + hash do caminho.
-  logger.error(`memoryQuota: limpeza falhou (casamento=${weddingId}, item=${memoryHash(path, 12)}, tentativa=${attempts}): ${errs.join('; ')}`);
+  try { attempts = (await memoryQueueFail(qRef, weddingId, { kind, weddingId, path, memoryId: opts.memoryId || null, reason: null }, errs)).attempts; } catch (e) { logger.error(`memoryQuota: não consegui registar a falha de limpeza (${memorySafeError(e).text})`); }
+  // Diagnóstico sem token: identifica por casamento + hash do caminho + categoria do erro.
+  logger.error(`memoryQuota: limpeza falhou (tipo=${kind}, casamento=${weddingId}, item=${memoryHash(path, 12)}, tentativa=${attempts}): ${errs.join('; ')}`);
   return { done: false, attempts, errors: errs };
 }
-// Liberta a quota quando o casal apaga uma foto (idempotente).
-async function memoryQuotaRelease(path) { return memoryQuotaRetry(() => memoryQuotaReleaseOnce(path)); }
-async function memoryQuotaReleaseOnce(path) {
+
+// Liberta a quota de um objeto. K.4: só depois de CONFIRMAR que o objeto já não existe; deixa um marcador terminal `released`.
+async function memoryQuotaRelease(path, opts = {}) {
   const parts = memoryPathParts(path);
   if (!parts) return { action: 'ignore' };
+  const pre = await memoryItemRef(parts, path).get();   // leitura prévia sem bloquear o contador
+  if (pre.exists) {
+    const it = pre.data();
+    if (it.status === 'released') return { action: 'already_released' };
+    if (it.status !== 'accepted') return { action: 'kept_refused' };  // o registo da recusa fica (evita voltar a contar)
+    if (opts.ownerOnly && it.ownerMemoryId !== opts.ownerOnly) return { action: 'not_owner' };
+  }
+  if (await memoryObjectMeta(path)) return { action: 'object_exists' };  // existe → não liberta; erro transitório sobe (retry)
+  return memoryQuotaRetry(() => memoryQuotaReleaseOnce(path));
+}
+async function memoryQuotaReleaseOnce(path) {
+  const parts = memoryPathParts(path);
   const L = memoryQuotaLimits();
   const qRef = db.collection('memoryQuota').doc(parts.weddingId);
-  const iRef = qRef.collection('items').doc(memoryHash(path, 40));
+  const iRef = memoryItemRef(parts, path);
   return db.runTransaction(async (tx) => {
     const [iS, qS] = await Promise.all([tx.get(iRef), tx.get(qRef)]);
-    if (!iS.exists) return { action: 'none' };
+    if (qS.exists && qS.data().deleted === true) return { action: 'wedding_deleted' };
+    if (!iS.exists) { // eliminação processada ANTES do evento de criação: deixa o marcador para o evento tardio não contar um ficheiro que já não existe
+      tx.set(iRef, { status: 'released', bytes: 0, releasedBytes: 0, tokenKey: parts.token === 'publico' ? 'publico' : 't' + memoryHash(parts.token, 12), source: 'tombstone', releasedAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) });
+      return { action: 'tombstoned' };
+    }
     const it = iS.data();
-    if (it.status !== 'accepted') return { action: 'kept_refused' }; // o registo da recusa fica (evita voltar a contar)
-    tx.delete(iRef);
+    if (it.status === 'released') return { action: 'already_released' };
+    if (it.status !== 'accepted') return { action: 'kept_refused' };
+    tx.update(iRef, { status: 'released', releasedBytes: it.bytes || 0, releasedAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) }); // marcador terminal (B)
     if (!qS.exists) return { action: 'released' };
     const q = qS.data(); const nf = Math.max(0, (Number(q.files) || 0) - 1), nb = Math.max(0, (Number(q.bytes) || 0) - (it.bytes || 0));
     const pt = { ...(q.perToken || {}) }; pt[it.tokenKey] = Math.max(0, (pt[it.tokenKey] || 1) - 1);
@@ -7119,73 +7237,204 @@ async function memoryQuotaReleaseOnce(path) {
     return { action: 'released' };
   });
 }
-// Um documento só é coerente se weddingId e token coincidirem com o caminho `memories/{weddingId}/{token}/{ficheiro}`.
-const memoryDocCoherent = (d) => { const p = d && memoryPathParts(d.storagePath); return !!p && d.weddingId === p.weddingId && d.token === p.token; };
-// Documento criado. P1: o documento nunca cria uma foto aceite sozinho; só conta se o objeto existir no Storage (metadados reais).
+
+// Documento criado. P1/K.4: o documento nunca cria uma foto sozinho; só conta se o objeto existir; o primeiro documento válido é o dono.
 async function memoryQuotaHandleDoc(memoryId, d) {
   if (!d || !d.storagePath) return { action: 'ignore' };
+  const docRef = db.collection('memories').doc(String(memoryId));
   if (!memoryDocCoherent(d)) { // não toca no ficheiro (pertence ao caminho, não ao documento) nem na quota
     logger.warn(`memoryQuota: documento ${memoryId} incoerente com o caminho; apagado sem alterar quota.`);
-    await db.collection('memories').doc(memoryId).delete();
+    await docRef.delete();
     return { action: 'incoherent_deleted' };
   }
-  const pendRef = db.collection('memoryQuotaPending').doc(String(memoryId));
-  let md = null;
-  try { [md] = await admin.storage().bucket().file(d.storagePath).getMetadata(); } catch (e) { if (!memoryIsNotFound(e)) throw e; /* erro transitório: o trigger repete */ }
-  if (!md) { // sem objeto (ainda): nada é contado. A reconciliação decide depois do prazo (objeto entretanto chegou → conta; senão → apaga o documento)
-    await pendRef.set({ weddingId: d.weddingId, path: d.storagePath, memoryId: String(memoryId), due: admin.firestore.Timestamp.fromMillis(Date.now() + MEMORIES_PENDING_GRACE_MS), createdAt: admin.firestore.FieldValue.serverTimestamp() });
-    return { action: 'pending' };
-  }
+  if (await memoryWeddingGone(d.weddingId)) return { action: 'wedding_deleted' };
+  const md = await memoryObjectMeta(d.storagePath); // erro transitório sobe para o retry do trigger
+  if (!md) return memoryQuotaMarkPending(memoryId, d, docRef);
   const size = Number(md.size);
-  const r = await memoryQuotaAccount(d.storagePath, Number.isFinite(size) ? size : null, md.contentType || null, 'doc');
-  if (r.action !== 'pending') await pendRef.delete().catch(() => {});
+  const r = await memoryQuotaAccount(d.storagePath, Number.isFinite(size) ? size : null, md.contentType || null, 'doc', memoryId);
+  if (r.action === 'duplicate_doc') { await docRef.delete(); return { action: 'duplicate_doc_deleted', owner: r.owner }; } // 1:1: o segundo documento é removido
+  if (r.action === 'doc_gone') return r;
+  await db.collection('memoryQuotaPending').doc(String(memoryId)).delete().catch(() => {});
   return r;
 }
+// F: documento sem objeto — não conta; fica escondido da galeria (quotaState) e em espera; teto por casamento.
+async function memoryQuotaMarkPending(memoryId, d, docRef) {
+  const pend = db.collection('memoryQuotaPending');
+  let n = 0;
+  try { n = (await pend.where('weddingId', '==', d.weddingId).where('giveUp', '==', false).count().get()).data().count; }
+  catch (e) { n = (await pend.where('weddingId', '==', d.weddingId).where('giveUp', '==', false).select().limit(MEMORIES_PENDING_MAX_PER_WEDDING).get()).size; }
+  if (n >= MEMORIES_PENDING_MAX_PER_WEDDING) { await docRef.delete(); return { action: 'pending_cap_deleted' }; } // limite brando (concorrência pode ultrapassar ligeiramente)
+  await pend.doc(String(memoryId)).set({ weddingId: d.weddingId, memoryId: String(memoryId), due: memTs(MEMORIES_PENDING_GRACE_MS), attempts: 0, giveUp: false, createdAt: admin.firestore.FieldValue.serverTimestamp(), expireAt: memTs(MEMORIES_TERMINAL_MS) }); // sem caminho/token
+  await docRef.update({ quotaState: 'pending' }).catch(() => {}); // a galeria do casal ignora estes documentos
+  return { action: 'pending' };
+}
+// Documento apagado. K.4: só o dono pode libertar, e só depois de o objeto ser apagado e confirmado inexistente.
 async function memoryQuotaHandleDocDeleted(memoryId, d) {
   await db.collection('memoryQuotaPending').doc(String(memoryId)).delete().catch(() => {});
   if (!d || !d.storagePath) return { action: 'ignore' };
-  // Um documento incoerente nunca contribuiu para a quota: apagá-lo não pode libertar a do ficheiro de outro convite.
-  if (!memoryDocCoherent(d)) return { action: 'ignore_incoherent' };
-  // Se o apagamento foi feito pela própria quota (recusa), o registo é "refused" e nada é libertado.
-  return memoryQuotaRelease(d.storagePath);
+  if (!memoryDocCoherent(d)) return { action: 'ignore_incoherent' }; // nunca contribuiu para a quota
+  const parts = memoryPathParts(d.storagePath);
+  const pre = await memoryItemRef(parts, d.storagePath).get();
+  if (!pre.exists) return { action: 'none' };
+  const it = pre.data();
+  if (it.status === 'released') return { action: 'already_released' };
+  if (it.status !== 'accepted') return { action: 'kept_refused' };
+  if (it.ownerMemoryId == null) { // item legado (K.3) ou ainda não reivindicado: só trata este documento como dono se nenhum outro documento referir o ficheiro
+    const others = await db.collection('memories').where('weddingId', '==', parts.weddingId).where('storagePath', '==', d.storagePath).limit(1).get();
+    if (!others.empty) return { action: 'not_owner' };
+  } else if (it.ownerMemoryId !== String(memoryId)) return { action: 'not_owner' }; // duplicado: nunca liberta
+  return memoryQuotaOwnerDelete(parts.weddingId, d.storagePath, String(memoryId));
 }
-// Reconciliação (rotina horária): (1) limpezas que falharam; (2) documentos que ficaram sem ficheiro. Idempotente e limitada.
+// Garante a eliminação do objeto do documento dono e só então liberta. Falha de Storage → sem libertação, fila e retry.
+async function memoryQuotaOwnerDelete(weddingId, path, memoryId) {
+  const c = await memoryQuotaCleanup(weddingId, path, { kind: 'owner_delete', memoryId });
+  if (!c.done) { if (c.attempts < MEMORIES_CLEANUP_TRIGGER_TRIES) throw new Error(`memoryQuota: eliminação do objeto pendente (tentativa ${c.attempts})`); return { action: 'delete_pending' }; }
+  const qRef = db.collection('memoryQuotaCleanupQueue').doc(memoryHash(path, 40));
+  let r;
+  try { r = await memoryQuotaRelease(path); }
+  catch (e) { // objeto já apagado mas a libertação falhou: deixa a entrada para a reconciliação retomar (o retry do trigger pode esgotar-se)
+    await memoryQueueFail(qRef, weddingId, { kind: 'owner_delete', weddingId, path, memoryId, reason: null }, ['release:' + memorySafeError(e).text]).catch(() => {});
+    throw e;
+  }
+  await qRef.delete().catch(() => {});
+  return r;
+}
+
+// Reconciliação (rotina horária). Cada entrada é isolada (try/catch); paginação com orçamento de tempo; idempotente e segura em paralelo.
 async function memoryQuotaReconcile(now = Date.now()) {
-  const out = { cleaned: 0, cleanupFailed: 0, gaveUp: 0, docsAccounted: 0, docsDeleted: 0 };
-  const q = await db.collection('memoryQuotaCleanupQueue').where('giveUp', '==', false).limit(100).get();
-  for (const d of q.docs) {
-    const e = d.data();
-    const c = await memoryQuotaCleanup(e.weddingId, e.path);
-    if (c.done) out.cleaned++; else { out.cleanupFailed++; if (c.attempts >= MEMORIES_CLEANUP_MAX_TRIES) { out.gaveUp++; logger.error(`memoryQuota: limpeza abandonada após ${c.attempts} tentativas (casamento=${e.weddingId}, item=${memoryHash(e.path, 12)}); intervenção manual.`); } }
+  const out = { cleaned: 0, cleanupFailed: 0, stale: 0, gaveUp: 0, docsAccounted: 0, docsDeleted: 0, pendingFailed: 0, orphansDeleted: 0, orphansReleased: 0, orphansClaimed: 0, orphansFailed: 0, errors: 0, truncated: false };
+  const t0 = Date.now(); const over = () => Date.now() - t0 > MEMORIES_RECONCILE_BUDGET_MS;
+  // 1) limpezas (refused / owner_delete)
+  const seenQ = new Set(); let lastQ = null; let total = 0;
+  while (!over() && total < MEMORIES_RECONCILE_MAX_ENTRIES) {
+    let q = db.collection('memoryQuotaCleanupQueue').where('giveUp', '==', false).orderBy(admin.firestore.FieldPath.documentId()).limit(100);
+    if (lastQ) q = q.startAfter(lastQ);
+    const snap = await q.get(); if (snap.empty) break;
+    for (const d of snap.docs) {
+      lastQ = d; if (seenQ.has(d.id)) continue; seenQ.add(d.id); total++;
+      try { await memoryProcessCleanupEntry(d, out); } catch (e) { await memoryEntryFault(d, e, out, false); }
+      if (over()) break;
+    }
+    if (snap.size < 100) break;
   }
-  const p = await db.collection('memoryQuotaPending').where('due', '<=', admin.firestore.Timestamp.fromMillis(now)).limit(100).get();
-  for (const d of p.docs) {
-    const e = d.data(); let md = null;
-    try { [md] = await admin.storage().bucket().file(e.path).getMetadata(); } catch (err) { if (!memoryIsNotFound(err)) { logger.warn(`memoryQuota: reconciliação adiada (${err.code || err.message || err})`); continue; } }
-    if (md) { const size = Number(md.size); await memoryQuotaAccount(e.path, Number.isFinite(size) ? size : null, md.contentType || null, 'sweep'); out.docsAccounted++; }
-    else { await db.collection('memories').doc(e.memoryId).delete().catch(() => {}); out.docsDeleted++; }
-    await d.ref.delete().catch(() => {});
+  // 2) documentos sem ficheiro cujo prazo terminou. As falhas adiam `due` (ficam fora da consulta), por isso nenhuma entrada bloqueia as seguintes.
+  const seenP = new Set(); let totalP = 0; let lastP = null;
+  while (!over() && totalP < MEMORIES_RECONCILE_MAX_ENTRIES) {
+    let pq = db.collection('memoryQuotaPending').where('due', '<=', admin.firestore.Timestamp.fromMillis(now)).orderBy('due').limit(100);
+    if (lastP) pq = pq.startAfter(lastP); // cursor: entradas que não saíram da consulta (falha silenciosa) não bloqueiam as seguintes
+    const snap = await pq.get();
+    const fresh = snap.docs.filter((d) => !seenP.has(d.id)); if (!fresh.length) break;
+    lastP = snap.docs[snap.docs.length - 1];
+    for (const d of fresh) {
+      seenP.add(d.id); totalP++;
+      try { await memoryProcessPendingEntry(d, out); } catch (e) { await memoryEntryFault(d, e, out, true); }
+      if (over()) break;
+    }
   }
+  // 3) R4: objetos aceites sem documento dono, depois da janela de tolerância
+  const seenO = new Set(); let totalO = 0; let lastO = null;
+  while (!over() && totalO < MEMORIES_RECONCILE_MAX_ENTRIES) {
+    let oq = db.collection('memoryQuotaOrphans').where('due', '<=', admin.firestore.Timestamp.fromMillis(now)).orderBy('due').limit(100);
+    if (lastO) oq = oq.startAfter(lastO);
+    const snap = await oq.get();
+    const fresh = snap.docs.filter((d) => !seenO.has(d.id)); if (!fresh.length) break;
+    lastO = snap.docs[snap.docs.length - 1];
+    for (const d of fresh) {
+      seenO.add(d.id); totalO++;
+      try { await memoryProcessOrphanEntry(d, out, now); } catch (e) { await memoryEntryFault(d, e, out, true); }
+      if (over()) break;
+    }
+  }
+  out.truncated = over() || total >= MEMORIES_RECONCILE_MAX_ENTRIES || totalP >= MEMORIES_RECONCILE_MAX_ENTRIES || totalO >= MEMORIES_RECONCILE_MAX_ENTRIES;
   return out;
+}
+// Uma entrada defeituosa (exceção inesperada) é isolada: regista a tentativa (sem dados privados) e acaba em giveUp; nunca interrompe as outras.
+async function memoryEntryFault(d, err, out, isPending) {
+  out.errors++; const safe = memorySafeError(err);
+  logger.error(`memoryQuota: entrada ${isPending ? 'pendente' : 'de limpeza'} ${String(d.id).slice(0, 12)} falhou (${safe.text})`);
+  try {
+    const e = d.data() || {}; const w = typeof e.weddingId === 'string' && e.weddingId && !e.weddingId.includes('/') ? e.weddingId : '_none';
+    const r = await memoryQueueFail(d.ref, w, e, [safe.text], isPending ? { due: memTs(3600000) } : {}, isPending ? { due: MEMORIES_FAR_FUTURE } : {});
+    if (r.giveUp) { out.gaveUp++; logger.error(`memoryQuota: entrada ${String(d.id).slice(0, 12)} abandonada após ${r.attempts} tentativas; intervenção manual.`); }
+  } catch (e2) { logger.error(`memoryQuota: não consegui registar a falha da entrada (${memorySafeError(e2).text})`); }
+}
+async function memoryProcessCleanupEntry(d, out) {
+  const e = d.data(); const parts = memoryPathParts(e.path);
+  if (!parts || parts.weddingId !== e.weddingId) { await d.ref.delete(); out.stale++; return; }
+  if (await memoryWeddingGone(e.weddingId)) { await d.ref.delete(); out.stale++; return; }
+  // Reverificar ANTES de apagar: o item tem de continuar a autorizar a operação (nunca apagar um objeto legítimo por entrada desatualizada)
+  const it = (await memoryItemRef(parts, e.path).get()); const iv = it.exists ? it.data() : null;
+  const kind = e.kind || 'refused';
+  let authorised = false;
+  if (kind === 'refused') authorised = !!iv && iv.status === 'refused';
+  else if (kind === 'owner_delete') authorised = !!iv && iv.status === 'accepted' && !!e.memoryId && (iv.ownerMemoryId === e.memoryId || iv.ownerMemoryId == null) && !(await db.collection('memories').doc(e.memoryId).get()).exists;
+  if (!authorised) { await d.ref.delete(); out.stale++; return; }
+  const c = await memoryQuotaCleanup(e.weddingId, e.path, { kind, memoryId: e.memoryId });
+  if (!c.done) { out.cleanupFailed++; if (c.attempts >= MEMORIES_CLEANUP_MAX_TRIES) { out.gaveUp++; logger.error(`memoryQuota: limpeza abandonada (tipo=${kind}, casamento=${e.weddingId}, item=${memoryHash(e.path, 12)}, tentativas=${c.attempts}); intervenção manual.`); } return; }
+  if (kind === 'owner_delete') { await memoryQuotaRelease(e.path); await d.ref.delete().catch(() => {}); }
+  out.cleaned++;
+}
+async function memoryProcessPendingEntry(d, out) {
+  const e = d.data();
+  if (await memoryWeddingGone(e.weddingId)) { await d.ref.delete(); out.stale++; return; }
+  const docRef = db.collection('memories').doc(e.memoryId); const ds = await docRef.get();
+  if (!ds.exists) { await d.ref.delete(); out.stale++; return; }
+  const doc = ds.data();
+  if (!memoryDocCoherent(doc) || doc.weddingId !== e.weddingId) { await d.ref.delete(); out.stale++; return; }
+  let md;
+  try { md = await memoryObjectMeta(doc.storagePath); }
+  catch (err) { // transitório: adia a entrada (backoff) e conta a tentativa; ao fim de MAX_TRIES fica giveUp fora da consulta
+    const r = await memoryQueueFail(d.ref, e.weddingId, e, [memorySafeError(err).text], { due: memTs(Math.min(6 * 3600000, 300000 * 2 ** Math.min((Number(e.attempts) || 0), 6))) }, { due: MEMORIES_FAR_FUTURE });
+    out.pendingFailed++; if (r.giveUp) { out.gaveUp++; logger.error(`memoryQuota: pendente abandonado (casamento=${e.weddingId}, doc=${e.memoryId}); intervenção manual.`); } return;
+  }
+  if (!md) { await docRef.delete().catch(() => {}); await d.ref.delete().catch(() => {}); out.docsDeleted++; return; }
+  const size = Number(md.size);
+  const r = await memoryQuotaAccount(doc.storagePath, Number.isFinite(size) ? size : null, md.contentType || null, 'sweep', e.memoryId);
+  if (r.action === 'duplicate_doc') { await docRef.delete().catch(() => {}); out.docsDeleted++; }
+  else if (r.action !== 'refused' && r.action !== 'doc_gone') { await docRef.update({ quotaState: admin.firestore.FieldValue.delete() }).catch(() => {}); out.docsAccounted++; }
+  await d.ref.delete().catch(() => {});
+}
+// R4: objeto aceite sem documento dono, já fora da janela de tolerância. Nunca apaga uma foto com documento; só liberta a quota depois de confirmar
+// que o objeto deixou de existir (o marcador `released` impede que um evento tardio o volte a contar). Idempotente e segura em paralelo.
+async function memoryProcessOrphanEntry(d, out) {
+  const e = d.data(); const parts = memoryPathParts(e.path);
+  if (!parts || parts.weddingId !== e.weddingId || await memoryWeddingGone(e.weddingId)) { await d.ref.delete(); out.stale++; return; }
+  const it = await memoryItemRef(parts, e.path).get();
+  if (!it.exists || it.data().status !== 'accepted' || it.data().ownerMemoryId) { await d.ref.delete(); out.stale++; return; } // já resolvido (dono, libertado ou recusado)
+  const docs = await db.collection('memories').where('weddingId', '==', e.weddingId).where('storagePath', '==', e.path).limit(1).get();
+  let md;
+  try { md = await memoryObjectMeta(e.path); }
+  catch (err) { const r = await memoryQueueFail(d.ref, e.weddingId, e, [memorySafeError(err).text], { due: memTs(Math.min(6 * 3600000, 300000 * 2 ** Math.min((Number(e.attempts) || 0), 6))) }, { due: MEMORIES_FAR_FUTURE }); out.orphansFailed++; if (r.giveUp) { out.gaveUp++; logger.error(`memoryQuota: órfão abandonado (casamento=${e.weddingId}, item=${memoryHash(e.path, 12)}); intervenção manual.`); } return; }
+  if (!docs.empty) { // existe documento que ainda não reivindicou o ficheiro (evento perdido/atrasado): reivindica, não apaga
+    if (md) { const size = Number(md.size); await memoryQuotaAccount(e.path, Number.isFinite(size) ? size : null, md.contentType || null, 'sweep', docs.docs[0].id); }
+    await d.ref.delete().catch(() => {}); out.orphansClaimed++; return;
+  }
+  if (md) { // objeto existe, sem documento, fora da janela: apaga o objeto (falha → backoff e retry, sem libertar)
+    try { await admin.storage().bucket().file(e.path).delete({ ignoreNotFound: true }); }
+    catch (err) { const r = await memoryQueueFail(d.ref, e.weddingId, e, ['storage:' + memorySafeError(err).text], { due: memTs(Math.min(6 * 3600000, 300000 * 2 ** Math.min((Number(e.attempts) || 0), 6))) }, { due: MEMORIES_FAR_FUTURE }); out.orphansFailed++; if (r.giveUp) { out.gaveUp++; logger.error(`memoryQuota: órfão abandonado (casamento=${e.weddingId}, item=${memoryHash(e.path, 12)}); intervenção manual.`); } return; }
+  }
+  const r = await memoryQuotaRelease(e.path); // confirma que o objeto já não existe antes de libertar; grava o marcador terminal
+  if (r && r.action === 'object_exists') { await d.ref.update({ due: memTs(MEMORIES_ORPHAN_GRACE_MS) }).catch(() => {}); return; } // reapareceu (novo envio): reavalia mais tarde
+  await d.ref.delete().catch(() => {}); if (md) out.orphansDeleted++; else out.orphansReleased++;
 }
 exports.memoryQuotaReconcile = onSchedule({ schedule: 'every 60 minutes', region: 'europe-west1', timeZone: 'Europe/Lisbon', memory: '256MiB', timeoutSeconds: 300 }, async () => { const r = await memoryQuotaReconcile(); logger.info(`memoryQuotaReconcile: ${JSON.stringify(r)}`); });
 exports.memoryQuotaOnDocCreated = onDocumentCreated({ document: 'memories/{memoryId}', region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
-  await memoryQuotaHandleDoc(event.params.memoryId, event.data && event.data.data());
+  await memoryGuard('documento criado', () => memoryQuotaHandleDoc(event.params.memoryId, event.data && event.data.data()));
 });
 exports.memoryQuotaOnObjectFinalized = onObjectFinalized({ region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
   const o = event.data || {}; if (!String(o.name || '').startsWith('memories/')) return;
-  await memoryQuotaAccount(o.name, Number(o.size), o.contentType, 'object');
+  await memoryGuard('objeto criado', () => memoryQuotaAccount(o.name, Number(o.size), o.contentType, 'object'));
 });
 exports.memoryQuotaOnDocDeleted = onDocumentDeleted({ document: 'memories/{memoryId}', region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
-  await memoryQuotaHandleDocDeleted(event.params.memoryId, event.data && event.data.data());
+  await memoryGuard('documento apagado', () => memoryQuotaHandleDocDeleted(event.params.memoryId, event.data && event.data.data()));
 });
 exports.memoryQuotaOnObjectDeleted = onObjectDeleted({ region: 'europe-west1', memory: '256MiB', maxInstances: 20, retry: true }, async (event) => {
   const o = event.data || {}; if (!String(o.name || '').startsWith('memories/')) return;
-  await memoryQuotaRelease(o.name);
+  await memoryGuard('objeto apagado', () => memoryQuotaRelease(o.name));
 });
 
 // Só para os testes locais (emulador): expõe funções internas sem as publicar
 // como Cloud Functions. Nunca ativo em produção (precisa desta variável).
 if (process.env.WEDDY_EXPOSE_INTERNALS_FOR_TESTS === '1') {
-  exports._test = { memoryQuotaHandleDoc, memoryQuotaHandleDocDeleted, memoryQuotaReconcile, memoryDocCoherent, handleStripeRefundEvent, stripeRefundPolicy, memoryQuotaAccount, memoryQuotaRelease, memoryQuotaLimits, memoryPathParts, handleOwnerRemoval, removedOwners, whatsappApiEnabled, seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
+  exports._test = { MEMORIES_ORPHAN_GRACE_MS, reminderEmailHtml, memoryGuard, memoryQuotaPurgeWedding, memorySafeError, memoryQuotaOwnerDelete, memoryQuotaHandleDoc, memoryQuotaHandleDocDeleted, memoryQuotaReconcile, memoryDocCoherent, handleStripeRefundEvent, stripeRefundPolicy, memoryQuotaAccount, memoryQuotaRelease, memoryQuotaLimits, memoryPathParts, handleOwnerRemoval, removedOwners, whatsappApiEnabled, seatingCompute, seatingNormalizeTables, solveSeating, optimizeSeating, validateSeatingProposal, buildSeatingReport, seatingEligibleGuests, seatingSplitCurrent, sanitizeSeatingAttrs, pseudonymizeSeatingText, interpretSeatingFreeText, interpretSeatingFreeTextByRegex, SEATING_LIMITS, isWhatsappStopText, runRsvpReminders, rsvpAutopilotServerConfig, RSVP_REMINDER_LEASE_MS, processNotifyWedding, planNotifyEmail, buildDigestData, tallyRsvpDocs, renderNotifyEmail, notifyUnsubToken, handleUnsubscribe, notifyEmailPrefs, pickDigestAlerts, lisbonYMD, recordWhatsappOptOut, handleIncomingWhatsappMessage, confirmWhatsappConsentByReply, parseConsentConfirmation, contactReserve, contactRelease, contactClientIp, CONTACT_LIMITS, validateWeddingState, handleWeddingStateWrite, STATE_SHAPE };
 }

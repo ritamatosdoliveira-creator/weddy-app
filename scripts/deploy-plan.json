@@ -1,0 +1,30 @@
+{
+  "_aviso": "PLANO — nada daqui é executado por este repositório. Os comandos só são IMPRESSOS por scripts/deploy-preflight.js; quem os corre é a proprietária, projeto a projeto.",
+  "projects": { "staging": "weddy-premium-teste", "production": "weddy-app-bd12f" },
+  "batches": [
+    { "id": "1-ia-contacto", "functions": ["classifyWeddyIntent", "generateSeatingProposal", "analyzeCompareProposal", "generateCompareReport", "sendContactMessage"],
+      "needs": ["secret:OPENAI_API_KEY", "secret:SMTP_USER", "secret:SMTP_PASS", "param:SMTP_HOST", "param:SMTP_FROM"],
+      "why": "As 4 funções de IA passam a ler OPENAI_API_KEY como segredo (antes variável do .env); o contacto ganha limites anti-abuso." },
+    { "id": "2-apoio-calendario-site-whatsapp-eliminacao", "functions": [
+        "googleCalendarStartOAuth", "googleCalendarOAuthCallback", "googleCalendarFinalizeOAuth", "googleCalendarListCalendars", "googleCalendarConnectCalendar", "googleCalendarSync", "googleCalendarListEvents", "googleCalendarCreateEvent", "googleCalendarDeleteEvent", "googleCalendarDisconnect",
+        "getGuestWhatsappConsent", "setGuestWhatsappConsent", "getWhatsappApiStatus", "updateGuestPhone", "whatsappWebhook", "sendWhatsappRsvpReminder",
+        "saveWeddingSiteDraft", "checkWeddingSiteSlug", "publishWeddingSite", "unpublishWeddingSite", "refreshWeddingSite", "reactivateWeddingSite", "syncWeddingSiteLifecycle",
+        "deleteWeddingAccount", "migrateFamilyGuestIds", "migrateMemoriesGuestId", "revokeDownloadTokensOnOwnerRemoval"],
+      "needs": ["secret:GOOGLE_CALENDAR_CLIENT_ID", "secret:GOOGLE_CALENDAR_CLIENT_SECRET", "secret:GOOGLE_TOKEN_ENCRYPTION_KEY", "secret:APPLE_SIGNIN_PRIVATE_KEY", "secret:WHATSAPP_ACCESS_TOKEN", "secret:WHATSAPP_APP_SECRET", "secret:WHATSAPP_PHONE_NUMBER_ID", "secret:WHATSAPP_VERIFY_TOKEN", "param:GOOGLE_CALENDAR_REDIRECT_URI"],
+      "together": [["googleCalendarOAuthCallback", "googleCalendarFinalizeOAuth"]],
+      "why": "googleCalendarOAuthCallback e googleCalendarFinalizeOAuth TÊM de ir juntas (a app chama a segunda). revokeDownloadTokensOnOwnerRemoval é gatilho Firestore em weddings/{id} (primeiro deploy de Eventarc/Firestore)." },
+    { "id": "3-lembretes-e-resumos", "functions": ["sendRsvpReminders", "cleanupActivityLog", "sendCoupleEmailDigest", "unsubscribeNotify"],
+      "needs": ["secret:SMTP_USER", "secret:SMTP_PASS", "param:SMTP_HOST", "param:SMTP_FROM", "param:NOTIFY_EMAIL_ENABLED"],
+      "why": "Evitar a hora de execução das 09:00 (Lisboa) de sendRsvpReminders. O resumo por email fica desligado (NOTIFY_EMAIL_ENABLED=false por omissão)." },
+    { "id": "4-pagamentos", "functions": ["createSubscriptionCheckout", "stripeWebhook", "revenueCatWebhook"],
+      "needs": ["secret:STRIPE_SECRET_KEY", "secret:STRIPE_WEBHOOK_SECRET", "secret:REVENUECAT_WEBHOOK_AUTH", "param:STRIPE_REFUND_POLICY (record_only)"],
+      "why": "Webhooks passam a responder 5xx quando a ativação não fica gravada e a ativar só os campos da própria plataforma. Verificar com pagamento em modo de teste antes de produção." },
+    { "id": "5-quota-fotos-k4", "functions": ["memoryQuotaOnDocCreated", "memoryQuotaOnObjectFinalized", "memoryQuotaOnDocDeleted", "memoryQuotaOnObjectDeleted", "memoryQuotaReconcile"],
+      "needs": ["staging validado (Eventarc/Storage/Scheduler)", "cliente com o filtro quotaState publicado", "param:MEMORIES_MAX_*"],
+      "why": "Primeiro deploy dos gatilhos de Storage (Eventarc) e do agendador da quota. Só depois de validados em staging. Reversão: apagar as 5 (não 4)." }
+  ],
+  "excluded": {
+    "validateWeddingStateOnWrite": "Custo por escrita em weddings/{id}; STATE_VALIDATE_MODE=off. Não implantar nesta release (um deploy completo incluí-la-ia)."
+  },
+  "forbidden": ["firebase deploy", "--only functions ", "--force", "functions:delete"]
+}

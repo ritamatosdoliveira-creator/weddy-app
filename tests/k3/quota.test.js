@@ -71,14 +71,17 @@ const crypto = require('crypto'); const MAXT = 'AbCdEfGhIjKlMnOpQrStUv123456';
   ok(thrown && store['memories/QW8/zzz/extra.png'], 'falha do Storage na limpeza: o erro sobe (retry do trigger) e o ficheiro fica para nova tentativa');
   st.failDelete = false; r = await T.memoryQuotaAccount('memories/QW8/zzz/extra.png', 1000, 'image/png', 'object'); ok(r.action === 'refused' && !store['memories/QW8/zzz/extra.png'], 'repetição do evento depois da falha: limpeza concluída');
   // 11. libertação ao apagar
-  const before = (await qd('QW1')).files; r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png'); const afterQ = await qd('QW1');
+  // K.4: a quota só é libertada depois de confirmar que o OBJETO já não existe (enquanto existir, nada é libertado)
+  const before = (await qd('QW1')).files; r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png');
+  ok(r.action === 'object_exists' && (await qd('QW1')).files === before, 'objeto ainda existe: a quota NÃO é libertada');
+  delete store['memories/QW1/inv1/a.png']; r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png'); const afterQ = await qd('QW1');
   ok(r.action === 'released' && afterQ.files === before - 1, 'apagar uma foto liberta a quota');
-  r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png'); ok(r.action === 'none' && (await qd('QW1')).files === before - 1, 'libertar duas vezes não desconta duas');
+  r = await T.memoryQuotaRelease('memories/QW1/inv1/a.png'); ok(r.action === 'already_released' && (await qd('QW1')).files === before - 1, 'libertar duas vezes não desconta duas (marcador terminal)');
   r = await T.memoryQuotaRelease('memories/QW8/zzz/extra.png'); ok(r.action === 'kept_refused', 'apagar uma foto recusada não liberta quota');
   // álbum cheio volta a abrir
-  const full4 = (await qd('QW4')).full; await T.memoryQuotaRelease(Object.keys(store).find((k) => k.startsWith('memories/QW4/'))); ok(full4 === true && (await qd('QW4')).full === false, 'álbum cheio volta a aceitar depois de apagar uma foto');
+  const full4 = (await qd('QW4')).full; const k4p = Object.keys(store).find((k) => k.startsWith('memories/QW4/')); delete store[k4p]; await T.memoryQuotaRelease(k4p); ok(full4 === true && (await qd('QW4')).full === false, 'álbum cheio volta a aceitar depois de apagar uma foto');
   const src = require('fs').readFileSync(path.join(__dirname, '..', '..', 'index.js'), 'utf8');
-  ok(/memoryQuota'\)\.doc\(weddingId\)/.test(src) && /items'\)\.get\(\)/.test(src), 'eliminação de conta apaga o contador e os registos');
+  ok(/memoryQuota'\)\.doc\(weddingId\)/.test(src) && /items'\)\.get\(\)/.test(src), 'eliminação de conta substitui o contador por marcador e apaga os registos (verificação estática; o comportamento está em k4-quota-integrity)');
   ok(['memoryQuotaOnDocCreated', 'memoryQuotaOnObjectFinalized', 'memoryQuotaOnDocDeleted', 'memoryQuotaOnObjectDeleted'].every((n) => fns[n] && fns[n].__endpoint), 'quatro triggers exportados');
   console.log(`\n${pass} ok, ${fail} falhas`); process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error('ERRO', e); process.exit(2); });

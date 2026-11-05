@@ -25,3 +25,6 @@ firebase-debug*.log
 # Python (testes de UI)
 __pycache__/
 *.pyc
+
+# Artefacto público gerado por scripts/build-public.js
+_site/

@@ -17654,7 +17654,8 @@ function loadMemories(){
   memoriesLoading = true; memoriesError = false;
   return MEMORIES().where('weddingId','==',currentWeddingId).get().then(qs=>{
     const list = [];
-    qs.forEach(doc=>list.push({ id: doc.id, ...doc.data() }));
+    // K.4: documentos que o servidor ainda não confirmou com um ficheiro real (quotaState 'pending') não são fotografias válidas.
+    qs.forEach(doc=>{ const dd = doc.data(); if(dd && dd.quotaState==='pending') return; list.push({ id: doc.id, ...dd }); });
     list.sort((a,b)=>{
       const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;

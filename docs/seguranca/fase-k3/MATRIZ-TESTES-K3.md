@@ -16,3 +16,10 @@ Níveis: **U** unitário (código real em vm) · **E** emulador Firebase (Firest
 **Resultados reais de falhas encontradas pelos testes:** (5) com `defineInt` não resolvido a quota teria recusado tudo (corrigido com valores de recurso); (1) `getWhatsappApiStatus` aberto a emails não verificados/sem casamento (corrigido); (2) contador de quota com `NaN` quando o documento nascia de uma recusa (corrigido); (3) `ABORTED` por contenção no contador (repetição + `retry`); (4) colisão de ids entre suites no emulador partilhado (ids únicos).
 
 **Viewports/idiomas/dispositivos:** a K.3 não alterou o desenho visual (nenhum botão novo; um helper de lógica). As suites UI existentes (PT/EN; ui-sweep 390/768/1360 px; RSVP sem conta) passam. **iOS/Android reais: não testados** (só Chromium emulado).
+
+## K.4 (pós-auditoria de riscos residuais)
+| Suite | Nível | Casos | Cobre | Resultado |
+|---|---|---|---|---|
+| `k4-quota-integrity` | E + M (Storage **simulado**) | 43 | 1:1 documento↔objeto (dono, duplicados, simultâneos), libertação pelo objeto (falha de Storage, retry, objeto inexistente), marcadores terminais e eventos tardios/duplicados/fora de ordem, casamento eliminado, reconciliação (entrada defeituosa, paralelo, 20 tentativas, giveUp, recuperação manual, entrada desatualizada, transitório/permanente), sanitização (token em `message`, logs), inundação (260 pendentes, teto 200, lote com falha), pré-leitura (0 transações em duplicados). **Não valida Storage/Eventarc/Scheduler reais** | 43/43 |
+| `k3-quota-rules` (alargada) | E | 29 | + filas inacessíveis a clientes (anónimo e dono), `quotaState` não escrevível pelo cliente | 29/29 |
+| `k3-quota` (ajustada) | E + M | 32 | 3 casos alterados **de propósito**: a libertação exige objeto inexistente; segunda libertação = marcador terminal | 32/32 |

@@ -41,6 +41,7 @@ Parâmetros: `MEMORIES_MAX_FILES_PER_INVITE`, `MEMORIES_MAX_FILES_PUBLIC_QR`, `M
 ## Correções pós-auditoria (P1 e P3) — implementado e testado só em emulador/Storage simulado
 **P1 — documento sem ficheiro e coerência do caminho.**
 - Só o **objeto real** do Storage conta: o evento do documento lê os metadados do ficheiro; se não existe, **não cria item nem incrementa nada** (`memoryQuotaAccountOnce` devolve `pending` sempre que o tamanho é desconhecido e o item não existe). O documento fica em `memoryQuotaPending/{memoryId}` com prazo de 60 min; a rotina `memoryQuotaReconcile` volta a verificar: se o ficheiro apareceu conta-o (idempotente), senão apaga o documento sem tocar na quota.
+- **K.4:** este mecanismo foi refinado (ver `../fase-k4/RELATORIO-FASE-K4.md`): o documento passa a ter **dono** (1:1), a quota é libertada pelo **objeto** com marcador terminal, `memoryQuotaPending` já não guarda o caminho, e a reconciliação isola erros por entrada.
 - Um erro **transitório** ao ler os metadados (≠ 404) sobe para o retry do trigger (não é confundido com "sem ficheiro").
 - Coerência: o documento só é válido se `weddingId` e `token` coincidirem com `memories/{weddingId}/{token}/{ficheiro}`. As regras Firestore passam a exigi-lo na criação (`split('/')`, 4 segmentos); no servidor, um documento incoerente é apagado **sem** tocar no ficheiro nem na quota, e o seu apagamento **não** liberta a quota de ninguém (`ignore_incoherent`).
 - Objeto e documento continuam a poder chegar por qualquer ordem: idempotência por `sha256(caminho)`; objeto→documento = duplicado; documento→objeto (ficheiro visível) = conta uma vez com o tamanho real.
@@ -48,7 +49,7 @@ Parâmetros: `MEMORIES_MAX_FILES_PER_INVITE`, `MEMORIES_MAX_FILES_PUBLIC_QR`, `M
 **P3 — limpeza recuperável.** A recusa grava, na **mesma transação**, `memoryQuotaCleanupQueue/{hash}` {weddingId, path, attempts, giveUp}. A limpeza (apagar ficheiro e documentos) devolve `done`; se falhar, regista tentativas e último erro, e o erro **sobe** para o retry do trigger até 5 tentativas (depois deixa de lançar: sem loop infinito). A rotina horária `memoryQuotaReconcile` (onSchedule, `every 60 minutes`) retoma as entradas até 20 tentativas totais e depois marca `giveUp` com erro registado para intervenção manual. Tudo idempotente; a limpeza nunca altera contadores.
 
 **Limitações / riscos residuais (não validados em serviços reais):**
-- A fila de limpeza guarda o **caminho completo (inclui o token do convite)** até a limpeza ter sucesso; coleção só-servidor, sem regras de cliente. Entradas `giveUp` ficam até intervenção/eliminação da conta.
-- Dois documentos coerentes podem apontar para o mesmo ficheiro real; apagar um liberta a quota do ficheiro (um só item por ficheiro).
+- A fila de limpeza guarda o **caminho completo (inclui o token do convite)** até a limpeza ter sucesso (K.4: `memoryQuotaPending` já não guarda caminho); coleção só-servidor, sem regras de cliente. Entradas `giveUp` ficam até intervenção/eliminação da conta.
+- ~~Dois documentos coerentes podem apontar para o mesmo ficheiro real; apagar um liberta a quota~~ — **corrigido na K.4** (1:1, dono, libertação pelo objeto).
 - A rotina horária precisa de Cloud Scheduler em produção: **não validada**; os testes chamam `memoryQuotaReconcile` diretamente.
 - O contador único por casamento continua a ser um ponto de contenção sob picos reais (P2): o número de tentativas internas subiu de 12 para 25 e os triggers têm `retry:true`, mas não há validação em Firestore real.

@@ -38,5 +38,13 @@ await rec('caminho com subpasta extra: recusa',true,()=>setDoc(doc(F(anon),'memo
 await rec('caminho sem nome de ficheiro: recusa',true,()=>setDoc(doc(F(anon),'memories/c6'),{...mem('W3','G3','b'),storagePath:'memories/W3/G3/'}));
 await rec('caminho sem pasta de token: recusa',true,()=>setDoc(doc(F(anon),'memories/c7'),{...mem('W3','G3','b'),storagePath:'memories/W3/b.png'}));
 await rec('caminho fora de memories/: recusa',true,()=>setDoc(doc(F(anon),'memories/c8'),{...mem('W3','G3','b'),storagePath:'documents/W3/G3/b.png'}));
+// K.4 (30): as filas internas (caminhos com token) nunca são acessíveis a clientes — nem anónimos, nem donos verificados.
+for (const col of ['memoryQuotaCleanupQueue','memoryQuotaPending','memoryQuotaOrphans']) {
+  await rec(`${col}: leitura anónima recusada`,true,()=>getDoc(doc(F(anon),`${col}/x`)));
+  await rec(`${col}: escrita anónima recusada`,true,()=>setDoc(doc(F(anon),`${col}/x`),{weddingId:'W3'}));
+  await rec(`${col}: leitura pelo dono verificado recusada`,true,()=>getDoc(doc(F(A),`${col}/x`)));
+  await rec(`${col}: escrita pelo dono verificado recusada`,true,()=>setDoc(doc(F(A),`${col}/x`),{weddingId:'W3'}));
+}
+await rec('memories: cliente não pode escrever quotaState (create)',true,()=>setDoc(doc(F(anon),'memories/qs1'),{...mem('W3','G3','b'),quotaState:'pending'}));
 console.log(res.map(r=>r.join(' | ')).join('\n')); const nFail=res.filter(r=>r[0]==='FAIL').length; console.log('FAILS:',nFail,'/',res.length);
 await env.cleanup(); process.exit(nFail?1:0);
