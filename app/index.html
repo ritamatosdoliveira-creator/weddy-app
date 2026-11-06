@@ -3795,8 +3795,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
       </div>
     </div>
     <div class="sheet-toggle-row" id="gp-consent-row" style="display:none;">
-      <div class="toggle-label"><span data-t="labelWhatsappConsent">Pode receber comunicações da Weddy por WhatsApp</span><small data-t="subWhatsappConsent">Vais enviar-lhe lembretes e informações do casamento por WhatsApp. Pode deixar de receber a qualquer momento respondendo STOP.</small></div>
-      <button type="button" class="mini-toggle" id="gp-consent-toggle"><span class="knob"></span></button>
+      <div class="toggle-label"><span data-t="labelWhatsappConsent">Consentimento WhatsApp do convidado</span><small id="gp-consent-status">Só o próprio convidado pode dar consentimento, no link do convite.</small></div>
     </div>
     <div class="login-msg error" id="gp-error" style="display:none; margin-top:4px;"></div>
     <div class="login-msg error" id="gp-wa-error" style="display:none; margin-top:4px;"></div>
@@ -7127,8 +7126,16 @@ const APP_I18N = {
     sheetTitleGuestPhone:'Telefone e comunicações',
     labelPhoneOptional:'Telefone (opcional)',
     phGuestPhoneExample:'Ex: +351 912 345 678',
-    labelWhatsappConsent:'Pode receber comunicações da Weddy por WhatsApp',
-    subWhatsappConsent:'Vais enviar-lhe lembretes e informações do casamento por WhatsApp. Pode deixar de receber a qualquer momento respondendo STOP.',
+    labelWhatsappConsent:'Consentimento WhatsApp do convidado',
+    subWhatsappConsent:'Só o próprio convidado pode dar consentimento, no link do convite.',
+    gpConsentGranted:d=>`Consentimento dado pelo convidado${d?' a '+d:''}.`,
+    gpConsentPending:'Pendente: o convidado ainda não aceitou. Aparece-lhe uma caixa no link do convite (RSVP).',
+    viewErrTitle:'Esta secção não abriu',
+    viewErrBody:'Os teus dados estão guardados. Tenta outra vez ou continua noutra página.',
+    viewErrRetry:'Tentar de novo',
+    gpConsentAwaiting:'Pedido pendente: o convidado marcou a caixa, mas o consentimento ainda não está confirmado (a confirmação não é automática). Não lhe envies mensagens por WhatsApp para já.',
+    gpConsentRevoked:'Retirado pelo convidado. Não envies mensagens por WhatsApp.',
+    gpConsentRenew:'Consentimento antigo por renovar: o convidado tem de confirmar no link do convite.',
     labelSide:'Lado',
     labelEventName:'Nome',
     phEventNameExample:'Ex: Cerimónia, Cocktail, Jantar…',
@@ -8491,8 +8498,16 @@ const APP_I18N = {
     sheetTitleGuestPhone:'Phone and communications',
     labelPhoneOptional:'Phone (optional)',
     phGuestPhoneExample:'E.g. +351 912 345 678',
-    labelWhatsappConsent:'Can receive communications from Weddy by WhatsApp',
-    subWhatsappConsent:'You\'ll be sending reminders and wedding info by WhatsApp. They can stop receiving these at any time by replying STOP.',
+    labelWhatsappConsent:'Guest WhatsApp consent',
+    subWhatsappConsent:'Only the guest can give consent, on the invitation link.',
+    gpConsentGranted:d=>`Consent given by the guest${d?' on '+d:''}.`,
+    gpConsentPending:'Pending: the guest has not agreed yet. A checkbox appears on their invitation (RSVP) link.',
+    viewErrTitle:'This section did not open',
+    viewErrBody:'Your data is safe. Try again or continue on another page.',
+    viewErrRetry:'Try again',
+    gpConsentAwaiting:'Pending request: the guest ticked the box, but consent is not confirmed yet (confirmation is not automatic). Do not send them WhatsApp messages for now.',
+    gpConsentRevoked:'Withdrawn by the guest. Do not send WhatsApp messages.',
+    gpConsentRenew:'Old consent needs renewal: the guest must confirm on the invitation link.',
     labelSide:'Side',
     labelEventName:'Name',
     phEventNameExample:'E.g. Ceremony, Cocktail, Dinner…',
@@ -25472,6 +25487,29 @@ function splitGuestPhoneForEditing(fullPhone){
   }
   return { cc:'other', local:trimmed };
 }
+// Consentimento WhatsApp (A.3-bis). guestWaConsentOK lê o espelho que o
+// SERVIDOR escreve no json (source:'guest'). Consentimentos antigos (dados
+// pelo casal, sem source:'guest') já não contam.
+function guestWaConsentOK(entry){
+  const w = entry && entry.communicationPreferences && entry.communicationPreferences.whatsapp;
+  return !!(w && w.optedIn === true && w.source === 'guest');
+}
+function setGuestConsentStatus(entry, rec){
+  const el = document.getElementById('gp-consent-status');
+  if(!el) return;
+  const w = entry && entry.communicationPreferences && entry.communicationPreferences.whatsapp;
+  let txt;
+  if(rec){
+    if(rec.status==='granted' && rec.phone===entry.phone) txt = ta('gpConsentGranted')(rec.grantedAtISO ? new Date(rec.grantedAtISO).toLocaleDateString(appLang==='en'?'en-GB':'pt-PT') : '');
+    else if(rec.status==='pending' && rec.phone===entry.phone && Number(rec.pendingExpiresAtMs)>Date.now()) txt = ta('gpConsentAwaiting');
+    else if(rec.status==='revoked') txt = ta('gpConsentRevoked');
+    else txt = ta('gpConsentPending');
+  } else if(guestWaConsentOK(entry)) txt = ta('gpConsentGranted')(w.optedInAt ? new Date(w.optedInAt).toLocaleDateString(appLang==='en'?'en-GB':'pt-PT') : '');
+  else if(w && w.optedIn===true) txt = ta('gpConsentRenew');
+  else if(w && w.optedOutAt) txt = ta('gpConsentRevoked');
+  else txt = ta('gpConsentPending');
+  el.textContent = txt;
+}
 function openGuestPhoneSheet(side, cat, idx){
   closeAllSheets();
   const arr = getGuestNames(side, cat);
@@ -25486,9 +25524,22 @@ function openGuestPhoneSheet(side, cat, idx){
   phoneEl.value = split.local;
   phoneEl.placeholder = (split.cc==='other') ? '+351912345678' : '912 345 678';
   phoneEl.classList.remove('field-error');
-  const consentOn = !!(entry.communicationPreferences && entry.communicationPreferences.whatsapp && entry.communicationPreferences.whatsapp.optedIn);
-  document.getElementById('gp-consent-toggle').classList.toggle('on', consentOn);
+  // A.3-bis: o consentimento é do convidado (rsvp.html) e vive no servidor.
+  // Aqui só se mostra o estado. O espelho no json só serve para a UI; o
+  // servidor volta a validar tudo antes de qualquer envio por Meta.
+  const consentOn = guestWaConsentOK(entry);
+  setGuestConsentStatus(entry, null);
   document.getElementById('gp-consent-row').style.display = phoneEl.value.trim() ? '' : 'none';
+  if(db && currentWeddingId && entry.guestId) try{
+    const gid = entry.guestId;
+    db.collection('whatsappConsents').doc(currentWeddingId+'_'+gid).get().then(snap=>{
+      if(!editingGuestPhoneRef || editingGuestPhoneRef.guestId!==gid) return;
+      const c = snap.exists ? snap.data() : null;
+      setGuestConsentStatus(entry, c);
+      const ok = !!(c && c.status==='granted' && c.phone===entry.phone);
+      document.getElementById('gp-send-whatsapp').style.display = (phoneEl.value.trim() && ok && entry.rsvpToken && hasActiveSubscription()) ? '' : 'none';
+    }).catch(()=>{});
+  }catch(e){ /* sem ligação: fica o estado do espelho */ }
   document.getElementById('gp-error').style.display = 'none';
   document.getElementById('gp-wa-error').style.display = 'none';
   document.getElementById('gp-wa-success').style.display = 'none';
@@ -25565,9 +25616,6 @@ document.getElementById('gp-phone').addEventListener('input', e=>{
 document.getElementById('gp-phone-cc').addEventListener('change', e=>{
   document.getElementById('gp-phone').placeholder = (e.target.value==='other') ? '+351912345678' : '912 345 678';
 });
-document.getElementById('gp-consent-toggle').addEventListener('click', e=>{
-  e.currentTarget.classList.toggle('on');
-});
 // Junta o indicativo escolhido no seletor com o número local escrito,
 // num único E.164 (ex: "+34" + "911223344" -> "+34911223344"). Quando o
 // indicativo é "other", a pessoa já escreveu o número completo com "+"
@@ -25584,7 +25632,6 @@ document.getElementById('gp-save').addEventListener('click', async ()=>{
   const phoneEl = document.getElementById('gp-phone');
   const errEl = document.getElementById('gp-error');
   const phone = combineGuestPhone();
-  const optedIn = document.getElementById('gp-consent-toggle').classList.contains('on');
   errEl.style.display = 'none';
   const saveBtn = document.getElementById('gp-save');
   saveBtn.disabled = true;
@@ -26026,7 +26073,7 @@ function autopilotReviewCardHtml(){
   const rows = entries.map(({item, bucket, token})=>{
     const entry = item.entry;
     const already = token && sentTokens.has(token);
-    const waReady = canWa && !already && !!(entry.phone && token && entry.communicationPreferences && entry.communicationPreferences.whatsapp && entry.communicationPreferences.whatsapp.optedIn);
+    const waReady = canWa && !already && !!(entry.phone && token && guestWaConsentOK(entry));
     // Pedido direto da Rita (Set 2026): tirar o pontinho colorido antes do
     // nome e deixar só o ícone do WhatsApp — sem a caixa cinzenta à volta
     // (essa caixa vinha da classe "btn-cancel", partilhada com os botões de
