@@ -2784,6 +2784,27 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
 .gx-ring-c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
 .gx-ring-c b{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:28px; line-height:1; color:var(--ox-ink); }
 .gx-ring-c span{ font-size:10px; letter-spacing:.06em; color:var(--ox-soft); margin-top:2px; }
+.gx-sum-env{ display:flex; flex-direction:column; gap:12px; padding-left:18px; border-left:1px solid var(--ox-line); flex:none; }
+.gx-env-i{ display:flex; align-items:center; gap:9px; color:var(--ox-soft); }
+.gx-env-i.is-done{ color:var(--ox-terra,#B5654B); }
+.gx-env-ic{ width:24px; height:24px; flex:none; display:flex; }
+.gx-env-ic svg{ width:24px; height:24px; }
+.gx-env-t{ display:flex; flex-direction:column; line-height:1.1; }
+.gx-env-t b{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; color:var(--heading); }
+.gx-env-t span{ font-size:11px; color:var(--ox-soft); margin-top:2px; white-space:nowrap; }
+.gx-ic.gx-inv{ opacity:.5; } .gx-ic.gx-inv.is-done{ opacity:1; color:var(--ox-terra,#B5654B); }
+.gx-invf{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 2px; }
+.gx-invf-l{ font-size:12px; color:var(--ox-soft); margin-right:2px; }
+.gx-invf-b{ all:unset; box-sizing:border-box; min-height:34px; padding:0 14px; display:inline-flex; align-items:center; border:1px solid var(--ox-line,#E6DCD4); border-radius:999px; font-size:13px; color:var(--ox-soft); cursor:pointer; }
+.gx-invf-b[aria-pressed="true"]{ background:var(--ox-terra,#B5654B); border-color:var(--ox-terra,#B5654B); color:#fff; }
+.gx-invf-b:focus-visible{ outline:2px solid var(--ox-terra,#B5654B); outline-offset:2px; }
+.inv-guest{ font-family:'Cormorant Garamond',serif; font-size:28px; line-height:1.1; color:var(--heading); margin:0 0 6px; overflow-wrap:anywhere; }
+.inv-q{ font-size:14.5px; color:var(--ox-soft); margin:0 0 10px; }
+.inv-opts{ display:grid; gap:10px; margin:0 0 6px; }
+.inv-opt{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:12px; min-height:56px; padding:0 16px; border:1px solid var(--ox-line,#E6DCD4); border-radius:14px; background:#fff; font-size:15px; color:var(--ox-ink,#2B2522); cursor:pointer; }
+.inv-opt .inv-ic{ width:22px; height:22px; flex:none; display:flex; color:var(--ox-soft); } .inv-opt .inv-ic svg{ width:22px; height:22px; }
+.inv-opt.on{ border-color:var(--ox-terra,#B5654B); background:rgba(181,101,75,.08); } .inv-opt.on .inv-ic{ color:var(--ox-terra,#B5654B); }
+.inv-opt:focus-visible{ outline:2px solid var(--ox-terra,#B5654B); outline-offset:2px; } .inv-opt[disabled]{ pointer-events:none; }
 .gx-sum-list{ flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; padding-left:22px; border-left:1px solid var(--ox-line); }
 .gx-sum-i{ display:flex; flex-direction:column; }
 .gx-sum-n{ font-family:'Cormorant Garamond',serif; font-weight:500; font-size:30px; line-height:1.05; color:var(--heading); }
@@ -2821,7 +2842,7 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
 .gx-prog span{ font-size:13px; color:var(--ox-soft); white-space:nowrap; }
 .gx-thead{ display:none; }
 .gx-list{ border-top:1px solid var(--ox-line); }
-.gx .gx-row{ display:grid; grid-template-columns:20px 26px minmax(0,1fr) 40px 40px 40px; align-items:center; column-gap:6px; padding:6px 0; border-bottom:1px solid var(--ox-line); min-height:56px; background:transparent; }
+.gx .gx-row{ display:grid; grid-template-columns:20px 26px minmax(0,1fr) 40px 40px 40px 40px; align-items:center; column-gap:6px; padding:6px 0; border-bottom:1px solid var(--ox-line); min-height:56px; background:transparent; }
 .gx .gx-row.child-row{ flex-wrap:nowrap; row-gap:0; }
 .gx-drag{ display:flex; align-items:center; justify-content:center; width:20px; }
 .gx-check{ width:24px !important; height:24px !important; }
@@ -2853,9 +2874,9 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
   .gx .search-bar{ max-width:520px; }
   .gx-dhead .orcx-title{ font-size:56px; }
   .gx-prog{ max-width:520px; }
-  .gx-thead{ display:grid; grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 56px; column-gap:8px; padding:0 0 8px; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); margin-top:6px; }
+  .gx-thead{ display:grid; grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 110px 56px; column-gap:8px; padding:0 0 8px; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); margin-top:6px; }
   .gx-th-c{ text-align:center; }
-  .gx .gx-row{ grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 56px; column-gap:8px; min-height:60px; }
+  .gx .gx-row{ grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 110px 56px; column-gap:8px; min-height:60px; }
   .gx .gx-row .child-extra-row{ padding-left:62px; }
   .gx-ic{ width:100%; }
   .gx-add{ flex-direction:row; align-items:center; gap:24px; }
@@ -3829,6 +3850,20 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
     <div class="sheet-btns">
       <button class="btn-cancel" id="gp-cancel" data-t="btnCancel">Cancelar</button>
       <button class="btn-save" id="gp-save" data-t="btnSave">Guardar</button>
+    </div>
+  </div>
+  <div class="sheet" id="guest-invite-sheet" role="dialog" aria-modal="true" aria-labelledby="inv-title">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="inv-title" data-t="invSheetTitle">Convite físico</div>
+    <div class="inv-guest" id="inv-guest-name"></div>
+    <div class="inv-q" data-t="invQuestion">Já entregaste o convite físico?</div>
+    <div class="inv-opts" role="group" aria-labelledby="inv-title">
+      <button type="button" class="inv-opt" id="inv-yes" data-invset="delivered" aria-pressed="false"><span class="inv-ic"><svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="invYes">Sim, já entreguei</span></button>
+      <button type="button" class="inv-opt" id="inv-no" data-invset="pending" aria-pressed="false"><span class="inv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2"/></svg></span><span data-t="invNo">Ainda não entreguei</span></button>
+    </div>
+    <div class="login-msg" id="inv-ok" role="status" style="display:none; margin-top:6px; color:#1a7d3a;" data-t="invSaved">Guardado.</div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="inv-cancel" data-t="invClose" style="width:100%">Fechar</button>
     </div>
   </div>
   <div class="sheet" id="event-sheet">
@@ -5842,6 +5877,19 @@ function guestKey(side,cat,idx){ return side+'|'+cat+'|'+idx; }
 // meio-preço ou nada. As mesas continuam a dar-lhes sempre um lugar inteiro;
 // isto só afeta os NÚMEROS de convidados mostrados na app.
 function isPaymentTrackingCat(catId){ return PAYMENT_TRACKING_CATS.includes(catId); }
+/* Convite físico (plano gratuito): 'delivered' | 'pending'. Guardado em entry.physicalInvite só quando entregue;
+   ausente = por entregar (convidados antigos e novos, sem migração). Independente do RSVP e dos convites digitais. */
+function invStatusOf(n){ return (n && typeof n==='object' && n.physicalInvite==='delivered') ? 'delivered' : 'pending'; }
+function invCounts(side){
+  let d = 0, p = 0;
+  (side ? [side] : ALL_GUEST_SIDES).forEach(sd=>{
+    if(!state || !state.guests || !state.guests[sd]) return;
+    allGuestCategoriesOf(sd).forEach(c=>{ (getGuestNames(sd,c.id)||[]).forEach(n=>{ if(invStatusOf(n)==='delivered') d++; else p++; }); });
+  });
+  return { delivered:d, pending:p, total:d+p };
+}
+let guestInvFilter = 'all'; // 'all' | 'delivered' | 'pending'
+const INV_ICON_DONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.3 12 13l8.5-6.7"/><circle cx="18" cy="17.5" r="4.2" fill="var(--cream,#FAF8F5)" stroke="currentColor"/><path d="m16.2 17.6 1.3 1.3 2.4-2.6" stroke-width="1.5"/></svg>';
 // Peso de UM convidado para efeitos de contagem: 1 para a generalidade dos
 // convidados (guardados só como nome/string), ou 0 / 0.5 / 1 consoante a
 // percentagem de pagamento escolhida, para crianças e staff/fornecedores.
@@ -10109,6 +10157,7 @@ Object.assign(APP_I18N.pt, { giCatKids:'Crianças', giSelectRow:'Selecionar', gi
  giSearch:'Procurar convidado', giAllSides:'Todos os lados', giAllCats:'Todos os grupos', giSelFiltered:'Selecionar / limpar os filtrados', giSelN:n=>n+(n===1?' selecionado':' selecionados'), giBulkCat:'Grupo em massa', giBulkNew:'Ou escreve um grupo novo', giBulkSide:'Lado em massa', giApply:'Aplicar aos selecionados', giExcludeSel:'Excluir selecionados',
  giSheetsTitle:'Que folhas têm convidados?', giSheetsSub:'Escolhe a folha (ou folhas) com a lista de convidados. Folhas de orçamento, gastos ou mesas não são importadas.', giSheetSuggested:'Sugerida', giSheetGuests:n=>n+(n===1?' convidado reconhecido':' convidados reconhecidos'), giSheetSimple:'Lista simples (escolhes as colunas a seguir)', giSheetNone:'Sem convidados reconhecidos', giSheetRows:n=>n+(n===1?' linha':' linhas'), giSheetNeedOne:'Escolhe pelo menos uma folha.', giSheetUnstructured:nm=>'A folha «'+nm+'» é uma lista simples. Escolhe-a sozinha para indicares as colunas.', giNoGuestsFound:'Não encontrámos convidados nesta escolha. Confirma se escolheste a folha certa.',
  giAutoSum:(n,k)=>'Reconhecemos '+n+(n===1?' convidado':' convidados')+' em '+k+(k===1?' lista.':' listas.')+' Revê antes de importar.', giAutoSides:(a,b,c,d,e)=>'Noiva: '+a+' · Noivo: '+b+(c?' · Conjunto: '+c:'')+' · Crianças: '+d+' · Marcados como confirmados: '+e, giUnrecognized:l=>'Colunas não reconhecidas (não importadas): '+l, giIgnored:n=>n+(n===1?' linha ignorada (títulos ou separadores)':' linhas ignoradas (títulos ou separadores)'), giBackSheets:'Voltar às folhas / colunas', giBulkTitle:'Edição em massa (vários convidados de uma vez)', giReviewHintAuto:'Corrige o que for preciso antes de importar. Os já existentes ficam de fora, a não ser que os marques; nomes repetidos no ficheiro ficam incluídos para decidires tu.', giSumConfirmed:n=>n+' marcados como confirmados' });
+Object.assign(APP_I18N.pt, { invSheetTitle:'Convite físico', invQuestion:'Já entregaste o convite físico?', invYes:'Sim, já entreguei', invNo:'Ainda não entreguei', invClose:'Fechar', invSaved:'Guardado.', invStDelivered:'entregue', invStPending:'por entregar', invSumDelivered:'entregues', invSumPending:'por entregar', invFilterLabel:'Convite físico', invAll:'Todos', invDone:'Entregue', invTodo:'Por entregar', gxColInvite:'Convite', giF_inv:'Convite físico entregue (x, sim…)' });
 Object.assign(APP_I18N.en, { giOpen:'Import list (Excel or CSV)', giTitle:'Import guests', giClose:'Close', giPickSub:'Choose an Excel (.xlsx) or CSV file with your list. You will review everything before importing and nothing you already have is deleted or replaced.', giChoose:'Choose file', giReading:'Reading the file…', giPrivacy:'The file is read on your device. Only the guests you confirm are added to your wedding.',
  giColumn:'Column', giNone:'— do not import —', giSample:'First rows of the file', giRowsFound:n=>n+(n===1?' row found':' rows found'), giHasHeader:'The first row has column titles', giMapTitle:'Which column is which?', giMapSub:'Only the name is required. We matched what we recognised; please confirm before continuing.',
  giF_name:'Name', giF_email:'Email', giF_phone:'Phone', giF_side:'Side (bride, groom, joint)', giF_cat:'Group (family, friends…)', giF_age:'Age (children)', giDefSide:'Side when not in the file', giDefCat:'Group when not in the file', giContinue:'Continue', giOtherFile:'Choose another file', giErrNeedName:'Tell us which column holds the name.',
@@ -10121,6 +10170,7 @@ Object.assign(APP_I18N.en, { giCatKids:'Children', giSelectRow:'Select', giColSi
  giSearch:'Search guest', giAllSides:'All sides', giAllCats:'All groups', giSelFiltered:'Select / clear filtered', giSelN:n=>n+' selected', giBulkCat:'Group for selected', giBulkNew:'Or type a new group', giBulkSide:'Side for selected', giApply:'Apply to selected', giExcludeSel:'Exclude selected',
  giSheetsTitle:'Which sheets have guests?', giSheetsSub:'Choose the sheet (or sheets) with your guest list. Budget, expense or table sheets are not imported.', giSheetSuggested:'Suggested', giSheetGuests:n=>n+(n===1?' guest recognised':' guests recognised'), giSheetSimple:'Simple list (you pick the columns next)', giSheetNone:'No guests recognised', giSheetRows:n=>n+(n===1?' row':' rows'), giSheetNeedOne:'Choose at least one sheet.', giSheetUnstructured:nm=>'Sheet “'+nm+'” is a simple list. Choose it on its own to pick the columns.', giNoGuestsFound:'We did not find guests in this selection. Check that you chose the right sheet.',
  giAutoSum:(n,k)=>'We recognised '+n+(n===1?' guest':' guests')+' in '+k+(k===1?' list.':' lists.')+' Review before importing.', giAutoSides:(a,b,c,d,e)=>'Bride: '+a+' · Groom: '+b+(c?' · Joint: '+c:'')+' · Children: '+d+' · Marked as confirmed: '+e, giUnrecognized:l=>'Columns not recognised (not imported): '+l, giIgnored:n=>n+(n===1?' row ignored (titles or separators)':' rows ignored (titles or separators)'), giBackSheets:'Back to sheets / columns', giBulkTitle:'Bulk edit (several guests at once)', giReviewHintAuto:'Fix whatever is needed before importing. Guests that already exist are left out unless you tick them; names repeated in the file stay included for you to decide.', giSumConfirmed:n=>n+' marked as confirmed' });
+Object.assign(APP_I18N.en, { invSheetTitle:'Paper invitation', invQuestion:'Have you handed over the paper invitation?', invYes:'Yes, I have delivered it', invNo:'Not delivered yet', invClose:'Close', invSaved:'Saved.', invStDelivered:'delivered', invStPending:'to deliver', invSumDelivered:'delivered', invSumPending:'to deliver', invFilterLabel:'Paper invitation', invAll:'All', invDone:'Delivered', invTodo:'To deliver', gxColInvite:'Invite', giF_inv:'Paper invitation delivered (x, yes…)' });
 Object.assign(APP_I18N.pt, { giErrSize: p=>'Esta lista deixaria o teu casamento demasiado cheio para guardar com segurança (ficaria a '+p+' % da capacidade). Nada foi importado nem alterado. Importa uma lista mais pequena ou retira linhas aqui na revisão.' });
 Object.assign(APP_I18N.en, { giErrSize: p=>'This list would make your wedding too full to save safely (it would reach '+p+'% of capacity). Nothing was imported or changed. Import a smaller list or remove rows here in the review.' });
 Object.assign(APP_I18N.pt, { ntBell:'Notificações', ntBellN:n=>'Notificações, '+n+(n===1?' nova':' novas'), ntTitle:'Notificações', ntSub:'Só o que merece a tua atenção, sem repetições.', ntNewSec:'Novas', ntOldSec:'Anteriores', ntReadAll:'Marcar todas como lidas', ntEmpty:'Tudo em dia. Quando houver algo importante, aparece aqui.', ntOff:'As notificações estão desligadas. Podes voltar a ligá-las nas preferências.', ntAllRead:'Estás em dia.', ntNew:'Nova', ntImportant:'Importante', ntDismiss:'Dispensar', ntNow:'agora', ntMin:n=>'há '+n+' min', ntHour:n=>'há '+n+' h', ntYesterday:'ontem', ntDaysAgo:n=>'há '+n+' dias',
@@ -11259,6 +11309,8 @@ function gxRowHTML(side, catKey, n, idx, canDrag){
   const age = isChildren ? ((n&&n.age)||'') : '';
   const payingPct = hasPayment ? guestWeight(n) : 1;
   const r = gxRsvpInfo(n);
+  const invDone = invStatusOf(n)==='delivered';
+  const invTitle = ta('invSheetTitle')+': '+ta(invDone?'invStDelivered':'invStPending');
   return `
   <div class="guest-row gx-row ${hasPayment?'child-row':''} ${conf?'confirmed':''}" data-rowidx="${idx}">
     ${canDrag ? `<button type="button" class="drag-handle gx-drag" data-draghandle="${side}|${catKey}" aria-label="↕">${ICONS.draghandle}</button>` : '<span class="gx-drag"></span>'}
@@ -11266,6 +11318,7 @@ function gxRowHTML(side, catKey, n, idx, canDrag){
     <input type="text" class="title-input-inline gx-name" data-editguest="${side}|${catKey}|${idx}" value="${escapeHTML(name)}" aria-label="${escapeHTML(name)}">
     <button type="button" class="gx-ic gx-phone" style="${(typeof n==='object'&&n&&n.phone)?'color:var(--rust,#B5654B);opacity:1;':'opacity:.4;'}" data-editphone="${side}|${catKey}|${idx}" title="${ta('labelPhoneOptional')}" aria-label="${ta('labelPhoneOptional')}">${ICONS.phone}</button>
     <button type="button" class="gx-ic gx-rsvp" style="color:${r.color}; opacity:${r.token?1:.4};" data-rsvpstatus="${side}|${catKey}|${idx}" title="${escapeHTML(r.title)}" aria-label="${escapeHTML(r.title)}">${ICONS.guests}</button>
+    <button type="button" class="gx-ic gx-inv ${invDone?'is-done':''}" data-invite="${side}|${catKey}|${idx}" title="${escapeHTML(invTitle)}" aria-label="${escapeHTML(invTitle)}">${invDone ? INV_ICON_DONE : ICONS.mail}</button>
     <button type="button" class="gx-ic gx-x" data-remove="${side}|${catKey}|${idx}" aria-label="${ta('btnDelete')}">${ICONS.x}</button>
     ${hasPayment ? `
     <div class="child-extra-row">
@@ -11318,15 +11371,20 @@ function gxSummaryHTML(){
       <div class="gx-sum-i"><span class="gx-sum-n">${fmtGuestCount(totalGuests)}</span><span class="gx-sum-l">${ta('totalGuestsLabel')}</span></div>
       <div class="gx-sum-i"><span class="gx-sum-n">${fmtEUR(perGuest)}</span><span class="gx-sum-l">${ta('perGuestPaidLabel')}</span></div>
     </div>
+    ${(()=>{ const ic = invCounts(); return `<div class="gx-sum-env" role="group" aria-label="${ta('invSheetTitle')}">
+      <div class="gx-env-i is-done"><span class="gx-env-ic">${INV_ICON_DONE}</span><span class="gx-env-t"><b id="inv-n-done">${ic.delivered}</b><span>${ta('invSumDelivered')}</span></span></div>
+      <div class="gx-env-i"><span class="gx-env-ic">${ICONS.mail}</span><span class="gx-env-t"><b id="inv-n-pending">${ic.pending}</b><span>${ta('invSumPending')}</span></span></div>
+    </div>`; })()}
   </div>`;
 }
+function invPass(n){ return guestInvFilter==='all' || invStatusOf(n)===guestInvFilter; }
 function gxSearchResultsHTML(){
   const q = guestFilter.toLowerCase();
   let any = false;
   const out = allGuestCategoriesOf(guestSeg).map(c=>{
     const nameOf = n => (typeof n==='string') ? n : (n.name||'');
     const items = getGuestNames(guestSeg, c.id) || [];
-    const rows = items.map((n,idx)=> nameOf(n).toLowerCase().includes(q) ? gxRowHTML(guestSeg, c.id, n, idx, false) : '').join('');
+    const rows = items.map((n,idx)=> (nameOf(n).toLowerCase().includes(q) && invPass(n)) ? gxRowHTML(guestSeg, c.id, n, idx, false) : '').join('');
     if(!rows) return '';
     any = true;
     return `<section class="gx-res"><h3 class="gx-res-h">${escapeHTML(gxCatLabel(c))}</h3><div class="gx-list" data-draglist="${guestSeg}|${c.id}">${rows}</div></section>`;
@@ -11339,10 +11397,10 @@ function gxDetailBodyHTML(side, catKey){
   const st = gxCatStats(side, catKey);
   const q = guestFilter.toLowerCase();
   const nameOf = n => (typeof n==='string') ? n : (n.name||'');
-  const canDrag = !guestFilter;
-  const rows = st.items.map((n,idx)=> (!q || nameOf(n).toLowerCase().includes(q)) ? gxRowHTML(side, catKey, n, idx, canDrag) : '').join('');
+  const canDrag = !guestFilter && guestInvFilter==='all';
+  const rows = st.items.map((n,idx)=> ((!q || nameOf(n).toLowerCase().includes(q)) && invPass(n)) ? gxRowHTML(side, catKey, n, idx, canDrag) : '').join('');
   return `
-  <div class="gx-thead" aria-hidden="true"><span></span><span></span><span>${ta('gxColName')}</span><span class="gx-th-c">${ta('gxColContact')}</span><span class="gx-th-c">RSVP</span><span></span></div>
+  <div class="gx-thead" aria-hidden="true"><span></span><span></span><span>${ta('gxColName')}</span><span class="gx-th-c">${ta('gxColContact')}</span><span class="gx-th-c">RSVP</span><span class="gx-th-c">${ta('gxColInvite')}</span><span></span></div>
   <div class="gx-list" data-draglist="${side}|${catKey}">
     ${rows || `<div class="orcx-empty">${ta('emptyNoGuestsInCategory')}</div>`}
   </div>
@@ -11369,7 +11427,7 @@ function buildConvidadosDynamic(){
     const [s,c] = guestDetail.split('|');
     return gxDetailBodyHTML(s, c);
   }
-  if(guestFilter) return gxSearchResultsHTML();
+  if(guestFilter || guestInvFilter!=='all') return gxSearchResultsHTML();
   return gxSummaryHTML() + `<div id="guest-groups-container">${buildGuestBody()}</div>`;
 }
 
@@ -11458,6 +11516,12 @@ function bindGuestGroupHandlers(scope){
         console.error('Weddy: falha a apagar o convite RSVP associado ao convidado removido.', err && err.code, err && err.message);
       });
       softUpdateConvidados();
+    });
+  });
+  scope.querySelectorAll('[data-invite]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.invite.split('|');
+      openGuestInviteSheet(side, cat, Number(idx)); // abrir nunca altera o estado
     });
   });
   scope.querySelectorAll('[data-editphone]').forEach(btn=>{
@@ -11667,7 +11731,7 @@ function gimpSizeCheck(list){
   return { ok: total <= GIMP_STATE_LIMIT, pct: Math.round(total / GIMP_STATE_LIMIT * 100), cur, add, total };
 }
 let gimp = null;
-const GIMP_FIELDS = ['name','email','phone','side','cat','age','rsvp'];
+const GIMP_FIELDS = ['name','email','phone','side','cat','age','rsvp','inv'];
 const GIMP_SYN = {
   name:['nome','nomes','name','convidado','convidados','guest','guestname','nomecompleto','fullname'],
   email:['email','mail','correio','emailaddress','endereco de email'],
@@ -11675,6 +11739,7 @@ const GIMP_SYN = {
   side:['lado','side','noivo/noiva','ladodoconvidado'],
   cat:['grupo','categoria','category','group','tipo','relacao','familia/amigos'],
   age:['idade','age','anos'],
+  inv:['convitefisico','conviteentregue','convitesentregues','convitefisicoentregue','entregue','entregues'],
   rsvp:['confirmado','confirmacao','confirmacoes','rsvp','presenca','presente','confirmado?','confirmado?(x)']
 };
 function gimpNorm(s){ return String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim(); }
@@ -11727,7 +11792,7 @@ function gimpClean(rows){
   return nonEmpty.map(r=>{ const x = r.slice(); while(x.length<width) x.push(''); return x; });
 }
 function gimpGuessMap(header){
-  const map = { name:-1, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1 };
+  const map = { name:-1, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1, inv:-1 };
   header.forEach((h,i)=>{
     const k = gimpNormKey(h);
     GIMP_FIELDS.forEach(f=>{ if(map[f]<0 && GIMP_SYN[f].some(s=>gimpNormKey(s)===k)) map[f]=i; });
@@ -11744,6 +11809,7 @@ function gimpRsvpOf(raw){
 }
 function gimpHeaderKind(cell){
   const k = gimpNorm(cell); if(!k) return { kind:'' };
+  if(/(convit|entreg)/.test(k) && /(fisic|entreg)/.test(k)) return { kind:'inv' };
   if(/^=?\s*1\s*\?*$/.test(k) || /confirm|presen|rsvp|\bvem\b|\bvai\b/.test(k) || k==='x') return { kind:'confirm' };
   if(/crian|filho|filha|kid|child|menor|bebe/.test(k)) return { kind:'name', side:'', kid:true };
   if(/noiv[ao]|bride|groom/.test(k) || /convidad|^nomes?$|^nome completo$|guest|^name$|^pessoas?$/.test(k)){
@@ -11768,12 +11834,12 @@ function gimpAnalyzeRows(rows, groups){
   const blocks = []; const inBlock = new Array(width).fill(-1);
   for(let c=0;c<width;c++){
     if(kinds[c].kind!=='name') continue;
-    const b = { col:c, side:kinds[c].side||'', kid:!!kinds[c].kid, label:rows[hr][c].trim(), conf:[], email:-1, phone:-1, age:-1, cat:-1 };
+    const b = { col:c, side:kinds[c].side||'', kid:!!kinds[c].kid, label:rows[hr][c].trim(), conf:[], inv:[], email:-1, phone:-1, age:-1, cat:-1 };
     if(!b.side){ const g = groups.find(x=>x.r<hr && c>=x.c0 && c<=x.c1); if(g){ const h = gimpHeaderKind(g.text); if(h.kind==='name' && h.side) b.side = h.side; } }
     inBlock[c] = blocks.length;
     for(let d=c+1; d<width; d++){
       const kd = kinds[d].kind;
-      if(kd==='confirm') b.conf.push(d); else if(kd==='email' && b.email<0) b.email = d; else if(kd==='phone' && b.phone<0) b.phone = d; else if(kd==='age' && b.age<0) b.age = d; else break;
+      if(kd==='confirm') b.conf.push(d); else if(kd==='inv') b.inv.push(d); else if(kd==='email' && b.email<0) b.email = d; else if(kd==='phone' && b.phone<0) b.phone = d; else if(kd==='age' && b.age<0) b.age = d; else break;
       inBlock[d] = blocks.length;
     }
     blocks.push(b);
@@ -11803,10 +11869,11 @@ function gimpAnalyzeRows(rows, groups){
       if(am && am[1].trim()){ name = am[1].trim().replace(/[(\-,]+$/,'').trim(); age = am[2]; }
       let rs = '', yes = false, no = false, unk = false;
       b.conf.forEach(c=>{ const v = gimpRsvpOf(row[c]); if(v==='yes') yes = true; else if(v==='no') no = true; else if(v==='?') unk = true; });
+      const invDel = b.inv.some(c=>gimpRsvpOf(row[c])==='yes');
       rs = yes ? 'yes' : (no ? 'no' : (unk ? '?' : ''));
       const catRaw = b.cat>=0 ? (curCat[b.cat]||'') : '';
       const ageCol = b.age>=0 ? parseInt(row[b.age],10) : NaN;
-      items.push({ name, side:b.side, kid:b.kid, catRaw: b.kid ? 'Crianças' : catRaw, rsvp:rs, age: age || (Number.isFinite(ageCol)?String(ageCol):''), email: b.email>=0 ? String(row[b.email]||'').trim() : '', phoneRaw: b.phone>=0 ? String(row[b.phone]||'').trim() : '', row:r+1 });
+      items.push({ name, side:b.side, kid:b.kid, catRaw: b.kid ? 'Crianças' : catRaw, rsvp:rs, inv: invDel ? 'delivered' : '', age: age || (Number.isFinite(ageCol)?String(ageCol):''), email: b.email>=0 ? String(row[b.email]||'').trim() : '', phoneRaw: b.phone>=0 ? String(row[b.phone]||'').trim() : '', row:r+1 });
       found++;
     });
     if(!found && !blocks.some(b=>String(row[b.col]||'').trim())){ const t = row.filter(c=>String(c).trim()).join(' · '); if(t && !catCols.some(c=>String(row[c]||'').trim()) ) ignored.push({ r:r+1, text:t.slice(0,40) }); }
@@ -11895,7 +11962,7 @@ function gimpBuildItems(){
     const sd = gimpResolveSide(get('side'));
     const ct = gimpResolveCat(sd.side, get('cat'));
     const ageN = parseInt(get('age'),10);
-    const it = { i, name:get('name'), email:get('email'), phoneRaw:get('phone'), side:sd.side, sideWarn:!!sd.warn, catId:ct.catId, newLabel:ct.newLabel||'', catRaw:get('cat'), rsvp:gimpRsvpOf(get('rsvp')), kid:false, sel:false, age:(Number.isFinite(ageN)&&ageN>=0&&ageN<=17)?String(ageN):'', include:true };
+    const it = { i, name:get('name'), email:get('email'), phoneRaw:get('phone'), side:sd.side, sideWarn:!!sd.warn, catId:ct.catId, newLabel:ct.newLabel||'', catRaw:get('cat'), rsvp:gimpRsvpOf(get('rsvp')), inv:(gimpRsvpOf(get('inv'))==='yes'?'delivered':''), kid:false, sel:false, age:(Number.isFinite(ageN)&&ageN>=0&&ageN<=17)?String(ageN):'', include:true };
     gimpValidateItem(it, existing, seen);
     it.include = gimpWants(it);
     return it;
@@ -11916,7 +11983,7 @@ function gimpBuildStructured(){
   g.items = all.slice(0, GIMP_MAX_ROWS).map((x,i)=>{
     const sd = gimpResolveSide(x.side); const ct = gimpResolveCat(sd.side, x.catRaw);
     const ageN = parseInt(x.age,10);
-    const it = { i, name:x.name, email:x.email, phoneRaw:x.phoneRaw, side:sd.side, sideWarn: !x.side, catId:ct.catId, newLabel:ct.newLabel||'', catRaw:x.catRaw, rsvp:x.rsvp, kid:!!x.kid, sel:false, age:(Number.isFinite(ageN)&&ageN>=0&&ageN<=17)?String(ageN):'', src:(x.sheet?x.sheet+' · ':'')+'L'+x.row, include:true };
+    const it = { i, name:x.name, email:x.email, phoneRaw:x.phoneRaw, side:sd.side, sideWarn: !x.side, catId:ct.catId, newLabel:ct.newLabel||'', catRaw:x.catRaw, rsvp:x.rsvp, inv:x.inv||'', kid:!!x.kid, sel:false, age:(Number.isFinite(ageN)&&ageN>=0&&ageN<=17)?String(ageN):'', src:(x.sheet?x.sheet+' · ':'')+'L'+x.row, include:true };
     gimpValidateItem(it, existing, seen);
     it.include = gimpWants(it);
     return it;
@@ -11936,7 +12003,7 @@ function gimpClose(){
   document.body.classList.remove('gimp-open'); gimp = null;
 }
 function gimpOpen(){
-  gimp = { step:'pick', fileName:'', rows:[], sheets:[], auto:false, struct:null, fSide:'', fCat:'', q:'', hasHeader:true, map:{name:-1,email:-1,phone:-1,side:-1,cat:-1,age:-1,rsvp:-1}, defSide:'conjunto', defCat:'amigos', items:[], filter:'all', shown:GIMP_PAGE, error:'', busy:false, result:null, undo:null, truncated:false };
+  gimp = { step:'pick', fileName:'', rows:[], sheets:[], auto:false, struct:null, fSide:'', fCat:'', q:'', hasHeader:true, map:{name:-1,email:-1,phone:-1,side:-1,cat:-1,age:-1,rsvp:-1, inv:-1}, defSide:'conjunto', defCat:'amigos', items:[], filter:'all', shown:GIMP_PAGE, error:'', busy:false, result:null, undo:null, truncated:false };
   let el = document.getElementById('gimp-overlay');
   if(!el){ el = document.createElement('div'); el.id = 'gimp-overlay'; el.className = 'gimp'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); document.body.appendChild(el); }
   el.setAttribute('aria-label', ta('giTitle'));
@@ -11970,7 +12037,7 @@ function gimpStepMap(){
   ${prev}
   <h3 class="cb-h" style="font-size:21px">${ta('giMapTitle')}</h3><p class="cb-sub">${ta('giMapSub')}</p>
   <div class="cb-fields">
-    ${fld('name',true)}${fld('email')}${fld('phone')}${fld('side')}${fld('cat')}${fld('age')}${fld('rsvp')}
+    ${fld('name',true)}${fld('email')}${fld('phone')}${fld('side')}${fld('cat')}${fld('age')}${fld('rsvp')}${fld('inv')}
     <label class="cb-f"><span>${ta('giDefSide')}</span><select class="cb-in" data-gimpdef="side"><option value="conjunto" ${gimp.defSide==='conjunto'?'selected':''}>${ta('sideJoint')}</option><option value="noiva" ${gimp.defSide==='noiva'?'selected':''}>${ta('sideBride')}</option><option value="noivo" ${gimp.defSide==='noivo'?'selected':''}>${ta('sideGroom')}</option></select></label>
     <label class="cb-f"><span>${ta('giDefCat')}</span><select class="cb-in" data-gimpdef="cat">${FIXED_GUEST_CATS.map(c=>`<option value="${c.id}" ${gimp.defCat===c.id?'selected':''}>${escapeHTML(ta(FIXED_GUEST_CAT_KEY[c.id])||c.label)}</option>`).join('')}</select></label>
   </div>
@@ -12161,7 +12228,7 @@ function gimpStartLegacy(rows){
     if((blob.match(new RegExp(GIMP_BUDGET_WORDS.source,'g'))||[]).length>=2) throw new Error(ta('giNoGuestsFound'));
   }
   gimp.hasHeader = looksHeader;
-  gimp.map = gimp.hasHeader ? guess : { name:0, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1 };
+  gimp.map = gimp.hasHeader ? guess : { name:0, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1, inv:-1 };
   if(gimp.hasHeader && gimp.map.name<0 && rows[0].length===1) gimp.map.name = 0;
   gimp.step = 'map';
 }
@@ -12223,6 +12290,7 @@ function gimpCommit(){
     if(it.phone){ entry.importedPhone = it.phone; phones++; }
     if(catId==='criancas' && it.age) entry.age = it.age;
     arr.push(entry);
+    if(it.inv==='delivered') entry.physicalInvite = 'delivered'; // só se o ficheiro disser; sem informação = por entregar. Nunca deduzido do RSVP
     if(it.rsvp==='yes'){ state.confirmed[entry.guestId] = true; confirmed++; } // só «confirmado» é gravado; sem informação clara fica por confirmar
     undo.entries.push({ side:it.side, cat:catId, guestId:entry.guestId });
   });
@@ -12290,7 +12358,7 @@ function gimpBind(){
   document.addEventListener('change', e=>{
     if(!gimp) return; const t = e.target;
     if(t.id==='gimp-file'){ gimpReadFile(t.files && t.files[0]); t.value=''; return; }
-    if(t.matches('[data-gimphead]')){ gimp.hasHeader = t.checked; gimp.map = gimp.hasHeader ? gimpGuessMap(gimp.rows[0]) : { name:0, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1 }; gimpRender(); return; }
+    if(t.matches('[data-gimphead]')){ gimp.hasHeader = t.checked; gimp.map = gimp.hasHeader ? gimpGuessMap(gimp.rows[0]) : { name:0, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1, inv:-1 }; gimpRender(); return; }
     if(t.matches('[data-gimpmap]')){ gimp.map[t.dataset.gimpmap] = Number(t.value); return; }
     if(t.matches('[data-gimpsheet]')){ const sh = gimp.sheets[Number(t.dataset.gimpsheet)]; if(sh) sh.use = t.checked; return; }
     if(t.matches('[data-gimpfside]')){ gimp.fSide = t.value; gimp.shown = GIMP_PAGE; gimpRenderList(); return; }
@@ -12748,6 +12816,7 @@ function viewConvidados(){
         </header>
         <div class="gx-prog" id="gx-dprog"><div class="orcx-prog"><i style="width:${Math.round(st.pct*100)}%"></i></div><span>${st.label}</span></div>
         <div class="search-bar gx-search">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${escapeHTML(guestFilter)}"></div>
+        <div class="gx-invf" role="group" aria-label="${ta('invFilterLabel')}"><span class="gx-invf-l">${ta('invFilterLabel')}</span>${['all','delivered','pending'].map(k=>`<button type="button" class="gx-invf-b" data-invf="${k}" aria-pressed="${guestInvFilter===k?'true':'false'}">${ta(k==='all'?'invAll':(k==='delivered'?'invDone':'invTodo'))}</button>`).join('')}</div>
         <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
       </div>`;
     }
@@ -12766,12 +12835,15 @@ function viewConvidados(){
       <button type="button" role="tab" aria-selected="${guestSeg==='conjunto'}" data-seg="conjunto" class="${guestSeg==='conjunto'?'active':''}">${ta('sideJoint')}</button>
     </div>
     <div class="search-bar gx-search">${ICONS.search}<input type="text" id="guest-search" placeholder="${ta('placeholderSearchGuest')}" value="${escapeHTML(guestFilter)}"></div>
+    <div class="gx-invf" role="group" aria-label="${ta('invFilterLabel')}"><span class="gx-invf-l">${ta('invFilterLabel')}</span>${['all','delivered','pending'].map(k=>`<button type="button" class="gx-invf-b" data-invf="${k}" aria-pressed="${guestInvFilter===k?'true':'false'}">${ta(k==='all'?'invAll':(k==='delivered'?'invDone':'invTodo'))}</button>`).join('')}</div>
     <div id="convidados-dynamic">${buildConvidadosDynamic()}</div>
   </div>
   `;
 }
 // Interações só de navegação/apresentação dos Convidados (os dados continuam a ser tratados pelos handlers originais)
 document.addEventListener('click', e=>{
+  const fb = e.target.closest && e.target.closest('.gx [data-invf]');
+  if(fb){ guestInvFilter = fb.getAttribute('data-invf'); _origRender(); return; }
   const t = e.target.closest && e.target.closest('.gx [data-seg]');
   if(t){ guestSeg = t.getAttribute('data-seg'); guestFilter = ''; _origRender(); return; }
   const o = e.target.closest && e.target.closest('[data-opengcat]');
@@ -26497,15 +26569,59 @@ function deleteEvent(eventId){
   render();
   syncGuestProgramToGuestDocs();
 }
+/* Convite físico — folha no mesmo padrão da folha de telefone/WhatsApp (.sheet + #sheet-backdrop).
+   Abrir NUNCA altera o estado: só muda depois de escolher uma opção. */
+let invRef = null, invBusy = false, invTimer = null;
+function openGuestInviteSheet(side, cat, idx){
+  closeAllSheets();
+  const arr = getGuestNames(side, cat);
+  const entry = arr && arr[idx];
+  if(!entry || typeof entry!=='object' || !entry.guestId) return;
+  invRef = { side, cat, guestId: entry.guestId }; invBusy = false;
+  document.getElementById('inv-guest-name').textContent = entry.name || '';
+  const cur = invStatusOf(entry);
+  [['inv-yes','delivered'],['inv-no','pending']].forEach(([id,st])=>{ const b = document.getElementById(id); b.classList.toggle('on', cur===st); b.setAttribute('aria-pressed', cur===st ? 'true':'false'); b.disabled = false; });
+  document.getElementById('inv-ok').style.display = 'none';
+  document.getElementById('guest-invite-sheet').classList.add('show');
+  document.getElementById('sheet-backdrop').classList.add('show');
+}
+function closeGuestInviteSheet(){
+  clearTimeout(invTimer); invTimer = null;
+  const sh = document.getElementById('guest-invite-sheet'); if(sh) sh.classList.remove('show');
+  if(invRef){ const bd = document.getElementById('sheet-backdrop'); if(bd) bd.classList.remove('show'); }
+  invRef = null; invBusy = false;
+}
+function invApply(status){
+  if(!invRef || invBusy) return; // toques repetidos não duplicam a atualização
+  const found = findGuestByGuestId(invRef.guestId);
+  if(!found){ closeGuestInviteSheet(); return; }
+  invBusy = true;
+  ['inv-yes','inv-no'].forEach(id=>{ document.getElementById(id).disabled = true; });
+  const entry = found.entry;
+  const changed = invStatusOf(entry) !== status;
+  if(changed){
+    if(status==='delivered') entry.physicalInvite = 'delivered'; else delete entry.physicalInvite;
+    softUpdateConvidados(); // atualiza a lista e os contadores já e guarda (pushRemote)
+  }
+  const ok = document.getElementById('inv-ok'); ok.style.display = '';
+  document.getElementById('inv-yes').classList.toggle('on', status==='delivered');
+  document.getElementById('inv-no').classList.toggle('on', status==='pending');
+  clearTimeout(invTimer); invTimer = setTimeout(()=>{ closeAllSheets(); }, 650);
+}
+document.getElementById('guest-invite-sheet').addEventListener('click', e=>{
+  const b = e.target.closest && e.target.closest('[data-invset]');
+  if(b){ invApply(b.getAttribute('data-invset')); return; }
+  if(e.target.closest && e.target.closest('#inv-cancel')) closeAllSheets();
+});
 function closeAllSheets(){
   closeExpenseSheet(); closeSeatSheet(); closeEventSheet(); closeGuestSheet(); closeVisitSheet();
   closeHmOptionSheet(); closeTodoNotesSheet(); closeTodoCatSheet();
-  closeDeleteAccountSheet(); closeGuestPhoneSheet();
+  closeDeleteAccountSheet(); closeGuestPhoneSheet(); closeGuestInviteSheet();
   // Rede de segurança: se um gesto de arrastar for interrompido a meio (ex: o
   // dedo sai do ecrã sem soltar), pode ficar um "transform" preso na sheet.
   // Ao fechar tudo, limpamos sempre esse estilo para nunca ficar uma sheet
   // meio visível por cima de outra.
-  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','hm-option-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet','guest-phone-sheet'].forEach(id=>{
+  ['expense-sheet','event-sheet','guest-sheet','visit-sheet','seat-sheet','hm-option-sheet','todo-notes-sheet','todo-cat-sheet','delete-account-sheet','guest-phone-sheet','guest-invite-sheet'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){
       el.style.transform=''; el.style.transition='';
