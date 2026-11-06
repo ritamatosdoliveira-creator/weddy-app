@@ -52,8 +52,10 @@
 <title>Weddy</title>
 <style>
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>/* Fase J (RGPD): tipos de letra alojados em weddy.pt — sem pedidos ao Google Fonts (que enviariam o IP de quem visita) */
+@font-face{font-family:'Cormorant Garamond';src:url(../fonts/cormorant-garamond.woff) format('woff');font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url(../fonts/cormorant-garamond-italic.woff) format('woff');font-weight:300 700;font-style:italic;font-display:swap}
+@font-face{font-family:'Manrope';src:url(../fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}</style>
 <style>
 :root{
   --cream:#FAF8F5;
@@ -6724,6 +6726,28 @@ const APP_I18N = {
     reminderDefaultGreeting:'Olá [nome]! É só um lembrete simpático de [noivos] — ainda não recebemos a tua confirmação de presença. Podes confirmar aqui: [link]',
     autopilotBadgeLate:'Atrasado — o prazo já passou',
     autopilotBadgeDue:'Precisa de um lembrete',
+    autopilotBadgeResting:'Lembrado há pouco — a aguardar',
+    autopilotBadgeMaxed:'Máximo de lembretes atingido',
+    apTrackTitle:'Acompanhamento',
+    apTrackSub:'O estado vem do que o convidado fez: abrir o link ou responder. Ter o link não quer dizer que o recebeu.',
+    apStageNolink:(n)=>`${n} sem link`,
+    apStageLinkready:(n)=>`${n} com link por abrir`,
+    apStageOpened:(n)=>`${n} abriram, sem resposta`,
+    apStageResponded:(n)=>`${n} responderam`,
+    apStatsTitle:'Depois dos lembretes',
+    apStatsNone:'Ainda não preparaste nenhum lembrete.',
+    apStatsLine:(r,a,s,rate)=>`${r} ${r===1?'convidado com lembrete preparado':'convidados com lembrete preparado'}: ${a} ${a===1?'respondeu':'responderam'} depois (${rate}%), ${s} ainda sem resposta.`,
+    apStatsNote:'São lembretes preparados por ti. A Weddy não sabe se foram vistos.',
+    apInterTitle:'Precisam da tua atenção',
+    apInterNone:'Ninguém precisa de intervenção agora.',
+    apRNocontact:'Sem telefone nem email registado',
+    apRExhausted:(n)=>`Já tem ${n} lembretes preparados sem resposta. Fala com a pessoa diretamente.`,
+    apRUnopened:'Ainda não abriu o convite e o prazo está perto',
+    apRNolink:'Ainda sem link de convite',
+    apCfgTitle:'Frequência dos lembretes',
+    apCfgHint:'Evita mensagens repetidas: depois de preparares um lembrete, a Weddy só sugere outro passado este intervalo, e deixa de sugerir ao atingir o máximo.',
+    apCfgInterval:'Dias entre lembretes',
+    apCfgMax:'Máximo de lembretes por convidado',
     btnExportCSV:'Exportar para Excel',
     phSearchGuestEllipsis:'Pesquisar convidado…',
     emptyNoMatchSearch:'Nenhum convidado corresponde à pesquisa/filtro.',
@@ -8100,6 +8124,28 @@ const APP_I18N = {
     reminderDefaultGreeting:"Hi [name]! Just a friendly reminder from [couple] — we haven't received your RSVP yet. You can confirm here: [link]",
     autopilotBadgeLate:'Late — the deadline has passed',
     autopilotBadgeDue:'Needs a reminder',
+    autopilotBadgeResting:'Reminded recently — waiting',
+    autopilotBadgeMaxed:'Reminder limit reached',
+    apTrackTitle:'Tracking',
+    apTrackSub:'Status comes from what the guest actually did: opening the link or replying. Having the link does not mean they received it.',
+    apStageNolink:(n)=>`${n} without a link`,
+    apStageLinkready:(n)=>`${n} with an unopened link`,
+    apStageOpened:(n)=>`${n} opened, no reply`,
+    apStageResponded:(n)=>`${n} replied`,
+    apStatsTitle:'After reminders',
+    apStatsNone:'You have not prepared any reminders yet.',
+    apStatsLine:(r,a,s,rate)=>`${r} ${r===1?'guest with a prepared reminder':'guests with a prepared reminder'}: ${a} replied afterwards (${rate}%), ${s} still without a reply.`,
+    apStatsNote:'These are reminders you prepared. Weddy cannot tell whether they were seen.',
+    apInterTitle:'Need your attention',
+    apInterNone:'No one needs follow-up right now.',
+    apRNocontact:'No phone or email on file',
+    apRExhausted:(n)=>`Already has ${n} prepared reminders without a reply. Talk to them directly.`,
+    apRUnopened:'Has not opened the invitation yet and the deadline is close',
+    apRNolink:'No invitation link yet',
+    apCfgTitle:'Reminder frequency',
+    apCfgHint:'Avoids repeated messages: after you prepare a reminder, Weddy only suggests another after this interval, and stops suggesting at the limit.',
+    apCfgInterval:'Days between reminders',
+    apCfgMax:'Maximum reminders per guest',
     btnExportCSV:'Export to Excel',
     phSearchGuestEllipsis:'Search guest…',
     emptyNoMatchSearch:'No guest matches the search/filter.',
@@ -17669,7 +17715,21 @@ function flattenAllGuestsForRSVP(){
 // num convite de família — por isso os dois mecanismos (manual aqui,
 // automático por email lá) nunca se "esquecem" um do outro.
 // ============================================================
-const RSVP_AUTOPILOT_STALE_DAYS = 5; // só volta a pedir lembrete passado isto
+const RSVP_AUTOPILOT_STALE_DAYS = 5; // valor por defeito do intervalo entre lembretes
+const RSVP_AUTOPILOT_MAX_DEFAULT = 3; // máximo de lembretes preparados por convidado/convite
+// B.1: o casal pode ajustar o intervalo e o máximo (weddingSettings.rsvpAutopilot).
+// Valores fora de limites ou de tipo errado voltam ao defeito (nunca rebenta).
+function rsvpAutopilotConfig(){
+  const c = (weddingSettings && weddingSettings.rsvpAutopilot && typeof weddingSettings.rsvpAutopilot==='object') ? weddingSettings.rsvpAutopilot : {};
+  const clamp = (v, lo, hi, d)=>{ const n = Math.round(Number(v)); return (isFinite(n) && n>=lo && n<=hi) ? n : d; };
+  return { intervalDays: clamp(c.intervalDays, 2, 30, RSVP_AUTOPILOT_STALE_DAYS), maxReminders: clamp(c.maxReminders, 1, 10, RSVP_AUTOPILOT_MAX_DEFAULT) };
+}
+function rsvpTsMs(tsLike){
+  if(!tsLike) return null;
+  const d = (typeof tsLike.toDate === 'function') ? tsLike.toDate() : new Date(tsLike);
+  const ms = d.getTime();
+  return isNaN(ms) ? null : ms;
+}
 
 function reminderInfoOf(item, token){
   const doc = token ? rsvpResponses[token] : null;
@@ -17690,24 +17750,30 @@ function daysSinceTimestamp(tsLike){
 // Urgência de UM convidado pendente (já com link, ainda sem resposta
 // "sim"/"não"). null = não se aplica (já respondeu, ou ainda nem tem
 // link gerado — não há para onde mandar lembrete nenhum).
-//   'late' 🔴 — o prazo já passou.
-//   'due'  🟠 — sem prazo definido, ou a menos de 7 dias dele, e nunca
-//               foi lembrado (ou já lá vão RSVP_AUTOPILOT_STALE_DAYS
-//               dias desde o último lembrete).
-//   'ontime' 🟡 — todo o resto (ainda folgado, ou lembrado há pouco).
+//   'late'    🔴 — o prazo já passou e já é altura de novo lembrete.
+//   'due'     🟠 — sem prazo definido, ou a menos de 7 dias dele, e nunca
+//                  foi lembrado (ou já passou o intervalo configurado).
+//   'ontime'  🟡 — todo o resto (ainda folgado).
+//   'resting' — lembrado há menos do intervalo configurado: não se sugere
+//               outro (controlo de frequência, sem mensagens repetitivas).
+//   'maxed'   — já atingiu o máximo de lembretes: pede intervenção do casal
+//               em vez de mais um lembrete.
 function rsvpAutopilotBucket(item, token, status, deadline){
   if(status!=='pending' && status!=='maybe') return null;
   if(!token) return null;
+  const cfg = rsvpAutopilotConfig();
   let daysLeft = null;
   if(deadline){
     const today = new Date(); today.setHours(0,0,0,0);
     daysLeft = Math.ceil((new Date(deadline+'T00:00:00') - today)/86400000);
   }
-  if(daysLeft!==null && daysLeft<0) return 'late';
   const { count, lastAt } = reminderInfoOf(item, token);
   const sinceLast = daysSinceTimestamp(lastAt);
+  if(count>=cfg.maxReminders) return 'maxed';
+  if(count>0 && sinceLast!==null && sinceLast<cfg.intervalDays) return 'resting';
+  if(daysLeft!==null && daysLeft<0) return 'late';
   const closeToDeadline = daysLeft!==null && daysLeft<=7;
-  const neverOrStale = count===0 || (sinceLast!==null && sinceLast>=RSVP_AUTOPILOT_STALE_DAYS);
+  const neverOrStale = count===0 || (sinceLast!==null && sinceLast>=cfg.intervalDays);
   if(neverOrStale && (closeToDeadline || daysLeft===null)) return 'due';
   return 'ontime';
 }
@@ -17722,6 +17788,70 @@ function rsvpAutopilotList(){
     const bucket = rsvpAutopilotBucket(item, token, status, deadline);
     return { item, token, status, bucket };
   }).filter(x=>x.bucket);
+}
+// B.1 — Acompanhamento. NÃO assume que "link gerado" significa "convite
+// recebido": o estado só sobe para "aberto" quando o convidado abriu mesmo o
+// link (openedAt escrito pelo rsvp.html) e para "respondeu" quando há resposta.
+//   stage: 'nolink' | 'linkready' | 'opened' | 'responded'
+// Um convite de família é UM grupo (um link, vários membros).
+function rsvpAutopilotInsights(){
+  const cfg = rsvpAutopilotConfig();
+  const deadline = weddingSettings.rsvpDeadline || '';
+  let daysLeft = null;
+  if(deadline){ const today = new Date(); today.setHours(0,0,0,0); daysLeft = Math.ceil((new Date(deadline+'T00:00:00') - today)/86400000); }
+  const stages = { nolink:0, linkready:0, opened:0, responded:0 };
+  const groups = new Map();
+  flattenAllGuestsForRSVP().forEach(item=>{
+    const token = item.entry.rsvpToken || '';
+    const doc = token ? (rsvpResponses[token] || null) : null;
+    const resp = token ? memberRSVPResponse(item) : null;
+    const status = rsvpStatusOf(resp);
+    const stage = !token ? 'nolink' : (status!=='pending' ? 'responded' : ((doc && doc.openedAt) ? 'opened' : 'linkready'));
+    stages[stage]++;
+    const key = token || ('nolink:'+item.side+'|'+item.catId+'|'+item.idx);
+    let g = groups.get(key);
+    if(!g){ g = { key, token, isFamily: !!(doc && doc.isFamily), doc, members: [] }; groups.set(key, g); }
+    g.members.push({ item, status, stage, bucket: rsvpAutopilotBucket(item, token, status, deadline), reminder: reminderInfoOf(item, token) });
+  });
+  const intervention = [];
+  const stats = { reminded:0, respondedAfter:0, stillPending:0 };
+  groups.forEach(g=>{
+    const open = g.members.filter(m=>m.status==='pending' || m.status==='maybe');
+    const reasons = [];
+    if(open.length && g.token){
+      const hasContact = open.some(m=>!!(m.item.entry.phone || m.item.entry.rsvpEmail));
+      if(!hasContact) reasons.push('nocontact');
+      if(open.some(m=>m.bucket==='maxed')) reasons.push('exhausted');
+      const notOpened = !(g.doc && g.doc.openedAt);
+      if(notOpened && daysLeft!==null && daysLeft<=7) reasons.push('unopened');
+    } else if(open.length && !g.token && daysLeft!==null && daysLeft<=14){
+      reasons.push('nolink');
+    }
+    if(reasons.length) intervention.push({ key:g.key, token:g.token, isFamily:g.isFamily, names:open.map(m=>m.item.name).filter(Boolean), reasons });
+    // Recuperação: lembretes preparados e respostas dadas DEPOIS do último lembrete.
+    g.members.forEach(m=>{
+      if(!g.token || !(m.reminder.count>0)) return;
+      stats.reminded++;
+      const lastMs = rsvpTsMs(m.reminder.lastAt);
+      const respMs = rsvpTsMs((m.item && (memberRSVPResponse(m.item)||{}).respondedAt) || (g.doc && g.doc.respondedAt));
+      if(m.status!=='pending' && lastMs!==null && respMs!==null && respMs>lastMs) stats.respondedAfter++;
+      else if(m.status==='pending' || m.status==='maybe') stats.stillPending++;
+    });
+  });
+  stats.rate = stats.reminded ? Math.round(stats.respondedAfter*100/stats.reminded) : null;
+  return { cfg, stages, intervention, stats, groups: groups.size };
+}
+// Grava só a configuração do Autopilot (não a copia para os convites dos convidados).
+function saveAutopilotConfig(btn, cfg){
+  weddingSettings = { ...weddingSettings, rsvpAutopilot: cfg };
+  const original = btn.textContent;
+  if(!FIREBASE_READY || !auth || !auth.currentUser || !currentWeddingId || !lastSyncedSettings){
+    btn.textContent = original; weddyAlert(ta('alertSaveNoConnection')); return;
+  }
+  btn.textContent = ta('btnSavingEllipsis');
+  CURRENT_DOC().set({ settings: weddingSettings, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }).then(()=>{
+    btn.textContent = ta('btnSavedCheck'); setTimeout(()=>{ _origRender(); }, 900);
+  }).catch(()=>{ btn.textContent = original; weddyAlert(ta('alertSaveError')); });
 }
 // Regista, no Firestore, que se acabou de preparar um lembrete para estes
 // convidados — atualiza a cópia local (rsvpResponses) de imediato, para o
@@ -21890,6 +22020,59 @@ function viewRSVPDeadline(){
     <button class="rsvp-deadline-save" id="rsvp-autopilot-prepare" style="width:100%;" ${needsAttention.length? '':'disabled'}>${ICONS.send} ${ta('autopilotPrepareBtn')(needsAttention.length)}</button>
   </div>
   ${autopilotReviewCardHtml()}
+  ${autopilotTrackingCardsHtml()}
+  `;
+}
+// B.1 — cartões "Acompanhamento" e "Frequência dos lembretes" (componentes e estilos existentes).
+function autopilotTrackingCardsHtml(){
+  const ins = rsvpAutopilotInsights();
+  const rustChip = 'background:rgba(193,88,62,0.12); color:var(--rust-dark);';
+  const head = (icon, title, sub)=>`
+    <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:12px;">
+      <div class="def-row-icon" style="${rustChip} width:40px; height:40px;">${icon}</div>
+      <div style="flex:1; min-width:0;">
+        <div class="l" style="margin:0 0 3px; font-size:15px; color:var(--ink); font-weight:600; text-align:left;">${title}</div>
+        ${sub?`<div class="empty-note" style="margin:0; padding:0; text-align:left; font-style:normal;">${sub}</div>`:''}
+      </div>
+    </div>`;
+  const chip = (cls, n, key)=> n>0 ? `<span class="rsvp-pill ${cls}" style="margin:0 6px 6px 0;">${ta(key)(n)}</span>` : '';
+  const s = ins.stats;
+  const statsHtml = s.reminded
+    ? `<div class="empty-note" style="margin:10px 0 0; padding:0; text-align:left; font-style:normal;" data-ap-stats>${ta('apStatsLine')(s.reminded, s.respondedAfter, s.stillPending, s.rate)}<br><span style="color:var(--ink-soft);">${ta('apStatsNote')}</span></div>`
+    : `<div class="empty-note" style="margin:10px 0 0; padding:0; text-align:left; font-style:normal;" data-ap-stats>${ta('apStatsNone')}</div>`;
+  const reasonText = (r)=> r==='exhausted' ? ta('apRExhausted')(ins.cfg.maxReminders) : ta({nocontact:'apRNocontact', unopened:'apRUnopened', nolink:'apRNolink'}[r]);
+  const interHtml = ins.intervention.length
+    ? ins.intervention.slice(0,12).map(x=>`
+      <div class="list-row" style="padding:8px 0; align-items:flex-start;" data-ap-inter="${escapeHTML(x.key)}">
+        <div style="flex:1; min-width:0;">
+          <div>${escapeHTML(x.names.join(', ')||'—')}${x.isFamily?` <span class="rsvp-pill" style="background:var(--cream); color:var(--rust-dark);">${ta('familyBadge')}</span>`:''}</div>
+          <div class="visit-detail">${x.reasons.map(reasonText).map(escapeHTML).join(' · ')}</div>
+        </div>
+      </div>`).join('') + (ins.intervention.length>12 ? `<div class="visit-detail">+${ins.intervention.length-12}</div>` : '')
+    : `<div class="empty-note" style="margin:0; padding:0; text-align:left; font-style:normal;">${ta('apInterNone')}</div>`;
+  return `
+  <div class="stat-card" style="margin:0 16px 12px; padding:16px;" id="ap-track-card">
+    ${head(ICONS.users||ICONS.sparkle, ta('apTrackTitle'), ta('apTrackSub'))}
+    <div data-ap-stages>
+      ${chip('rsvp-pill-yes', ins.stages.responded, 'apStageResponded')}
+      ${chip('rsvp-pill-opened', ins.stages.opened, 'apStageOpened')}
+      ${chip('rsvp-pill-pending', ins.stages.linkready, 'apStageLinkready')}
+      ${chip('rsvp-pill-pending', ins.stages.nolink, 'apStageNolink')}
+    </div>
+    ${statsHtml}
+  </div>
+  <div class="stat-card" style="margin:0 16px 12px; padding:16px;" id="ap-inter-card">
+    ${head(ICONS.warn||ICONS.sparkle, ta('apInterTitle'), '')}
+    ${interHtml}
+  </div>
+  <div class="stat-card" style="margin:0 16px 12px; padding:16px;" id="ap-cfg-card">
+    ${head(ICONS.clock, ta('apCfgTitle'), ta('apCfgHint'))}
+    <label class="l" for="ap-cfg-interval" style="display:block; margin:0 0 4px; text-align:left;">${ta('apCfgInterval')}</label>
+    <input type="number" inputmode="numeric" min="2" max="30" id="ap-cfg-interval" class="field-input" style="text-align:left; border-bottom:1px solid var(--line, rgba(0,0,0,0.12)); padding:6px 0; margin-bottom:10px;" value="${ins.cfg.intervalDays}">
+    <label class="l" for="ap-cfg-max" style="display:block; margin:0 0 4px; text-align:left;">${ta('apCfgMax')}</label>
+    <input type="number" inputmode="numeric" min="1" max="10" id="ap-cfg-max" class="field-input" style="text-align:left; border-bottom:1px solid var(--line, rgba(0,0,0,0.12)); padding:6px 0; margin-bottom:12px;" value="${ins.cfg.maxReminders}">
+    <button class="rsvp-deadline-save" id="ap-cfg-save" style="width:100%;">${ta('btnSave')}</button>
+  </div>
   `;
 }
 function viewRSVPInfo(){
@@ -22202,7 +22385,11 @@ function viewRSVPRespostas(){
       ? `<div class="visit-detail" style="color:#C0523F;">🔴 ${ta('autopilotBadgeLate')}</div>`
       : rowBucket==='due'
         ? `<div class="visit-detail" style="color:#D8A657;">🟠 ${ta('autopilotBadgeDue')}</div>`
-        : '';
+        : rowBucket==='resting'
+          ? `<div class="visit-detail" style="color:var(--ink-soft);">${ta('autopilotBadgeResting')}</div>`
+          : rowBucket==='maxed'
+            ? `<div class="visit-detail" style="color:var(--ink-soft);">${ta('autopilotBadgeMaxed')}</div>`
+            : '';
     const familyBadgeHtml = isFamilyDoc ? `<span class="rsvp-pill" style="background:var(--cream); color:var(--rust-dark);">${ta('familyBadge')}</span>` : '';
     // Email opcional por convidado — só serve para os lembretes automáticos
     // (Cloud Function separada, ver functions/). Sem isto não há forma de a
@@ -24392,6 +24579,16 @@ function bindHandlers(){
   if(rsvpFilterToggle) rsvpFilterToggle.addEventListener('click', ()=>{ rsvpFilterChipsOpen = !rsvpFilterChipsOpen; _origRender(); });
   document.querySelectorAll('[data-rsvpfilter]').forEach(btn=>{
     btn.addEventListener('click', e=>{ rsvpStatusFilter = e.currentTarget.dataset.rsvpfilter; _origRender(); });
+  });
+  const apCfgSave = document.getElementById('ap-cfg-save');
+  if(apCfgSave) apCfgSave.addEventListener('click', ()=>{
+    const iv = document.getElementById('ap-cfg-interval'), mx = document.getElementById('ap-cfg-max');
+    const cur = rsvpAutopilotConfig();
+    const num = (el, d)=>{ const n = Math.round(Number(el && el.value)); return isFinite(n) ? n : d; };
+    // rsvpAutopilotConfig() volta a limitar ao intervalo permitido; guardamos o valor já limitado.
+    weddingSettings = { ...weddingSettings, rsvpAutopilot: { intervalDays: num(iv, cur.intervalDays), maxReminders: num(mx, cur.maxReminders) } };
+    const clean = rsvpAutopilotConfig();
+    saveAutopilotConfig(apCfgSave, clean);
   });
   const rsvpDeadlineSave = document.getElementById('rsvp-deadline-save');
   if(rsvpDeadlineSave) rsvpDeadlineSave.addEventListener('click', ()=>{

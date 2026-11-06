@@ -14,8 +14,10 @@
 <meta property="og:description" content="Tens fotos deste casamento? Os noivos adoravam vê-las.">
 <meta property="og:image" content="https://www.weddy.pt/icon-512.png">
 <meta name="twitter:card" content="summary">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>/* Fase J (RGPD): tipos de letra alojados em weddy.pt — sem pedidos ao Google Fonts (que enviariam o IP de quem visita) */
+@font-face{font-family:'Cormorant Garamond';src:url(fonts/cormorant-garamond.woff) format('woff');font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url(fonts/cormorant-garamond-italic.woff) format('woff');font-weight:300 700;font-style:italic;font-display:swap}
+@font-face{font-family:'Manrope';src:url(fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}</style>
 <style>
 :root{
   --cream:#FAF8F5; --card:#FFFDFC; --ink:#302C29; --ink-soft:#8E8780;
@@ -88,7 +90,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:28px; col
       <div class="memories-preview-grid" id="memories-preview"></div>
     </div>
 
-    <div class="footer-logo">weddy</div>
+    <div class="footer-logo"><a href="https://www.weddy.pt" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">weddy</a></div>
   </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

@@ -201,8 +201,10 @@ p.sub{
 .replay.show{ opacity:1; pointer-events:auto; }
 </style>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600,700;1,600,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>/* Fase J (RGPD): tipos de letra alojados em weddy.pt — sem pedidos ao Google Fonts (que enviariam o IP de quem visita) */
+@font-face{font-family:'Cormorant Garamond';src:url(fonts/cormorant-garamond.woff) format('woff');font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url(fonts/cormorant-garamond-italic.woff) format('woff');font-weight:300 700;font-style:italic;font-display:swap}
+@font-face{font-family:'Manrope';src:url(fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}</style>
 
 <div class="stage" id="stage">
   <div class="progress-row" id="progressRow"></div>
