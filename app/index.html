@@ -13897,7 +13897,18 @@ const CMP_CRITERIA = ['price','vat','services','hours','travel','extras','paymen
 const CMP_HIDE_BY_CAT = { convites:['hours','travel'], vestuario:['hours','travel'], decoracao:['hours'] };
 const CMP_MAX_FILE = 15*1024*1024;
 
-function cmpList(){ if(!Array.isArray(state.compares)) state.compares = []; return state.compares; }
+function cmpList(){ if(!Array.isArray(state.compares)) state.compares = []; state.compares.forEach(c=>{ if(c && typeof c==='object' && !Array.isArray(c.proposals)) c.proposals = []; }); return state.compares; }
+// Fase F: apagar um ficheiro de proposta do Storage. «Já não existe» não é erro; qualquer outra falha deixa
+// rasto no _incident_log (caminho do ficheiro), em vez de criar um ficheiro órfão em silêncio.
+// Fase G: apagar um ficheiro do Storage nunca falha em silêncio — se não for
+// possível (e o ficheiro existir), o caminho pendente fica em _incident_log
+// para se poder limpar depois. "Não encontrado" não é erro: já não existe.
+function weddyStorageDelete(path, type){
+  if(!path || !storage) return;
+  const fail = ()=>logMassPropagationFailures(type || 'storage-file-delete-failed', [path]);
+  try{ storage.ref(path).delete().catch(err=>{ if(!(err && err.code==='storage/object-not-found')) fail(); }); }catch(e){ fail(); }
+}
+function cmpStorageDelete(path){ weddyStorageDelete(path, 'compare-file-delete-failed'); }
 function cmpGet(id){ return cmpList().find(c=>c.id===id) || null; }
 function cmpProp(c, pid){ return (c && c.proposals || []).find(p=>p.id===pid) || null; }
 function cmpNewId(prefix){ return prefix + Date.now() + Math.random().toString(36).slice(2,6); }
@@ -14284,7 +14295,7 @@ function bindCompareHandlers(){
       const d = (state.weddingDocuments||[])[i];
       if(!d) return;
       if(await weddyConfirm(ta('cmpRemoveFileConfirm'))){
-        if(d.storagePath && storage) storage.ref(d.storagePath).delete().catch(()=>{});
+        cmpStorageDelete(d.storagePath);
         state.weddingDocuments.splice(i,1);
         cmpTouch(c0);
         render();
@@ -14293,7 +14304,7 @@ function bindCompareHandlers(){
     const rem = document.getElementById('cmp-prop-remove');
     if(rem) rem.addEventListener('click', async ()=>{
       if(!(await weddyConfirm(ta('cmpRemoveProposalConfirm')))) return;
-      (state.weddingDocuments||[]).filter(d=>d.compareId===c0.id && d.proposalId===p0.id).forEach(d=>{ if(d.storagePath && storage) storage.ref(d.storagePath).delete().catch(()=>{}); });
+      (state.weddingDocuments||[]).filter(d=>d.compareId===c0.id && d.proposalId===p0.id).forEach(d=>{ cmpStorageDelete(d.storagePath); });
       state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>!(d.compareId===c0.id && d.proposalId===p0.id));
       c0.proposals = c0.proposals.filter(x=>x!==p0);
       cmpTouch(c0);
@@ -15971,7 +15982,7 @@ function cmpDuplicate(c){
 }
 function cmpDeleteCompareById(id){
   const c = cmpGet(id); if(!c) return;
-  (state.weddingDocuments||[]).filter(d=>d.compareId===c.id).forEach(d=>{ if(d.storagePath && storage) storage.ref(d.storagePath).delete().catch(()=>{}); });
+  (state.weddingDocuments||[]).filter(d=>d.compareId===c.id).forEach(d=>{ cmpStorageDelete(d.storagePath); });
   state.weddingDocuments = (state.weddingDocuments||[]).filter(d=>d.compareId!==c.id);
   state.compares = cmpList().filter(x=>x.id!==c.id);
 }
