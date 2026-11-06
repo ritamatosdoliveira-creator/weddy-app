@@ -72,6 +72,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
 .lg-check input{ width:18px; height:18px; flex:0 0 18px; accent-color:var(--rust); }
 .child-flags{ flex:1 1 100%; display:flex; flex-wrap:wrap; gap:4px 18px; padding-left:2px; }
 @media (max-width:420px){ .lg-row{ flex-direction:column; gap:0; } }
+.lg-block .field input,.lg-block .field select,.lg-block .field textarea{ box-sizing:border-box; max-width:100%; min-width:0; -webkit-appearance:none; appearance:none; }
+.lg-block .field input[type=date]{ display:block; min-height:46px; line-height:1.2; }
 .add-child-btn{ all:unset; box-sizing:border-box; display:block; width:100%; text-align:center; padding:11px 0; border-radius:12px; border:1.6px dashed var(--line); font-size:13px; font-weight:600; color:var(--rust); cursor:pointer; }
 .state-hidden{ display:none !important; }
 .success-icon{ width:56px; height:56px; margin:0 auto 16px; color:var(--sage-dark); }
@@ -306,7 +308,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       <button type="button" class="delete-response-link state-hidden" id="delete-response-btn" data-t="deleteResponseLink">Apagar a minha resposta</button>
     </div>
 
-    <div class="footer-logo">weddy</div>
+    <div class="footer-logo"><a href="https://www.weddy.pt" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">weddy</a></div>
   </div>
 
   <button type="button" class="concierge-fab state-hidden" id="concierge-fab" aria-label="Weddy Concierge">
