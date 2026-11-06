@@ -3150,6 +3150,28 @@ body.gimp-open{ overflow:hidden; }
 .gimp-bar .cb-btn{ max-width:720px; margin-left:auto; margin-right:auto; }
 .gimp-bar .cb-btn[disabled]{ opacity:.45; pointer-events:none; }
 @media (min-width:700px){ .gimp-fields{ grid-template-columns:1.2fr 1.2fr 1fr; } }
+.nt-bell{ position:relative; }
+.nt-dot{ position:absolute; top:5px; right:6px; width:8px; height:8px; border-radius:50%; background:#A8412F; border:1.5px solid var(--card); }
+.ntc{ padding-bottom:60px; }
+.nt-sec{ margin:22px 0 6px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); }
+.nt-empty{ margin:26px 0; font-size:14px; line-height:1.6; color:var(--ink-soft); }
+.nt-row{ display:flex; align-items:flex-start; gap:6px; border-bottom:1px solid #E6DCD4; }
+.nt-row.is-new{ background:linear-gradient(90deg, rgba(231,197,187,.22), transparent 70%); }
+.nt-main{ all:unset; box-sizing:border-box; flex:1; display:flex; gap:12px; padding:14px 4px; cursor:pointer; min-width:0; }
+.nt-main:focus-visible, .nt-x:focus-visible{ outline:2px solid var(--rust); outline-offset:2px; border-radius:8px; }
+.nt-ic{ flex:none; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--rust); }
+.nt-ic svg{ width:15px; height:15px; }
+.nt-tx{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.nt-ti{ font-size:14.5px; font-weight:600; color:var(--ink); line-height:1.35; overflow-wrap:anywhere; }
+.nt-bo{ font-size:13px; color:var(--ink-soft); line-height:1.45; overflow-wrap:anywhere; }
+.nt-me{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:11.5px; color:var(--ink-soft); }
+.nt-me i{ font-style:normal; padding:1px 9px; border-radius:999px; border:1px solid #D9C7BD; }
+.nt-me .nt-new{ background:var(--rust); border-color:var(--rust); color:#fff; }
+.nt-me .nt-imp{ color:#A8412F; border-color:#A8412F; }
+.nt-x{ all:unset; box-sizing:border-box; flex:none; width:40px; height:44px; display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--ink-soft); cursor:pointer; }
+.nt-prefs{ margin-top:30px; border-top:1px solid #E6DCD4; padding-top:12px; }
+.nt-prefs summary{ cursor:pointer; font-size:15px; font-weight:600; color:var(--heading); padding:8px 0; }
+.nt-note{ margin:8px 0; font-size:12.5px; line-height:1.5; color:var(--ink-soft); }
 .ql-crown{ position:absolute; top:-7px; right:-12px; width:17px; height:17px; border-radius:50%; background:#AD624F; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #FAF8F5; }
 .ql-crown svg{ width:10px; height:10px; stroke:currentColor; fill:none; }
 .ql-item:focus-visible{ outline:2px solid #AD624F; outline-offset:-3px; border-radius:10px; }
@@ -9577,6 +9599,26 @@ Object.assign(APP_I18N.en, { giOpen:'Import list (Excel or CSV)', giTitle:'Impor
  giErrBig:'The file is too large (5 MB maximum).', giErrType:'Unsupported format. Use .xlsx or .csv.', giErrEmpty:'The file has no data.', giErrRead:'Could not read the file. Make sure it is not password-protected.', giErrLib:'Could not load the Excel reader. Check your connection or save the file as CSV.' });
 Object.assign(APP_I18N.pt, { giErrSize: p=>'Esta lista deixaria o teu casamento demasiado cheio para guardar com segurança (ficaria a '+p+' % da capacidade). Nada foi importado nem alterado. Importa uma lista mais pequena ou retira linhas aqui na revisão.' });
 Object.assign(APP_I18N.en, { giErrSize: p=>'This list would make your wedding too full to save safely (it would reach '+p+'% of capacity). Nothing was imported or changed. Import a smaller list or remove rows here in the review.' });
+Object.assign(APP_I18N.pt, { ntBell:'Notificações', ntBellN:n=>'Notificações, '+n+(n===1?' nova':' novas'), ntTitle:'Notificações', ntSub:'Só o que merece a tua atenção, sem repetições.', ntNewSec:'Novas', ntOldSec:'Anteriores', ntReadAll:'Marcar todas como lidas', ntEmpty:'Tudo em dia. Quando houver algo importante, aparece aqui.', ntOff:'As notificações estão desligadas. Podes voltar a ligá-las nas preferências.', ntAllRead:'Estás em dia.', ntNew:'Nova', ntImportant:'Importante', ntDismiss:'Dispensar', ntNow:'agora', ntMin:n=>'há '+n+' min', ntHour:n=>'há '+n+' h', ntYesterday:'ontem', ntDaysAgo:n=>'há '+n+' dias',
+ ntPrefs:'Preferências', ntPrefOn:'Receber notificações', ntPrefTypes:'O que queres receber', ntTypeRsvp:'Respostas de convidados', ntTypeRsvpPending:'Convidados sem resposta e lembretes', ntTypeTask:'Tarefas e prazos', ntTypePayment:'Pagamentos', ntTypeChange:'Alterações importantes', ntTypeHealth:'Wedding Health', ntTypeCopilot:'Sugestões do Copilot', ntPrefMin:'Nível de importância', ntMinAll:'Tudo', ntMinNormal:'Importantes e normais', ntMinHigh:'Só o urgente',
+ ntPrefDevice:'Aviso no telemóvel', ntPrefDeviceOn:'Avisar-me neste dispositivo quando algo for urgente', ntPrefQuiet:(a,b)=>'Não avisar entre as '+a+' e as '+b, ntPrefDeviceNote:'No máximo 2 avisos por dia, só para o que é urgente. Funciona com a Weddy aberta ou em segundo plano.', ntPrefDeviceNo:'Este dispositivo não permite avisos da Weddy. As notificações ficam sempre disponíveis aqui.', ntPrefEmail:'Email', ntPrefEmailDigest:'Resumo semanal por email (segunda-feira)', ntPrefEmailAlerts:'Avisos importantes por email (atrasos, prazos próximos)', ntPrefEmailNote:'No máximo 1 email por dia e 3 por semana, sem valores nem nomes de fornecedores. Em cada email podes deixar de receber.', ntDeviceDenied:'Não foi possível ativar os avisos neste dispositivo. Confirma a permissão nas definições do navegador.',
+ ntT_rsvp:p=>p.c===1 ? (p.st==='yes' ? (p.names[0]||'Um convidado')+' confirmou presença.' : p.st==='no' ? (p.names[0]||'Um convidado')+' não poderá estar presente.' : (p.names[0]||'Um convidado')+' respondeu «talvez».') : p.c+' novas respostas ao convite', ntB_rsvp:p=>p.c===1 ? '' : [p.yes?p.yes+(p.yes===1?' confirma':' confirmam'):'', p.no?p.no+(p.no===1?' recusa':' recusam'):'', p.maybe?p.maybe+' talvez':''].filter(Boolean).join(', ')+'.',
+ ntT_rem:p=>p.c===1?'Foi enviado um lembrete automático a 1 convidado.':'Foram enviados lembretes automáticos a '+p.c+' convidados.', ntB_rem:p=>'Por email, aos convidados que ainda não responderam.',
+ ntT_rsvpdl:p=>p.d<0?'O prazo de resposta já passou.':(p.d===0?'O prazo de resposta é hoje.':'Faltam '+p.d+(p.d===1?' dia':' dias')+' para o prazo de resposta.'), ntB_rsvpdl:p=>p.pend+(p.pend===1?' convidado ainda não respondeu.':' convidados ainda não responderam.'),
+ ntT_task:p=>p.stage==='od' ? (p.c===1?'Tens 1 tarefa em atraso.':'Tens '+p.c+' tarefas em atraso.') : p.stage==='d1' ? (p.c===1?'1 tarefa com prazo hoje ou amanhã.':p.c+' tarefas com prazo hoje ou amanhã.') : (p.c===1?'1 tarefa com prazo nos próximos dias.':p.c+' tarefas com prazo nos próximos dias.'), ntB_task:p=>(p.names||[]).join(' · ')+(p.c>(p.names||[]).length?' …':''),
+ ntT_pay:p=>p.stage==='od' ? (p.c===1?'Tens 1 pagamento em atraso.':'Tens '+p.c+' pagamentos em atraso.') : p.stage==='d2' ? (p.c===1?'1 pagamento a vencer em breve.':p.c+' pagamentos a vencer em breve.') : (p.c===1?'1 pagamento a vencer esta semana.':p.c+' pagamentos a vencer esta semana.'), ntB_pay:p=>fmtEUR(p.amt||0)+' por pagar — '+(p.names||[]).join(' · ')+(p.c>(p.names||[]).length?' …':''),
+ ntT_chg:p=>p.f==='date'?'A data do casamento passou para '+p.v+'.':p.f==='venue'?'O local passou para '+p.v+'.':p.f==='deadline'?'O prazo de resposta passou para '+p.v+'.':'O orçamento total passou para '+p.v+'.', ntB_chg:p=>'Alterado pelo teu par ou noutro dispositivo.',
+ ntT_health:p=>'Wedding Health pede a tua atenção.', ntB_health:p=>p.t||'', ntT_copilot:p=>'Uma sugestão do Copilot.', ntB_copilot:p=>p.t||'' });
+Object.assign(APP_I18N.en, { ntBell:'Notifications', ntBellN:n=>'Notifications, '+n+' new', ntTitle:'Notifications', ntSub:'Only what deserves your attention, without repeats.', ntNewSec:'New', ntOldSec:'Earlier', ntReadAll:'Mark all as read', ntEmpty:'All caught up. When something matters, it will show up here.', ntOff:'Notifications are off. You can turn them back on in the preferences.', ntAllRead:'You are all caught up.', ntNew:'New', ntImportant:'Important', ntDismiss:'Dismiss', ntNow:'now', ntMin:n=>n+' min ago', ntHour:n=>n+' h ago', ntYesterday:'yesterday', ntDaysAgo:n=>n+' days ago',
+ ntPrefs:'Preferences', ntPrefOn:'Receive notifications', ntPrefTypes:'What you want to receive', ntTypeRsvp:'Guest replies', ntTypeRsvpPending:'Guests yet to reply and reminders', ntTypeTask:'Tasks and deadlines', ntTypePayment:'Payments', ntTypeChange:'Important changes', ntTypeHealth:'Wedding Health', ntTypeCopilot:'Copilot suggestions', ntPrefMin:'Importance level', ntMinAll:'Everything', ntMinNormal:'Important and normal', ntMinHigh:'Urgent only',
+ ntPrefDevice:'Phone alerts', ntPrefDeviceOn:'Alert me on this device when something is urgent', ntPrefQuiet:(a,b)=>'Do not alert between '+a+' and '+b, ntPrefDeviceNote:'At most 2 alerts a day, only for what is urgent. Works while Weddy is open or in the background.', ntPrefDeviceNo:'This device does not allow Weddy alerts. Notifications are always available here.', ntPrefEmail:'Email', ntPrefEmailDigest:'Weekly email summary (Mondays)', ntPrefEmailAlerts:'Important email alerts (overdue items, close deadlines)', ntPrefEmailNote:'At most 1 email a day and 3 a week, with no amounts or supplier names. You can unsubscribe from every email.', ntDeviceDenied:'Could not turn on alerts on this device. Check the permission in your browser settings.',
+ ntT_rsvp:p=>p.c===1 ? (p.st==='yes' ? (p.names[0]||'A guest')+' is attending.' : p.st==='no' ? (p.names[0]||'A guest')+' cannot attend.' : (p.names[0]||'A guest')+' replied “maybe”.') : p.c+' new replies to the invitation', ntB_rsvp:p=>p.c===1 ? '' : [p.yes?p.yes+' attending':'', p.no?p.no+' declined':'', p.maybe?p.maybe+' maybe':''].filter(Boolean).join(', ')+'.',
+ ntT_rem:p=>p.c===1?'An automatic reminder was sent to 1 guest.':'Automatic reminders were sent to '+p.c+' guests.', ntB_rem:p=>'By email, to guests who have not replied yet.',
+ ntT_rsvpdl:p=>p.d<0?'The reply deadline has passed.':(p.d===0?'The reply deadline is today.':p.d+(p.d===1?' day':' days')+' left until the reply deadline.'), ntB_rsvpdl:p=>p.pend+(p.pend===1?' guest has not replied yet.':' guests have not replied yet.'),
+ ntT_task:p=>p.stage==='od' ? (p.c===1?'You have 1 overdue task.':'You have '+p.c+' overdue tasks.') : p.stage==='d1' ? (p.c===1?'1 task due today or tomorrow.':p.c+' tasks due today or tomorrow.') : (p.c===1?'1 task due in the next few days.':p.c+' tasks due in the next few days.'), ntB_task:p=>(p.names||[]).join(' · ')+(p.c>(p.names||[]).length?' …':''),
+ ntT_pay:p=>p.stage==='od' ? (p.c===1?'You have 1 overdue payment.':'You have '+p.c+' overdue payments.') : p.stage==='d2' ? (p.c===1?'1 payment due soon.':p.c+' payments due soon.') : (p.c===1?'1 payment due this week.':p.c+' payments due this week.'), ntB_pay:p=>fmtEUR(p.amt||0)+' left to pay — '+(p.names||[]).join(' · ')+(p.c>(p.names||[]).length?' …':''),
+ ntT_chg:p=>p.f==='date'?'The wedding date changed to '+p.v+'.':p.f==='venue'?'The venue changed to '+p.v+'.':p.f==='deadline'?'The reply deadline changed to '+p.v+'.':'The total budget changed to '+p.v+'.', ntB_chg:p=>'Changed by your partner or on another device.',
+ ntT_health:p=>'Wedding Health needs your attention.', ntB_health:p=>p.t||'', ntT_copilot:p=>'A suggestion from Copilot.', ntB_copilot:p=>p.t||'' });
 function ta(key){
   const dict = APP_I18N[appLang] || APP_I18N.pt;
   return (key in dict) ? dict[key] : APP_I18N.pt[key];
@@ -9785,7 +9827,9 @@ function maybeShowPaymentAlert(){
   try{
     if(localStorage.getItem('weddy-payment-alert-dismissed-date') !== new Date().toDateString()) paymentAlertDismissed = false;
   }catch(e){}
-  if(paymentAlertDismissed || activeTab!=='inicio'){ popup.classList.remove('show'); return; }
+  // Notificações: respeita as preferências (tudo desligado ou «Pagamentos» desligado).
+  const ntp = ntPrefs();
+  if(paymentAlertDismissed || activeTab!=='inicio' || !ntp.on || !ntp.types.payment){ popup.classList.remove('show'); return; }
   const upcoming = getUpcomingPayments();
   if(!upcoming.length){ popup.classList.remove('show'); return; }
   document.getElementById('payment-alert-title').textContent = ta('paymentAlertTitle')(upcoming.length);
@@ -10223,6 +10267,7 @@ function viewInicio(){
       <div class="weddy-subtitle">${ta('homeSubtitle')}</div>
     </div>
     <div style="display:flex; gap:8px;">
+      ${ntBellHTML()}
       <button class="home-icon-btn" data-goto="inspiracao">${ICONS.heart}</button>
       <button class="home-icon-btn" data-goto="definicoes">${ICONS.gear}</button>
     </div>
@@ -11448,6 +11493,409 @@ function gimpBind(){
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && gimp) gimpClose(); });
 }
 gimpBind();
+/* ============================================================
+   NOTIFICAÇÕES (A.2) — centro de notificações integrado na Weddy
+   - Tudo é DERIVADO dos dados reais do casamento (RSVP, prazos, pagamentos,
+     Wedding Health, Copilot, alterações do par): nenhuma notificação é
+     inventada nem enviada por um servidor genérico.
+   - Anti-bombardeio: cada acontecimento tem uma chave estável (nunca repete);
+     prazos/pagamentos só avisam ao entrar em cada fase (7 dias, 2 dias,
+     atraso) e agrupados por dia; RSVP agrupa por dia; no máximo NT_DAILY_CAP
+     avisos não urgentes por dia; os urgentes agrupam-se por tipo e fase.
+   - Lidas/dispensadas e preferências vivem em state.notif (sincronizam entre
+     os dois telemóveis). O aviso do sistema (telemóvel) é opcional, por
+     dispositivo, só para urgentes, fora do horário de silêncio.
+   ============================================================ */
+const NT_DAILY_CAP = 4, NT_MAX_ITEMS = 60, NT_KEY_DAYS = 120, NT_MAX_KEYS = 1500, NT_ITEM_DAYS = 45, NT_DEVICE_DAILY = 2;
+const NT_TYPES = ['rsvp','rsvpPending','task','payment','change','health','copilot'];
+const NT_PRIO = { low:0, normal:1, high:2 };
+const NT_ICON = { rsvp:'guests', rsvpPending:'guests', task:'checklist', payment:'budget', change:'calendar', health:'heart', copilot:'chat' };
+let ntBusy = false, ntOpen = false, ntPendingChanges = [], ntTimer = null;
+
+function ntRaw(){ const n = state && state.notif; return (n && typeof n==='object' && !Array.isArray(n)) ? n : null; }
+function ntMut(){
+  if(!ntRaw()) state.notif = { v:1, items:[], keys:{}, day:{ d:'', n:0 }, prefs:{} };
+  const n = state.notif;
+  if(!Array.isArray(n.items)) n.items = [];
+  if(!n.keys || typeof n.keys!=='object' || Array.isArray(n.keys)) n.keys = {};
+  if(!n.day || typeof n.day!=='object') n.day = { d:'', n:0 };
+  if(!n.prefs || typeof n.prefs!=='object') n.prefs = {};
+  return n;
+}
+function ntHM(v, d){ return (typeof v==='string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v)) ? v : d; }
+function ntPrefs(){
+  const r = ntRaw(); const p = (r && r.prefs && typeof r.prefs==='object') ? r.prefs : {};
+  const types = {}; NT_TYPES.forEach(t=>{ types[t] = !(p.types && p.types[t]===false); });
+  const q = (p.quiet && typeof p.quiet==='object') ? p.quiet : {};
+  const em = (p.email && typeof p.email==='object' && !Array.isArray(p.email)) ? p.email : {};
+  return { on: p.on!==false, email:{ digest: em.digest==='off' ? 'off' : 'weekly', alerts: em.alerts!==false }, types, min: (p.min in NT_PRIO) ? p.min : 'low', quiet:{ on:q.on!==false, from:ntHM(q.from,'22:00'), to:ntHM(q.to,'08:00') } };
+}
+function ntItems(){ const r = ntRaw(); return (r && Array.isArray(r.items)) ? r.items.filter(x=>x && typeof x==='object' && typeof x.id==='string' && NT_TYPES.includes(x.type)) : []; }
+function ntShown(it, pf){ return !it.x && pf.on && pf.types[it.type] && NT_PRIO[it.prio in NT_PRIO ? it.prio : 'normal'] >= NT_PRIO[pf.min]; }
+function ntUnread(){ const pf = ntPrefs(); return ntItems().filter(it=>!it.r && ntShown(it,pf)).length; }
+function ntYMD(d){ const p = n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function ntDays(ymd, now){
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd||'')); if(!m) return null;
+  const a = new Date(Number(m[1]), Number(m[2])-1, Number(m[3])), b = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((a-b)/86400000);
+}
+function ntHash(s){ let h = 5381; s = String(s||''); for(let i=0;i<s.length;i++) h = ((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+function ntWeek(now){ return Math.floor((now.getTime()/86400000 + 3)/7); }
+function ntIsQuiet(pf, now){
+  if(!pf.quiet.on) return false;
+  const m = now.getHours()*60+now.getMinutes(), f = pf.quiet.from.split(':'), t = pf.quiet.to.split(':');
+  const a = Number(f[0])*60+Number(f[1]), b = Number(t[0])*60+Number(t[1]);
+  return a===b ? false : (a<b ? (m>=a && m<b) : (m>=a || m<b));
+}
+
+/* ---- geradores: devolvem candidatos {id,type,prio,k,p,go,subKeys,merge} ---- */
+function ntGenRsvp(now, n, patch){
+  if(typeof rsvpResponsesLoaded==='undefined' || !rsvpResponsesLoaded) return [];
+  const all = flattenAllGuestsForRSVP();
+  const sig = {}, sigRem = {};
+  const events = [];
+  const prev = (n && n.seen && typeof n.seen==='object') ? n.seen : null;
+  const prevRem = (n && n.seenRem && typeof n.seenRem==='object') ? n.seenRem : null;
+  let remNew = 0;
+  all.forEach(item=>{
+    const tok = item.entry.rsvpToken; if(!tok) return;
+    const gk = tok + '|' + (item.entry.rsvpMemberId || '');
+    const resp = memberRSVPResponse(item); const st = rsvpStatusOf(resp);
+    sig[gk] = st;
+    if(prev && prev[gk] !== st && st !== 'pending') events.push({ name: String(item.entry.name||'').slice(0,60), st });
+    let rc = 0; try{ rc = Number((reminderInfoOf(item, tok)||{}).count)||0; }catch(e){}
+    sigRem[gk] = rc;
+    if(prevRem && rc > (prevRem[gk]||0)) remNew++;
+  });
+  patch.seen = sig; patch.seenRem = sigRem;
+  const out = [];
+  if(prev && events.length){
+    const p = { c:events.length, yes:events.filter(e=>e.st==='yes').length, no:events.filter(e=>e.st==='no').length, maybe:events.filter(e=>e.st==='maybe').length, names:events.slice(0,3).map(e=>e.name), st:events[0].st };
+    out.push({ id:'rsvp:'+ntYMD(now), type:'rsvp', prio:'normal', k:'rsvp', p, go:'def:rsvp',
+      merge:(o,nw)=>({ c:(o.c||0)+nw.c, yes:(o.yes||0)+nw.yes, no:(o.no||0)+nw.no, maybe:(o.maybe||0)+nw.maybe, names:(o.names||[]).concat(nw.names).slice(0,3), st:o.st }) });
+  }
+  if(prevRem && remNew > 0){
+    out.push({ id:'rem:'+ntYMD(now), type:'rsvpPending', prio:'low', k:'rem', p:{ c:remNew }, go:'def:rsvp',
+      merge:(o,nw)=>({ c:(o.c||0)+nw.c }) });
+  }
+  return out;
+}
+function ntGenRsvpDeadline(now){
+  if(typeof rsvpResponsesLoaded==='undefined' || !rsvpResponsesLoaded) return [];
+  const dl = weddingSettings && weddingSettings.rsvpDeadline; if(!dl) return [];
+  const d = ntDays(dl, now); if(d===null || d < -21) return [];
+  const pend = flattenAllGuestsForRSVP().filter(g=>g.entry.rsvpToken && isRsvpPending(g)).length;
+  if(pend<=0) return [];
+  let stage = null, prio = 'normal';
+  if(d<0){ stage = 'late'+Math.min(2, Math.floor(-d/7)); prio = 'high'; }
+  else if(d<=2){ stage = 'd2'; prio = 'high'; }
+  else if(d<=7) stage = 'd7';
+  else if(d<=14){ stage = 'd14'; prio = 'low'; }
+  if(!stage) return [];
+  return [{ id:'rsvpdl:'+dl+':'+stage, type:'rsvpPending', prio, k:'rsvpdl', p:{ d, pend }, go:'def:rsvp' }];
+}
+function ntGenTasks(now){
+  const groups = {};
+  (typeof getDuedTodoItems==='function' ? getDuedTodoItems() : []).forEach(t=>{
+    const d = ntDays(t.due, now); if(d===null || d < -14 || d > 3) return;
+    const stage = d<0 ? 'od' : (d<=1 ? 'd1' : 'd3');
+    const sk = 't'+ntHash(t.due+'|'+t.text+'|'+stage);
+    (groups[stage] = groups[stage] || []).push({ sk, text:String(t.text||'').slice(0,60) });
+  });
+  return Object.keys(groups).map(stage=>({ id:'task:'+stage+':'+ntYMD(now), type:'task', prio: stage==='d3'?'normal':'high', k:'task', p:{ stage, c:groups[stage].length, names:groups[stage].slice(0,3).map(x=>x.text) },
+    go:'tab:todo', subKeys:groups[stage].map(x=>x.sk), subItems:groups[stage],
+    merge:(o,nw)=>({ stage:o.stage, c:(o.c||0)+nw.c, names:(o.names||[]).concat(nw.names).slice(0,3) }) }));
+}
+function ntGenPayments(now){
+  const groups = {};
+  (state.expenses||[]).forEach(e=>{
+    if(!e || !e.dueDate) return;
+    const rem = Math.max(0, moneyNum(e.value)-moneyNum(e.paid)); if(rem<=0) return;
+    const d = ntDays(e.dueDate, now); if(d===null || d < -30 || d > 7) return;
+    const stage = d<0 ? 'od' : (d<=2 ? 'd2' : 'd7');
+    const sk = 'p'+ntHash(e.dueDate+'|'+(e.desc||'')+'|'+e.value+'|'+stage);
+    (groups[stage] = groups[stage] || []).push({ sk, text:String(e.desc||ta('defaultExpenseLabel')).slice(0,60), amt:rem });
+  });
+  return Object.keys(groups).map(stage=>({ id:'pay:'+stage+':'+ntYMD(now), type:'payment', prio: stage==='d7'?'normal':'high',
+    k:'pay', p:{ stage, c:groups[stage].length, amt:groups[stage].reduce((s,x)=>s+x.amt,0), names:groups[stage].slice(0,3).map(x=>x.text) },
+    go:'tab:gastos', subKeys:groups[stage].map(x=>x.sk), subItems:groups[stage],
+    merge:(o,nw)=>({ stage:o.stage, c:(o.c||0)+nw.c, amt:(o.amt||0)+nw.amt, names:(o.names||[]).concat(nw.names).slice(0,3) }) }));
+}
+function ntGenChanges(){
+  const seen = {}; const out = [];
+  ntPendingChanges.splice(0).forEach(c=>{ seen[c.f] = c; });
+  Object.keys(seen).forEach(f=>{
+    const c = seen[f];
+    out.push({ id:'chg:'+f+':'+ntHash(c.v), type:'change', prio:(f==='date'||f==='venue')?'high':'normal', k:'chg', p:{ f, v:String(c.v).slice(0,80) }, go: f==='budget'?'tab:orcamento':'tab:inicio' });
+  });
+  return out;
+}
+function ntGenHealth(now){
+  if(!hasActiveSubscription() || typeof getWeddingHealthChecks!=='function') return [];
+  let checks = []; try{ checks = getWeddingHealthChecks() || []; }catch(e){ return []; }
+  const wk = ntWeek(now);
+  return checks.filter(c=>c && c.id && c.text).sort((a,b)=>(a.severity==='red'?0:1)-(b.severity==='red'?0:1)).slice(0,2).map(c=>{
+    const red = c.severity==='red';
+    const per = red ? Math.floor(wk/2) : Math.floor(wk/4);
+    return { id:'health:'+c.id+':'+(red?'r':'y')+':'+per, type:'health', prio: red?'normal':'low', k:'health', p:{ t:String(c.text).slice(0,160) },
+      go: c.goto ? (c.goto.tab ? 'tab:'+c.goto.tab : 'def:'+c.goto.def) : 'def:health' };
+  });
+}
+function ntGenCopilot(now){
+  if(!hasActiveSubscription() || typeof getProactiveSuggestions!=='function') return [];
+  let s = []; try{ s = getProactiveSuggestions() || []; }catch(e){ return []; }
+  if(!s.length || !s[0].text) return [];
+  return [{ id:'copilot:'+ntWeek(now)+':'+ntHash(s[0].text), type:'copilot', prio:'low', k:'copilot', p:{ t:String(s[0].text).slice(0,160) }, go:'chat:' }];
+}
+function ntCollect(now, n){
+  const patch = {};
+  let cands = [];
+  [ ()=>ntGenRsvp(now,n,patch), ()=>ntGenRsvpDeadline(now), ()=>ntGenTasks(now), ()=>ntGenPayments(now), ()=>ntGenChanges(), ()=>ntGenHealth(now), ()=>ntGenCopilot(now) ]
+    .forEach(f=>{ try{ cands = cands.concat(f()); }catch(e){ console.warn('[Weddy] notificações:', e); } });
+  return { cands, patch };
+}
+
+/* ---- aplicar: dedupe, limite diário, poda; só mexe no estado se houver algo novo ---- */
+function ntRun(nowOverride){
+  if(ntBusy) return false;
+  if(!FIREBASE_READY || !firstSyncDone || !currentWeddingId || !auth || !auth.currentUser) return false;
+  ntBusy = true; let changed = false; let fresh = [];
+  try{
+    const now = (nowOverride instanceof Date) ? nowOverride : new Date(), iso = now.toISOString(), today = ntYMD(now);
+    const n0 = ntRaw(); const first = !n0 || !n0.init;
+    const col = ntCollect(now, n0);
+    const known = (id)=> !!(n0 && n0.keys && n0.keys[id]);
+    const patchKeys = Object.keys(col.patch).filter(k=>JSON.stringify(col.patch[k]) !== JSON.stringify(n0 && n0[k]));
+    const todo = [];
+    col.cands.forEach(c=>{
+      const timeBased = !(c.type==='rsvp' || c.k==='rem' || c.type==='change');
+      if(first && timeBased){ todo.push({ c, silent:true }); return; }
+      const newSub = c.subKeys ? c.subKeys.filter(k=>!known(k)) : null;
+      if(newSub){ if(!newSub.length) return; todo.push({ c, newSub, silent:false }); return; }
+      const existing = n0 && Array.isArray(n0.items) && n0.items.find(it=>it && it.id===c.id);
+      if(known(c.id) && !(c.merge && existing)) return;
+      if(known(c.id) && c.merge && existing) { todo.push({ c, merge:true, silent:false }); return; }
+      todo.push({ c, silent:false });
+    });
+    if(!todo.length && !patchKeys.length && !first){ ntBusy = false; ntBadge(); return false; }
+    const n = ntMut();
+    if(first){ n.init = iso; changed = true; }
+    patchKeys.forEach(k=>{ n[k] = col.patch[k]; changed = true; });
+    if(n.day.d !== today){ n.day = { d:today, n:0 }; }
+    todo.forEach(t=>{
+      const c = t.c;
+      const dn = Math.floor(now.getTime()/86400000);
+      const reg = (ids)=>{ ids.forEach(k=>{ n.keys[k] = dn; }); };
+      if(t.silent){ reg([c.id].concat(c.subKeys||[])); changed = true; return; }
+      const existing = n.items.find(it=>it && it.id===c.id);
+      if(existing && c.merge){
+        const sub = c.subKeys ? t.newSub : null;
+        let np = c.p;
+        if(sub){ const mine = c.subItems.filter(x=>sub.includes(x.sk)); np = Object.assign({}, c.p, { c:mine.length, names:mine.slice(0,3).map(x=>x.text), amt: mine.reduce((s,x)=>s+(x.amt||0),0) }); }
+        existing.p = c.merge(existing.p||{}, np); existing.at = iso; existing.r = 0; existing.x = 0;
+        reg(sub || []); changed = true; return;
+      }
+      if(c.prio !== 'high' && n.day.n >= NT_DAILY_CAP) return;   // limite diário: fica para outro dia
+      let p = c.p;
+      if(t.newSub){ const mine = c.subItems.filter(x=>t.newSub.includes(x.sk)); p = Object.assign({}, c.p, { c:mine.length, names:mine.slice(0,3).map(x=>x.text), amt: mine.reduce((s,x)=>s+(x.amt||0),0) }); }
+      const item = { id:c.id, type:c.type, prio:c.prio, k:c.k, p, at:iso, r:0, x:0, go:c.go||'' };
+      n.items.unshift(item); reg([c.id].concat(t.newSub||[]));
+      if(c.prio !== 'high') n.day.n++;
+      fresh.push(item); changed = true;
+    });
+    if(changed){
+      // poda: lidas/dispensadas antigas, excesso de itens, chaves muito velhas
+      const cutoff = now.getTime() - NT_ITEM_DAYS*86400000;
+      n.items = n.items.filter(it=>it && typeof it.id==='string' && !((it.r||it.x) && Date.parse(it.at) < cutoff));
+      if(n.items.length > NT_MAX_ITEMS){
+        const keep = n.items.filter(it=>!it.r && !it.x).slice(0, NT_MAX_ITEMS);
+        const rest = n.items.filter(it=>it.r || it.x).slice(0, Math.max(0, NT_MAX_ITEMS-keep.length));
+        n.items = keep.concat(rest).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));
+      }
+      const kc = Math.floor(now.getTime()/86400000) - NT_KEY_DAYS;
+      Object.keys(n.keys).forEach(k=>{ if(!(Number(n.keys[k]) >= kc)) delete n.keys[k]; });
+      const ks = Object.keys(n.keys);
+      if(ks.length > NT_MAX_KEYS){ ks.sort((a,b)=>Number(n.keys[a])-Number(n.keys[b])).slice(0, ks.length-NT_MAX_KEYS).forEach(k=>{ delete n.keys[k]; }); }
+    }
+  }catch(e){ console.warn('[Weddy] notificações:', e); }
+  ntBusy = false;
+  if(changed){ try{ ntDeviceNotify(fresh); }catch(e){} render(); } else ntBadge();
+  if(ntOpen) ntRender();
+  return changed;
+}
+
+/* ---- aviso do sistema (opcional, por dispositivo, só urgentes) ---- */
+function ntDeviceKey(){ return 'weddy_nt_device_'+(currentWeddingId||''); }
+function ntDeviceOn(){ try{ return localStorage.getItem(ntDeviceKey())==='1' && typeof Notification!=='undefined' && Notification.permission==='granted'; }catch(e){ return false; } }
+function ntDeviceSupported(){ return typeof Notification!=='undefined' && 'serviceWorker' in navigator; }
+async function ntDeviceEnable(){
+  if(!ntDeviceSupported()) return false;
+  let perm = Notification.permission;
+  if(perm==='default') perm = await Notification.requestPermission();
+  if(perm!=='granted') return false;
+  try{ localStorage.setItem(ntDeviceKey(),'1'); }catch(e){}
+  return true;
+}
+function ntDeviceDisable(){ try{ localStorage.removeItem(ntDeviceKey()); }catch(e){} }
+function ntDeviceNotify(items){
+  if(!items || !items.length || !ntDeviceOn()) return;
+  const pf = ntPrefs(); const now = new Date();
+  if(!pf.on || ntIsQuiet(pf, now)) return;
+  const dk = ntDeviceKey()+'_n'; let cnt = {};
+  try{ cnt = JSON.parse(localStorage.getItem(dk)||'{}'); }catch(e){}
+  const today = ntYMD(now); if(cnt.d !== today) cnt = { d:today, n:0 };
+  items.filter(it=>it.prio==='high' && ntShown(it, pf)).forEach(it=>{
+    if(cnt.n >= NT_DEVICE_DAILY) return;
+    cnt.n++;
+    navigator.serviceWorker.ready.then(reg=>reg.showNotification(ntTitle(it), { body:ntBody(it), icon:'/icon-192.png', badge:'/icon-192.png', tag:it.id, data:{ url:'/app/' } })).catch(()=>{});
+  });
+  try{ localStorage.setItem(dk, JSON.stringify(cnt)); }catch(e){}
+}
+
+/* ---- texto de cada notificação (na língua atual) ---- */
+function ntTitle(it){ const f = ta('ntT_'+it.k); return typeof f==='function' ? f(it.p||{}) : String(f||''); }
+function ntBody(it){ const f = ta('ntB_'+it.k); return typeof f==='function' ? f(it.p||{}) : ''; }
+function ntAgo(iso){
+  const t = Date.parse(iso); if(isNaN(t)) return '';
+  const m = Math.round((Date.now()-t)/60000);
+  if(m < 2) return ta('ntNow'); if(m < 60) return ta('ntMin')(m);
+  const h = Math.round(m/60); if(h < 24) return ta('ntHour')(h);
+  const d = Math.round(h/24); return d===1 ? ta('ntYesterday') : ta('ntDaysAgo')(d);
+}
+
+/* ---- ações ---- */
+function ntGo(go){
+  closeAllSheets();
+  const [kind, val] = String(go||'').split(':');
+  if(kind==='chat'){ ntClose(); try{ openChatPanel(); }catch(e){} return; }
+  if(kind==='tab' && val){ definicoesSection = null; activeTab = val; }
+  else if(kind==='def' && val){ activeTab = 'definicoes'; definicoesSection = val; if(val==='rsvp') setRSVPSeenCount(countRSVPResponded()); }
+  else return;
+  ntClose(); _origRender();
+}
+function ntSetRead(id, v){ const n = ntMut(); const it = n.items.find(x=>x && x.id===id); if(it && !!it.r !== !!v){ it.r = v?1:0; return true; } return false; }
+function ntPrefSet(fn){ const n = ntMut(); fn(n.prefs); render(); ntRender(); }
+
+/* ---- interface ---- */
+function ntBadge(){
+  const c = ntUnread();
+  document.querySelectorAll('[data-ntbell]').forEach(b=>{
+    let dot = b.querySelector('.nt-dot');
+    if(c>0 && !dot){ dot = document.createElement('span'); dot.className = 'nt-dot'; dot.setAttribute('aria-hidden','true'); b.appendChild(dot); }
+    if(c===0 && dot) dot.remove();
+    b.setAttribute('aria-label', c>0 ? ta('ntBellN')(c) : ta('ntBell'));
+  });
+}
+function ntBellHTML(){
+  const c = ntUnread();
+  return `<button class="home-icon-btn nt-bell" data-ntbell aria-label="${escapeHTML(c>0 ? ta('ntBellN')(c) : ta('ntBell'))}">${ICONS.bell}${c>0?'<span class="nt-dot" aria-hidden="true"></span>':''}</button>`;
+}
+function ntRowHTML(it){
+  const unread = !it.r;
+  return `<div class="nt-row${unread?' is-new':''}${it.prio==='high'?' is-high':''}">
+    <button type="button" class="nt-main" data-ntopen="${escapeHTML(it.id)}">
+      <span class="nt-ic" aria-hidden="true">${ICONS[NT_ICON[it.type]]||ICONS.bell}</span>
+      <span class="nt-tx"><span class="nt-ti">${escapeHTML(ntTitle(it))}</span>${ntBody(it)?`<span class="nt-bo">${escapeHTML(ntBody(it))}</span>`:''}
+        <span class="nt-me">${unread?`<i class="nt-new">${ta('ntNew')}</i>`:''}${it.prio==='high'?`<i class="nt-imp">${ta('ntImportant')}</i>`:''}<span>${escapeHTML(ntAgo(it.at))}</span></span></span>
+    </button>
+    <button type="button" class="nt-x" data-ntdismiss="${escapeHTML(it.id)}" aria-label="${escapeHTML(ta('ntDismiss'))}">×</button>
+  </div>`;
+}
+function ntPrefsHTML(){
+  const pf = ntPrefs();
+  const tl = { rsvp:'ntTypeRsvp', rsvpPending:'ntTypeRsvpPending', task:'ntTypeTask', payment:'ntTypePayment', change:'ntTypeChange', health:'ntTypeHealth', copilot:'ntTypeCopilot' };
+  const dev = ntDeviceSupported();
+  return `<details class="nt-prefs"><summary>${ta('ntPrefs')}</summary>
+    <label class="gimp-chk"><input type="checkbox" data-ntpref="on" ${pf.on?'checked':''}><span>${ta('ntPrefOn')}</span></label>
+    <div class="nt-sec">${ta('ntPrefTypes')}</div>
+    ${NT_TYPES.map(t=>`<label class="gimp-chk"><input type="checkbox" data-ntpref="type:${t}" ${pf.types[t]?'checked':''} ${pf.on?'':'disabled'}><span>${ta(tl[t])}</span></label>`).join('')}
+    <div class="nt-sec">${ta('ntPrefMin')}</div>
+    <select class="cb-in" data-ntpref="min" ${pf.on?'':'disabled'}>
+      <option value="low" ${pf.min==='low'?'selected':''}>${ta('ntMinAll')}</option>
+      <option value="normal" ${pf.min==='normal'?'selected':''}>${ta('ntMinNormal')}</option>
+      <option value="high" ${pf.min==='high'?'selected':''}>${ta('ntMinHigh')}</option>
+    </select>
+    <div class="nt-sec">${ta('ntPrefDevice')}</div>
+    ${dev ? `<label class="gimp-chk"><input type="checkbox" data-ntdevice ${ntDeviceOn()?'checked':''}><span>${ta('ntPrefDeviceOn')}</span></label>
+    <label class="gimp-chk"><input type="checkbox" data-ntpref="quiet" ${pf.quiet.on?'checked':''}><span>${ta('ntPrefQuiet')(pf.quiet.from, pf.quiet.to)}</span></label>
+    <p class="nt-note">${ta('ntPrefDeviceNote')}</p>` : `<p class="nt-note">${ta('ntPrefDeviceNo')}</p>`}
+  </details>`;
+}
+function ntRender(){
+  const el = document.getElementById('nt-overlay'); if(!el) return;
+  const st = el.scrollTop, pf = ntPrefs();
+  const vis = ntItems().filter(it=>ntShown(it,pf)).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));
+  const fresh = vis.filter(it=>!it.r), old = vis.filter(it=>it.r).slice(0,25);
+  el.innerHTML = `<div class="gimp-in">
+    <div class="gimp-top"><button type="button" class="cb-link" data-ntclose>${ta('giClose')}</button></div>
+    <h1 class="orcx-title">${ta('ntTitle')}</h1>
+    <p class="orcx-sub">${ta('ntSub')}</p>
+    ${fresh.length ? `<button type="button" class="cb-link" style="margin-top:10px" data-ntreadall>${ta('ntReadAll')}</button>` : ''}
+    ${fresh.length ? `<div class="nt-sec">${ta('ntNewSec')}</div>${fresh.map(ntRowHTML).join('')}` : (vis.length ? '' : `<p class="nt-empty">${ta(pf.on ? 'ntEmpty' : 'ntOff')}</p>`)}
+    ${old.length ? `<div class="nt-sec">${ta('ntOldSec')}</div>${old.map(ntRowHTML).join('')}` : (fresh.length||!vis.length ? '' : '')}
+    ${(!fresh.length && vis.length && !old.length) ? '' : ''}
+    ${(!fresh.length && old.length) ? `<p class="nt-empty">${ta('ntAllRead')}</p>` : ''}
+    ${ntPrefsHTML()}
+  </div>`;
+  el.scrollTop = st;
+}
+function ntClose(){ const el = document.getElementById('nt-overlay'); if(el) el.remove(); document.body.classList.remove('gimp-open'); ntOpen = false; ntBadge(); }
+function ntOpenCenter(){
+  if(ntOpen) return; ntOpen = true;
+  let el = document.getElementById('nt-overlay');
+  if(!el){ el = document.createElement('div'); el.id = 'nt-overlay'; el.className = 'gimp ntc'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label', ta('ntTitle')); document.body.appendChild(el); }
+  document.body.classList.add('gimp-open');
+  ntRender();
+}
+function ntBind(){
+  if(window.__ntBound) return; window.__ntBound = true;
+  document.addEventListener('click', e=>{
+    const t = e.target;
+    if(t.closest('[data-ntbell]')){ ntOpenCenter(); return; }
+    if(!ntOpen) return;
+    if(t.closest('[data-ntclose]')){ ntClose(); return; }
+    if(t.closest('[data-ntreadall]')){ const n = ntMut(); const pf = ntPrefs(); let any = false; n.items.forEach(it=>{ if(it && !it.r && ntShown(it,pf)){ it.r = 1; any = true; } }); if(any) render(); ntRender(); return; }
+    const op = t.closest('[data-ntopen]');
+    if(op){ const id = op.dataset.ntopen; const it = ntItems().find(x=>x.id===id); if(ntSetRead(id,true)) render(); if(it && it.go) ntGo(it.go); else ntRender(); return; }
+    const dm = t.closest('[data-ntdismiss]');
+    if(dm){ const n = ntMut(); const it = n.items.find(x=>x && x.id===dm.dataset.ntdismiss); if(it){ it.x = 1; it.r = 1; render(); } ntRender(); return; }
+  });
+  document.addEventListener('change', async e=>{
+    if(!ntOpen) return; const t = e.target;
+    if(t.matches('[data-ntdevice]')){
+      if(t.checked){ const ok = await ntDeviceEnable(); if(!ok){ t.checked = false; weddyAlert(ta('ntDeviceDenied')); } } else ntDeviceDisable();
+      ntRender(); return;
+    }
+    const pk = t.matches('[data-ntpref]') ? t.dataset.ntpref : null; if(!pk) return;
+    if(pk==='on') ntPrefSet(p=>{ p.on = t.checked; });
+    else if(pk==='min') ntPrefSet(p=>{ p.min = (t.value in NT_PRIO) ? t.value : 'low'; });
+    else if(pk==='quiet') ntPrefSet(p=>{ p.quiet = Object.assign({}, p.quiet||{}, { on:t.checked }); });
+    else if(pk.indexOf('type:')===0){ const ty = pk.slice(5); if(NT_TYPES.includes(ty)) ntPrefSet(p=>{ p.types = Object.assign({}, p.types||{}); p.types[ty] = t.checked; }); }
+  });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && ntOpen) ntClose(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') ntSchedule(400); });
+  if(!ntTimer) ntTimer = setInterval(()=>{ if(document.visibilityState==='visible') ntRun(); }, 20*60*1000);
+}
+function ntSchedule(ms){ clearTimeout(ntSchedule._t); ntSchedule._t = setTimeout(()=>{ try{ ntRun(); }catch(e){} }, ms||1500); }
+// Alterações feitas por OUTRO dispositivo (data/local/prazo/orçamento): chamado pelo listener do Firestore.
+function ntObserveRemote(prevState, nextState, prevSet, nextSet){
+  try{
+    if(pendingSaveDirty) return;   // há alterações locais por gravar: não confundir com alterações do par
+    const add = (f, a, b, fmt)=>{ if(b!==undefined && b!==null && String(b)!=='' && String(a||'')!==String(b)) ntPendingChanges.push({ f, v:fmt?fmt(b):b }); };
+    if(prevSet && nextSet){
+      add('date', prevSet.weddingDate, nextSet.weddingDate, v=>formatDatePT(v));
+      add('venue', prevSet.venue, nextSet.venue);
+      add('deadline', prevSet.rsvpDeadline, nextSet.rsvpDeadline, v=>formatDatePT(v));
+    }
+    if(prevState && nextState){
+      const a = prevState.budget && prevState.budget.total, b = nextState.budget && nextState.budget.total;
+      if(a!==undefined && b!==undefined) add('budget', a, b, v=>fmtEUR(v));
+    }
+    if(ntPendingChanges.length) ntSchedule(800);
+  }catch(e){}
+}
+ntBind();
+
 function viewConvidados(){
   if(guestDetail){
     const [s,c] = guestDetail.split('|');
@@ -17147,6 +17595,7 @@ function loadRSVPResponses(){
     lastRSVPRefreshAt = new Date();
     applyRSVPResponsesToState();
     render();
+    ntSchedule(600);
   }).catch(err=>{
     console.error('Weddy RSVP load error:', err.code, err.message);
     rsvpLoadingResponses = false;
@@ -24065,6 +24514,7 @@ function anySheetOpen(){
   return !!document.querySelector('.sheet.show');
 }
 function weddyBackStep(){
+  if(typeof ntOpen!=='undefined' && ntOpen){ ntClose(); return true; }
   if(typeof gimp!=='undefined' && gimp){ if(gimp.step==='review'){ gimp.step='map'; gimpRender(); } else if(gimp.step==='map'){ gimp.step='pick'; gimpRender(); } else gimpClose(); return true; }
   // Devolve true se fechou alguma coisa (o gesto de recuar deve ficar "preso"
   // dentro da app); devolve false quando já não há nada para fechar (já
@@ -27177,6 +27627,8 @@ function computeActivityEvents(prev, next){
   keys.forEach(k=>{
     // healthHistory é um registo automático do Wedding Health, não uma ação dos noivos.
     if(k==='healthHistory') return;
+    // notif (centro de notificações) é automático: não é uma ação dos noivos.
+    if(k==='notif') return;
     const a = prev[k], b = next[k];
     let same = true;
     try{ same = JSON.stringify(a) === JSON.stringify(b); }catch(e){ same = false; }
@@ -27760,6 +28212,7 @@ function attachFirestoreSync(){
             }
           } else {
             const merged = mergeIncomingWeddingState(state, incoming, lastSyncedState);
+            if(firstSyncDone) ntObserveRemote(state, merged, null, null);
             changed = JSON.stringify(merged) !== JSON.stringify(state);
             state = merged;
             // "incoming" (não o merge) é que passa a ser a baseline — é o
@@ -27815,7 +28268,7 @@ function attachFirestoreSync(){
           pushRemote(true);
         }
       }
-      if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ weddingSettings = data.settings; changed = true; }
+      if(data.settings && JSON.stringify(data.settings) !== JSON.stringify(weddingSettings)){ if(firstSyncDone) ntObserveRemote(null, null, weddingSettings, data.settings); weddingSettings = data.settings; changed = true; }
       if(data.settings) lastSyncedSettings = cloneForBaseline(data.settings);
       if(data.settings && guestMetaPropagated === null){
         guestMetaPropagated = {}; GUEST_META_KEYS.forEach(k=>{ guestMetaPropagated[k] = data.settings[k] || ''; });
@@ -27866,6 +28319,7 @@ function attachFirestoreSync(){
       // Fase Histórico (Set 2026): backup automático — no máximo um por
       // sessão/dia (ver maybeCreateAutoSnapshot), nunca a cada gravação.
       maybeCreateAutoSnapshot();
+      ntSchedule(2500);
     }
   }, err=>{
     if(err.code === 'permission-denied'){
