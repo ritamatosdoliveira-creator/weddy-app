@@ -5516,6 +5516,114 @@ const SIDE_SEAT_COLOR_HEX = { noiva:'#CB8577', noivo:'#6C8296', conjunto:'#C9A48
 const SIDE_LABEL_KEY = { noiva:'sideBride', noivo:'sideGroom', conjunto:'sideJoint' };
 function sideLabel(side){ return ta(SIDE_LABEL_KEY[side] || SIDE_LABEL_KEY.noiva); }
 
+// ============================================================
+// A.4 — ROBUSTEZ DO ESTADO (Nov 2026)
+// Um campo do "json" do casamento com o tipo errado (null, texto, objeto onde
+// devia haver lista...) fazia rebentar uma função de desenho ou uma migração,
+// e a app inteira ficava em branco ou presa no ecrã de verificação. Agora:
+//  1) a-4-sanitize: o estado que chega (servidor, restauro de histórico) é
+//     validado contra a estrutura de seedData(); o que tiver o tipo errado é
+//     reposto pelo valor por defeito SÓ EM MEMÓRIA e o valor original fica
+//     num backup local + incidente (nunca se perde sem rasto);
+//  2) safeView/safeStep: cada página/passo corre isolado — se uma falhar,
+//     as outras continuam e a pessoa vê um aviso com "Tentar de novo".
+// ============================================================
+const A4_KINDS_OBJ_ARRAYS = ['categories','expenses','suppliers','todoCategories','weddingDocuments','compares','payments','daySchedule','checklistPersonal','dressVisits'];
+const A4_BAD_KEYS = ['__proto__','constructor','prototype'];
+function a4Kind(v){ return v===null ? 'null' : Array.isArray(v) ? 'array' : typeof v; }
+function a4Clone(v){ return JSON.parse(JSON.stringify(v)); }
+// Repara "val" contra a estrutura "def". Devolve o valor reparado; regista em ctx.
+function a4Repair(def, val, path, ctx){
+  const dk = a4Kind(def), vk = a4Kind(val);
+  if(dk==='null') return val;                       // sem estrutura imposta (ex: favoriteVisitId)
+  if(dk==='string'){ if(vk==='string') return val; ctx.repairs.push({ path, from:vk, to:dk }); ctx.removed[path] = val; return def; }
+  if(dk==='number' || dk==='boolean') return val;   // escalares: validados onde são usados
+  if(dk==='array'){
+    if(vk!=='array'){ ctx.repairs.push({ path, from:vk, to:dk }); ctx.removed[path] = val; return a4Clone(def); }
+    if(def.length && a4Kind(def[0])==='object'){   // listas de objetos (ex: cake.tiers): descarta o que não é objeto
+      const clean = val.filter(x=>a4Kind(x)==='object');
+      if(clean.length!==val.length){ ctx.repairs.push({ path, from:'items', to:'dropped '+(val.length-clean.length) }); ctx.removed[path+'[]'] = val.filter(x=>a4Kind(x)!=='object'); return clean; }
+    }
+    return val;
+  }
+  // objeto
+  if(vk!=='object'){ ctx.repairs.push({ path, from:vk, to:dk }); ctx.removed[path] = val; return a4Clone(def); }
+  A4_BAD_KEYS.forEach(k=>{ if(Object.prototype.hasOwnProperty.call(val,k)){ ctx.repairs.push({ path:path+'.'+k, from:'key', to:'removed' }); delete val[k]; } });
+  Object.keys(def).forEach(k=>{
+    if(val[k]===undefined) return;                  // em falta: preenchido mais abaixo (como antes)
+    val[k] = a4Repair(def[k], val[k], path ? path+'.'+k : k, ctx);
+  });
+  return val;
+}
+function a4SanitizeState(raw){
+  const ctx = { repairs:[], removed:{} };
+  if(a4Kind(raw)!=='object') return { state:null, repairs:[{ path:'', from:a4Kind(raw), to:'object' }], removed:{ '':raw } };
+  const st = a4Repair(seedData(), raw, '', ctx);
+  // listas de objetos: descarta entradas que não são objetos
+  A4_KINDS_OBJ_ARRAYS.forEach(k=>{
+    if(!Array.isArray(st[k])) return;
+    const clean = st[k].filter(x=>a4Kind(x)==='object');
+    if(clean.length!==st[k].length){ ctx.repairs.push({ path:k, from:'items', to:'dropped '+(st[k].length-clean.length) }); ctx.removed[k+'[]'] = st[k].filter(x=>a4Kind(x)!=='object'); st[k] = clean; }
+  });
+  // categorias da lista de tarefas: cada uma com "items" em lista de objetos
+  (Array.isArray(st.todoCategories) ? st.todoCategories : []).forEach((c,i)=>{
+    if(!Array.isArray(c.items)){ if(c.items!==undefined){ ctx.repairs.push({ path:'todoCategories['+i+'].items', from:a4Kind(c.items), to:'array' }); ctx.removed['todoCategories['+i+'].items'] = c.items; } c.items = []; }
+    else { const ci = c.items.filter(x=>a4Kind(x)==='object'); if(ci.length!==c.items.length){ ctx.repairs.push({ path:'todoCategories['+i+'].items', from:'items', to:'dropped '+(c.items.length-ci.length) }); c.items = ci; } }
+  });
+  if(a4Kind(st.honeymoon)==='object'){ st.honeymoon.options = Array.isArray(st.honeymoon.options) ? st.honeymoon.options.filter(x=>a4Kind(x)==='object') : []; }
+  // estruturas sem as quais as páginas rebentam: se faltarem, preenche (como a seed)
+  const seedD = seedData();
+  if(a4Kind(st.guests)==='object') ALL_GUEST_SIDES.forEach(side=>{ if(st.guests[side]===undefined){ st.guests[side] = a4Clone(seedD.guests[side]); ctx.repairs.push({ path:'guests.'+side, from:'missing', to:'filled' }); } });
+  if(a4Kind(st.seating)==='object'){
+    ['tables','assignments','items'].forEach(k=>{ if(st.seating[k]===undefined){ st.seating[k] = a4Clone(seedD.seating[k]); ctx.repairs.push({ path:'seating.'+k, from:'missing', to:'filled' }); } });
+  }
+  // convidados: cada lado e cada lista fixa; entradas só texto ou objeto
+  ALL_GUEST_SIDES.forEach(side=>{
+    const sd = st.guests && st.guests[side]; if(!sd) return;
+    ['familia','amigos','duvida','staff'].forEach(cat=>{
+      if(sd[cat]===undefined) return;
+      if(!Array.isArray(sd[cat])) { ctx.repairs.push({ path:'guests.'+side+'.'+cat, from:a4Kind(sd[cat]), to:'array' }); ctx.removed['guests.'+side+'.'+cat] = sd[cat]; sd[cat] = []; return; }
+      const gl = sd[cat].filter(x=>typeof x==='string' || a4Kind(x)==='object');
+      if(gl.length!==sd[cat].length){ ctx.repairs.push({ path:'guests.'+side+'.'+cat, from:'items', to:'dropped '+(sd[cat].length-gl.length) }); sd[cat] = gl; }
+    });
+    if(sd.custom===undefined) return;
+    if(!Array.isArray(sd.custom)) sd.custom = [];
+    sd.custom = sd.custom.filter(x=>a4Kind(x)==='object' && typeof x.id==='string').map(x=>{ if(!Array.isArray(x.names)) x.names = []; else x.names = x.names.filter(n=>typeof n==='string' || a4Kind(n)==='object'); return x; });
+  });
+  if(st.seating && Array.isArray(st.seating.tables)){
+    const tl = st.seating.tables.filter(x=>a4Kind(x)==='object');
+    if(tl.length!==st.seating.tables.length){ ctx.repairs.push({ path:'seating.tables', from:'items', to:'dropped' }); st.seating.tables = tl; }
+  }
+  if(st.seating && st.seating.items!==undefined && !Array.isArray(st.seating.items)) st.seating.items = [];
+  return { state:st, repairs:ctx.repairs, removed:ctx.removed };
+}
+// Aplica ao estado que chega. Nunca lança. Guarda rasto das reparações.
+let a4IncidentLogged = false;
+function a4SanitizeIncoming(incoming, source){
+  let r;
+  try{ r = a4SanitizeState(incoming); }catch(e){ console.error('[Weddy] a4SanitizeState falhou', e); return incoming; }
+  if(!r.repairs.length) return r.state;
+  console.error('[Weddy] Estado com campos corrompidos: reparados só em memória.', r.repairs.map(x=>x.path+' ('+x.from+'→'+x.to+')').join(', '));
+  try{ localStorage.setItem('weddy-corrupt-backup-'+(currentWeddingId||'x'), JSON.stringify({ at:new Date().toISOString(), source:source||'', repairs:r.repairs, removed:JSON.stringify(r.removed).slice(0,200000) })); }catch(e){}
+  if(!a4IncidentLogged){
+    a4IncidentLogged = true;
+    try{ firebase.firestore().collection('_incident_log').add({ weddingId:currentWeddingId, type:'corrupt_state_fields_repaired', paths:r.repairs.slice(0,20).map(x=>x.path), count:r.repairs.length, at:firebase.firestore.FieldValue.serverTimestamp(), userAgent:(typeof navigator!=='undefined'?navigator.userAgent:'') }).catch(()=>{}); }catch(e){}
+  }
+  return r.state;
+}
+let a4ViewErrors = {};
+function a4ViewFallback(id){
+  return `<div class="empty-note" style="margin:60px 16px;text-align:center;font-style:normal" data-viewerr="${escapeHTML(String(id))}"><div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--rust-dark,#9A4F3D);margin-bottom:6px">${ta('viewErrTitle')}</div><div style="margin-bottom:14px">${ta('viewErrBody')}</div><button type="button" class="cb-btn" style="max-width:260px;margin:0 auto" data-viewretry>${ta('viewErrRetry')}</button></div>`;
+}
+function safeView(id, fn){
+  try{ const h = fn(); delete a4ViewErrors[id]; return h; }
+  catch(e){ a4ViewErrors[id] = String(e && e.message || e).slice(0,200); console.error('[Weddy] Falha ao desenhar "'+id+'":', e); return a4ViewFallback(id); }
+}
+function safeStep(name, fn){
+  try{ return fn(); }catch(e){ console.error('[Weddy] Falha no passo "'+name+'":', e); return undefined; }
+}
+document.addEventListener('click', e=>{ if(e.target && e.target.closest && e.target.closest('[data-viewretry]')){ try{ render(); }catch(err){ console.error(err); } } });
+
 let state = seedData();
 normalizeCategories();
 migrateCategoryDescriptions();
@@ -10058,29 +10166,30 @@ function renderTabbar(){
 }
 
 function render(){
-  if(document.getElementById('premium-nudge-overlay') && hasActiveSubscription()) closePremiumNudge();
+  safeStep('premium-nudge', ()=>{ if(document.getElementById('premium-nudge-overlay') && hasActiveSubscription()) closePremiumNudge(); });
   if(navBack && !(activeTab===navBack.forTab && (definicoesSection||null)===navBack.forSec)) navBack = null;
-  applyTheme(weddingSettings.accentColor);
-  renderTabbar();
+  safeStep('theme', ()=>applyTheme(weddingSettings.accentColor));
+  safeStep('tabbar', renderTabbar);
   const body = document.getElementById('app-body');
   const prevScroll = document.querySelector('.tabpanel.active .scroll');
   const savedScrollTop = prevScroll ? prevScroll.scrollTop : 0;
+  const V = (id, fn)=>panel(id, safeView(id, fn));
   body.innerHTML =
-    panel('inicio', viewInicio()) +
-    panel('orcamento', viewOrcamento()) +
-    panel('convidados', viewConvidados()) +
-    panel('gastos', viewGastos()) +
-    panel('mesas', viewMesas()) +
-    panel('inspiracao', viewInspiracao()) +
-    panel('checklist', viewChecklist()) +
-    panel('vestido', viewVestido()) +
-    panel('bolo', viewBolo()) +
-    panel('votos', viewVotos()) +
-    panel('papelaria', viewPapelaria()) +
-    panel('todo', viewTodo()) +
-    panel('luademel', viewLuademel()) +
-    panel('fornecedores', viewFornecedores()) +
-    panel('definicoes', viewDefinicoes());
+    V('inicio', viewInicio) +
+    V('orcamento', viewOrcamento) +
+    V('convidados', viewConvidados) +
+    V('gastos', viewGastos) +
+    V('mesas', viewMesas) +
+    V('inspiracao', viewInspiracao) +
+    V('checklist', viewChecklist) +
+    V('vestido', viewVestido) +
+    V('bolo', viewBolo) +
+    V('votos', viewVotos) +
+    V('papelaria', viewPapelaria) +
+    V('todo', viewTodo) +
+    V('luademel', viewLuademel) +
+    V('fornecedores', viewFornecedores) +
+    V('definicoes', viewDefinicoes);
   if(navBack && navBack.forTab!=='definicoes'){
     const sc = document.querySelector('.tabpanel.active .scroll');
     if(sc){
@@ -10091,11 +10200,11 @@ function render(){
       sc.insertBefore(bar, sc.firstChild);
     }
   }
-  bindHandlers();
-  syncMesa3DPanel();
-  weddyA11yPass();
-  maybeShowPaymentAlert();
-  updateChatFab();
+  safeStep('bindHandlers', bindHandlers);
+  safeStep('mesa3d', syncMesa3DPanel);
+  safeStep('a11y', weddyA11yPass);
+  safeStep('paymentAlert', maybeShowPaymentAlert);
+  safeStep('chatFab', updateChatFab);
   const newScroll = document.querySelector('.tabpanel.active .scroll');
   if(newScroll && savedScrollTop) newScroll.scrollTop = savedScrollTop;
 }
@@ -29407,7 +29516,8 @@ async function restoreSnapshot(snapshotId){
   // segurança nem a tocar em nada.
   let restoredState, restoredSettings;
   try{
-    restoredState = JSON.parse(snap.json);
+    restoredState = a4SanitizeIncoming(JSON.parse(snap.json), 'restore');
+    if(!restoredState) throw new Error(appLang==='en' ? 'invalid state' : 'estado inválido');
     restoredSettings = snap.settings;
   }catch(e){
     weddyAlert(ta('alertRestoreError'));
@@ -29734,6 +29844,7 @@ function attachFirestoreSync(){
   }, 20000);
   unsubscribeSnapshot = CURRENT_DOC().onSnapshot(snap=>{
     weddySnapSeen = true;
+    try{ // A.4: um snapshot que falhe a meio nunca pode deixar a app presa/em branco
     let changed = false;
     if(snap.exists){
       const data = snap.data();
@@ -29761,6 +29872,7 @@ function attachFirestoreSync(){
           }catch(e){}
           incoming = state;
         }
+        incoming = a4SanitizeIncoming(incoming, 'snapshot') || state;
         if(JSON.stringify(incoming) !== JSON.stringify(state)){
           if(looksLikeDataLoss(state, incoming)){
             console.error('[Weddy] Snapshot recebido do Firestore parece ter perdido dados (convidados/tarefas foram todos a zero) — a IGNORAR este snapshot para não gravar por cima dos dados reais.', { local: countMeaningfulData(state), recebido: countMeaningfulData(incoming) });
@@ -29806,18 +29918,18 @@ function attachFirestoreSync(){
           state.honeymoon = { options:[] };
         }
         if(state.budget && state.budget.total === undefined) state.budget.total = 20000;
-        normalizeCategories();
-        migrateCategoryDescriptions();
+        safeStep('normalizeCategories', normalizeCategories);
+        safeStep('migrateCategoryDescriptions', migrateCategoryDescriptions);
         // Corrigido (Set 2026): ver nota dentro de migrateGuestCategories()
         // — sem isto, um convidado antigo (sem "guestId" ainda) ficava com
         // guestId só em memória, e updateGuestPhone falhava sempre com
         // "Não foi possível guardar." porque o servidor procurava esse
         // guestId e nunca o encontrava.
-        if(migrateGuestCategories()){
+        if(safeStep('migrateGuestCategories', migrateGuestCategories)){
           changed = true;
           pushRemote(true);
         }
-        migrateConfirmedAndSeatingToGuestId();
+        safeStep('migrateConfirmedAndSeatingToGuestId', migrateConfirmedAndSeatingToGuestId);
         // Fase 6.1.1 — migração financeira idempotente (ver
         // migrateLegacySupplierPayments): corre a cada snapshot, mas só
         // produz alterações reais na primeira vez que encontra pagamentos
@@ -29825,13 +29937,13 @@ function attachFirestoreSync(){
         // Firestore deixar de depender de isto voltar a correr no próximo
         // load — sem isto, um export/CSV ou uma leitura direta ao
         // Firestore continuaria a ver os dois livros por reconciliar.
-        if(migrateLegacySupplierPayments()){
+        if(safeStep('migrateLegacySupplierPayments', migrateLegacySupplierPayments)){
           changed = true;
           pushRemote(true);
         }
         // Fase 9.2 — idem, mas para dar id às despesas antigas (ver
         // migrateExpenseIds acima).
-        if(migrateExpenseIds()){
+        if(safeStep('migrateExpenseIds', migrateExpenseIds)){
           changed = true;
           pushRemote(true);
         }
@@ -29874,7 +29986,7 @@ function attachFirestoreSync(){
       renderNeeded = false;
     }
     if(renderNeeded){
-      _origRender();
+      safeStep('render', _origRender);
     }
     if(!firstSyncDone){
       firstSyncDone = true;
@@ -29886,8 +29998,16 @@ function attachFirestoreSync(){
       if(hasActiveSubscription() && !rsvpResponsesLoaded && !rsvpLoadingResponses) loadRSVPResponses();
       // Fase Histórico (Set 2026): backup automático — no máximo um por
       // sessão/dia (ver maybeCreateAutoSnapshot), nunca a cada gravação.
-      maybeCreateAutoSnapshot();
+      safeStep('autoSnapshot', maybeCreateAutoSnapshot);
       ntSchedule(2500);
+    }
+    }catch(snapErr){
+      console.error('[Weddy] Falha ao processar o snapshot do casamento (a app continua com o estado local):', snapErr);
+      safeStep('render', _origRender);
+      if(!firstSyncDone){
+        firstSyncDone = true;
+        safeStep('hideLogin', ()=>{ document.getElementById('login-screen').classList.add('hidden'); document.documentElement.classList.remove('login-active'); });
+      }
     }
   }, err=>{
     if(err.code === 'permission-denied'){
@@ -30088,7 +30208,7 @@ function findOrCreateFlow(user, isRetry){
         currentWeddingId = null;
         inspirations = [];
         dressInspirations = [];
-        cakeInspPhotos = {};
+        cakeInspPhotos = {}; cakeInspRemote = {}; cakeInspPending = {};
         renderOnboarding();
         return;
       }
@@ -30109,7 +30229,7 @@ function findOrCreateFlow(user, isRetry){
       currentWeddingId = null;
       inspirations = [];
       dressInspirations = [];
-      cakeInspPhotos = {};
+      cakeInspPhotos = {}; cakeInspRemote = {}; cakeInspPending = {};
       const _isApple = (user.providerData||[]).some(p=>p && p.providerId==='apple.com');
       renderOnboarding();
     }
