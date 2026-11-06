@@ -504,6 +504,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesUploading: (n)=> n>1 ? `A carregar ${n} fotos… não feches esta página.` : 'A carregar a foto… não feches esta página.',
       memoriesThanks: 'Obrigado por partilhar! 💛',
       memoriesError: 'Não foi possível enviar esta foto. Verifica a internet e tenta novamente.',
+      memoriesUnavailable: 'Neste momento este álbum não está a receber fotos. Fala com os noivos.',
       privacyToggle: 'Como tratamos os teus dados',
       privacyText: 'Os dados que dás aqui (nome, resposta, refeição, alergias e restrições alimentares, necessidades de acessibilidade, crianças, transporte/alojamento) são vistos apenas pelos noivos e usados só para organizar este casamento — nunca são partilhados com outros convidados nem usados para treinar modelos de IA. Este link não te mostra a lista de outros convidados nem informações do orçamento. Podes atualizar ou apagar a tua resposta a qualquer momento, neste mesmo link. O assistente de conversa (Weddy Concierge) responde só com base na informação que os noivos escreveram, nunca inventa respostas, e nunca altera a tua resposta sem primeiro pedires confirmação. Quando não reconhece a tua mensagem por regras simples, pode enviar só o texto da pergunta (nunca os teus dados) a um modelo de inteligência artificial só para perceber que tipo de pedido é — nunca para decidir ou escrever a resposta final. A conversa em si fica só neste dispositivo, não é guardada nem lida pelos noivos.',
       deleteResponseLink: 'Apagar a minha resposta',
@@ -661,6 +662,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       memoriesUploading: (n)=> n>1 ? `Uploading ${n} photos… don't close this page.` : 'Uploading photo… don\'t close this page.',
       memoriesThanks: 'Thanks for sharing! 💛',
       memoriesError: 'Could not upload this photo. Check your connection and try again.',
+      memoriesUnavailable: 'This album is not receiving photos right now. Please talk to the couple.',
       privacyToggle: 'How we handle your data',
       privacyText: "The data you give here (name, response, meal, allergies and dietary restrictions, accessibility needs, children, transport/accommodation) is only seen by the couple and used solely to organize this wedding — it's never shared with other guests or used to train AI models. This link never shows you the other guests' list or budget information. You can update or delete your response at any time, on this same link. The chat assistant (Weddy Concierge) only answers based on information the couple wrote, never makes up answers, and never changes your response without first asking you to confirm. When it doesn't recognize your message through simple rules, it may send just the question's text (never your data) to an AI model only to work out what kind of request it is — never to decide or write the final answer. The conversation itself stays on this device only — it isn't saved or read by the couple.",
       deleteResponseLink: 'Delete my response',
@@ -1768,7 +1770,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         const errIcon = document.createElement('div');
         errIcon.className = 'memories-thumb-err';
         errIcon.textContent = '!';
-        errIcon.title = t('memoriesError');
+        errIcon.title = /unauthorized|permission/i.test(String(err && (err.code || err.message) || '')) ? t('memoriesUnavailable') : t('memoriesError');
         wrap.appendChild(errIcon);
         anyError = true;
         activeMemoryUploads--;
@@ -1780,7 +1782,8 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
           // distância, sem precisar de aceder à consola do telemóvel de quem
           // está a enviar a foto.
           const code = err && (err.code || err.message);
-          statusEl.textContent = t('memoriesError') + (code ? ` (${code})` : '');
+          const denied = /unauthorized|permission/i.test(String(code || ''));
+          statusEl.textContent = denied ? t('memoriesUnavailable') : t('memoriesError') + (code ? ` (${code})` : '');
           statusEl.className = 'msg error';
         }
       });
