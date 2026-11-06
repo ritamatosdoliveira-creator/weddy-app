@@ -3682,6 +3682,78 @@ body.force-portrait-a, body.force-portrait-b{
 body.force-portrait-a{ transform: rotate(-90deg) translate(-100%, 0); }
 body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 
+/* ===== Importador — redesenho (lote 14) ===== */
+.gimp-drop{ margin:14px 0 12px; padding:28px 20px 22px; border:1.5px dashed #D9C7BD; border-radius:20px; background:#fff; text-align:center; transition:border-color .2s, background .2s; }
+.gimp-drop.over{ border-color:#AD624F; background:#FBF3EF; }
+.gimp-drop-ic{ width:54px; height:54px; margin:0 auto 10px; color:#8B6B5E; } .gimp-drop-ic svg{ width:100%; height:100%; }
+.gimp-drop-t{ font-family:'Cormorant Garamond',serif; font-size:24px; color:#2B2522; }
+.gimp-drop-s{ margin:6px auto 0; max-width:300px; font-size:13.5px; color:#8B7D74; line-height:1.5; }
+.gimp-file{ position:relative; max-width:300px; }
+.gimp-fmts{ display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:16px; } .gimp-fmts span{ font-size:11.5px; padding:3px 10px; border:1px solid #E6DCD4; border-radius:999px; color:#8B7D74; letter-spacing:.04em; }
+.gimp-limit{ margin:8px 0 0; font-size:12.5px; color:#8B7D74; }
+.gimp-priv{ display:flex; gap:10px; align-items:flex-start; margin:14px 0; padding:12px 14px; background:#F6F0EB; border-radius:14px; font-size:13px; color:#6B5E57; line-height:1.5; }
+.gimp-priv-ic{ width:18px; height:18px; flex:none; color:#AD624F; margin-top:1px; } .gimp-priv-ic svg{ width:100%; height:100%; }
+.gimp-h2{ font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; margin:14px 0 2px; color:#2B2522; }
+.gimp-nav{ display:flex; gap:10px; margin:18px 0 8px; } .gimp-nav .cb-btn{ flex:1; margin:0; } .gimp-nav-col{ flex-direction:column-reverse; }
+.gimp-tag-ok{ background:#F3E3DC; border-color:#E3C4B8; color:#AD624F; }
+.gimp-sheet-b{ display:flex; flex-direction:column; gap:2px; min-width:0; } .gimp-sheet-n{ font-weight:600; font-size:15px; } .gimp-sheet-d{ font-size:12.5px; color:#8B7D74; }
+.gimp-stgs{ list-style:none; margin:26px 0; padding:0; display:flex; flex-direction:column; gap:16px; }
+.gimp-stg{ display:flex; align-items:center; gap:12px; font-size:15px; color:#8B7D74; }
+.gimp-stg-dot{ width:22px; height:22px; border-radius:50%; border:1.5px solid #D9C7BD; display:flex; align-items:center; justify-content:center; flex:none; } .gimp-stg-dot svg{ width:12px; height:12px; }
+.gimp-stg.done{ color:#2B2522; } .gimp-stg.done .gimp-stg-dot{ background:#8A9A6B; border-color:#8A9A6B; color:#fff; }
+.gimp-stg.active{ color:#2B2522; font-weight:600; } .gimp-stg.active .gimp-stg-dot{ border-color:#AD624F; border-top-color:transparent; animation:gimpspin 1s linear infinite; }
+@keyframes gimpspin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){ .gimp-stg.active .gimp-stg-dot{ animation:none; border-top-color:#AD624F; } }
+.gimp-fgrid{ display:grid; grid-template-columns:1fr; gap:10px; margin:12px 0; }
+.gimp-s-map .gimp-field{ display:grid; grid-template-columns:110px 1fr; align-items:center; gap:10px; }
+.gimp-field{ display:flex; flex-direction:column; gap:4px; } .gimp-field-l{ font-size:12.5px; color:#6B5E57; font-weight:600; } .gimp-field-l i{ color:#AD624F; font-style:normal; }
+.gimp-field .cb-in{ min-height:42px; font-size:14px; }
+.gimp-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#E6DCD4; border:1px solid #E6DCD4; border-radius:16px; overflow:hidden; margin:12px 0; }
+.gimp-stat{ background:#fff; padding:12px 6px; text-align:center; display:flex; flex-direction:column; gap:2px; } .gimp-stat b{ font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; color:#2B2522; line-height:1.1; } .gimp-stat span{ font-size:11.5px; color:#8B7D74; line-height:1.3; }
+.gimp-stats-done{ grid-template-columns:repeat(2,1fr); } .gimp-stats-done .gimp-stat:last-child:nth-child(odd){ grid-column:1/-1; }
+.gimp-nts{ list-style:none; margin:10px 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.gimp-nt{ display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid #E6DCD4; border-radius:12px; background:#fff; font-size:13.5px; }
+.gimp-nt-ic{ width:18px; height:18px; flex:none; } .gimp-nt-ic svg{ width:100%; height:100%; } .gimp-nt-t{ flex:1; min-width:0; overflow-wrap:anywhere; }
+.gimp-nt.info .gimp-nt-ic{ color:#8B7D74; } .gimp-nt.warn{ background:#FBF3EF; } .gimp-nt.warn .gimp-nt-ic{ color:#C28A3C; } .gimp-nt.dup .gimp-nt-ic{ color:#AD624F; } .gimp-nt.unk .gimp-nt-ic{ color:#8B7D74; }
+.gimp-nts-s .gimp-nt{ padding:7px 10px; font-size:12.5px; }
+.gimp-ign{ margin:10px 0; border:1px solid #E6DCD4; border-radius:12px; background:#fff; padding:0 12px; font-size:13px; } .gimp-ign summary{ min-height:42px; display:flex; align-items:center; cursor:pointer; } .gimp-ign div{ padding:0 0 12px; color:#6B5E57; line-height:1.6; }
+.gimp-rv-h{ margin-top:4px; }
+.gimp-rv-main{ min-width:0; }
+.gimp-seltools{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:6px 0; }
+.gimp-editsel{ margin-left:auto; padding:7px 14px; border-radius:999px; border:1px solid #AD624F; background:#AD624F; color:#fff; font-size:13px; font-family:inherit; min-height:36px; }
+.gimp-thead{ display:none; }
+.gimp-r{ border-bottom:1px solid #E6DCD4; } .gimp-r.off .gimp-r-nm,.gimp-r.off .gimp-r-sub{ opacity:.55; }
+.gimp-r-row{ display:grid; grid-template-columns:26px 30px 1fr auto 20px 26px; align-items:center; gap:8px; padding:9px 0; }
+.gimp-r-chk{ display:flex; align-items:center; justify-content:center; min-height:40px; } .gimp-r-chk input{ width:18px; height:18px; accent-color:#AD624F; }
+.gimp-r-ic{ width:30px; height:30px; border-radius:50%; background:#F3E9E3; color:#AD624F; display:flex; align-items:center; justify-content:center; } .gimp-r-ic svg{ width:18px; height:18px; }
+.gimp-r-main{ all:unset; cursor:pointer; display:flex; flex-direction:column; min-width:0; min-height:40px; justify-content:center; box-sizing:border-box; }
+.gimp-r-nm{ font-size:15px; font-weight:600; color:#2B2522; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .gimp-r-sub{ font-size:12.5px; color:#8B7D74; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gimp-r-c{ display:none; font-size:13px; color:#6B5E57; }
+.gimp-badge{ font-size:11.5px; padding:3px 9px; border-radius:999px; white-space:nowrap; border:1px solid #E6DCD4; color:#8B7D74; background:#fff; } .gimp-badge.ok{ background:#EEF2E6; border-color:#CBD5B5; color:#5F7040; } .gimp-badge.unk{ background:#FBF3E4; border-color:#EBD6A8; color:#8A6420; } .gimp-badge.no{ background:#F6ECE8; border-color:#E3C4B8; color:#8A4B3C; }
+.gimp-r-w{ width:18px; height:18px; color:#C28A3C; display:inline-flex; } .gimp-r-w svg{ width:100%; height:100%; }
+.gimp-r-x{ all:unset; cursor:pointer; width:26px; height:40px; display:flex; align-items:center; justify-content:center; color:#8B7D74; } .gimp-r-x svg{ width:18px; height:18px; transition:transform .2s; } .gimp-r.open .gimp-r-x svg{ transform:rotate(180deg); }
+.gimp-det{ padding:4px 0 14px 34px; }
+.gimp-list{ padding-bottom:96px; }
+.gimp-bar{ box-shadow:0 -6px 18px rgba(43,37,34,.05); } .gimp-bar-in{ max-width:720px; margin:0 auto; display:flex; align-items:center; gap:14px; } .gimp-bar-t{ font-size:13px; color:#6B5E57; display:none; } .gimp-bar .cb-btn{ flex:1; max-width:none; margin:0; }
+.gimp-modal-bg{ position:fixed; inset:0; background:rgba(43,37,34,.38); z-index:2; }
+.gimp-modal{ position:fixed; left:0; right:0; bottom:0; z-index:3; background:#FAF8F5; border-radius:22px 22px 0 0; padding:10px 18px max(18px,env(safe-area-inset-bottom)); max-height:86vh; overflow:auto; box-shadow:0 -10px 30px rgba(43,37,34,.18); }
+.gimp-modal-handle{ width:40px; height:4px; border-radius:2px; background:#D9C7BD; margin:0 auto 10px; }
+.gimp-bulkp{ display:flex; flex-direction:column; gap:10px; } .gimp-bulkp-h{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; } .gimp-bulkp-h h4{ font-family:'Cormorant Garamond',serif; font-size:21px; margin:0; font-weight:600; }
+.gimp-bulkp-a{ display:flex; flex-direction:column; gap:8px; margin-top:6px; } .gimp-bulkp-a .cb-btn[disabled]{ opacity:.45; }
+@media (min-width:900px){
+  .gimp-in.gimp-s-review{ max-width:1100px; }
+  .gimp-rv.desk{ display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:24px; align-items:start; }
+  .gimp-aside{ position:sticky; top:12px; padding:16px; background:#fff; border:1px solid #E6DCD4; border-radius:18px; }
+  .gimp-filters{ grid-template-columns:2fr 1fr 1fr; }
+  .gimp-thead{ display:grid; grid-template-columns:26px 30px 1fr 120px 150px 110px 20px 26px; gap:8px; padding:6px 0; font-size:11.5px; color:#8B7D74; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid #E6DCD4; }
+  .gimp-r-row{ grid-template-columns:26px 30px 1fr 120px 150px 110px 20px 26px; }
+  .gimp-r-c{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gimp-r-sub{ display:none; }
+  .gimp-bar{ left:0; right:0; background:transparent; border:0; box-shadow:none; padding:0 28px 22px; pointer-events:none; } .gimp-bar-in{ pointer-events:auto; width:max-content; max-width:1100px; margin-left:auto; margin-right:max(0px,calc((100vw - 1100px)/2)); background:#fff; border:1px solid #E6DCD4; border-radius:16px; padding:10px 14px; box-shadow:0 8px 24px rgba(43,37,34,.12); } .gimp-bar-t{ display:block; white-space:nowrap; } .gimp-bar .cb-btn{ flex:none; width:auto; white-space:nowrap; padding-left:26px; padding-right:26px; }
+  .gimp-s-map .gimp-fgrid, .gimp-det .gimp-fgrid{ grid-template-columns:repeat(3,1fr); } .gimp-s-map .gimp-field{ display:flex; }
+  .gimp-stats{ grid-template-columns:repeat(6,1fr); } .gimp-stats-done{ grid-template-columns:repeat(4,1fr); } .gimp-stats-done .gimp-stat:last-child:nth-child(odd){ grid-column:auto; }
+  .gimp-nav-col{ flex-direction:row-reverse; } .gimp-nav{ max-width:420px; }
+}
 </style>
 </head>
 <body>
@@ -11730,6 +11802,23 @@ function gimpSizeCheck(list){
   const total = cur + add;
   return { ok: total <= GIMP_STATE_LIMIT, pct: Math.round(total / GIMP_STATE_LIMIT * 100), cur, add, total };
 }
+Object.assign(APP_I18N.pt, { giPickSub2:'Importa a tua lista a partir de um ficheiro de Excel ou CSV.', giDropT:'Escolhe o teu ficheiro', giDropS:'Arrasta o ficheiro para aqui ou seleciona um ficheiro do teu dispositivo.', giSelectFile:'Selecionar ficheiro', giFormats:'Formatos aceites', giLimits:(mb,rows)=>'Até '+mb+' MB e '+rows+' linhas', giPrivacy:'Os teus dados ficam no teu dispositivo. O ficheiro é lido localmente e não é enviado para servidores externos.', giPrivacyShort:'O ficheiro é lido no teu dispositivo e não é enviado para servidores externos.',
+ giStageTitle:'A ler o ficheiro…', giStage1:'A analisar a estrutura', giStage2:'A identificar listas e categorias', giStage3:'A reconhecer confirmações', giStage4:'A preparar a revisão',
+ giBackBtn:'Voltar', giSheetKind_budget:'Parece ser uma folha de orçamento', giSheetKind_expenses:'Parece ser uma folha de despesas', giSheetKind_tables:'Parece ser um mapa de mesas', giSheetsTitle:'Escolher folhas', giSheetsSub:'Seleciona as folhas que contêm os teus convidados.', giMapTitle:'Mapear colunas', giMapSub:'Indica a que informação corresponde cada coluna.', giSumTitle:'Resumo da importação',
+ giStatTotal:'Total', giStatKids:'Crianças', giStatConf:'Marcados como confirmados', giNtWarn:n=>n+(n===1?' convidado com avisos':' convidados com avisos'), giNtDup:n=>n+(n===1?' possível duplicado':' possíveis duplicados'), giNtUnclear:n=>n+(n===1?' confirmação por confirmar':' confirmações por confirmar'), giSee:'Ver', giSeeList:'Ver lista de convidados',
+ giListTitle:'Rever convidados', giListCount:(a,b)=>a+' de '+b+' prontos a importar.', giKidWord:'Criança', giYearsOld:n=>n+(n===1?' ano':' anos'), giOut:'fora da importação', giIncludeLbl:'Incluir na importação', giExpand:'Ver detalhes', giCollapse:'Fechar detalhes', giSelectRow:'Selecionar',
+ giEditSel:n=>'Editar selecionados ('+n+')', giBulkTitle:'Editar selecionados', giBulkHint:'Seleciona convidados na lista para os editar de uma vez.', giBulkCat:'Definir grupo', giBulkNew:'Criar novo grupo', giBulkSide:'Definir lado', giApply:'Aplicar aos selecionados', giExcludeSel:'Excluir da importação', giClearSel:'Limpar seleção', giSelFiltered:'Selecionar / limpar os filtrados',
+ giBarCount:(a,b)=>a+' de '+b+' a importar', giImportN:n=>'Importar '+n+(n===1?' convidado':' convidados'),
+ giDoneTitle:'Importação concluída', giDoneSub:'A tua lista de convidados foi atualizada.', giStatImported:'Importados', giStatDup:'Repetidos (deixados de fora)', giStatErr:'Com erros (de fora)', giStatCats:'Grupos criados', giStatEmails:'Emails guardados', giStatPhones:'Telefones validados', giStatConfirmed:'Marcados como confirmados', giViewGuests:'Ver convidados' });
+Object.assign(APP_I18N.en, { giPickSub2:'Import your list from an Excel or CSV file.', giDropT:'Choose your file', giDropS:'Drag the file here or pick a file from your device.', giSelectFile:'Select file', giFormats:'Accepted formats', giLimits:(mb,rows)=>'Up to '+mb+' MB and '+rows+' rows', giPrivacy:'Your data stays on your device. The file is read locally and is not sent to external servers.', giPrivacyShort:'The file is read on your device and is not sent to external servers.',
+ giStageTitle:'Reading the file…', giStage1:'Analysing the structure', giStage2:'Identifying lists and categories', giStage3:'Recognising RSVPs', giStage4:'Preparing the review',
+ giBackBtn:'Back', giSheetKind_budget:'Looks like a budget sheet', giSheetKind_expenses:'Looks like an expenses sheet', giSheetKind_tables:'Looks like a seating chart', giSheetsTitle:'Choose sheets', giSheetsSub:'Select the sheets that contain your guests.', giMapTitle:'Map columns', giMapSub:'Tell us what each column contains.', giSumTitle:'Import summary',
+ giStatTotal:'Total', giStatKids:'Children', giStatConf:'Marked as confirmed', giNtWarn:n=>n+(n===1?' guest with warnings':' guests with warnings'), giNtDup:n=>n+(n===1?' possible duplicate':' possible duplicates'), giNtUnclear:n=>n+(n===1?' RSVP to confirm':' RSVPs to confirm'), giSee:'View', giSeeList:'View guest list',
+ giListTitle:'Review guests', giListCount:(a,b)=>a+' of '+b+' ready to import.', giKidWord:'Child', giYearsOld:n=>n+(n===1?' year':' years'), giOut:'left out of import', giIncludeLbl:'Include in import', giExpand:'Show details', giCollapse:'Hide details', giSelectRow:'Select',
+ giEditSel:n=>'Edit selected ('+n+')', giBulkTitle:'Edit selected', giBulkHint:'Select guests in the list to edit them at once.', giBulkCat:'Set group', giBulkNew:'Create new group', giBulkSide:'Set side', giApply:'Apply to selected', giExcludeSel:'Exclude from import', giClearSel:'Clear selection', giSelFiltered:'Select / clear filtered',
+ giBarCount:(a,b)=>a+' of '+b+' to import', giImportN:n=>'Import '+n+(n===1?' guest':' guests'),
+ giDoneTitle:'Import complete', giDoneSub:'Your guest list has been updated.', giStatImported:'Imported', giStatDup:'Duplicates (left out)', giStatErr:'With errors (left out)', giStatCats:'Groups created', giStatEmails:'Emails saved', giStatPhones:'Phones validated', giStatConfirmed:'Marked as confirmed', giViewGuests:'View guests' });
+
 let gimp = null;
 const GIMP_FIELDS = ['name','email','phone','side','cat','age','rsvp','inv'];
 const GIMP_SYN = {
@@ -12003,7 +12092,7 @@ function gimpClose(){
   document.body.classList.remove('gimp-open'); gimp = null;
 }
 function gimpOpen(){
-  gimp = { step:'pick', fileName:'', rows:[], sheets:[], auto:false, struct:null, fSide:'', fCat:'', q:'', hasHeader:true, map:{name:-1,email:-1,phone:-1,side:-1,cat:-1,age:-1,rsvp:-1, inv:-1}, defSide:'conjunto', defCat:'amigos', items:[], filter:'all', shown:GIMP_PAGE, error:'', busy:false, result:null, undo:null, truncated:false };
+  gimp = { step:'pick', fileName:'', rows:[], sheets:[], auto:false, struct:null, fSide:'', fCat:'', q:'', hasHeader:true, map:{name:-1,email:-1,phone:-1,side:-1,cat:-1,age:-1,rsvp:-1, inv:-1}, defSide:'conjunto', defCat:'amigos', items:[], filter:'all', shown:GIMP_PAGE, error:'', busy:false, result:null, undo:null, truncated:false, analyzing:false, stage:0, exp:{}, bulkOpen:false, summary:null, notice:'' };
   let el = document.getElementById('gimp-overlay');
   if(!el){ el = document.createElement('div'); el.id = 'gimp-overlay'; el.className = 'gimp'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); document.body.appendChild(el); }
   el.setAttribute('aria-label', ta('giTitle'));
@@ -12015,36 +12104,128 @@ function gimpHead(){
   return `<div class="gimp-top"><button type="button" class="cb-link" data-gimpclose>${ta('giClose')}</button></div>
     <h2 class="cb-h" style="margin-top:6px">${ta('giTitle')}</h2>`;
 }
+const GIMP_IC = {
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5a1.5 1.5 0 0 1 1-1.4Z"/><path d="M14 3.5V8h4"/><path d="M9 13h6M9 16h4"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',
+  person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.3"/><path d="M5.5 19.5c.6-3.4 3.2-5.2 6.5-5.2s5.9 1.8 6.5 5.2"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 9.5 5 5 5-5"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8 21 19.5H3L12 3.8Z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r=".4" fill="currentColor"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="8" r=".5" fill="currentColor"/></svg>',
+  dup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg>',
+  q:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.6a2.3 2.3 0 0 1 4.4.8c0 1.5-2.2 1.9-2.2 3.2"/><circle cx="12" cy="16.8" r=".4" fill="currentColor"/></svg>',
+  check:'<svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 7.2l3 3 6-6.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+async function gimpTick(){ await new Promise(r=>setTimeout(r,25)); }
+async function gimpSetStage(n){ gimp.stage = n; gimpRender(); await gimpTick(); }
+function gimpSideLabel(s){ return ta(s==='noiva'?'sideBride':(s==='noivo'?'sideGroom':'sideJoint')); }
+function gimpCatLabelOf(it){
+  if(it.catId==='criancas') return ta('giCatKids');
+  const k = FIXED_GUEST_CAT_KEY[it.catId]; if(k) return ta(k);
+  if(it.catId){ const c = ((state.guests[it.side]&&state.guests[it.side].custom)||[]).find(x=>x.id===it.catId); if(c) return c.label; }
+  return it.newLabel || it.catRaw || '';
+}
+function gimpRsvpBadge(it){
+  const m = { yes:['giRsvp1','ok'], no:['giRsvp2','no'], '?':['giRsvp3','unk'], '':['giRsvp0','pend'] }[it.rsvp] || ['giRsvp0','pend'];
+  return `<span class="gimp-badge ${m[1]}">${ta(m[0])}</span>`;
+}
+function gimpItemWarns(it){
+  const w = [];
+  if(it.errors.indexOf('name')>=0) w.push(['warn', ta('giTagNoName')]);
+  if(it.errors.indexOf('email')>=0) w.push(['warn', ta('giTagBadEmail')]);
+  if(it.errors.indexOf('phone')>=0) w.push(['warn', ta('giTagBadPhone')]);
+  if(it.dupe==='existing') w.push(['dup', ta('giTagExisting')]);
+  if(it.dupe==='file') w.push(['dup', gimp.auto && it.dupeBy==='name' ? ta('giTagFileSoft') : ta('giTagFile')]);
+  if(it.notes.indexOf('side')>=0) w.push(['unk', ta('giTagSide')]);
+  if(it.newLabel) w.push(['info', ta('giTagNewCat')(it.newLabel)]);
+  if(it.rsvp==='no') w.push(['unk', ta('giTagRsvpNo')]);
+  if(it.rsvp==='?') w.push(['unk', ta('giTagRsvpUnk')]);
+  return w;
+}
+/* ---------- Ecrã 1 — escolher ficheiro ---------- */
 function gimpStepPick(){
-  return `${gimpHead()}<p class="cb-sub">${ta('giPickSub')}</p>
-  <label class="cb-btn gimp-file" style="cursor:pointer;margin-top:10px">${ta('giChoose')}<input type="file" id="gimp-file" accept=".csv,.tsv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="position:absolute;opacity:0;width:1px;height:1px"></label>
-  ${gimp.busy ? `<p class="cb-sub" role="status" style="margin-top:12px">${ta('giReading')}</p>` : ''}
-  ${gimp.error ? `<p class="gimp-err" role="alert">${escapeHTML(gimp.error)}</p>` : ''}
-  <p class="cb-sub" style="margin-top:18px">${ta('giPrivacy')}</p>`;
-}
-function gimpOptCols(sel){
-  const w = gimp.rows[0] ? gimp.rows[0].length : 0; let o = `<option value="-1">${ta('giNone')}</option>`;
-  for(let i=0;i<w;i++) o += `<option value="${i}" ${sel===i?'selected':''}>${escapeHTML(gimpColLabel(i))}</option>`;
-  return o;
-}
-function gimpStepMap(){
-  const m = gimp.map, sample = gimp.rows.slice(gimp.hasHeader?1:0, (gimp.hasHeader?1:0)+3);
-  const fld = (f, req) => `<label class="cb-f"><span>${ta('giF_'+f)}${req?' *':''}</span><select class="cb-in" data-gimpmap="${f}">${gimpOptCols(m[f])}</select></label>`;
-  const prev = sample.length ? `<div class="gimp-sample" aria-label="${ta('giSample')}">${sample.map(r=>`<div>${r.slice(0,6).map(c=>escapeHTML(c)).join(' · ')}</div>`).join('')}</div>` : '';
   return `${gimpHead()}
-  <p class="cb-sub">${escapeHTML(gimp.fileName)} — ${ta('giRowsFound')(gimp.rows.length - (gimp.hasHeader?1:0))}</p>
-  <label class="gimp-chk"><input type="checkbox" data-gimphead ${gimp.hasHeader?'checked':''}> ${ta('giHasHeader')}</label>
-  ${prev}
-  <h3 class="cb-h" style="font-size:21px">${ta('giMapTitle')}</h3><p class="cb-sub">${ta('giMapSub')}</p>
-  <div class="cb-fields">
-    ${fld('name',true)}${fld('email')}${fld('phone')}${fld('side')}${fld('cat')}${fld('age')}${fld('rsvp')}${fld('inv')}
-    <label class="cb-f"><span>${ta('giDefSide')}</span><select class="cb-in" data-gimpdef="side"><option value="conjunto" ${gimp.defSide==='conjunto'?'selected':''}>${ta('sideJoint')}</option><option value="noiva" ${gimp.defSide==='noiva'?'selected':''}>${ta('sideBride')}</option><option value="noivo" ${gimp.defSide==='noivo'?'selected':''}>${ta('sideGroom')}</option></select></label>
-    <label class="cb-f"><span>${ta('giDefCat')}</span><select class="cb-in" data-gimpdef="cat">${FIXED_GUEST_CATS.map(c=>`<option value="${c.id}" ${gimp.defCat===c.id?'selected':''}>${escapeHTML(ta(FIXED_GUEST_CAT_KEY[c.id])||c.label)}</option>`).join('')}</select></label>
+  <p class="cb-sub">${ta('giPickSub2')}</p>
+  <div class="gimp-drop" data-gimpdrop>
+    <div class="gimp-drop-ic">${GIMP_IC.doc}</div>
+    <div class="gimp-drop-t">${ta('giDropT')}</div>
+    <p class="gimp-drop-s">${ta('giDropS')}</p>
+    <label class="cb-btn gimp-file" style="cursor:pointer;margin:14px auto 0">${ta('giSelectFile')}<input type="file" id="gimp-file" accept=".csv,.tsv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></label>
+    <div class="gimp-fmts" aria-label="${ta('giFormats')}"><span>XLSX</span><span>XLS</span><span>CSV</span><span>TSV</span></div>
+    <p class="gimp-limit">${ta('giLimits')(Math.round(GIMP_MAX_BYTES/1048576), String(GIMP_MAX_ROWS).replace(/\B(?=(\d{3})+(?!\d))/g,'.'))}</p>
   </div>
   ${gimp.error ? `<p class="gimp-err" role="alert">${escapeHTML(gimp.error)}</p>` : ''}
-  <button type="button" class="cb-btn" data-gimpnext>${ta('giContinue')}</button>
-  <button type="button" class="cb-btn ghost" style="margin-top:10px" data-gimpback>${ta('giOtherFile')}</button>`;
+  <p class="gimp-priv"><span class="gimp-priv-ic">${GIMP_IC.lock}</span><span>${ta('giPrivacy')}</span></p>`;
 }
+/* ---------- Ecrã 4 — a ler o ficheiro (etapas reais) ---------- */
+function gimpStepAnalyzing(){
+  const names = ['giStage1','giStage2','giStage3','giStage4'];
+  const rows = names.map((k,i)=>{
+    const st = i < gimp.stage ? 'done' : (i === gimp.stage ? 'active' : 'todo');
+    return `<li class="gimp-stg ${st}"><span class="gimp-stg-dot">${st==='done'?GIMP_IC.check:''}</span><span>${ta(k)}</span></li>`;
+  }).join('');
+  return `<div class="gimp-top"></div><h2 class="cb-h" style="margin-top:6px">${ta('giStageTitle')}</h2>
+  <p class="cb-sub">${escapeHTML(gimp.fileName||'')}</p>
+  <ol class="gimp-stgs" role="status" aria-live="polite">${rows}</ol>
+  <p class="gimp-priv"><span class="gimp-priv-ic">${GIMP_IC.lock}</span><span>${ta('giPrivacyShort')}</span></p>`;
+}
+/* ---------- Ecrã 2 — escolher folhas ---------- */
+function gimpStepSheets(){
+  const desc = sh => sh.structured ? ta('giSheetGuests')(sh.count) : (sh.score>=40 ? ta('giSheetSimple') : (sh.kind ? ta('giSheetKind_'+sh.kind) : ta('giSheetNone')));
+  const rows = gimp.sheets.map((sh,i)=>`<label class="gimp-sheet"><input type="checkbox" data-gimpsheet="${i}" ${sh.use?'checked':''}>
+    <span class="gimp-sheet-b"><span class="gimp-sheet-n">${escapeHTML(sh.name)}${sh.suggested?` <span class="gimp-tag gimp-tag-ok">${ta('giSheetSuggested')}</span>`:''}</span><span class="gimp-sheet-d">${desc(sh)} · ${ta('giSheetRows')(sh.rows.length)}</span></span></label>`).join('');
+  return `${gimpHead()}
+  <p class="cb-sub">${escapeHTML(gimp.fileName)}</p>
+  <h3 class="gimp-h2">${ta('giSheetsTitle')}</h3><p class="cb-sub">${ta('giSheetsSub')}</p>
+  <div class="gimp-sheets">${rows}</div>
+  ${gimp.error ? `<p class="gimp-err" role="alert">${escapeHTML(gimp.error)}</p>` : ''}
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-gimpback>${ta('giBackBtn')}</button><button type="button" class="cb-btn" data-gimpsheetsgo>${ta('giContinue')}</button></div>`;
+}
+/* ---------- Ecrã 3 — mapear colunas ---------- */
+function gimpStepMap(){
+  const m = gimp.map, sample = gimp.rows.slice(gimp.hasHeader?1:0, (gimp.hasHeader?1:0)+3);
+  const fld = (f, req) => `<label class="gimp-field"><span class="gimp-field-l">${ta('giF_'+f)}${req?' <i>*</i>':''}</span><select class="cb-in" data-gimpmap="${f}">${gimpOptCols(m[f])}</select></label>`;
+  const prev = sample.length ? `<div class="gimp-sample" aria-label="${ta('giSample')}">${sample.map(r=>`<div>${r.slice(0,6).map(c=>escapeHTML(c)).join(' · ')}</div>`).join('')}</div>` : '';
+  return `${gimpHead()}
+  <p class="cb-sub">${escapeHTML(gimp.fileName)} · ${ta('giRowsFound')(gimp.rows.length - (gimp.hasHeader?1:0))}</p>
+  <h3 class="gimp-h2">${ta('giMapTitle')}</h3><p class="cb-sub">${ta('giMapSub')}</p>
+  <label class="gimp-chk"><input type="checkbox" data-gimphead ${gimp.hasHeader?'checked':''}> ${ta('giHasHeader')}</label>
+  ${prev}
+  <div class="gimp-fgrid">
+    ${fld('name',true)}${fld('email')}${fld('phone')}${fld('side')}${fld('cat')}${fld('rsvp')}${fld('age')}${fld('inv')}
+  </div>
+  <div class="gimp-fgrid gimp-defs">
+    <label class="gimp-field"><span class="gimp-field-l">${ta('giDefSide')}</span><select class="cb-in" data-gimpdef="side">${['conjunto','noiva','noivo'].map(v=>`<option value="${v}" ${gimp.defSide===v?'selected':''}>${gimpSideLabel(v)}</option>`).join('')}</select></label>
+    <label class="gimp-field"><span class="gimp-field-l">${ta('giDefCat')}</span><select class="cb-in" data-gimpdef="cat">${FIXED_GUEST_CATS.map(c=>`<option value="${c.id}" ${gimp.defCat===c.id?'selected':''}>${escapeHTML(ta(FIXED_GUEST_CAT_KEY[c.id])||c.label)}</option>`).join('')}</select></label>
+  </div>
+  ${gimp.error ? `<p class="gimp-err" role="alert">${escapeHTML(gimp.error)}</p>` : ''}
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-gimpback>${ta('giBackBtn')}</button><button type="button" class="cb-btn" data-gimpnext>${ta('giContinue')}</button></div>`;
+}
+/* ---------- Ecrã 5 — resumo ---------- */
+function gimpStats(){
+  const g = gimp, by = { noiva:0, noivo:0, conjunto:0 }; g.items.forEach(it=>{ by[it.side]++; });
+  return { total:g.items.length, by, kids:g.items.filter(it=>it.catId==='criancas').length, conf:g.items.filter(it=>it.rsvp==='yes').length,
+    warns:g.items.filter(it=>it.errors.length||it.notes.length).length, dups:g.items.filter(it=>it.dupe).length, unclear:g.items.filter(it=>it.rsvp==='?'||it.rsvp==='no').length };
+}
+function gimpStepSummary(){
+  const g = gimp, s = gimpStats(), sm = g.summary || { lists:1, ignored:[], unrecognized:[] };
+  const stat = (n,l)=>`<div class="gimp-stat"><b>${n}</b><span>${l}</span></div>`;
+  const note = (cls, ic, txt, filter)=>`<li class="gimp-nt ${cls}"><span class="gimp-nt-ic">${GIMP_IC[ic]}</span><span class="gimp-nt-t">${txt}</span>${filter?`<button type="button" class="cb-link" data-gimpseefilter="${filter}">${ta('giSee')}</button>`:''}</li>`;
+  const notes = [];
+  if(sm.unrecognized.length) notes.push(note('info','info', ta('giUnrecognized')(sm.unrecognized.map(x=>'«'+escapeHTML(x)+'»').join(', ')), ''));
+  if(s.warns) notes.push(note('warn','warn', ta('giNtWarn')(s.warns), 'issues'));
+  if(s.dups) notes.push(note('dup','dup', ta('giNtDup')(s.dups), 'dupes'));
+  if(s.unclear) notes.push(note('unk','q', ta('giNtUnclear')(s.unclear), 'issues'));
+  const ig = sm.ignored || [];
+  return `${gimpHead()}
+  <h3 class="gimp-h2">${ta('giSumTitle')}</h3>
+  <p class="cb-sub" role="status">${ta('giAutoSum')(s.total, sm.lists)}</p>
+  <div class="gimp-stats">${stat(s.total, ta('giStatTotal'))}${stat(s.by.noiva, ta('sideBride'))}${stat(s.by.noivo, ta('sideGroom'))}${stat(s.by.conjunto, ta('sideJoint'))}${stat(s.kids, ta('giStatKids'))}${stat(s.conf, ta('giStatConf'))}</div>
+  ${notes.length ? `<ul class="gimp-nts">${notes.join('')}</ul>` : ''}
+  ${ig.length ? `<details class="gimp-ign"><summary>${ta('giIgnored')(ig.length)}</summary><div>${ig.slice(0,40).map(x=>escapeHTML((x.sheet?x.sheet+' · ':'')+'L'+x.r+': «'+x.text+'»')).join('<br>')}</div></details>` : ''}
+  ${g.truncated ? `<p class="gimp-err">${ta('giTruncated')(GIMP_MAX_ROWS)}</p>` : ''}
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-gimpbackmap>${ta('giBackBtn')}</button><button type="button" class="cb-btn" data-gimpshowlist>${ta('giSeeList')}</button></div>`;
+}
+/* ---------- Ecrã 6/7/8 — lista de revisão, edição em massa e barra de importação ---------- */
 function gimpCatOptions(side, it){
   const lab = id => { const k = FIXED_GUEST_CAT_KEY[id]; return (k && ta(k)) || id; };
   let o = FIXED_GUEST_CATS.map(c=>[c.id, lab(c.id)]);
@@ -12055,35 +12236,41 @@ function gimpCatOptions(side, it){
   return html;
 }
 function gimpRowHTML(it){
-  const tags = [];
-  if(it.dupe==='existing') tags.push(ta('giTagExisting'));
-  if(it.dupe==='file') tags.push(gimp.auto && it.dupeBy==='name' ? ta('giTagFileSoft') : ta('giTagFile'));
-  if(it.errors.indexOf('name')>=0) tags.push(ta('giTagNoName'));
-  if(it.errors.indexOf('email')>=0) tags.push(ta('giTagBadEmail'));
-  if(it.errors.indexOf('phone')>=0) tags.push(ta('giTagBadPhone'));
-  if(it.notes.indexOf('side')>=0) tags.push(ta('giTagSide'));
-  if(it.newLabel) tags.push(ta('giTagNewCat')(it.newLabel));
-  if(it.rsvp==='no') tags.push(ta('giTagRsvpNo'));
-  if(it.rsvp==='?') tags.push(ta('giTagRsvpUnk'));
-  const blocked = it.errors.length>0;
+  const blocked = it.errors.length>0, open = !!gimp.exp[it.i], w = gimpItemWarns(it);
+  const catL = gimpCatLabelOf(it), sideL = gimpSideLabel(it.side);
+  const kid = it.catId==='criancas';
+  const sub = kid ? (ta('giKidWord') + (it.age ? ' · '+ta('giYearsOld')(Number(it.age)) : '') + ' · ' + sideL) : (sideL + (catL ? ' · '+catL : ''));
   const rs = v => `<option value="${v}" ${(it.rsvp===v)?'selected':''}>${ta(v==='yes'?'giRsvp1':(v==='no'?'giRsvp2':(v==='?'?'giRsvp3':'giRsvp0')))}</option>`;
-  const sd = v => `<option value="${v}" ${it.side===v?'selected':''}>${ta(v==='noiva'?'sideBride':(v==='noivo'?'sideGroom':'sideJoint'))}</option>`;
-  const isKid = it.catId==='criancas';
-  return `<div class="gimp-row ${blocked?'bad':''}">
-    <div class="gimp-r1">
-      <label class="gimp-chk"><input type="checkbox" data-gimpinc="${it.i}" ${it.include&&!blocked?'checked':''} ${blocked?'disabled':''} aria-label="${ta('giInclude')}"> <span class="gimp-nm">${escapeHTML(it.name||'—')}</span></label>
-      <label class="gimp-chk gimp-selbox"><input type="checkbox" data-gimpsel="${it.i}" ${it.sel?'checked':''} aria-label="${ta('giSelectRow')}"> <span>${ta('giSelectRow')}</span></label>
+  const sd = v => `<option value="${v}" ${it.side===v?'selected':''}>${gimpSideLabel(v)}</option>`;
+  const details = open ? `<div class="gimp-det">
+    <div class="gimp-fgrid">
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giF_name')}</span><input class="cb-in" type="text" data-gimped="${it.i}|name" value="${escapeHTML(it.name)}"></label>
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giColSide')}</span><select class="cb-in" data-gimped="${it.i}|side">${sd('noiva')}${sd('noivo')}${sd('conjunto')}</select></label>
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giColCat')}</span><select class="cb-in" data-gimped="${it.i}|catId">${gimpCatOptions(it.side, it)}</select></label>
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giF_rsvp')}</span><select class="cb-in" data-gimped="${it.i}|rsvp">${rs('')}${rs('yes')}${rs('no')}${rs('?')}</select></label>
+      ${kid ? `<label class="gimp-field"><span class="gimp-field-l">${ta('giF_age')}</span><input class="cb-in" type="text" inputmode="numeric" data-gimped="${it.i}|age" value="${escapeHTML(it.age)}"></label>` : ''}
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giF_email')}</span><input class="cb-in" type="text" inputmode="email" data-gimped="${it.i}|email" value="${escapeHTML(it.email)}"></label>
+      <label class="gimp-field"><span class="gimp-field-l">${ta('giF_phone')}</span><input class="cb-in" type="text" inputmode="tel" data-gimped="${it.i}|phoneRaw" value="${escapeHTML(it.phoneRaw)}"></label>
     </div>
-    <div class="gimp-fields">
-      <input class="cb-in" type="text" data-gimped="${it.i}|name" value="${escapeHTML(it.name)}" placeholder="${ta('giF_name')}" aria-label="${ta('giF_name')}">
-      <select class="cb-in" data-gimped="${it.i}|side" aria-label="${ta('giColSide')}">${sd('noiva')}${sd('noivo')}${sd('conjunto')}</select>
-      <select class="cb-in" data-gimped="${it.i}|catId" aria-label="${ta('giColCat')}">${gimpCatOptions(it.side, it)}</select>
-      <select class="cb-in" data-gimped="${it.i}|rsvp" aria-label="${ta('giF_rsvp')}">${rs('')}${rs('yes')}${rs('no')}${rs('?')}</select>
-      ${isKid ? `<input class="cb-in" type="text" inputmode="numeric" data-gimped="${it.i}|age" value="${escapeHTML(it.age)}" placeholder="${ta('giF_age')}" aria-label="${ta('giF_age')}">` : ''}
-      <input class="cb-in" type="text" inputmode="email" data-gimped="${it.i}|email" value="${escapeHTML(it.email)}" placeholder="${ta('giF_email')}" aria-label="${ta('giF_email')}">
-      <input class="cb-in" type="text" inputmode="tel" data-gimped="${it.i}|phoneRaw" value="${escapeHTML(it.phoneRaw)}" placeholder="${ta('giF_phone')}" aria-label="${ta('giF_phone')}">
+    <label class="gimp-chk"><input type="checkbox" data-gimpinc="${it.i}" ${it.include&&!blocked?'checked':''} ${blocked?'disabled':''}> ${ta('giIncludeLbl')}</label>
+    ${w.length ? `<ul class="gimp-nts gimp-nts-s">${w.map(([c,t])=>`<li class="gimp-nt ${c==='warn'?'warn':(c==='dup'?'dup':(c==='unk'?'unk':'info'))}"><span class="gimp-nt-ic">${GIMP_IC[c==='unk'?'q':c]}</span><span class="gimp-nt-t">${escapeHTML(t)}</span></li>`).join('')}</ul>` : ''}
+    ${it.src ? `<div class="gimp-src">${escapeHTML(it.src)}</div>` : ''}
+  </div>` : '';
+  const out = (!it.include || blocked);
+  return `<div class="gimp-r ${out?'off':''} ${open?'open':''} ${w.length?'has-w':''}">
+    <div class="gimp-r-row">
+      <label class="gimp-r-chk"><input type="checkbox" data-gimpsel="${it.i}" ${it.sel?'checked':''} aria-label="${ta('giSelectRow')}: ${escapeHTML(it.name||'')}"></label>
+      <span class="gimp-r-ic">${GIMP_IC.person}</span>
+      <button type="button" class="gimp-r-main" data-gimpexp="${it.i}" aria-expanded="${open?'true':'false'}">
+        <span class="gimp-r-nm">${escapeHTML(it.name||'—')}</span>
+        <span class="gimp-r-sub">${escapeHTML(sub)}${out?' · '+escapeHTML(ta('giOut')):''}</span>
+      </button>
+      <span class="gimp-r-c gimp-r-side">${escapeHTML(sideL)}</span><span class="gimp-r-c gimp-r-cat">${escapeHTML(kid ? ta('giKidWord') : catL)}</span>
+      ${gimpRsvpBadge(it)}
+      ${w.length ? `<span class="gimp-r-w" title="${escapeHTML(w.map(x=>x[1]).join(' · '))}" aria-label="${escapeHTML(w.map(x=>x[1]).join(' · '))}">${GIMP_IC.warn}</span>` : '<span class="gimp-r-w"></span>'}
+      <button type="button" class="gimp-r-x" data-gimpexp="${it.i}" aria-label="${ta(open?'giCollapse':'giExpand')}">${GIMP_IC.chev}</button>
     </div>
-    ${(tags.length || it.src) ? `<div class="gimp-tags">${tags.map(t=>`<span class="gimp-tag">${escapeHTML(t)}</span>`).join('')}${it.src?`<span class="gimp-src">${escapeHTML(it.src)}</span>`:''}</div>` : ''}
+    ${details}
   </div>`;
 }
 function gimpCatKey(it){ return it.catId || ('__new:'+gimpNorm(it.newLabel||'')); }
@@ -12100,89 +12287,104 @@ function gimpFiltered(){
 }
 function gimpListHTML(){
   const list = gimpFiltered(), shown = list.slice(0, gimp.shown);
-  return (shown.map(gimpRowHTML).join('') || `<p class="cb-sub">${ta('giNothing')}</p>`)
+  return `<div class="gimp-thead" aria-hidden="true"><span></span><span></span><span>${ta('giF_name')}</span><span>${ta('giColSide')}</span><span>${ta('giColCat')}</span><span>${ta('giF_rsvp')}</span><span></span><span></span></div>`
+    + (shown.map(gimpRowHTML).join('') || `<p class="cb-sub" style="margin-top:14px">${ta('giNothing')}</p>`)
     + (list.length>shown.length ? `<button type="button" class="cb-link" style="margin-top:12px" data-gimpmore>${ta('giMore')(list.length-shown.length)}</button>` : '');
 }
+function gimpSelCount(){ return gimp.items.filter(x=>x.sel).length; }
 function gimpRenderList(){
   const w = document.getElementById('gimp-listwrap'); if(w) w.innerHTML = gimpListHTML();
-  const s = document.getElementById('gimp-selcount'); if(s) s.textContent = ta('giSelN')(gimp.items.filter(x=>x.sel).length);
+  const n = gimpSelCount();
+  document.querySelectorAll('[data-gimpselcount]').forEach(el=>{ el.textContent = ta('giSelN')(n); });
+  const eb = document.getElementById('gimp-editsel'); if(eb){ eb.style.display = n ? '' : 'none'; eb.textContent = ta('giEditSel')(n); }
+  document.querySelectorAll('[data-gimpbulkneeds]').forEach(el=>{ el.disabled = !n; });
 }
-function gimpStepSheets(){
-  const rows = gimp.sheets.map((sh,i)=>`<label class="gimp-sheet"><input type="checkbox" data-gimpsheet="${i}" ${sh.use?'checked':''}>
-    <span><b>${escapeHTML(sh.name)}</b>${sh.suggested?` <span class="gimp-tag">${ta('giSheetSuggested')}</span>`:''}<br><span class="cb-sub" style="margin:0">${sh.structured ? ta('giSheetGuests')(sh.count) : (sh.score>=40 ? ta('giSheetSimple') : ta('giSheetNone'))} · ${ta('giSheetRows')(sh.rows.length)}</span></span></label>`).join('');
-  return `${gimpHead()}
-  <p class="cb-sub">${escapeHTML(gimp.fileName)}</p>
-  <h3 class="cb-h" style="font-size:21px">${ta('giSheetsTitle')}</h3><p class="cb-sub">${ta('giSheetsSub')}</p>
-  <div class="gimp-sheets">${rows}</div>
-  ${gimp.error ? `<p class="gimp-err" role="alert">${escapeHTML(gimp.error)}</p>` : ''}
-  <button type="button" class="cb-btn" data-gimpsheetsgo>${ta('giContinue')}</button>
-  <button type="button" class="cb-btn ghost" style="margin-top:10px" data-gimpback>${ta('giOtherFile')}</button>`;
+function gimpRenderCounts(){
+  const n = gimpSelCount();
+  document.querySelectorAll('[data-gimpselcount]').forEach(el=>{ el.textContent = ta('giSelN')(n); });
+  const eb = document.getElementById('gimp-editsel'); if(eb){ eb.style.display = n ? '' : 'none'; eb.textContent = ta('giEditSel')(n); }
+  document.querySelectorAll('[data-gimpbulkneeds]').forEach(el=>{ el.disabled = !n; });
+}
+function gimpIsDesktop(){ return window.matchMedia && window.matchMedia('(min-width:900px)').matches; }
+function gimpBulkHTML(){
+  const n = gimpSelCount();
+  const cats = FIXED_GUEST_CATS.map(x=>(FIXED_GUEST_CAT_KEY[x.id] && ta(FIXED_GUEST_CAT_KEY[x.id])) || x.label).concat([ta('giCatKids')]);
+  return `<div class="gimp-bulkp">
+    <div class="gimp-bulkp-h"><h4>${ta('giBulkTitle')}</h4><span class="cb-sub" data-gimpselcount style="margin:0">${ta('giSelN')(n)}</span></div>
+    ${n ? '' : `<p class="cb-sub" style="margin:0 0 8px">${ta('giBulkHint')}</p>`}
+    <label class="gimp-field"><span class="gimp-field-l">${ta('giBulkCat')}</span><select class="cb-in" id="gimp-bulk-cat"><option value="">—</option>${cats.map(l=>`<option value="${escapeHTML(l)}">${escapeHTML(l)}</option>`).join('')}</select></label>
+    <label class="gimp-field"><span class="gimp-field-l">${ta('giBulkNew')}</span><input class="cb-in" type="text" id="gimp-bulk-new" maxlength="60"></label>
+    <label class="gimp-field"><span class="gimp-field-l">${ta('giBulkSide')}</span><select class="cb-in" id="gimp-bulk-side"><option value="">—</option><option value="noiva">${ta('sideBride')}</option><option value="noivo">${ta('sideGroom')}</option><option value="conjunto">${ta('sideJoint')}</option></select></label>
+    <div class="gimp-bulkp-a">
+      <button type="button" class="cb-btn" style="margin:0" data-gimpbulkapply data-gimpbulkneeds ${n?'':'disabled'}>${ta('giApply')}</button>
+      <button type="button" class="cb-btn ghost" style="margin:0" data-gimpexcl data-gimpbulkneeds ${n?'':'disabled'}>${ta('giExcludeSel')}</button>
+      <button type="button" class="cb-link" data-gimpclearsel data-gimpbulkneeds ${n?'':'disabled'}>${ta('giClearSel')}</button>
+    </div>
+  </div>`;
 }
 function gimpStepReview(){
   const c = gimpCounts(), f = gimp.filter, g = gimp;
   const issues = g.items.filter(it=>it.errors.length||it.notes.length||it.rsvp==='no'||it.rsvp==='?').length, dup = g.items.filter(it=>it.dupe).length;
   const chip = (k,l,n)=>`<button type="button" class="cb-chip" data-gimpfilter="${k}" aria-pressed="${f===k?'true':'false'}">${l} (${n})</button>`;
-  const by = { noiva:0, noivo:0, conjunto:0 }; g.items.forEach(it=>{ by[it.side]++; });
-  const kids = g.items.filter(it=>it.catId==='criancas').length, conf = g.items.filter(it=>it.rsvp==='yes').length;
-  let banner = '';
-  if(g.auto && g.struct){
-    const ig = g.struct.ignored;
-    banner = `<div class="gimp-found" role="status"><b>${ta('giAutoSum')(g.items.length, g.struct.lists)}</b>
-      <div class="cb-sub" style="margin:4px 0 0">${ta('giAutoSides')(by.noiva, by.noivo, by.conjunto, kids, conf)}</div>
-      ${g.struct.unrecognized.length ? `<div class="cb-sub" style="margin:4px 0 0">${ta('giUnrecognized')(g.struct.unrecognized.map(x=>'«'+x+'»').join(', '))}</div>` : ''}
-      ${ig.length ? `<details style="margin-top:6px"><summary class="cb-sub" style="margin:0;cursor:pointer">${ta('giIgnored')(ig.length)}</summary><div class="cb-sub" style="margin:4px 0 0">${ig.slice(0,30).map(x=>escapeHTML((x.sheet?x.sheet+' · ':'')+'L'+x.r+': «'+x.text+'»')).join('<br>')}</div></details>` : ''}
-    </div>`;
-  }
   const catKeys = []; const seen = {};
-  g.items.forEach(it=>{ const k = gimpCatKey(it); if(!seen[k]){ seen[k]=1; catKeys.push([k, it.catId ? ((FIXED_GUEST_CAT_KEY[it.catId] && ta(FIXED_GUEST_CAT_KEY[it.catId])) || (it.catId==='criancas'?ta('giCatKids'):(it.newLabel||it.catRaw||it.catId))) : it.newLabel]); } });
-  const bulkCats = FIXED_GUEST_CATS.map(x=>(FIXED_GUEST_CAT_KEY[x.id] && ta(FIXED_GUEST_CAT_KEY[x.id])) || x.label).concat([ta('giCatKids')]);
+  g.items.forEach(it=>{ const k = gimpCatKey(it); if(!seen[k]){ seen[k]=1; catKeys.push([k, gimpCatLabelOf(it)]); } });
+  const desk = gimpIsDesktop(), n = gimpSelCount();
   return `${gimpHead()}
-  <p class="cb-sub" role="status">${ta('giReviewSum')(c.inc, c.total)}${c.newCats?(' '+ta('giNewCats')(c.newCats)):''}</p>
-  ${banner}
+  <div class="gimp-rv-h"><button type="button" class="cb-link" data-gimpgosummary>‹ ${ta('giSumTitle')}</button></div>
+  <h3 class="gimp-h2" style="margin-top:4px">${ta('giListTitle')}</h3>
+  <p class="cb-sub" role="status">${ta('giListCount')(c.inc, c.total)}${c.newCats?(' '+ta('giNewCats')(c.newCats)):''}${g.notice?' · '+escapeHTML(g.notice):''}</p>
   ${g.error ? `<p class="gimp-err" role="alert">${escapeHTML(g.error)}</p>` : ''}
-  ${g.truncated ? `<p class="gimp-err">${ta('giTruncated')(GIMP_MAX_ROWS)}</p>` : ''}
-  <div class="cb-chips" style="margin:8px 0 6px">${chip('all',ta('giAll'),c.total)}${chip('issues',ta('giIssues'),issues)}${chip('dupes',ta('giDupes'),dup)}</div>
-  <div class="gimp-filters">
-    <input class="cb-in" type="search" id="gimp-q" value="${escapeHTML(g.q||'')}" placeholder="${ta('giSearch')}" aria-label="${ta('giSearch')}">
-    <select class="cb-in" data-gimpfside aria-label="${ta('giColSide')}"><option value="">${ta('giAllSides')}</option>${['noiva','noivo','conjunto'].map(v=>`<option value="${v}" ${g.fSide===v?'selected':''}>${ta(v==='noiva'?'sideBride':(v==='noivo'?'sideGroom':'sideJoint'))}</option>`).join('')}</select>
-    <select class="cb-in" data-gimpfcat aria-label="${ta('giColCat')}"><option value="">${ta('giAllCats')}</option>${catKeys.map(([k,l])=>`<option value="${escapeHTML(k)}" ${g.fCat===k?'selected':''}>${escapeHTML(l)}</option>`).join('')}</select>
+  <div class="gimp-rv ${desk?'desk':''}">
+   <div class="gimp-rv-main">
+    <div class="cb-chips" style="margin:6px 0">${chip('all',ta('giAll'),c.total)}${chip('issues',ta('giIssues'),issues)}${chip('dupes',ta('giDupes'),dup)}</div>
+    <div class="gimp-filters">
+      <input class="cb-in" type="search" id="gimp-q" value="${escapeHTML(g.q||'')}" placeholder="${ta('giSearch')}" aria-label="${ta('giSearch')}">
+      <select class="cb-in" data-gimpfside aria-label="${ta('giColSide')}"><option value="">${ta('giAllSides')}</option>${['noiva','noivo','conjunto'].map(v=>`<option value="${v}" ${g.fSide===v?'selected':''}>${gimpSideLabel(v)}</option>`).join('')}</select>
+      <select class="cb-in" data-gimpfcat aria-label="${ta('giColCat')}"><option value="">${ta('giAllCats')}</option>${catKeys.map(([k,l])=>`<option value="${escapeHTML(k)}" ${g.fCat===k?'selected':''}>${escapeHTML(l)}</option>`).join('')}</select>
+    </div>
+    <div class="gimp-seltools">
+      <button type="button" class="cb-link" data-gimpselall>${ta('giSelFiltered')}</button>
+      <span class="cb-sub" data-gimpselcount style="margin:0">${ta('giSelN')(n)}</span>
+      ${desk ? '' : `<button type="button" class="gimp-editsel" id="gimp-editsel" data-gimpbulkopen style="${n?'':'display:none'}">${ta('giEditSel')(n)}</button>`}
+    </div>
+    <div class="gimp-list" id="gimp-listwrap">${gimpListHTML()}</div>
+   </div>
+   ${desk ? `<aside class="gimp-aside">${gimpBulkHTML()}</aside>` : ''}
   </div>
-  <details class="gimp-bulkd" ${window.innerWidth>=900?'open':''}><summary class="cb-link" style="cursor:pointer">${ta('giBulkTitle')}</summary>
-  <div class="gimp-bulk">
-    <button type="button" class="cb-link" data-gimpselall>${ta('giSelFiltered')}</button>
-    <span class="cb-sub" id="gimp-selcount" style="margin:0">${ta('giSelN')(g.items.filter(x=>x.sel).length)}</span>
-    <select class="cb-in" id="gimp-bulk-cat" aria-label="${ta('giBulkCat')}"><option value="">${ta('giBulkCat')}</option>${bulkCats.map(l=>`<option value="${escapeHTML(l)}">${escapeHTML(l)}</option>`).join('')}</select>
-    <input class="cb-in" type="text" id="gimp-bulk-new" maxlength="60" placeholder="${ta('giBulkNew')}" aria-label="${ta('giBulkNew')}">
-    <select class="cb-in" id="gimp-bulk-side" aria-label="${ta('giBulkSide')}"><option value="">${ta('giBulkSide')}</option><option value="noiva">${ta('sideBride')}</option><option value="noivo">${ta('sideGroom')}</option><option value="conjunto">${ta('sideJoint')}</option></select>
-    <button type="button" class="cb-btn ghost" style="margin:0;min-height:40px" data-gimpbulkapply>${ta('giApply')}</button>
-    <button type="button" class="cb-btn ghost" style="margin:0;min-height:40px" data-gimpexcl>${ta('giExcludeSel')}</button>
-  </div></details>
-  <p class="cb-sub" style="margin-top:6px">${ta(g.auto?'giReviewHintAuto':'giReviewHint')}</p>
-  <div class="gimp-list" id="gimp-listwrap">${gimpListHTML()}</div>
-  <div class="gimp-bar"><button type="button" class="cb-btn" style="margin:0" data-gimpcommit ${c.inc?'':'disabled'}>${ta('giImportN')(c.inc)}</button><button type="button" class="cb-btn ghost" style="margin:8px 0 0" data-gimpbackmap>${g.auto ? ta('giBackSheets') : ta('giBack')}</button></div>`;
+  <div class="gimp-bar"><div class="gimp-bar-in"><span class="gimp-bar-t">${ta('giBarCount')(c.inc, c.total)}</span><button type="button" class="cb-btn" style="margin:0" data-gimpcommit ${c.inc?'':'disabled'}>${ta('giImportN')(c.inc)}</button></div></div>
+  ${(!desk && g.bulkOpen) ? `<div class="gimp-modal-bg" data-gimpbulkclose></div><div class="gimp-modal" role="dialog" aria-modal="true" aria-label="${ta('giBulkTitle')}"><div class="gimp-modal-handle"></div>${gimpBulkHTML()}<button type="button" class="cb-btn ghost" style="margin:10px 0 0" data-gimpbulkclose>${ta('giClose')}</button></div>` : ''}`;
 }
+/* ---------- Ecrã 9 — importação concluída ---------- */
 function gimpStepDone(){
   const r = gimp.result;
+  const st = (n,l)=>`<div class="gimp-stat"><b>${n}</b><span>${l}</span></div>`;
   return `${gimpHead()}
-  <p class="cb-sub" role="status" style="font-size:15px;color:#2B2522">${ta('giDoneLine')(r.imported)}</p>
-  <ul class="gimp-sum">
-    <li>${ta('giSumSkippedDup')(r.skipDup)}</li><li>${ta('giSumSkippedErr')(r.skipErr)}</li>
-    ${r.confirmed?`<li>${ta('giSumConfirmed')(r.confirmed)}</li>`:''}${r.cats?`<li>${ta('giSumCats')(r.cats)}</li>`:''}${r.emails?`<li>${ta('giSumEmails')(r.emails)}</li>`:''}${r.phones?`<li>${ta('giSumPhones')(r.phones)}</li>`:''}
-  </ul>
+  <h3 class="gimp-h2">${ta('giDoneTitle')}</h3>
+  <p class="cb-sub" role="status">${ta('giDoneSub')}</p>
+  <div class="gimp-stats gimp-stats-done">${st(r.imported,ta('giStatImported'))}${st(r.skipDup,ta('giStatDup'))}${st(r.skipErr,ta('giStatErr'))}${st(r.cats,ta('giStatCats'))}${st(r.emails,ta('giStatEmails'))}${st(r.phones,ta('giStatPhones'))}${st(r.confirmed||0,ta('giStatConfirmed'))}</div>
   ${r.phones?`<p class="cb-sub">${ta('giPhoneNote')}</p>`:''}
   <p class="cb-sub">${ta('giKept')}</p>
-  <button type="button" class="cb-btn" data-gimpclose>${ta('giFinish')}</button>
-  ${gimp.undo ? `<button type="button" class="cb-btn ghost" style="margin-top:10px" data-gimpundo>${ta('giUndo')}</button>` : ''}`;
+  <div class="gimp-nav gimp-nav-col"><button type="button" class="cb-btn" data-gimpclose>${ta('giViewGuests')}</button>
+  ${gimp.undo ? `<button type="button" class="cb-btn ghost" data-gimpundo>${ta('giUndo')}</button>` : ''}</div>`;
 }
 function gimpRender(){
   const el = document.getElementById('gimp-overlay'); if(!el || !gimp) return;
   const st = el.scrollTop;
-  const html = gimp.step==='pick' ? gimpStepPick() : gimp.step==='sheets' ? gimpStepSheets() : gimp.step==='map' ? gimpStepMap() : gimp.step==='review' ? gimpStepReview() : gimpStepDone();
-  el.innerHTML = `<div class="gimp-in">${html}</div>`;
+  const html = gimp.analyzing ? gimpStepAnalyzing() : gimp.step==='pick' ? gimpStepPick() : gimp.step==='sheets' ? gimpStepSheets() : gimp.step==='map' ? gimpStepMap() : gimp.step==='summary' ? gimpStepSummary() : gimp.step==='review' ? gimpStepReview() : gimpStepDone();
+  el.innerHTML = `<div class="gimp-in gimp-s-${gimp.analyzing?'busy':gimp.step}">${html}</div>`;
   el.scrollTop = st;
 }
+const GIMP_SHEET_KIND = [ ['budget', /orcament|budget|orcamentador/], ['expenses', /gasto|despesa|expense|pagamento/], ['tables', /mesa|lugar|table|seat|plano de/] ];
+function gimpSheetKind(name, rows){
+  const nm = gimpNorm(name), blob = gimpNorm(rows.slice(0,12).map(r=>r.join(' ')).join(' '));
+  for(const [k,re] of GIMP_SHEET_KIND){ if(re.test(nm)) return k; }
+  if(/orcad|orcamento|budget/.test(blob) && GIMP_BUDGET_WORDS.test(blob)) return 'budget';
+  if(/(despesa|gasto|expense)/.test(blob)) return 'expenses';
+  if(/mesa\s*\d|table\s*\d|lugar/.test(blob)) return 'tables';
+  return '';
+}
 async function gimpReadFile(file){
-  gimp.error = ''; gimp.busy = true; gimpRender();
+  const g = gimp; g.error = ''; g.analyzing = true; g.stage = 0; gimpRender(); await gimpTick();
   try{
     if(!file) throw new Error('nofile');
     if(file.size > GIMP_MAX_BYTES) throw new Error(ta('giErrBig'));
@@ -12207,33 +12409,37 @@ async function gimpReadFile(file){
       if(rows.length) sheets.push({ name:'', rows, groups:[] });
     } else throw new Error(ta('giErrType'));
     if(!sheets.length) throw new Error(ta('giErrEmpty'));
-    sheets.forEach(sh=>Object.assign(sh, gimpScoreSheet(sh.name, sh.rows)));
+    await gimpSetStage(1);                       // estrutura lida
+    sheets.forEach(sh=>{ Object.assign(sh, gimpScoreSheet(sh.name, sh.rows)); sh.kind = (!sh.structured && sh.score<40) ? gimpSheetKind(sh.name, sh.rows) : ''; });
     let bi = 0; sheets.forEach((sh,i)=>{ if(sh.score>sheets[bi].score) bi = i; });
-    sheets.forEach((sh,i)=>{ sh.use = (i===bi); sh.suggested = (i===bi && sh.score>=40); });
-    gimp.fileName = name; gimp.sheets = sheets;
-    if(sheets.length===1) gimpProceed(); else gimp.step = 'sheets';
+    sheets.forEach((sh,i)=>{ sh.use = (i===bi && !sh.kind); sh.suggested = (i===bi && sh.score>=40); });
+    g.fileName = name; g.sheets = sheets;
+    await gimpSetStage(2);                       // listas e categorias identificadas
+    g.analyzing = false;
+    if(sheets.length===1) await gimpProceed(); else { g.step = 'sheets'; gimpRender(); }
   }catch(e){
-    gimp.error = (e && e.message && e.message!=='nofile') ? e.message : ta('giErrRead');
-    if(/Excel/.test(String(e&&e.message))) gimp.error = ta('giErrLib');
+    g.analyzing = false;
+    g.error = (e && e.message && e.message!=='nofile') ? e.message : ta('giErrRead');
+    if(/Excel/.test(String(e&&e.message))) g.error = ta('giErrLib');
+    gimpRender();
   }
-  gimp.busy = false; gimpRender();
 }
 function gimpStartLegacy(rows){
   if(rows.length<2 && !(rows.length===1)) throw new Error(ta('giErrEmpty'));
-  gimp.rows = rows; gimp.auto = false;
   const guess = gimpGuessMap(rows[0]);
   const looksHeader = guess.name>=0 || guess.email>=0 || guess.phone>=0;
   if(!looksHeader){ // sem títulos reconhecidos: se parece orçamento/gastos/mesas, não é uma lista de convidados
     const blob = gimpNorm(rows.slice(0,12).map(r=>r.join(' ')).join(' '));
     if((blob.match(new RegExp(GIMP_BUDGET_WORDS.source,'g'))||[]).length>=2) throw new Error(ta('giNoGuestsFound'));
   }
+  gimp.rows = rows; gimp.auto = false;
   gimp.hasHeader = looksHeader;
   gimp.map = gimp.hasHeader ? guess : { name:0, email:-1, phone:-1, side:-1, cat:-1, age:-1, rsvp:-1, inv:-1 };
   if(gimp.hasHeader && gimp.map.name<0 && rows[0].length===1) gimp.map.name = 0;
   gimp.step = 'map';
 }
 // Escolhe o caminho: listas lado a lado/secções (leitura inteligente) ou o mapeamento de colunas de sempre.
-function gimpProceed(){
+async function gimpProceed(){
   const g = gimp; g.error = '';
   const used = g.sheets.filter(s=>s.use);
   if(!used.length){ g.error = ta('giSheetNeedOne'); gimpRender(); return; }
@@ -12243,21 +12449,33 @@ function gimpProceed(){
   }
   const bad = used.find(s=>!s.structured);
   if(bad){ g.error = ta('giSheetUnstructured')(bad.name); gimpRender(); return; }
-  const items = [], ignored = [], unrec = []; let lists = 0;
-  used.forEach(sh=>{
-    const an = gimpAnalyzeRows(sh.rows, sh.groups);
-    const lab = used.length>1 ? sh.name : '';
-    an.items.forEach(x=>{ x.sheet = lab; items.push(x); });
-    an.ignored.forEach(x=>ignored.push({ r:x.r, text:x.text, sheet:lab }));
-    an.unrecognized.forEach(u=>{ if(unrec.indexOf(u)<0) unrec.push(u); });
-    lists += an.lists||0;
-  });
-  if(!items.length){ g.error = ta('giNoGuestsFound'); gimpRender(); return; }
-  g.struct = { items, ignored, unrecognized:unrec, lists };
-  g.auto = true; g.rows = used[0].rows;
-  g.fSide = ''; g.fCat = ''; g.q = '';
-  gimpBuildStructured();
-  g.step = 'review'; g.filter = 'all'; g.shown = GIMP_PAGE; gimpRender();
+  g.analyzing = true; g.stage = 2; gimpRender(); await gimpTick();
+  try{
+    const items = [], ignored = [], unrec = []; let lists = 0;
+    used.forEach(sh=>{
+      const an = gimpAnalyzeRows(sh.rows, sh.groups);
+      const lab = used.length>1 ? sh.name : '';
+      an.items.forEach(x=>{ x.sheet = lab; items.push(x); });
+      an.ignored.forEach(x=>ignored.push({ r:x.r, text:x.text, sheet:lab }));
+      an.unrecognized.forEach(u=>{ if(unrec.indexOf(u)<0) unrec.push(u); });
+      lists += an.lists||0;
+    });
+    if(!items.length){ g.analyzing = false; g.error = ta('giNoGuestsFound'); gimpRender(); return; }
+    await gimpSetStage(3);                       // confirmações reconhecidas
+    g.struct = { items, ignored, unrecognized:unrec, lists };
+    g.summary = { lists, ignored, unrecognized:unrec };
+    g.auto = true; g.rows = used[0].rows;
+    g.fSide = ''; g.fCat = ''; g.q = ''; g.exp = {}; g.bulkOpen = false; g.notice = '';
+    gimpBuildStructured();
+    await gimpSetStage(4);                       // revisão preparada
+    g.analyzing = false; g.step = 'summary'; g.filter = 'all'; g.shown = GIMP_PAGE; gimpRender();
+  }catch(e){ g.analyzing = false; g.error = ta('giErrRead'); gimpRender(); }
+}
+
+function gimpOptCols(sel){
+  const w = gimp.rows[0] ? gimp.rows[0].length : 0; let o = `<option value="-1">${ta('giNone')}</option>`;
+  for(let i=0;i<w;i++) o += `<option value="${i}" ${sel===i?'selected':''}>${escapeHTML(gimpColLabel(i))}</option>`;
+  return o;
 }
 function gimpCommit(){
   const g = gimp; if(!g) return;
@@ -12323,35 +12541,49 @@ function gimpBind(){
     if(t.closest('[data-gimpopen]')){ gimpOpen(); return; }
     if(!gimp) return;
     if(t.closest('[data-gimpclose]')){ gimpClose(); return; }
+    if(gimp.analyzing) return;
     if(t.closest('[data-gimpback]')){ gimp.step='pick'; gimp.error=''; gimpRender(); return; }
     if(t.closest('[data-gimpbackmap]')){
-      if(gimp.auto){ if(gimp.sheets.length>1){ gimp.step='sheets'; gimp.auto=false; } else { try{ gimpStartLegacy(gimp.rows); }catch(e){ gimp.error=e.message; } } }
+      gimp.error='';
+      if(gimp.auto){ gimp.auto=false; if(gimp.sheets.length>1) gimp.step='sheets'; else gimp.step='pick'; }
       else gimp.step='map';
       gimpRender(); return;
     }
+    if(t.closest('[data-gimpgosummary]')){ gimp.step='summary'; gimp.bulkOpen=false; gimpRender(); return; }
+    if(t.closest('[data-gimpshowlist]')){ gimp.step='review'; gimp.filter='all'; gimp.shown=GIMP_PAGE; gimpRender(); window.scrollTo&&0; const o=document.getElementById('gimp-overlay'); if(o) o.scrollTop=0; return; }
+    const sf = t.closest('[data-gimpseefilter]'); if(sf){ gimp.step='review'; gimp.filter=sf.dataset.gimpseefilter; gimp.shown=GIMP_PAGE; gimpRender(); const o=document.getElementById('gimp-overlay'); if(o) o.scrollTop=0; return; }
     if(t.closest('[data-gimpsheetsgo]')){ gimpProceed(); return; }
+    const ex = t.closest('[data-gimpexp]'); if(ex){ const i = Number(ex.dataset.gimpexp); gimp.exp[i] = !gimp.exp[i]; gimpRenderList(); return; }
     if(t.closest('[data-gimpselall]')){
       const fl = gimpFiltered(); const all = fl.length && fl.every(x=>x.sel);
       fl.forEach(x=>{ x.sel = !all; }); gimpRenderList(); return;
     }
-    if(t.closest('[data-gimpexcl]')){ gimp.items.forEach(x=>{ if(x.sel){ x.include = false; x.sel = false; } }); gimpRender(); return; }
+    if(t.closest('[data-gimpclearsel]')){ gimp.items.forEach(x=>{ x.sel=false; }); gimpRenderList(); return; }
+    if(t.closest('[data-gimpbulkopen]')){ gimp.bulkOpen = true; gimpRender(); return; }
+    if(t.closest('[data-gimpbulkclose]')){ gimp.bulkOpen = false; gimpRender(); return; }
+    if(t.closest('[data-gimpexcl]')){ gimp.items.forEach(x=>{ if(x.sel){ x.include = false; x.sel = false; } }); gimp.bulkOpen=false; gimpRender(); return; }
     if(t.closest('[data-gimpbulkapply]')){
-      const cat = (document.getElementById('gimp-bulk-new')||{}).value.trim() || (document.getElementById('gimp-bulk-cat')||{}).value || '';
+      const cat = ((document.getElementById('gimp-bulk-new')||{}).value||'').trim() || (document.getElementById('gimp-bulk-cat')||{}).value || '';
       const side = (document.getElementById('gimp-bulk-side')||{}).value || '';
+      if(!side && !cat) return;
       gimp.items.forEach(x=>{
         if(!x.sel) return;
         if(side){ x.side = side; x.sideWarn = false; }
         if(cat){ x.catRaw = cat; x.catManual = false; }
         if(side || cat){ const ct = gimpResolveCat(x.side, x.catRaw); x.catId = ct.catId; x.newLabel = ct.newLabel||''; }
       });
-      gimpRevalidateAll(); gimpRender(); return;
+      gimpRevalidateAll(); gimp.bulkOpen=false; gimpRender(); return;
     }
     if(t.closest('[data-gimpnext]')){
       if(gimp.map.name<0){ gimp.error = ta('giErrNeedName'); gimpRender(); return; }
-      gimp.error=''; gimpBuildItems(); gimp.step='review'; gimp.filter='all'; gimp.shown=GIMP_PAGE; gimpRender(); return;
+      gimp.error=''; gimpBuildItems();
+      const hdr = gimp.hasHeader ? gimp.rows[0] : [], mapped = {}; Object.keys(gimp.map).forEach(k=>{ if(gimp.map[k]>=0) mapped[gimp.map[k]] = 1; });
+      const unrec = hdr.map((h,i)=>mapped[i]?'':String(h||'').trim()).filter(Boolean);
+      gimp.summary = { lists:1, ignored:[], unrecognized:unrec }; gimp.exp = {}; gimp.fSide=''; gimp.fCat=''; gimp.q='';
+      gimp.step='summary'; gimp.filter='all'; gimp.shown=GIMP_PAGE; gimpRender(); return;
     }
     const fl = t.closest('[data-gimpfilter]'); if(fl){ gimp.filter = fl.dataset.gimpfilter; gimp.shown = GIMP_PAGE; gimpRender(); return; }
-    if(t.closest('[data-gimpmore]')){ gimp.shown += GIMP_PAGE; gimpRender(); return; }
+    if(t.closest('[data-gimpmore]')){ gimp.shown += GIMP_PAGE; gimpRenderList(); return; }
     if(t.closest('[data-gimpcommit]')){ gimpCommit(); return; }
     if(t.closest('[data-gimpundo]')){ gimpUndo(); return; }
   });
@@ -12363,10 +12595,9 @@ function gimpBind(){
     if(t.matches('[data-gimpsheet]')){ const sh = gimp.sheets[Number(t.dataset.gimpsheet)]; if(sh) sh.use = t.checked; return; }
     if(t.matches('[data-gimpfside]')){ gimp.fSide = t.value; gimp.shown = GIMP_PAGE; gimpRenderList(); return; }
     if(t.matches('[data-gimpfcat]')){ gimp.fCat = t.value; gimp.shown = GIMP_PAGE; gimpRenderList(); return; }
-    if(t.matches('[data-gimpsel]')){ const it = gimp.items[Number(t.dataset.gimpsel)]; if(it) it.sel = t.checked; const s = document.getElementById('gimp-selcount'); if(s) s.textContent = ta('giSelN')(gimp.items.filter(x=>x.sel).length); return; }
+    if(t.matches('[data-gimpsel]')){ const it = gimp.items[Number(t.dataset.gimpsel)]; if(it) it.sel = t.checked; gimpRenderCounts(); return; }
     if(t.matches('[data-gimpdef]')){ if(t.dataset.gimpdef==='side') gimp.defSide = t.value; else gimp.defCat = t.value; return; }
-    const inc = t.closest && t.matches('[data-gimpinc]') ? t : null;
-    if(inc){ const it = gimp.items[Number(inc.dataset.gimpinc)]; if(it){ it.include = inc.checked; gimpRender(); } return; }
+    if(t.matches('[data-gimpinc]')){ const it = gimp.items[Number(t.dataset.gimpinc)]; if(it){ it.include = t.checked; gimpRender(); } return; }
     if(t.matches('[data-gimped]')){
       const [i,f] = t.dataset.gimped.split('|'); const it = gimp.items[Number(i)]; if(!it) return;
       const sig = () => gimp.items.map(x=>x.errors.join('')+x.dupe+(x.include?1:0)).join('|');
@@ -12387,7 +12618,11 @@ function gimpBind(){
     }
   });
   document.addEventListener('input', e=>{ if(gimp && e.target && e.target.id==='gimp-q'){ gimp.q = e.target.value; gimp.shown = GIMP_PAGE; gimpRenderList(); } });
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && gimp) gimpClose(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && gimp){ if(gimp.bulkOpen){ gimp.bulkOpen=false; gimpRender(); } else gimpClose(); } });
+  // Arrastar e largar um ficheiro (só no ecrã de escolher ficheiro)
+  ['dragenter','dragover'].forEach(ev=>document.addEventListener(ev, e=>{ if(!gimp || gimp.step!=='pick' || gimp.analyzing) return; const z = e.target.closest && e.target.closest('[data-gimpdrop]'); if(!z) return; e.preventDefault(); z.classList.add('over'); }));
+  document.addEventListener('dragleave', e=>{ const z = e.target.closest && e.target.closest('[data-gimpdrop]'); if(z && !z.contains(e.relatedTarget)) z.classList.remove('over'); });
+  document.addEventListener('drop', e=>{ if(!gimp || gimp.step!=='pick' || gimp.analyzing) return; const z = e.target.closest && e.target.closest('[data-gimpdrop]'); if(!z) return; e.preventDefault(); z.classList.remove('over'); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) gimpReadFile(f); });
 }
 gimpBind();
 /* ============================================================
