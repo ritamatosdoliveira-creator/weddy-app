@@ -11824,6 +11824,10 @@ function ntPrefsHTML(){
 function ntRender(){
   const el = document.getElementById('nt-overlay'); if(!el) return;
   const st = el.scrollTop, pf = ntPrefs();
+  // Preserva a secção «Preferências» aberta e o controlo em foco ao mudar uma opção.
+  const wasOpen = !!(el.querySelector('.nt-prefs') && el.querySelector('.nt-prefs').open);
+  const ae = document.activeElement; const focusKey = (ae && el.contains(ae) && ae.dataset) ? (ae.dataset.ntpref ? 'ntpref' : (ae.hasAttribute('data-ntdevice') ? 'ntdevice' : '')) : '';
+  const focusVal = focusKey==='ntpref' ? ae.dataset.ntpref : '';
   const vis = ntItems().filter(it=>ntShown(it,pf)).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));
   const fresh = vis.filter(it=>!it.r), old = vis.filter(it=>it.r).slice(0,25);
   el.innerHTML = `<div class="gimp-in">
@@ -11837,6 +11841,8 @@ function ntRender(){
     ${(!fresh.length && old.length) ? `<p class="nt-empty">${ta('ntAllRead')}</p>` : ''}
     ${ntPrefsHTML()}
   </div>`;
+  if(wasOpen){ const d = el.querySelector('.nt-prefs'); if(d) d.open = true; }
+  if(focusKey){ const f = focusKey==='ntdevice' ? el.querySelector('[data-ntdevice]') : el.querySelector('[data-ntpref="'+focusVal+'"]'); if(f){ try{ f.focus({ preventScroll:true }); }catch(e){} } }
   el.scrollTop = st;
 }
 function ntClose(){ const el = document.getElementById('nt-overlay'); if(el) el.remove(); document.body.classList.remove('gimp-open'); ntOpen = false; ntBadge(); }
