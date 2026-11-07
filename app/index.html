@@ -11973,7 +11973,7 @@ function viewOrcamentoPlano(){
           <button type="button" class="orcx-act" data-renamecat="${c.id}">${ICONS.pencil} ${ta('btnRename')}</button>
           <button type="button" class="orcx-act is-danger" data-delcat="${c.id}">${ICONS.trash} ${ta('btnDelete')}</button>
         </div>
-        <div class="cat-desc" style="padding:0;"><ul>${c.desc.map((d,di)=>`<li>${d}<button class="desc-del" data-deldesc="${c.id}|${di}">✕</button></li>`).join('')}</ul>
+        <div class="cat-desc" style="padding:0;"><ul>${(Array.isArray(c.desc)?c.desc:[]).map((d,di)=>`<li>${d}<button class="desc-del" data-deldesc="${c.id}|${di}">✕</button></li>`).join('')}</ul>
           <div class="add-row" style="margin-top:8px;">
             <input type="text" placeholder="${ta('placeholderAddItem')}" data-adddesc="${c.id}">
             <button class="add-circle" data-adddescbtn="${c.id}">${ICONS.plus}</button>
@@ -26642,6 +26642,7 @@ function bindHandlers(){
     btn.addEventListener('click', e=>{
       const [id,di] = e.currentTarget.dataset.deldesc.split('|');
       const c = catById(id);
+      if(!Array.isArray(c.desc)) c.desc = [];
       c.desc.splice(Number(di),1);
       render();
     });
@@ -26652,7 +26653,7 @@ function bindHandlers(){
       const input = document.querySelector(`[data-adddesc="${id}"]`);
       const val = input.value.trim();
       if(!val) return;
-      catById(id).desc.push(val);
+      { const cc = catById(id); if(!cc) return; if(!Array.isArray(cc.desc)) cc.desc = []; cc.desc.push(val); }
       render();
     });
   });
@@ -26661,7 +26662,7 @@ function bindHandlers(){
       if(e.key==='Enter'){
         const id = e.currentTarget.dataset.adddesc;
         const val = e.currentTarget.value.trim();
-        if(val){ catById(id).desc.push(val); render(); }
+        if(val){ const cc = catById(id); if(cc){ if(!Array.isArray(cc.desc)) cc.desc = []; cc.desc.push(val); render(); } }
       }
     });
   });
@@ -27444,7 +27445,7 @@ document.getElementById('gp-save').addEventListener('click', async ()=>{
   const originalLabel = saveBtn.textContent;
   saveBtn.textContent = ta('btnSavingEllipsis') || originalLabel;
   const { guestId } = editingGuestPhoneRef;
-  const res = await GuestCommsService.updateGuestPhone(guestId, phone, phone ? optedIn : null);
+  const res = await GuestCommsService.updateGuestPhone(guestId, phone, null);
   saveBtn.disabled = false;
   saveBtn.textContent = originalLabel;
   if(!res.ok){
