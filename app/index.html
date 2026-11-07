@@ -4085,7 +4085,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/weddysite.js"></script>
-<script src="/weddyinvite.js"></script>
+<script src="/convites8/qrcode.js"></script><script src="/weddyinvite-w.js"></script><script src="/convites8/m-romantico.js"></script><script src="/convites8/m-editorial.js"></script><script src="/convites8/m-bordo.js"></script><script src="/convites8/m-beige.js"></script><script src="/convites8/m-monograma.js"></script><script src="/convites8/m-destino.js"></script><script src="/convites8/m-relevo.js"></script><script src="/weddyinvite.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -9541,23 +9541,26 @@ function invHomeView(){
   const dr = invEnsure().draft, st = invRemote.status, cfg0 = invPreviewCfg('editorial');
   const published = (st==='published' || st==='suspended' || st==='unpublished') && invRemote.slug;
   let state2 = '';
-  if(dr){ const c = invCfg(); state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invDraftT')}</div><div class="inv-row">${invCardHTML(c, 70)}<div class="inv-row-b"><b>${escapeHTML(ta('invTpl_'+c.tpl))}</b><small>${escapeHTML(c.names||ta('invNoNames'))}</small></div></div><button type="button" class="cb-btn" data-invgo="edit">${ta('invContinueEdit')}</button></div>`; }
+  if(dr){ const c = invCfg(); state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invDraftT')}</div><div class="inv-row">${invCardHTML(c, 70)}<div class="inv-row-b"><b>${escapeHTML(invTplName(c.tpl))}</b><small>${escapeHTML(c.names||ta('invNoNames'))}</small></div></div><button type="button" class="cb-btn" data-invgo="edit">${ta('invContinueEdit')}</button></div>`; }
   if(published){ const lab = st==='published' ? (invPending()?ta('invStChanges'):ta('invStPublished')) : st==='suspended' ? ta('invStSuspended') : ta('invStUnpublished');
     state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invPublishedT')} <span class="inv-pill ${st}">${lab}</span></div><button type="button" class="cb-btn ghost" data-invgo="manage">${ta('invManage')}</button></div>`; }
   return `<section class="inv-hero"><div class="inv-hero-t"><span class="inv-kick">WEDDY INVITATIONS</span><h3>${ta('invTitle')}</h3><p>${ta('invSub')}</p>${invPremTag()}<button type="button" class="cb-btn" data-invgo="gallery">${ta('invExplore')} →</button></div><div class="inv-hero-i">${invCardHTML(cfg0, 150)}</div></section>
   ${state2}
   <div class="inv-rest"><div class="inv-card-t">${ta('invRest')}</div><button type="button" class="inv-rest-b" data-sdtab="itens">${ta('sdTabItems')} <i>›</i></button><button type="button" class="inv-rest-b" data-sdtab="design">${ta('sdTabDesign')} <i>›</i></button></div>`;
 }
+function invTplName(id){ const t = WeddyInvite.TEMPLATES.find(x=>x.id===id); return t && t.w ? t.name[invLang()] : ta('invTpl_'+id); }
+function invW(pt,en){ return invLang()==='en' ? en : pt; }
+function invIsW(tpl){ const t = WeddyInvite.TEMPLATES.find(x=>x.id===tpl); return !!(t && t.w); }
 function invGalleryView(){
   const styles = ['todos'].concat(WeddyInvite.STYLES);
   const chips = styles.map(s=>`<button type="button" class="cb-chip" data-invfilter="${s}" aria-pressed="${invUI.filter===s?'true':'false'}">${ta('invStyle_'+s)}</button>`).join('');
-  const list = WeddyInvite.TEMPLATES.filter(t=>invUI.filter==='todos' || t.style===invUI.filter);
-  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(ta('invTpl_'+t.id))}">${invCardHTML(invPreviewCfg(t.id), 150)}<b>${ta('invTpl_'+t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
-  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="cb-chips inv-chips">${chips}</div><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
+  const list = WeddyInvite.TEMPLATES.filter(t=>t.w);
+  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${invCardHTML(invPreviewCfg(t.id), 150)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
+  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
 }
 function invTplView(){
   const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invPreviewCfg(id), m = invUI.mode;
-  return `${invBack(ta('invBackGallery'),'gallery')}<h3 class="gimp-h2">${ta('invTpl_'+id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p>
+  return `${invBack(ta('invBackGallery'),'gallery')}<h3 class="gimp-h2">${invTplName(id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p>
   <div class="cb-tabs inv-seg" role="tablist"><button type="button" role="tab" class="cb-tab" data-invmode="page" aria-selected="${m==='page'}">${ta('invModePage')}</button><button type="button" role="tab" class="cb-tab" data-invmode="card" aria-selected="${m==='card'}">${ta('invModeCard')}</button></div>
   <div class="inv-stage">${m==='card' ? invCardHTML(cfg, 270) : invFrame(cfg,'phone')}</div>
   <button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button><button type="button" class="cb-btn ghost" data-invgo="gallery">${ta('invBackToTpl')}</button>`;
@@ -9574,12 +9577,13 @@ function invField(path, label, val, opt){ opt = opt||{}; const tag = opt.area ? 
   return `<label class="cb-f"><span>${label}</span>${tag}</label>`; }
 function invSectionView(){
   const dr = invEnsure().draft; if(!dr) return invHomeView(); const s = invUI.sec, P = 'invitation.draft.';
+  if(!dr.song || typeof dr.song!=='object') dr.song = {t:'',a:'',u:''}; if(!dr.photos || typeof dr.photos!=='object') dr.photos = {cover:'',gallery:['','','']}; if(!Array.isArray(dr.photos.gallery)) dr.photos.gallery = ['','','']; while(dr.photos.gallery.length<3) dr.photos.gallery.push(''); ['cer','rec'].forEach(k=>{ if(!dr[k] || typeof dr[k]!=='object') dr[k] = {t:'',p:''}; });
   let body = '';
-  if(s==='text'){ body = invField(P+'names',ta('invFNames'),dr.names,{max:60,ph:'Sofia & Pedro'})+invField(P+'intro',ta('invFIntro'),dr.intro,{area:true,max:200})+invField(P+'message',ta('invFMessage'),dr.message,{area:true,max:300}); }
+  if(s==='text'){ body = invField(P+'names',ta('invFNames'),dr.names,{max:60,ph:'Sofia & Pedro'})+invField(P+'intro',ta('invFIntro'),dr.intro,{area:true,max:200})+invField(P+'message',ta('invFMessage'),dr.message,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'quote',invW('Citação','Quote'),dr.quote,{area:true,max:200})+invField(P+'story',invW('A nossa história','Our story'),dr.story,{area:true,max:400})+invField(P+'parents',invW('Pais / padrinhos (uma linha por pessoa)','Parents (one per line)'),dr.parents,{area:true,max:200})+invField(P+'song.t',invW('Canção: título','Song: title'),(dr.song||{}).t,{max:80})+invField(P+'song.a',invW('Canção: artista','Song: artist'),(dr.song||{}).a,{max:80})+invField(P+'song.u',invW('Canção: ligação para ouvir (https)','Song: listen link (https)'),(dr.song||{}).u,{max:300,ph:'https://…'})+invField(P+'hash',invW('Hashtag do casamento','Wedding hashtag'),dr.hash,{max:40,ph:'#SofiaEPedro'}) : ''); }
   else if(s==='info'){
     const prog = (dr.program||[]).map((p,i)=>`<div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}program.${i}.t" value="${escapeHTML(p.t||'')}" aria-label="${ta('invFTime')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}program.${i}.d" value="${escapeHTML(p.d||'')}" aria-label="${ta('invSecProgram')}"><button type="button" class="cb-link" data-invprogdel="${i}" aria-label="${ta('invRemove')}">✕</button></div>`).join('');
     body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+['cer','rec'].map(k=>{ const ev = dr[k]||{}; return `<div class="cb-f"><span>${ta(k==='cer'?'invFCer':'invFRec')}</span><div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}${k}.t" value="${escapeHTML(ev.t||'')}" aria-label="${ta('invFEvT')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}${k}.p" value="${escapeHTML(ev.p||'')}" aria-label="${ta('invFEvP')}"></div></div>`; }).join('')+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
-      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-link" data-invprogadd>+ ${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}); }
+      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-link" data-invprogadd>+ ${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'giftUrl',invW('Ligação de presentes (gera QR)','Gift link (makes a QR code)'),dr.giftUrl,{max:300,ph:'https://…'})+invField(P+'cer.a',invW('Cerimónia: morada','Ceremony: address'),(dr.cer||{}).a,{max:120})+invField(P+'rec.a',invW('Receção: morada','Reception: address'),(dr.rec||{}).a,{max:120})+invField(P+'hotel',invW('Alojamento sugerido','Suggested accommodation'),dr.hotel,{area:true,max:120})+invField(P+'hotelUrl',invW('Alojamento: ligação (https)','Accommodation: link (https)'),dr.hotelUrl,{max:300,ph:'https://…'})+'<div class="cb-f"><span>'+invW('Fotografias (ligações https; vazio = fotografia demonstrativa)','Photos (https links; empty = demo photo)')+'</span></div>'+invField(P+'photos.cover',invW('Fotografia de capa','Cover photo'),(dr.photos||{}).cover,{max:400,ph:'https://…'})+[0,1,2].map(i=>invField(P+'photos.gallery.'+i,invW('Fotografia ','Photo ')+(i+1),((dr.photos||{}).gallery||[])[i],{max:400,ph:'https://…'})).join('') : ''); }
   else if(s==='style'){
     const t = WeddyInvite.tpl(dr.tpl), cp = invCustomPal(), cur = invCfg().palette;
     const sw = t.palettes.map(p=>`<button type="button" class="inv-sw${cur===p.id?' on':''}" data-invpal="${p.id}" style="background:${p.ac}" aria-label="${escapeHTML(p.name)}" aria-pressed="${cur===p.id}"><i style="background:${p.bg}"></i></button>`).join('') + (cp ? `<button type="button" class="inv-sw${cur==='custom'?' on':''}" data-invpal="custom" style="background:${cp.ac}" aria-label="${ta('invMyPalette')}" aria-pressed="${cur==='custom'}"><i style="background:${cp.soft||cp.ac}"></i></button>` : '');
@@ -9620,7 +9624,7 @@ function invManageView(){
   const lab = st==='published' ? (pending?ta('invStChanges'):ta('invStPublished')) : st==='suspended' ? ta('invStSuspended') : ta('invStUnpublished');
   const when = invRemote.publishedAt ? new Date(invRemote.publishedAt).toLocaleDateString(invLang()==='en'?'en-GB':'pt-PT',{day:'numeric',month:'long',year:'numeric'}) : '';
   return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invManageT')}</h3>
-  <div class="inv-card"><div class="inv-row">${invCardHTML(c, 80)}<div class="inv-row-b"><b>${escapeHTML(ta('invTpl_'+c.tpl))}</b><span class="inv-pill ${st}">${lab}</span>${when?`<small>${ta('invUpdated')}: ${escapeHTML(when)}</small>`:''}</div></div></div>
+  <div class="inv-card"><div class="inv-row">${invCardHTML(c, 80)}<div class="inv-row-b"><b>${escapeHTML(invTplName(c.tpl))}</b><span class="inv-pill ${st}">${lab}</span>${when?`<small>${ta('invUpdated')}: ${escapeHTML(when)}</small>`:''}</div></div></div>
   ${st==='suspended'?`<p class="cb-sub">${ta('invSuspendedNote')}</p>`:''}${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
   <div class="inv-acts"><a class="inv-act" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}<i>›</i></a><button type="button" class="inv-act" data-invgo="edit">${ta('invEdit')}<i>›</i></button>${st==='published'?`<button type="button" class="inv-act" data-invact="publish" ${pending?'':'aria-disabled="false"'}>${ta('invPublishChanges')}${pending?` <em>${ta('invPendingDot')}</em>`:''}<i>›</i></button>`:''}</div>
   ${invShareBlock()}

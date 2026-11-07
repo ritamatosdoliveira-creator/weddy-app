@@ -38,7 +38,23 @@
     { id:'couture', name:{pt:'Couture',en:'Couture'}, desc:{pt:'Sofisticação em tons profundos.',en:'Sophistication in deep tones.'}, style:'contemporaneos', fonts:['Cormorant Garamond','Manrope'], photo:false,
       palettes:[P('preto','Preto e ouro','#1E1B19','#F3EBDD','#C9A86A','#34302C'),P('verde','Verde profundo','#18261F','#EEF0E6','#C9B27A','#26382E'),P('vinho','Vinho','#2A1519','#F6E9E4','#D4A98A','#3E2227')] },
     { id:'campestre', name:{pt:'Campestre',en:'Countryside'}, desc:{pt:'Simples, caloroso e ao ar livre.',en:'Simple, warm and outdoorsy.'}, style:'botanicos', fonts:['Manrope','Cormorant Garamond'], photo:false,
-      palettes:[P('kraft','Kraft','#EFE3D0','#3A2E22','#8A5A3B','#E1D0B5'),P('trigo','Trigo','#F5EBD5','#3B3220','#A57F2F','#E8D9B4'),P('campo','Campo','#EEF0E1','#2B3320','#6D7F3C','#DADFC0')] }
+      palettes:[P('kraft','Kraft','#EFE3D0','#3A2E22','#8A5A3B','#E1D0B5'),P('trigo','Trigo','#F5EBD5','#3B3220','#A57F2F','#E8D9B4'),P('campo','Campo','#EEF0E1','#2B3320','#6D7F3C','#DADFC0')] },
+    { id:'w-verde', w:true, name:{pt:'Verde-oliva texturizado',en:'Textured Olive'}, desc:{pt:'Envelope de 4 abas em papel texturizado, selo de cera e cartão marfim.',en:'Four-flap textured envelope, wax seal and ivory card.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('oliva','Verde-oliva','#F1EEE6','#454D2E','#6A7747','#CDD0B6')] },
+    { id:'w-romantico', w:true, name:{pt:'Romântico verde-oliva',en:'Olive Romantic'}, desc:{pt:'Fotografia com cartões de papel rasgado.',en:'Photo with torn-paper cards.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Romântico verde-oliva','#F4EEE4','#4B5232','#6A7047','#8A8F6C')] },
+    { id:'w-editorial', w:true, name:{pt:'Editorial minimalista',en:'Minimal Editorial'}, desc:{pt:'Cartão de algodão com papel vegetal e pino.',en:'Cotton card under vellum with a pin.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Editorial minimalista','#EEEDE9','#171514','#171514','#7C7771')] },
+    { id:'w-bordo', w:true, name:{pt:'Bordô com flores',en:'Burgundy Florals'}, desc:{pt:'Bolso com banda e aba geométrica.',en:'Pocket with band and geometric flap.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Bordô com flores','#F1ECE6','#3D1D25','#5B1F2C','#8C6B72')] },
+    { id:'w-beige', w:true, name:{pt:'Editorial luxo bege',en:'Beige Luxe'}, desc:{pt:'Envelope taupe com aba em V e selo dourado.',en:'Taupe envelope, V-flap and gold seal.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Editorial luxo bege','#F3EEE7','#3A3028','#3A3028','#8C7C6C')] },
+    { id:'w-monograma', w:true, name:{pt:'Monograma e brasão',en:'Monogram Crest'}, desc:{pt:'Portas duplas com brasão em relevo.',en:'Double doors with an embossed crest.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Monograma e brasão','#EEF0E2','#3A4026','#4D5A2F','#7C8564')] },
+    { id:'w-destino', w:true, name:{pt:'Destino romântico',en:'Destination Romance'}, desc:{pt:'Cartão de renda sobre a fotografia do local.',en:'Lace card over the venue photo.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Destino romântico','#F7F0E4','#4A4636','#6D7550','#8A8570')] },
+    { id:'w-relevo', w:true, name:{pt:'Relevo minimalista',en:'Minimal Emboss'}, desc:{pt:'Envelope com painel lateral e selo branco.',en:'Envelope with side panel and white seal.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:true,
+      palettes:[P('base','Relevo minimalista','#F3F1E2','#444630','#5D6140','#8C8D72')] }
   ];
   var STYLES = ['premium','classicos','minimalistas','romanticos','botanicos','contemporaneos'];
   var STR = {
@@ -72,7 +88,7 @@
       date: validDate(raw.date), time: validTime(raw.time), venue: clip(raw.venue, LIM.venue).trim(), address: clip(raw.address, LIM.address).trim(),
       mapUrl: safeUrl(clip(raw.mapUrl, LIM.mapUrl)), dress: clip(raw.dress, LIM.dress).trim(), mono: clip(raw.mono, LIM.mono).trim(),
       fontMain: fontOk(raw.fontMain) || tpl.fonts[0], fontSecond: (fontOk(raw.fontSecond)!=='Pinyon Script' && fontOk(raw.fontSecond)) || (tpl.fonts[1]==='Pinyon Script'?FONTS[1]:tpl.fonts[1]), deco: raw.deco !== false,
-      program: [], tips:clip(raw.tips, LIM.tips).trim(), kids:clip(raw.kids, LIM.kids).trim(), gifts:clip(raw.gifts, LIM.gifts).trim(), sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt' };
+      program: [], tips:clip(raw.tips, LIM.tips).trim(), kids:clip(raw.kids, LIM.kids).trim(), gifts:clip(raw.gifts, LIM.gifts).trim(), sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt', photos: sanitizePhotos(raw.photos), quote: clip(raw.quote, 200).trim(), song: sanitizeSong(raw.song), hash: sanitizeHash(raw.hash), giftUrl: safeUrl(clip(raw.giftUrl, 300)), story: clip(raw.story, 400).trim(), parents: clip(raw.parents, 200).trim(), hotel: clip(raw.hotel, 120).trim(), hotelUrl: safeUrl(clip(raw.hotelUrl, 300)) };
     (Array.isArray(raw.program)?raw.program:[]).slice(0, LIM.prog).forEach(function(p){ if(!p||typeof p!=='object') return; var t=validTime(p.t), d=clip(p.d, LIM.progD).trim(); if(d) out.program.push({ t:t, d:d }); });
     var sc = raw.sections && typeof raw.sections==='object' ? raw.sections : {};
     SECTIONS.forEach(function(k){ out.sections[k] = (k==='cover') ? true : (sc[k] !== false && sc[k] !== 0); });
@@ -168,9 +184,9 @@
     return '<div class="wi-card wi-t-natural" style="'+vars(cfg)+'">'+(o.flap!==false?envFlap():'<div class="wi-orn" style="left:0;right:0;top:0;height:330px;background:var(--ac)"></div>')+'<div class="wi-cc"><div class="wi-names">'+names+'</div>'+dateH+'</div><div class="wi-nvd"><em>'+esc(S.save)+'</em>'+(cfg.venue?'<small>'+esc(cfg.venue)+'</small>':'')+'</div></div>';
   }
   function extraSecs(cfg){ var S=STR[cfg.lang], sc=cfg.sections, h='';
-    [['tips',S.tipsT,cfg.tips],['kids',S.kidsT,cfg.kids],['gifts',S.giftsT,cfg.gifts]].forEach(function(e){ if(sc[e[0]] && e[2]) h+='<section class="wp-sec" id="'+e[0]+'"><h2>'+esc(e[1])+'</h2><p class="wp-p">'+esc(e[2])+'</p></section>'; });
+    [['tips',S.tipsT,cfg.tips],['kids',S.kidsT,cfg.kids],['gifts',S.giftsT,cfg.gifts]].forEach(function(e){ if(sc[e[0]] && e[2]) h+='<section class="wp-sec" id="'+e[0]+'"><h2>'+esc(e[1])+'</h2><p class="wp-p">'+esc(e[2])+'</p>'+(e[0]==='gifts' && root.WeddyInviteW && root.WeddyInviteW.isW(cfg.tpl) ? root.WeddyInviteW.giftQr(cfg, esc, S) : '')+'</section>'; });
     return h; }
-  function countBlock(cfg){ var o=cfg.opt||{}; if(cfg.tpl!=='natural' || o.count===false || !cfg.sections.datetime) return ''; var S=STR[cfg.lang], c=countHTML(cfg), k=calHTML(cfg);
+  function countBlock(cfg){ var o=cfg.opt||{}; if((cfg.tpl!=='natural' && !(root.WeddyInviteW && root.WeddyInviteW.isW(cfg.tpl))) || o.count===false || !cfg.sections.datetime) return ''; var S=STR[cfg.lang], c=countHTML(cfg), k=calHTML(cfg);
     return (c||k) ? '<section class="wp-sec wp-green" id="contagem">'+(c?'<h2>'+esc(S.countT)+'</h2>'+c:'')+k+'</section>' : ''; }
   /* ====================== Lote A — Coleção Premium (luxo, arquitetura, romance) ====================== */
   function dateDot2(cfg){ if(!cfg.date) return ''; var p=cfg.date.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
@@ -281,10 +297,18 @@
   function sanitizeOpt(tplId, raw){ var out={}, defs=OPTS[tplId]||[]; raw = raw && typeof raw==='object' ? raw : {};
     defs.forEach(function(d){ var v=raw[d.k]; if(d.t==='bool') out[d.k] = (v===false||v===0) ? false : (v===true||v===1 ? true : d.d); else out[d.k] = d.v.indexOf(v)>=0 ? v : d.d; });
     return out; }
-  function sanitizeEv(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:validTime(raw.t), p:clip(raw.p, 80).trim() }; }
+  /* Fotografias dos modelos «w-*»: só URLs https (Firebase Storage/Weddy). Vazio = fotografia demonstrativa. */
+  function sanitizePhotos(raw){ raw = raw && typeof raw==='object' ? raw : {}; var g = Array.isArray(raw.gallery) ? raw.gallery.slice(0,6).map(function(u){ return safeUrl(clip(u, 400)); }) : [];
+    return { cover: safeUrl(clip(raw.cover, 400)), gallery: g }; }
+  /* Campos opcionais dos modelos «w-*» (citação, canção, hashtag, ligação de presentes com QR). */
+  function sanitizeSong(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:clip(raw.t, 80).trim(), a:clip(raw.a, 80).trim(), u:safeUrl(clip(raw.u, 300)) }; }
+  function sanitizeHash(h){ h = clip(h, 40).replace(/[^\p{L}\p{N}_]/gu,''); return h ? '#'+h : ''; }
+  function wParts(cfg){ var S=STR[cfg.lang], n=splitNames(cfg), mp=monoParts(cfg); return { names:n, mono: mp[1] ? mp[0]+'·'+mp[1] : mp[0], date:dateDots(cfg), intro: cfg.intro || (cfg.lang==='en' ? 'The wedding of' : 'O casamento de'), openLabel: cfg.lang==='en' ? 'Tap to open' : 'Toque para abrir' }; }
+  function sanitizeEv(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:validTime(raw.t), p:clip(raw.p, 80).trim(), a:clip(raw.a, 120).trim() }; }
   /* ---------- cartão digital (vertical 360×540) ---------- */
   function vars(cfg){ var c=cfg.colors; return '--bg:'+c.bg+';--ink:'+c.ink+';--ac:'+c.ac+';--soft:'+c.soft+';--fm:\''+cfg.fontMain+'\','+(cfg.fontMain==='Manrope'||cfg.fontMain==='Helvetica'?'sans-serif':(cfg.fontMain==='Pinyon Script'?'cursive':'serif'))+';--fs:\''+cfg.fontSecond+'\','+(cfg.fontSecond==='Manrope'||cfg.fontSecond==='Helvetica'?'sans-serif':(cfg.fontSecond==='Pinyon Script'?'cursive':'serif'))+';'; }
   function cardHTML(cfg){
+    var W = root.WeddyInviteW; if(W && W.isW(cfg.tpl)) return '<style>'+W.pageCss(cfg.tpl)+'</style><div class="wv-card wv-'+cfg.tpl.slice(2)+'" style="'+vars(cfg)+'">'+W.models[cfg.tpl].card(cfg,false,esc,wParts(cfg))+'</div>';
     if(tplOf(cfg.tpl).lot) return lotCard(cfg);
     var S=STR[cfg.lang], n=splitNames(cfg), dd=dateDots(cfg), mono=monoOf(cfg);
     var names = n[1] ? '<span class="wi-n1">'+esc(n[0])+'</span><span class="wi-and">'+esc(S.and)+'</span><span class="wi-n2">'+esc(n[1])+'</span>' : '<span class="wi-n1">'+esc(n[0])+'</span>';
@@ -321,7 +345,7 @@
    '.wi-t-couture .wi-gold{inset:0;width:100%;height:100%}.wi-t-couture .wi-mono{font-size:76px;font-style:normal;font-weight:300;letter-spacing:.04em;line-height:1}.wi-t-couture .wi-names{margin-top:8px}.wi-t-couture .wi-n1,.wi-t-couture .wi-n2{font-size:20px;letter-spacing:.42em;font-family:var(--fs);font-weight:300}.wi-t-couture .wi-and{font-size:14px}.wi-t-couture .wi-date{color:var(--ac);letter-spacing:.42em;margin-top:18px}',
    /* campestre */
    '.wi-t-campestre .wi-bunt{top:0;left:0;width:100%}.wi-t-campestre .wi-dots{position:absolute;inset:14px;border:2px dotted var(--ac);opacity:.55;border-radius:6px;pointer-events:none}.wi-t-campestre .wi-n1,.wi-t-campestre .wi-n2{font-family:var(--fs);font-weight:700;font-size:28px;letter-spacing:.1em}.wi-t-campestre .wi-and{font-family:var(--fm)}.wi-t-campestre .wi-cc{padding-top:80px}'
-  ].join('')+LOTA_CSS+LOTB_CSS;
+  ].join('')+LOTA_CSS+LOTB_CSS+(root.WeddyInviteW ? root.WeddyInviteW.baseCss : '');
   /* ---------- página interativa ---------- */
   var PAGE_CSS = [
    '*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:var(--fs);-webkit-text-size-adjust:100%}',
@@ -342,10 +366,10 @@
   ].join('');
   function mapLink(cfg){ if(cfg.mapUrl) return cfg.mapUrl; var q=[cfg.venue,cfg.address].filter(Boolean).join(', '); return q ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q) : ''; }
   function page(cfg, opts){
-    opts = opts || {}; var S=STR[cfg.lang], sc=cfg.sections, h='';
+    opts = opts || {}; var S=STR[cfg.lang], sc=cfg.sections, h=''; var W = root.WeddyInviteW, isw = !!(W && W.isW(cfg.tpl));
     var tok = /^[A-Za-z0-9_-]{8,80}$/.test(opts.token||'') ? opts.token : '';
-    h += '<main class="wp wp-t-'+cfg.tpl+(cfg.fontMain==='Pinyon Script'?' wp-script':'')+'" style="'+vars(cfg)+'"><div class="wp-hero">'+cardHTML(cfg)+'</div>';
-    if(sc.message && (cfg.message || true)) h += '<section class="wp-sec" id="mensagem"><h2>'+esc(S.msgT)+'</h2><p class="wp-p">'+esc(cfg.message || S.defMsg)+'</p></section>';
+    h += '<main class="wp wp-t-'+cfg.tpl+(cfg.fontMain==='Pinyon Script'?' wp-script':'')+'" style="'+vars(cfg)+'"><div class="wp-hero">'+(isw ? '<!--WV-HERO-->' : cardHTML(cfg))+'</div>';
+    if(sc.message && (cfg.message || true)) h += '<section class="wp-sec" id="mensagem"><h2>'+esc(S.msgT)+'</h2><p class="wp-p">'+esc(cfg.message || S.defMsg)+'</p></section>'; if(isw) h += '<!--WV-PH0-->';
     if(sc.datetime && (cfg.date||cfg.time)) h += '<section class="wp-sec" id="data"><h2>'+esc(S.whenT)+'</h2><p class="wp-big">'+esc(dateLong(cfg))+'</p>'+(cfg.time?'<p class="wp-p">'+esc(S.at+' '+cfg.time)+'</p>':'')+eventBlocks(cfg)+'</section>'+countBlock(cfg);
     if(sc.location && (cfg.venue||cfg.address)){
       h += '<section class="wp-sec" id="local"><h2>'+esc(S.whereT)+'</h2>'+(cfg.venue?'<p class="wp-big">'+esc(cfg.venue)+'</p>':'')+(cfg.address?'<p class="wp-p">'+esc(cfg.address)+'</p>':'');
@@ -354,13 +378,18 @@
       h += '</section>';
     }
     if(sc.program && cfg.program.length) h += '<section class="wp-sec" id="programa"><h2>'+esc(S.progT)+'</h2><ul class="wp-prog">'+cfg.program.map(function(p){ return '<li><b>'+esc(p.t||'·')+'</b><span>'+esc(p.d)+'</span></li>'; }).join('')+'</ul></section>';
-    if(sc.dress && cfg.dress) h += '<section class="wp-sec" id="dresscode"><h2>'+esc(S.dressT)+'</h2><p class="wp-p">'+esc(cfg.dress)+'</p></section>';
+    if(sc.dress && cfg.dress) h += '<section class="wp-sec" id="dresscode"><h2>'+esc(S.dressT)+'</h2><p class="wp-p">'+esc(cfg.dress)+'</p></section>'; if(isw) h += '<!--WV-PH1-->';
     h += extraSecs(cfg);
     h += lotClosing(cfg);
     h += '<section class="wp-sec" id="rsvp"><h2>'+esc(S.rsvpT)+'</h2>'+(tok ? '<a class="wp-btn" href="https://www.weddy.pt/rsvp.html?g='+esc(tok)+'">'+esc(S.rsvpBtn)+'</a>' : '<p class="wp-note">'+esc(S.rsvpNo)+'</p>')+'</section>';
+    if(isw) h += '<!--WV-HASH-->';
     h += '<div class="wp-foot">'+esc(S.foot)+'</div></main>';
+    if(isw && (W.models[cfg.tpl].interior || W.models[cfg.tpl].secs)){
+      h = '<main class="wp wp-t-'+cfg.tpl+'" style="'+vars(cfg)+'"><div class="wp-hero"><!--WV-HERO--></div>'+(W.models[cfg.tpl].interior ? W.models[cfg.tpl].interior(cfg, esc, { S:S, sc:sc, tok:tok, dots:dateDots(cfg), dl:dateLong(cfg), mono:monoParts(cfg) }) : W.genInterior(cfg, esc, { S:S, sc:sc, tok:tok, dots:dateDots(cfg), dl:dateLong(cfg), mono:monoParts(cfg) }, W.models[cfg.tpl]))+'</main>';
+    }
+    if(isw){ h = W.wrap(cfg.tpl, cfg, h, wParts(cfg), esc); }
     var title = (cfg.names ? cfg.names+' · ' : '') + S.invite;
-    return { html:h, css:CSS+PAGE_CSS, bodyStyle:vars(cfg), title:title, description: (cfg.names||'')+(cfg.date?' — '+dateLong(cfg):'') };
+    return { html:h, css:CSS+PAGE_CSS+(isw ? W.pageCss(cfg.tpl) : ''), bodyStyle:vars(cfg), title:title, description: (cfg.names||'')+(cfg.date?' — '+dateLong(cfg):'') };
   }
   /* ---------- cartão em PNG (só no navegador) ---------- */
   function b64(buf){ var s='', b=new Uint8Array(buf); for(var i=0;i<b.length;i+=0x8000) s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000)); return btoa(s); }
