@@ -156,6 +156,8 @@
     h += photo(cfg, 0, 'r34', false, esc);
     if(cfg.quote) h += sec('', '<p class="w1q">'+esc(cfg.quote)+'</p>');
     h += songHtml(cfg, esc);
+    if(cfg.story) h += sec('', '<p class="scr" style="font-size:40px">'+esc(en?'Our story':'A nossa história')+'</p><p class="w1lead">'+esc(cfg.story)+'</p>');
+    if(cfg.parents) h += sec('', '<p class="w1small">'+esc(en?'With the love that unites us and the support of our parents:':'Com o amor que nos une e o apoio dos nossos pais:')+'</p><p class="w1lead" style="font-style:italic">'+esc(cfg.parents).replace(/\n/g,'<br>')+'</p>');
     if(sc.datetime && cfg.date){ var d = cfg.date.split('-').map(Number), dt = new Date(Date.UTC(d[0],d[1]-1,d[2])), wd = (en?['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']:['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'])[dt.getUTCDay()];
       var off = (new Date(Date.UTC(d[0],d[1]-1,1)).getUTCDay()+6)%7, dim = new Date(Date.UTC(d[0],d[1],0)).getUTCDate(), cal = '';
       S.wd.forEach(function(x){ cal += '<b>'+esc(x)+'</b>'; }); for(var i=0;i<off;i++) cal += '<span></span>'; for(var k=1;k<=dim;k++) cal += '<span'+(k===d[2]?' class="hit"':'')+'>'+k+'</span>';
@@ -175,6 +177,7 @@
     h += sec('w1band', ic('cal')+'<h3 style="font-style:italic">'+esc(S.rsvpT)+'</h3><p style="font-size:13px">'+esc(en?'Please confirm your attendance.':'Agradecemos que confirme a presença.')+'</p>'+rs);
     var tp = (sc.tips && cfg.tips) ? tipsHtml(cfg, esc) : '', kd = (sc.kids && cfg.kids) ? '<p style="font-size:12.5px;margin-top:22px"><b class="cap" style="font-size:10px">'+esc(S.kidsT)+'</b><br>'+esc(cfg.kids)+'</p>' : '';
     h += sec('', ic('heart')+(tp?'<div class="cap" style="margin-top:8px">'+esc(en?'Recommendations':'Recomendações')+'</div>'+tp:'')+kd+'<p class="scr" style="font-size:30px;margin-top:20px">'+esc(en?'Thank you!':'Muito obrigado!')+'</p>');
+    if(cfg.hotel) h += sec('w1band', ic('hotel')+'<div class="cap" style="margin-top:10px">'+esc(en?'Suggested accommodation':'Alojamento sugerido')+'</div><p style="font-size:12.5px">'+esc(cfg.hotel)+'</p>'+(cfg.hotelUrl?'<a class="w1btn w1btn-l" href="'+esc(cfg.hotelUrl)+'" target="_blank" rel="noopener noreferrer">'+(en?'More information':'Mais informação')+'</a>':''));
     h += photo(cfg, 2, 'r45', false, esc);
     h += hashHtml(cfg, esc);
     h += '<div class="w1foot">'+esc(cfg.names)+(cfg.date?' · '+esc(H.dots):'')+'</div>';
