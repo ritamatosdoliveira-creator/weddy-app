@@ -464,6 +464,20 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Distribuição dos Weddy Invitations (envio por email e partilha WhatsApp).
+    // Só o servidor escreve (Cloud Functions); só o casal do casamento lê, e só os seus registos.
+    // Os convidados nunca a leem: o estado de distribuição NÃO vive em guests/{token}.
+    match /invitationDeliveries/{id} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+      allow write: if false;
+    }
+    // Contador diário de emails de convites: só o servidor.
+    match /invitationQuota/{id} {
+      allow read, write: if false;
+    }
+
     // Reservas de lembretes de RSVP (idempotência): só o servidor.
     match /rsvpReminderSends/{id} {
       allow read, write: if false;

@@ -3988,6 +3988,319 @@ exports.getInvitationState = onCall({ region: 'europe-west1' }, async (request) 
   const ms = (t) => (t && t.toMillis ? t.toMillis() : 0);
   return { status: d.status || 'none', slug: d.slug || '', version: d.publishedVersion || 0, publishedAt: ms(d.publishedAt), validUntil: ms(d.validUntil), publishedConfig: d.publishedConfig || null, url: d.slug ? `https://www.weddy.pt/i/${d.slug}` : '' };
 });
+// ============================================================================
+// Weddy Invitations — envio e distribuição de convites (email pelo servidor,
+// partilha WhatsApp registada). Reutiliza: siteCoupleContext, assertPremiumWedding,
+// siteRateLimit, buildTransporter/SMTP_*, RSVP_EMAIL_RE e o padrão transacional
+// de reserva dos lembretes de RSVP (rsvpReminderSends).
+//
+// invitationDeliveries/{unit}_{canal}: SÓ o servidor escreve; o casal lê (regras).
+//   unit = sha256(token do RSVP) truncado — o token nunca é copiado para aqui.
+//   email:    estado 'sending' | 'accepted' | 'failed'
+//   whatsapp: estado 'shared'  (= "Partilha iniciada"; nunca significa enviado/entregue)
+// invitationQuota/{weddingId}_{AAAA-MM-DD}: contador diário de emails (só servidor).
+// ============================================================================
+const INV_EMAILS_PER_DAY = defineInt('INVITATION_EMAILS_PER_DAY', { default: 150 });
+const INV_MAX_UNITS_PER_CALL = 50;
+const INV_LEASE_MS = 2 * 60 * 1000;
+
+function invUnitKey(token) { return crypto.createHash('sha256').update(String(token)).digest('hex').slice(0, 32); }
+function invDeliveryRef(unit, channel) { return db.collection('invitationDeliveries').doc(unit + '_' + channel); }
+function invDayKey(ms) { return new Date(ms).toISOString().slice(0, 10); } // dia em UTC
+function invQuotaRef(weddingId, ms) { return db.collection('invitationQuota').doc(weddingId + '_' + invDayKey(ms)); }
+function invOneLine(v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n); }
+function invMultiline(v, n) { return String(v == null ? '' : v).replace(/\r\n?/g, '\n').replace(/[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f\u2028\u2029]/g, '').slice(0, n).trim(); }
+function invTokenOk(t) { return typeof t === 'string' && t.length >= 8 && t.length <= 200 && t.indexOf('/') < 0 && !/\s/.test(t); }
+
+const INV_MAIL_TEXTS = {
+  pt: {
+    subject: 'O nosso convite de casamento 🤍 — [noivos]',
+    body: 'Olá, [nome]!\n\nTemos uma notícia muito especial para partilhar contigo.\n\nVamos casar e gostaríamos muito de contar contigo neste dia tão importante.\n\nPreparamos um convite digital com todos os detalhes do casamento. Podes consultar a informação e confirmar a tua presença através da ligação abaixo.\n\n[ligação]\n\nCom carinho,\n[noivos]',
+    button: 'Consultar convite', fallback: 'Se o botão não funcionar, copia esta ligação:', kicker: 'O nosso casamento',
+    privacy: 'Recebeste esta mensagem porque [noivos] te incluíram na lista de convidados do seu casamento. Usamos o teu contacto apenas para este convite. Se não quiseres receber mais mensagens, responde a este email.',
+    privacyNoReply: 'Recebeste esta mensagem porque [noivos] te incluíram na lista de convidados do seu casamento. Usamos o teu contacto apenas para este convite.',
+    sentVia: 'Enviado através da Weddy', markers: { name: '[nome]', couple: '[noivos]', link: '[ligação]' }, family: 'Olá',
+  },
+  en: {
+    subject: 'Our wedding invitation 🤍 — [couple]',
+    body: 'Hi [name]!\n\nWe have very special news to share with you.\n\nWe are getting married and would love to have you with us on such an important day.\n\nWe have prepared a digital invitation with all the details of the wedding. You can read the information and confirm your attendance through the link below.\n\n[link]\n\nWith love,\n[couple]',
+    button: 'View the invitation', fallback: 'If the button does not work, copy this link:', kicker: 'Our wedding',
+    privacy: 'You are receiving this message because [couple] included you in their wedding guest list. We use your contact only for this invitation. If you do not want to receive more messages, reply to this email.',
+    privacyNoReply: 'You are receiving this message because [couple] included you in their wedding guest list. We use your contact only for this invitation.',
+    sentVia: 'Sent through Weddy', markers: { name: '[name]', couple: '[couple]', link: '[link]' }, family: 'Hi',
+  },
+};
+function invTexts(lang) { return INV_MAIL_TEXTS[lang === 'en' ? 'en' : 'pt']; }
+function invFill(tpl, T, name, couple) {
+  return String(tpl).split(T.markers.name).join(name).split(T.markers.couple).join(couple);
+}
+// Corpo em parágrafos de texto simples; o marcador da ligação passa a botão. Tudo é escapado.
+function invEmailParts(bodyTpl, T, name, couple) {
+  const filled = invFill(bodyTpl, T, name, couple);
+  const paras = filled.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  return paras;
+}
+function invEmailHtml({ lang, subject, bodyTpl, name, couple, link, replyTo }) {
+  const T = invTexts(lang);
+  const E = escapeHtmlServer;
+  const paras = invEmailParts(bodyTpl, T, name, couple);
+  const linkMarker = T.markers.link;
+  let hasLink = false;
+  const blocks = paras.map((p) => {
+    if (p === linkMarker) {
+      hasLink = true;
+      return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:30px auto;"><tr><td align="center" bgcolor="#a8503a" style="border-radius:999px;">' +
+        '<a href="' + E(link) + '" style="display:inline-block;padding:15px 34px;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;letter-spacing:.06em;color:#ffffff;text-decoration:none;border-radius:999px;">' + E(T.button) + '</a></td></tr></table>' +
+        '<p style="margin:0 0 26px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8a7d75;">' + E(T.fallback) + '<br><a href="' + E(link) + '" style="color:#8a7d75;word-break:break-all;">' + E(link) + '</a></p>';
+    }
+    return '<p style="margin:0 0 18px;font-family:Georgia,\'Times New Roman\',serif;font-size:17px;line-height:1.7;color:#3a3330;">' + E(p).replace(/\n/g, '<br>') + '</p>';
+  });
+  if (!hasLink) {
+    blocks.push('<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:30px auto;"><tr><td align="center" bgcolor="#a8503a" style="border-radius:999px;"><a href="' + E(link) + '" style="display:inline-block;padding:15px 34px;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;letter-spacing:.06em;color:#ffffff;text-decoration:none;border-radius:999px;">' + E(T.button) + '</a></td></tr></table>');
+  }
+  const priv = invFill(replyTo ? T.privacy : T.privacyNoReply, T, name, couple);
+  return '<!doctype html><html lang="' + (lang === 'en' ? 'en' : 'pt') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + E(subject) + '</title></head>' +
+    '<body style="margin:0;padding:0;background:#f4eee6;">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4eee6"><tr><td align="center" style="padding:28px 14px;">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#fbf8f3;border:1px solid #e6dcd0;">' +
+    '<tr><td align="center" style="padding:44px 32px 8px;">' +
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:#a8503a;">' + E(T.kicker) + '</div>' +
+    '<div style="margin:18px 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-style:italic;font-size:34px;line-height:1.2;color:#3a3330;">' + E(couple) + '</div>' +
+    '<div style="width:44px;height:1px;background:#c9b8a6;margin:18px auto 0;font-size:0;line-height:0;">&nbsp;</div></td></tr>' +
+    '<tr><td style="padding:26px 40px 10px;">' + blocks.join('') + '</td></tr>' +
+    '<tr><td style="padding:6px 40px 34px;"><div style="border-top:1px solid #e6dcd0;padding-top:18px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#9a8d85;text-align:center;">' + E(priv) + '<br>' + E(T.sentVia) + '</div></td></tr>' +
+    '</table></td></tr></table></body></html>';
+}
+function invEmailText({ lang, bodyTpl, name, couple, link }) {
+  const T = invTexts(lang);
+  const paras = invEmailParts(bodyTpl, T, name, couple).map((p) => (p === T.markers.link ? link : p));
+  if (!paras.includes(link)) paras.push(link);
+  return paras.join('\n\n');
+}
+// Texto editável vindo do casal: só texto simples. Sem HTML (escapado) e sem ligações próprias.
+function invCleanTexts(raw, lang) {
+  const T = invTexts(lang);
+  const d = (raw && typeof raw === 'object') ? raw : {};
+  const subject = invOneLine(d.subject, 140) || T.subject;
+  let body = invMultiline(d.body, 2000) || T.body;
+  return { subject, body };
+}
+async function invPublishedInfo(weddingId) {
+  const snap = await db.collection('weddingInvitations').doc(weddingId).get();
+  const d = snap.exists ? snap.data() : null;
+  if (!d || d.status !== 'published' || !d.slug) {
+    throw new HttpsError('failed-precondition', 'Publica o convite antes de o enviar.', { code: 'not_published' });
+  }
+  const cfg = d.publishedConfig || {};
+  return { slug: String(d.slug), couple: invOneLine(cfg.names, 60) || 'Os noivos', lang: cfg.lang === 'en' ? 'en' : 'pt' };
+}
+function invUnitLink(slug, token) { return 'https://www.weddy.pt/i/' + encodeURIComponent(slug) + '?g=' + encodeURIComponent(token); }
+// Destinatário único por agregado: convite individual → email; família → o primeiro email válido dos membros.
+function invPickEmail(guest) {
+  const ok = (e) => (typeof e === 'string' && RSVP_EMAIL_RE.test(e.trim()) ? e.trim() : '');
+  if (guest.isFamily) {
+    const members = Array.isArray(guest.members) ? guest.members : [];
+    const map = guest.emails || {};
+    for (const m of members) { const e = ok(map[m.rsvpMemberId || m.guestId]); if (e) return e; }
+    return '';
+  }
+  return ok(guest.email);
+}
+function invGuestDisplayName(guest, fromClient) {
+  const c = invOneLine(fromClient, 80);
+  if (c) return c;
+  if (guest.isFamily) {
+    const names = (Array.isArray(guest.members) ? guest.members : []).map((m) => invOneLine(m && m.name, 40)).filter(Boolean);
+    return names.slice(0, 4).join(', ');
+  }
+  return invOneLine(guest.name, 80);
+}
+async function invLoadUnits(weddingId, rawUnits, max) {
+  if (!Array.isArray(rawUnits) || rawUnits.length < 1 || rawUnits.length > max) {
+    throw new HttpsError('invalid-argument', 'Lista de convidados inválida.', { code: 'units' });
+  }
+  const seen = new Set();
+  const units = [];
+  for (const u of rawUnits) {
+    const token = u && typeof u === 'object' ? u.token : u;
+    if (!invTokenOk(token) || seen.has(token)) continue;
+    seen.add(token);
+    units.push({ token, name: u && typeof u === 'object' ? u.name : '', confirmResend: !!(u && typeof u === 'object' && u.confirmResend === true) });
+  }
+  if (!units.length) throw new HttpsError('invalid-argument', 'Lista de convidados inválida.', { code: 'units' });
+  return units;
+}
+async function invGuestOf(weddingId, token) {
+  const s = await db.collection('guests').doc(token).get();
+  if (!s.exists) return null;
+  const g = s.data();
+  return g.weddingId === weddingId ? g : null; // outro casamento = como se não existisse
+}
+
+// Passo 1: reserva transacional (idempotência, sem envios simultâneos, limite diário).
+async function invReserveEmail(weddingId, unit, confirmResend, limit, nowMs) {
+  const dRef = invDeliveryRef(unit, 'email');
+  const qRef = invQuotaRef(weddingId, nowMs);
+  return db.runTransaction(async (tx) => {
+    const [dSnap, qSnap] = await Promise.all([tx.get(dRef), tx.get(qRef)]);
+    const cur = dSnap.exists ? dSnap.data() : null;
+    if (cur && cur.weddingId !== weddingId) return { ok: false, why: 'not_found' };
+    if (cur && cur.status === 'sending' && nowMs - (cur.reservedAtMs || 0) < INV_LEASE_MS) return { ok: false, why: 'in_progress' };
+    if (cur && cur.status === 'accepted' && !confirmResend) return { ok: false, why: 'already_sent' };
+    const used = qSnap.exists ? (qSnap.data().count || 0) : 0;
+    if (used + 1 > limit) return { ok: false, why: 'daily_limit' };
+    const opId = crypto.randomBytes(8).toString('hex');
+    const prev = cur && cur.status === 'accepted' ? 'accepted' : (cur && cur.status === 'failed' ? 'failed' : '');
+    tx.set(dRef, {
+      weddingId, unit, channel: 'email', status: 'sending', opId, reservedAtMs: nowMs, prev,
+      attempts: (cur && cur.attempts) || 0,
+      firstAt: cur && cur.firstAt ? cur.firstAt : admin.firestore.Timestamp.fromMillis(nowMs),
+      lastAt: admin.firestore.Timestamp.fromMillis(nowMs),
+    });
+    tx.set(qRef, { weddingId, day: invDayKey(nowMs), count: used + 1 }, { merge: true });
+    return { ok: true, opId, prev };
+  });
+}
+// Passo 3: fecha a reserva com o resultado REAL do SMTP.
+async function invFinishEmail(weddingId, unit, res, success, errCode, nowMs) {
+  const dRef = invDeliveryRef(unit, 'email');
+  const qRef = invQuotaRef(weddingId, nowMs);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await db.runTransaction(async (tx) => {
+        const [dSnap, qSnap] = await Promise.all([tx.get(dRef), tx.get(qRef)]);
+        const cur = dSnap.exists ? dSnap.data() : null;
+        if (!cur || cur.opId !== res.opId) return; // a reserva já não é nossa
+        const base = { attempts: (cur.attempts || 0) + 1, lastAt: admin.firestore.Timestamp.fromMillis(nowMs) };
+        if (success) {
+          tx.update(dRef, { ...base, status: 'accepted', completedAt: admin.firestore.Timestamp.fromMillis(nowMs), errCode: admin.firestore.FieldValue.delete() });
+        } else {
+          // Falhou: devolve a quota; se já estava aceite antes, mantém "aceite" e guarda só o erro do reenvio.
+          tx.update(dRef, { ...base, status: res.prev === 'accepted' ? 'accepted' : 'failed', errCode: errCode || 'smtp' });
+          if (qSnap.exists && (qSnap.data().count || 0) > 0) tx.update(qRef, { count: (qSnap.data().count || 0) - 1 });
+        }
+        tx.update(dRef, { opId: admin.firestore.FieldValue.delete(), reservedAtMs: admin.firestore.FieldValue.delete(), prev: admin.firestore.FieldValue.delete() });
+      });
+      return true;
+    } catch (e) {
+      if (attempt === 2) logger.error(`Convites: resultado do envio não gravado (${unit.slice(0, 8)}): ${e.message || e}`);
+    }
+  }
+  return false;
+}
+
+exports.sendInvitationEmails = onCall(
+  { region: 'europe-west1', timeoutSeconds: 300, secrets: [SMTP_USER, SMTP_PASS] },
+  async (request) => {
+    const weddingId = await siteCoupleContext(request);
+    await assertPremiumWedding(weddingId); // Premium validado SEMPRE no servidor
+    await siteRateLimit('invmail_' + weddingId, 20, 60 * 60 * 1000);
+    const data = request.data || {};
+    const units = await invLoadUnits(weddingId, data.units, INV_MAX_UNITS_PER_CALL);
+    const pubInfo = await invPublishedInfo(weddingId);
+    const lang = data.lang === 'en' ? 'en' : (data.lang === 'pt' ? 'pt' : pubInfo.lang);
+    const T = invTexts(lang);
+    const txt = invCleanTexts(data.texts, lang);
+    const replyTo = data.replyTo === true && request.auth.token.email && RSVP_EMAIL_RE.test(request.auth.token.email) ? request.auth.token.email : '';
+    const limit = Math.max(0, Number(INV_EMAILS_PER_DAY.value()) || 0);
+    let transporter = null;
+    const results = [];
+    for (const u of units) {
+      const unit = invUnitKey(u.token);
+      const out = { unit, status: 'skipped', reason: '' };
+      try {
+        const guest = await invGuestOf(weddingId, u.token);
+        if (!guest) { out.reason = 'not_found'; results.push(out); continue; }
+        const to = invPickEmail(guest);
+        if (!to) { out.reason = 'no_email'; results.push(out); continue; }
+        const nowMs = Date.now();
+        const res = await invReserveEmail(weddingId, unit, u.confirmResend, limit, nowMs);
+        if (!res.ok) { out.reason = res.why; results.push(out); continue; }
+        const name = invGuestDisplayName(guest, u.name) || (lang === 'en' ? 'friend' : 'amigo');
+        const link = invUnitLink(pubInfo.slug, u.token);
+        const subject = invOneLine(invFill(txt.subject, T, name, pubInfo.couple), 200);
+        const mail = {
+          from: SMTP_FROM.value(), to, subject,
+          html: invEmailHtml({ lang, subject, bodyTpl: txt.body, name, couple: pubInfo.couple, link, replyTo: !!replyTo }),
+          text: invEmailText({ lang, bodyTpl: txt.body, name, couple: pubInfo.couple, link }),
+        };
+        if (replyTo) mail.replyTo = replyTo;
+        let sent = false, code = '';
+        try {
+          if (!transporter) transporter = buildTransporter();
+          await transporter.sendMail(mail);
+          sent = true;
+        } catch (e) {
+          code = 'smtp';
+          logger.warn(`Convites: SMTP recusou um envio (${weddingId}, ${unit.slice(0, 8)}): ${e && e.code ? e.code : 'erro'}`);
+        }
+        await invFinishEmail(weddingId, unit, res, sent, code, Date.now());
+        out.status = sent ? 'accepted' : 'failed';
+        out.reason = sent ? '' : 'smtp';
+      } catch (e) {
+        out.status = 'failed'; out.reason = 'internal';
+        logger.error(`Convites: erro ao processar um envio (${weddingId}): ${e.message || e}`);
+      }
+      results.push(out);
+    }
+    return { ok: true, results, limitPerDay: limit };
+  }
+);
+
+// Pré-visualização do email (nunca envia nada).
+exports.previewInvitationEmail = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  await assertPremiumWedding(weddingId);
+  await siteRateLimit('invprev_' + weddingId, 120, 60 * 60 * 1000);
+  const data = request.data || {};
+  const pubInfo = await invPublishedInfo(weddingId);
+  const lang = data.lang === 'en' ? 'en' : (data.lang === 'pt' ? 'pt' : pubInfo.lang);
+  const T = invTexts(lang);
+  const txt = invCleanTexts(data.texts, lang);
+  const name = invOneLine(data.name, 80) || (lang === 'en' ? 'Sofia' : 'Sofia');
+  const subject = invOneLine(invFill(txt.subject, T, name, pubInfo.couple), 200);
+  const link = invUnitLink(pubInfo.slug, 'exemplo');
+  const replyTo = data.replyTo === true;
+  return { ok: true, subject, html: invEmailHtml({ lang, subject, bodyTpl: txt.body, name, couple: pubInfo.couple, link, replyTo }), defaults: { subject: T.subject, body: T.body } };
+});
+
+// Textos por omissão (para o casal os editar antes de enviar).
+exports.getInvitationShareInfo = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  await assertPremiumWedding(weddingId);
+  const pubInfo = await invPublishedInfo(weddingId);
+  return { ok: true, slug: pubInfo.slug, couple: pubInfo.couple, lang: pubInfo.lang, limitPerDay: Math.max(0, Number(INV_EMAILS_PER_DAY.value()) || 0), texts: { pt: { subject: INV_MAIL_TEXTS.pt.subject, body: INV_MAIL_TEXTS.pt.body }, en: { subject: INV_MAIL_TEXTS.en.subject, body: INV_MAIL_TEXTS.en.body } } };
+});
+
+// "Partilha iniciada" no WhatsApp: só regista que o casal abriu a conversa. NUNCA significa enviado nem entregue.
+exports.recordInvitationShare = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  await assertPremiumWedding(weddingId);
+  await siteRateLimit('invshare_' + weddingId, 600, 60 * 60 * 1000);
+  const units = await invLoadUnits(weddingId, (request.data || {}).units, 200);
+  const out = [];
+  for (const u of units) {
+    const unit = invUnitKey(u.token);
+    const guest = await invGuestOf(weddingId, u.token);
+    if (!guest) { out.push({ unit, status: 'skipped', reason: 'not_found' }); continue; }
+    const ref = invDeliveryRef(unit, 'whatsapp');
+    const nowMs = Date.now();
+    await db.runTransaction(async (tx) => {
+      const s = await tx.get(ref);
+      const cur = s.exists ? s.data() : null;
+      if (cur && cur.weddingId !== weddingId) return;
+      tx.set(ref, {
+        weddingId, unit, channel: 'whatsapp', status: 'shared',
+        attempts: ((cur && cur.attempts) || 0) + 1,
+        firstAt: cur && cur.firstAt ? cur.firstAt : admin.firestore.Timestamp.fromMillis(nowMs),
+        lastAt: admin.firestore.Timestamp.fromMillis(nowMs),
+      });
+    });
+    out.push({ unit, status: 'shared', reason: '' });
+  }
+  return { ok: true, results: out };
+});
+
 exports.syncInvitationLifecycle = onSchedule(
   { schedule: 'every 60 minutes', timeZone: 'Europe/Lisbon', region: 'europe-west1', timeoutSeconds: 300 },
   async () => {

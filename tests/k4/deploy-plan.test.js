@@ -7,7 +7,7 @@ let fail = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'FAIL ') + m); i
 const plan = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'deploy-plan.json'), 'utf8'));
 let r = P.check(plan);
 ok(r.errors.length === 0, 'plano consistente com index.js (cada função num lote ou justificada)' + (r.errors.length ? ': ' + r.errors.join('; ') : ''));
-ok(r.local.length === 45, `index.js exporta 45 funções (${r.local.length})`);
+ok(r.local.length === 53, `index.js exporta 53 funções (${r.local.length})`); // 45 + 4 de publicação de convites + 4 de envio/distribuição
 if (r.prod) ok(r.prod.every((f) => r.local.includes(f)), 'nenhuma função de produção (recuperada) desaparece do código local → o deploy não pede para apagar nenhuma');
 // deteção de erros: nome inexistente, função esquecida, par separado
 const clone = () => JSON.parse(JSON.stringify(plan));

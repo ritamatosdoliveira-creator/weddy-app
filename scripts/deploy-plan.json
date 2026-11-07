@@ -21,7 +21,10 @@
       "why": "Webhooks passam a responder 5xx quando a ativação não fica gravada e a ativar só os campos da própria plataforma. Verificar com pagamento em modo de teste antes de produção." },
     { "id": "5-quota-fotos-k4", "functions": ["memoryQuotaOnDocCreated", "memoryQuotaOnObjectFinalized", "memoryQuotaOnDocDeleted", "memoryQuotaOnObjectDeleted", "memoryQuotaReconcile"],
       "needs": ["staging validado (Eventarc/Storage/Scheduler)", "cliente com o filtro quotaState publicado", "param:MEMORIES_MAX_*"],
-      "why": "Primeiro deploy dos gatilhos de Storage (Eventarc) e do agendador da quota. Só depois de validados em staging. Reversão: apagar as 5 (não 4)." }
+      "why": "Primeiro deploy dos gatilhos de Storage (Eventarc) e do agendador da quota. Só depois de validados em staging. Reversão: apagar as 5 (não 4)." },
+    { "id": "9-convites-envio", "functions": ["publishInvitation", "unpublishInvitation", "getInvitationState", "syncInvitationLifecycle", "sendInvitationEmails", "previewInvitationEmail", "getInvitationShareInfo", "recordInvitationShare"],
+      "needs": ["secret:SMTP_USER", "secret:SMTP_PASS", "param:SMTP_HOST", "param:SMTP_FROM", "param:INVITATION_EMAILS_PER_DAY (opcional; omissão 150)", "rules:firestore.rules (invitationDeliveries, invitationQuota)"],
+      "why": "Weddy Invitations: publicação (publishInvitation já implantada) e envio/distribuição de convites. As funções de envio só se implantam depois de as regras do Firestore estarem publicadas e de o SMTP e os seus limites estarem confirmados." }
   ],
   "excluded": {
     "validateWeddingStateOnWrite": "Custo por escrita em weddings/{id}; STATE_VALIDATE_MODE=off. Não implantar nesta release (um deploy completo incluí-la-ia)."
