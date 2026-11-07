@@ -9,10 +9,14 @@
 (function(root){
   'use strict';
   var FONTS = ['Cormorant Garamond','Manrope','Georgia','Helvetica','Pinyon Script'];
-  var LIM = { names:60, intro:200, message:300, venue:120, address:240, dress:300, mapUrl:300, prog:12, progT:12, progD:80, mono:8 };
-  var SECTIONS = ['cover','message','datetime','location','map','program','dress'];
+  var LIM = { tips:300, kids:300, gifts:300, names:60, intro:200, message:300, venue:120, address:240, dress:300, mapUrl:300, prog:12, progT:12, progD:80, mono:8 };
+  var SECTIONS = ['cover','message','datetime','location','map','program','dress','tips','kids','gifts'];
   function P(id,name,bg,ink,ac,soft){ return { id:id, name:name, bg:bg, ink:ink, ac:ac, soft:soft }; }
   var TEMPLATES = [
+    { id:'colorido', lot:true, name:{pt:'Colorido Artístico',en:'Artistic Colour'}, desc:{pt:'Flores pintadas à mão, cor expressiva e composição assimétrica.',en:'Hand-painted flowers, expressive colour and asymmetry.'}, style:'premium', fonts:['Pinyon Script','Cormorant Garamond'], photo:false,
+      palettes:[P('cobalto','Cobalto e manteiga','#FAF4E1','#1F2A52','#2D4BB0','#F4D77A'),P('coral','Coral e rosa','#FCF1EC','#4A2A2C','#E8604C','#F3B4C0'),P('verdeazul','Verde e azul','#F2F5EE','#1F3A36','#2F7F6F','#8DB9D6'),P('terracota','Terracota e lilás','#F8EFE9','#47302A','#C2552F','#C9B2E0')] },
+    { id:'natural', lot:true, long:true, name:{pt:'Minimal Natural',en:'Natural Minimal'}, desc:{pt:'Página longa em verde azeitona: envelope, contagem, calendário e RSVP.',en:'Long olive-green page: envelope, countdown, calendar and RSVP.'}, style:'premium', fonts:['Pinyon Script','Cormorant Garamond'], photo:false,
+      palettes:[P('azeitona','Azeitona','#F4EFE2','#2F3520','#5C6639','#E6E0CB'),P('salvia','Sálvia','#F3F2EA','#2B3328','#6F8460','#E0E4D2'),P('musgo','Musgo','#F5F1E6','#262E1F','#4A5A34','#E4DEC6')] },
     { id:'luxo', lot:true, name:{pt:'Papelaria de Luxo',en:'Luxury Stationery'}, desc:{pt:'Papel de algodão, relevo seco, monograma em foil e selo.',en:'Cotton paper, blind emboss, foil monogram and seal.'}, style:'premium', fonts:['Cormorant Garamond','Manrope'], photo:false,
       palettes:[P('marfim','Marfim e ouro','#F3ECE1','#3B332B','#9B7B3C','#E6DAC5'),P('prata','Prata','#F1EFEC','#2F3236','#7B8088','#E2E1DE'),P('champanhe','Champanhe','#F2E7DA','#3A2E25','#B08C5A','#E4D3BC')] },
     { id:'arquitetura', lot:true, name:{pt:'Arquitetura do Casamento',en:'Wedding Architecture'}, desc:{pt:'O local do casamento desenhado a traço fino.',en:'Your venue drawn in fine line.'}, style:'premium', fonts:['Pinyon Script','Cormorant Garamond'], photo:false,
@@ -38,8 +42,8 @@
   ];
   var STYLES = ['premium','classicos','minimalistas','romanticos','botanicos','contemporaneos'];
   var STR = {
-    pt:{ months:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'], and:'e', save:'Guardem a data', msgT:'Uma mensagem', whenT:'Data e hora', whereT:'Local', mapBtn:'Ver no mapa', progT:'Programa', cerT:'Cerimónia', recT:'Receção', dressT:'Dress code', rsvpT:'Confirmar presença', rsvpBtn:'Confirmar presença', rsvpNo:'Para responderes, usa o link individual do teu convite, enviado pelos noivos.', at:'às', foot:'Feito com Weddy', defMsg:'Com muita alegria, convidamos-vos para celebrar connosco este dia tão especial.', invite:'Convite' },
-    en:{ months:['January','February','March','April','May','June','July','August','September','October','November','December'], and:'and', save:'Save the date', msgT:'A message', whenT:'Date & time', whereT:'Venue', mapBtn:'View on map', progT:'Schedule', cerT:'Ceremony', recT:'Reception', dressT:'Dress code', rsvpT:'RSVP', rsvpBtn:'RSVP', rsvpNo:'To reply, use the individual link from your invitation, sent by the couple.', at:'at', foot:'Made with Weddy', defMsg:'With great joy, we invite you to celebrate this special day with us.', invite:'Invitation' }
+    pt:{ months:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'], and:'e', save:'Guardem a data', msgT:'Uma mensagem', whenT:'Data e hora', whereT:'Local', mapBtn:'Ver no mapa', progT:'Programa', cerT:'Cerimónia', recT:'Receção', tipsT:'Recomendações aos convidados', kidsT:'Crianças', giftsT:'Presentes', countT:'Faltam', dd:'Dias', hh:'Horas', mm:'Min', ss:'Seg', wd:['S','T','Q','Q','S','S','D'], dressT:'Dress code', rsvpT:'Confirmar presença', rsvpBtn:'Confirmar presença', rsvpNo:'Para responderes, usa o link individual do teu convite, enviado pelos noivos.', at:'às', foot:'Feito com Weddy', defMsg:'Com muita alegria, convidamos-vos para celebrar connosco este dia tão especial.', invite:'Convite' },
+    en:{ months:['January','February','March','April','May','June','July','August','September','October','November','December'], and:'and', save:'Save the date', msgT:'A message', whenT:'Date & time', whereT:'Venue', mapBtn:'View on map', progT:'Schedule', cerT:'Ceremony', recT:'Reception', tipsT:'Guest recommendations', kidsT:'Children', giftsT:'Gifts', countT:'Countdown', dd:'Days', hh:'Hours', mm:'Min', ss:'Sec', wd:['M','T','W','T','F','S','S'], dressT:'Dress code', rsvpT:'RSVP', rsvpBtn:'RSVP', rsvpNo:'To reply, use the individual link from your invitation, sent by the couple.', at:'at', foot:'Made with Weddy', defMsg:'With great joy, we invite you to celebrate this special day with us.', invite:'Invitation' }
   };
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function safeUrl(u){ u = String(u||'').trim(); if(!/^https:\/\/[^\s"'<>]+$/i.test(u)) return ''; try{ var p = new URL(u); return p.protocol==='https:' ? p.href : ''; }catch(e){ return ''; } }
@@ -68,7 +72,7 @@
       date: validDate(raw.date), time: validTime(raw.time), venue: clip(raw.venue, LIM.venue).trim(), address: clip(raw.address, LIM.address).trim(),
       mapUrl: safeUrl(clip(raw.mapUrl, LIM.mapUrl)), dress: clip(raw.dress, LIM.dress).trim(), mono: clip(raw.mono, LIM.mono).trim(),
       fontMain: fontOk(raw.fontMain) || tpl.fonts[0], fontSecond: (fontOk(raw.fontSecond)!=='Pinyon Script' && fontOk(raw.fontSecond)) || (tpl.fonts[1]==='Pinyon Script'?FONTS[1]:tpl.fonts[1]), deco: raw.deco !== false,
-      program: [], sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt' };
+      program: [], tips:clip(raw.tips, LIM.tips).trim(), kids:clip(raw.kids, LIM.kids).trim(), gifts:clip(raw.gifts, LIM.gifts).trim(), sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt' };
     (Array.isArray(raw.program)?raw.program:[]).slice(0, LIM.prog).forEach(function(p){ if(!p||typeof p!=='object') return; var t=validTime(p.t), d=clip(p.d, LIM.progD).trim(); if(d) out.program.push({ t:t, d:d }); });
     var sc = raw.sections && typeof raw.sections==='object' ? raw.sections : {};
     SECTIONS.forEach(function(k){ out.sections[k] = (k==='cover') ? true : (sc[k] !== false && sc[k] !== 0); });
@@ -107,6 +111,67 @@
       default: return bunting();
     }
   }
+  /* ====================== Lote B — Colorido Artístico e Minimal Natural ====================== */
+  function wcf(){ return '<filter id="wcf" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".024" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="10"/></filter>'; }
+  function petalP(x,y,len,w,rot,fill,op){ return '<path d="M0 0C'+(-w)+' '+(-len*0.35)+' '+(-w*0.8)+' '+(-len*0.85)+' 0 '+(-len)+'C'+(w*0.8)+' '+(-len*0.85)+' '+w+' '+(-len*0.35)+' 0 0Z" transform="translate('+x+' '+y+') rotate('+rot+')" style="fill:'+fill+'" opacity="'+op+'"/>'; }
+  var C_MIX='color-mix(in srgb,var(--ac) 55%,var(--ink))', C_LEAF='color-mix(in srgb,var(--ink) 60%,var(--ac))', C_MID='color-mix(in srgb,var(--ac) 55%,var(--soft))';
+  function paintFlower(x,y,s){ var h='',i; for(i=0;i<6;i++) h+=petalP(x,y,62*s,26*s,i*60+8,'var(--ac)',.88); for(i=0;i<6;i++) h+=petalP(x,y,40*s,17*s,i*60+38,C_MID,.85); for(i=0;i<5;i++) h+=petalP(x,y,20*s,8*s,i*72,'var(--soft)',.95); return h+'<circle cx="'+x+'" cy="'+y+'" r="'+(5*s)+'" style="fill:'+C_MIX+'"/>'; }
+  function paintLeaf(x,y,len,rot,op){ return '<path d="M0 0C'+(len*0.3)+' '+(-len*0.28)+' '+(len*0.75)+' '+(-len*0.3)+' '+len+' 0C'+(len*0.7)+' '+(len*0.26)+' '+(len*0.3)+' '+(len*0.26)+' 0 0Z" transform="translate('+x+' '+y+') rotate('+rot+')" style="fill:'+C_LEAF+'" opacity="'+(op||.75)+'"/>'; }
+  function paintArt(flip, crop){
+    var g='<defs>'+wcf()+'</defs><g filter="url(#wcf)">';
+    g+='<path d="M-30 -20H255C300 40 262 118 204 150C150 180 156 240 92 256C30 270 -30 236 -30 190Z" style="fill:var(--soft)" opacity=".85"/>';
+    g+='<path d="M360 330C318 350 300 400 306 450C312 500 340 540 380 560H210C250 520 232 470 262 420C290 372 330 358 360 330Z" style="fill:var(--soft)" opacity=".7"/>';
+    g+=paintLeaf(60,170,110,-50)+paintLeaf(110,200,96,-20)+paintLeaf(160,120,92,-85,.65)+paintLeaf(30,120,84,-100)+paintLeaf(212,18,80,60,.6);
+    g+=paintFlower(96,104,1.45)+paintFlower(196,52,.92)+paintFlower(40,206,.8);
+    g+=paintLeaf(330,470,92,200)+paintLeaf(300,520,84,235,.65)+paintFlower(318,492,1.05);
+    g+='</g>';
+    return '<svg class="wi-orn wi-paint" viewBox="'+(crop?'0 360 360 180':'0 0 360 540')+'" aria-hidden="true">'+(flip?'<g transform="translate(0 540) scale(1 -1)">'+g+'</g>':g)+'</svg>';
+  }
+  function envFlap(){ return '<svg class="wi-orn wi-flap" viewBox="0 0 360 400" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H360V318L180 392L0 318Z" style="fill:var(--ac)"/><path d="M0 318L180 392L360 318" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/><path d="M0 0H360V318L180 392L0 318Z" fill="url(#flg)"/><defs><linearGradient id="flg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".16"/></linearGradient></defs></svg>'; }
+  function heartSvg(){ return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>'; }
+  function calHTML(cfg){
+    if(!cfg.date) return ''; var S=STR[cfg.lang], p=cfg.date.split('-').map(Number);
+    var dow=(new Date(Date.UTC(p[0],p[1]-1,1)).getUTCDay()+6)%7, dim=new Date(Date.UTC(p[0],p[1],0)).getUTCDate(), c='', i;
+    for(i=0;i<dow;i++) c+='<u></u>';
+    for(i=1;i<=dim;i++) c+= i===p[2] ? '<b class="on">'+heartSvg()+'<em>'+i+'</em></b>' : '<span>'+i+'</span>';
+    return '<div class="wp-cal"><div class="wp-cal-h"><span>'+esc(S.months[p[1]-1].toUpperCase())+'</span><b>'+p[2]+'</b><span>'+p[0]+'</span></div><div class="wp-cal-g">'+S.wd.map(function(w){ return '<i>'+esc(w)+'</i>'; }).join('')+c+'</div></div>';
+  }
+  function countHTML(cfg){
+    if(!cfg.date) return ''; var S=STR[cfg.lang], iso=cfg.date+'T'+(cfg.time||'00:00')+':00', ms=new Date(iso).getTime()-Date.now();
+    if(isNaN(ms) || ms<=0) return '';
+    var v=[Math.floor(ms/864e5), Math.floor(ms%864e5/36e5), Math.floor(ms%36e5/6e4), Math.floor(ms%6e4/1e3)];
+    return '<div class="wp-cd" data-wi-count="'+iso+'" role="timer">'+[S.dd,S.hh,S.mm,S.ss].map(function(l,i){ return '<div><b data-u="'+i+'">'+(i?('0'+v[i]).slice(-2):v[i])+'</b><small>'+esc(l)+'</small></div>'; }).join('<span>:</span>')+'</div>';
+  }
+  var LOTB_CSS = [
+   '.wi-t-colorido .wi-paint{left:0;top:0;width:100%;height:100%}.wi-t-colorido .wi-mono{display:none}.wi-t-colorido .wi-cc{padding:262px 28px 70px;gap:8px}.wi-t-colorido.wi-c-base .wi-cc{justify-content:flex-start;padding:88px 28px 0}',
+   '.wi-t-colorido .wi-names{gap:0}.wi-t-colorido .wi-n1,.wi-t-colorido .wi-n2{font-size:50px;font-weight:400;text-transform:none;letter-spacing:0;line-height:1.02;color:var(--ac)}.wi-t-colorido .wi-and{font-size:34px;color:var(--ink);font-family:var(--fs)}',
+   '.wi-t-colorido .wi-date{margin-top:10px;font-size:12px;letter-spacing:.32em}.wi-t-colorido .wi-venue{font-size:11px}.wi-t-colorido .wi-intro{display:none}',
+   '.wi-t-natural .wi-flap{left:0;top:0;width:100%;height:340px}.wi-t-natural .wi-mono{display:none}.wi-t-natural .wi-cc{justify-content:flex-start;padding:70px 24px 0;gap:6px}.wi-t-natural .wi-names{gap:2px;color:var(--bg)}',
+   '.wi-t-natural .wi-n1,.wi-t-natural .wi-n2{font-size:48px;font-weight:400;text-transform:none;letter-spacing:0;line-height:1.05;color:var(--bg)}.wi-t-natural .wi-and{font-size:26px;color:var(--bg);opacity:.85;font-family:var(--fs);font-style:italic}',
+   '.wi-nvd{position:absolute;left:0;right:0;top:384px;text-align:center}.wi-nvd em{display:block;font-family:var(--fm);font-style:italic;font-size:26px;color:var(--ac)}.wi-nvd small{display:block;margin-top:10px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;opacity:.7}',
+   '.wi-t-natural .wi-venue,.wi-t-natural .wi-intro{display:none}.wi-t-natural .wi-cc .wi-date{display:block;margin-top:22px;font-size:14px;letter-spacing:.34em;color:var(--bg);opacity:.9}',
+   '.wp-green{background:var(--ac);color:var(--bg);border-top:0}.wp-green h2{color:var(--bg);opacity:.85}.wp-cd{display:flex;justify-content:center;align-items:flex-start;gap:8px}.wp-cd div{text-align:center;min-width:54px}.wp-cd b{display:block;font-family:var(--fm);font-weight:400;font-size:38px;line-height:1.1}.wp-cd small{font-size:11px;letter-spacing:.12em;opacity:.8}.wp-cd>span{font-size:30px;line-height:1.2;opacity:.7}',
+   '.wp-cal{margin-top:22px;border-top:1px solid color-mix(in srgb,var(--bg) 35%,transparent);padding-top:18px}.wp-cal-h{display:flex;justify-content:center;align-items:baseline;gap:14px;letter-spacing:.24em;font-size:13px}.wp-cal-h b{font-family:var(--fm);font-size:44px;font-weight:300;letter-spacing:0;font-style:italic}',
+   '.wp-cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 0;margin-top:14px;font-size:13px;text-align:center}.wp-cal-g i{font-style:normal;opacity:.65;font-size:11px;letter-spacing:.1em}.wp-cal-g span,.wp-cal-g b{display:flex;align-items:center;justify-content:center;height:30px;position:relative}.wp-cal-g .on svg{position:absolute;width:34px;height:34px;fill:none;stroke:var(--bg);stroke-width:1.4}.wp-cal-g .on em{font-style:normal;font-weight:700;position:relative;top:-1px}',
+   '.wp-t-natural .wp-sec{border-top-color:color-mix(in srgb,var(--ac) 20%,transparent)}',
+   '.wp-close .wi-paint{position:static;width:100%;height:150px}'
+  ].join('');
+  var OPTSB = {
+    colorido:[{k:'comp',t:'sel',v:['topo','base'],d:'topo',l:{pt:'Composição',en:'Composition'},vl:{topo:{pt:'Flores no topo',en:'Flowers on top'},base:{pt:'Flores na base',en:'Flowers at the bottom'}}}],
+    natural:[{k:'flap',t:'bool',d:true,l:{pt:'Capa com efeito de envelope',en:'Envelope cover'}},{k:'count',t:'bool',d:true,l:{pt:'Contagem decrescente e calendário',en:'Countdown and calendar'}}]
+  };
+  function lotCardB(cfg){
+    var n=splitNames(cfg), S=STR[cfg.lang], o=cfg.opt||{}, dd=dateDot2(cfg);
+    var names = n[1] ? '<span class="wi-n1">'+esc(n[0])+'</span><span class="wi-and">&amp;</span><span class="wi-n2">'+esc(n[1])+'</span>' : '<span class="wi-n1">'+esc(n[0])+'</span>';
+    var dateH = dd ? '<div class="wi-date">'+esc(dd)+'</div>' : '';
+    if(cfg.tpl==='colorido') return '<div class="wi-card wi-t-colorido'+(o.comp==='base'?' wi-c-base':'')+'" style="'+vars(cfg)+'">'+(cfg.deco?paintArt(o.comp==='base'):'')+'<div class="wi-cc"><div class="wi-names">'+names+'</div>'+dateH+(cfg.venue?'<div class="wi-venue">'+esc(cfg.venue)+'</div>':'')+'</div></div>';
+    return '<div class="wi-card wi-t-natural" style="'+vars(cfg)+'">'+(o.flap!==false?envFlap():'<div class="wi-orn" style="left:0;right:0;top:0;height:330px;background:var(--ac)"></div>')+'<div class="wi-cc"><div class="wi-names">'+names+'</div>'+dateH+'</div><div class="wi-nvd"><em>'+esc(S.save)+'</em>'+(cfg.venue?'<small>'+esc(cfg.venue)+'</small>':'')+'</div></div>';
+  }
+  function extraSecs(cfg){ var S=STR[cfg.lang], sc=cfg.sections, h='';
+    [['tips',S.tipsT,cfg.tips],['kids',S.kidsT,cfg.kids],['gifts',S.giftsT,cfg.gifts]].forEach(function(e){ if(sc[e[0]] && e[2]) h+='<section class="wp-sec" id="'+e[0]+'"><h2>'+esc(e[1])+'</h2><p class="wp-p">'+esc(e[2])+'</p></section>'; });
+    return h; }
+  function countBlock(cfg){ var o=cfg.opt||{}; if(cfg.tpl!=='natural' || o.count===false || !cfg.sections.datetime) return ''; var S=STR[cfg.lang], c=countHTML(cfg), k=calHTML(cfg);
+    return (c||k) ? '<section class="wp-sec wp-green" id="contagem">'+(c?'<h2>'+esc(S.countT)+'</h2>'+c:'')+k+'</section>' : ''; }
   /* ====================== Lote A — Coleção Premium (luxo, arquitetura, romance) ====================== */
   function dateDot2(cfg){ if(!cfg.date) return ''; var p=cfg.date.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
   function monoParts(cfg){ var m=monoOf(cfg).replace(/[^A-Za-zÀ-ÿ0-9]+/g,''); return m.length>=2 ? [m.charAt(0), m.charAt(m.length-1)] : [m||'·', '']; }
@@ -179,10 +244,11 @@
    '.wi-ptf{display:flex;gap:0;flex-direction:column;align-items:center}',
    '.wp-ev{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0}.wp-ev svg{width:30px;height:30px;stroke:var(--ac);fill:none;stroke-width:1.2}.wp-ev h3{font:600 11px var(--fs);letter-spacing:.3em;text-transform:uppercase;color:var(--ac);margin:6px 0 0}.wp-ev b{font-family:var(--fm);font-size:20px;font-weight:500}.wp-ev span{font-size:14px;opacity:.85}.wp-ev hr{width:90px;border:0;border-top:1px solid color-mix(in srgb,var(--ac) 30%,transparent);margin:10px 0 0}',
    '.wp-close{position:relative;height:190px;overflow:hidden}.wp-close .wi-draw{position:static;width:100%;height:190px}.wp-close .wi-seal{bottom:auto;top:56px}.wp-close .wi-ribbon{position:absolute;left:0;width:100%;top:67px;height:40px}.wp-close .wi-bow{position:absolute;left:50%;transform:translateX(-50%);width:240px;top:0}',
-   '.wp-t-luxo,.wp-t-arquitetura,.wp-t-romance{background:var(--bg)}.wp-script h2,.wp-script .wp-prog b,.wp-script .wp-ev b,.wp-script .wp-ev h3,.wp-script .wp-big{font-family:var(--fs)}.wp-script .wp-big{font-family:var(--fs);font-size:22px}.wp-script .wp-ev b{font-size:18px}'
+   '.wp-t-luxo,.wp-t-arquitetura,.wp-t-romance{background:var(--bg)}.wp.wp-script h2,.wp.wp-script .wp-prog b,.wp.wp-script .wp-ev b,.wp.wp-script .wp-ev h3,.wp.wp-script .wp-big{font-family:var(--fs)}.wp.wp-script .wp-big{font-size:22px}.wp.wp-script .wp-ev b{font-size:18px}'
   ].join('');
   function eventIcon(k){ return k==='cer' ? '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3v5M13.5 5.5h5M8 29V15l8-5.5 8 5.5v14zM13 29v-7a3 3 0 0 1 6 0v7M3 29h26"/></svg>' : '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 4h8l-1 8a3.5 3.5 0 0 1-6 0zM13 15v11M9 28h8M19 4l8 2-2 7a3.5 3.5 0 0 1-6-2zM23 15l-1 11M20 28h8"/></svg>'; }
   function lotCard(cfg){
+    if(cfg.tpl==='colorido' || cfg.tpl==='natural') return lotCardB(cfg);
     var n=splitNames(cfg), S=STR[cfg.lang], o=cfg.opt||{}, cls='wi-card wi-t-'+cfg.tpl, dd=dateDot2(cfg), mp=monoParts(cfg);
     var names = n[1] ? '<span class="wi-n1">'+esc(n[0])+'</span><span class="wi-and">'+'&amp;'+'</span><span class="wi-n2">'+esc(n[1])+'</span>' : '<span class="wi-n1">'+esc(n[0])+'</span>';
     var dateH = dd ? '<div class="wi-date">'+esc(dd)+'</div>' : '';
@@ -199,16 +265,19 @@
   function lotClosing(cfg){ var o=cfg.opt||{};
     if(cfg.tpl==='luxo'){ var mp=monoParts(cfg); return '<div class="wp-close" aria-hidden="true">'+ribbonBand()+seal()+'<div class="wi-seal-m" style="top:56px;bottom:auto">'+esc(mp[0]+mp[1])+'</div></div>'; }
     if(cfg.tpl==='arquitetura') return '<div class="wp-close" aria-hidden="true">'+archDraw(o.kind||'manor', o.wash!==false)+'</div>';
+    if(cfg.tpl==='colorido' && cfg.deco) return '<div class="wp-close" style="height:150px" aria-hidden="true">'+paintArt(false,true)+'</div>';
     if(cfg.tpl==='romance' && o.bow!==false) return '<div class="wp-close" style="height:150px" aria-hidden="true">'+bow()+'</div>';
     return ''; }
   function eventBlocks(cfg){ var S=STR[cfg.lang], h='';
     [['cer',S.cerT,cfg.cer],['rec',S.recT,cfg.rec]].forEach(function(e){ var v=e[2]; if(v && (v.t||v.p)) h+='<div class="wp-ev">'+eventIcon(e[0])+'<h3>'+esc(e[1])+'</h3>'+(v.t?'<b>'+esc(v.t)+'</b>':'')+(v.p?'<span>'+esc(v.p)+'</span>':'')+'<hr></div>'; });
     return h; }
   var OPTS = {
+    colorido:null, natural:null,
     luxo:[{k:'finish',t:'sel',v:['gold','silver','none'],d:'gold',l:{pt:'Acabamento do monograma',en:'Monogram finish'},vl:{gold:{pt:'Dourado',en:'Gold'},silver:{pt:'Prateado',en:'Silver'},none:{pt:'Tinta simples',en:'Plain ink'}}},{k:'relief',t:'bool',d:true,l:{pt:'Relevo floral',en:'Floral relief'}},{k:'seal',t:'bool',d:true,l:{pt:'Selo e fita',en:'Seal and ribbon'}}],
     arquitetura:[{k:'kind',t:'sel',v:['manor','church','palace'],d:'manor',l:{pt:'Tipo de edifício',en:'Building type'},vl:{manor:{pt:'Quinta / casa',en:'Manor / house'},church:{pt:'Igreja / capela',en:'Church / chapel'},palace:{pt:'Palácio',en:'Palace'}}},{k:'wash',t:'bool',d:true,l:{pt:'Aguarela suave sobre o desenho',en:'Soft watercolour wash'}}],
     romance:[{k:'bow',t:'bool',d:true,l:{pt:'Laço de seda',en:'Silk bow'}},{k:'vellum',t:'bool',d:true,l:{pt:'Papel vegetal',en:'Vellum overlay'}}]
   };
+  OPTS.colorido = OPTSB.colorido; OPTS.natural = OPTSB.natural;
   function sanitizeOpt(tplId, raw){ var out={}, defs=OPTS[tplId]||[]; raw = raw && typeof raw==='object' ? raw : {};
     defs.forEach(function(d){ var v=raw[d.k]; if(d.t==='bool') out[d.k] = (v===false||v===0) ? false : (v===true||v===1 ? true : d.d); else out[d.k] = d.v.indexOf(v)>=0 ? v : d.d; });
     return out; }
@@ -252,7 +321,7 @@
    '.wi-t-couture .wi-gold{inset:0;width:100%;height:100%}.wi-t-couture .wi-mono{font-size:76px;font-style:normal;font-weight:300;letter-spacing:.04em;line-height:1}.wi-t-couture .wi-names{margin-top:8px}.wi-t-couture .wi-n1,.wi-t-couture .wi-n2{font-size:20px;letter-spacing:.42em;font-family:var(--fs);font-weight:300}.wi-t-couture .wi-and{font-size:14px}.wi-t-couture .wi-date{color:var(--ac);letter-spacing:.42em;margin-top:18px}',
    /* campestre */
    '.wi-t-campestre .wi-bunt{top:0;left:0;width:100%}.wi-t-campestre .wi-dots{position:absolute;inset:14px;border:2px dotted var(--ac);opacity:.55;border-radius:6px;pointer-events:none}.wi-t-campestre .wi-n1,.wi-t-campestre .wi-n2{font-family:var(--fs);font-weight:700;font-size:28px;letter-spacing:.1em}.wi-t-campestre .wi-and{font-family:var(--fm)}.wi-t-campestre .wi-cc{padding-top:80px}'
-  ].join('')+LOTA_CSS;
+  ].join('')+LOTA_CSS+LOTB_CSS;
   /* ---------- página interativa ---------- */
   var PAGE_CSS = [
    '*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:var(--fs);-webkit-text-size-adjust:100%}',
@@ -277,7 +346,7 @@
     var tok = /^[A-Za-z0-9_-]{8,80}$/.test(opts.token||'') ? opts.token : '';
     h += '<main class="wp wp-t-'+cfg.tpl+(cfg.fontMain==='Pinyon Script'?' wp-script':'')+'" style="'+vars(cfg)+'"><div class="wp-hero">'+cardHTML(cfg)+'</div>';
     if(sc.message && (cfg.message || true)) h += '<section class="wp-sec" id="mensagem"><h2>'+esc(S.msgT)+'</h2><p class="wp-p">'+esc(cfg.message || S.defMsg)+'</p></section>';
-    if(sc.datetime && (cfg.date||cfg.time)) h += '<section class="wp-sec" id="data"><h2>'+esc(S.whenT)+'</h2><p class="wp-big">'+esc(dateLong(cfg))+'</p>'+(cfg.time?'<p class="wp-p">'+esc(S.at+' '+cfg.time)+'</p>':'')+eventBlocks(cfg)+'</section>';
+    if(sc.datetime && (cfg.date||cfg.time)) h += '<section class="wp-sec" id="data"><h2>'+esc(S.whenT)+'</h2><p class="wp-big">'+esc(dateLong(cfg))+'</p>'+(cfg.time?'<p class="wp-p">'+esc(S.at+' '+cfg.time)+'</p>':'')+eventBlocks(cfg)+'</section>'+countBlock(cfg);
     if(sc.location && (cfg.venue||cfg.address)){
       h += '<section class="wp-sec" id="local"><h2>'+esc(S.whereT)+'</h2>'+(cfg.venue?'<p class="wp-big">'+esc(cfg.venue)+'</p>':'')+(cfg.address?'<p class="wp-p">'+esc(cfg.address)+'</p>':'');
       var ml = sc.map ? mapLink(cfg) : '';
@@ -286,6 +355,7 @@
     }
     if(sc.program && cfg.program.length) h += '<section class="wp-sec" id="programa"><h2>'+esc(S.progT)+'</h2><ul class="wp-prog">'+cfg.program.map(function(p){ return '<li><b>'+esc(p.t||'·')+'</b><span>'+esc(p.d)+'</span></li>'; }).join('')+'</ul></section>';
     if(sc.dress && cfg.dress) h += '<section class="wp-sec" id="dresscode"><h2>'+esc(S.dressT)+'</h2><p class="wp-p">'+esc(cfg.dress)+'</p></section>';
+    h += extraSecs(cfg);
     h += lotClosing(cfg);
     h += '<section class="wp-sec" id="rsvp"><h2>'+esc(S.rsvpT)+'</h2>'+(tok ? '<a class="wp-btn" href="https://www.weddy.pt/rsvp.html?g='+esc(tok)+'">'+esc(S.rsvpBtn)+'</a>' : '<p class="wp-note">'+esc(S.rsvpNo)+'</p>')+'</section>';
     h += '<div class="wp-foot">'+esc(S.foot)+'</div></main>';

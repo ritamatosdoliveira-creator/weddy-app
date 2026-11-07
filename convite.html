@@ -45,6 +45,15 @@ html,body{margin:0;background:#FAF8F5;font-family:"Manrope",system-ui,sans-serif
     app.innerHTML = '<div class="st" role="status"><h1>'+esc(title)+'</h1><p>'+esc(text)+'</p>'+(retry?'<button id="rt">'+esc(T.retry)+'</button>':'<a href="https://www.weddy.pt">Weddy</a>')+'</div>';
     var b = document.getElementById('rt'); if(b) b.onclick = load;
   }
+  var tmr = null;
+  function tick(){ /* contagem decrescente (só leitura; usa apenas a data já pública do convite) */
+    var el = document.querySelector('[data-wi-count]'); if(tmr){ clearInterval(tmr); tmr = null; } if(!el) return;
+    var t = new Date(el.getAttribute('data-wi-count')).getTime(); if(isNaN(t)) return;
+    var us = el.querySelectorAll('b[data-u]');
+    function up(){ var ms = t - Date.now(); if(ms < 0) ms = 0; var v = [Math.floor(ms/864e5), Math.floor(ms%864e5/36e5), Math.floor(ms%36e5/6e4), Math.floor(ms%6e4/1e3)];
+      for(var i=0;i<us.length && i<4;i++) us[i].textContent = i ? ('0'+v[i]).slice(-2) : String(v[i]); if(ms === 0 && tmr){ clearInterval(tmr); tmr = null; } }
+    up(); tmr = setInterval(up, 1000);
+  }
   function load(){
     if(!/^[a-z0-9-]{3,40}$/.test(slug)) return status(T.nf, T.nft);
     if(!firebase.apps.length) firebase.initializeApp({ apiKey:"AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk", authDomain:"weddy-app-bd12f.firebaseapp.com", projectId:"weddy-app-bd12f", storageBucket:"weddy-app-bd12f.firebasestorage.app", messagingSenderId:"696758255059", appId:"1:696758255059:web:44cbc2e9847d2ab58f8326" });
@@ -59,6 +68,7 @@ html,body{margin:0;background:#FAF8F5;font-family:"Manrope",system-ui,sans-serif
       var st = document.createElement('style'); st.textContent = r.css; document.head.appendChild(st);
       document.body.setAttribute('style', r.bodyStyle);
       app.innerHTML = r.html;
+      tick();
     }).catch(function(e){
       if(e && e.code === 'permission-denied') return status(T.nf, T.nft);
       status(T.err, '', true);
