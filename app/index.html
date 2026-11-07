@@ -3754,6 +3754,36 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
   .gimp-stats{ grid-template-columns:repeat(6,1fr); } .gimp-stats-done{ grid-template-columns:repeat(4,1fr); } .gimp-stats-done .gimp-stat:last-child:nth-child(odd){ grid-column:auto; }
   .gimp-nav-col{ flex-direction:row-reverse; } .gimp-nav{ max-width:420px; }
 }
+/* ===== Weddy Invitations (Papelaria > Convites) ===== */
+.inv-wrap{ padding-bottom:12px; }
+.inv-back{ margin:2px 0 6px; }
+.inv-hero{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin:10px 0 14px; padding:18px 16px; border:1px solid var(--ox-line,#E6DCD4); border-radius:20px; background:linear-gradient(135deg,#F6EEE6,#FAF8F5); }
+.inv-hero-t{ flex:1; min-width:0; } .inv-hero-t h3{ font-family:'Cormorant Garamond',serif; font-size:28px; line-height:1.1; margin:6px 0; color:#2B2522; font-weight:600; } .inv-hero-t p{ margin:0 0 10px; font-size:13.5px; color:#6B5E57; line-height:1.5; }
+.inv-kick{ font-size:10px; letter-spacing:.22em; color:#8B7D74; }
+.inv-hero-i{ flex:none; filter:drop-shadow(0 10px 18px rgba(43,37,34,.18)); transform:rotate(4deg); }
+.inv-prem{ display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:3px 9px; border:1px solid #D9C7BD; border-radius:999px; color:#8B6B5E; margin-bottom:10px; background:#fff; } .inv-prem svg{ width:12px; height:12px; }
+.inv-cardw{ position:relative; overflow:hidden; border-radius:6px; box-shadow:0 2px 10px rgba(43,37,34,.12); }
+.inv-card{ margin:10px 0; padding:14px; border:1px solid #E6DCD4; border-radius:16px; background:#fff; } .inv-card-t{ font-weight:600; font-size:14px; margin-bottom:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.inv-row{ display:flex; gap:12px; align-items:center; margin-bottom:10px; } .inv-row-b{ display:flex; flex-direction:column; gap:4px; min-width:0; } .inv-row-b small{ color:#8B7D74; }
+.inv-pill{ font-size:11.5px; padding:3px 10px; border-radius:999px; border:1px solid #E6DCD4; color:#8B7D74; font-weight:500; } .inv-pill.published{ background:#EEF2E6; border-color:#CBD5B5; color:#5F7040; } .inv-pill.suspended,.inv-pill.unpublished{ background:#FBF3E4; border-color:#EBD6A8; color:#8A6420; }
+.inv-rest{ margin-top:16px; } .inv-rest-b{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; min-height:48px; padding:0 4px; border-bottom:1px solid #E6DCD4; font-size:15px; cursor:pointer; } .inv-rest-b i{ font-style:normal; color:#8B7D74; }
+.inv-chips{ overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; } .inv-chips .cb-chip{ flex:none; }
+.inv-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px 12px; margin:12px 0; } .inv-tpl{ all:unset; cursor:pointer; display:flex; flex-direction:column; gap:3px; min-width:0; } .inv-tpl .inv-cardw{ width:100% !important; height:auto !important; aspect-ratio:2/3; } .inv-tpl .inv-cardw>div{ width:360px !important; } .inv-tpl b{ font-size:14px; } .inv-tpl small{ font-size:12px; color:#8B7D74; line-height:1.35; }
+.inv-seg{ margin:8px 0; } .inv-seg2{ margin:0 0 8px; }
+.inv-stage{ display:flex; justify-content:center; margin:12px 0 16px; padding:16px 0; background:#F3ECE5; border-radius:18px; }
+.inv-dev{ background:#2B2522; border-radius:30px; padding:9px; } .inv-dev-phone{ width:250px; height:470px; } .inv-dev-desk{ width:100%; max-width:560px; height:340px; border-radius:12px; padding:6px; }
+.inv-ifr{ width:100%; height:100%; border:0; border-radius:22px; background:#fff; display:block; } .inv-dev-desk .inv-ifr{ border-radius:6px; }
+.inv-secs{ margin:10px 0; } .inv-sec-b{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:60px; padding:8px 4px; border-bottom:1px solid #E6DCD4; cursor:pointer; } .inv-sec-b span{ display:flex; flex-direction:column; } .inv-sec-b small{ color:#8B7D74; font-size:12.5px; } .inv-sec-b i{ font-style:normal; color:#8B7D74; }
+.inv-auto{ margin:10px 0 14px; }
+.inv-prog{ display:grid; grid-template-columns:110px 1fr auto; gap:8px; margin:6px 0; align-items:center; }
+.inv-sws{ display:flex; gap:12px; margin:8px 0; } .inv-sw{ all:unset; width:44px; height:44px; border-radius:50%; position:relative; cursor:pointer; box-sizing:border-box; border:2px solid transparent; } .inv-sw i{ position:absolute; inset:6px 6px auto auto; width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.15); } .inv-sw.on{ outline:2px solid #AD624F; outline-offset:2px; }
+.inv-tog{ display:flex; align-items:center; justify-content:space-between; min-height:48px; border-bottom:1px solid #E6DCD4; } .inv-tog input{ width:22px; height:22px; accent-color:#AD624F; }
+.inv-ready{ text-align:center; } .inv-check{ width:64px; height:64px; border-radius:50%; background:#F0E2DA; color:#AD624F; display:flex; align-items:center; justify-content:center; font-size:30px; margin:14px auto 4px; }
+.inv-acts{ margin:14px 0; text-align:left; } .inv-act{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; min-height:50px; padding:0 6px; border-bottom:1px solid #E6DCD4; font-size:15px; cursor:pointer; color:#2B2522; } .inv-act i{ font-style:normal; color:#8B7D74; } .inv-act em{ font-style:normal; color:#AD624F; font-size:12px; margin-left:6px; }
+.inv-del{ all:unset; box-sizing:border-box; width:100%; text-align:center; min-height:48px; line-height:48px; border:1px solid #E3C4B8; border-radius:14px; color:#A8412F; cursor:pointer; background:#FBF3EF; margin-top:12px; }
+.pf-thumb{ position:absolute; right:8px; top:8px; width:34px; opacity:.95; } .pf-thumb .inv-cardw{ box-shadow:0 1px 6px rgba(43,37,34,.2); border-radius:3px; }
+@media (min-width:900px){ .inv-grid{ grid-template-columns:repeat(4,1fr); } .inv-wrap{ max-width:900px; } .inv-hero-i{ transform:none; } }
+@media (prefers-reduced-motion:reduce){ .inv-hero-i{ transform:none; } }
 </style>
 </head>
 <body>
@@ -4053,6 +4083,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/weddysite.js"></script>
+<script src="/weddyinvite.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -9251,7 +9282,7 @@ ${pageHeader(backId, title, sub, pmBadge())}
   <button type="button" class="cb-btn" style="max-width:300px;margin:0 auto" data-premiumgoto="subscricao">${ta('pmCta')}</button>
 </div></div>`;
 }
-let sdManage = false, sdTab = 'itens', sdOpen = null, sdAdding = false, sdLib = 'todos', sdUploadCtx = null, sdPalOpen = false;
+let sdManage = false, sdTab = 'convites', sdOpen = null, sdAdding = false, sdLib = 'todos', sdUploadCtx = null, sdPalOpen = false;
 const SD_PRESETS = ['#F6EFE8','#E3C3A4','#C98E80','#A5483A','#8B6B4F','#7A8B5C','#2B2522','#FFFFFF'];
 const SD_FONTS = ['Cormorant Garamond','Playfair Display','Great Vibes','Allura','Montserrat','Manrope','Lora','Libre Baskerville','Josefin Sans','Raleway'];
 const SD_KINDS = ['ref','prop','final'];
@@ -9418,16 +9449,265 @@ function sdItemEditor(){
   ${kinds}
   ${`<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>`}`;
 }
+Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregaram. Volta a abrir a app com ligação à internet.', sdTabInvites:'Convites', invTitle:'Convites digitais', invSub:'Um convite à altura da vossa história.', invExplore:'Explorar modelos', invRest:'Restante papelaria', invDraftT:'O vosso rascunho', invContinueEdit:'Continuar a editar', invNoNames:'Sem nomes ainda', invPublishedT:'Convite publicado', invManage:'Gerir convite', invStPublished:'Publicado', invStChanges:'Alterações por publicar', invStSuspended:'Indisponível (Premium terminado)', invStUnpublished:'Despublicado',
+ invGalleryHint:'Escolham um design e deixem-no contar a vossa história.', invNoTpl:'Nenhum modelo neste estilo.', invBackGallery:'Modelos', invModePage:'Convite interativo', invModeCard:'Cartão digital', invChoose:'Escolher este modelo', invBackToTpl:'Voltar aos modelos', invPreviewTitle:'Pré-visualização do convite',
+ invStyle_todos:'Todos', invStyle_classicos:'Clássicos', invStyle_minimalistas:'Minimalistas', invStyle_romanticos:'Românticos', invStyle_botanicos:'Botânicos', invStyle_contemporaneos:'Contemporâneos',
+ invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Jardim', invTpl_classico:'Clássico', invTpl_mediterranico:'Mediterrânico', invTpl_romantico:'Romântico', invTpl_couture:'Couture', invTpl_campestre:'Campestre',
+ invEditTitle:'Personalizar convite', invEditSub:'Escolham o que mostrar. A composição de cada modelo mantém-se.', invAutosave:'O rascunho guarda-se automaticamente.', invPreview:'Pré-visualizar', invSave:'Guardar',
+ invSecText:'Texto', invSecTextD:'Nomes, mensagem e introdução', invSecInfo:'Informações', invSecInfoD:'Data, local, horário e programa', invSecStyle:'Estilo', invSecStyleD:'Cores, tipografia e monograma', invSecContent:'Conteúdo do convite', invSecContentD:'Secções da página interativa',
+ invFNames:'Nomes dos noivos', invFIntro:'Texto de apresentação', invFMessage:'Mensagem do convite', invFDate:'Data do casamento', invFTime:'Hora', invFVenue:'Local', invFAddress:'Morada', invFMap:'Ligação do mapa (opcional, https)', invFDress:'Dress code', invAddMoment:'Adicionar momento', invRemove:'Remover',
+ invPalette:'Paleta de cores', invMyPalette:'A vossa paleta', invFromDesign:'A vossa paleta do separador Design está disponível.', invNoDesign:'Definam a paleta no separador Design para a usar aqui.', invFontMain:'Tipografia principal', invFontSecond:'Tipografia secundária', invFMono:'Monograma', invMonoHint:'Vem do separador Design. Só afeta este convite.', invDeco:'Mostrar elementos decorativos', invUseDesign:'Usar a identidade visual do separador Design',
+ invContentHint:'Escolham as secções que aparecem na página interativa.', invEmptyHidden:'As secções sem informação não aparecem.', invSecCover:'Capa', invSecMessage:'Mensagem dos noivos', invSecDate:'Data e hora', invSecPlace:'Local e morada', invSecMap:'Mapa', invSecProgram:'Programa', invSecDress:'Dress code',
+ invPhone:'Telemóvel', invDesk:'Computador', invEdit:'Editar', invPublish:'Publicar convite', invErrNames:'Falta indicar os nomes dos noivos.', invErrDate:'Falta indicar a data do casamento.',
+ invReadyT:'O vosso convite está pronto!', invReadySub:'Podem agora publicar e partilhar o vosso convite.', invReadyPub:'Já está publicado. Publiquem as alterações para os convidados as verem.', invPublishing:'A publicar…', invPublishChanges:'Publicar alterações', invPublishedOk:'Convite publicado. A ligação mantém-se sempre a mesma.', invShareAfter:'A partilha fica disponível depois de publicar.',
+ invCopy:'Copiar ligação', invWhats:'Partilhar por WhatsApp', invMail:'Partilhar por email', invDownload:'Descarregar cartão digital', invCopied:'Ligação copiada.', invDownloaded:'Cartão descarregado.', invErrPng:'Não foi possível criar o cartão neste dispositivo.', invShareMsg:'Convidamos-vos a ver o nosso convite.', invMailSubject:'O nosso convite de casamento',
+ invManageT:'Convite digital', invUpdated:'Última atualização', invSee:'Ver convite', invPendingDot:'(há alterações)', invUnpublish:'Despublicar convite', invConfirmUnpublish:'Despublicar o convite? A ligação deixa de funcionar até voltarem a publicar. O rascunho mantém-se.', invUnpublishedOk:'Convite despublicado.', invSuspendedNote:'O Premium terminou, por isso o convite está indisponível. Nada foi apagado e volta quando renovarem.',
+ invErrValidation:'O convite tem campos por corrigir.', invErrPremium:'Publicar convites faz parte do Weddy Premium.', invErrAuth:'Inicia sessão com o email verificado.', invErrNet:'Não foi possível concluir agora. Tentem novamente.',
+ invDemoCeremony:'Cerimónia', invDemoDinner:'Jantar', invDemoDress:'Formal',
+ homePfInvT:'Convites Digitais', homePfInvD:'Escolhe um modelo e cria o teu convite.' });
+Object.assign(APP_I18N.en, { invUnavailable:'Digital invitations did not load. Reopen the app with an internet connection.', sdTabInvites:'Invitations', invTitle:'Digital invitations', invSub:'An invitation worthy of your story.', invExplore:'Explore templates', invRest:'Rest of the stationery', invDraftT:'Your draft', invContinueEdit:'Keep editing', invNoNames:'No names yet', invPublishedT:'Published invitation', invManage:'Manage invitation', invStPublished:'Published', invStChanges:'Unpublished changes', invStSuspended:'Unavailable (Premium ended)', invStUnpublished:'Unpublished',
+ invGalleryHint:'Pick a design and let it tell your story.', invNoTpl:'No templates in this style.', invBackGallery:'Templates', invModePage:'Interactive invitation', invModeCard:'Digital card', invChoose:'Choose this template', invBackToTpl:'Back to templates', invPreviewTitle:'Invitation preview',
+ invStyle_todos:'All', invStyle_classicos:'Classic', invStyle_minimalistas:'Minimal', invStyle_romanticos:'Romantic', invStyle_botanicos:'Botanical', invStyle_contemporaneos:'Contemporary',
+ invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Garden', invTpl_classico:'Classic', invTpl_mediterranico:'Mediterranean', invTpl_romantico:'Romantic', invTpl_couture:'Couture', invTpl_campestre:'Countryside',
+ invEditTitle:'Customise invitation', invEditSub:'Choose what to show. Each template keeps its composition.', invAutosave:'Your draft saves automatically.', invPreview:'Preview', invSave:'Save',
+ invSecText:'Text', invSecTextD:'Names, message and intro', invSecInfo:'Details', invSecInfoD:'Date, venue, time and schedule', invSecStyle:'Style', invSecStyleD:'Colours, fonts and monogram', invSecContent:'Invitation content', invSecContentD:'Sections of the interactive page',
+ invFNames:'Couple names', invFIntro:'Introduction', invFMessage:'Invitation message', invFDate:'Wedding date', invFTime:'Time', invFVenue:'Venue', invFAddress:'Address', invFMap:'Map link (optional, https)', invFDress:'Dress code', invAddMoment:'Add moment', invRemove:'Remove',
+ invPalette:'Colour palette', invMyPalette:'Your palette', invFromDesign:'Your palette from the Design tab is available.', invNoDesign:'Set your palette in the Design tab to use it here.', invFontMain:'Main font', invFontSecond:'Secondary font', invFMono:'Monogram', invMonoHint:'Comes from the Design tab. Only affects this invitation.', invDeco:'Show decorative elements', invUseDesign:'Use the visual identity from the Design tab',
+ invContentHint:'Choose the sections shown on the interactive page.', invEmptyHidden:'Sections without information are hidden.', invSecCover:'Cover', invSecMessage:'Message from the couple', invSecDate:'Date & time', invSecPlace:'Venue & address', invSecMap:'Map', invSecProgram:'Schedule', invSecDress:'Dress code',
+ invPhone:'Phone', invDesk:'Computer', invEdit:'Edit', invPublish:'Publish invitation', invErrNames:'Please add the couple names.', invErrDate:'Please add the wedding date.',
+ invReadyT:'Your invitation is ready!', invReadySub:'You can now publish and share your invitation.', invReadyPub:'It is already published. Publish your changes so guests can see them.', invPublishing:'Publishing…', invPublishChanges:'Publish changes', invPublishedOk:'Invitation published. The link always stays the same.', invShareAfter:'Sharing is available after publishing.',
+ invCopy:'Copy link', invWhats:'Share on WhatsApp', invMail:'Share by email', invDownload:'Download digital card', invCopied:'Link copied.', invDownloaded:'Card downloaded.', invErrPng:'Could not create the card on this device.', invShareMsg:'We invite you to see our invitation.', invMailSubject:'Our wedding invitation',
+ invManageT:'Digital invitation', invUpdated:'Last updated', invSee:'View invitation', invPendingDot:'(changes pending)', invUnpublish:'Unpublish invitation', invConfirmUnpublish:'Unpublish the invitation? The link stops working until you publish again. Your draft is kept.', invUnpublishedOk:'Invitation unpublished.', invSuspendedNote:'Premium has ended, so the invitation is unavailable. Nothing was deleted and it returns when you renew.',
+ invErrValidation:'The invitation has fields to fix.', invErrPremium:'Publishing invitations is part of Weddy Premium.', invErrAuth:'Sign in with your verified email.', invErrNet:'Could not complete this now. Please try again.',
+ invDemoCeremony:'Ceremony', invDemoDinner:'Dinner', invDemoDress:'Formal',
+ homePfInvT:'Digital Invitations', homePfInvD:'Pick a template and create your invitation.' });
+
+/* ============================================================================
+   Weddy Invitations (Papelaria > Convites) — cliente
+   Rascunho em state.invitation (sincroniza como o resto do casamento). Publicar,
+   despublicar e estado passam por Cloud Functions (Premium validado no servidor).
+   Motor de desenho partilhado: /weddyinvite.js (o mesmo da página pública convite.html).
+   ============================================================================ */
+let invUI = { view:'home', tpl:'', mode:'page', device:'phone', filter:'todos', sec:'', msg:'', busy:'' };
+let invRemote = { loaded:false, status:'none', slug:'', url:'', publishedConfig:null, publishedAt:0, error:'' };
+const INV_SEC_LABEL = { cover:'invSecCover', message:'invSecMessage', datetime:'invSecDate', location:'invSecPlace', map:'invSecMap', program:'invSecProgram', dress:'invSecDress' };
+function invEnsure(){
+  let v = state.invitation;
+  if(!v || typeof v!=='object' || Array.isArray(v)) v = state.invitation = {};
+  if(!v.draft || typeof v.draft!=='object' || Array.isArray(v.draft)) v.draft = null;
+  return v;
+}
+function invCss(){ if(!document.getElementById('inv-css') && window.WeddyInvite){ const s = document.createElement('style'); s.id = 'inv-css'; s.textContent = WeddyInvite.css; document.head.appendChild(s); } }
+function invLang(){ return (typeof appLang!=='undefined' && appLang==='en') ? 'en' : 'pt'; }
+function invDesign(){ sdEnsure(); return state.stationeryDesign; }
+function invDesignPal(){ return (invDesign().palette||[]).filter(h=>/^#[0-9a-f]{6}$/i.test(h)).map(h=>h.toLowerCase()); }
+function invFontOf(f){ const n = String(f||'').trim().toLowerCase(); return (WeddyInvite.FONTS.find(x=>x.toLowerCase()===n))||''; }
+function invCustomPal(){ // paleta da identidade visual do casal (separador Design)
+  const p = invDesignPal(); if(!p.length) return null;
+  const ac = p[0]; const soft = p[1] || '';
+  return { ac, soft };
+}
+function invDefaultDraft(tplId){
+  const ws = (typeof weddingSettings==='object' && weddingSettings) || {}, d = invDesign(), t = WeddyInvite.tpl(tplId);
+  const names = (ws.coupleName1 && ws.coupleName2) ? ws.coupleName1.trim()+' & '+ws.coupleName2.trim() : (ws.coupleName1||'');
+  const cp = invCustomPal();
+  const dr = { tpl:t.id, palette:'', pal:cp||{ac:'',soft:''}, names, intro:'', message:'', date:/^\d{4}-\d{2}-\d{2}$/.test(ws.weddingDate||'')?ws.weddingDate:'', time:'', venue:ws.venue||'', address:'', mapUrl:'', dress:'', program:[],
+    mono:(d.monogram&&d.monogram.initials)||'', fontMain:invFontOf(d.fontMain)||'', fontSecond:invFontOf(d.fontSecond)||'', deco:true, sections:{ cover:true, message:true, datetime:true, location:true, map:true, program:true, dress:true } };
+  if(cp && WeddyInvite.contrast(cp.ac, t.palettes[0].bg) >= 3) dr.palette = 'custom';
+  else dr.palette = t.palettes[0].id;
+  return dr;
+}
+function invCfg(){ const dr = invEnsure().draft; if(!dr) return null; return WeddyInvite.sanitize(Object.assign({}, dr, { lang:invLang() }), invLang()); }
+function invPreviewCfg(tplId){ // pré-visualização de um modelo com os dados reais (ou de demonstração)
+  const base = invEnsure().draft || invDefaultDraft(tplId);
+  const demo = !base.names ? { names:'Sofia & Pedro', date:'2026-07-12', time:'16:00', venue:'Quinta do Alvor', address:'Sintra', message:'', program:[{t:'16:00',d:ta('invDemoCeremony')},{t:'18:00',d:ta('invDemoDinner')}], dress:ta('invDemoDress') } : {};
+  const dr = Object.assign({}, invDefaultDraft(tplId), { names:base.names, date:base.date, time:base.time, venue:base.venue, address:base.address, message:base.message, intro:base.intro, program:base.program, dress:base.dress, mono:base.mono }, {});
+  if(base.tpl===tplId){ Object.assign(dr, base); }
+  Object.assign(dr, demo.names ? demo : {}, { tpl:tplId });
+  return WeddyInvite.sanitize(Object.assign(dr, { lang:invLang() }), invLang());
+}
+function invCardHTML(cfg, w){ const k = w/360; return `<div class="inv-cardw" style="width:${w}px;height:${Math.round(540*k)}px"><div style="width:360px;height:540px;transform:scale(${k});transform-origin:top left">${WeddyInvite.cardHTML(cfg)}</div></div>`; }
+function invFrame(cfg, device){ const p = WeddyInvite.page(cfg, {}); const doc = `<!doctype html><html lang="${cfg.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${p.css}</style></head><body style="${p.bodyStyle.replace(/"/g,'&quot;')}">${p.html}</body></html>`;
+  return `<div class="inv-dev inv-dev-${device}"><iframe class="inv-ifr" title="${escapeHTML(ta('invPreviewTitle'))}" sandbox="" srcdoc="${escapeHTML(doc)}"></iframe></div>`; }
+function invCanon(c){ const o = {}; ['tpl','colors','names','intro','message','date','time','venue','address','mapUrl','dress','mono','fontMain','fontSecond','deco','program','sections','lang'].forEach(k=>{ o[k] = c[k]; }); const col = c.colors||{}; o.colors = { bg:col.bg, ink:col.ink, ac:col.ac, soft:col.soft }; return JSON.stringify(o); }
+function invPending(){ const cfg = invCfg(); if(!cfg || !invRemote.publishedConfig) return false; return invCanon(invRemote.publishedConfig) !== invCanon(cfg); }
+function invProblems(cfg){ const p = []; if(!cfg.names) p.push(ta('invErrNames')); if(!cfg.date) p.push(ta('invErrDate')); return p; }
+function invBack(label, to){ return `<button type="button" class="cb-link inv-back" data-invgo="${to}">‹ ${escapeHTML(label)}</button>`; }
+function invPremTag(){ return `<span class="inv-prem">${ICONS.crown||''}<span>Premium</span></span>`; }
+/* ---------- ecrãs ---------- */
+function invHomeView(){
+  const dr = invEnsure().draft, st = invRemote.status, cfg0 = invPreviewCfg('editorial');
+  const published = (st==='published' || st==='suspended' || st==='unpublished') && invRemote.slug;
+  let state2 = '';
+  if(dr){ const c = invCfg(); state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invDraftT')}</div><div class="inv-row">${invCardHTML(c, 70)}<div class="inv-row-b"><b>${escapeHTML(ta('invTpl_'+c.tpl))}</b><small>${escapeHTML(c.names||ta('invNoNames'))}</small></div></div><button type="button" class="cb-btn" data-invgo="edit">${ta('invContinueEdit')}</button></div>`; }
+  if(published){ const lab = st==='published' ? (invPending()?ta('invStChanges'):ta('invStPublished')) : st==='suspended' ? ta('invStSuspended') : ta('invStUnpublished');
+    state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invPublishedT')} <span class="inv-pill ${st}">${lab}</span></div><button type="button" class="cb-btn ghost" data-invgo="manage">${ta('invManage')}</button></div>`; }
+  return `<section class="inv-hero"><div class="inv-hero-t"><span class="inv-kick">WEDDY INVITATIONS</span><h3>${ta('invTitle')}</h3><p>${ta('invSub')}</p>${invPremTag()}<button type="button" class="cb-btn" data-invgo="gallery">${ta('invExplore')} →</button></div><div class="inv-hero-i">${invCardHTML(cfg0, 150)}</div></section>
+  ${state2}
+  <div class="inv-rest"><div class="inv-card-t">${ta('invRest')}</div><button type="button" class="inv-rest-b" data-sdtab="itens">${ta('sdTabItems')} <i>›</i></button><button type="button" class="inv-rest-b" data-sdtab="design">${ta('sdTabDesign')} <i>›</i></button></div>`;
+}
+function invGalleryView(){
+  const styles = ['todos'].concat(WeddyInvite.STYLES);
+  const chips = styles.map(s=>`<button type="button" class="cb-chip" data-invfilter="${s}" aria-pressed="${invUI.filter===s?'true':'false'}">${ta('invStyle_'+s)}</button>`).join('');
+  const list = WeddyInvite.TEMPLATES.filter(t=>invUI.filter==='todos' || t.style===invUI.filter);
+  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(ta('invTpl_'+t.id))}">${invCardHTML(invPreviewCfg(t.id), 150)}<b>${ta('invTpl_'+t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
+  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="cb-chips inv-chips">${chips}</div><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
+}
+function invTplView(){
+  const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invPreviewCfg(id), m = invUI.mode;
+  return `${invBack(ta('invBackGallery'),'gallery')}<h3 class="gimp-h2">${ta('invTpl_'+id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p>
+  <div class="cb-tabs inv-seg" role="tablist"><button type="button" role="tab" class="cb-tab" data-invmode="page" aria-selected="${m==='page'}">${ta('invModePage')}</button><button type="button" role="tab" class="cb-tab" data-invmode="card" aria-selected="${m==='card'}">${ta('invModeCard')}</button></div>
+  <div class="inv-stage">${m==='card' ? invCardHTML(cfg, 270) : invFrame(cfg,'phone')}</div>
+  <button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button><button type="button" class="cb-btn ghost" data-invgo="gallery">${ta('invBackToTpl')}</button>`;
+}
+function invEditView(){
+  const c = invCfg(); if(!c) return invHomeView();
+  const row = (k,t,d)=>`<button type="button" class="inv-sec-b" data-invsec="${k}"><span><b>${ta(t)}</b><small>${ta(d)}</small></span><i>›</i></button>`;
+  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invEditTitle')}</h3><p class="cb-sub">${ta('invEditSub')}</p>
+  <div class="inv-secs">${row('text','invSecText','invSecTextD')}${row('info','invSecInfo','invSecInfoD')}${row('style','invSecStyle','invSecStyleD')}${row('content','invSecContent','invSecContentD')}</div>
+  <p class="cb-sub inv-auto" role="status">${ta('invAutosave')}</p>
+  <button type="button" class="cb-btn" data-invgo="prev">${ta('invPreview')} →</button>`;
+}
+function invField(path, label, val, opt){ opt = opt||{}; const tag = opt.area ? `<textarea class="cb-ta" style="min-height:90px" maxlength="${opt.max||300}" data-cdtext="${path}">${escapeHTML(val||'')}</textarea>` : `<input class="cb-in" type="${opt.type||'text'}" maxlength="${opt.max||120}" data-cdtext="${path}" value="${escapeHTML(val||'')}" ${opt.ph?`placeholder="${escapeHTML(opt.ph)}"`:''}>`;
+  return `<label class="cb-f"><span>${label}</span>${tag}</label>`; }
+function invSectionView(){
+  const dr = invEnsure().draft; if(!dr) return invHomeView(); const s = invUI.sec, P = 'invitation.draft.';
+  let body = '';
+  if(s==='text'){ body = invField(P+'names',ta('invFNames'),dr.names,{max:60,ph:'Sofia & Pedro'})+invField(P+'intro',ta('invFIntro'),dr.intro,{area:true,max:200})+invField(P+'message',ta('invFMessage'),dr.message,{area:true,max:300}); }
+  else if(s==='info'){
+    const prog = (dr.program||[]).map((p,i)=>`<div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}program.${i}.t" value="${escapeHTML(p.t||'')}" aria-label="${ta('invFTime')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}program.${i}.d" value="${escapeHTML(p.d||'')}" aria-label="${ta('invSecProgram')}"><button type="button" class="cb-link" data-invprogdel="${i}" aria-label="${ta('invRemove')}">✕</button></div>`).join('');
+    body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
+      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-link" data-invprogadd>+ ${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300}); }
+  else if(s==='style'){
+    const t = WeddyInvite.tpl(dr.tpl), cp = invCustomPal(), cur = invCfg().palette;
+    const sw = t.palettes.map(p=>`<button type="button" class="inv-sw${cur===p.id?' on':''}" data-invpal="${p.id}" style="background:${p.ac}" aria-label="${escapeHTML(p.name)}" aria-pressed="${cur===p.id}"><i style="background:${p.bg}"></i></button>`).join('') + (cp ? `<button type="button" class="inv-sw${cur==='custom'?' on':''}" data-invpal="custom" style="background:${cp.ac}" aria-label="${ta('invMyPalette')}" aria-pressed="${cur==='custom'}"><i style="background:${cp.soft||cp.ac}"></i></button>` : '');
+    const fopt = (v,def)=>WeddyInvite.FONTS.map(f=>`<option value="${f}" ${(v||def)===f?'selected':''}>${f}</option>`).join('');
+    body = `<div class="cb-f"><span>${ta('invPalette')}</span><div class="inv-sws">${sw}</div>${cp?`<small class="cb-sub">${ta('invFromDesign')}</small>`:`<small class="cb-sub">${ta('invNoDesign')}</small>`}</div>
+      <label class="cb-f"><span>${ta('invFontMain')}</span><select class="cb-in" data-invfont="fontMain">${fopt(dr.fontMain,t.fonts[0])}</select></label>
+      <label class="cb-f"><span>${ta('invFontSecond')}</span><select class="cb-in" data-invfont="fontSecond">${fopt(dr.fontSecond,t.fonts[1])}</select></label>
+      ${invField(P+'mono',ta('invFMono'),dr.mono,{max:8,ph:'S&P'})}<small class="cb-sub">${ta('invMonoHint')}</small>
+      <label class="gimp-chk"><input type="checkbox" data-invdeco ${dr.deco!==false?'checked':''}> ${ta('invDeco')}</label>
+      <button type="button" class="cb-btn ghost" data-invusedesign>${ta('invUseDesign')}</button>`; }
+  else if(s==='content'){
+    body = `<p class="cb-sub">${ta('invContentHint')}</p>` + WeddyInvite.SECTIONS.map(k=>`<label class="inv-tog"><span>${ta(INV_SEC_LABEL[k])}</span><input type="checkbox" data-invtog="${k}" ${(dr.sections||{})[k]!==false?'checked':''} ${k==='cover'?'disabled':''}></label>`).join('') + `<p class="cb-sub">${ta('invEmptyHidden')}</p>`; }
+  const ttl = { text:'invSecText', info:'invSecInfo', style:'invSecStyle', content:'invSecContent' }[s];
+  return `${invBack(ta('invEditTitle'),'edit')}<h3 class="gimp-h2">${ta(ttl)}</h3>${body}<button type="button" class="cb-btn" data-invgo="edit">${ta('invSave')}</button>`;
+}
+function invPrevView(){
+  const c = invCfg(); if(!c) return invHomeView(); const pr = invProblems(c);
+  return `${invBack(ta('invEditTitle'),'edit')}<h3 class="gimp-h2">${ta('invPreview')}</h3>
+  <div class="cb-tabs inv-seg" role="tablist"><button type="button" role="tab" class="cb-tab" data-invmode="card" aria-selected="${invUI.mode==='card'}">${ta('invModeCard')}</button><button type="button" role="tab" class="cb-tab" data-invmode="page" aria-selected="${invUI.mode==='page'}">${ta('invModePage')}</button></div>
+  ${invUI.mode==='page' ? `<div class="cb-tabs inv-seg2"><button type="button" class="cb-tab" data-invdev="phone" aria-selected="${invUI.device==='phone'}">${ta('invPhone')}</button><button type="button" class="cb-tab" data-invdev="desk" aria-selected="${invUI.device==='desk'}">${ta('invDesk')}</button></div>` : ''}
+  <div class="inv-stage">${invUI.mode==='card' ? invCardHTML(c, 270) : invFrame(c, invUI.device)}</div>
+  ${pr.length ? `<p class="gimp-err" role="alert">${pr.map(escapeHTML).join(' ')}</p>` : ''}
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="edit">${ta('invEdit')}</button><button type="button" class="cb-btn" data-invgo="ready" ${pr.length?'disabled':''}>${ta('invPublish')}</button></div>`;
+}
+function invShareBlock(){
+  return `<div class="inv-acts"><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="wa">${ta('invWhats')}<i>›</i></button><button type="button" class="inv-act" data-invact="mail">${ta('invMail')}<i>›</i></button><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`;
+}
+function invReadyView(){
+  const st = invRemote.status, pending = invPending(), pub = st==='published';
+  return `${invBack(ta('invPreview'),'prev')}<div class="inv-ready"><div class="inv-check">✓</div><h3 class="gimp-h2">${ta('invReadyT')}</h3><p class="cb-sub">${ta(pub?'invReadyPub':'invReadySub')}</p>
+  ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
+  <button type="button" class="cb-btn" data-invact="publish" ${invUI.busy?'disabled':''}>${invUI.busy==='publish'?ta('invPublishing'):(pub?ta('invPublishChanges'):ta('invPublish'))}</button>${invUI.busy?'':''}
+  ${invRemote.url && invRemote.status!=='none' ? invShareBlock() : `<p class="cb-sub">${ta('invShareAfter')}</p><div class="inv-acts"><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`}</div>`;
+}
+function invManageView(){
+  const st = invRemote.status, c = invCfg() || WeddyInvite.sanitize(invRemote.publishedConfig||{}, invLang()), pending = invPending();
+  const lab = st==='published' ? (pending?ta('invStChanges'):ta('invStPublished')) : st==='suspended' ? ta('invStSuspended') : ta('invStUnpublished');
+  const when = invRemote.publishedAt ? new Date(invRemote.publishedAt).toLocaleDateString(invLang()==='en'?'en-GB':'pt-PT',{day:'numeric',month:'long',year:'numeric'}) : '';
+  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invManageT')}</h3>
+  <div class="inv-card"><div class="inv-row">${invCardHTML(c, 80)}<div class="inv-row-b"><b>${escapeHTML(ta('invTpl_'+c.tpl))}</b><span class="inv-pill ${st}">${lab}</span>${when?`<small>${ta('invUpdated')}: ${escapeHTML(when)}</small>`:''}</div></div></div>
+  ${st==='suspended'?`<p class="cb-sub">${ta('invSuspendedNote')}</p>`:''}${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
+  <div class="inv-acts"><a class="inv-act" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}<i>›</i></a><button type="button" class="inv-act" data-invgo="edit">${ta('invEdit')}<i>›</i></button>${st==='published'?`<button type="button" class="inv-act" data-invact="publish" ${pending?'':'aria-disabled="false"'}>${ta('invPublishChanges')}${pending?` <em>${ta('invPendingDot')}</em>`:''}<i>›</i></button>`:''}</div>
+  ${invShareBlock()}
+  ${st==='published'?`<button type="button" class="inv-del" data-invact="unpublish">${ta('invUnpublish')}</button>`:''}`;
+}
+function sdConvitesTab(){
+  // Nunca partir a Papelaria: se o motor dos convites não tiver carregado (rede/cache), mostra um aviso e deixa Itens e Design a funcionar.
+  if(!window.WeddyInvite) return `<div class="inv-wrap"><p class="cb-sub" role="status">${ta('invUnavailable')}</p><div class="inv-rest"><button type="button" class="inv-rest-b" data-sdtab="itens">${ta('sdTabItems')} <i>›</i></button><button type="button" class="inv-rest-b" data-sdtab="design">${ta('sdTabDesign')} <i>›</i></button></div></div>`;
+  invCss(); const v = invUI.view;
+  if(!invRemote.loaded && !invRemote.loading) invLoadRemote();
+  const body = v==='gallery' ? invGalleryView() : v==='tpl' ? invTplView() : v==='edit' ? invEditView() : v==='sec' ? invSectionView() : v==='prev' ? invPrevView() : v==='ready' ? invReadyView() : v==='manage' ? invManageView() : invHomeView();
+  return `<div class="inv-wrap" data-invview="${v}">${body}</div>`;
+}
+/* ---------- ações ---------- */
+async function invCall(name, data){ if(typeof cloudFunctions==='undefined' || !cloudFunctions) throw { code:'unavailable' }; return (await cloudFunctions.httpsCallable(name)(data||{})).data; }
+async function invLoadRemote(){
+  invRemote.loading = true;
+  try{ const r = await invCall('getInvitationState'); invRemote = Object.assign({ loaded:true, loading:false, error:'' }, { status:r.status||'none', slug:r.slug||'', url:r.url||'', publishedConfig:r.publishedConfig||null, publishedAt:r.publishedAt||0 }); }
+  catch(e){ invRemote.loaded = true; invRemote.loading = false; invRemote.error = 'x'; }
+  if(activeTab==='papelaria' && sdTab==='convites') _origRender();
+}
+function invErrMsg(e){ const code = e && (e.code||''); const det = e && e.details && e.details.code; if(det==='validation') return ta('invErrValidation'); if(/permission-denied/.test(code)) return ta('invErrPremium'); if(/unauth/.test(code)) return ta('invErrAuth'); return ta('invErrNet'); }
+async function invPublish(){
+  if(invUI.busy) return; const cfg = invCfg(); if(!cfg || invProblems(cfg).length) return;
+  if(!hasActiveSubscription()){ invUI.msg = ta('invErrPremium'); _origRender(); return; }
+  invUI.busy = 'publish'; invUI.msg = ''; _origRender();
+  try{
+    const dr = Object.assign({}, invEnsure().draft, { lang:invLang(), colors:cfg.colors });
+    const r = await invCall('publishInvitation', { draft:Object.assign({}, cfg, { colors:cfg.colors }) });
+    invRemote = { loaded:true, loading:false, status:'published', slug:r.slug, url:r.url, publishedConfig:cfg, publishedAt:Date.now(), error:'' };
+    invUI.msg = ta('invPublishedOk'); 
+  }catch(e){ invUI.msg = invErrMsg(e); }
+  invUI.busy = ''; _origRender();
+}
+async function invUnpublish(){
+  if(!await weddyConfirm(ta('invConfirmUnpublish'))) return;
+  try{ await invCall('unpublishInvitation'); invRemote.status = 'unpublished'; invUI.msg = ta('invUnpublishedOk'); }catch(e){ invUI.msg = invErrMsg(e); }
+  _origRender();
+}
+function invShareText(){ const c = invCfg(); return (c && c.names ? c.names+' — ' : '') + ta('invShareMsg'); }
+async function invDownloadCard(){
+  const cfg = invCfg(); if(!cfg) return;
+  try{ const blob = await WeddyInvite.cardPng(cfg, 3, '/'); const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href = url; a.download = 'convite-weddy.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); invUI.msg = ta('invDownloaded'); }
+  catch(e){ invUI.msg = ta('invErrPng'); }
+  _origRender();
+}
+(function invBind(){
+  if(window.__invBound) return; window.__invBound = true;
+  document.addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target : null; if(!t || activeTab!=='papelaria' || sdTab!=='convites') return;
+    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'card'; } _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const f = t.closest('[data-invfilter]'); if(f){ invUI.filter = f.dataset.invfilter; _origRender(); return; }
+    const tp = t.closest('[data-invtpl]'); if(tp){ invUI.tpl = tp.dataset.invtpl; invUI.view = 'tpl'; invUI.mode = 'page'; _origRender(); return; }
+    const md = t.closest('[data-invmode]'); if(md){ invUI.mode = md.dataset.invmode; _origRender(); return; }
+    const dv = t.closest('[data-invdev]'); if(dv){ invUI.device = dv.dataset.invdev; _origRender(); return; }
+    const ch = t.closest('[data-invchoose]'); if(ch){ const v = invEnsure(); const id = ch.dataset.invchoose; if(!v.draft) v.draft = invDefaultDraft(id); else { v.draft.tpl = id; const T = WeddyInvite.tpl(id); if(!T.palettes.some(p=>p.id===v.draft.palette) && !(v.draft.palette==='custom' && invCustomPal())) v.draft.palette = T.palettes[0].id; } invUI.view = 'edit'; render(); return; }
+    const sc = t.closest('[data-invsec]'); if(sc){ invUI.sec = sc.dataset.invsec; invUI.view = 'sec'; _origRender(); return; }
+    const pa = t.closest('[data-invpal]'); if(pa){ const d = invEnsure().draft; if(d){ d.palette = pa.dataset.invpal; if(d.palette==='custom'){ d.pal = invCustomPal() || d.pal; } render(); } return; }
+    if(t.closest('[data-invusedesign]')){ const d = invEnsure().draft; if(d){ const des = invDesign(), cp = invCustomPal(); if(cp){ d.pal = cp; d.palette = 'custom'; } if(invFontOf(des.fontMain)) d.fontMain = invFontOf(des.fontMain); if(invFontOf(des.fontSecond)) d.fontSecond = invFontOf(des.fontSecond); if(des.monogram && des.monogram.initials) d.mono = des.monogram.initials; render(); } return; }
+    if(t.closest('[data-invprogadd]')){ const d = invEnsure().draft; if(d){ d.program = d.program||[]; if(d.program.length<12) d.program.push({t:'',d:''}); render(); } return; }
+    const pd = t.closest('[data-invprogdel]'); if(pd){ const d = invEnsure().draft; if(d){ d.program.splice(Number(pd.dataset.invprogdel),1); render(); } return; }
+    const ac = t.closest('[data-invact]'); if(ac){
+      const a = ac.dataset.invact;
+      if(a==='publish'){ invPublish(); return; }
+      if(a==='unpublish'){ invUnpublish(); return; }
+      if(a==='png'){ invDownloadCard(); return; }
+      if(a==='copy'){ const u = invRemote.url; if(u && navigator.clipboard) navigator.clipboard.writeText(u).then(()=>{ invUI.msg = ta('invCopied'); _origRender(); }).catch(()=>{ invUI.msg = u; _origRender(); }); return; }
+      if(a==='wa'){ if(invRemote.url) window.open('https://wa.me/?text='+encodeURIComponent(invShareText()+' '+invRemote.url), '_blank', 'noopener'); return; }
+      if(a==='mail'){ if(invRemote.url) location.href = 'mailto:?subject='+encodeURIComponent(ta('invMailSubject'))+'&body='+encodeURIComponent(invShareText()+'\n\n'+invRemote.url); return; }
+    }
+  });
+  document.addEventListener('change', e=>{
+    const t = e.target; if(!t || !t.matches || activeTab!=='papelaria' || sdTab!=='convites') return;
+    const d = invEnsure().draft; if(!d) return;
+    if(t.matches('[data-invfont]')){ d[t.dataset.invfont] = t.value; render(); return; }
+    if(t.matches('[data-invdeco]')){ d.deco = !!t.checked; render(); return; }
+    if(t.matches('[data-invtog]')){ d.sections = d.sections||{}; d.sections[t.dataset.invtog] = !!t.checked; render(); return; }
+  });
+})();
+
 function viewPapelariaCore(){
   sdEnsure();
   const pg = sdProgress();
-  const tabs = [['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
+  const tabs = [['convites','sdTabInvites'],['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
   return `
 ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
 <div class="cb-page">
   <div class="sd-prog">${sdIco('doc','sd-prog-ico')}<div class="sd-prog-t"><b>${ta('sdProgress')}</b><small>${escapeHTML(ta('cdStatDone')(pg.done, pg.total))}</small></div><div class="sd-ringw">${sdRing(pg.pct)}<span>${pg.pct}%</span></div></div>
   <div class="cb-tabs" role="tablist">${tabs}</div>
-  ${sdTab==='design' ? sdDesignTab() : sdItensTab()}
+  ${sdTab==='convites' ? sdConvitesTab() : sdTab==='design' ? sdDesignTab() : sdItensTab()}
 </div>`;
 }
 (function sdBind(){
@@ -9523,7 +9803,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
 Object.assign(APP_I18N.pt, {
   pmIncluded:'Incluído no Premium', pmCta:'Conhecer o Premium',
   pmDescBolo:'Organizem o modelo, os sabores, as provas e as inspirações do bolo num só lugar.', pmDescVows:'Um espaço para preparar os votos, discursos e leituras da cerimónia.', pmDescStat:'Acompanhem cada material da papelaria e guardem a identidade visual e os ficheiros do casamento.',
-  sdTabItems:'Itens', sdTabDesign:'Design', sdProgress:'Progresso da papelaria', sdItemsTitle:'Itens da papelaria', sdItemsSub:'Acompanhem a criação, impressão e envio de cada elemento.',
+  sdTabInvites:'Convites', invTitle:'Convites digitais', invSub:'Um convite à altura da vossa história.', sdTabItems:'Itens', sdTabDesign:'Design', sdProgress:'Progresso da papelaria', sdItemsTitle:'Itens da papelaria', sdItemsSub:'Acompanhem a criação, impressão e envio de cada elemento.',
   sdAddItem:'Adicionar item', sdAddOk:'Adicionar', sdNewPh:'Nome do elemento', vwSaveBackCancel:'Cancelar',
   sdIdTitle:'Identidade visual', sdIdSub:'Definam a linguagem visual que vai acompanhar toda a papelaria.', sdPalette:'Paleta de cores', sdColor:'Adicionar cor', sdTypo:'Tipografia',
   sdFontMain:'Tipografia principal', sdFontMainHint:'Títulos e destaques', sdFontSecond:'Tipografia secundária', sdFontSecondHint:'Textos e detalhes',
@@ -9537,7 +9817,7 @@ Object.assign(APP_I18N.pt, {
 Object.assign(APP_I18N.en, {
   pmIncluded:'Included in Premium', pmCta:'Discover Premium',
   pmDescBolo:'Organise the cake model, flavours, tastings and inspiration in one place.', pmDescVows:'A space to prepare the vows, speeches and readings of the ceremony.', pmDescStat:'Track every stationery piece and keep your wedding visual identity and files together.',
-  sdTabItems:'Items', sdTabDesign:'Design', sdProgress:'Stationery progress', sdItemsTitle:'Stationery items', sdItemsSub:'Track the design, printing and sending of each piece.',
+  sdTabInvites:'Invitations', invTitle:'Digital invitations', invSub:'An invitation worthy of your story.', sdTabItems:'Items', sdTabDesign:'Design', sdProgress:'Stationery progress', sdItemsTitle:'Stationery items', sdItemsSub:'Track the design, printing and sending of each piece.',
   sdAddItem:'Add item', sdAddOk:'Add', sdNewPh:'Item name', vwSaveBackCancel:'Cancel',
   sdIdTitle:'Visual identity', sdIdSub:'Define the visual language that will accompany all your stationery.', sdPalette:'Colour palette', sdColor:'Add colour', sdTypo:'Typography',
   sdFontMain:'Main typeface', sdFontMainHint:'Titles and highlights', sdFontSecond:'Secondary typeface', sdFontSecondHint:'Text and details',
@@ -10078,6 +10358,7 @@ Object.assign(APP_I18N.en, {
     const back = t.closest('#bolo-back, #votos-back, #papelaria-back');
     if(back){
       if(back.id==='bolo-back' && (cbDraft || cbTastOpen)){ cbDraft = null; cbTastOpen = null; _origRender(); return; }
+      if(back.id==='papelaria-back') sdTab = 'convites'; // ao voltar a entrar, a Papelaria abre em «Convites»
       closeAllSheets(); activeTab = 'inicio'; _origRender(); return;
     }
     const sil = t.closest('[data-cdsil]');
@@ -11059,6 +11340,7 @@ function premiumSiteBanner(locked){
 const HOME_PF_SVG = inner=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${inner}</svg>`;
 const HOME_PF_ICONS = {
   rsvp: HOME_PF_SVG('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+  convites: HOME_PF_SVG('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M10 16h4"/>'),
   chatbot: HOME_PF_SVG('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/>'),
   health: HOME_PF_SVG('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
   memories: HOME_PF_SVG('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
@@ -11084,7 +11366,7 @@ function premiumFeatureGrid(){
     </div>
     <div class="pf-grid">
       ${homePfTile('rsvp', ta('homePfRsvpT'), ta('homePfRsvpD'), !subscribed)}
-      ${homePfTile('chatbot', ta('homePfChatT'), ta('homePfChatD'), !subscribed)}
+      ${homePfTile('convites', ta('homePfInvT'), ta('homePfInvD'), !subscribed)}
       ${homePfTile('health', ta('homePfHealthT'), ta('homePfHealthD'), !subscribed)}
       ${homePfTile('memories', ta('homePfMemT'), ta('homePfMemD'), !subscribed)}
       ${homePfTile('documentos', ta('homePfDocT'), ta('homePfDocD'), !subscribed)}
@@ -24983,6 +25265,7 @@ function bindHandlers(){
       // do Assistente (o mesmo botão redondo que já existe sempre visível),
       // por isso este azulejo só abre essa janela em vez de navegar.
       if(key==='chatbot'){ openChatPanel(); return; }
+      if(key==='convites'){ closeAllSheets(); sdTab = 'convites'; invUI.view = 'home'; activeTab = 'papelaria'; _origRender(); return; }
       closeAllSheets();
       // Origem diferente do menu de Definições (ex.: Início) → "voltar" regressa lá.
       if(!(activeTab==='definicoes' && (definicoesSection===null || definicoesSection===key))) navBackSet('definicoes', key);

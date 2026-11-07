@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Weddy</title>
+<meta name="description" content="Convite digital criado com Weddy.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Weddy">
+<meta property="og:title" content="Weddy">
+<meta property="og:description" content="Convite digital criado com Weddy.">
+<link rel="preload" href="/fonts/cormorant-garamond.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="/fonts/manrope.woff" as="font" type="font/woff" crossorigin>
+<style>
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:100 900;src:url(/fonts/cormorant-garamond.woff) format('woff');font-display:swap}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:100 900;src:url(/fonts/cormorant-garamond-italic.woff) format('woff');font-display:swap}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:100 900;src:url(/fonts/manrope.woff) format('woff');font-display:swap}
+html,body{margin:0;background:#FAF8F5;font-family:"Manrope",system-ui,sans-serif;color:#302C29}
+.st{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
+.st h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;margin:0}
+.st p{margin:0;color:#6F6862;max-width:28em}
+.st a,.st button{margin-top:10px;min-height:46px;padding:0 24px;border-radius:999px;background:#B96752;color:#fff;border:0;font:700 15px inherit;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app"><div class="st" role="status"><p>A carregar…</p></div></div>
+<script src="/weddyinvite.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Convite digital público. Lê SÓ publicInvitations/{slug} (só publicado e dentro da validade do
+   Premium, pelas regras Firestore). Nunca mostra convidados, orçamento, contactos nem tokens
+   além do token individual que vem no link (?g=) e que só serve para abrir o RSVP existente. */
+(function(){
+  var app = document.getElementById('app');
+  var q = new URLSearchParams(location.search);
+  var slug = (q.get('s') || '').toLowerCase();
+  var token = q.get('g') || '';
+  var lang = (navigator.language||'pt').slice(0,2)==='en' ? 'en' : 'pt';
+  var T = lang==='en' ? { nf:'Invitation not available', nft:'This invitation is not available.', err:'Could not load the invitation.', retry:'Try again' } : { nf:'Convite indisponível', nft:'Este convite não está disponível.', err:'Não foi possível carregar o convite.', retry:'Tentar de novo' };
+  function esc(s){ return WeddyInvite.esc(s); }
+  function status(title, text, retry){
+    document.title = title + ' · Weddy';
+    app.innerHTML = '<div class="st" role="status"><h1>'+esc(title)+'</h1><p>'+esc(text)+'</p>'+(retry?'<button id="rt">'+esc(T.retry)+'</button>':'<a href="https://www.weddy.pt">Weddy</a>')+'</div>';
+    var b = document.getElementById('rt'); if(b) b.onclick = load;
+  }
+  function load(){
+    if(!/^[a-z0-9-]{3,40}$/.test(slug)) return status(T.nf, T.nft);
+    if(!firebase.apps.length) firebase.initializeApp({ apiKey:"AIzaSyAhqSS-NWuJ5_8Vg64XBb2iR5MIdEcNgGk", authDomain:"weddy-app-bd12f.firebaseapp.com", projectId:"weddy-app-bd12f", storageBucket:"weddy-app-bd12f.firebasestorage.app", messagingSenderId:"696758255059", appId:"1:696758255059:web:44cbc2e9847d2ab58f8326" });
+    firebase.firestore().collection('publicInvitations').doc(slug).get().then(function(d){
+      // Inexistente, rascunho, despublicado e suspenso dão exatamente a mesma resposta.
+      if(!d.exists || d.data().status !== 'published' || !d.data().snapshot) return status(T.nf, T.nft);
+      var cfg = WeddyInvite.sanitize(d.data().snapshot, d.data().snapshot.lang);
+      var r = WeddyInvite.page(cfg, { token: token });
+      document.documentElement.lang = cfg.lang;
+      document.title = r.title;
+      var m = document.querySelector('meta[name=description]'); if(m) m.setAttribute('content', r.description);
+      var st = document.createElement('style'); st.textContent = r.css; document.head.appendChild(st);
+      document.body.setAttribute('style', r.bodyStyle);
+      app.innerHTML = r.html;
+    }).catch(function(e){
+      if(e && e.code === 'permission-denied') return status(T.nf, T.nft);
+      status(T.err, '', true);
+    });
+  }
+  load();
+})();
+</script>
+</body>
+</html>
