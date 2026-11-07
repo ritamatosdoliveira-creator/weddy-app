@@ -53,6 +53,8 @@ const SUITES = [
   { id: 'ui-copilot', group: 'ui', name: 'UI Copilot: políticas, confirmação, escritas, isolamento, PT/EN (Fase E)', cmd: py('copilot.py') },
   { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
   { id: 'gcal', group: 'gcal', name: 'Google Calendar servidor: OAuth, tokens, sync sem duplicados, Premium, isolamento (Fase I; Google simulado)', cmd: ['node', 'gcal/gcal.test.js'], emu: true },
+  { id: 'invitations', group: 'invitations', name: 'Convites Digitais servidor: publicar, sanitização, slug, Premium, isolamento, ciclo de vida (lote 15)', cmd: ['node', 'invitations/invitations.test.js'], emu: true },
+  { id: 'rules-invitations', group: 'rules', name: 'Regras Convites Digitais: leitura pública só publicado+válido, resto fechado (lote 15)', cmd: ['node', 'invitations/rules.test.mjs'], emu: true },
   { id: 'site', group: 'site', name: 'Wedding Website servidor: rascunho, slug, publicação, privacidade, Premium, isolamento (Fase I; Storage simulado)', cmd: ['node', 'site/site.test.js'], emu: true },
   { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
   { id: 'contact-stress', group: 'contact', name: 'Formulário de contacto: concorrência repetida', cmd: ['node', 'contact/concurrency-stress.test.js'], emu: true },

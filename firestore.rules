@@ -425,6 +425,16 @@ service cloud.firestore {
     // hora exata em que o Premium termina). Documentos inexistentes,
     // despublicados e suspensos respondem todos da mesma forma (negado).
     // Nunca se pode listar nem escrever.
+    // Convites digitais: leitura pública só de convites publicados e dentro da validade do Premium.
+    // Ninguém lista nem escreve (só Cloud Functions). weddingInvitations e invitationSlugs: sem acesso de clientes.
+    match /publicInvitations/{slug} {
+      allow get: if resource.data.status == 'published'
+        && resource.data.validUntil > request.time;
+      allow list, write: if false;
+    }
+    match /weddingInvitations/{id} { allow read, write: if false; }
+    match /invitationSlugs/{id} { allow read, write: if false; }
+
     match /publicWeddingSites/{slug} {
       allow get: if resource.data.status == 'published'
         && resource.data.validUntil > request.time;

@@ -3851,6 +3851,180 @@ async function applySiteLifecycle(weddingId, site, wedding) {
   if (result !== 'none') logger.info(`siteLifecycle: ${weddingId} ${result} (Premium terminou)`);
   return result;
 }
+// ============================================================================
+// WEDDY INVITATIONS — convites digitais (Papelaria > Convites)
+//  - O casal guarda o RASCUNHO no estado do casamento (state.invitation.draft).
+//    Aqui só se PUBLICA: o servidor valida o Premium, normaliza o rascunho com
+//    uma lista de campos permitida (nada de HTML, só https, cores #rrggbb) e
+//    grava a cópia pública em publicInvitations/{slug}. O público só lê esse
+//    documento, e só enquanto status == 'published' E validUntil > agora.
+//  - A ligação (slug) é criada na 1.ª publicação e nunca muda.
+//  - O RSVP não é novo: o convite só leva a rsvp.html?g=<token individual>.
+//  - Expirar o Premium nunca apaga nada: o convite fica 'suspended' (sem cópia
+//    pública) e volta com a renovação.
+// ============================================================================
+const INV_TEMPLATES = ['colorido', 'natural', 'luxo', 'arquitetura', 'romance', 'editorial', 'minimal', 'jardim', 'classico', 'mediterranico', 'romantico', 'couture', 'campestre', 'w-verde', 'w-romantico', 'w-editorial', 'w-bordo', 'w-beige', 'w-monograma', 'w-destino', 'w-relevo'];
+const INV_FONTS = ['Cormorant Garamond', 'Manrope', 'Georgia', 'Helvetica', 'Pinyon Script'];
+// Opções próprias de cada modelo (lista branca; o resto é descartado). 'b' = booleano (por defeito ligado).
+const INV_OPTS = { luxo: { finish: ['gold', 'silver', 'none'], relief: 'b', seal: 'b' }, arquitetura: { kind: ['manor', 'church', 'palace'], wash: 'b' }, romance: { bow: 'b', vellum: 'b' }, colorido: { comp: ['topo', 'base'] }, natural: { flap: 'b', count: 'b' } };
+function invOpt(tpl, raw) {
+  raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  const out = {}; const defs = INV_OPTS[tpl] || {};
+  Object.keys(defs).forEach((k) => { const d = defs[k]; out[k] = d === 'b' ? !(raw[k] === false || raw[k] === 0) : (d.includes(raw[k]) ? raw[k] : d[0]); });
+  return out;
+}
+function invEv(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { t: invTime(raw.t), p: invClip(raw.p, 80).trim(), a: invClip(raw.a, 120).trim() }; }
+function invSong(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { t: invClip(raw.t, 80).trim(), a: invClip(raw.a, 80).trim(), u: invUrl(raw.u) }; }
+function invHash(h) { h = invClip(h, 40).replace(/[^\p{L}\p{N}_]/gu, ''); return h ? '#' + h : ''; }
+function invPhotos(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { cover: invUrl(raw.cover), gallery: (Array.isArray(raw.gallery) ? raw.gallery : []).slice(0, 6).map(invUrl) }; }
+const INV_SECTIONS = ['cover', 'message', 'datetime', 'location', 'map', 'program', 'dress', 'tips', 'kids', 'gifts'];
+function invClip(s, n) { return String(typeof s === 'string' || typeof s === 'number' ? s : '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').slice(0, n); }
+function invHex(c) { return /^#[0-9a-f]{6}$/i.test(String(c || '')) ? String(c).toLowerCase() : null; }
+function invUrl(u) {
+  u = String(u || '').trim().slice(0, 300);
+  if (!/^https:\/\/[^\s"'<>]+$/i.test(u)) return '';
+  try { const p = new URL(u); return p.protocol === 'https:' ? p.href : ''; } catch (e) { return ''; }
+}
+function invTime(t) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(t || '') ? t : ''; }
+function invDate(d) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return '';
+  const t = new Date(d + 'T00:00:00Z');
+  return isNaN(t.getTime()) || t.toISOString().slice(0, 10) !== d ? '' : d;
+}
+function invSanitize(raw) {
+  raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  const col = (raw.colors && typeof raw.colors === 'object') ? raw.colors : {};
+  const colors = { bg: invHex(col.bg), ink: invHex(col.ink), ac: invHex(col.ac), soft: invHex(col.soft) };
+  const errors = [];
+  if (!INV_TEMPLATES.includes(raw.tpl)) errors.push('tpl');
+  if (!colors.bg || !colors.ink || !colors.ac || !colors.soft) errors.push('colors');
+  const names = invClip(raw.names, 60).trim();
+  if (!names) errors.push('names');
+  const sections = {};
+  const sc = (raw.sections && typeof raw.sections === 'object') ? raw.sections : {};
+  INV_SECTIONS.forEach((k) => { sections[k] = k === 'cover' ? true : (sc[k] !== false && sc[k] !== 0); });
+  const program = [];
+  (Array.isArray(raw.program) ? raw.program : []).slice(0, 12).forEach((p) => {
+    if (!p || typeof p !== 'object') return;
+    const d = invClip(p.d, 80).trim();
+    if (d) program.push({ t: invTime(p.t), d });
+  });
+  const cfg = {
+    v: 1, tpl: raw.tpl, palette: invClip(raw.palette, 20).replace(/[^a-z0-9-]/gi, ''), colors,
+    names, intro: invClip(raw.intro, 200).trim(), message: invClip(raw.message, 300).trim(),
+    date: invDate(raw.date), time: invTime(raw.time), venue: invClip(raw.venue, 120).trim(), address: invClip(raw.address, 240).trim(),
+    mapUrl: invUrl(raw.mapUrl), dress: invClip(raw.dress, 300).trim(), tips: invClip(raw.tips, 300).trim(), kids: invClip(raw.kids, 300).trim(), gifts: invClip(raw.gifts, 300).trim(), mono: invClip(raw.mono, 8).trim(),
+    fontMain: INV_FONTS.includes(raw.fontMain) ? raw.fontMain : INV_FONTS[0], fontSecond: (INV_FONTS.includes(raw.fontSecond) && raw.fontSecond !== 'Pinyon Script') ? raw.fontSecond : INV_FONTS[1],
+    deco: raw.deco !== false, program, sections, opt: invOpt(raw.tpl, raw.opt), cer: invEv(raw.cer), rec: invEv(raw.rec), lang: raw.lang === 'en' ? 'en' : 'pt',
+    photos: invPhotos(raw.photos), quote: invClip(raw.quote, 200).trim(), song: invSong(raw.song), hash: invHash(raw.hash), giftUrl: invUrl(raw.giftUrl),
+    story: invClip(raw.story, 400).trim(), parents: invClip(raw.parents, 200).trim(), hotel: invClip(raw.hotel, 120).trim(), hotelUrl: invUrl(raw.hotelUrl)
+  };
+  return { cfg, errors };
+}
+function invSlugBase(names) {
+  const b = String(names || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24).replace(/-+$/g, '');
+  return b.length >= 2 ? b : 'convite';
+}
+async function invReserveSlug(weddingId, names) {
+  // Idempotente por casamento: duas publicações simultâneas partilham o mesmo slug (a reserva e o
+  // registo do slug no casamento acontecem na mesma transação).
+  const invRef = db.collection('weddingInvitations').doc(weddingId);
+  for (let i = 0; i < 8; i++) {
+    const slug = invSlugBase(names) + '-' + crypto.randomBytes(3).toString('hex').slice(0, 5);
+    const ref = db.collection('invitationSlugs').doc(slug);
+    const got = await db.runTransaction(async (tx) => {
+      const [cur, s] = await Promise.all([tx.get(invRef), tx.get(ref)]);
+      if (cur.exists && cur.data().slug) return cur.data().slug;
+      if (s.exists) return null;
+      tx.set(ref, { weddingId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+      tx.set(invRef, { weddingId, slug }, { merge: true });
+      return slug;
+    });
+    if (got) return got;
+  }
+  throw new HttpsError('unavailable', 'Não foi possível criar a ligação agora. Tenta novamente.', { code: 'slug' });
+}
+exports.publishInvitation = onCall({ region: 'europe-west1', timeoutSeconds: 60 }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const weddingSnap = await assertPremiumWedding(weddingId); // Premium validado SEMPRE no servidor
+  await siteRateLimit('invpub_' + weddingId, 30, 60 * 60 * 1000);
+  const { cfg, errors } = invSanitize(request.data && request.data.draft);
+  if (errors.length) throw new HttpsError('failed-precondition', 'O convite tem campos por corrigir.', { code: 'validation', errors });
+  const ref = db.collection('weddingInvitations').doc(weddingId);
+  const cur = await ref.get();
+  const prev = cur.exists ? cur.data() : {};
+  const slug = prev.slug || await invReserveSlug(weddingId, cfg.names);
+  const version = (prev.publishedVersion || 0) + 1;
+  const validUntil = siteValidUntil(weddingSnap.data().subscription);
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const batch = db.batch();
+  batch.set(db.collection('publicInvitations').doc(slug), { status: 'published', version, publishedAt: now, validUntil, snapshot: cfg });
+  batch.set(ref, { weddingId, slug, status: 'published', publishedVersion: version, publishedAt: now, publishedBy: request.auth.token.email || null, publishedConfig: cfg, validUntil, unpublishedAt: null, suspendedAt: null }, { merge: true });
+  try { await batch.commit(); } catch (e) {
+    logger.error(`publishInvitation: ${weddingId}. ${e.message || e}`);
+    throw new HttpsError('unavailable', 'Não foi possível publicar agora. O convite anterior mantém-se. Tenta novamente.', { code: 'commit' });
+  }
+  logger.info(`publishInvitation: ${weddingId} v${version}`);
+  return { ok: true, slug, version, url: `https://www.weddy.pt/i/${slug}` };
+});
+exports.unpublishInvitation = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const ref = db.collection('weddingInvitations').doc(weddingId);
+  const snap = await ref.get();
+  if (!snap.exists || !snap.data().slug) throw new HttpsError('failed-precondition', 'Ainda não há convite publicado.', { code: 'not_published' });
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const batch = db.batch();
+  batch.set(db.collection('publicInvitations').doc(snap.data().slug), { status: 'unpublished', unpublishedAt: now }); // sem snapshot
+  batch.set(ref, { status: 'unpublished', unpublishedAt: now }, { merge: true });
+  await batch.commit();
+  return { ok: true };
+});
+// Estado do convite do casal (nunca devolve nada de outro casamento).
+exports.getInvitationState = onCall({ region: 'europe-west1' }, async (request) => {
+  const weddingId = await siteCoupleContext(request);
+  const snap = await db.collection('weddingInvitations').doc(weddingId).get();
+  if (!snap.exists) return { status: 'none' };
+  const d = snap.data();
+  const ms = (t) => (t && t.toMillis ? t.toMillis() : 0);
+  return { status: d.status || 'none', slug: d.slug || '', version: d.publishedVersion || 0, publishedAt: ms(d.publishedAt), validUntil: ms(d.validUntil), publishedConfig: d.publishedConfig || null, url: d.slug ? `https://www.weddy.pt/i/${d.slug}` : '' };
+});
+exports.syncInvitationLifecycle = onSchedule(
+  { schedule: 'every 60 minutes', timeZone: 'Europe/Lisbon', region: 'europe-west1', timeoutSeconds: 300 },
+  async () => {
+    const q = await db.collection('weddingInvitations').select('slug', 'status', 'validUntil').get();
+    for (const d of q.docs) {
+      try {
+        const inv = d.data();
+        if (!inv.slug || (inv.status !== 'published' && inv.status !== 'suspended')) continue;
+        const w = await db.collection('weddings').doc(d.id).get();
+        const sub = w.exists ? w.data().subscription : null;
+        const now = admin.firestore.FieldValue.serverTimestamp();
+        if (isSubscriptionStillValid(sub)) {
+          const vu = siteValidUntil(sub);
+          if (inv.status === 'suspended') {
+            const full = (await db.collection('weddingInvitations').doc(d.id).get()).data();
+            if (!full.publishedConfig) continue;
+            const b = db.batch();
+            b.set(db.collection('publicInvitations').doc(inv.slug), { status: 'published', version: full.publishedVersion || 1, publishedAt: now, validUntil: vu, snapshot: full.publishedConfig });
+            b.set(d.ref, { status: 'published', validUntil: vu, suspendedAt: null }, { merge: true });
+            await b.commit();
+          } else if (Math.abs((inv.validUntil && inv.validUntil.toMillis ? inv.validUntil.toMillis() : 0) - vu.getTime()) >= 1000) {
+            const b = db.batch();
+            b.set(db.collection('publicInvitations').doc(inv.slug), { validUntil: vu }, { merge: true });
+            b.set(d.ref, { validUntil: vu }, { merge: true });
+            await b.commit();
+          }
+        } else if (inv.status === 'published') {
+          const b = db.batch();
+          b.set(db.collection('publicInvitations').doc(inv.slug), { status: 'suspended', suspendedAt: now }); // sem snapshot
+          b.set(d.ref, { status: 'suspended', suspendedAt: now }, { merge: true });
+          await b.commit();
+        }
+      } catch (e) { logger.error(`syncInvitationLifecycle: ${d.id}. ${e.message || e}`); }
+    }
+  }
+);
+
 exports.syncWeddingSiteLifecycle = onSchedule(
   { schedule: 'every 60 minutes', timeZone: 'Europe/Lisbon', region: 'europe-west1', timeoutSeconds: 540 },
   async () => {
