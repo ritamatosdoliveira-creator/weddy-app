@@ -55,7 +55,8 @@
 <style>/* Fase J (RGPD): tipos de letra alojados em weddy.pt — sem pedidos ao Google Fonts (que enviariam o IP de quem visita) */
 @font-face{font-family:'Cormorant Garamond';src:url(../fonts/cormorant-garamond.woff) format('woff');font-weight:300 700;font-style:normal;font-display:swap}
 @font-face{font-family:'Cormorant Garamond';src:url(../fonts/cormorant-garamond-italic.woff) format('woff');font-weight:300 700;font-style:italic;font-display:swap}
-@font-face{font-family:'Manrope';src:url(../fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}</style>
+@font-face{font-family:'Manrope';src:url(../fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:'Pinyon Script';src:url(../fonts/pinyon-script.woff) format('woff');font-weight:400;font-style:normal;font-display:swap}</style>
 <style>
 :root{
   --cream:#FAF8F5;
@@ -3784,6 +3785,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 .pf-thumb{ position:absolute; right:8px; top:8px; width:34px; opacity:.95; } .pf-thumb .inv-cardw{ box-shadow:0 1px 6px rgba(43,37,34,.2); border-radius:3px; }
 @media (min-width:900px){ .inv-grid{ grid-template-columns:repeat(4,1fr); } .inv-wrap{ max-width:900px; } .inv-hero-i{ transform:none; } }
 @media (prefers-reduced-motion:reduce){ .inv-hero-i{ transform:none; } }
+.inv-tpl .inv-cardw{margin:0 auto}
 </style>
 </head>
 <body>
@@ -9451,8 +9453,8 @@ function sdItemEditor(){
 }
 Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregaram. Volta a abrir a app com ligação à internet.', sdTabInvites:'Convites', invTitle:'Convites digitais', invSub:'Um convite à altura da vossa história.', invExplore:'Explorar modelos', invRest:'Restante papelaria', invDraftT:'O vosso rascunho', invContinueEdit:'Continuar a editar', invNoNames:'Sem nomes ainda', invPublishedT:'Convite publicado', invManage:'Gerir convite', invStPublished:'Publicado', invStChanges:'Alterações por publicar', invStSuspended:'Indisponível (Premium terminado)', invStUnpublished:'Despublicado',
  invGalleryHint:'Escolham um design e deixem-no contar a vossa história.', invNoTpl:'Nenhum modelo neste estilo.', invBackGallery:'Modelos', invModePage:'Convite interativo', invModeCard:'Cartão digital', invChoose:'Escolher este modelo', invBackToTpl:'Voltar aos modelos', invPreviewTitle:'Pré-visualização do convite',
- invStyle_todos:'Todos', invStyle_classicos:'Clássicos', invStyle_minimalistas:'Minimalistas', invStyle_romanticos:'Românticos', invStyle_botanicos:'Botânicos', invStyle_contemporaneos:'Contemporâneos',
- invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Jardim', invTpl_classico:'Clássico', invTpl_mediterranico:'Mediterrânico', invTpl_romantico:'Romântico', invTpl_couture:'Couture', invTpl_campestre:'Campestre',
+ invStyle_todos:'Todos', invStyle_premium:'Coleção Premium', invStyle_classicos:'Clássicos', invStyle_minimalistas:'Minimalistas', invStyle_romanticos:'Românticos', invStyle_botanicos:'Botânicos', invStyle_contemporaneos:'Contemporâneos',
+ invTpl_luxo:'Papelaria de Luxo', invTpl_arquitetura:'Arquitetura do Casamento', invTpl_romance:'Romance Contemporâneo', invFCer:'Cerimónia', invFRec:'Receção', invFEvT:'Hora', invFEvP:'Local', invOptsT:'Elementos deste modelo', invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Jardim', invTpl_classico:'Clássico', invTpl_mediterranico:'Mediterrânico', invTpl_romantico:'Romântico', invTpl_couture:'Couture', invTpl_campestre:'Campestre',
  invEditTitle:'Personalizar convite', invEditSub:'Escolham o que mostrar. A composição de cada modelo mantém-se.', invAutosave:'O rascunho guarda-se automaticamente.', invPreview:'Pré-visualizar', invSave:'Guardar',
  invSecText:'Texto', invSecTextD:'Nomes, mensagem e introdução', invSecInfo:'Informações', invSecInfoD:'Data, local, horário e programa', invSecStyle:'Estilo', invSecStyleD:'Cores, tipografia e monograma', invSecContent:'Conteúdo do convite', invSecContentD:'Secções da página interativa',
  invFNames:'Nomes dos noivos', invFIntro:'Texto de apresentação', invFMessage:'Mensagem do convite', invFDate:'Data do casamento', invFTime:'Hora', invFVenue:'Local', invFAddress:'Morada', invFMap:'Ligação do mapa (opcional, https)', invFDress:'Dress code', invAddMoment:'Adicionar momento', invRemove:'Remover',
@@ -9467,8 +9469,8 @@ Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregara
  homePfInvT:'Convites Digitais', homePfInvD:'Escolhe um modelo e cria o teu convite.' });
 Object.assign(APP_I18N.en, { invUnavailable:'Digital invitations did not load. Reopen the app with an internet connection.', sdTabInvites:'Invitations', invTitle:'Digital invitations', invSub:'An invitation worthy of your story.', invExplore:'Explore templates', invRest:'Rest of the stationery', invDraftT:'Your draft', invContinueEdit:'Keep editing', invNoNames:'No names yet', invPublishedT:'Published invitation', invManage:'Manage invitation', invStPublished:'Published', invStChanges:'Unpublished changes', invStSuspended:'Unavailable (Premium ended)', invStUnpublished:'Unpublished',
  invGalleryHint:'Pick a design and let it tell your story.', invNoTpl:'No templates in this style.', invBackGallery:'Templates', invModePage:'Interactive invitation', invModeCard:'Digital card', invChoose:'Choose this template', invBackToTpl:'Back to templates', invPreviewTitle:'Invitation preview',
- invStyle_todos:'All', invStyle_classicos:'Classic', invStyle_minimalistas:'Minimal', invStyle_romanticos:'Romantic', invStyle_botanicos:'Botanical', invStyle_contemporaneos:'Contemporary',
- invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Garden', invTpl_classico:'Classic', invTpl_mediterranico:'Mediterranean', invTpl_romantico:'Romantic', invTpl_couture:'Couture', invTpl_campestre:'Countryside',
+ invStyle_todos:'All', invStyle_premium:'Premium collection', invStyle_classicos:'Classic', invStyle_minimalistas:'Minimal', invStyle_romanticos:'Romantic', invStyle_botanicos:'Botanical', invStyle_contemporaneos:'Contemporary',
+ invTpl_luxo:'Luxury Stationery', invTpl_arquitetura:'Wedding Architecture', invTpl_romance:'Contemporary Romance', invFCer:'Ceremony', invFRec:'Reception', invFEvT:'Time', invFEvP:'Place', invOptsT:'Template elements', invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Garden', invTpl_classico:'Classic', invTpl_mediterranico:'Mediterranean', invTpl_romantico:'Romantic', invTpl_couture:'Couture', invTpl_campestre:'Countryside',
  invEditTitle:'Customise invitation', invEditSub:'Choose what to show. Each template keeps its composition.', invAutosave:'Your draft saves automatically.', invPreview:'Preview', invSave:'Save',
  invSecText:'Text', invSecTextD:'Names, message and intro', invSecInfo:'Details', invSecInfoD:'Date, venue, time and schedule', invSecStyle:'Style', invSecStyleD:'Colours, fonts and monogram', invSecContent:'Invitation content', invSecContentD:'Sections of the interactive page',
  invFNames:'Couple names', invFIntro:'Introduction', invFMessage:'Invitation message', invFDate:'Wedding date', invFTime:'Time', invFVenue:'Venue', invFAddress:'Address', invFMap:'Map link (optional, https)', invFDress:'Dress code', invAddMoment:'Add moment', invRemove:'Remove',
@@ -9512,7 +9514,7 @@ function invDefaultDraft(tplId){
   const names = (ws.coupleName1 && ws.coupleName2) ? ws.coupleName1.trim()+' & '+ws.coupleName2.trim() : (ws.coupleName1||'');
   const cp = invCustomPal();
   const dr = { tpl:t.id, palette:'', pal:cp||{ac:'',soft:''}, names, intro:'', message:'', date:/^\d{4}-\d{2}-\d{2}$/.test(ws.weddingDate||'')?ws.weddingDate:'', time:'', venue:ws.venue||'', address:'', mapUrl:'', dress:'', program:[],
-    mono:(d.monogram&&d.monogram.initials)||'', fontMain:invFontOf(d.fontMain)||'', fontSecond:invFontOf(d.fontSecond)||'', deco:true, sections:{ cover:true, message:true, datetime:true, location:true, map:true, program:true, dress:true } };
+    mono:(d.monogram&&d.monogram.initials)||'', opt:{}, cer:{t:'',p:''}, rec:{t:'',p:''}, fontMain:(t.fonts[0]==='Pinyon Script'?'':invFontOf(d.fontMain))||'', fontSecond:invFontOf(d.fontSecond)||'', deco:true, sections:{ cover:true, message:true, datetime:true, location:true, map:true, program:true, dress:true } };
   if(cp && WeddyInvite.contrast(cp.ac, t.palettes[0].bg) >= 3) dr.palette = 'custom';
   else dr.palette = t.palettes[0].id;
   return dr;
@@ -9521,7 +9523,7 @@ function invCfg(){ const dr = invEnsure().draft; if(!dr) return null; return Wed
 function invPreviewCfg(tplId){ // pré-visualização de um modelo com os dados reais (ou de demonstração)
   const base = invEnsure().draft || invDefaultDraft(tplId);
   const demo = !base.names ? { names:'Sofia & Pedro', date:'2026-07-12', time:'16:00', venue:'Quinta do Alvor', address:'Sintra', message:'', program:[{t:'16:00',d:ta('invDemoCeremony')},{t:'18:00',d:ta('invDemoDinner')}], dress:ta('invDemoDress') } : {};
-  const dr = Object.assign({}, invDefaultDraft(tplId), { names:base.names, date:base.date, time:base.time, venue:base.venue, address:base.address, message:base.message, intro:base.intro, program:base.program, dress:base.dress, mono:base.mono }, {});
+  const dr = Object.assign({}, invDefaultDraft(tplId), { names:base.names, date:base.date, time:base.time, venue:base.venue, address:base.address, message:base.message, intro:base.intro, program:base.program, dress:base.dress, mono:base.mono, cer:base.cer, rec:base.rec }, {});
   if(base.tpl===tplId){ Object.assign(dr, base); }
   Object.assign(dr, demo.names ? demo : {}, { tpl:tplId });
   return WeddyInvite.sanitize(Object.assign(dr, { lang:invLang() }), invLang());
@@ -9529,7 +9531,7 @@ function invPreviewCfg(tplId){ // pré-visualização de um modelo com os dados 
 function invCardHTML(cfg, w){ const k = w/360; return `<div class="inv-cardw" style="width:${w}px;height:${Math.round(540*k)}px"><div style="width:360px;height:540px;transform:scale(${k});transform-origin:top left">${WeddyInvite.cardHTML(cfg)}</div></div>`; }
 function invFrame(cfg, device){ const p = WeddyInvite.page(cfg, {}); const doc = `<!doctype html><html lang="${cfg.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${p.css}</style></head><body style="${p.bodyStyle.replace(/"/g,'&quot;')}">${p.html}</body></html>`;
   return `<div class="inv-dev inv-dev-${device}"><iframe class="inv-ifr" title="${escapeHTML(ta('invPreviewTitle'))}" sandbox="" srcdoc="${escapeHTML(doc)}"></iframe></div>`; }
-function invCanon(c){ const o = {}; ['tpl','colors','names','intro','message','date','time','venue','address','mapUrl','dress','mono','fontMain','fontSecond','deco','program','sections','lang'].forEach(k=>{ o[k] = c[k]; }); const col = c.colors||{}; o.colors = { bg:col.bg, ink:col.ink, ac:col.ac, soft:col.soft }; return JSON.stringify(o); }
+function invCanon(c){ const o = {}; ['tpl','colors','names','intro','message','date','time','venue','address','mapUrl','dress','mono','fontMain','fontSecond','deco','program','sections','opt','cer','rec','lang'].forEach(k=>{ o[k] = c[k]; }); const col = c.colors||{}; o.colors = { bg:col.bg, ink:col.ink, ac:col.ac, soft:col.soft }; return JSON.stringify(o); }
 function invPending(){ const cfg = invCfg(); if(!cfg || !invRemote.publishedConfig) return false; return invCanon(invRemote.publishedConfig) !== invCanon(cfg); }
 function invProblems(cfg){ const p = []; if(!cfg.names) p.push(ta('invErrNames')); if(!cfg.date) p.push(ta('invErrDate')); return p; }
 function invBack(label, to){ return `<button type="button" class="cb-link inv-back" data-invgo="${to}">‹ ${escapeHTML(label)}</button>`; }
@@ -9576,16 +9578,17 @@ function invSectionView(){
   if(s==='text'){ body = invField(P+'names',ta('invFNames'),dr.names,{max:60,ph:'Sofia & Pedro'})+invField(P+'intro',ta('invFIntro'),dr.intro,{area:true,max:200})+invField(P+'message',ta('invFMessage'),dr.message,{area:true,max:300}); }
   else if(s==='info'){
     const prog = (dr.program||[]).map((p,i)=>`<div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}program.${i}.t" value="${escapeHTML(p.t||'')}" aria-label="${ta('invFTime')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}program.${i}.d" value="${escapeHTML(p.d||'')}" aria-label="${ta('invSecProgram')}"><button type="button" class="cb-link" data-invprogdel="${i}" aria-label="${ta('invRemove')}">✕</button></div>`).join('');
-    body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
+    body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+['cer','rec'].map(k=>{ const ev = dr[k]||{}; return `<div class="cb-f"><span>${ta(k==='cer'?'invFCer':'invFRec')}</span><div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}${k}.t" value="${escapeHTML(ev.t||'')}" aria-label="${ta('invFEvT')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}${k}.p" value="${escapeHTML(ev.p||'')}" aria-label="${ta('invFEvP')}"></div></div>`; }).join('')+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
       `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-link" data-invprogadd>+ ${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300}); }
   else if(s==='style'){
     const t = WeddyInvite.tpl(dr.tpl), cp = invCustomPal(), cur = invCfg().palette;
     const sw = t.palettes.map(p=>`<button type="button" class="inv-sw${cur===p.id?' on':''}" data-invpal="${p.id}" style="background:${p.ac}" aria-label="${escapeHTML(p.name)}" aria-pressed="${cur===p.id}"><i style="background:${p.bg}"></i></button>`).join('') + (cp ? `<button type="button" class="inv-sw${cur==='custom'?' on':''}" data-invpal="custom" style="background:${cp.ac}" aria-label="${ta('invMyPalette')}" aria-pressed="${cur==='custom'}"><i style="background:${cp.soft||cp.ac}"></i></button>` : '');
-    const fopt = (v,def)=>WeddyInvite.FONTS.map(f=>`<option value="${f}" ${(v||def)===f?'selected':''}>${f}</option>`).join('');
+    const fopt = (v,def,noScript)=>WeddyInvite.FONTS.filter(f=>!(noScript&&f==='Pinyon Script')).map(f=>`<option value="${f}" ${(v||def)===f?'selected':''}>${f}</option>`).join('');
     body = `<div class="cb-f"><span>${ta('invPalette')}</span><div class="inv-sws">${sw}</div>${cp?`<small class="cb-sub">${ta('invFromDesign')}</small>`:`<small class="cb-sub">${ta('invNoDesign')}</small>`}</div>
       <label class="cb-f"><span>${ta('invFontMain')}</span><select class="cb-in" data-invfont="fontMain">${fopt(dr.fontMain,t.fonts[0])}</select></label>
-      <label class="cb-f"><span>${ta('invFontSecond')}</span><select class="cb-in" data-invfont="fontSecond">${fopt(dr.fontSecond,t.fonts[1])}</select></label>
+      <label class="cb-f"><span>${ta('invFontSecond')}</span><select class="cb-in" data-invfont="fontSecond">${fopt(dr.fontSecond,t.fonts[1],true)}</select></label>
       ${invField(P+'mono',ta('invFMono'),dr.mono,{max:8,ph:'S&P'})}<small class="cb-sub">${ta('invMonoHint')}</small>
+      ${(WeddyInvite.OPTS[dr.tpl]||[]).length?`<div class="cb-f"><span>${ta('invOptsT')}</span>${(WeddyInvite.OPTS[dr.tpl]||[]).map(o=>{ const cur = (invCfg().opt||{})[o.k], L = invLang(); return o.t==='sel' ? `<label class="cb-f"><span>${escapeHTML(o.l[L])}</span><select class="cb-in" data-invopt="${o.k}">${o.v.map(v=>`<option value="${v}" ${cur===v?'selected':''}>${escapeHTML(o.vl[v][L])}</option>`).join('')}</select></label>` : `<label class="gimp-chk"><input type="checkbox" data-invoptb="${o.k}" ${cur!==false?'checked':''}> ${escapeHTML(o.l[L])}</label>`; }).join('')}</div>`:''}
       <label class="gimp-chk"><input type="checkbox" data-invdeco ${dr.deco!==false?'checked':''}> ${ta('invDeco')}</label>
       <button type="button" class="cb-btn ghost" data-invusedesign>${ta('invUseDesign')}</button>`; }
   else if(s==='content'){
@@ -9694,6 +9697,8 @@ async function invDownloadCard(){
     const d = invEnsure().draft; if(!d) return;
     if(t.matches('[data-invfont]')){ d[t.dataset.invfont] = t.value; render(); return; }
     if(t.matches('[data-invdeco]')){ d.deco = !!t.checked; render(); return; }
+    if(t.matches('[data-invopt]')){ d.opt = d.opt||{}; d.opt[t.dataset.invopt] = t.value; render(); return; }
+    if(t.matches('[data-invoptb]')){ d.opt = d.opt||{}; d.opt[t.dataset.invoptb] = !!t.checked; render(); return; }
     if(t.matches('[data-invtog]')){ d.sections = d.sections||{}; d.sections[t.dataset.invtog] = !!t.checked; render(); return; }
   });
 })();
