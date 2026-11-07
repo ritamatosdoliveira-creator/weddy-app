@@ -2843,7 +2843,7 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
 .gx-prog span{ font-size:13px; color:var(--ox-soft); white-space:nowrap; }
 .gx-thead{ display:none; }
 .gx-list{ border-top:1px solid var(--ox-line); }
-.gx .gx-row{ display:grid; grid-template-columns:20px 26px minmax(0,1fr) 40px 40px 40px 40px; align-items:center; column-gap:6px; padding:6px 0; border-bottom:1px solid var(--ox-line); min-height:56px; background:transparent; }
+.gx .gx-row{ display:grid; grid-template-columns:20px 26px minmax(0,1fr) 40px 40px 40px 40px 40px; align-items:center; column-gap:6px; padding:6px 0; border-bottom:1px solid var(--ox-line); min-height:56px; background:transparent; }
 .gx .gx-row.child-row{ flex-wrap:nowrap; row-gap:0; }
 .gx-drag{ display:flex; align-items:center; justify-content:center; width:20px; }
 .gx-check{ width:24px !important; height:24px !important; }
@@ -2875,7 +2875,7 @@ details[open] > summary .cb-acc-chev{ transform:rotate(90deg); }
   .gx .search-bar{ max-width:520px; }
   .gx-dhead .orcx-title{ font-size:56px; }
   .gx-prog{ max-width:520px; }
-  .gx-thead{ display:grid; grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 110px 56px; column-gap:8px; padding:0 0 8px; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); margin-top:6px; }
+  .gx-thead{ display:grid; grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 110px 56px 56px; column-gap:8px; padding:0 0 8px; font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ox-soft); margin-top:6px; }
   .gx-th-c{ text-align:center; }
   .gx .gx-row{ grid-template-columns:24px 30px minmax(0,1fr) 150px 150px 110px 56px; column-gap:8px; min-height:60px; }
   .gx .gx-row .child-extra-row{ padding-left:62px; }
@@ -3756,6 +3756,18 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
   .gimp-nav-col{ flex-direction:row-reverse; } .gimp-nav{ max-width:420px; }
 }
 /* ===== Weddy Invitations (Papelaria > Convites) ===== */
+.inv-done-prev{ display:flex; justify-content:center; margin:6px 0 18px; } .inv-done-acts{ display:flex; flex-direction:column; gap:10px; align-items:stretch; max-width:340px; margin:0 auto; text-align:center; } .inv-done-acts .cb-btn{ text-align:center; text-decoration:none; }
+.inv-tools{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0 4px; } .inv-q{ flex:1 1 160px; min-width:0; padding:10px 12px; border:1px solid var(--line,#e6dccf); border-radius:12px; background:#fff; font:inherit; color:inherit; box-sizing:border-box; width:100%; }
+.inv-chk{ display:flex; gap:8px; align-items:center; font-size:14px; } .inv-selbar{ display:flex; gap:16px; margin:4px 0 6px; align-items:center; flex-wrap:wrap; } .inv-selcnt{ margin-left:auto; font-weight:500; font-size:13.5px; }
+.inv-list{ display:flex; flex-direction:column; border-top:1px solid var(--line,#e6dccf); } .inv-sel{ display:flex; gap:12px; align-items:flex-start; padding:12px 2px; border-bottom:1px solid var(--line,#e6dccf); cursor:pointer; } .inv-sel input[type=checkbox]{ margin-top:4px; width:18px; height:18px; flex:none; accent-color:var(--rust,#B5654B); }
+.inv-sel-b{ display:flex; flex-direction:column; gap:3px; min-width:0; flex:1; } .inv-sel-b b{ font-weight:500; overflow-wrap:anywhere; } .inv-sel-b small{ opacity:.7; }
+.inv-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; } .inv-tags i{ font-style:normal; font-size:11.5px; padding:2px 8px; border-radius:999px; background:rgba(120,90,70,.08); } .inv-tags i.no{ opacity:.45; } .inv-tags i.st.shared,.inv-tags i.st.email,.inv-tags i.rs.yes{ background:rgba(63,143,95,.14); } .inv-tags i.st.failed{ background:rgba(180,70,60,.14); } .inv-tags i.rs.no{ background:rgba(120,120,120,.16); }
+.inv-bar{ border-top:1px solid var(--line,#e6dccf); padding:14px 0 8px; margin-top:8px; display:flex; flex-direction:column; gap:4px; } .inv-bar-b{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; } .inv-bar-b .cb-btn{ flex:1 1 140px; }
+.inv-lab{ display:flex; flex-direction:column; gap:6px; font-size:13px; margin:12px 0 4px; } .inv-ta{ width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line,#e6dccf); border-radius:12px; font:inherit; line-height:1.5; background:#fff; color:inherit; resize:vertical; }
+.inv-prevmsg{ white-space:pre-wrap; background:rgba(120,90,70,.06); border-radius:14px; padding:12px 14px; font-size:14px; line-height:1.5; margin:8px 0 14px; overflow-wrap:anywhere; } .inv-hint{ font-size:12.5px; opacity:.8; } .inv-ok{ color:#3F8F5F; font-size:14px; margin:6px 0; }
+.inv-mailprev{ width:100%; height:420px; border:1px solid var(--line,#e6dccf); border-radius:12px; background:#fff; margin:10px 0; }
+.inv-inds{ display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px; margin:10px 0 14px; } .inv-ind{ padding:10px 6px; text-align:center; border-radius:14px; background:rgba(120,90,70,.06); display:flex; flex-direction:column; gap:2px; } .inv-ind b{ font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:500; } .inv-ind span{ font-size:11.5px; opacity:.75; }
+.inv-filters{ overflow-x:auto; flex-wrap:nowrap; justify-content:flex-start; scrollbar-width:none; } .inv-filters .cb-tab{ white-space:nowrap; flex:none; padding-left:14px; padding-right:14px; } .inv-one{ all:unset; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--rust,#B5654B); flex:none; } .inv-one svg{ width:18px; height:18px; } .inv-act-main{ font-weight:600; }
 .inv-wrap{ padding-bottom:12px; }
 .inv-back{ margin:2px 0 6px; }
 .inv-hero{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin:10px 0 14px; padding:18px 16px; border:1px solid var(--ox-line,#E6DCD4); border-radius:20px; background:linear-gradient(135deg,#F6EEE6,#FAF8F5); }
@@ -9474,6 +9486,20 @@ Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregara
  invContentHint:'Escolham as secções que aparecem na página interativa.', invEmptyHidden:'As secções sem informação não aparecem.', invSecCover:'Capa', invSecMessage:'Mensagem dos noivos', invSecDate:'Data e hora', invSecPlace:'Local e morada', invSecMap:'Mapa', invSecProgram:'Programa', invSecDress:'Dress code',
  invPhone:'Telemóvel', invDesk:'Computador', invEdit:'Editar', invPublish:'Publicar convite', invErrNames:'Falta indicar os nomes dos noivos.', invErrDate:'Falta indicar a data do casamento.',
  invReadyT:'O vosso convite está pronto!', invReadySub:'Podem agora publicar e partilhar o vosso convite.', invReadyPub:'Já está publicado. Publiquem as alterações para os convidados as verem.', invPublishing:'A publicar…', invPublishChanges:'Publicar alterações', invPublishedOk:'Convite publicado. A ligação mantém-se sempre a mesma.', invShareAfter:'A partilha fica disponível depois de publicar.',
+ invDoneT:'O vosso convite está pronto.', invDoneSub:'Já podem partilhar este momento com os vossos convidados.', invSendBtn:'Enviar convites', invBackManage:'Voltar à gestão',
+ invSendT:'Enviar convites', invSendSub:'Escolham quem recebe a ligação. Cada convidado (ou família) recebe a sua ligação pessoal.', invSearch:'Procurar por nome', invGroup:'Grupo', invAllGroups:'Todos os grupos', invOnlyTodo:'Só por contactar', invSelAll:'Selecionar todos', invSelNone:'Limpar seleção', invNoGuests:'Nenhum convidado para mostrar.',
+ invSelCount:'{n} selecionados', invSelDetail:'{wa} com WhatsApp · {em} com email', invViaWa:'Enviar por WhatsApp', invViaEm:'Enviar por email', invFamily:'Família', invWa:'WhatsApp', invEm:'Email',
+ invDsTodo:'Por contactar', invDsShared:'Partilha iniciada', invDsEmail:'Email aceite', invDsFailed:'Email falhou', invRsYes:'Confirmou', invRsNo:'Recusou', invRsMaybe:'Talvez', invRsPending:'Sem resposta',
+ invWaDefault:'Olá, [nome]! 🤍\n\nQueremos partilhar convosco o nosso convite de casamento:\n[ligação]\n\nEsperamos por vocês!\n[noivos]', invWaT:'Partilhar por WhatsApp', invWaProg:'Convidado {i} de {n}', invWaDone:'{n} partilhas iniciadas', invWaEnd:'Chegaram ao fim da lista.',
+ invMsgLab:'Mensagem', invMsgHint:'Podem editar o texto. [nome], [noivos] e [ligação] são preenchidos para cada convidado.', invPreviewMsg:'Mensagem para este convidado', invWaOpen:'Abrir WhatsApp', invCopyMsg:'Copiar mensagem', invCopiedMsg:'Mensagem copiada.', invNext:'Seguinte', invSkip:'Saltar',
+ invWaNote:'O envio é feito por vocês, no WhatsApp. A Weddy só regista que a partilha foi iniciada — não sabe se a mensagem foi enviada ou lida.',
+ invEmT:'Enviar por email', invEmSub:'{n} convidados vão receber um email com a sua ligação pessoal.', invEmSubject:'Assunto', invEmBody:'Mensagem', invEmReply:'As respostas chegam ao meu email', invEmLimit:'Limite diário de envios: {n} emails por casamento.', invEmPreview:'Pré-visualizar email', invEmSend:'Enviar {n} emails', invEmSending:'A enviar…',
+ invEmNote:'Os emails são enviados pelo servidor da Weddy, só para os endereços já guardados na lista. Cada email inclui informação de privacidade.', invEmConfirm:'Enviar este email a {n} convidados?', invEmConfirmAgain:'{n} convidados já receberam este email. Querem enviar outra vez?',
+ invEmResT:'Resultado do envio', invEmResSub:'{ok} aceites pelo servidor de email · {bad} com problemas.', invEmAcceptedNote:'"Aceite" significa que o servidor de email aceitou a mensagem. Não garante que chegou à caixa de entrada.', invEmRetry:'Reenviar os que falharam', invEmAgain:'Enviar email outra vez',
+ invRe_not_found:'Convidado não encontrado.', invRe_no_email:'Sem email válido.', invRe_in_progress:'Já está a ser enviado.', invRe_already_sent:'Já foi enviado.', invRe_daily_limit:'Limite diário atingido. Tentem amanhã.', invRe_smtp:'O servidor de email não aceitou a mensagem.', invRe_internal:'Erro inesperado. Tentem de novo.',
+ invDistT:'Distribuição', invIndElig:'Convidados elegíveis', invIndWa:'Partilhas WhatsApp', invIndEm:'Emails aceites', invIndBad:'Emails falhados', invIndTodo:'Por contactar',
+ invDf_todos:'Todos', invDf_todo:'Por contactar', invDf_wa:'WhatsApp', invDf_em:'Email', invDf_failed:'Com falhas', invDf_yes:'Confirmaram', invDf_pending:'Sem resposta',
+ invOneT:'Enviar convite', invOneNotPub:'Publiquem primeiro o convite para o poderem enviar.', invNoPhone:'sem telemóvel', invNoEmail:'sem email', invLoading:'A carregar…',
  invCopy:'Copiar ligação', invWhats:'Partilhar por WhatsApp', invMail:'Partilhar por email', invDownload:'Descarregar cartão digital', invCopied:'Ligação copiada.', invDownloaded:'Cartão descarregado.', invErrPng:'Não foi possível criar o cartão neste dispositivo.', invShareMsg:'Convidamos-vos a ver o nosso convite.', invMailSubject:'O nosso convite de casamento',
  invManageT:'Convite digital', invUpdated:'Última atualização', invSee:'Ver convite', invPendingDot:'(há alterações)', invUnpublish:'Despublicar convite', invConfirmUnpublish:'Despublicar o convite? A ligação deixa de funcionar até voltarem a publicar. O rascunho mantém-se.', invUnpublishedOk:'Convite despublicado.', invSuspendedNote:'O Premium terminou, por isso o convite está indisponível. Nada foi apagado e volta quando renovarem.',
  invErrValidation:'O convite tem campos por corrigir.', invErrPremium:'Publicar convites faz parte do Weddy Premium.', invErrAuth:'Inicia sessão com o email verificado.', invErrNet:'Não foi possível concluir agora. Tentem novamente.',
@@ -9490,6 +9516,20 @@ Object.assign(APP_I18N.en, { invUnavailable:'Digital invitations did not load. R
  invContentHint:'Choose the sections shown on the interactive page.', invEmptyHidden:'Sections without information are hidden.', invSecCover:'Cover', invSecMessage:'Message from the couple', invSecDate:'Date & time', invSecPlace:'Venue & address', invSecMap:'Map', invSecProgram:'Schedule', invSecDress:'Dress code',
  invPhone:'Phone', invDesk:'Computer', invEdit:'Edit', invPublish:'Publish invitation', invErrNames:'Please add the couple names.', invErrDate:'Please add the wedding date.',
  invReadyT:'Your invitation is ready!', invReadySub:'You can now publish and share your invitation.', invReadyPub:'It is already published. Publish your changes so guests can see them.', invPublishing:'Publishing…', invPublishChanges:'Publish changes', invPublishedOk:'Invitation published. The link always stays the same.', invShareAfter:'Sharing is available after publishing.',
+ invDoneT:'Your invitation is ready.', invDoneSub:'You can now share this moment with your guests.', invSendBtn:'Send invitations', invBackManage:'Back to manage',
+ invSendT:'Send invitations', invSendSub:'Choose who receives the link. Each guest (or family) gets their own personal link.', invSearch:'Search by name', invGroup:'Group', invAllGroups:'All groups', invOnlyTodo:'Not contacted yet', invSelAll:'Select all', invSelNone:'Clear selection', invNoGuests:'No guests to show.',
+ invSelCount:'{n} selected', invSelDetail:'{wa} with WhatsApp · {em} with email', invViaWa:'Send via WhatsApp', invViaEm:'Send by email', invFamily:'Family', invWa:'WhatsApp', invEm:'Email',
+ invDsTodo:'Not contacted', invDsShared:'Share started', invDsEmail:'Email accepted', invDsFailed:'Email failed', invRsYes:'Attending', invRsNo:'Declined', invRsMaybe:'Maybe', invRsPending:'No reply',
+ invWaDefault:'Hello, [name]! 🤍\n\nWe would love to share our wedding invitation with you:\n[link]\n\nWe hope to see you there!\n[couple]', invWaT:'Share on WhatsApp', invWaProg:'Guest {i} of {n}', invWaDone:'{n} shares started', invWaEnd:'You have reached the end of the list.',
+ invMsgLab:'Message', invMsgHint:'You can edit the text. [name], [couple] and [link] are filled in for each guest.', invPreviewMsg:'Message for this guest', invWaOpen:'Open WhatsApp', invCopyMsg:'Copy message', invCopiedMsg:'Message copied.', invNext:'Next', invSkip:'Skip',
+ invWaNote:'You send the message yourselves, in WhatsApp. Weddy only records that the share was started — it cannot know whether the message was sent or read.',
+ invEmT:'Send by email', invEmSub:'{n} guests will receive an email with their personal link.', invEmSubject:'Subject', invEmBody:'Message', invEmReply:'Replies come to my email', invEmLimit:'Daily sending limit: {n} emails per wedding.', invEmPreview:'Preview email', invEmSend:'Send {n} emails', invEmSending:'Sending…',
+ invEmNote:'Emails are sent from Weddy’s server, only to addresses already saved in your list. Each email includes privacy information.', invEmConfirm:'Send this email to {n} guests?', invEmConfirmAgain:'{n} guests already received this email. Send again?',
+ invEmResT:'Sending result', invEmResSub:'{ok} accepted by the email server · {bad} with problems.', invEmAcceptedNote:'"Accepted" means the email server accepted the message. It does not guarantee it reached the inbox.', invEmRetry:'Resend failed ones', invEmAgain:'Send email again',
+ invRe_not_found:'Guest not found.', invRe_no_email:'No valid email.', invRe_in_progress:'Already being sent.', invRe_already_sent:'Already sent.', invRe_daily_limit:'Daily limit reached. Try again tomorrow.', invRe_smtp:'The email server did not accept the message.', invRe_internal:'Unexpected error. Please try again.',
+ invDistT:'Distribution', invIndElig:'Eligible guests', invIndWa:'WhatsApp shares', invIndEm:'Emails accepted', invIndBad:'Emails failed', invIndTodo:'Not contacted',
+ invDf_todos:'All', invDf_todo:'Not contacted', invDf_wa:'WhatsApp', invDf_em:'Email', invDf_failed:'With failures', invDf_yes:'Attending', invDf_pending:'No reply',
+ invOneT:'Send invitation', invOneNotPub:'Publish the invitation first to be able to send it.', invNoPhone:'no phone', invNoEmail:'no email', invLoading:'Loading…',
  invCopy:'Copy link', invWhats:'Share on WhatsApp', invMail:'Share by email', invDownload:'Download digital card', invCopied:'Link copied.', invDownloaded:'Card downloaded.', invErrPng:'Could not create the card on this device.', invShareMsg:'We invite you to see our invitation.', invMailSubject:'Our wedding invitation',
  invManageT:'Digital invitation', invUpdated:'Last updated', invSee:'View invitation', invPendingDot:'(changes pending)', invUnpublish:'Unpublish invitation', invConfirmUnpublish:'Unpublish the invitation? The link stops working until you publish again. Your draft is kept.', invUnpublishedOk:'Invitation unpublished.', invSuspendedNote:'Premium has ended, so the invitation is unavailable. Nothing was deleted and it returns when you renew.',
  invErrValidation:'The invitation has fields to fix.', invErrPremium:'Publishing invitations is part of Weddy Premium.', invErrAuth:'Sign in with your verified email.', invErrNet:'Could not complete this now. Please try again.',
@@ -9645,15 +9685,308 @@ function invManageView(){
   <div class="inv-card"><div class="inv-row">${invCardHTML(c, 80)}<div class="inv-row-b"><b>${escapeHTML(invTplName(c.tpl))}</b><span class="inv-pill ${st}">${lab}</span>${when?`<small>${ta('invUpdated')}: ${escapeHTML(when)}</small>`:''}</div></div></div>
   ${st==='suspended'?`<p class="cb-sub">${ta('invSuspendedNote')}</p>`:''}${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
   <div class="inv-acts"><a class="inv-act" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}<i>›</i></a><button type="button" class="inv-act" data-invgo="edit">${ta('invEdit')}<i>›</i></button>${st==='published'?`<button type="button" class="inv-act" data-invact="publish" ${pending?'':'aria-disabled="false"'}>${ta('invPublishChanges')}${pending?` <em>${ta('invPendingDot')}</em>`:''}<i>›</i></button>`:''}</div>
-  ${invShareBlock()}
+  ${st==='published'?`<div class="inv-acts"><button type="button" class="inv-act inv-act-main" data-invgo="send">${ta('invSendBtn')}<i>›</i></button><button type="button" class="inv-act" data-invgo="dist">${ta('invDistT')}<i>›</i></button><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`:invShareBlock()}
   ${st==='published'?`<button type="button" class="inv-del" data-invact="unpublish">${ta('invUnpublish')}</button>`:''}`;
+}
+/* ---------- Envio e distribuição (WhatsApp manual + email) ----------
+   Reutiliza a lista de convidados, os tokens de RSVP (guests/{token}) e o openWhatsAppLink. Os estados de distribuição
+   (Por contactar / Partilha iniciada / Email aceite / Falhou) ficam em invitationDeliveries (só leitura para o casal) e
+   são independentes do RSVP. O token nunca é guardado nas entregas: a chave é sha256(token)[0:32]. */
+let invDist = { loaded:false, loading:false, deliveries:{}, keys:{}, sel:{}, q:'', grp:'all', only:false, ch:'', wa:null, em:null, filter:'todos', msg:'', busy:'', one:'' };
+function invT(key, vars){ let s = ta(key); if(typeof s!=='string') return ''; Object.keys(vars||{}).forEach(k=>{ s = s.split('{'+k+'}').join(vars[k]); }); return s; }
+async function invSha(token){
+  if(invDist.keys[token]) return invDist.keys[token];
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(token)));
+  return (invDist.keys[token] = Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,32));
+}
+function invDigits(p){ const d = String(p||'').replace(/[^\d]/g,''); return d.length>=8 && d.length<=15 ? d : ''; }
+function invEmailOk(e){ return /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/.test(String(e||'').trim()) && String(e).length<=254; }
+/* Unidades de envio: 1 convidado individual ou 1 agregado (link de família) = 1 mensagem. */
+function invUnits(){
+  const out = [], by = {};
+  flattenAllGuestsForRSVP().forEach(it=>{
+    if(!it.name || !String(it.name).trim()) return;
+    const t = it.entry.rsvpToken;
+    if(t){ if(!by[t]){ by[t] = { key:'t:'+t, token:t, items:[] }; out.push(by[t]); } by[t].items.push(it); }
+    else out.push({ key:'i:'+it.side+'|'+it.catId+'|'+it.idx, token:'', items:[it] });
+  });
+  out.forEach(u=>{
+    const d = u.token ? rsvpResponses[u.token] : null;
+    u.family = u.items.length>1 || !!(d && d.isFamily);
+    if(!u.family && u.items[0].entry.guestId) u.key = 'g:'+u.items[0].entry.guestId; // chave estável antes e depois de existir token
+    const names = u.items.map(i=>String(i.name).trim());
+    u.name = u.family ? (names.length>3 ? names.slice(0,3).join(', ')+' +'+(names.length-3) : names.join(names.length===2?' & ':', ')) : names[0];
+    u.cat = u.items[0].catLabel || '';
+    u.catId = u.items[0].catId;
+    u.phone = ''; u.email = '';
+    u.items.forEach(i=>{ if(!u.phone) u.phone = invDigits(i.entry.phone); if(!u.email && invEmailOk(i.entry.rsvpEmail)) u.email = String(i.entry.rsvpEmail).trim(); });
+    if(!u.email && d && !d.isFamily && invEmailOk(d.email)) u.email = String(d.email).trim();
+    const sts = u.items.map(i=>rsvpStatusOf(memberRSVPResponse(i)));
+    u.rsvp = sts.includes('yes') ? 'yes' : (sts.length && sts.every(s=>s==='no')) ? 'no' : sts.includes('maybe') ? 'maybe' : 'pending';
+  });
+  return out;
+}
+function invDel(u, ch){ const k = u.token && invDist.keys[u.token]; return k ? (invDist.deliveries[k+'_'+ch]||null) : null; }
+function invUnitState(u){
+  const w = invDel(u,'whatsapp'), e = invDel(u,'email');
+  if(e && e.status==='failed') return 'failed';
+  if(e && (e.status==='accepted' || e.status==='sending')) return 'email';
+  if(w && w.status==='shared') return 'shared';
+  return 'todo';
+}
+async function invDistLoad(force){
+  if(invDist.loading || (invDist.loaded && !force)) return;
+  if(typeof db==='undefined' || !currentWeddingId) return;
+  invDist.loading = true;
+  try{
+    if(!rsvpResponsesLoaded) await loadRSVPResponses();
+    const us = invUnits(); await Promise.all(us.filter(u=>u.token).map(u=>invSha(u.token)));
+    const snap = await db.collection('invitationDeliveries').where('weddingId','==',currentWeddingId).get();
+    const m = {}; snap.forEach(d=>{ m[d.id] = d.data(); }); invDist.deliveries = m; invDist.loaded = true;
+  }catch(e){ invDist.loaded = true; invDist.err = true; }
+  invDist.loading = false;
+  if(activeTab==='papelaria' && sdTab==='convites') _origRender();
+}
+function invIsPub(){ return invRemote.status==='published' && !!invRemote.url; }
+function invCoupleNames(){ const ws = weddingSettings||{}; return [ws.coupleName1, ws.coupleName2].filter(Boolean).map(s=>String(s).trim()).join(' & '); }
+function invLinkOf(token){ return invRemote.url + '?g=' + encodeURIComponent(token); }
+async function invEnsureToken(u){
+  if(u.token) return u.token;
+  const old = u.key; const t = await ensureRSVPLink(u.items[0]); u.token = t; await invSha(t);
+  const nu = invUnits().find(x=>x.token===t); if(nu && nu.key!==old) invRekey(old, nu.key);
+  return t;
+}
+function invRekey(a, b){
+  if(invDist.sel[a]){ delete invDist.sel[a]; invDist.sel[b] = true; }
+  if(invDist.one===a) invDist.one = b;
+  [invDist.wa, invDist.em].forEach(o=>{ if(!o) return; o.keys = o.keys.map(k=>k===a?b:k); if(o.opened && o.opened[a]){ o.opened[b] = true; delete o.opened[a]; } });
+}
+/* Garante que o documento guests/{token} tem o email do convidado (o servidor só lê aí; importados podem não o ter). */
+async function invSyncEmail(u){
+  if(!u.token) return;
+  const d = rsvpResponses[u.token]; const fam = u.items.length>1 || !!(d && d.isFamily);
+  for(const it of u.items){
+    const em = it.entry.rsvpEmail && invEmailOk(it.entry.rsvpEmail) ? String(it.entry.rsvpEmail).trim() : ''; if(!em) continue;
+    const field = fam ? ('emails.'+it.entry.rsvpMemberId) : 'email';
+    if(fam && !it.entry.rsvpMemberId) continue;
+    try{ await GUESTS().doc(u.token).update({ [field]: em }); }catch(e){}
+  }
+}
+function invWaDefault(){ return ta('invWaDefault'); }
+function invFill(tpl, name, link){ return String(tpl||'').replace(/\[(nome|name)\]/gi, name).replace(/\[(noivos|couple)\]/gi, invCoupleNames()).replace(/\[(ligação|ligacao|link)\]/gi, link); }
+function invOpenWA(digits, text){
+  const ua = navigator.userAgent, mobile = /Android|iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  if(mobile) openWhatsAppLink(digits, text); // fluxo existente (iOS / Android)
+  else window.open('https://wa.me/'+digits+'?text='+encodeURIComponent(text), '_blank', 'noopener');
+}
+function invStLabel(s){ return ta(s==='failed'?'invDsFailed': s==='email'?'invDsEmail': s==='shared'?'invDsShared':'invDsTodo'); }
+function invRsvpLabel(r){ return ta(r==='yes'?'invRsYes': r==='no'?'invRsNo': r==='maybe'?'invRsMaybe':'invRsPending'); }
+/* ---- ecrã "pronto" depois de publicar ---- */
+function invDoneView(){
+  const c = invCfg() || WeddyInvite.sanitize(invRemote.publishedConfig||{}, invLang());
+  const pub = invIsPub();
+  return `<div class="inv-ready inv-done"><div class="inv-check">✓</div><h3 class="gimp-h2">${ta('invDoneT')}</h3><p class="cb-sub">${ta('invDoneSub')}</p>
+  <div class="inv-done-prev">${invCardHTML(c, 150)}</div>
+  ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
+  <div class="inv-done-acts"><button type="button" class="cb-btn" data-invgo="send" ${pub?'':'disabled'}>${ta('invSendBtn')}</button>
+  <a class="cb-btn ghost" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}</a>
+  <button type="button" class="cb-btn ghost" data-invact="copy">${ta('invCopy')}</button>
+  <button type="button" class="cb-link" data-invgo="manage">${ta('invBackManage')}</button></div></div>`;
+}
+/* ---- seleção ---- */
+function invFiltered(us){
+  const q = invDist.q.trim().toLowerCase();
+  return us.filter(u=>{
+    if(invDist.grp!=='all' && u.catId!==invDist.grp) return false;
+    if(invDist.only && invUnitState(u)!=='todo') return false;
+    if(q && !u.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function invSendView(){
+  if(!invIsPub()) return `${invBack(ta('invManageT'),'manage')}<p class="cb-sub" role="status">${ta('invShareAfter')}</p>`;
+  invDistLoad();
+  const us = invUnits(), list = invFiltered(us), selN = us.filter(u=>invDist.sel[u.key]).length;
+  const cats = []; us.forEach(u=>{ if(!cats.some(c=>c.id===u.catId)) cats.push({ id:u.catId, label:u.cat }); });
+  const row = u=>{
+    const st = invUnitState(u), on = !!invDist.sel[u.key];
+    return `<label class="inv-sel ${on?'on':''}"><input type="checkbox" data-invsel="${escapeHTML(u.key)}" ${on?'checked':''}><span class="inv-sel-b"><b>${escapeHTML(u.name)}</b><small>${escapeHTML(u.cat)}${u.family?' · '+ta('invFamily'):''}</small>
+    <span class="inv-tags"><i class="${u.phone?'ok':'no'}">${ta('invWa')}${u.phone?'':' ✕'}</i><i class="${u.email?'ok':'no'}">${ta('invEm')}${u.email?'':' ✕'}</i><i class="st ${st}">${invStLabel(st)}</i><i class="rs ${u.rsvp}">${invRsvpLabel(u.rsvp)}</i></span></span></label>`;
+  };
+  const sel = us.filter(u=>invDist.sel[u.key]), nWa = sel.filter(u=>u.phone).length, nEm = sel.filter(u=>u.email).length;
+  return `${invBack(ta('invManageT'),'manage')}<h3 class="gimp-h2">${ta('invSendT')}</h3><p class="cb-sub">${ta('invSendSub')}</p>
+  <div class="inv-tools"><input type="search" class="inv-q" data-invq value="${escapeHTML(invDist.q)}" placeholder="${escapeHTML(ta('invSearch'))}" aria-label="${escapeHTML(ta('invSearch'))}">
+  <select class="inv-q" data-invgrp aria-label="${escapeHTML(ta('invGroup'))}"><option value="all">${ta('invAllGroups')}</option>${cats.map(c=>`<option value="${escapeHTML(c.id)}" ${invDist.grp===c.id?'selected':''}>${escapeHTML(c.label)}</option>`).join('')}</select>
+  <label class="inv-chk"><input type="checkbox" data-invonly ${invDist.only?'checked':''}> ${ta('invOnlyTodo')}</label></div>
+  <div class="inv-selbar"><button type="button" class="cb-link" data-invact="selall">${ta('invSelAll')}</button><button type="button" class="cb-link" data-invact="selnone">${ta('invSelNone')}</button><b class="inv-selcnt">${invT('invSelCount',{n:selN})}</b></div>
+  <div class="inv-list">${list.length ? list.map(row).join('') : `<p class="cb-sub">${ta('invNoGuests')}</p>`}</div>
+  <div class="inv-bar"><b>${invT('invSelCount',{n:selN})}</b><small>${invT('invSelDetail',{wa:nWa,em:nEm})}</small>
+  <div class="inv-bar-b"><button type="button" class="cb-btn" data-invact="startwa" ${nWa?'':'disabled'}>${ta('invViaWa')}</button><button type="button" class="cb-btn ghost" data-invact="startem" ${nEm?'':'disabled'}>${ta('invViaEm')}</button></div></div>`;
+}
+/* ---- WhatsApp (partilha manual, um convidado de cada vez) ---- */
+function invStartWa(){
+  const us = invUnits().filter(u=>invDist.sel[u.key] && u.phone);
+  if(!us.length) return;
+  invDist.wa = { keys:us.map(u=>u.key), i:0, tpl:invWaDefault(), opened:{}, msg:'' };
+  invUI.view = 'wa'; _origRender();
+}
+function invWaView(){
+  const w = invDist.wa; if(!w) return invSendView();
+  const us = invUnits(), cur = us.find(u=>u.key===w.keys[w.i]);
+  const done = w.keys.filter(k=>w.opened[k]).length;
+  if(!cur) return `${invBack(ta('invSendT'),'send')}<p class="cb-sub">${ta('invWaEnd')}</p><button type="button" class="cb-btn" data-invgo="dist">${ta('invDistT')}</button>`;
+  const link = cur.token ? invLinkOf(cur.token) : invRemote.url+'?g=…';
+  const txt = invFill(w.tpl, cur.name, link);
+  return `${invBack(ta('invSendT'),'send')}<h3 class="gimp-h2">${ta('invWaT')}</h3>
+  <p class="cb-sub">${invT('invWaProg',{i:w.i+1,n:w.keys.length})} · ${invT('invWaDone',{n:done})}</p>
+  <div class="inv-card"><b>${escapeHTML(cur.name)}</b> <small>${escapeHTML(cur.cat)}${cur.family?' · '+ta('invFamily'):''}</small>
+  <label class="inv-lab">${ta('invMsgLab')}<textarea class="inv-ta" data-invwatpl rows="7">${escapeHTML(w.tpl)}</textarea></label>
+  <p class="cb-sub inv-hint">${ta('invMsgHint')}</p>
+  <div class="inv-prevmsg" aria-label="${escapeHTML(ta('invPreviewMsg'))}">${escapeHTML(txt)}</div>
+  ${w.opened[cur.key]?`<p class="inv-ok" role="status">${ta('invDsShared')} ✓</p>`:''}
+  ${w.msg?`<p class="cb-sub" role="status">${escapeHTML(w.msg)}</p>`:''}
+  <button type="button" class="cb-btn" data-invact="waopen" ${invDist.busy?'disabled':''}>${ta('invWaOpen')}</button>
+  <div class="inv-acts"><button type="button" class="inv-act" data-invact="wacopymsg">${ta('invCopyMsg')}<i>›</i></button><button type="button" class="inv-act" data-invact="wacopylink">${ta('invCopy')}<i>›</i></button></div>
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invact="waskip">${ta(w.opened[cur.key]?'invNext':'invSkip')}</button></div></div>
+  <p class="cb-sub inv-hint">${ta('invWaNote')}</p>`;
+}
+async function invWaOpen(){
+  const w = invDist.wa; if(!w || invDist.busy) return;
+  const cur = invUnits().find(u=>u.key===w.keys[w.i]); if(!cur) return;
+  invDist.busy = 'wa'; w.msg = ''; _origRender();
+  try{
+    const token = await invEnsureToken(cur);
+    const txt = invFill(w.tpl, cur.name, invLinkOf(token));
+    // Regista a partilha ANTES de abrir o WhatsApp (a página pode ser suspensa pelo sistema ao mudar de app).
+    invCall('recordInvitationShare', { units:[{ token }] }).then(()=>{ const k = invDist.keys[token]; invDist.deliveries[k+'_whatsapp'] = { status:'shared', lastAt:Date.now(), attempts:((invDist.deliveries[k+'_whatsapp']||{}).attempts||0)+1 }; if(activeTab==='papelaria') _origRender(); }).catch(()=>{});
+    w.opened[cur.key] = true; invDist.busy = ''; _origRender();
+    invOpenWA(cur.phone, txt);
+  }catch(e){ invDist.busy = ''; w.msg = invErrMsg(e); _origRender(); }
+}
+/* ---- Email ---- */
+async function invStartEm(){
+  const us = invUnits().filter(u=>invDist.sel[u.key] && u.email); if(!us.length) return;
+  invDist.em = { keys:us.map(u=>u.key), step:'compose', info:null, subject:'', body:'', replyTo:true, preview:'', results:{}, msg:'', busy:'', loading:true };
+  invUI.view = 'em'; _origRender();
+  try{ const info = await invCall('getInvitationShareInfo'); const L = invLang(), tx = (info.texts && info.texts[L]) || (info.texts && info.texts.pt) || {}; invDist.em.info = info; invDist.em.subject = tx.subject||''; invDist.em.body = tx.body||''; }
+  catch(e){ invDist.em.msg = invErrMsg(e); }
+  invDist.em.loading = false; _origRender();
+}
+function invEmView(){
+  const m = invDist.em; if(!m) return invSendView();
+  const us = invUnits().filter(u=>m.keys.includes(u.key));
+  if(m.step==='result') return invEmResult(us);
+  const lim = m.info ? m.info.limitPerDay : 0;
+  return `${invBack(ta('invSendT'),'send')}<h3 class="gimp-h2">${ta('invEmT')}</h3><p class="cb-sub">${invT('invEmSub',{n:us.length})}</p>
+  ${m.loading?`<p class="cb-sub">${ta('invLoading')}</p>`:`
+  <label class="inv-lab">${ta('invEmSubject')}<input type="text" class="inv-q" data-invemsub maxlength="200" value="${escapeHTML(m.subject)}"></label>
+  <label class="inv-lab">${ta('invEmBody')}<textarea class="inv-ta" data-invembody rows="9" maxlength="3000">${escapeHTML(m.body)}</textarea></label>
+  <p class="cb-sub inv-hint">${ta('invMsgHint')}</p>
+  <label class="inv-chk"><input type="checkbox" data-invemreply ${m.replyTo?'checked':''}> ${ta('invEmReply')}</label>
+  ${lim?`<p class="cb-sub inv-hint">${invT('invEmLimit',{n:lim})}</p>`:''}
+  ${m.preview?`<iframe class="inv-mailprev" sandbox="" title="${escapeHTML(ta('invEmPreview'))}" srcdoc="${escapeHTML(m.preview)}"></iframe>`:''}
+  ${m.msg?`<p class="cb-sub" role="alert">${escapeHTML(m.msg)}</p>`:''}
+  <div class="inv-bar-b"><button type="button" class="cb-btn ghost" data-invact="empreview" ${m.busy?'disabled':''}>${ta('invEmPreview')}</button><button type="button" class="cb-btn" data-invact="emsend" ${m.busy||!m.info?'disabled':''}>${m.busy==='send'?ta('invEmSending'):invT('invEmSend',{n:us.length})}</button></div>
+  <p class="cb-sub inv-hint">${ta('invEmNote')}</p>`}`;
+}
+function invEmTexts(){ const m = invDist.em; return { subject:m.subject, body:m.body }; }
+async function invEmPreview(){
+  const m = invDist.em; if(!m || m.busy) return; m.busy = 'prev'; m.msg = ''; _origRender();
+  try{ const r = await invCall('previewInvitationEmail', { lang:invLang(), texts:invEmTexts(), replyTo:!!m.replyTo }); m.preview = r.html||''; }
+  catch(e){ m.msg = invErrMsg(e); }
+  m.busy = ''; _origRender();
+}
+async function invEmSend(keysOverride, confirmResend){
+  const m = invDist.em; if(!m || m.busy) return;
+  const keys = keysOverride || m.keys; const us = invUnits().filter(u=>keys.includes(u.key));
+  if(!us.length) return;
+  const again = us.filter(u=>{ const e = invDel(u,'email'); return e && e.status==='accepted'; });
+  if(again.length && !confirmResend){ if(!await weddyConfirm(invT('invEmConfirmAgain',{n:again.length}))) return; confirmResend = true; }
+  else if(!again.length && !await weddyConfirm(invT('invEmConfirm',{n:us.length}))) return;
+  m.busy = 'send'; m.msg = ''; _origRender();
+  try{
+    const toks = []; for(const u of us){ const token = await invEnsureToken(u); await invSyncEmail(u); toks.push({ u, token }); }
+    for(let i=0;i<toks.length;i+=50){
+      const chunk = toks.slice(i,i+50);
+      const r = await invCall('sendInvitationEmails', { lang:invLang(), texts:invEmTexts(), replyTo:!!m.replyTo, units:chunk.map(c=>({ token:c.token, name:c.u.name, confirmResend:!!confirmResend && !!(invDel(c.u,'email')&&invDel(c.u,'email').status==='accepted') })) });
+      (r.results||[]).forEach(x=>{ m.results[x.unit] = x; if(x.status==='accepted') invDist.deliveries[x.unit+'_email'] = { status:'accepted', lastAt:Date.now() }; else if(x.status==='failed') invDist.deliveries[x.unit+'_email'] = { status:'failed', lastAt:Date.now() }; });
+    }
+    m.step = 'result';
+  }catch(e){ m.msg = invErrMsg(e); }
+  m.busy = ''; _origRender();
+  invDistLoad(true);
+}
+function invReasonLabel(r){ const k = 'invRe_'+r; const s = ta(k); return (typeof s==='string' && s) ? s : ta('invRe_smtp'); }
+function invEmResult(us){
+  const m = invDist.em, rs = us.map(u=>({ u, r:m.results[invDist.keys[u.token]] }));
+  const ok = rs.filter(x=>x.r && x.r.status==='accepted').length, bad = rs.filter(x=>x.r && x.r.status!=='accepted');
+  return `${invBack(ta('invDistT'),'dist')}<h3 class="gimp-h2">${ta('invEmResT')}</h3><p class="cb-sub">${invT('invEmResSub',{ok:ok,bad:bad.length})}</p>
+  <p class="cb-sub inv-hint">${ta('invEmAcceptedNote')}</p>
+  ${bad.length?`<div class="inv-list">${bad.map(x=>`<div class="inv-sel"><span class="inv-sel-b"><b>${escapeHTML(x.u.name)}</b><small>${escapeHTML(invReasonLabel(x.r?x.r.reason:'smtp'))}</small></span></div>`).join('')}</div>
+  <button type="button" class="cb-btn" data-invact="emretry">${ta('invEmRetry')}</button>`:''}
+  <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="dist">${ta('invDistT')}</button></div>`;
+}
+/* ---- Distribuição ---- */
+const INV_DFILTERS = ['todos','todo','wa','em','failed','yes','pending'];
+function invDistView(){
+  invDistLoad();
+  const us = invUnits(), cnt = f=>us.filter(u=>invDistMatch(u,f)).length;
+  const f = invDist.filter, list = us.filter(u=>invDistMatch(u,f));
+  const nWa = us.filter(u=>invDel(u,'whatsapp')).length, nEm = us.filter(u=>{const e=invDel(u,'email'); return e&&e.status==='accepted';}).length, nBad = us.filter(u=>{const e=invDel(u,'email'); return e&&e.status==='failed';}).length;
+  const elig = us.filter(u=>u.phone||u.email).length;
+  const ind = (n,l)=>`<div class="inv-ind"><b>${n}</b><span>${l}</span></div>`;
+  return `${invBack(ta('invManageT'),'manage')}<h3 class="gimp-h2">${ta('invDistT')}</h3>
+  <div class="inv-inds">${ind(elig,ta('invIndElig'))}${ind(nWa,ta('invIndWa'))}${ind(nEm,ta('invIndEm'))}${ind(nBad,ta('invIndBad'))}${ind(cnt('todo'),ta('invIndTodo'))}</div>
+  <div class="cb-tabs inv-filters" role="tablist">${INV_DFILTERS.map(k=>`<button type="button" class="cb-tab" data-invdf="${k}" aria-selected="${f===k}">${ta('invDf_'+k)}</button>`).join('')}</div>
+  ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
+  <div class="inv-list">${list.length?list.map(u=>invDistRow(u)).join(''):`<p class="cb-sub">${ta('invNoGuests')}</p>`}</div>
+  <div class="gimp-nav"><button type="button" class="cb-btn" data-invgo="send">${ta('invSendBtn')}</button></div>`;
+}
+function invDistMatch(u,f){
+  const st = invUnitState(u);
+  if(f==='todos') return true; if(f==='todo') return st==='todo';
+  if(f==='wa') return !!invDel(u,'whatsapp'); if(f==='em'){ const e = invDel(u,'email'); return !!(e && e.status==='accepted'); }
+  if(f==='failed') return st==='failed'; if(f==='yes') return u.rsvp==='yes'; if(f==='pending') return u.rsvp==='pending';
+  return true;
+}
+function invDistRow(u){
+  const st = invUnitState(u), w = invDel(u,'whatsapp'), e = invDel(u,'email');
+  const ch = [w?ta('invWa'):'', e&&e.status==='accepted'?ta('invEm'):'', e&&e.status==='failed'?ta('invEm')+' ✕':''].filter(Boolean).join(' · ') || '—';
+  return `<div class="inv-sel"><span class="inv-sel-b"><b>${escapeHTML(u.name)}</b><small>${escapeHTML(u.cat)}${u.family?' · '+ta('invFamily'):''} · ${escapeHTML(ch)}</small>
+  <span class="inv-tags"><i class="st ${st}">${invStLabel(st)}</i><i class="rs ${u.rsvp}">${invRsvpLabel(u.rsvp)}</i></span></span>
+  <button type="button" class="inv-one" data-invone="${escapeHTML(u.key)}" aria-label="${escapeHTML(ta('invOneT'))}">${ICONS.send}</button></div>`;
+}
+/* ---- ação individual (lista de convidados e Distribuição) ---- */
+function invOneSheet(key){
+  if(!hasActiveSubscription()){ weddyAlertSafe(ta('invErrPremium')); return; }
+  if(!invIsPub()){ weddyAlertSafe(ta('invOneNotPub')); return; }
+  invDist.sel = {}; invDist.sel[key] = true; invDist.one = key; invDistLoad();
+  activeTab = 'papelaria'; sdTab = 'convites'; invUI.view = 'one'; closeAllSheets(); _origRender();
+}
+function weddyAlertSafe(m){ try{ if(typeof weddyConfirm==='function'){ weddyConfirm(m); return; } }catch(e){} alert(m); }
+function invOneView(){
+  const u = invUnits().find(x=>x.key===invDist.one); if(!u) return invDistView();
+  const st = invUnitState(u), e = invDel(u,'email'), w = invDel(u,'whatsapp');
+  return `${invBack(ta('invDistT'),'dist')}<h3 class="gimp-h2">${escapeHTML(u.name)}</h3><p class="cb-sub">${escapeHTML(u.cat)}${u.family?' · '+ta('invFamily'):''}</p>
+  <div class="inv-tags"><i class="st ${st}">${invStLabel(st)}</i><i class="rs ${u.rsvp}">${invRsvpLabel(u.rsvp)}</i></div>
+  ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
+  <div class="inv-acts">
+  <button type="button" class="inv-act" data-invact="startwa" ${u.phone?'':'disabled'}>${ta('invViaWa')}${u.phone?'':' — '+ta('invNoPhone')}<i>›</i></button>
+  <button type="button" class="inv-act" data-invact="startem" ${u.email?'':'disabled'}>${e&&e.status==='accepted'?ta('invEmAgain'):e&&e.status==='failed'?ta('invEmRetry'):ta('invViaEm')}${u.email?'':' — '+ta('invNoEmail')}<i>›</i></button>
+  <button type="button" class="inv-act" data-invact="onecopy">${ta('invCopy')}<i>›</i></button></div>
+  <p class="cb-sub inv-hint">${w?ta('invDsShared')+'. ':''}${ta('invWaNote')}</p>`;
+}
+async function invOneCopy(){
+  const u = invUnits().find(x=>x.key===invDist.one); if(!u) return;
+  try{ const t = await invEnsureToken(u); const l = invLinkOf(t); await navigator.clipboard.writeText(l); invUI.msg = ta('invCopied'); }catch(e){ invUI.msg = ta('invErrNet'); }
+  _origRender();
 }
 function sdConvitesTab(){
   // Nunca partir a Papelaria: se o motor dos convites não tiver carregado (rede/cache), mostra um aviso e deixa Itens e Design a funcionar.
   if(!window.WeddyInvite) return `<div class="inv-wrap"><p class="cb-sub" role="status">${ta('invUnavailable')}</p><div class="inv-rest"><button type="button" class="inv-rest-b" data-sdtab="itens">${ta('sdTabItems')} <i>›</i></button><button type="button" class="inv-rest-b" data-sdtab="design">${ta('sdTabDesign')} <i>›</i></button></div></div>`;
   invCss(); const v = invUI.view;
   if(!invRemote.loaded && !invRemote.loading) invLoadRemote();
-  const body = v==='gallery' ? invGalleryView() : v==='tpl' ? invTplView() : v==='edit' ? invEditView() : v==='sec' ? invSectionView() : v==='prev' ? invPrevView() : v==='ready' ? invReadyView() : v==='manage' ? invManageView() : invHomeView();
+  const body = v==='gallery' ? invGalleryView() : v==='tpl' ? invTplView() : v==='edit' ? invEditView() : v==='sec' ? invSectionView() : v==='prev' ? invPrevView() : v==='ready' ? invReadyView() : v==='manage' ? invManageView() : v==='done' ? invDoneView() : v==='send' ? invSendView() : v==='wa' ? invWaView() : v==='em' ? invEmView() : v==='dist' ? invDistView() : v==='one' ? invOneView() : invHomeView();
   return `<div class="inv-wrap" data-invview="${v}">${body}</div>`;
 }
 /* ---------- ações ---------- */
@@ -9673,7 +10006,7 @@ async function invPublish(){
     const dr = Object.assign({}, invEnsure().draft, { lang:invLang(), colors:cfg.colors });
     const r = await invCall('publishInvitation', { draft:Object.assign({}, cfg, { colors:cfg.colors }) });
     invRemote = { loaded:true, loading:false, status:'published', slug:r.slug, url:r.url, publishedConfig:cfg, publishedAt:Date.now(), error:'' };
-    invUI.msg = ta('invPublishedOk'); 
+    invUI.msg = ''; invUI.view = 'done'; invDist.loaded = false;
   }catch(e){ invUI.msg = invErrMsg(e); }
   invUI.busy = ''; _origRender();
 }
@@ -9694,6 +10027,8 @@ async function invDownloadCard(){
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t || activeTab!=='papelaria' || sdTab!=='convites') return;
     const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const df = t.closest('[data-invdf]'); if(df){ invDist.filter = df.dataset.invdf; _origRender(); return; }
+    const on1 = t.closest('[data-invone]'); if(on1){ invDist.sel = {}; invDist.sel[on1.dataset.invone] = true; invDist.one = on1.dataset.invone; invUI.view = 'one'; invUI.msg = ''; _origRender(); return; }
     const f = t.closest('[data-invfilter]'); if(f){ invUI.filter = f.dataset.invfilter; _origRender(); return; }
     const tp = t.closest('[data-invtpl]'); if(tp){ invUI.tpl = tp.dataset.invtpl; invUI.view = 'tpl'; invUI.mode = 'page'; _origRender(); return; }
     const md = t.closest('[data-invmode]'); if(md){ invUI.mode = md.dataset.invmode; _origRender(); return; }
@@ -9710,6 +10045,18 @@ async function invDownloadCard(){
       if(a==='unpublish'){ invUnpublish(); return; }
       if(a==='png'){ invDownloadCard(); return; }
       if(a==='copy'){ const u = invRemote.url; if(u && navigator.clipboard) navigator.clipboard.writeText(u).then(()=>{ invUI.msg = ta('invCopied'); _origRender(); }).catch(()=>{ invUI.msg = u; _origRender(); }); return; }
+      if(a==='selall'){ invFiltered(invUnits()).forEach(u=>{ invDist.sel[u.key] = true; }); _origRender(); return; }
+      if(a==='selnone'){ invDist.sel = {}; _origRender(); return; }
+      if(a==='startwa'){ invStartWa(); return; }
+      if(a==='startem'){ invStartEm(); return; }
+      if(a==='waopen'){ invWaOpen(); return; }
+      if(a==='wacopymsg'){ const w = invDist.wa, cur = w && invUnits().find(u=>u.key===w.keys[w.i]); if(cur){ invEnsureToken(cur).then(t=>navigator.clipboard.writeText(invFill(w.tpl, cur.name, invLinkOf(t)))).then(()=>{ w.msg = ta('invCopiedMsg'); _origRender(); }).catch(()=>{ w.msg = ta('invErrNet'); _origRender(); }); } return; }
+      if(a==='wacopylink'){ const w = invDist.wa, cur = w && invUnits().find(u=>u.key===w.keys[w.i]); if(cur){ invEnsureToken(cur).then(t=>navigator.clipboard.writeText(invLinkOf(t))).then(()=>{ w.msg = ta('invCopied'); _origRender(); }).catch(()=>{ w.msg = ta('invErrNet'); _origRender(); }); } return; }
+      if(a==='waskip'){ const w = invDist.wa; if(w){ w.i++; w.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; } return; }
+      if(a==='empreview'){ invEmPreview(); return; }
+      if(a==='emsend'){ invEmSend(); return; }
+      if(a==='emretry'){ const m = invDist.em; if(m){ const bad = invUnits().filter(u=>{ const e = invDel(u,'email'); return m.keys.includes(u.key) && e && e.status==='failed'; }).map(u=>u.key); m.step = 'compose'; invEmSend(bad); } return; }
+      if(a==='onecopy'){ invOneCopy(); return; }
       if(a==='wa'){ if(invRemote.url) window.open('https://wa.me/?text='+encodeURIComponent(invShareText()+' '+invRemote.url), '_blank', 'noopener'); return; }
       if(a==='mail'){ if(invRemote.url) location.href = 'mailto:?subject='+encodeURIComponent(ta('invMailSubject'))+'&body='+encodeURIComponent(invShareText()+'\n\n'+invRemote.url); return; }
     }
@@ -9722,6 +10069,25 @@ async function invDownloadCard(){
     if(t.matches('[data-invopt]')){ d.opt = d.opt||{}; d.opt[t.dataset.invopt] = t.value; render(); return; }
     if(t.matches('[data-invoptb]')){ d.opt = d.opt||{}; d.opt[t.dataset.invoptb] = !!t.checked; render(); return; }
     if(t.matches('[data-invtog]')){ d.sections = d.sections||{}; d.sections[t.dataset.invtog] = !!t.checked; render(); return; }
+  });
+})();
+
+(function invBind2(){
+  if(window.__invBound2) return; window.__invBound2 = true;
+  const on = ()=> activeTab==='papelaria' && sdTab==='convites';
+  document.addEventListener('change', e=>{
+    const t = e.target; if(!t || !t.matches || !on()) return;
+    if(t.matches('[data-invsel]')){ if(t.checked) invDist.sel[t.dataset.invsel] = true; else delete invDist.sel[t.dataset.invsel]; _origRender(); return; }
+    if(t.matches('[data-invgrp]')){ invDist.grp = t.value; _origRender(); return; }
+    if(t.matches('[data-invonly]')){ invDist.only = !!t.checked; _origRender(); return; }
+    if(t.matches('[data-invemreply]')){ if(invDist.em) invDist.em.replyTo = !!t.checked; return; }
+  });
+  document.addEventListener('input', e=>{
+    const t = e.target; if(!t || !t.matches || !on()) return;
+    if(t.matches('[data-invwatpl]')){ if(invDist.wa){ invDist.wa.tpl = t.value; const p = document.querySelector('.inv-prevmsg'); const cur = invUnits().find(u=>u.key===invDist.wa.keys[invDist.wa.i]); if(p && cur) p.textContent = invFill(t.value, cur.name, cur.token?invLinkOf(cur.token):invRemote.url+'?g=…'); } return; }
+    if(t.matches('[data-invemsub]')){ if(invDist.em){ invDist.em.subject = t.value; invDist.em.preview = ''; } return; }
+    if(t.matches('[data-invembody]')){ if(invDist.em){ invDist.em.body = t.value; invDist.em.preview = ''; } return; }
+    if(t.matches('[data-invq]')){ invDist.q = t.value; const pos = t.selectionStart; _origRender(); const n = document.querySelector('[data-invq]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} } return; }
   });
 })();
 
@@ -11700,6 +12066,7 @@ function gxRowHTML(side, catKey, n, idx, canDrag){
     <button type="button" class="gx-ic gx-phone" style="${(typeof n==='object'&&n&&n.phone)?'color:var(--rust,#B5654B);opacity:1;':'opacity:.4;'}" data-editphone="${side}|${catKey}|${idx}" title="${ta('labelPhoneOptional')}" aria-label="${ta('labelPhoneOptional')}">${ICONS.phone}</button>
     <button type="button" class="gx-ic gx-rsvp" style="color:${r.color}; opacity:${r.token?1:.4};" data-rsvpstatus="${side}|${catKey}|${idx}" title="${escapeHTML(r.title)}" aria-label="${escapeHTML(r.title)}">${ICONS.guests}</button>
     <button type="button" class="gx-ic gx-inv ${invDone?'is-done':''}" data-invite="${side}|${catKey}|${idx}" title="${escapeHTML(invTitle)}" aria-label="${escapeHTML(invTitle)}">${invDone ? INV_ICON_DONE : ICONS.mail}</button>
+    <button type="button" class="gx-ic gx-send" data-invsendone="${side}|${catKey}|${idx}" title="${escapeHTML(ta('invOneT'))}" aria-label="${escapeHTML(ta('invOneT'))}">${ICONS.send}</button>
     <button type="button" class="gx-ic gx-x" data-remove="${side}|${catKey}|${idx}" aria-label="${ta('btnDelete')}">${ICONS.x}</button>
     ${hasPayment ? `
     <div class="child-extra-row">
@@ -11903,6 +12270,13 @@ function bindGuestGroupHandlers(scope){
     btn.addEventListener('click', e=>{
       const [side,cat,idx] = e.currentTarget.dataset.invite.split('|');
       openGuestInviteSheet(side, cat, Number(idx)); // abrir nunca altera o estado
+    });
+  });
+  scope.querySelectorAll('[data-invsendone]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const [side,cat,idx] = e.currentTarget.dataset.invsendone.split('|');
+      const arr = getGuestNames(side, cat), entry = arr && arr[Number(idx)]; if(!entry) return;
+      const u = invUnits().find(x=>x.items.some(i=>i.side===side && i.catId===cat && i.idx===Number(idx))); if(u) invOneSheet(u.key);
     });
   });
   scope.querySelectorAll('[data-editphone]').forEach(btn=>{
