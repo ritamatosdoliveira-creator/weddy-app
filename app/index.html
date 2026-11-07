@@ -9603,7 +9603,7 @@ function invHomeView(){
   if(dr){ const c = invCfg(); state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invDraftT')}</div><div class="inv-row">${invCardHTML(c, 70)}<div class="inv-row-b"><b>${escapeHTML(invTplName(c.tpl))}</b><small>${escapeHTML(c.names||ta('invNoNames'))}</small></div></div><button type="button" class="cb-btn" data-invgo="edit">${ta('invContinueEdit')}</button></div>`; }
   if(published){ const lab = st==='published' ? (invPending()?ta('invStChanges'):ta('invStPublished')) : st==='suspended' ? ta('invStSuspended') : ta('invStUnpublished');
     state2 += `<div class="inv-card"><div class="inv-card-t">${ta('invPublishedT')} <span class="inv-pill ${st}">${lab}</span></div><button type="button" class="cb-btn ghost" data-invgo="manage">${ta('invManage')}</button></div>`; }
-  return `<section class="inv-hero"><div class="inv-hero-t"><span class="inv-kick">WEDDY INVITATIONS</span><h3>${ta('invTitle')}</h3><p>${ta('invSub')}</p>${invPremTag()}<button type="button" class="cb-btn" data-invgo="gallery">${ta('invExplore')} →</button></div><div class="inv-hero-i">${invCardHTML(cfg0, 150)}</div></section>
+  return `${invUI.msg && invUI.view==='home' ? `<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>` : ''}<section class="inv-hero"><div class="inv-hero-t"><span class="inv-kick">WEDDY INVITATIONS</span><h3>${ta('invTitle')}</h3><p>${ta('invSub')}</p>${invPremTag()}<button type="button" class="cb-btn" data-invgo="gallery">${ta('invExplore')} →</button></div><div class="inv-hero-i">${invCardHTML(cfg0, 150)}</div></section>
   ${state2}
   <div class="inv-rest"><div class="inv-card-t">${ta('invRest')}</div><button type="button" class="inv-rest-b" data-sdtab="itens">${ta('sdTabItems')} <i>›</i></button><button type="button" class="inv-rest-b" data-sdtab="design">${ta('sdTabDesign')} <i>›</i></button></div>`;
 }
@@ -9773,7 +9773,7 @@ async function invSyncEmail(u){
   }
 }
 function invWaDefault(){ return ta('invWaDefault'); }
-function invFill(tpl, name, link){ return String(tpl||'').replace(/\[(nome|name)\]/gi, name).replace(/\[(noivos|couple)\]/gi, invCoupleNames()).replace(/\[(ligação|ligacao|link)\]/gi, link); }
+function invFill(tpl, name, link){ const couple = invCoupleNames(); return String(tpl||'').replace(/\[(nome|name)\]/gi, ()=>name).replace(/\[(noivos|couple)\]/gi, ()=>couple).replace(/\[(ligação|ligacao|link)\]/gi, ()=>link); }
 function invOpenWA(digits, text){
   const ua = navigator.userAgent, mobile = /Android|iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
   if(mobile) openWhatsAppLink(digits, text); // fluxo existente (iOS / Android)
@@ -9851,8 +9851,9 @@ function invWaView(){
   <p class="cb-sub inv-hint">${ta('invWaNote')}</p>`;
 }
 async function invWaOpen(){
-  const w = invDist.wa; if(!w || invDist.busy) return;
+  const w = invDist.wa; if(!w || invDist.busy || (w.lastOpen && Date.now()-w.lastOpen<2000)) return; // evita toques duplos
   const cur = invUnits().find(u=>u.key===w.keys[w.i]); if(!cur) return;
+  w.lastOpen = Date.now();
   invDist.busy = 'wa'; w.msg = ''; _origRender();
   try{
     const token = await invEnsureToken(cur);
@@ -9917,13 +9918,15 @@ async function invEmSend(keysOverride, confirmResend){
   invDistLoad(true);
 }
 function invReasonLabel(r){ const k = 'invRe_'+r; const s = ta(k); return (typeof s==='string' && s) ? s : ta('invRe_smtp'); }
+const INV_NO_RETRY = { no_email:1, already_sent:1, not_found:1 };
+function invRetryable(m){ return invUnits().filter(u=>{ const r = m.results[invDist.keys[u.token]]; return m.keys.includes(u.key) && r && r.status!=='accepted' && !INV_NO_RETRY[r.reason]; }); }
 function invEmResult(us){
   const m = invDist.em, rs = us.map(u=>({ u, r:m.results[invDist.keys[u.token]] }));
-  const ok = rs.filter(x=>x.r && x.r.status==='accepted').length, bad = rs.filter(x=>x.r && x.r.status!=='accepted');
+  const ok = rs.filter(x=>x.r && x.r.status==='accepted').length, bad = rs.filter(x=>x.r && x.r.status!=='accepted'), canRetry = invRetryable(m).length;
   return `${invBack(ta('invDistT'),'dist')}<h3 class="gimp-h2">${ta('invEmResT')}</h3><p class="cb-sub">${invT('invEmResSub',{ok:ok,bad:bad.length})}</p>
   <p class="cb-sub inv-hint">${ta('invEmAcceptedNote')}</p>
   ${bad.length?`<div class="inv-list">${bad.map(x=>`<div class="inv-sel"><span class="inv-sel-b"><b>${escapeHTML(x.u.name)}</b><small>${escapeHTML(invReasonLabel(x.r?x.r.reason:'smtp'))}</small></span></div>`).join('')}</div>
-  <button type="button" class="cb-btn" data-invact="emretry">${ta('invEmRetry')}</button>`:''}
+  ${canRetry?`<button type="button" class="cb-btn" data-invact="emretry">${ta('invEmRetry')}</button>`:''}`:''}
   <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="dist">${ta('invDistT')}</button></div>`;
 }
 /* ---- Distribuição ---- */
@@ -9958,12 +9961,10 @@ function invDistRow(u){
 }
 /* ---- ação individual (lista de convidados e Distribuição) ---- */
 function invOneSheet(key){
-  if(!hasActiveSubscription()){ weddyAlertSafe(ta('invErrPremium')); return; }
-  if(!invIsPub()){ weddyAlertSafe(ta('invOneNotPub')); return; }
+  if(!hasActiveSubscription() || !invIsPub()){ invUI.msg = ta(!hasActiveSubscription() ? 'invErrPremium' : 'invOneNotPub'); invUI.view = 'home'; activeTab = 'papelaria'; sdTab = 'convites'; closeAllSheets(); _origRender(); return; }
   invDist.sel = {}; invDist.sel[key] = true; invDist.one = key; invDistLoad();
   activeTab = 'papelaria'; sdTab = 'convites'; invUI.view = 'one'; closeAllSheets(); _origRender();
 }
-function weddyAlertSafe(m){ try{ if(typeof weddyConfirm==='function'){ weddyConfirm(m); return; } }catch(e){} alert(m); }
 function invOneView(){
   const u = invUnits().find(x=>x.key===invDist.one); if(!u) return invDistView();
   const st = invUnitState(u), e = invDel(u,'email'), w = invDel(u,'whatsapp');
@@ -10055,7 +10056,7 @@ async function invDownloadCard(){
       if(a==='waskip'){ const w = invDist.wa; if(w){ w.i++; w.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; } return; }
       if(a==='empreview'){ invEmPreview(); return; }
       if(a==='emsend'){ invEmSend(); return; }
-      if(a==='emretry'){ const m = invDist.em; if(m){ const bad = invUnits().filter(u=>{ const e = invDel(u,'email'); return m.keys.includes(u.key) && e && e.status==='failed'; }).map(u=>u.key); m.step = 'compose'; invEmSend(bad); } return; }
+      if(a==='emretry'){ const m = invDist.em; if(m){ const bad = invRetryable(m).map(u=>u.key); if(bad.length){ m.step = 'compose'; invEmSend(bad); } } return; }
       if(a==='onecopy'){ invOneCopy(); return; }
       if(a==='wa'){ if(invRemote.url) window.open('https://wa.me/?text='+encodeURIComponent(invShareText()+' '+invRemote.url), '_blank', 'noopener'); return; }
       if(a==='mail'){ if(invRemote.url) location.href = 'mailto:?subject='+encodeURIComponent(ta('invMailSubject'))+'&body='+encodeURIComponent(invShareText()+'\n\n'+invRemote.url); return; }
