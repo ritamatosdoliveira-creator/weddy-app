@@ -22,8 +22,27 @@ const ROOT_FILES = [
 // Pastas só de ativos estáticos: apenas estas extensões.
 const ROOT_DIRS = { feira: ['.png'], inicio: ['.jpg', '.mp4'], fonts: ['.woff', '.txt'] };
 
+// Convites Digitais (página pública /i/<slug> e motor de desenho). Só entram quando a página convite.html existe no repositório;
+// nesse caso TODOS têm de existir (falha se faltar algum), para o site nunca ser publicado com convites partidos.
+const INVITE_FILES = ['convite.html', 'weddyinvite.js', 'weddyinvite-w.js'];
+const INVITE_TREES = { convites8: ['.js', '.jpg', '.png', '.woff2', '.txt'] }; // recursivo (img/, fonts/, demo/)
+function walkFiles(abs, rel, exts, out) {
+  for (const f of fs.readdirSync(abs).sort()) {
+    const full = path.join(abs, f);
+    if (fs.statSync(full).isDirectory()) walkFiles(full, `${rel}/${f}`, exts, out);
+    else if (exts.includes(path.extname(f).toLowerCase())) out.push(`${rel}/${f}`);
+  }
+}
 function listPublic() {
   const out = [...ROOT_FILES];
+  if (fs.existsSync(path.join(ROOT, 'convite.html'))) {
+    out.push(...INVITE_FILES);
+    for (const [dir, exts] of Object.entries(INVITE_TREES)) {
+      const abs = path.join(ROOT, dir);
+      if (!fs.existsSync(abs)) throw new Error(`pasta pública em falta: ${dir}`);
+      walkFiles(abs, dir, exts, out);
+    }
+  }
   for (const [dir, exts] of Object.entries(ROOT_DIRS)) {
     const abs = path.join(ROOT, dir);
     if (!fs.existsSync(abs)) throw new Error(`pasta pública em falta: ${dir}`);
@@ -43,7 +62,7 @@ function build(outDir) {
   for (const f of files) { const dst = path.join(out, f); fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.copyFileSync(path.join(ROOT, f), dst); }
   return files;
 }
-module.exports = { ROOT_FILES, ROOT_DIRS, listPublic, build };
+module.exports = { ROOT_FILES, ROOT_DIRS, INVITE_FILES, INVITE_TREES, listPublic, build };
 if (require.main === module) {
   try { const files = build(process.argv[2] || path.join(ROOT, '_site')); console.log(`artefacto público: ${files.length} ficheiros`); }
   catch (e) { console.error('ERRO: ' + e.message); process.exit(1); }

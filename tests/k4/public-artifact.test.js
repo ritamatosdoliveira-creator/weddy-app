@@ -16,7 +16,7 @@ const leaked = built.filter((f) => FORBIDDEN.some((re) => re.test(f)));
 ok(leaked.length === 0, 'nenhum ficheiro privado/interno no artefacto' + (leaked.length ? ': ' + leaked.join(', ') : ''));
 // Classificação obrigatória dos ficheiros da raiz (só quando o repositório git está disponível)
 const PRIVATE_ROOT = new Set(['.git', '.github', '.gitignore', '.firebaserc', 'docs', 'tests', 'scripts', 'recuperado-producao', 'node_modules', '_site', 'index.js', 'package.json', 'package-lock.json', 'firebase.json', 'firestore.rules', 'storage.rules', 'README.md', 'RECUPERACAO.md']);
-const PUBLIC_ROOT = new Set([...B.ROOT_FILES.map((f) => f.split('/')[0]), ...Object.keys(B.ROOT_DIRS)]);
+const PUBLIC_ROOT = new Set([...B.ROOT_FILES.map((f) => f.split('/')[0]), ...Object.keys(B.ROOT_DIRS), ...B.INVITE_FILES, ...Object.keys(B.INVITE_TREES)]);
 let unclassified = [];
 try { unclassified = cp.execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean).map((f) => f.split('/')[0]).filter((t, i, a) => a.indexOf(t) === i).filter((t) => !PRIVATE_ROOT.has(t) && !PUBLIC_ROOT.has(t)); } catch (e) { console.log('(git indisponível: classificação da raiz não verificada)'); }
 ok(unclassified.length === 0, 'todo o ficheiro/pasta novo na raiz do repositório está classificado como público ou privado' + (unclassified.length ? ': ' + unclassified.join(', ') : ''));
@@ -39,4 +39,9 @@ const SECRET = [/sk_live_[A-Za-z0-9]{10,}/, /whsec_[A-Za-z0-9]{10,}/, /-----BEGI
 const hits = built.filter((f) => /\.(html|js|json|txt)$/.test(f)).filter((f) => { const t = fs.readFileSync(path.join(out, f), 'utf8'); return SECRET.some((re) => re.test(t)); });
 ok(hits.length === 0, 'sem padrões de segredos no artefacto' + (hits.length ? ': ' + hits.join(', ') : ''));
 ok(built.includes('CNAME') && built.includes('.nojekyll') && built.includes('index.html') && built.includes('app/index.html'), 'CNAME, .nojekyll, página inicial e app presentes');
+// Convites Digitais: se a página existe, o artefacto tem de levar a página, o motor e os modelos (regressão: site sem convites)
+if (fs.existsSync(path.join(ROOT, 'convite.html'))) {
+  const need = [...B.INVITE_FILES, 'convites8/qrcode.js'];
+  ok(need.every((f) => built.includes(f)) && built.some((f) => /^convites8\/m-[a-z]+\.js$/.test(f)) && built.some((f) => /^convites8\/fonts\/.+\.woff2$/.test(f)), 'Convites Digitais (convite.html, weddyinvite*.js, convites8/) presentes no artefacto');
+} else console.log('SKIP Convites Digitais: convite.html não existe neste ramo');
 console.log(fail ? `\n${fail} falhas` : '\nOK'); if (!process.argv[2]) fs.rmSync(out, { recursive: true, force: true }); process.exit(fail ? 1 : 0);
