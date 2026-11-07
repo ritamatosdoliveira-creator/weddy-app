@@ -303,12 +303,19 @@
   /* Campos opcionais dos modelos «w-*» (citação, canção, hashtag, ligação de presentes com QR). */
   function sanitizeSong(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:clip(raw.t, 80).trim(), a:clip(raw.a, 80).trim(), u:safeUrl(clip(raw.u, 300)) }; }
   function sanitizeHash(h){ h = clip(h, 40).replace(/[^\p{L}\p{N}_]/gu,''); return h ? '#'+h : ''; }
+  function wCardFoot(cfg, esc){
+    var dark = /w-(romantico|bordo|destino|relevo)$/.test(cfg.tpl), col = dark ? '#fff' : 'var(--ink)';
+    var where = /w-(editorial|beige)$/.test(cfg.tpl) ? '' : [cfg.venue, cfg.address].filter(Boolean).join(' · '), at = cfg.time ? (cfg.lang==='en' ? 'at ' : 'às ')+cfg.time : '';
+    var frame = '<div style="position:absolute;inset:12px;border:1px solid '+col+';opacity:'+(dark?'.4':'.28')+';pointer-events:none;z-index:5"></div>';
+    var txt = (where||at) ? '<div style="position:absolute;left:24px;right:24px;bottom:30px;z-index:6;text-align:center;color:'+col+';font:500 9px/1.7 \'W Jost\',sans-serif;letter-spacing:.22em;text-transform:uppercase;'+(dark?'text-shadow:0 1px 6px rgba(0,0,0,.55)':'')+';flex:none">'+(where?'<div>'+esc(where)+'</div>':'')+(at?'<div>'+esc(at)+'</div>':'')+'</div>' : '';
+    return frame+txt;
+  }
   function wParts(cfg){ var S=STR[cfg.lang], n=splitNames(cfg), mp=monoParts(cfg); return { names:n, mono: mp[1] ? mp[0]+'·'+mp[1] : mp[0], date:dateDots(cfg), intro: cfg.intro || (cfg.lang==='en' ? 'The wedding of' : 'O casamento de'), openLabel: cfg.lang==='en' ? 'Tap to open' : 'Toque para abrir' }; }
   function sanitizeEv(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:validTime(raw.t), p:clip(raw.p, 80).trim(), a:clip(raw.a, 120).trim() }; }
   /* ---------- cartão digital (vertical 360×540) ---------- */
   function vars(cfg){ var c=cfg.colors; return '--bg:'+c.bg+';--ink:'+c.ink+';--ac:'+c.ac+';--soft:'+c.soft+';--fm:\''+cfg.fontMain+'\','+(cfg.fontMain==='Manrope'||cfg.fontMain==='Helvetica'?'sans-serif':(cfg.fontMain==='Pinyon Script'?'cursive':'serif'))+';--fs:\''+cfg.fontSecond+'\','+(cfg.fontSecond==='Manrope'||cfg.fontSecond==='Helvetica'?'sans-serif':(cfg.fontSecond==='Pinyon Script'?'cursive':'serif'))+';'; }
   function cardHTML(cfg){
-    var W = root.WeddyInviteW; if(W && W.isW(cfg.tpl)) return '<style>'+W.pageCss(cfg.tpl)+'</style><div class="wv-card wv-'+cfg.tpl.slice(2)+'" style="'+vars(cfg)+'">'+W.models[cfg.tpl].card(cfg,false,esc,wParts(cfg))+'</div>';
+    var W = root.WeddyInviteW; if(W && W.isW(cfg.tpl)) return '<style>'+W.baseCss+W.pageCss(cfg.tpl)+'</style><div class="wv-card wv-'+cfg.tpl.slice(2)+'" style="'+vars(cfg)+'">'+W.models[cfg.tpl].card(cfg,false,esc,wParts(cfg))+wCardFoot(cfg,esc)+'</div>';
     if(tplOf(cfg.tpl).lot) return lotCard(cfg);
     var S=STR[cfg.lang], n=splitNames(cfg), dd=dateDots(cfg), mono=monoOf(cfg);
     var names = n[1] ? '<span class="wi-n1">'+esc(n[0])+'</span><span class="wi-and">'+esc(S.and)+'</span><span class="wi-n2">'+esc(n[1])+'</span>' : '<span class="wi-n1">'+esc(n[0])+'</span>';

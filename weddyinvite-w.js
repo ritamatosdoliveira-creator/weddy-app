@@ -331,7 +331,7 @@
 
   function isW(id){ return !!MODELS[id]; }
   /* css extra para a página (inclui só o modelo em uso) */
-  function pageCss(id){ var m = MODELS[id]; if(!m) return ''; var n = id.slice(2); return FONT_CSS()+WRAP_CSS+(m.secs ? genCss()+'.wv-'+n+' .wp{'+m.vars(U)+'}' : '')+m.css(); }
+  function pageCss(id){ var m = MODELS[id]; if(!m) return ''; var n = id.slice(2); return FONT_CSS()+WRAP_CSS+(m.secs ? genCss()+'.wv-'+n+' .wp,.wv-card.wv-'+n+'{'+m.vars(U)+'}' : '')+m.css(); }
   /* parts: calculado pelo motor (nomes, monograma, data) para não duplicar lógica */
   function wrap(id, cfg, innerHtml, parts, esc){
     var m = MODELS[id];

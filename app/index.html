@@ -3769,14 +3769,26 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 .inv-pill{ font-size:11.5px; padding:3px 10px; border-radius:999px; border:1px solid #E6DCD4; color:#8B7D74; font-weight:500; } .inv-pill.published{ background:#EEF2E6; border-color:#CBD5B5; color:#5F7040; } .inv-pill.suspended,.inv-pill.unpublished{ background:#FBF3E4; border-color:#EBD6A8; color:#8A6420; }
 .inv-rest{ margin-top:16px; } .inv-rest-b{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; min-height:48px; padding:0 4px; border-bottom:1px solid #E6DCD4; font-size:15px; cursor:pointer; } .inv-rest-b i{ font-style:normal; color:#8B7D74; }
 .inv-chips{ overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; } .inv-chips .cb-chip{ flex:none; }
-.inv-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px 12px; margin:12px 0; } .inv-tpl{ all:unset; cursor:pointer; display:flex; flex-direction:column; gap:3px; min-width:0; } .inv-tpl .inv-cardw{ width:100% !important; height:auto !important; aspect-ratio:2/3; } .inv-tpl .inv-cardw>div{ width:360px !important; } .inv-tpl b{ font-size:14px; } .inv-tpl small{ font-size:12px; color:#8B7D74; line-height:1.35; }
+.inv-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px 12px; margin:12px 0; } .inv-tpl{ all:unset; cursor:pointer; display:flex; flex-direction:column; gap:3px; min-width:0; } .inv-tpl b{ font-size:14px; } .inv-tpl small{ font-size:12px; color:#8B7D74; line-height:1.35; }
 .inv-seg{ margin:8px 0; } .inv-seg2{ margin:0 0 8px; }
 .inv-stage{ display:flex; justify-content:center; margin:12px 0 16px; padding:16px 0; background:#F3ECE5; border-radius:18px; }
 .inv-dev{ background:#2B2522; border-radius:30px; padding:9px; } .inv-dev-phone{ width:250px; height:470px; } .inv-dev-desk{ width:100%; max-width:560px; height:340px; border-radius:12px; padding:6px; }
 .inv-ifr{ width:100%; height:100%; border:0; border-radius:22px; background:#fff; display:block; } .inv-dev-desk .inv-ifr{ border-radius:6px; }
 .inv-secs{ margin:10px 0; } .inv-sec-b{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:60px; padding:8px 4px; border-bottom:1px solid #E6DCD4; cursor:pointer; } .inv-sec-b span{ display:flex; flex-direction:column; } .inv-sec-b small{ color:#8B7D74; font-size:12.5px; } .inv-sec-b i{ font-style:normal; color:#8B7D74; }
 .inv-auto{ margin:10px 0 14px; }
-.inv-prog{ display:grid; grid-template-columns:110px 1fr auto; gap:8px; margin:6px 0; align-items:center; }
+.inv-prog{ display:grid; grid-template-columns:120px minmax(0,1fr) auto; gap:8px; margin:0; align-items:center; }
+.inv-prog.two{ grid-template-columns:120px minmax(0,1fr); }
+.inv-prog + .inv-prog{ margin-top:8px; }
+.cb-f .cb-in, .cb-f .cb-ta{ width:100%; max-width:100%; min-width:0; display:block; }
+.cb-f .cb-in{ height:48px; min-height:48px; }
+.cb-f .cb-ta{ min-height:96px; height:96px; }
+.inv-prog .cb-in{ height:48px; min-height:48px; }
+input.cb-in[type=time], input.cb-in[type=date]{ -webkit-appearance:none; appearance:none; text-align:left; line-height:46px; padding-top:0; padding-bottom:0; }
+input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-webkit-date-and-time-value{ text-align:left; min-height:1.2em; }
+.cb-add{ all:unset; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:48px; margin-top:10px; border:1.5px dashed #AD624F; border-radius:14px; background:#F8EBE6; color:#8E4A3A; font-size:15px; font-weight:600; cursor:pointer; }
+.cb-add::before{ content:"+"; font-size:22px; line-height:1; font-weight:500; }
+.cb-add:active{ background:#F1DDD5; }
+.cb-add:focus-visible{ outline:2px solid #AD624F; outline-offset:2px; }
 .inv-sws{ display:flex; gap:12px; margin:8px 0; } .inv-sw{ all:unset; width:44px; height:44px; border-radius:50%; position:relative; cursor:pointer; box-sizing:border-box; border:2px solid transparent; } .inv-sw i{ position:absolute; inset:6px 6px auto auto; width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.15); } .inv-sw.on{ outline:2px solid #AD624F; outline-offset:2px; }
 .inv-tog{ display:flex; align-items:center; justify-content:space-between; min-height:48px; border-bottom:1px solid #E6DCD4; } .inv-tog input{ width:22px; height:22px; accent-color:#AD624F; }
 .inv-ready{ text-align:center; } .inv-check{ width:64px; height:64px; border-radius:50%; background:#F0E2DA; color:#AD624F; display:flex; align-items:center; justify-content:center; font-size:30px; margin:14px auto 4px; }
@@ -9446,7 +9458,7 @@ function sdItemEditor(){
     <div class="cb-f full"><span>${ta('sdColors')}</span><div class="sd-sws">${pal}</div></div>
     <label class="cb-f"><span>${ta('sdFormat')}</span><input class="cb-in" type="text" data-cdtext="${b}format" value="${escapeHTML(o.format)}" placeholder="${escapeHTML(ta('sdFormatPh'))}"></label>
     <label class="cb-f"><span>${ta('sdDims')}</span><input class="cb-in" type="text" data-cdtext="${b}dims" value="${escapeHTML(o.dims)}" placeholder="10 × 15 cm"></label>
-    <label class="cb-f full"><span>${ta('vwFNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cdtext="${b}notes">${escapeHTML(o.notes)}</textarea></label>
+    <label class="cb-f full"><span>${ta('vwFNotes')}</span><textarea class="cb-ta" data-cdtext="${b}notes">${escapeHTML(o.notes)}</textarea></label>
   </div>
   ${kinds}
   ${`<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>`}`;
@@ -9520,6 +9532,13 @@ function invDefaultDraft(tplId){
   return dr;
 }
 function invCfg(){ const dr = invEnsure().draft; if(!dr) return null; return WeddyInvite.sanitize(Object.assign({}, dr, { lang:invLang() }), invLang()); }
+function invDemoCfg(tplId){ // dados de demonstração completos, só para as pré-visualizações da galeria
+  const en = invLang()==='en';
+  const dr = Object.assign({}, invDefaultDraft(tplId), { tpl:tplId, names:'Sofia & Pedro', date:'2027-07-12', time:'16:00', venue:'Quinta do Alvor', address:'Sintra', intro:'', message: en?'We would love to celebrate this day with you.':'Vai ser um dia especial e queremos partilhá-lo convosco.',
+    program:[{t:'16:00',d:ta('invDemoCeremony')},{t:'18:00',d:ta('invDemoDinner')}], dress:ta('invDemoDress'), cer:{t:'16:00',p:'Capela da Quinta',a:'Sintra'}, rec:{t:'18:00',p:'Salão dos Jardins',a:'Sintra'},
+    quote: en?'Love is the quiet beginning of everything.':'O amor é o começo silencioso de tudo.', story: en?'We met on a rainy day and never stopped talking.':'Conhecemo-nos num dia de chuva e nunca mais deixámos de conversar.', parents:'Ana & Miguel\nLuísa & João', song:{t:'Perfect',a:'Ed Sheeran',u:''}, hash:'#SofiaePedro', hotel:'Hotel Palácio de Sintra', tips:'', kids:'', gifts:'' });
+  return WeddyInvite.sanitize(Object.assign(dr, { lang:invLang() }), invLang());
+}
 function invPreviewCfg(tplId){ // pré-visualização de um modelo com os dados reais (ou de demonstração)
   const base = invEnsure().draft || invDefaultDraft(tplId);
   const demo = !base.names ? { names:'Sofia & Pedro', date:'2026-07-12', time:'16:00', venue:'Quinta do Alvor', address:'Sintra', message:'', program:[{t:'16:00',d:ta('invDemoCeremony')},{t:'18:00',d:ta('invDemoDinner')}], dress:ta('invDemoDress') } : {};
@@ -9555,14 +9574,13 @@ function invGalleryView(){
   const styles = ['todos'].concat(WeddyInvite.STYLES);
   const chips = styles.map(s=>`<button type="button" class="cb-chip" data-invfilter="${s}" aria-pressed="${invUI.filter===s?'true':'false'}">${ta('invStyle_'+s)}</button>`).join('');
   const list = WeddyInvite.TEMPLATES.filter(t=>t.w);
-  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${invCardHTML(invPreviewCfg(t.id), 150)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
+  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${invCardHTML(invDemoCfg(t.id), 164)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
   return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
 }
 function invTplView(){
-  const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invPreviewCfg(id), m = invUI.mode;
+  const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invDemoCfg(id), m = invUI.mode;
   return `${invBack(ta('invBackGallery'),'gallery')}<h3 class="gimp-h2">${invTplName(id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p>
-  <div class="cb-tabs inv-seg" role="tablist"><button type="button" role="tab" class="cb-tab" data-invmode="page" aria-selected="${m==='page'}">${ta('invModePage')}</button><button type="button" role="tab" class="cb-tab" data-invmode="card" aria-selected="${m==='card'}">${ta('invModeCard')}</button></div>
-  <div class="inv-stage">${m==='card' ? invCardHTML(cfg, 270) : invFrame(cfg,'phone')}</div>
+  <div class="inv-stage">${invFrame(cfg,'phone')}</div>
   <button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button><button type="button" class="cb-btn ghost" data-invgo="gallery">${ta('invBackToTpl')}</button>`;
 }
 function invEditView(){
@@ -9573,7 +9591,7 @@ function invEditView(){
   <p class="cb-sub inv-auto" role="status">${ta('invAutosave')}</p>
   <button type="button" class="cb-btn" data-invgo="prev">${ta('invPreview')} →</button>`;
 }
-function invField(path, label, val, opt){ opt = opt||{}; const tag = opt.area ? `<textarea class="cb-ta" style="min-height:90px" maxlength="${opt.max||300}" data-cdtext="${path}">${escapeHTML(val||'')}</textarea>` : `<input class="cb-in" type="${opt.type||'text'}" maxlength="${opt.max||120}" data-cdtext="${path}" value="${escapeHTML(val||'')}" ${opt.ph?`placeholder="${escapeHTML(opt.ph)}"`:''}>`;
+function invField(path, label, val, opt){ opt = opt||{}; const tag = opt.area ? `<textarea class="cb-ta" maxlength="${opt.max||300}" data-cdtext="${path}">${escapeHTML(val||'')}</textarea>` : `<input class="cb-in" type="${opt.type||'text'}" maxlength="${opt.max||120}" data-cdtext="${path}" value="${escapeHTML(val||'')}" ${opt.ph?`placeholder="${escapeHTML(opt.ph)}"`:''}>`;
   return `<label class="cb-f"><span>${label}</span>${tag}</label>`; }
 function invSectionView(){
   const dr = invEnsure().draft; if(!dr) return invHomeView(); const s = invUI.sec, P = 'invitation.draft.';
@@ -9582,8 +9600,8 @@ function invSectionView(){
   if(s==='text'){ body = invField(P+'names',ta('invFNames'),dr.names,{max:60,ph:'Sofia & Pedro'})+invField(P+'intro',ta('invFIntro'),dr.intro,{area:true,max:200})+invField(P+'message',ta('invFMessage'),dr.message,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'quote',invW('Citação','Quote'),dr.quote,{area:true,max:200})+invField(P+'story',invW('A nossa história','Our story'),dr.story,{area:true,max:400})+invField(P+'parents',invW('Pais / padrinhos (uma linha por pessoa)','Parents (one per line)'),dr.parents,{area:true,max:200})+invField(P+'song.t',invW('Canção: título','Song: title'),(dr.song||{}).t,{max:80})+invField(P+'song.a',invW('Canção: artista','Song: artist'),(dr.song||{}).a,{max:80})+invField(P+'song.u',invW('Canção: ligação para ouvir (https)','Song: listen link (https)'),(dr.song||{}).u,{max:300,ph:'https://…'})+invField(P+'hash',invW('Hashtag do casamento','Wedding hashtag'),dr.hash,{max:40,ph:'#SofiaEPedro'}) : ''); }
   else if(s==='info'){
     const prog = (dr.program||[]).map((p,i)=>`<div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}program.${i}.t" value="${escapeHTML(p.t||'')}" aria-label="${ta('invFTime')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}program.${i}.d" value="${escapeHTML(p.d||'')}" aria-label="${ta('invSecProgram')}"><button type="button" class="cb-link" data-invprogdel="${i}" aria-label="${ta('invRemove')}">✕</button></div>`).join('');
-    body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+['cer','rec'].map(k=>{ const ev = dr[k]||{}; return `<div class="cb-f"><span>${ta(k==='cer'?'invFCer':'invFRec')}</span><div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}${k}.t" value="${escapeHTML(ev.t||'')}" aria-label="${ta('invFEvT')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}${k}.p" value="${escapeHTML(ev.p||'')}" aria-label="${ta('invFEvP')}"></div></div>`; }).join('')+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
-      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-link" data-invprogadd>+ ${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'giftUrl',invW('Ligação de presentes (gera QR)','Gift link (makes a QR code)'),dr.giftUrl,{max:300,ph:'https://…'})+invField(P+'cer.a',invW('Cerimónia: morada','Ceremony: address'),(dr.cer||{}).a,{max:120})+invField(P+'rec.a',invW('Receção: morada','Reception: address'),(dr.rec||{}).a,{max:120})+invField(P+'hotel',invW('Alojamento sugerido','Suggested accommodation'),dr.hotel,{area:true,max:120})+invField(P+'hotelUrl',invW('Alojamento: ligação (https)','Accommodation: link (https)'),dr.hotelUrl,{max:300,ph:'https://…'})+'<div class="cb-f"><span>'+invW('Fotografias (ligações https; vazio = fotografia demonstrativa)','Photos (https links; empty = demo photo)')+'</span></div>'+invField(P+'photos.cover',invW('Fotografia de capa','Cover photo'),(dr.photos||{}).cover,{max:400,ph:'https://…'})+[0,1,2].map(i=>invField(P+'photos.gallery.'+i,invW('Fotografia ','Photo ')+(i+1),((dr.photos||{}).gallery||[])[i],{max:400,ph:'https://…'})).join('') : ''); }
+    body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+['cer','rec'].map(k=>{ const ev = dr[k]||{}; return `<div class="cb-f"><span>${ta(k==='cer'?'invFCer':'invFRec')}</span><div class="inv-prog two"><input class="cb-in" type="time" data-cdtext="${P}${k}.t" value="${escapeHTML(ev.t||'')}" aria-label="${ta('invFEvT')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}${k}.p" value="${escapeHTML(ev.p||'')}" aria-label="${ta('invFEvP')}"></div></div>`; }).join('')+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
+      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-add" data-invprogadd>${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'giftUrl',invW('Ligação de presentes (gera QR)','Gift link (makes a QR code)'),dr.giftUrl,{max:300,ph:'https://…'})+invField(P+'cer.a',invW('Cerimónia: morada','Ceremony: address'),(dr.cer||{}).a,{max:120})+invField(P+'rec.a',invW('Receção: morada','Reception: address'),(dr.rec||{}).a,{max:120})+invField(P+'hotel',invW('Alojamento sugerido','Suggested accommodation'),dr.hotel,{area:true,max:120})+invField(P+'hotelUrl',invW('Alojamento: ligação (https)','Accommodation: link (https)'),dr.hotelUrl,{max:300,ph:'https://…'})+'<div class="cb-f"><span>'+invW('Fotografias (ligações https; vazio = fotografia demonstrativa)','Photos (https links; empty = demo photo)')+'</span></div>'+invField(P+'photos.cover',invW('Fotografia de capa','Cover photo'),(dr.photos||{}).cover,{max:400,ph:'https://…'})+[0,1,2].map(i=>invField(P+'photos.gallery.'+i,invW('Fotografia ','Photo ')+(i+1),((dr.photos||{}).gallery||[])[i],{max:400,ph:'https://…'})).join('') : ''); }
   else if(s==='style'){
     const t = WeddyInvite.tpl(dr.tpl), cp = invCustomPal(), cur = invCfg().palette;
     const sw = t.palettes.map(p=>`<button type="button" class="inv-sw${cur===p.id?' on':''}" data-invpal="${p.id}" style="background:${p.ac}" aria-label="${escapeHTML(p.name)}" aria-pressed="${cur===p.id}"><i style="background:${p.bg}"></i></button>`).join('') + (cp ? `<button type="button" class="inv-sw${cur==='custom'?' on':''}" data-invpal="custom" style="background:${cp.ac}" aria-label="${ta('invMyPalette')}" aria-pressed="${cur==='custom'}"><i style="background:${cp.soft||cp.ac}"></i></button>` : '');
@@ -9603,9 +9621,9 @@ function invSectionView(){
 function invPrevView(){
   const c = invCfg(); if(!c) return invHomeView(); const pr = invProblems(c);
   return `${invBack(ta('invEditTitle'),'edit')}<h3 class="gimp-h2">${ta('invPreview')}</h3>
-  <div class="cb-tabs inv-seg" role="tablist"><button type="button" role="tab" class="cb-tab" data-invmode="card" aria-selected="${invUI.mode==='card'}">${ta('invModeCard')}</button><button type="button" role="tab" class="cb-tab" data-invmode="page" aria-selected="${invUI.mode==='page'}">${ta('invModePage')}</button></div>
-  ${invUI.mode==='page' ? `<div class="cb-tabs inv-seg2"><button type="button" class="cb-tab" data-invdev="phone" aria-selected="${invUI.device==='phone'}">${ta('invPhone')}</button><button type="button" class="cb-tab" data-invdev="desk" aria-selected="${invUI.device==='desk'}">${ta('invDesk')}</button></div>` : ''}
-  <div class="inv-stage">${invUI.mode==='card' ? invCardHTML(c, 270) : invFrame(c, invUI.device)}</div>
+  
+  ${true ? `<div class="cb-tabs inv-seg2"><button type="button" class="cb-tab" data-invdev="phone" aria-selected="${invUI.device==='phone'}">${ta('invPhone')}</button><button type="button" class="cb-tab" data-invdev="desk" aria-selected="${invUI.device==='desk'}">${ta('invDesk')}</button></div>` : ''}
+  <div class="inv-stage">${invFrame(c, invUI.device)}</div>
   ${pr.length ? `<p class="gimp-err" role="alert">${pr.map(escapeHTML).join(' ')}</p>` : ''}
   <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="edit">${ta('invEdit')}</button><button type="button" class="cb-btn" data-invgo="ready" ${pr.length?'disabled':''}>${ta('invPublish')}</button></div>`;
 }
@@ -9675,7 +9693,7 @@ async function invDownloadCard(){
   if(window.__invBound) return; window.__invBound = true;
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t || activeTab!=='papelaria' || sdTab!=='convites') return;
-    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'card'; } _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const f = t.closest('[data-invfilter]'); if(f){ invUI.filter = f.dataset.invfilter; _origRender(); return; }
     const tp = t.closest('[data-invtpl]'); if(tp){ invUI.tpl = tp.dataset.invtpl; invUI.view = 'tpl'; invUI.mode = 'page'; _origRender(); return; }
     const md = t.closest('[data-invmode]'); if(md){ invUI.mode = md.dataset.invmode; _origRender(); return; }
@@ -10004,7 +10022,7 @@ function cbInspiracoes(){
       <div class="cb-f full"><span>${ta('cbInspStyle')}</span><div class="cb-chips">${chips}</div></div>
       ${isCustom ? `<label class="cb-f full"><span>${ta('cbInspOther')}</span><input class="cb-in" type="text" data-cbdraft="customStyle" value="${escapeHTML(d.customStyle||'')}" placeholder="${escapeHTML(ta('cbInspOtherPh'))}"></label>` : ''}
       <label class="cb-f full"><span>${ta('cbInspDesc')}</span><input class="cb-in" type="text" data-cbdraft="desc" value="${escapeHTML(d.desc||'')}"></label>
-      <label class="cb-f full"><span>${ta('cbInspNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cbdraft="notes">${escapeHTML(d.notes||'')}</textarea></label>
+      <label class="cb-f full"><span>${ta('cbInspNotes')}</span><textarea class="cb-ta" data-cbdraft="notes">${escapeHTML(d.notes||'')}</textarea></label>
     </div>
     <button type="button" class="cb-btn" data-cbinspsave>${ta('cbInspSaveBtn')}</button>
     <button type="button" class="cb-btn ghost" data-cbinspcancel>${ta('cbInspCancel')}</button>
@@ -10159,7 +10177,7 @@ function vwEditor(){
       <div class="cb-f full"><span>${ta('cbTastStatus')}</span><div class="cb-chips">${sts}</div></div>
     </div>
     ${vwTextBlock(b+'text', o.text, ta('vwSpeechPh'))}
-    <label class="cb-f" style="margin-top:14px"><span>${ta('vwPrivNotes')}</span><textarea class="cb-ta" style="min-height:90px" data-cdtext="${b}notes">${escapeHTML(o.notes||'')}</textarea></label>
+    <label class="cb-f" style="margin-top:14px"><span>${ta('vwPrivNotes')}</span><textarea class="cb-ta" data-cdtext="${b}notes">${escapeHTML(o.notes||'')}</textarea></label>
     <button type="button" class="cb-btn" data-vwback>${ta('vwSaveBack')}</button>
     <div style="margin-top:18px"><button type="button" class="cb-link danger" data-vwdel>${ta('vwDelete')}</button></div>`;
   }
