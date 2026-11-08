@@ -40,6 +40,25 @@ service firebase.storage {
     // — os URLs antigos deixam de funcionar sem apagar nenhuma foto.
     // Sem SVG nem HEIC (SVG pode conter scripts). Estes URLs nunca vão para a
     // página pública: ao publicar, o servidor copia as fotos para public-sites/.
+    // Fotografias dos CONVITES DIGITAIS (carregadas no editor de convites). Só o casal as cria,
+    // apaga e lê dentro da app; os convidados veem-nas pelo URL de download com token que fica
+    // no convite publicado. Só jpeg/png/webp até 5 MB e com Premium ativo. Sem SVG nem HEIC.
+    match /invitations/{weddingId}/{fileName} {
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow create: if resource == null
+        && request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)')
+        && request.auth.token.email in
+           firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data.ownerEmails
+        && premiumOn(firestore.get(/databases/(default)/documents/weddings/$(weddingId)).data);
+      allow update: if false;
+    }
+
     match /sites/{weddingId}/{fileName} {
       allow read, delete: if request.auth != null
         && request.auth.token.email_verified == true
