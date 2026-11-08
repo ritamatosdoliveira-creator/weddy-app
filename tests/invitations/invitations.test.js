@@ -146,5 +146,9 @@ const pub = fns.publishInvitation, unpub = fns.unpublishInvitation, state = fns.
   // validUntil coerente com Premium
   const w1 = (await db.collection('weddingInvitations').doc('W1').get()).data();
   ok(w1.validUntil.toMillis() > Date.now(), 'validUntil no futuro');
+  await call(pub, A, { draft: D({ org: 'Agência X', orgTel: '+351 912 345 678<script>', flowers: 'Flores do campo', dcol: '#7d8a52, red, #E6D3B8', program: [{ t: '16:00', d: 'Cerimónia', x: 'Votos e alianças' }] }) });
+  const nf = (await pubD(r1.slug)).snapshot;
+  ok(nf.org === 'Agência X' && nf.orgTel === '+351 912 345 678' && nf.flowers === 'Flores do campo', 'novos campos: organizador, telefone limpo e flores');
+  ok(JSON.stringify(nf.dcol) === JSON.stringify(['#7d8a52', '#e6d3b8']) && nf.program[0].x === 'Votos e alianças', 'novos campos: cores válidas e descrição do programa');
   console.log(`RESULT passed=${pass} failed=${fail}`); process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error('ERRO', e); process.exit(2); });

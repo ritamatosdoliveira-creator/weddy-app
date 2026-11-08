@@ -3907,7 +3907,7 @@ function invSanitize(raw) {
   (Array.isArray(raw.program) ? raw.program : []).slice(0, 12).forEach((p) => {
     if (!p || typeof p !== 'object') return;
     const d = invClip(p.d, 80).trim();
-    if (d) program.push({ t: invTime(p.t), d });
+    if (d) program.push({ t: invTime(p.t), d, x: invClip(p.x, 140).trim() });
   });
   const cfg = {
     v: 1, tpl: raw.tpl, palette: invClip(raw.palette, 20).replace(/[^a-z0-9-]/gi, ''), colors,
@@ -3917,7 +3917,9 @@ function invSanitize(raw) {
     fontMain: INV_FONTS.includes(raw.fontMain) ? raw.fontMain : INV_FONTS[0], fontSecond: (INV_FONTS.includes(raw.fontSecond) && raw.fontSecond !== 'Pinyon Script') ? raw.fontSecond : INV_FONTS[1],
     deco: raw.deco !== false, program, sections, opt: invOpt(raw.tpl, raw.opt), cer: invEv(raw.cer), rec: invEv(raw.rec), lang: raw.lang === 'en' ? 'en' : 'pt',
     photos: invPhotos(raw.photos), quote: invClip(raw.quote, 200).trim(), song: invSong(raw.song), hash: invHash(raw.hash), giftUrl: invUrl(raw.giftUrl),
-    story: invClip(raw.story, 400).trim(), parents: invClip(raw.parents, 200).trim(), hotel: invClip(raw.hotel, 120).trim(), hotelUrl: invUrl(raw.hotelUrl)
+    story: invClip(raw.story, 400).trim(), parents: invClip(raw.parents, 200).trim(), hotel: invClip(raw.hotel, 120).trim(), hotelUrl: invUrl(raw.hotelUrl),
+    org: invClip(raw.org, 100).trim(), orgTel: invClip(raw.orgTel, 20).replace(/[^0-9+ ]/g, '').trim(), flowers: invClip(raw.flowers, 200).trim(),
+    dcol: (Array.isArray(raw.dcol) ? raw.dcol : String(typeof raw.dcol === 'string' ? raw.dcol : '').split(/[\s,;]+/)).slice(0, 6).map(invHex).filter(Boolean)
   };
   return { cfg, errors };
 }
