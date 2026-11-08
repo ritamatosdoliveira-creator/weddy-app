@@ -3785,6 +3785,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 .inv-seg{ margin:8px 0; } .inv-seg2{ margin:0 0 8px; }
 .inv-stage{ display:flex; justify-content:center; margin:12px 0 16px; padding:16px 0; background:#F3ECE5; border-radius:18px; }
 .inv-dev{ background:#2B2522; border-radius:30px; padding:9px; } .inv-dev-phone{ width:250px; height:470px; } .inv-dev-desk{ width:100%; max-width:560px; height:340px; border-radius:12px; padding:6px; }
+.inv-phr{display:flex;align-items:center;gap:12px;margin-top:6px}.inv-pht{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#e8e4da;flex:none;display:block}.inv-phb{cursor:pointer;margin:0}
 .inv-scr{ width:100%; height:100%; overflow:hidden; border-radius:22px; background:#fff; position:relative; touch-action:pan-y; } .inv-dev-desk .inv-scr{ border-radius:6px; }
 .inv-ifr{ position:absolute; left:0; top:0; border:0; background:#fff; display:block; transform-origin:0 0; width:390px; height:760px; }
 .inv-secs{ margin:10px 0; } .inv-sec-b{ all:unset; box-sizing:border-box; width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:60px; padding:8px 4px; border-bottom:1px solid #E6DCD4; cursor:pointer; } .inv-sec-b span{ display:flex; flex-direction:column; } .inv-sec-b small{ color:#8B7D74; font-size:12.5px; } .inv-sec-b i{ font-style:normal; color:#8B7D74; }
@@ -9643,6 +9644,31 @@ function invEditView(){
   <p class="cb-sub inv-auto" role="status">${ta('invAutosave')}</p>
   <button type="button" class="cb-btn" data-invgo="prev">${ta('invPreview')} →</button>`;
 }
+function invPhotoSlot(slot, label, url){
+  const ok = /^https:\/\//.test(url||'');
+  return `<div class="cb-f inv-phs"><span>${label}</span><div class="inv-phr">${ok?`<img class="inv-pht" src="${escapeHTML(url)}" alt="">`:'<span class="inv-pht empty" aria-hidden="true"></span>'}<label class="cb-add inv-phb">${invUI.phBusy===slot?'…':invW(ok?'Substituir':'Carregar fotografia', ok?'Replace':'Upload photo')}<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-invphoto="${slot}"></label>${ok?`<button type="button" class="cb-link" data-invphotodel="${slot}">${invW('Remover','Remove')}</button>`:''}</div></div>`; }
+function invPhotoGet(d, slot){ d.photos = (d.photos && typeof d.photos==='object') ? d.photos : {}; if(!Array.isArray(d.photos.gallery)) d.photos.gallery = []; return slot==='cover' ? (d.photos.cover||'') : (d.photos.gallery[+slot.slice(1)]||''); }
+function invPhotoSet(d, slot, url){ invPhotoGet(d, slot); if(slot==='cover') d.photos.cover = url; else { const k = +slot.slice(1); while(d.photos.gallery.length<=k) d.photos.gallery.push(''); d.photos.gallery[k] = url; } }
+function invPhotoDropOld(old){ try{ if(old && old.indexOf('firebasestorage.googleapis.com')>=0 && old.indexOf('/invitations%2F'+currentWeddingId)>=0) storage.refFromURL(old).delete().catch(()=>{}); }catch(e){} }
+async function invUploadPhoto(slot, file){
+  if(!file || !/^(cover|g[0-2])$/.test(slot)) return;
+  if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ weddyAlert(invW('Usa uma fotografia JPG, PNG ou WebP.','Use a JPG, PNG or WebP photo.')); return; }
+  if(file.size > 15*1024*1024){ weddyAlert(invW('A fotografia é demasiado grande (máx. 15 MB).','The photo is too large (max 15 MB).')); return; }
+  if(!hasActiveSubscription()){ weddyAlert(ta('invErrPremium')); return; }
+  if(!storage || !currentWeddingId){ weddyAlert(invW('Não foi possível enviar a fotografia. Tenta novamente.',"Couldn't upload the photo. Please try again.")); return; }
+  const d = invEnsure().draft; if(!d) return;
+  invUI.phBusy = slot; _origRender();
+  try{
+    const dataUrl = await resizeImageFile(file, 1600, 0.85);
+    const blob = await (await fetch(dataUrl)).blob();
+    if(blob.size > 4.5*1024*1024) throw new Error('size');
+    const ref = storage.ref(`invitations/${currentWeddingId}/${Date.now().toString(36)}.jpg`);
+    await ref.put(blob, { contentType:'image/jpeg' });
+    const url = await ref.getDownloadURL();
+    const old = invPhotoGet(d, slot); invPhotoSet(d, slot, url); invPhotoDropOld(old);
+  }catch(e){ weddyAlert(invW('Não foi possível enviar a fotografia. Tenta novamente.',"Couldn't upload the photo. Please try again.")); }
+  invUI.phBusy = null; render();
+}
 function invField(path, label, val, opt){ opt = opt||{}; const tag = opt.area ? `<textarea class="cb-ta" maxlength="${opt.max||300}" data-cdtext="${path}">${escapeHTML(val||'')}</textarea>` : `<input class="cb-in" type="${opt.type||'text'}" maxlength="${opt.max||120}" data-cdtext="${path}" value="${escapeHTML(val||'')}" ${opt.ph?`placeholder="${escapeHTML(opt.ph)}"`:''}>`;
   return `<label class="cb-f"><span>${label}</span>${tag}</label>`; }
 function invSectionView(){
@@ -9653,7 +9679,7 @@ function invSectionView(){
   else if(s==='info'){
     const prog = (dr.program||[]).map((p,i)=>`<div class="inv-prog"><input class="cb-in" type="time" data-cdtext="${P}program.${i}.t" value="${escapeHTML(p.t||'')}" aria-label="${ta('invFTime')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}program.${i}.d" value="${escapeHTML(p.d||'')}" aria-label="${ta('invSecProgram')}"><button type="button" class="cb-link" data-invprogdel="${i}" aria-label="${ta('invRemove')}">✕</button></div>`).join('');
     body = invField(P+'date',ta('invFDate'),dr.date,{type:'date'})+invField(P+'time',ta('invFTime'),dr.time,{type:'time'})+invField(P+'venue',ta('invFVenue'),dr.venue)+invField(P+'address',ta('invFAddress'),dr.address,{max:240})+['cer','rec'].map(k=>{ const ev = dr[k]||{}; return `<div class="cb-f"><span>${ta(k==='cer'?'invFCer':'invFRec')}</span><div class="inv-prog two"><input class="cb-in" type="time" data-cdtext="${P}${k}.t" value="${escapeHTML(ev.t||'')}" aria-label="${ta('invFEvT')}"><input class="cb-in" type="text" maxlength="80" data-cdtext="${P}${k}.p" value="${escapeHTML(ev.p||'')}" aria-label="${ta('invFEvP')}"></div></div>`; }).join('')+invField(P+'mapUrl',ta('invFMap'),dr.mapUrl,{max:300,ph:'https://…'})+
-      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-add" data-invprogadd>${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'giftUrl',invW('Ligação de presentes (gera QR)','Gift link (makes a QR code)'),dr.giftUrl,{max:300,ph:'https://…'})+invField(P+'cer.a',invW('Cerimónia: morada','Ceremony: address'),(dr.cer||{}).a,{max:120})+invField(P+'rec.a',invW('Receção: morada','Reception: address'),(dr.rec||{}).a,{max:120})+invField(P+'hotel',invW('Alojamento sugerido','Suggested accommodation'),dr.hotel,{area:true,max:120})+invField(P+'hotelUrl',invW('Alojamento: ligação (https)','Accommodation: link (https)'),dr.hotelUrl,{max:300,ph:'https://…'})+'<div class="cb-f"><span>'+invW('Fotografias (ligações https; vazio = fotografia demonstrativa)','Photos (https links; empty = demo photo)')+'</span></div>'+invField(P+'photos.cover',invW('Fotografia de capa','Cover photo'),(dr.photos||{}).cover,{max:400,ph:'https://…'})+[0,1,2].map(i=>invField(P+'photos.gallery.'+i,invW('Fotografia ','Photo ')+(i+1),((dr.photos||{}).gallery||[])[i],{max:400,ph:'https://…'})).join('') : ''); }
+      `<div class="cb-f"><span>${ta('invSecProgram')}</span>${prog}${(dr.program||[]).length<12?`<button type="button" class="cb-add" data-invprogadd>${ta('invAddMoment')}</button>`:''}</div>`+invField(P+'dress',ta('invFDress'),dr.dress,{area:true,max:300})+invField(P+'tips',ta('invFTips'),dr.tips,{area:true,max:300})+invField(P+'kids',ta('invFKids'),dr.kids,{area:true,max:300})+invField(P+'gifts',ta('invFGifts'),dr.gifts,{area:true,max:300}) + (invIsW(dr.tpl) ? invField(P+'giftUrl',invW('Ligação de presentes (gera QR)','Gift link (makes a QR code)'),dr.giftUrl,{max:300,ph:'https://…'})+invField(P+'cer.a',invW('Cerimónia: morada','Ceremony: address'),(dr.cer||{}).a,{max:120})+invField(P+'rec.a',invW('Receção: morada','Reception: address'),(dr.rec||{}).a,{max:120})+invField(P+'hotel',invW('Alojamento sugerido','Suggested accommodation'),dr.hotel,{area:true,max:120})+invField(P+'hotelUrl',invW('Alojamento: ligação (https)','Accommodation: link (https)'),dr.hotelUrl,{max:300,ph:'https://…'})+'<div class="cb-f"><span>'+invW('Fotografias (até 4; sem fotografia aparece uma demonstrativa)','Photos (up to 4; empty shows a demo photo)')+'</span></div>'+invPhotoSlot('cover',invW('Fotografia de capa','Cover photo'),(dr.photos||{}).cover)+[0,1,2].map(i=>invPhotoSlot('g'+i,invW('Fotografia ','Photo ')+(i+1),((dr.photos||{}).gallery||[])[i])).join('') : ''); }
   else if(s==='style'){
     const t = WeddyInvite.tpl(dr.tpl), cp = invCustomPal(), cur = invCfg().palette;
     const sw = t.palettes.map(p=>`<button type="button" class="inv-sw${cur===p.id?' on':''}" data-invpal="${p.id}" style="background:${p.ac}" aria-label="${escapeHTML(p.name)}" aria-pressed="${cur===p.id}"><i style="background:${p.bg}"></i></button>`).join('') + (cp ? `<button type="button" class="inv-sw${cur==='custom'?' on':''}" data-invpal="custom" style="background:${cp.ac}" aria-label="${ta('invMyPalette')}" aria-pressed="${cur==='custom'}"><i style="background:${cp.soft||cp.ac}"></i></button>` : '');
@@ -10047,6 +10073,7 @@ async function invDownloadCard(){
     const md = t.closest('[data-invmode]'); if(md){ invUI.mode = md.dataset.invmode; _origRender(); return; }
     const dv = t.closest('[data-invdev]'); if(dv){ invUI.device = dv.dataset.invdev; _origRender(); return; }
     const ch = t.closest('[data-invchoose]'); if(ch){ const v = invEnsure(); const id = ch.dataset.invchoose; if(!v.draft) v.draft = invDefaultDraft(id); else { v.draft.tpl = id; const T = WeddyInvite.tpl(id); if(!T.palettes.some(p=>p.id===v.draft.palette) && !(v.draft.palette==='custom' && invCustomPal())) v.draft.palette = T.palettes[0].id; } invUI.view = 'edit'; render(); return; }
+    const phd = t.closest('[data-invphotodel]'); if(phd){ const d = invEnsure().draft; if(d){ const old = invPhotoGet(d, phd.dataset.invphotodel); invPhotoSet(d, phd.dataset.invphotodel, ''); invPhotoDropOld(old); render(); } return; }
     const sc = t.closest('[data-invsec]'); if(sc){ invUI.sec = sc.dataset.invsec; invUI.view = 'sec'; _origRender(); return; }
     const pa = t.closest('[data-invpal]'); if(pa){ const d = invEnsure().draft; if(d){ d.palette = pa.dataset.invpal; if(d.palette==='custom'){ d.pal = invCustomPal() || d.pal; } render(); } return; }
     if(t.closest('[data-invusedesign]')){ const d = invEnsure().draft; if(d){ const des = invDesign(), cp = invCustomPal(); if(cp){ d.pal = cp; d.palette = 'custom'; } if(invFontOf(des.fontMain)) d.fontMain = invFontOf(des.fontMain); if(invFontOf(des.fontSecond)) d.fontSecond = invFontOf(des.fontSecond); if(des.monogram && des.monogram.initials) d.mono = des.monogram.initials; render(); } return; }
@@ -10077,6 +10104,7 @@ async function invDownloadCard(){
   document.addEventListener('change', e=>{
     const t = e.target; if(!t || !t.matches || activeTab!=='papelaria' || sdTab!=='convites') return;
     const d = invEnsure().draft; if(!d) return;
+    if(t.matches('[data-invphoto]')){ const fl = t.files && t.files[0]; t.value = ''; invUploadPhoto(t.dataset.invphoto, fl); return; }
     if(t.matches('[data-invfont]')){ d[t.dataset.invfont] = t.value; render(); return; }
     if(t.matches('[data-invdeco]')){ d.deco = !!t.checked; render(); return; }
     if(t.matches('[data-invopt]')){ d.opt = d.opt||{}; d.opt[t.dataset.invopt] = t.value; render(); return; }
