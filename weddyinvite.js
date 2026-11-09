@@ -289,6 +289,7 @@
     return h; }
   var OPTS = {
     colorido:null, natural:null,
+    'w-verde':[{k:'dress',t:'sel',v:['a','b','sil'],d:'a',l:{pt:'Ilustração do código de vestuário',en:'Dress code illustration'},vl:{a:{pt:'Casal formal (bordô e preto)',en:'Formal couple (burgundy and black)'},b:{pt:'Casal elegante (castanho e dourado)',en:'Elegant couple (brown and gold)'},sil:{pt:'Silhuetas simples',en:'Simple silhouettes'}}}],
     luxo:[{k:'finish',t:'sel',v:['gold','silver','none'],d:'gold',l:{pt:'Acabamento do monograma',en:'Monogram finish'},vl:{gold:{pt:'Dourado',en:'Gold'},silver:{pt:'Prateado',en:'Silver'},none:{pt:'Tinta simples',en:'Plain ink'}}},{k:'relief',t:'bool',d:true,l:{pt:'Relevo floral',en:'Floral relief'}},{k:'seal',t:'bool',d:true,l:{pt:'Selo e fita',en:'Seal and ribbon'}}],
     arquitetura:[{k:'kind',t:'sel',v:['manor','church','palace'],d:'manor',l:{pt:'Tipo de edifício',en:'Building type'},vl:{manor:{pt:'Quinta / casa',en:'Manor / house'},church:{pt:'Igreja / capela',en:'Church / chapel'},palace:{pt:'Palácio',en:'Palace'}}},{k:'wash',t:'bool',d:true,l:{pt:'Aguarela suave sobre o desenho',en:'Soft watercolour wash'}}],
     romance:[{k:'bow',t:'bool',d:true,l:{pt:'Laço de seda',en:'Silk bow'}},{k:'vellum',t:'bool',d:true,l:{pt:'Papel vegetal',en:'Vellum overlay'}}]
