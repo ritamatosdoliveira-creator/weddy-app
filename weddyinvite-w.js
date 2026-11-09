@@ -351,7 +351,7 @@
   /* ---------- modelos portados do protótipo (convites8/m-*.js) ---------- */
   function ctx(cfg, esc, P){
     var mm = String(P.mono||'').split('·'), dd = cfg.date ? cfg.date.split('-') : null;
-    var X = { dnum: esc(P.date), dot2: dd ? dd[2]+'.'+dd[1]+'.'+dd[0] : '', venue: esc(cfg.venue||''), town: esc(cfg.address||''), n1: esc(P.names[0]||''), n2: esc(P.names[1]||''), m1: esc(mm[0]||''), m2: esc(mm[1]||''), verse: esc(cfg.quote||''),
+    var X = { en: cfg.lang==='en', dnum: esc(P.date), dot2: dd ? dd[2]+'.'+dd[1]+'.'+dd[0] : '', venue: esc(cfg.venue||''), town: esc(cfg.address||''), n1: esc(P.names[0]||''), n2: esc(P.names[1]||''), m1: esc(mm[0]||''), m2: esc(mm[1]||''), verse: esc(cfg.quote||''),
       U: function(f){ return BASE+'img/'+f; },
       cov: function(k){ var u = cfg.photos && cfg.photos.cover; return u ? u : BASE+(DEMOK[k]||DEMOK.walk); },
       ph: function(id, cls, key){ return '<figure class="ph g-ph '+esc(cls||'')+'"><img src="'+esc(X.cov(key))+'" alt="" loading="eager"></figure>'; } };
