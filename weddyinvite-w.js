@@ -154,7 +154,7 @@
   function sec(cls, inner){ return '<section class="w1s'+(cls?' '+cls:'')+'">'+inner+'</section>'; }
   function photo(cfg, i, cls, bleed, esc){ return sec('', '<div class="'+(bleed?'w1-bleed':'')+'"><figure class="w1p shd '+cls+'"><img src="'+esc(ph(cfg,i))+'" alt="" loading="lazy" decoding="async">'+(demo(cfg,i)?'<span class="w1p-d">Fotografia demonstrativa</span>':'')+'</figure></div>'); }
   function evBlock(kind, e, cfg, H, esc){ if(!e || !(e.t||e.p||e.a)) return '';
-    var en = cfg.lang==='en', title = kind==='church' ? (en?'Ceremony':'Cerimónia religiosa') : (en?'Reception':'Receção');
+    var en = cfg.lang==='en', title = e.n || (kind==='church' ? (en?'Ceremony':'Cerimónia religiosa') : (en?'Reception':'Receção'));
     var q = [e.p, e.a].filter(Boolean).join(', '), link = q ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q) : '';
     return '<div class="w1ev">'+ic(kind)+'<h3>'+esc(title)+'</h3>'+(e.t?'<div class="t">'+esc(e.t)+'</div>':'')+(e.p?'<div class="cap">'+esc(e.p)+'</div>':'')+(e.a?'<p class="where">'+esc(e.a)+'</p>':'')+
       (link && H.sc.map ? '<a class="w1btn" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">'+(en?'View location':'Ver localização')+'</a>' : '')+'</div>'; }
@@ -206,7 +206,7 @@
     return '<div class="'+(bleed?'g-bleed':'')+'"><figure class="g-ph g-shd '+cls+'"><img src="'+esc(o.src)+'" alt="" loading="lazy" decoding="async">'+(o.demo?'<span class="g-demo">Fotografia demonstrativa</span>':'')+'</figure></div>'; }
   function gsec(cls, inner){ return '<section class="g-sec'+(cls?' '+cls:'')+'">'+inner+'</section>'; }
   function gev(kind, e, cfg, H, esc, one){ if(!e || !(e.t||e.p||e.a)) return '';
-    var en = cfg.lang==='en', title = kind==='church' ? (en?'Ceremony':'Cerimónia religiosa') : (en?'Reception':'Receção');
+    var en = cfg.lang==='en', title = e.n || (kind==='church' ? (en?'Ceremony':'Cerimónia religiosa') : (en?'Reception':'Receção'));
     var q = [e.p, e.a].filter(Boolean).join(', '), link = q ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q) : '';
     var btn = link && H.sc.map ? '<a class="g-btn'+(one?' sq':'')+'" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">'+(en?'View location':'Ver localização')+'</a>' : '';
     if(one) return '<div class="g-ev">'+ic(kind,'g-ico')+(e.t?'<div class="g-cap" style="font-size:11px">'+esc(e.t)+'</div>':'')+'<h3 style="font-size:16px;font-style:normal;font-weight:600;letter-spacing:.1em;text-transform:uppercase">'+esc(title)+'</h3>'+(e.p?'<div class="g-cap" style="font-size:10.5px">'+esc(e.p)+'</div>':'')+(e.a?'<p class="where" style="font-size:12.5px">'+esc(e.a)+'</p>':'')+btn+'</div>';

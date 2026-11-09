@@ -312,7 +312,7 @@
     return frame+txt;
   }
   function wParts(cfg){ var S=STR[cfg.lang], n=splitNames(cfg), mp=monoParts(cfg); return { names:n, mono: mp[1] ? mp[0]+'·'+mp[1] : mp[0], date:dateDots(cfg), intro: cfg.intro || (cfg.lang==='en' ? 'The wedding of' : 'O casamento de'), openLabel: cfg.lang==='en' ? 'Tap to open' : 'Toque para abrir' }; }
-  function sanitizeEv(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:validTime(raw.t), p:clip(raw.p, 80).trim(), a:clip(raw.a, 120).trim() }; }
+  function sanitizeEv(raw){ raw = raw && typeof raw==='object' ? raw : {}; return { t:validTime(raw.t), p:clip(raw.p, 80).trim(), a:clip(raw.a, 120).trim(), n:clip(raw.n, 40).trim() }; }
   /* ---------- cartão digital (vertical 360×540) ---------- */
   function vars(cfg){ var c=cfg.colors; return '--bg:'+c.bg+';--ink:'+c.ink+';--ac:'+c.ac+';--soft:'+c.soft+';--fm:\''+cfg.fontMain+'\','+(cfg.fontMain==='Manrope'||cfg.fontMain==='Helvetica'?'sans-serif':(cfg.fontMain==='Pinyon Script'?'cursive':'serif'))+';--fs:\''+cfg.fontSecond+'\','+(cfg.fontSecond==='Manrope'||cfg.fontSecond==='Helvetica'?'sans-serif':(cfg.fontSecond==='Pinyon Script'?'cursive':'serif'))+';'; }
   function cardHTML(cfg){
