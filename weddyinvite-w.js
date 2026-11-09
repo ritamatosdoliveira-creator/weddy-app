@@ -29,7 +29,7 @@
 
   /* ---------- partes comuns ---------- */
   var BASE_CSS = [
-    '.wv-ic.wv-mk,.w1tl .wv-ic.wv-mk,.w1tl.alt .c .wv-ic.wv-mk{display:block;width:54px!important;height:54px!important;filter:drop-shadow(0 0 .5px currentColor) drop-shadow(0 0 .5px currentColor);background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}',
+    ':where(.wv-mk){width:34px;height:34px}.wv-mk{display:block;background:currentColor;flex:none;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}.wv-mk-thin,.w1tl .wv-mk-thin,.w1tl.alt .c .wv-mk-thin{width:54px!important;height:54px!important;filter:drop-shadow(0 0 .5px currentColor) drop-shadow(0 0 .5px currentColor)}',
     /* cartão estático (também usado no PNG): sem imagens externas */
     '.wv-card{position:relative;width:360px;height:540px;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:stretch;text-align:center;background:#f1eee6;color:var(--ink)}.wv-card>*{flex:1 1 auto}',
     '.wv-card *{box-sizing:border-box}'
@@ -105,7 +105,8 @@
 
   /* ---------- blocos opcionais (citação, canção, QR, hashtag, ícones) ---------- */
   var IC = {church:'<path d="M12 3v4M10 5h4M7 21V12l5-4 5 4v9M3 21h18M10 21v-5a2 2 0 014 0v5"/>',glasses:'<path d="M6 3h5l-.5 6a2.5 2.5 0 01-4 0zM8.5 11v8M6 19h5M14 6h5l-.5 5a2.5 2.5 0 01-4 0zM16.5 13v6M14 19h5"/>',plate:'<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="3"/><path d="M3 4v7M5 4v7M4 11v9M21 4c-2 2-2 6 0 8v8"/>',disco:'<circle cx="12" cy="13" r="7"/><path d="M5 13h14M12 6v14M7 8c3 2 7 2 10 0M7 18c3-2 7-2 10 0M12 2v4"/>',clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',car:'<path d="M4 15v-3l2-5h12l2 5v3zM4 15v3h3v-3M17 15v3h3v-3"/><circle cx="8" cy="12.5" r=".8"/><circle cx="16" cy="12.5" r=".8"/>',heart:'<path d="M12 20S4 14.5 4 9a4 4 0 018-1 4 4 0 018 1c0 5.5-8 11-8 11z"/>',music:'<path d="M9 18V6l10-2v12M9 18a3 3 0 11-6 0 3 3 0 016 0zM19 16a3 3 0 11-6 0 3 3 0 016 0z"/>',ig:'<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.7" cy="7.3" r=".6"/>',gift:'<rect x="4" y="9" width="16" height="4" rx="1"/><path d="M5 13v7h14v-7M12 9v11M12 9S9 8.5 8.5 6.5 10.5 4 12 9zM12 9s3-.5 3.5-2.5S13.5 4 12 9z"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M12 17s-3-1.8-3-3.6a1.7 1.7 0 013-.5 1.7 1.7 0 013 .5c0 1.8-3 3.6-3 3.6z"/>',hotel:'<path d="M3 20V8M3 14h18v6M21 14v-2a3 3 0 00-3-3h-7v5"/><circle cx="7" cy="11" r="1.6"/>',couple:'<circle cx="8" cy="6" r="2"/><circle cx="16" cy="6" r="2"/><path d="M6 21v-9l2-3 2 3v9M14 21v-9l2-3 2 3v9"/>'};
-  function ic(k, c){ if(k==='dance') return '<i class="wv-ic wv-mk'+(c?' '+c:'')+'" style="--m:'+U('img/m1_ico_dance.svg')+'" aria-hidden="true"></i>'; return '<svg class="wv-ic'+(c?' '+c:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[k]+'</svg>'; }
+  var ICOV = null;  /* ícones em SVG próprios do modelo (genInterior); chave -> ficheiro em img/ */
+  function ic(k, c){ var ov = (ICOV && ICOV[k]) || (k==='dance' ? 'm1_ico_dance.svg' : ''); if(ov) return '<i class="wv-ic wv-mk'+(k==='dance'&&!(ICOV&&ICOV[k])?' wv-mk-thin':'')+(c?' '+c:'')+'" style="--m:'+U('img/'+ov)+'" aria-hidden="true"></i>'; return '<svg class="wv-ic'+(c?' '+c:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[k]+'</svg>'; }
   function sprig(){ var L='', i; for(i=0;i<6;i++){ var y=96-i*13, k=16-i*1.4; L+='<path d="M'+(60-2)+' '+y+' q'+(-k*.9)+' '+(-k*.55)+' '+(-k*1.5)+' '+(-k*.05)+' q'+(k*.55)+' '+(k*.6)+' '+(k*1.5)+' '+(k*.05)+'z" fill="none"/><path d="M'+(61)+' '+(y-6)+' q'+(k*.9)+' '+(-k*.55)+' '+(k*1.5)+' '+(-k*.05)+' q'+(-k*.55)+' '+(k*.6)+' '+(-k*1.5)+' '+(k*.05)+'z" fill="none"/>'; }
     return '<svg class="g-spr" viewBox="0 0 120 110" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 100C46 96 66 70 70 12"/>'+L+'<path d="M70 12c-5 5-5 11 0 17c5-6 5-12 0-17z"/></svg>'; }
   function envsvg(){ return '<svg class="g-env" viewBox="0 0 220 150" aria-hidden="true"><rect x="16" y="46" width="188" height="94" rx="3" fill="#6f7c45"/><rect x="42" y="14" width="136" height="92" rx="2" fill="#fbfaf4" stroke="#d9dcc3"/><path d="M58 40h104M58 54h84M58 68h96" stroke="#d3d6bd" stroke-width="2.2" stroke-linecap="round"/><circle cx="110" cy="88" r="12" fill="#c9a24d"/><circle cx="110" cy="88" r="8.5" fill="none" stroke="#e8cf8e" stroke-width="1.3"/><path d="M16 46 110 104 16 140z" fill="#7d8a52"/><path d="M204 46 110 104 204 140z" fill="#7d8a52"/><path d="M16 140 110 84 204 140z" fill="#8e9b63"/></svg>'; }
@@ -221,6 +222,7 @@
     return '<div class="g-count '+(cls||'')+'" data-wi-count="'+iso+'" role="timer">'+[S.dd,S.hh,S.mm,S.ss].map(function(l,i){ return '<div><b data-u="'+i+'">'+(i?('0'+v[i]).slice(-2):v[i])+'</b><small>'+esc(l)+'</small></div>'; }).join('')+'</div>'; }
   function genInterior(cfg, esc, H, def){
     var en = cfg.lang==='en', S = H.S, sc = cfg.sections, h = '', pn = 0, secs = def.secs;
+    ICOV = def.icons || null;
     var rs = function(band){ return H.tok ? '<a class="g-btn g-btn-r" href="https://www.weddy.pt/rsvp.html?g='+esc(H.tok)+'">'+esc(S.rsvpBtn)+'</a>' : '<p class="g-small">'+esc(S.rsvpNo)+'</p>'; };
     secs.forEach(function(k){ var a = k.split(':'), t = a[0];
       if(t==='photo'){ h += gsec(a[4]==='fade'?'g-fadew':'', gimg(cfg, pn++, a[1], a[2]||'r34', esc, a[3]==='bleed')); }
@@ -345,7 +347,7 @@
   function registerPorted(id, d){
     var n = id.slice(2), root_ = '.wv-'+n;
     var stageBg = d.stage ? 'background-image:url('+BASE+'img/'+d.stage+');background-size:360px;' : '';
-    MODELS[id] = { secs:d.secs,
+    MODELS[id] = { secs:d.secs, icons:d.icons,
       vars:function(){ return resolveU(d.vars)+";--f-ui:'W Jost',system-ui,sans-serif"; },
       css:function(){
         var g = resolveU(d.css).replace(/@O/g, O);
