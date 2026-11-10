@@ -3608,7 +3608,8 @@ async function siteRateLimit(key, max, windowMs) {
     let d = snap.exists ? snap.data() : {};
     if (!d.start || now - d.start > windowMs) d = { start: now, count: 0 };
     if (d.count >= max) throw new HttpsError('resource-exhausted', 'Demasiados pedidos. Tenta daqui a pouco.', { code: 'rate_limited' });
-    tx.set(ref, { start: d.start, count: d.count + 1 });
+    // expireAt: para uma política de TTL do Firestore limpar os contadores antigos (janela + 1 dia).
+    tx.set(ref, { start: d.start, count: d.count + 1, expireAt: admin.firestore.Timestamp.fromMillis(d.start + windowMs + 24 * 60 * 60 * 1000) });
   });
 }
 // Auditoria (Nov 2026): limite por utilizador (uid) ou, sem sessão, por IP (guardado só em hash).
