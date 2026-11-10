@@ -1041,7 +1041,7 @@ async function checkWhatsappReminderRateLimit(weddingId, guestId) {
   });
 }
 
-exports.classifyWeddyIntent = onCall({ region: 'europe-west1', secrets: [OPENAI_API_KEY] }, async (request) => {
+exports.classifyWeddyIntent = onCall({ region: 'europe-west1', secrets: [OPENAI_API_KEY], maxInstances: 20 }, async (request) => {
   const question = request.data && request.data.question;
   const requestedRole = request.data && request.data.role;
   if (!question || typeof question !== 'string' || !question.trim() || question.length > 500) {
@@ -1057,6 +1057,7 @@ exports.classifyWeddyIntent = onCall({ region: 'europe-west1', secrets: [OPENAI_
   // gastava a quota de IA do casal.
   const isCouple = !!request.auth && requestedRole === 'couple' && !!(request.auth.token && request.auth.token.email_verified === true);
   const allowedIntents = isCouple ? COUPLE_INTENTS : GUEST_INTENTS;
+  await rateLimitRequest(request, 'intent', isCouple ? 120 : 40, 60 * 1000); // IA: pico por minuto (o teto diário por casamento continua)
 
   try {
     const weddingId = await resolveWeddingId(request, isCouple);
@@ -1175,6 +1176,7 @@ exports.deleteWeddingAccount = onCall({ region: 'europe-west1', secrets: [GOOGLE
   }
   const uid = request.auth.uid;
   const email = (request.auth.token.email || '').toLowerCase();
+  await rateLimitRequest(request, 'delacct', 5, 60 * 60 * 1000);
 
   const weddingId = await resolveWeddingId(request, /* isCouple */ true);
   if (!weddingId) {
@@ -2298,7 +2300,7 @@ function seatingCompute({ clientState, guests, tables, constraints, attrs, mode,
 // limite diário de chamadas de IA que o Concierge/Assistente (aiUsage) —
 // mesmo quando a interpretação de texto livre não é usada, porque ainda
 // assim pode chamar a OpenAI para a explicação.
-exports.generateSeatingProposal = onCall({ region: 'europe-west1', secrets: [OPENAI_API_KEY] }, async (request) => {
+exports.generateSeatingProposal = onCall({ region: 'europe-west1', secrets: [OPENAI_API_KEY], maxInstances: 10 }, async (request) => {
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
@@ -2831,7 +2833,7 @@ async function callOpenAICompare(instructions, userText, fileParts) {
   return JSON.parse(text);
 }
 
-exports.analyzeCompareProposal = onCall({ region: 'europe-west1', timeoutSeconds: 180, memory: '1GiB', secrets: [OPENAI_API_KEY] }, async (request) => {
+exports.analyzeCompareProposal = onCall({ region: 'europe-west1', timeoutSeconds: 180, memory: '1GiB', secrets: [OPENAI_API_KEY], maxInstances: 10 }, async (request) => {
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
@@ -3255,7 +3257,7 @@ async function refundCompareReportUsage(weddingId, reservedDay) {
   }
 }
 
-exports.generateCompareReport = onCall({ region: 'europe-west1', timeoutSeconds: 120, memory: '512MiB', secrets: [OPENAI_API_KEY] }, async (request) => {
+exports.generateCompareReport = onCall({ region: 'europe-west1', timeoutSeconds: 120, memory: '512MiB', secrets: [OPENAI_API_KEY], maxInstances: 10 }, async (request) => {
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
@@ -3608,6 +3610,17 @@ async function siteRateLimit(key, max, windowMs) {
     if (d.count >= max) throw new HttpsError('resource-exhausted', 'Demasiados pedidos. Tenta daqui a pouco.', { code: 'rate_limited' });
     tx.set(ref, { start: d.start, count: d.count + 1 });
   });
+}
+// Auditoria (Nov 2026): limite por utilizador (uid) ou, sem sessão, por IP (guardado só em hash).
+// Responde resource-exhausted (HTTP 429 no cliente). Usa a mesma transação do siteRateLimit.
+function rlWho(request) {
+  if (request && request.auth && request.auth.uid) return 'u_' + request.auth.uid;
+  const raw = request && request.rawRequest;
+  const ip = String((raw && (raw.ip || (raw.headers && raw.headers['x-forwarded-for']))) || 'sem-ip').split(',')[0].trim();
+  return 'ip_' + crypto.createHash('sha256').update(ip).digest('hex').slice(0, 24);
+}
+async function rateLimitRequest(request, name, max, windowMs) {
+  await siteRateLimit('rl_' + name + '_' + rlWho(request), max, windowMs);
 }
 
 // Guarda o rascunho (única forma de o escrever). Exige Premium ativo.
@@ -3971,6 +3984,7 @@ exports.publishInvitation = onCall({ region: 'europe-west1', timeoutSeconds: 60 
 });
 exports.unpublishInvitation = onCall({ region: 'europe-west1' }, async (request) => {
   const weddingId = await siteCoupleContext(request);
+  await siteRateLimit('invunpub_' + weddingId, 30, 60 * 60 * 1000);
   const ref = db.collection('weddingInvitations').doc(weddingId);
   const snap = await ref.get();
   if (!snap.exists || !snap.data().slug) throw new HttpsError('failed-precondition', 'Ainda não há convite publicado.', { code: 'not_published' });
@@ -3984,6 +3998,7 @@ exports.unpublishInvitation = onCall({ region: 'europe-west1' }, async (request)
 // Estado do convite do casal (nunca devolve nada de outro casamento).
 exports.getInvitationState = onCall({ region: 'europe-west1' }, async (request) => {
   const weddingId = await siteCoupleContext(request);
+  await siteRateLimit('invstate_' + weddingId, 600, 60 * 60 * 1000);
   const snap = await db.collection('weddingInvitations').doc(weddingId).get();
   if (!snap.exists) return { status: 'none' };
   const d = snap.data();
@@ -4192,7 +4207,7 @@ async function invFinishEmail(weddingId, unit, res, success, errCode, nowMs) {
 }
 
 exports.sendInvitationEmails = onCall(
-  { region: 'europe-west1', timeoutSeconds: 300, secrets: [SMTP_USER, SMTP_PASS] },
+  { region: 'europe-west1', timeoutSeconds: 300, secrets: [SMTP_USER, SMTP_PASS], maxInstances: 10 },
   async (request) => {
     const weddingId = await siteCoupleContext(request);
     await assertPremiumWedding(weddingId); // Premium validado SEMPRE no servidor
@@ -4269,6 +4284,7 @@ exports.previewInvitationEmail = onCall({ region: 'europe-west1' }, async (reque
 // Textos por omissão (para o casal os editar antes de enviar).
 exports.getInvitationShareInfo = onCall({ region: 'europe-west1' }, async (request) => {
   const weddingId = await siteCoupleContext(request);
+  await siteRateLimit('invinfo_' + weddingId, 300, 60 * 60 * 1000);
   await assertPremiumWedding(weddingId);
   const pubInfo = await invPublishedInfo(weddingId);
   return { ok: true, slug: pubInfo.slug, couple: pubInfo.couple, lang: pubInfo.lang, limitPerDay: Math.max(0, Number(INV_EMAILS_PER_DAY.value()) || 0), texts: { pt: { subject: INV_MAIL_TEXTS.pt.subject, body: INV_MAIL_TEXTS.pt.body }, en: { subject: INV_MAIL_TEXTS.en.subject, body: INV_MAIL_TEXTS.en.body } } };
@@ -4970,6 +4986,7 @@ exports.googleCalendarStartOAuth = onCall(
     if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
       throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
     }
+    await rateLimitRequest(request, 'gcal', 300, 60 * 60 * 1000);
     const weddingId = await resolveWeddingId(request, /* isCouple */ true);
     if (!weddingId) {
       throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
@@ -5124,6 +5141,7 @@ exports.googleCalendarListCalendars = onCall(
     if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
       throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
     }
+    await rateLimitRequest(request, 'gcal', 300, 60 * 60 * 1000);
     const weddingId = await resolveWeddingId(request, true);
     if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
     await assertPremiumWedding(weddingId);
@@ -5178,6 +5196,7 @@ exports.googleCalendarSync = onCall(
     if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
       throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
     }
+    await rateLimitRequest(request, 'gcal', 300, 60 * 60 * 1000);
     const weddingId = await resolveWeddingId(request, true);
     if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
     await assertPremiumWedding(weddingId);
@@ -5196,6 +5215,7 @@ async function gcalAgendaContext(request) {
   if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
     throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
   }
+  await rateLimitRequest(request, 'gcal', 300, 60 * 60 * 1000);
   const weddingId = await resolveWeddingId(request, true);
   if (!weddingId) throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
   await assertPremiumWedding(weddingId);
@@ -6372,11 +6392,12 @@ function isAllowedReturnUrl(u) {
 }
 
 exports.createSubscriptionCheckout = onCall(
-  { region: 'europe-west1', secrets: [STRIPE_SECRET_KEY] },
+  { region: 'europe-west1', secrets: [STRIPE_SECRET_KEY], maxInstances: 10 },
   async (request) => {
     if (!request.auth || !request.auth.token || request.auth.token.email_verified !== true) {
       throw new HttpsError('unauthenticated', 'É preciso sessão iniciada com email verificado.');
     }
+    await rateLimitRequest(request, 'checkout', 10, 60 * 60 * 1000); // pagamentos: 10/hora por utilizador
     const weddingId = await resolveWeddingId(request, /* isCouple */ true);
     if (!weddingId) {
       throw new HttpsError('not-found', 'Não encontrei nenhum casamento associado a esta conta.');
