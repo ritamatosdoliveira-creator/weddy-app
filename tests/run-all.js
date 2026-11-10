@@ -90,6 +90,7 @@ const SUITES = [
   { id: 'ui-logistics-concierge', group: 'ui', name: 'UI Concierge e logística (B.2)', cmd: py('logistics_concierge.py') },
   { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
   { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
+  { id: 'ui-sanitize', group: 'ui', name: 'UI sanitização de entradas (XSS, imagens, limites, importador)', cmd: py('sanitize_inputs.py') },
 ];
 
 const args = process.argv.slice(2);

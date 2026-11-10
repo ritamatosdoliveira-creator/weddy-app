@@ -52,6 +52,10 @@ window.__t={get state(){return state;}, set state(v){state=v;}, get gimp(){retur
 window.__a4={ san:a4SanitizeState, sanIn:a4SanitizeIncoming, seed:seedData, get state(){return state;}, set state(v){state=v;}, render:function(){ return render(); }, errs:function(){ return a4ViewErrors; },
  attach:function(){ if(!auth||!auth.currentUser) auth={currentUser:{}}; currentWeddingId='W'; attachFirestoreSync(); }, firstSync:function(){ return firstSyncDone; }, go:function(t){ activeTab=t; }, sub:function(v){ currentSubscription = v?{active:true}:null; }, lang:function(l){ appLang=l; }, i18n:APP_I18N, T:ta };
 """
+# Sanitização (Nov 2026): auxiliares expostos para sanitize_inputs.py
+HOOK += r"""
+window.__s={ escapeHTML:escapeHTML, safeImgSrc:safeImgSrc, cssUrl:cssUrl, cssNum:cssNum, gimpClean:gimpClean };
+"""
 HOOK_EXTRA = ""
 
 def build_hooked(extra_hook=''):

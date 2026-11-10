@@ -33,7 +33,7 @@ Relatórios: `tests/reports/last-run.md` e `.json`, e um `.log` completo por sui
 | `notify/` | email resumo (A.2) | Node + emulador (SMTP simulado) |
 | `backfill/` | `premiumUntil` | Node + emulador |
 | `rules/` | regras Firestore/Storage (Premium, consentimento, estado JSON/quarentena) | Node + emulador |
-| `ui/` | interface (desktop 1360 px + telemóvel 390 px): notificações, preferências do email, ficha do convidado, RSVP, robustez do estado, inglês, paridade do estado | Python + Playwright |
+| `ui/` | interface (desktop 1360 px + telemóvel 390 px): notificações, preferências do email, ficha do convidado, RSVP, robustez do estado, inglês, paridade do estado, sanitização de entradas (XSS, imagens, limites, importador) | Python + Playwright |
 
 `ui/common.py` constrói em `tests/.build/` uma cópia de `app/index.html` com ganchos de teste (`window.__t`, `window.__a4`); o ficheiro real da app não é alterado. O Firebase é um Proxy sem rede e qualquer pedido que não seja `file://` do repositório é bloqueado. Capturas de ecrã vão para `tests/.build/shots/`.
 

@@ -1,6 +1,6 @@
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import fs from 'fs';
-import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, getDocs, query, where, Timestamp, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, getDocs, query, where, Timestamp, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes, deleteObject } from 'firebase/storage';
 const env = await initializeTestEnvironment({ projectId:'demo-weddy',
   firestore:{ host:'127.0.0.1', port:8085, rules:fs.readFileSync(new URL('../../firestore.rules', import.meta.url),'utf8') },
@@ -53,6 +53,10 @@ await rec('B cria guest em wedding alheio W1',true,()=>setDoc(doc(F(B),'guests/G
 await rec('anon lista guests',true,()=>getDocs(collection(F(anon),'guests')));
 await rec('anon altera email do guest',true,()=>updateDoc(doc(F(anon),'guests/G1'),{weddingId:'W9'}));
 await rec('anon escreve resposta RSVP (legítimo)',false,()=>updateDoc(doc(F(anon),'guests/G1'),{attending:true,rsvpStatus:'yes'}));
+await rec('anon grava openedAt como texto gigante',true,()=>updateDoc(doc(F(anon),'guests/G1'),{openedAt:'x'.repeat(5000)}));
+await rec('anon grava respondedAt como mapa',true,()=>updateDoc(doc(F(anon),'guests/G1'),{respondedAt:{a:1}}));
+await rec('anon grava openedAt serverTimestamp (legítimo)',false,()=>updateDoc(doc(F(anon),'guests/G1'),{openedAt:serverTimestamp()}));
+await rec('anon repõe respondedAt:null (legítimo)',false,()=>updateDoc(doc(F(anon),'guests/G1'),{respondedAt:null}));
 // ---- weddingSites
 await rec('A escreve weddingSites (premiumUntil forjado)',true,()=>setDoc(doc(F(A),'weddingSites/W1'),{premiumUntil:Timestamp.fromDate(FUT)}));
 await rec('B escreve weddingSites/W2',true,()=>setDoc(doc(F(B),'weddingSites/W2'),{premiumUntil:Timestamp.fromDate(FUT)}));

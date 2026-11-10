@@ -222,7 +222,11 @@ service cloud.firestore {
             && (!keys.hasAny(['alojamento'])  || d.alojamento == null  || d.alojamento is bool)
             && (!keys.hasAny(['children'])    || d.children == null    || (d.children is list && d.children.size() <= 20))
             && (!keys.hasAny(['responses'])   || d.responses == null   || (d.responses is map && d.responses.size() <= 40))
-            && (!keys.hasAny(['logistics'])   || !('logistics' in d) || validLogistics(d.logistics));
+            && (!keys.hasAny(['logistics'])   || !('logistics' in d) || validLogistics(d.logistics))
+            // Sanitização (Nov 2026): o rsvp.html só grava serverTimestamp() ou null
+            // nestes dois campos; sem isto qualquer tipo/tamanho era aceite.
+            && (!keys.hasAny(['openedAt'])    || d.openedAt == null    || d.openedAt is timestamp)
+            && (!keys.hasAny(['respondedAt']) || d.respondedAt == null || d.respondedAt is timestamp);
       }
       // B.2 — logística do convidado (transporte, alojamento, alimentação,
       // acessibilidade). Um único mapa opcional, com chaves e tamanhos

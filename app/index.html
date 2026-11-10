@@ -5785,12 +5785,57 @@ function renderUnlessTyping(){
 function escapeHTML(str){
   if(str===undefined || str===null) return '';
   return String(str)
+    // Sanitização (Nov 2026): caracteres de controlo (exceto \t \n \r) e de
+    // direção de texto (U+202A–202E, U+2066–2069) nunca fazem falta num nome ou
+    // nota e servem para esconder/inverter texto ("fdp.exe" a parecer "exe.pdf").
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g,'')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
 }
+// Sanitização (Nov 2026): endereços de imagem vindos do estado (fotos de capa,
+// inspirações, fornecedores). Só se aceitam imagens em data: (png/jpeg/webp/gif),
+// blob:, https: e caminhos relativos da própria app; tudo o resto (javascript:,
+// data:text/html, http:, aspas, espaços) devolve '' e a imagem simplesmente não
+// aparece. O resultado ainda tem de ir para o HTML com escapeHTML().
+function safeImgSrc(u){
+  if(typeof u!=='string') return '';
+  u = u.trim();
+  if(!u || u.length>3000000) return '';
+  if(/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/i.test(u)) return u;
+  if(/^blob:/i.test(u) || /^https:\/\/[^\s"'<>`\\]+$/i.test(u)) return /[\s"'<>`\\]/.test(u) ? '' : u;
+  if(/^\/[A-Za-z0-9._\-\/]+$/.test(u) && u.indexOf('//')!==0) return u;
+  return '';
+}
+// Para url('...') dentro de style="...": o HTML decodifica &#39; ANTES do CSS,
+// por isso escapeHTML não chega — codifica-se em percentagem o que fecharia o url().
+function cssUrl(u){
+  return safeImgSrc(u).replace(/['"()\\\s<>`]/g, c=>'%'+c.charCodeAt(0).toString(16).toUpperCase().padStart(2,'0'));
+}
+// Número seguro para valores de CSS (posição/zoom): nunca texto.
+function cssNum(v, def){ const n = Number(v); return (v!==null && v!=='' && isFinite(n)) ? n : def; }
+// Sanitização (Nov 2026): só havia 13 maxlength em toda a app. Em vez de editar
+// 100 campos, o primeiro foco num campo de texto sem limite próprio aplica um
+// por defeito: 120 em nomes/títulos conhecidos, 500 nos restantes campos de uma
+// linha e 20 000 nas áreas de texto (votos, discursos, notas). Só impede
+// escrever/colar a mais; nunca corta texto que já esteja guardado.
+(function(){
+  const NAMEY = /^(gf-name|def-name\d|def-venue|ob-name\d|add-cat-name|add-guestcat-name|def-add-cat-name|hm-name|hmo-name|tc-title|tc-label|vf-loja|ef-label|sf-desc|supd-name-input)$/;
+  const TEXTY = /^(text|search|email|tel|url)$/;
+  document.addEventListener('focusin', function(e){
+    const el = e.target;
+    if(!el || !el.tagName || el.hasAttribute('maxlength')) return;
+    try{
+      if(el.tagName==='TEXTAREA'){ el.maxLength = 20000; return; }
+      if(el.tagName==='INPUT' && TEXTY.test(el.type||'text')){
+        const namey = NAMEY.test(el.id||'') || el.hasAttribute('data-addname') || el.hasAttribute('data-editguest');
+        el.maxLength = namey ? 120 : 500;
+      }
+    }catch(_){}
+  }, true);
+})();
 // Fase Feedback (Set 2026): usado só para mostrar "X,X MB" no total das
 // capturas de ecrã escolhidas em "Reporta um problema" — não precisa de
 // precisão a mais, só de dar uma ideia rápida de quanto falta para o limite.
@@ -9180,6 +9225,7 @@ function sdNormHex(v){
   return /^[0-9a-fA-F]{6}$/.test(s) ? '#'+s.toUpperCase() : '';
 }
 function sdSwatch(hex, on, attr){
+  if(!/^#[0-9a-fA-F]{6}$/.test(String(hex||''))) hex = '#999999';
   return `<button type="button" class="sd-sw" ${attr} aria-pressed="${on?'true':'false'}" aria-label="${hex}" style="--c:${hex}"></button>`;
 }
 function sdFileRow(f){
@@ -9217,7 +9263,7 @@ function sdItensTab(){
 function sdPaletteBlock(){
   const d = state.stationeryDesign;
   const all = SD_PRESETS.concat(d.palette.filter(h=>SD_PRESETS.indexOf(h)<0));
-  const sws = all.map(h=>sdSwatch(h, d.palette.indexOf(h)>=0, `data-sdpal="${h}"`)).join('');
+  const sws = all.map(h=>sdSwatch(h, d.palette.indexOf(h)>=0, `data-sdpal="${escapeHTML(h)}"`)).join('');
   const addBox = sdPalOpen
     ? `<div class="sd-hexrow"><input type="color" id="sd-hex-pick" value="#C98E80" aria-label="${escapeHTML(ta('sdColor'))}"><input class="cb-in" id="sd-hex-txt" type="text" maxlength="7" placeholder="#C98E80" aria-label="HEX"><button type="button" class="cb-link" data-sdhexadd>${ta('sdAddOk')}</button></div>`
     : '';
@@ -9267,7 +9313,7 @@ function sdItemEditor(){
   const o = sdItemData(it.id), d = state.stationeryDesign, r = state.stationery[it.id]||{};
   const b = 'stationeryDesign.items.'+it.id+'.';
   const st = [['c','cdStatCreated'],['p','cdStatPrinted'],['e','cdStatSent']].map(x=>`<button type="button" class="cb-chip" data-cdstat="${escapeHTML(it.id)}:${x[0]}" aria-pressed="${r[x[0]]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
-  const pal = d.palette.length ? d.palette.map(h=>sdSwatch(h, o.colors.indexOf(h)>=0, `data-sditemcolor="${h}"`)).join('') : `<span class="cb-sub" style="margin:0">${ta('sdNoPalette')}</span>`;
+  const pal = d.palette.length ? d.palette.map(h=>sdSwatch(h, o.colors.indexOf(h)>=0, `data-sditemcolor="${escapeHTML(h)}"`)).join('') : `<span class="cb-sub" style="margin:0">${ta('sdNoPalette')}</span>`;
   const kinds = SD_KINDS.map(k=>{
     const fl = d.files.filter(f=>f.itemId===it.id && f.kind===k);
     return `<div class="sd-sub" style="margin-top:18px">${ta('sdKind_'+k)}</div>${fl.map(sdFileRow).join('')}<button type="button" class="cb-link" data-sdupload="${escapeHTML(it.id)}:${k}">+ ${ta('sdAddFile')}</button>`;
@@ -9575,7 +9621,7 @@ function cbInspiracoes(){
     const chips = CB_STY.map(k=>`<button type="button" class="cb-chip" data-cbdstyle="${k}" aria-pressed="${d.style===k?'true':'false'}">${escapeHTML(ta('cbSty_'+k))}</button>`).join('')
       + `<button type="button" class="cb-chip" data-cbdstyle="custom" aria-pressed="${isCustom?'true':'false'}">${escapeHTML(ta('cbInspOther'))}</button>`;
     return `
-    <div class="cb-ph cb-draft-ph">${d.photo ? `<img src="${d.photo}" alt="">` : CB_ICO.img}</div>
+    <div class="cb-ph cb-draft-ph">${d.photo ? `<img src="${escapeHTML(safeImgSrc(d.photo))}" alt="">` : CB_ICO.img}</div>
     <button type="button" class="cb-link" data-cbinspphoto>${d.photo?ta('cbInspChange'):ta('cbInspPhoto')}</button>
     <div class="cb-fields" style="margin-top:18px">
       <div class="cb-f full"><span>${ta('cbInspStyle')}</span><div class="cb-chips">${chips}</div></div>
@@ -10786,7 +10832,7 @@ function viewInicio(){
   </div>
 
   <div class="hero-photo-card">
-    <div class="hero-photo" ${weddingSettings.heroPhotoUrl?`style="background-image:url('${weddingSettings.heroPhotoUrl}'); background-position:${weddingSettings.heroPhotoPosX??50}% ${weddingSettings.heroPhotoPosY??50}%; background-size:${weddingSettings.heroPhotoZoom??100}%;"`:''}></div>
+    <div class="hero-photo" ${weddingSettings.heroPhotoUrl?`style="background-image:url('${cssUrl(weddingSettings.heroPhotoUrl)}'); background-position:${cssNum(weddingSettings.heroPhotoPosX,50)}% ${cssNum(weddingSettings.heroPhotoPosY,50)}%; background-size:${cssNum(weddingSettings.heroPhotoZoom,100)}%;"`:''}></div>
     <div class="hero-scrim"></div>
     <button type="button" class="hero-edit-photo-btn" data-premiumgoto="design" aria-label="${ta('editCoverPhotoAlt')}" title="${ta('editCoverPhotoAlt')}">${ICONS.pencil}</button>
     <div class="hero-overlay">
@@ -11675,8 +11721,20 @@ function gimpParseCSV(txt){
   if(cur!=='' || row.length){ row.push(cur); rows.push(row); }
   return rows;
 }
+// Sanitização (Nov 2026): o ficheiro vem de fora, por isso cada célula perde
+// caracteres de controlo/direção e quebras de linha, e tem tamanho máximo
+// (uma célula de vários MB entrava inteira no estado e rebentava o limite do
+// documento); no máximo 60 colunas.
+const GIMP_CELL_MAX = 300, GIMP_MAX_COLS = 60;
+function gimpCell(c){
+  return String(c==null?'':c)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g,'')
+    .replace(/[\t\r\n]+/g,' ')
+    .trim()
+    .slice(0, GIMP_CELL_MAX);
+}
 function gimpClean(rows){
-  const out = rows.map(r=>r.map(c=>String(c==null?'':c).trim()));
+  const out = rows.map(r=>r.slice(0, GIMP_MAX_COLS).map(gimpCell));
   const nonEmpty = out.filter(r=>r.some(c=>c!==''));
   const width = nonEmpty.reduce((m,r)=>Math.max(m,r.length),0);
   return nonEmpty.map(r=>{ const x = r.slice(); while(x.length<width) x.push(''); return x; });
@@ -11871,7 +11929,7 @@ async function gimpReadFile(file){
     let rows;
     if(/\.(xlsx|xls)$/i.test(name)){
       await loadXlsxLib();
-      const wb = XLSX.read(buf, { type:'array' });
+      const wb = XLSX.read(buf, { type:'array', sheetRows: GIMP_MAX_ROWS + 5, cellFormula:false, cellHTML:false });
       let ws = null;
       for(const sn of wb.SheetNames){ const w = wb.Sheets[sn]; const r = XLSX.utils.sheet_to_json(w,{header:1,raw:false,defval:''}); if(gimpClean(r).length){ ws = r; break; } }
       rows = ws || [];
@@ -12672,7 +12730,7 @@ function gtxDetailHTML(i){
     </section>
     <section class="gtx-form">
       <label class="gtx-f gtx-f-wide"><span>${ta('labelExpenseDescription')}</span><input class="gtx-in" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="${ta('placeholderDescription')}"></label>
-      <label class="gtx-f"><span>${ta('labelDate')}</span><input class="gtx-in" type="date" data-exp="date|${i}" value="${e.date||''}"></label>
+      <label class="gtx-f"><span>${ta('labelDate')}</span><input class="gtx-in" type="date" data-exp="date|${i}" value="${escapeHTML(e.date||'')}"></label>
       <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="number" min="0" inputmode="decimal" data-exp="paid|${i}" value="${paid}"></label>
       <label class="gtx-f"><span>${ta('labelPaymentMethod')}</span>
         <select class="gtx-in" data-exp="method|${i}">
@@ -12687,7 +12745,7 @@ function gtxDetailHTML(i){
           <option value="" ${!e.supplierId?'selected':''}>${ta('noSupplierOption')}</option>
           ${state.suppliers.map(x=>`<option value="${x.id}" ${e.supplierId===x.id?'selected':''}>${escapeHTML(x.name)}</option>`).join('')}
         </select></label>
-      <label class="gtx-f gtx-f-wide gtx-duef${gtxDueClass(e)}" data-duerow="${i}" style="${rem>0?'':'display:none'}"><span>${ta('labelPayByDateOptional')}</span><input class="gtx-in" type="date" data-exp="dueDate|${i}" value="${e.dueDate||''}"></label>
+      <label class="gtx-f gtx-f-wide gtx-duef${gtxDueClass(e)}" data-duerow="${i}" style="${rem>0?'':'display:none'}"><span>${ta('labelPayByDateOptional')}</span><input class="gtx-in" type="date" data-exp="dueDate|${i}" value="${escapeHTML(e.dueDate||'')}"></label>
     </section>
     <div class="orcx-cat-actions"><button type="button" class="orcx-act is-danger" data-delexp="${i}">${ICONS.trash}<span>${ta('gtxDelete')}</span></button></div>
   </div>`;
@@ -13437,8 +13495,8 @@ function viewAISeatingProposal(){
 function viewInspiracao(){
   const tiles = inspirations.map(img => `
     <div class="insp-tile">
-      <img src="${img.dataUrl}" alt="" data-insplightbox="${img.id}">
-      <button class="insp-remove" data-insprm="${img.id}">✕</button>
+      <img src="${escapeHTML(safeImgSrc(img.dataUrl))}" alt="" data-insplightbox="${escapeHTML(img.id)}">
+      <button class="insp-remove" data-insprm="${escapeHTML(img.id)}">✕</button>
     </div>`).join('');
 
   return `
@@ -13676,8 +13734,8 @@ function homeDyMoodHTML(){
   const n = dressInspirations.length;
   const tiles = dressInspirations.map((img,i)=>`
     <figure class="dy-ph dy-ph-${i+1}">
-      <img src="${img.dataUrl}" alt="" data-dresslightbox="${img.id}" loading="lazy">
-      <button type="button" class="insp-remove dy-ph-rm" data-dressinsprm="${img.id}" aria-label="${ta('homeDyMoodRm')}">✕</button>
+      <img src="${escapeHTML(safeImgSrc(img.dataUrl))}" alt="" data-dresslightbox="${escapeHTML(img.id)}" loading="lazy">
+      <button type="button" class="insp-remove dy-ph-rm" data-dressinsprm="${escapeHTML(img.id)}" aria-label="${ta('homeDyMoodRm')}">✕</button>
     </figure>`).join('');
   return `
   <section class="dy-mood" aria-labelledby="dy-mood-h">
@@ -13865,15 +13923,15 @@ function viewTodoCategory(cat){
       <button class="remove-x" data-catitemdel="${cat.id}|${i}">✕</button>
       <div class="todo-item-due ${dueClass}">
         <span>${item.due ? ta('untilWord') : (item.done ? ta('untilWord') : ta('noDueDateInsert'))}</span>
-        <input type="date" data-catitemdue="${cat.id}|${i}" value="${item.due||''}">
-        ${item.due ? `<input type="time" class="todo-item-time" data-catitemtime="${cat.id}|${i}" value="${item.time||''}">` : ''}
+        <input type="date" data-catitemdue="${cat.id}|${i}" value="${escapeHTML(item.due||'')}">
+        ${item.due ? `<input type="time" class="todo-item-time" data-catitemtime="${cat.id}|${i}" value="${escapeHTML(item.time||'')}">` : ''}
         ${item.due ? `<button class="todo-item-due-clear" data-catitemdueclear="${cat.id}|${i}" title="${ta('titleRemoveDeadline')}">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
   return `
-  ${pageHeader('todocat-back', cat.title)}
-  <div class="section-label">${cat.desc} (${done}/${total})</div>
+  ${pageHeader('todocat-back', escapeHTML(cat.title))}
+  <div class="section-label">${escapeHTML(cat.desc)} (${done}/${total})</div>
   <div class="list-group">
     ${rows || `<div class="empty-note">${ta('emptyNoItems')}</div>`}
     <div class="add-row" style="flex-wrap:wrap; row-gap:8px;">
@@ -14137,7 +14195,7 @@ function viewLuademelOption(o){
               <button type="button" data-hmodays="1" aria-label="+">${HMX_ICO.plus}</button>
             </div></section>
           <section class="hmx-sec"><label class="hmx-lbl" for="hmo-budget">${ta('labelEstimatedBudget')}</label>
-            <input class="hmx-input" type="number" min="0" inputmode="numeric" id="hmo-budget" value="${o.budget||''}" placeholder="0"></section>
+            <input class="hmx-input" type="number" min="0" inputmode="numeric" id="hmo-budget" value="${escapeHTML(o.budget||'')}" placeholder="0"></section>
         </div>
 
         <section class="hmx-sec"><label class="hmx-lbl" for="hmo-notes">${ta('labelNotesHelp')}</label>
@@ -14192,7 +14250,7 @@ function viewFornecedores(){
   ${pageHeader('fornecedores-back', ta('homeQuickSuppliers'), ta('suppliersSubtitle'), `<button class="sup-add-btn" id="add-supplier-btn">${ICONS.plus}</button>`)}
 
   <div class="search-bar" style="margin-bottom:12px; gap:8px;">
-    ${ICONS.search}<input type="text" id="sup-search" placeholder="${ta('placeholderSearchSuppliers')}" value="${supplierQuery}">
+    ${ICONS.search}<input type="text" id="sup-search" placeholder="${ta('placeholderSearchSuppliers')}" value="${escapeHTML(supplierQuery)}">
     <button class="sup-filter-toggle" id="sup-filter-toggle" title="${ta('titleFilterByCategory')}">${ICONS.filter}</button>
   </div>
 
@@ -17210,7 +17268,7 @@ function viewFornecedorDetalhe(){
 
   <div class="supd-card">
     <div class="supd-photo-wrap" id="supd-photo-btn">
-      ${photo ? `<img src="${photo}" class="supd-photo" alt="">` : `<div class="supd-photo-fallback">${ICONS.briefcase}</div>`}
+      ${photo ? `<img src="${escapeHTML(safeImgSrc(photo))}" class="supd-photo" alt="">` : `<div class="supd-photo-fallback">${ICONS.briefcase}</div>`}
       <div class="supd-photo-edit">${ICONS.camera}</div>
     </div>
     <input type="file" id="supd-photo-input" accept="image/*" style="display:none;">
@@ -17247,7 +17305,7 @@ function viewFornecedorDetalhe(){
 
   <div class="section-label">${ta('sectionPayments')}</div>
   <div class="supd-pay-card">
-    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="number" min="0" id="supd-valortotal" value="${s.valorTotal||''}" placeholder="Ex: 2500"></div>
+    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="number" min="0" id="supd-valortotal" value="${escapeHTML(s.valorTotal||'')}" placeholder="Ex: 2500"></div>
     <div class="supd-pay-top">
       <div><div class="supd-pay-paid" id="supd-paid-val">${fmtEUR(paid)}</div><div class="supd-pay-pct">${ta('lblPaidLower')}</div></div>
       <div class="supd-pay-rest"><span id="supd-rest-val">${fmtEUR(rest)}</span><br>${ta('lblToPay').toLowerCase()}</div>
@@ -17265,8 +17323,8 @@ function viewFornecedorDetalhe(){
 
   <div class="supd-field-card">
     <div class="supd-field-2col">
-      <div><label>${ta('labelNextPayment')}</label><input type="date" id="supd-nextpaydate" value="${s.nextPaymentDate||''}"></div>
-      <div><label>${ta('valueEurLabel')}</label><input type="number" min="0" id="supd-nextpayamount" value="${s.nextPaymentAmount||''}" placeholder="${ta('phValueExample600')}"></div>
+      <div><label>${ta('labelNextPayment')}</label><input type="date" id="supd-nextpaydate" value="${escapeHTML(s.nextPaymentDate||'')}"></div>
+      <div><label>${ta('valueEurLabel')}</label><input type="number" min="0" id="supd-nextpayamount" value="${escapeHTML(s.nextPaymentAmount||'')}" placeholder="${ta('phValueExample600')}"></div>
     </div>
   </div>
 
@@ -17289,7 +17347,7 @@ function viewFornecedorDetalhe(){
   <div class="supd-field-card"><label>${ta('labelWhatIsLeft')}</label><input type="text" id="supd-nextstep" value="${escapeHTML(s.nextStep||'')}" placeholder="${ta('phNextStepExample')}"></div>
 
   <div class="section-label">${ta('sectionLastContact')}</div>
-  <div class="supd-field-card"><label>${ta('labelLastContactDate')}</label><input type="date" id="supd-lastcontact" value="${s.lastContact||''}"></div>
+  <div class="supd-field-card"><label>${ta('labelLastContactDate')}</label><input type="date" id="supd-lastcontact" value="${escapeHTML(s.lastContact||'')}"></div>
 
   <div style="display:flex; gap:9px; margin:20px 16px 30px;">
     <button class="visit-action-btn danger" id="supd-delete-btn" style="flex:none; width:100%;">${ICONS.trash} ${ta('btnDeleteSupplier')}</button>
@@ -23101,19 +23159,19 @@ function viewDefCasamento(){
   ${defSubHeader(ta('defCasamentoTitle'))}
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">${ta('labelBrideName')}</div>
-    <input class="field-input big" id="def-name1" type="text" value="${s.coupleName1||''}" style="text-align:left;">
+    <input class="field-input big" id="def-name1" type="text" value="${escapeHTML(s.coupleName1||'')}" style="text-align:left;">
   </div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">${ta('labelGroomName')}</div>
-    <input class="field-input big" id="def-name2" type="text" value="${s.coupleName2||''}" style="text-align:left;">
+    <input class="field-input big" id="def-name2" type="text" value="${escapeHTML(s.coupleName2||'')}" style="text-align:left;">
   </div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">${ta('labelWeddingDate')}</div>
-    <input class="field-input big" id="def-date" type="date" value="${s.weddingDate||''}" style="text-align:left;">
+    <input class="field-input big" id="def-date" type="date" value="${escapeHTML(s.weddingDate||'')}" style="text-align:left;">
   </div>
   <div class="stat-card" style="margin:0 16px 12px;">
     <div class="l" style="margin:0 0 4px;">${ta('labelVenue')}</div>
-    <input class="field-input big" id="def-venue" type="text" value="${s.venue||''}" style="text-align:left;">
+    <input class="field-input big" id="def-venue" type="text" value="${escapeHTML(s.venue||'')}" style="text-align:left;">
   </div>
   ${defSaveBtn('def-save-casamento','def-msg-casamento')}
   `;
@@ -23134,7 +23192,7 @@ function viewDefDesign(){
   <div class="section-label">${ta('coverPhotoLabel')}</div>
   <div style="padding:0 16px 10px;">
     ${hasPhoto ? `
-    <div class="crop-viewport" id="crop-viewport" style="background-image:url('${s.heroPhotoUrl}'); background-position:${s.heroPhotoPosX??50}% ${s.heroPhotoPosY??50}%; background-size:${s.heroPhotoZoom??100}%;">
+    <div class="crop-viewport" id="crop-viewport" style="background-image:url('${cssUrl(s.heroPhotoUrl)}'); background-position:${cssNum(s.heroPhotoPosX,50)}% ${cssNum(s.heroPhotoPosY,50)}%; background-size:${cssNum(s.heroPhotoZoom,100)}%;">
       <div class="crop-hint">${ta('dragToRecenterHint')}</div>
     </div>
     <div class="crop-zoom-row">
@@ -23677,7 +23735,7 @@ function viewDefReportar(){
   const totalBytes = reportarScreenshots.reduce((s,sc)=>s+(sc.size||0),0);
   const thumbs = reportarScreenshots.map((sc,i)=>`
     <div style="position:relative; width:64px; height:64px; border-radius:10px; overflow:hidden; border:1px solid var(--line); flex-shrink:0;">
-      <img src="${sc.dataUrl}" style="width:100%; height:100%; object-fit:cover; display:block;">
+      <img src="${escapeHTML(safeImgSrc(sc.dataUrl))}" style="width:100%; height:100%; object-fit:cover; display:block;">
       <button type="button" data-reportarrm="${i}" aria-label="${ta('reportRemoveImageAlt')}" style="position:absolute; top:2px; right:2px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(30,26,23,0.72); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;">${ICONS.x}</button>
     </div>`).join('');
   return `
@@ -27327,7 +27385,7 @@ function homeDyRenderSheetPhotos(){
   const box = document.getElementById('vf-photos'); if(!box) return;
   const n = dressInspirations.length;
   box.innerHTML = `<div class="dy-sheet-ph-h"><span>${ta('inspirationPhotosLabel')}</span></div>
-    <div class="dy-sheet-strip">${dressInspirations.map(i=>`<figure><img src="${i.dataUrl}" alt=""><button type="button" class="dy-ph-rm" data-vfphrm="${i.id}" aria-label="${ta('homeDyMoodRm')}">✕</button></figure>`).join('')}${n<6?`<button type="button" class="dy-sheet-add" id="vf-photo-add">+ ${ta('homeDyMoodAdd')}<small>${ta('homeDyPhotosHint')}</small></button>`:''}</div>`;
+    <div class="dy-sheet-strip">${dressInspirations.map(i=>`<figure><img src="${escapeHTML(safeImgSrc(i.dataUrl))}" alt=""><button type="button" class="dy-ph-rm" data-vfphrm="${escapeHTML(i.id)}" aria-label="${ta('homeDyMoodRm')}">✕</button></figure>`).join('')}${n<6?`<button type="button" class="dy-sheet-add" id="vf-photo-add">+ ${ta('homeDyMoodAdd')}<small>${ta('homeDyPhotosHint')}</small></button>`:''}</div>`;
 }
 document.getElementById('vf-photos').addEventListener('click', e=>{
   const rm = e.target.closest && e.target.closest('[data-vfphrm]');
