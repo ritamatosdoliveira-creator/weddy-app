@@ -9685,7 +9685,7 @@ function invGalleryView(){
   const styles = ['todos'].concat(WeddyInvite.STYLES);
   const chips = styles.map(s=>`<button type="button" class="cb-chip" data-invfilter="${s}" aria-pressed="${invUI.filter===s?'true':'false'}">${ta('invStyle_'+s)}</button>`).join('');
   const list = WeddyInvite.TEMPLATES.filter(t=>t.w);
-  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${invCardHTML(invDemoCfg(t.id), 164)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
+  const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${/^w-(verde|editorial|bordo|beige|romantico)$/.test(t.id) ? `<div class="inv-cardw" style="width:164px;height:246px"><img src="/convites8/img/thumb-${t.id.slice(2)}.jpg" width="164" height="246" alt="" loading="lazy" style="display:block;width:164px;height:246px;object-fit:cover"></div>` : invCardHTML(invDemoCfg(t.id), 164)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
   return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
 }
 function invTplView(){
