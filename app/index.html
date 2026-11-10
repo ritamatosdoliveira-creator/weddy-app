@@ -4110,6 +4110,7 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
 <script src="/weddysite.js"></script>
 <script src="/convites8/qrcode.js"></script><script src="/weddyinvite-w.js"></script><script src="/convites8/m-romantico.js"></script><script src="/convites8/m-editorial.js"></script><script src="/convites8/m-bordo.js"></script><script src="/convites8/m-beige.js"></script><script src="/convites8/m-monograma.js"></script><script src="/convites8/m-destino.js"></script><script src="/convites8/m-relevo.js"></script><script src="/weddyinvite.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4378,6 +4379,8 @@ const FIREBASE_READY = !firebaseConfig.apiKey.startsWith('COLOCA_AQUI');
 // implantada — tem de bater certo com a região usada no deploy
 // (functions-deliverable/index.js), senão a chamada falha.
 const WEDDY_FUNCTIONS_REGION = 'europe-west1';
+// Chave pública do reCAPTCHA Enterprise (Fraud Defense) para o App Check (vazia = App Check desligado).
+const WEDDY_APPCHECK_SITE_KEY = '6LcKtxkuAAAAAMHK9nevoQSebpBTvjOfrIzsG_zH';
 // Diagnóstico (Out 2026, bug Android: "timeout-sync"): guarda os últimos erros
 // de JavaScript da página e se chegou ou não o 1.º snapshot em tempo real,
 // para o ecrã de erro dizer o que falhou sem precisar de consola.
@@ -4391,6 +4394,15 @@ window.addEventListener('unhandledrejection', e=> weddyNoteError('promise: '+((e
 let auth = null, db = null, storage = null, cloudFunctions = null;
 if(FIREBASE_READY){
   firebase.initializeApp(firebaseConfig);
+  // App Check (Nov 2026) — FASE DE MEDIÇÃO: a app envia um "selo" com cada pedido
+  // ao Firebase para provar que é a Weddy. Nada é recusado nesta fase; só se
+  // mede na consola quantos pedidos trazem selo. Sem chave, não faz nada.
+  // A chave pública (site key) do reCAPTCHA Enterprise (Fraud Defense) cola-se em WEDDY_APPCHECK_SITE_KEY.
+  try{
+    if(WEDDY_APPCHECK_SITE_KEY && firebase.appCheck){
+      firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(WEDDY_APPCHECK_SITE_KEY), true);
+    }
+  }catch(e){ console.warn('Weddy: App Check não ativado:', e && e.message); }
   auth = firebase.auth();
   db = firebase.firestore();
   // Android (Out 2026, bug da Rita na app da Play Store): a verificação da
