@@ -1698,7 +1698,10 @@ html{
 .assist-msg-row.assist-msg-row-user{ flex-direction:row-reverse; }
 .assist-msg-avatar{ width:26px; height:26px; border-radius:50%; background:#F3E2DC; color:var(--rust-dark); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .assist-msg-avatar svg{ width:15px; height:15px; }
-.assist-msg{ max-width:78%; padding:10px 13px; border-radius:16px; font-size:13.5px; line-height:1.45; }
+.assist-msg-row > div:not(.assist-msg-avatar){ max-width:calc(100% - 34px); min-width:0; }
+.assist-msg-row-user > div{ max-width:86%; }
+.assist-msg{ max-width:100%; width:fit-content; box-sizing:border-box; padding:10px 13px; border-radius:16px; font-size:13.5px; line-height:1.45; overflow-wrap:anywhere; word-break:normal; }
+.assist-msg-row-user .assist-msg{ margin-left:auto; }
 .assist-msg-user{ background:var(--rust); color:#fff; border-bottom-right-radius:4px; }
 .assist-msg-bot{ background:var(--card); border:1px solid var(--line); color:var(--ink); border-bottom-left-radius:4px; }
 .assist-msg-time{ font-size:10px; color:var(--ink-soft); text-align:right; margin-top:4px; }
