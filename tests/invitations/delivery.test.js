@@ -194,5 +194,7 @@ const T1 = 'r' + 'a'.repeat(32), T2 = 'r' + 'b'.repeat(32), T3 = 'r' + 'c'.repea
   ok(blocked === 2, 'controlo de utilização: máximo 20 pedidos de envio por hora (bloqueados ' + blocked + ')');
 
   console.log(`\n${pass} OK, ${fail} FALHAS`);
+  // Dá tempo a que os rollbacks assíncronos do SDK cheguem ao emulador: sair de imediato deixava bloqueios de transação (~60 s) que faziam falhar as suites de regras seguintes.
+  await new Promise((r) => setTimeout(r, 2500));
   process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error('ERRO', e); process.exit(1); });

@@ -3887,7 +3887,7 @@ function invOpt(tpl, raw) {
   Object.keys(defs).forEach((k) => { const d = defs[k]; out[k] = d === 'b' ? !(raw[k] === false || raw[k] === 0) : (d.includes(raw[k]) ? raw[k] : d[0]); });
   return out;
 }
-function invEv(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { t: invTime(raw.t), p: invClip(raw.p, 80).trim(), a: invClip(raw.a, 120).trim() }; }
+function invEv(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { t: invTime(raw.t), p: invClip(raw.p, 80).trim(), a: invClip(raw.a, 120).trim(), n: invClip(raw.n, 40).trim() }; }
 function invSong(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { t: invClip(raw.t, 80).trim(), a: invClip(raw.a, 80).trim(), u: invUrl(raw.u) }; }
 function invHash(h) { h = invClip(h, 40).replace(/[^\p{L}\p{N}_]/gu, ''); return h ? '#' + h : ''; }
 function invPhotos(raw) { raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}; return { cover: invUrl(raw.cover), gallery: (Array.isArray(raw.gallery) ? raw.gallery : []).slice(0, 6).map(invUrl) }; }
@@ -3905,6 +3905,45 @@ function invDate(d) {
   const t = new Date(d + 'T00:00:00Z');
   return isNaN(t.getTime()) || t.toISOString().slice(0, 10) !== d ? '' : d;
 }
+// Schema por modelo (convites8/schema.js): secções válidas, essenciais (não se ocultam), com título editável e espaços de fotografia.
+// GERADO a partir do schema do cliente; tests/invitations/schema-sync.test.js garante que continuam iguais.
+const INV_SCHEMA = {"w-verde":{"ids":["capa","foto1","citacao","musica","mensagem","pais","data","contagem","locais","programa","historia","foto2","dress","presentes","rsvp","recomendacoes","criancas","obrigado","alojamento","foto3","hashtag"],"req":["capa","data","rsvp"],"tit":["contagem","programa","historia","dress","presentes","rsvp","recomendacoes","obrigado","alojamento","hashtag"],"slots":["g0","g1","g2"]},"w-romantico":{"ids":["capa","contagem","mensagem","locais","foto1","programa","foto2","historia","dress","rsvp","obrigado","hashtag"],"req":["capa","rsvp"],"tit":["contagem","programa","historia","dress","rsvp","obrigado","hashtag"],"slots":["cover","g0","g1","g2","g3"]},"w-editorial":{"ids":["capa","convite","historia","programa","contagem","foto","rsvp","dress","perguntas","locais","alojamento","hashtag","obrigado"],"req":["capa","rsvp"],"tit":["convite","historia","programa","contagem","rsvp","dress","perguntas","locais","alojamento","hashtag","obrigado"],"slots":["cover","g0","g1","g2","g3"]},"w-bordo":{"ids":["capa","citacao","foto1","musica","pais","data","foto2","rececao","programa","dress","presentes","alojamento","rsvp","obrigado","foto3"],"req":["capa","data","rsvp"],"tit":["programa","dress","presentes","alojamento","rsvp","obrigado"],"slots":["g0","g1","g2"]},"w-beige":{"ids":["capa","mensagem","foto1","locais","dress","hashtag","contagem","alojamento","presentes","rsvp","obrigado"],"req":["capa","rsvp"],"tit":["mensagem","dress","hashtag","alojamento","presentes","rsvp","obrigado"],"slots":["g0","g1"]},"w-monograma":{"ids":["capa","foto1","musica","convite","savedate","foto2","contagem","locais","presentes","dress","rsvp","foto3","obrigado"],"req":["capa","convite","savedate","rsvp"],"tit":["presentes","dress","obrigado"],"slots":["cover","g0","g1","g2","g3"]},"w-destino":{"ids":["capa","mensagem","calendario","programa","rececao","foto","presentes","dress","organizador","agradecimento","rsvp"],"req":["capa","rsvp"],"tit":["mensagem","programa","presentes","dress","organizador"],"slots":["cover","g0"]},"w-relevo":{"ids":["capa","calendario","detalhes","programa","rsvp","obrigado"],"req":["capa","rsvp"],"tit":["obrigado"],"slots":["cover","g0","g1"]}};
+const INV_SCHEMA_VERSION = 2, INV_SCHEMA_VERSIONS = [1, 2], INV_TITLE_MAX = 40;
+const isPlain = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
+// Personalização (titles, hiddenSections, photoFocus, schemaVersion): validação ESTRITA. Valores inválidos rejeitam a publicação;
+// campos desconhecidos nunca são gravados. Ausência de campos = convite antigo (comportamento anterior).
+function invExtras(tpl, raw, errors) {
+  const out = { titles: {}, hiddenSections: [], photoFocus: {}, schemaVersion: INV_SCHEMA_VERSION };
+  if (raw.schemaVersion !== undefined && !INV_SCHEMA_VERSIONS.includes(raw.schemaVersion)) errors.push('schemaVersion');
+  const sch = INV_SCHEMA[tpl];
+  const has = (k) => raw[k] !== undefined && raw[k] !== null;
+  if (!sch) { ['titles', 'hiddenSections', 'photoFocus'].forEach((k) => { if (has(k) && ((k === 'hiddenSections') ? !(Array.isArray(raw[k]) && !raw[k].length) : !(isPlain(raw[k]) && !Object.keys(raw[k]).length))) errors.push(k); }); return out; }
+  if (has('titles')) {
+    if (!isPlain(raw.titles)) errors.push('titles');
+    else Object.keys(raw.titles).forEach((id) => {
+      const v = raw.titles[id];
+      if (!Object.prototype.hasOwnProperty.call(raw.titles, id) || !sch.tit.includes(id) || typeof v !== 'string' || v.length > INV_TITLE_MAX || /[<>\u0000-\u001F]/.test(v)) { errors.push('titles.' + String(id).slice(0, 30)); return; }
+      const t = v.trim(); if (t) out.titles[id] = t;
+    });
+  }
+  if (has('hiddenSections')) {
+    if (!Array.isArray(raw.hiddenSections) || raw.hiddenSections.length > sch.ids.length) errors.push('hiddenSections');
+    else raw.hiddenSections.forEach((id) => {
+      if (typeof id !== 'string' || !sch.ids.includes(id)) errors.push('hiddenSections.unknown');
+      else if (sch.req.includes(id)) errors.push('hiddenSections.required.' + id);
+      else if (!out.hiddenSections.includes(id)) out.hiddenSections.push(id);
+    });
+  }
+  if (has('photoFocus')) {
+    if (!isPlain(raw.photoFocus)) errors.push('photoFocus');
+    else Object.keys(raw.photoFocus).forEach((slot) => {
+      const v = raw.photoFocus[slot];
+      if (!sch.slots.includes(slot) || !isPlain(v) || typeof v.x !== 'number' || typeof v.y !== 'number' || !isFinite(v.x) || !isFinite(v.y) || v.x < 0 || v.x > 100 || v.y < 0 || v.y > 100) { errors.push('photoFocus.' + String(slot).slice(0, 12)); return; }
+      out.photoFocus[slot] = { x: Math.round(v.x), y: Math.round(v.y) };
+    });
+  }
+  return out;
+}
 function invSanitize(raw) {
   raw = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
   const col = (raw.colors && typeof raw.colors === 'object') ? raw.colors : {};
@@ -3917,6 +3956,7 @@ function invSanitize(raw) {
   const sections = {};
   const sc = (raw.sections && typeof raw.sections === 'object') ? raw.sections : {};
   INV_SECTIONS.forEach((k) => { sections[k] = k === 'cover' ? true : (sc[k] !== false && sc[k] !== 0); });
+  const extras = invExtras(raw.tpl, raw, errors);
   const program = [];
   (Array.isArray(raw.program) ? raw.program : []).slice(0, 12).forEach((p) => {
     if (!p || typeof p !== 'object') return;
@@ -3932,8 +3972,9 @@ function invSanitize(raw) {
     deco: raw.deco !== false, program, sections, opt: invOpt(raw.tpl, raw.opt), cer: invEv(raw.cer), rec: invEv(raw.rec), lang: raw.lang === 'en' ? 'en' : 'pt',
     photos: invPhotos(raw.photos), quote: invClip(raw.quote, 200).trim(), song: invSong(raw.song), hash: invHash(raw.hash), giftUrl: invUrl(raw.giftUrl),
     story: invClip(raw.story, 400).trim(), parents: invClip(raw.parents, 200).trim(), hotel: invClip(raw.hotel, 120).trim(), hotelUrl: invUrl(raw.hotelUrl),
-    org: invClip(raw.org, 100).trim(), orgTel: invClip(raw.orgTel, 20).replace(/[^0-9+ ]/g, '').trim(), flowers: invClip(raw.flowers, 200).trim(),
-    dcol: (Array.isArray(raw.dcol) ? raw.dcol : String(typeof raw.dcol === 'string' ? raw.dcol : '').split(/[\s,;]+/)).slice(0, 6).map(invHex).filter(Boolean)
+    org: invClip(raw.org, 100).trim(), orgTel: invClip(raw.orgTel, 20).replace(/[^0-9+ ]/g, '').trim(), flowers: invClip(raw.flowers, 200).trim(), dressF: invClip(raw.dressF, 200).trim(), dressM: invClip(raw.dressM, 200).trim(), thanks: invClip(raw.thanks, 240).trim(),
+    dcol: (Array.isArray(raw.dcol) ? raw.dcol : String(typeof raw.dcol === 'string' ? raw.dcol : '').split(/[\s,;]+/)).slice(0, 6).map(invHex).filter(Boolean),
+    titles: extras.titles, hiddenSections: extras.hiddenSections, photoFocus: extras.photoFocus, schemaVersion: extras.schemaVersion
   };
   return { cfg, errors };
 }

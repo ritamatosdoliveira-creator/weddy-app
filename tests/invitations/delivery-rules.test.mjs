@@ -48,4 +48,5 @@ const fails=[...bad.map(r=>r.join(' ')), ...other.filter(o=>!o[1]).map(o=>'FAIL 
 res.filter(r=>!/OUTRO casamento/.test(r[1])).forEach(r=>console.log(r.join(' ')));
 other.forEach(o=>console.log((o[1]?'OK   ':'FAIL ')+o[0]));
 console.log(`\n${res.filter(r=>!/OUTRO casamento/.test(r[1])).length-bad.length+other.filter(o=>o[1]).length} OK, ${fails.length} FALHAS`);
+await new Promise(r=>setTimeout(r,2500)); // deixa fechar os streams do SDK antes de sair: sair de imediato fazia falhar a suite de regras seguinte no mesmo emulador
 process.exit(fails.length?1:0);
