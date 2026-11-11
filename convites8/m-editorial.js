@@ -35,6 +35,6 @@
      laterais simétricas e alinhadas aos cantos; contagem com os dois pontos no espaço entre blocos (não por cima dos algarismos). */
   CSS += "\n.wv-editorial .g-stripe{padding:46px 24px;background:linear-gradient(90deg,var(--ink) 0 4px,transparent 4px) left top/9px 20px round no-repeat,linear-gradient(90deg,var(--ink) 0 4px,transparent 4px) left bottom/9px 20px round no-repeat,linear-gradient(90deg,var(--ink) 0 3px,transparent 3px 6px,var(--ink) 6px 9px,transparent 9px) left 0 top 20px/12px calc(100% - 40px) no-repeat,linear-gradient(270deg,var(--ink) 0 3px,transparent 3px 6px,var(--ink) 6px 9px,transparent 9px) right 0 top 20px/12px calc(100% - 40px) no-repeat}"
    + "\n.wv-editorial .g-stripe>div{margin:-26px 0;padding:36px 10px 32px}"
-   + "\n.wv-editorial .g-count{gap:18px;justify-content:center}.wv-editorial .g-count div{min-width:0}.wv-editorial .g-count div+div::before{left:-13px}";
+   + "\n.wv-editorial .g-count{gap:24px!important;justify-content:center}.wv-editorial .g-count div{min-width:0!important;position:relative}.wv-editorial .g-count div+div::before{left:-16px!important}";
   W.registerPorted('w-editorial', { secs:["yes","story","schedule","count","photo:bw:r43:bleed","rsvp:caps","dress:old","faq","addr:photo","hotel:band","hash","thanks"], ids:["convite", "historia", "programa", "contagem", "foto", "rsvp", "dress", "perguntas", "locais", "alojamento", "hashtag", "obrigado"], css:CSS, vars:VARS, cover:cover, hero:hero, stage:null });
 })(typeof window!=='undefined' ? window : globalThis);
