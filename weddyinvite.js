@@ -88,8 +88,9 @@
       date: validDate(raw.date), time: validTime(raw.time), venue: clip(raw.venue, LIM.venue).trim(), address: clip(raw.address, LIM.address).trim(),
       mapUrl: safeUrl(clip(raw.mapUrl, LIM.mapUrl)), dress: clip(raw.dress, LIM.dress).trim(), mono: clip(raw.mono, LIM.mono).trim(),
       fontMain: fontOk(raw.fontMain) || tpl.fonts[0], fontSecond: (fontOk(raw.fontSecond)!=='Pinyon Script' && fontOk(raw.fontSecond)) || (tpl.fonts[1]==='Pinyon Script'?FONTS[1]:tpl.fonts[1]), deco: raw.deco !== false,
-      program: [], tips:clip(raw.tips, LIM.tips).trim(), kids:clip(raw.kids, LIM.kids).trim(), gifts:clip(raw.gifts, LIM.gifts).trim(), sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt', photos: sanitizePhotos(raw.photos), quote: clip(raw.quote, 200).trim(), song: sanitizeSong(raw.song), hash: sanitizeHash(raw.hash), giftUrl: safeUrl(clip(raw.giftUrl, 300)), story: clip(raw.story, 400).trim(), parents: clip(raw.parents, 200).trim(), hotel: clip(raw.hotel, 120).trim(), hotelUrl: safeUrl(clip(raw.hotelUrl, 300)) , org: clip(raw.org, 100).trim(), orgTel: clip(raw.orgTel, 20).replace(/[^0-9+ ]/g,'').trim(), flowers: clip(raw.flowers, 200).trim(), dcol: (Array.isArray(raw.dcol)?raw.dcol:String(raw.dcol||'').split(/[\s,;]+/)).slice(0,6).map(function(c){ return hex(c,''); }).filter(Boolean) };
+      program: [], tips:clip(raw.tips, LIM.tips).trim(), kids:clip(raw.kids, LIM.kids).trim(), gifts:clip(raw.gifts, LIM.gifts).trim(), sections:{}, opt:sanitizeOpt(tpl.id, raw.opt), cer:sanitizeEv(raw.cer), rec:sanitizeEv(raw.rec), lang: lang==='en'||raw.lang==='en' ? 'en' : 'pt', photos: sanitizePhotos(raw.photos), quote: clip(raw.quote, 200).trim(), song: sanitizeSong(raw.song), hash: sanitizeHash(raw.hash), giftUrl: safeUrl(clip(raw.giftUrl, 300)), story: clip(raw.story, 400).trim(), parents: clip(raw.parents, 200).trim(), hotel: clip(raw.hotel, 120).trim(), hotelUrl: safeUrl(clip(raw.hotelUrl, 300)) , org: clip(raw.org, 100).trim(), orgTel: clip(raw.orgTel, 20).replace(/[^0-9+ ]/g,'').trim(), flowers: clip(raw.flowers, 200).trim(), dressF: clip(raw.dressF, 200).trim(), dressM: clip(raw.dressM, 200).trim(), thanks: clip(raw.thanks, 240).trim(), dcol: (Array.isArray(raw.dcol)?raw.dcol:String(raw.dcol||'').split(/[\s,;]+/)).slice(0,6).map(function(c){ return hex(c,''); }).filter(Boolean) };
     (Array.isArray(raw.program)?raw.program:[]).slice(0, LIM.prog).forEach(function(p){ if(!p||typeof p!=='object') return; var t=validTime(p.t), d=clip(p.d, LIM.progD).trim(); if(d) out.program.push({ t:t, d:d, x:clip(p.x, 140).trim() }); });
+    var ex = sanitizeExtras(tpl.id, raw); out.titles = ex.titles; out.hiddenSections = ex.hiddenSections; out.photoFocus = ex.photoFocus; out.schemaVersion = SCHEMA_VERSION;
     var sc = raw.sections && typeof raw.sections==='object' ? raw.sections : {};
     SECTIONS.forEach(function(k){ out.sections[k] = (k==='cover') ? true : (sc[k] !== false && sc[k] !== 0); });
     if(raw.sections && raw.sections.dress == null) out.sections.dress = true;
@@ -295,6 +296,18 @@
     romance:[{k:'bow',t:'bool',d:true,l:{pt:'Laço de seda',en:'Silk bow'}},{k:'vellum',t:'bool',d:true,l:{pt:'Papel vegetal',en:'Vellum overlay'}}]
   };
   OPTS.colorido = OPTSB.colorido; OPTS.natural = OPTSB.natural;
+  /* Personalização por modelo (convites8/schema.js): títulos, secções ocultas e foco das fotografias.
+     Sem schema (modelos antigos) ou sem os campos (convites já publicados) o resultado é vazio = comportamento anterior. */
+  var SCHEMA_VERSION = 2, TITLE_MAX = 40;
+  function schemaFor(id){ var S = root.WeddyInviteSchema && root.WeddyInviteSchema.SCHEMA; return S && S[id] ? S[id] : null; }
+  function sanitizeExtras(tplId, raw){
+    var out = { titles:{}, hiddenSections:[], photoFocus:{} }, sch = schemaFor(tplId); if(!sch) return out;
+    var rt = raw.titles && typeof raw.titles==='object' && !Array.isArray(raw.titles) ? raw.titles : {};
+    sch.secoes.forEach(function(x){ if(!x.titulo || !Object.prototype.hasOwnProperty.call(rt, x.id)) return; var v = clip(rt[x.id], TITLE_MAX).replace(/[<>]/g,'').trim(); if(v) out.titles[x.id] = v; });
+    (Array.isArray(raw.hiddenSections) ? raw.hiddenSections : []).forEach(function(id){ var x = null; sch.secoes.forEach(function(y){ if(y.id===id) x = y; }); if(x && x.ocultavel && out.hiddenSections.indexOf(id)<0) out.hiddenSections.push(id); });
+    var rf = raw.photoFocus && typeof raw.photoFocus==='object' && !Array.isArray(raw.photoFocus) ? raw.photoFocus : {};
+    sch.fotos.forEach(function(f){ var v = rf[f.slot]; if(!v || typeof v!=='object') return; var x = Number(v.x), y = Number(v.y); if(isFinite(x) && isFinite(y)) out.photoFocus[f.slot] = { x:Math.round(Math.min(100,Math.max(0,x))), y:Math.round(Math.min(100,Math.max(0,y))) }; });
+    return out; }
   function sanitizeOpt(tplId, raw){ var out={}, defs=OPTS[tplId]||[]; raw = raw && typeof raw==='object' ? raw : {};
     defs.forEach(function(d){ var v=raw[d.k]; if(d.t==='bool') out[d.k] = (v===false||v===0) ? false : (v===true||v===1 ? true : d.d); else out[d.k] = d.v.indexOf(v)>=0 ? v : d.d; });
     return out; }
@@ -374,7 +387,7 @@
   ].join('');
   function mapLink(cfg){ if(cfg.mapUrl) return cfg.mapUrl; var q=[cfg.venue,cfg.address].filter(Boolean).join(', '); return q ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q) : ''; }
   function page(cfg, opts){
-    opts = opts || {}; var S=STR[cfg.lang], sc=cfg.sections, h=''; var W = root.WeddyInviteW, isw = !!(W && W.isW(cfg.tpl));
+    opts = opts || {}; var S=STR[cfg.lang], sc=cfg.sections, h=''; var W = root.WeddyInviteW, isw = !!(W && W.isW(cfg.tpl)); var prevMode = isw ? W.setMode(opts.mode) : null;
     var tok = /^[A-Za-z0-9_-]{8,80}$/.test(opts.token||'') ? opts.token : '';
     h += '<main class="wp wp-t-'+cfg.tpl+(cfg.fontMain==='Pinyon Script'?' wp-script':'')+'" style="'+vars(cfg)+'"><div class="wp-hero">'+(isw ? '<!--WV-HERO-->' : cardHTML(cfg))+'</div>';
     if(sc.message && (cfg.message || true)) h += '<section class="wp-sec" id="mensagem"><h2>'+esc(S.msgT)+'</h2><p class="wp-p">'+esc(cfg.message || S.defMsg)+'</p></section>'; if(isw) h += '<!--WV-PH0-->';
@@ -397,6 +410,7 @@
     }
     if(isw){ h = W.wrap(cfg.tpl, cfg, h, wParts(cfg), esc); }
     var title = (cfg.names ? cfg.names+' · ' : '') + S.invite;
+    if(isw) W.setMode(prevMode);
     return { html:h, css:CSS+PAGE_CSS+(isw ? W.pageCss(cfg.tpl) : ''), bodyStyle:vars(cfg), title:title, description: (cfg.names||'')+(cfg.date?' — '+dateLong(cfg):'') };
   }
   /* ---------- cartão em PNG (só no navegador) ---------- */
