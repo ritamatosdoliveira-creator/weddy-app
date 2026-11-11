@@ -3812,6 +3812,11 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
 @media (min-width:900px){ .inv-grid{ grid-template-columns:repeat(4,1fr); } .inv-wrap{ max-width:900px; } .inv-hero-i{ transform:none; } }
 @media (prefers-reduced-motion:reduce){ .inv-hero-i{ transform:none; } }
 .inv-tpl .inv-cardw{margin:0 auto}
+/* Nov 2026 — foco visível para quem navega por teclado (só :focus-visible: toques e cliques
+   não mostram o contorno). Os campos de texto mantêm o realce próprio. */
+:is(button, a[href], [role=button], [role=tab], summary, [tabindex]:not([tabindex="-1"]):not(input):not(textarea):not(select)):focus-visible{
+  outline:2px solid var(--rust-dark, #9A4F3D) !important; outline-offset:2px !important;
+}
 /* Nov 2026 — layout em computador (≥1024px). Várias páginas pensadas para o telemóvel ficavam
    numa coluna demasiado estreita, com metade do ecrã vazio (Bolo, Votos, Papelaria, Memories, Inspiração) ou
    esticadas a toda a largura (Google Calendar, silhuetas do vestido). Só afeta o computador:
@@ -6253,11 +6258,19 @@ function allAdultGuests(){
   });
   return out;
 }
+// Ordem do programa do dia: o que acontece depois da meia-noite (antes das 06:00,
+// ex.: ceia à 01:30) vem no fim, a seguir à festa — não antes da cerimónia.
+function scheduleSortKey(t){
+  if(!t || !/^\d{1,2}:\d{2}$/.test(t)) return '99:99';
+  const [h,m] = t.split(':').map(Number);
+  return String(h<6 ? h+24 : h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
 function daysUntil(dateStr){
+  // Diferença em dias de calendário (meia-noite a meia-noite, hora local). Math.round evita
+  // erros de uma hora na mudança de hora; "+0" evita mostrar "-0".
   const target = new Date(dateStr+'T00:00:00');
-  const now = new Date();
-  const diff = Math.ceil((target - now)/(1000*60*60*24));
-  return diff;
+  const now = new Date(); now.setHours(0,0,0,0);
+  return Math.round((target - now)/(1000*60*60*24)) + 0;
 }
 // Bloco "O acesso e a data do teu casamento" na página de venda do Premium
 // (Out 2026). Só LÊ weddingSettings.weddingDate; não grava nada, não mexe em
@@ -6747,7 +6760,10 @@ const APP_I18N = {
 
     homeSubtitle:'O seu casamento,<br>num só lugar',
     homeCountdownLabel:'Faltam',
-    daysLeftLabel:(n)=>`${n} dias`,
+    daysLeftLabel:(n)=>`${n} ${Math.abs(n)===1?'dia':'dias'}`,
+    homeTodayEyebrow:'Chegou o dia',
+    homeTodayHeading:'É hoje!',
+    homeMarriedEyebrow:'Casados há',
     homeDateTBD:'Data ainda por marcar',
     homeQuickHoneymoon:'Lua-de-mel',
     homeQuickSuppliers:'Fornecedores',
@@ -8129,7 +8145,10 @@ const APP_I18N = {
 
     homeSubtitle:'Your wedding,<br>all in one place',
     homeCountdownLabel:'Countdown',
-    daysLeftLabel:(n)=>`${n} days`,
+    daysLeftLabel:(n)=>`${n} ${Math.abs(n)===1?'day':'days'}`,
+    homeTodayEyebrow:'The day is here',
+    homeTodayHeading:"It's today!",
+    homeMarriedEyebrow:'Married for',
     homeDateTBD:'Date not set yet',
     homeQuickHoneymoon:'Honeymoon',
     homeQuickSuppliers:'Suppliers',
@@ -10433,6 +10452,19 @@ function cbField(path, label, val, opts){
   opts = opts||{};
   return `<label class="cb-f${opts.full?' full':''}"><span>${escapeHTML(label)}</span><input class="cb-in" type="${opts.type||'text'}" ${opts.inputmode?`inputmode="${opts.inputmode}"`:''} data-cdtext="${path}" value="${escapeHTML(String(val==null?'':val))}" ${opts.ph?`placeholder="${escapeHTML(opts.ph)}"`:''}></label>`;
 }
+// Limite máximo das medidas do bolo (0 = campo não numérico).
+function cbNumLimit(path){
+  if(!/^cake\./.test(path||'')) return 0;
+  if(/\.portions$/.test(path)) return 2000;
+  if(/\.(cm|length|width|height|side)$/.test(path)) return 300;
+  return 0;
+}
+function cbCleanNum(v){
+  let s = String(v==null?'':v).replace(/[^0-9.,]/g,'');
+  const i = s.search(/[.,]/);
+  if(i>=0) s = s.slice(0,i+1) + s.slice(i+1).replace(/[.,]/g,'').slice(0,1);
+  return s;
+}
 function cbPill(path, val, suffix, label){
   return `<label class="cb-pill"><input type="text" inputmode="decimal" data-cdtext="${path}" value="${escapeHTML(String(val==null?'':val))}" aria-label="${escapeHTML(label)}">${escapeHTML(suffix)}</label>`;
 }
@@ -10983,13 +11015,24 @@ Object.assign(APP_I18N.en, {
   document.addEventListener('input', e=>{
     const t = e.target; if(!t || !t.getAttribute) return;
     const path = t.getAttribute('data-cdtext');
-    if(path){ setDeep(path, t.value); return; }
+    if(path){
+      // Medidas do bolo: só números positivos (sem sinal, sem letras), no máx. 1 casa decimal.
+      if(cbNumLimit(path)){ const v = cbCleanNum(t.value); if(v!==t.value) t.value = v; }
+      setDeep(path, t.value); return;
+    }
     const df = t.getAttribute('data-cbdraft');
     if(df && cbDraft) cbDraft[df] = t.value;
   });
   document.addEventListener('change', e=>{
     const t = e.target; if(!t || !t.getAttribute) return;
-    if(t.getAttribute('data-cdtext')) pushRemote(true);
+    const path = t.getAttribute('data-cdtext');
+    if(path && cbNumLimit(path)){
+      // Ao sair do campo: 0 fica vazio e valores absurdos ficam no máximo plausível.
+      const max = cbNumLimit(path); let n = parseFloat(cbCleanNum(t.value).replace(',','.'));
+      const v = !(n>0) ? '' : String(Math.min(n, max)).replace('.', ',');
+      if(v!==t.value){ t.value = v; setDeep(path, v); }
+    }
+    if(path) pushRemote(true);
   });
   document.addEventListener('toggle', e=>{
     const d = e.target; if(d && d.getAttribute && d.getAttribute('data-cbopen')) cbOpen[d.getAttribute('data-cbopen')] = !!d.open;
@@ -11725,7 +11768,7 @@ function viewInicio(){
   const hasDate = !!weddingSettings.weddingDate;
   const days = hasDate ? daysUntil(weddingSettings.weddingDate) : null;
   const venue = escapeHTML(weddingSettings.venue || ta('genericVenueTBD'));
-  const events = (state.daySchedule||[]).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  const events = (state.daySchedule||[]).slice().sort((a,b)=>scheduleSortKey(a.time).localeCompare(scheduleSortKey(b.time)));
   const eventsHTML = events.length ? `
     <div class="timeline-card">
       <div class="timeline-scroll">
@@ -11772,8 +11815,8 @@ function viewInicio(){
       <div class="hero-date-row">${formatDatePT(weddingSettings.weddingDate)}</div>
       <div class="hero-thin-divider"></div>
       <div class="hero-thin-divider"></div>
-      <div class="hero-eyebrow">${hasDate ? ta('homeCountdownLabel') : ''}</div>
-      <div class="hero-heading" style="${hasDate?'':'font-size:26px;'}">${hasDate ? ta('daysLeftLabel')(days) : ta('homeDateTBD')}</div>
+      <div class="hero-eyebrow">${!hasDate ? '' : days>0 ? ta('homeCountdownLabel') : days===0 ? ta('homeTodayEyebrow') : ta('homeMarriedEyebrow')}</div>
+      <div class="hero-heading" style="${hasDate?'':'font-size:26px;'}">${!hasDate ? ta('homeDateTBD') : days===0 ? ta('homeTodayHeading') : ta('daysLeftLabel')(Math.abs(days))}</div>
       <div class="hero-venue">${venue}</div>
     </div>
   </div>
@@ -12283,12 +12326,13 @@ function gxSummaryHTML(){
 }
 function invPass(n){ return guestInvFilter==='all' || invStatusOf(n)===guestInvFilter; }
 function gxSearchResultsHTML(){
-  const q = guestFilter.toLowerCase();
+  // Pesquisa sem acentos nem maiúsculas: "joao" encontra "João".
+  const q = normalizeSearchText(guestFilter.trim());
   let any = false;
   const out = allGuestCategoriesOf(guestSeg).map(c=>{
     const nameOf = n => (typeof n==='string') ? n : (n.name||'');
     const items = getGuestNames(guestSeg, c.id) || [];
-    const rows = items.map((n,idx)=> (nameOf(n).toLowerCase().includes(q) && invPass(n)) ? gxRowHTML(guestSeg, c.id, n, idx, false) : '').join('');
+    const rows = items.map((n,idx)=> (normalizeSearchText(nameOf(n)).includes(q) && invPass(n)) ? gxRowHTML(guestSeg, c.id, n, idx, false) : '').join('');
     if(!rows) return '';
     any = true;
     return `<section class="gx-res"><h3 class="gx-res-h">${escapeHTML(gxCatLabel(c))}</h3><div class="gx-list" data-draglist="${guestSeg}|${c.id}">${rows}</div></section>`;
@@ -12299,10 +12343,10 @@ function gxDetailBodyHTML(side, catKey){
   const c = allGuestCategoriesOf(side).find(x=>x.id===catKey);
   const label = c ? gxCatLabel(c) : catKey;
   const st = gxCatStats(side, catKey);
-  const q = guestFilter.toLowerCase();
+  const q = normalizeSearchText(guestFilter.trim());
   const nameOf = n => (typeof n==='string') ? n : (n.name||'');
   const canDrag = !guestFilter && guestInvFilter==='all';
-  const rows = st.items.map((n,idx)=> ((!q || nameOf(n).toLowerCase().includes(q)) && invPass(n)) ? gxRowHTML(side, catKey, n, idx, canDrag) : '').join('');
+  const rows = st.items.map((n,idx)=> ((!q || normalizeSearchText(nameOf(n)).includes(q)) && invPass(n)) ? gxRowHTML(side, catKey, n, idx, canDrag) : '').join('');
   return `
   <div class="gx-thead" aria-hidden="true"><span></span><span></span><span>${ta('gxColName')}</span><span class="gx-th-c">${ta('gxColContact')}</span><span class="gx-th-c">RSVP</span><span class="gx-th-c">${ta('gxColInvite')}</span><span></span></div>
   <div class="gx-list" data-draglist="${side}|${catKey}">
@@ -15093,7 +15137,7 @@ function viewChecklist(){
     <div class="check-progress-divider"></div>
     <div class="check-progress-icon">${ICONS.calendar}</div>
     <div class="check-progress-text">
-      <b>${daysLeft!==null ? ta('daysLeftLabel')(daysLeft) : '—'}</b>
+      <b>${daysLeft===null || daysLeft<0 ? '—' : daysLeft===0 ? ta('homeTodayHeading') : ta('daysLeftLabel')(daysLeft)}</b>
       <span>${ta('forBigDayLabel')}</span>
     </div>
   </div>
@@ -19607,7 +19651,7 @@ function buildGuestVisibleProgram(){
   return (state.daySchedule||[])
     .filter(ev=>ev.guestVisible)
     .map(ev=>({ time: ev.time||'', label: ev.label||'', place: ev.place||'' }))
-    .sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+    .sort((a,b)=>scheduleSortKey(a.time).localeCompare(scheduleSortKey(b.time)));
 }
 // Converte a lista de perguntas/respostas do Concierge para o formato de
 // texto livre editável ("P: ...\nR: ...") e vice-versa. Guarda-se sempre a
@@ -27725,6 +27769,13 @@ function closeAllSheets(){
   });
 }
 document.getElementById('sheet-backdrop').addEventListener('click', closeAllSheets);
+// Esc fecha a folha aberta (como tocar fora dela). Se houver uma confirmação por cima, essa tem prioridade.
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Escape' || !anySheetOpen()) return;
+  const conf = document.getElementById('weddy-confirm-overlay');
+  if(conf && conf.style.display && conf.style.display!=='none') return;
+  e.preventDefault(); closeAllSheets();
+});
 // iOS: ao abrir o teclado o Safari desloca a página para mostrar o campo e, ao
 // fechar o teclado, deixa essa deslocação ("espaço em branco" no fundo, cabeçalho
 // cortado). Voltamos sempre ao topo quando o teclado fecha e não há folhas abertas.

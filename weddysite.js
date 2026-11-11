@@ -716,7 +716,9 @@ function buildPublicSiteSnapshot(draft, weddingId) {
     const items = (Array.isArray(src.schedule) ? src.schedule : []).slice(0, L.scheduleMax)
       .map((e) => ({ time: siteValidTime(e && e.time) ? e.time : '', label: siteText(e && e.label, L.schedLabel), place: siteText(e && e.place, L.schedPlace) }))
       .filter((e) => e.label);
-    items.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+    // Depois da meia-noite (antes das 06:00, ex.: ceia à 01:30) fica no fim do programa.
+    const key = (t) => { if (!t) return '99:99'; const [h, m] = t.split(':').map(Number); return String(h < 6 ? h + 24 : h).padStart(2, '0') + ':' + String(m).padStart(2, '0'); };
+    items.sort((a, b) => key(a.time).localeCompare(key(b.time)));
     out.schedule = { note: siteText(sec.schedule.note, L.scheduleNote), items };
     if (!items.length) errors.push('schedule_empty');
   }
