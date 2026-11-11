@@ -49,7 +49,7 @@
   '@media (max-width:899px){',
   ' .ied-body{grid-template-columns:1fr;grid-template-rows:42% 1fr}.ied-body.view{grid-template-rows:1fr 0}.ied-body.view .ied-panel{display:none}',
   ' .ied-panel{border-right:0;border-top:1px solid #E6DCD4;border-radius:18px 18px 0 0;box-shadow:0 -8px 20px rgba(43,37,34,.08);padding-bottom:90px}',
-  ' .ied-prev{order:-1}.ied-pbar{display:none}.ied-stage{padding:8px 8px 0}',
+  ' .ied-prev{order:-1}.ied-pbar{display:none}.ied-stage{padding:8px 8px 0}.ied-body.view{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px));box-sizing:border-box}',
   ' .ied-mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:#FAF8F5;border-top:1px solid #E6DCD4;z-index:2}.ied-mbar .ied-btn{flex:1;text-align:center}',
   ' .ied-top{padding:calc(8px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 8px calc(12px + env(safe-area-inset-left,0px));gap:8px}.ied-saved{display:none}.ied-ttl b{font-size:17px}',
   '}'
@@ -223,7 +223,7 @@
   function hl(){ var d = docOf(); if(!d) return; var s = d.getElementById('ed-hl'); if(s) s.textContent = st.sec ? '[data-wsec="'+st.sec+'"]{outline:2px dashed #8a5a3c;outline-offset:-4px}' : ''; }
   function reveal(id){
     var d = docOf(); if(!d) return; var t = d.querySelector('[data-wsec="'+id+'"]');
-    if(!t && id==='capa') t = d.body; if(!t){ var s = root.WeddyInviteSchema.SCHEMA[A.draft().tpl].secoes.filter(function(x){ return x.id===id; })[0]; if(s && s.chunk) t = d.querySelector('[data-wsec="'+s.chunk+'"]'); }
+    if(!t && id==='capa'){ hl(); try{ d.defaultView.scrollTo({ top:0, behavior:'smooth' }); }catch(e){ d.defaultView.scrollTo(0,0); } return; } if(!t){ var s = root.WeddyInviteSchema.SCHEMA[A.draft().tpl].secoes.filter(function(x){ return x.id===id; })[0]; if(s && s.chunk) t = d.querySelector('[data-wsec="'+s.chunk+'"]'); }
     hl(); if(t && t.scrollIntoView) t.scrollIntoView({ block:'center', behavior:'smooth' });
   }
   function fit(){

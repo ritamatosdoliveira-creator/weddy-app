@@ -9694,7 +9694,7 @@ function invPreviewCfg(tplId){ // pré-visualização de um modelo com os dados 
   return WeddyInvite.sanitize(Object.assign(dr, { lang:invLang() }), invLang());
 }
 function invCardHTML(cfg, w){ const k = w/360; return `<div class="inv-cardw" style="width:${w}px;height:${Math.round(540*k)}px"><div style="width:360px;height:540px;transform:scale(${k});transform-origin:top left">${WeddyInvite.cardHTML(cfg)}</div></div>`; }
-function invFrame(cfg, device){ const p = WeddyInvite.page(cfg, {}); const doc = `<!doctype html><html lang="${cfg.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${p.css}</style><style>html,body{overflow-x:hidden;overflow-x:clip;max-width:100%;touch-action:pan-y pinch-zoom;overscroll-behavior-x:none}</style></head><body style="${p.bodyStyle.replace(/"/g,'&quot;')}">${p.html}</body></html>`;
+function invFrame(cfg, device, mode){ const p = WeddyInvite.page(cfg, mode ? { mode:mode } : {}); const doc = `<!doctype html><html lang="${cfg.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${p.css}</style><style>html,body{overflow-x:hidden;overflow-x:clip;max-width:100%;touch-action:pan-y pinch-zoom;overscroll-behavior-x:none}</style></head><body style="${p.bodyStyle.replace(/"/g,'&quot;')}">${p.html}</body></html>`;
   return `<div class="inv-dev inv-dev-${device}"><div class="inv-scr" data-invdw="${device==='desk'?1100:390}"><iframe class="inv-ifr" title="${escapeHTML(ta('invPreviewTitle'))}" sandbox="" srcdoc="${escapeHTML(doc)}"></iframe></div></div>`; }
 /* O convite desenha-se com a largura real de um telemóvel (390px) ou computador (1100px) e é reduzido para caber na moldura:
    assim o que se vê é o que os convidados veem (antes era desenhado em 232px e saía cortado). */
@@ -9743,12 +9743,12 @@ function invGalleryView(){
   const chips = styles.map(s=>`<button type="button" class="cb-chip" data-invfilter="${s}" aria-pressed="${invUI.filter===s?'true':'false'}">${ta('invStyle_'+s)}</button>`).join('');
   const list = WeddyInvite.TEMPLATES.filter(t=>t.w);
   const items = list.map(t=>`<button type="button" class="inv-tpl" data-invtpl="${t.id}" aria-label="${escapeHTML(invTplName(t.id))}">${/^w-(verde|editorial|bordo|beige|romantico)$/.test(t.id) ? `<div class="inv-cardw" style="width:164px;height:246px"><img src="/convites8/img/thumb-${t.id.slice(2)}.jpg" width="164" height="246" alt="" loading="lazy" style="display:block;width:164px;height:246px;object-fit:cover"></div>` : invCardHTML(invDemoCfg(t.id), 164)}<b>${invTplName(t.id)}</b><small>${escapeHTML(t.desc[invLang()])}</small></button>`).join('');
-  return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invTitle')}</h3><p class="cb-sub">${ta('invGalleryHint')}</p><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
+  return `<p class="cb-sub">${ta('invGalleryHint')}</p><div class="inv-grid">${items || `<p class="cb-sub">${ta('invNoTpl')}</p>`}</div>`;
 }
 function invTplView(){
   const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invDemoCfg(id), m = invUI.mode;
-  return `${invBack(ta('invBackGallery'),'gallery')}<div class="inv-tplv"><div class="inv-tplv-side"><h3 class="gimp-h2">${invTplName(id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p></div>
-  <div class="inv-stage">${invFrame(cfg,'phone')}</div>
+  return `<div class="inv-tplv"><div class="inv-tplv-side"><h3 class="gimp-h2">${invTplName(id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p></div>
+  <div class="inv-stage">${invFrame(cfg,'phone','demo')}</div>
   <div class="inv-tplv-act"><button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button><button type="button" class="cb-btn ghost" data-invgo="gallery">${ta('invBackToTpl')}</button></div></div>`;
 }
 function invEditView(){
@@ -10279,8 +10279,12 @@ async function invDownloadCard(){
   });
 })();
 
+function invModelsPage(){ return sdTab==='convites' && !!window.WeddyInvite && (invUI.view==='gallery' || invUI.view==='tpl'); }
 function viewPapelariaCore(){
   sdEnsure();
+  if(invModelsPage()) return `
+${pageHeader('papelaria-back', ta('invBackGallery'), '', pmBadge())}
+<div class="cb-page">${sdConvitesTab()}</div>`;
   const pg = sdProgress();
   const tabs = [['convites','sdTabInvites'],['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
   return `
@@ -10298,6 +10302,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t) return;
     if(t.closest('#papelaria-back') && sdOpen){ e.stopImmediatePropagation(); sdOpen = null; _origRender(); return; }
+    if(t.closest('#papelaria-back') && activeTab==='papelaria' && invModelsPage()){ e.stopImmediatePropagation(); invUI.view = invUI.view==='tpl' ? 'gallery' : 'home'; invUI.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const tab = t.closest('[data-sdtab]');
     if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; sdManage = false; _origRender(); return; }
     if(t.closest('[data-sdaddopen]')){ sdAdding = true; _origRender(); const i = document.getElementById('sd-new-name'); if(i) i.focus(); return; }
