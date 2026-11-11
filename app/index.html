@@ -6257,6 +6257,13 @@ function allAdultGuests(){
   });
   return out;
 }
+// Ordem do programa do dia: o que acontece depois da meia-noite (antes das 06:00,
+// ex.: ceia à 01:30) vem no fim, a seguir à festa — não antes da cerimónia.
+function scheduleSortKey(t){
+  if(!t || !/^\d{1,2}:\d{2}$/.test(t)) return '99:99';
+  const [h,m] = t.split(':').map(Number);
+  return String(h<6 ? h+24 : h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
 function daysUntil(dateStr){
   // Diferença em dias de calendário (meia-noite a meia-noite, hora local). Math.round evita
   // erros de uma hora na mudança de hora; "+0" evita mostrar "-0".
@@ -11717,7 +11724,7 @@ function viewInicio(){
   const hasDate = !!weddingSettings.weddingDate;
   const days = hasDate ? daysUntil(weddingSettings.weddingDate) : null;
   const venue = escapeHTML(weddingSettings.venue || ta('genericVenueTBD'));
-  const events = (state.daySchedule||[]).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  const events = (state.daySchedule||[]).slice().sort((a,b)=>scheduleSortKey(a.time).localeCompare(scheduleSortKey(b.time)));
   const eventsHTML = events.length ? `
     <div class="timeline-card">
       <div class="timeline-scroll">
@@ -19600,7 +19607,7 @@ function buildGuestVisibleProgram(){
   return (state.daySchedule||[])
     .filter(ev=>ev.guestVisible)
     .map(ev=>({ time: ev.time||'', label: ev.label||'', place: ev.place||'' }))
-    .sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+    .sort((a,b)=>scheduleSortKey(a.time).localeCompare(scheduleSortKey(b.time)));
 }
 // Converte a lista de perguntas/respostas do Concierge para o formato de
 // texto livre editável ("P: ...\nR: ...") e vice-versa. Guarda-se sempre a

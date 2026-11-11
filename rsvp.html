@@ -1223,7 +1223,11 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
     // Programa do dia — só os momentos que os noivos marcaram para
     // partilhar (guestProgram já vem filtrado do lado dos noivos).
     if(Array.isArray(guestData.guestProgram) && guestData.guestProgram.length){
-      document.getElementById('program-list').innerHTML = guestData.guestProgram.map(ev => `
+      // Ordena aqui também (documentos antigos podem vir pela ordem antiga): o que é depois
+      // da meia-noite (antes das 06:00, ex.: ceia à 01:30) fica no fim.
+      const progKey = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t||''); if(!m) return '99:99'; const h = Number(m[1]); return String(h<6 ? h+24 : h).padStart(2,'0')+':'+m[2]; };
+      const progSorted = guestData.guestProgram.slice().sort((a,b)=>progKey(a.time).localeCompare(progKey(b.time)));
+      document.getElementById('program-list').innerHTML = progSorted.map(ev => `
         <div class="program-item">
           <div class="program-time">${(ev.time||'').replace(/</g,'&lt;')}</div>
           <div class="program-body">
