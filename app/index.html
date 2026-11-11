@@ -4125,7 +4125,8 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
 <script src="/weddysite.js"></script>
-<script src="/convites8/qrcode.js"></script><script src="/weddyinvite-w.js"></script><script src="/convites8/m-romantico.js"></script><script src="/convites8/m-editorial.js"></script><script src="/convites8/m-bordo.js"></script><script src="/convites8/m-beige.js"></script><script src="/convites8/m-monograma.js"></script><script src="/convites8/m-destino.js"></script><script src="/convites8/m-relevo.js"></script><script src="/weddyinvite.js"></script>
+<script src="/convites8/qrcode.js"></script><script src="/weddyinvite-w.js"></script><script src="/convites8/m-romantico.js"></script><script src="/convites8/m-editorial.js"></script><script src="/convites8/m-bordo.js"></script><script src="/convites8/m-beige.js"></script><script src="/convites8/m-monograma.js"></script><script src="/convites8/m-destino.js"></script><script src="/convites8/m-relevo.js"></script><script src="/weddyinvite.js"></script><script src="/convites8/schema.js"></script>
+<script src="/app/invedit.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -9674,8 +9675,19 @@ function invFit(){
 }
 (function(){ if(window.__invFitBound) return; window.__invFitBound = true; let q = 0; const run = ()=>{ if(q) return; q = requestAnimationFrame(()=>{ q = 0; invFit(); }); };
   new MutationObserver(run).observe(document.documentElement, { childList:true, subtree:true }); window.addEventListener('resize', run); })();
-function invCanon(c){ const o = {}; ['tpl','colors','names','intro','message','date','time','venue','address','mapUrl','dress','mono','fontMain','fontSecond','deco','program','sections','opt','cer','rec','tips','kids','gifts','lang'].forEach(k=>{ o[k] = c[k]; }); const col = c.colors||{}; o.colors = { bg:col.bg, ink:col.ink, ac:col.ac, soft:col.soft }; return JSON.stringify(o); }
+function invStable(v){ if(Array.isArray(v)) return v.map(invStable); if(v && typeof v==='object'){ const o = {}; Object.keys(v).sort().forEach(k=>{ o[k] = invStable(v[k]); }); return o; } return v; }
+/* Compara rascunho e versão publicada em TODOS os campos que o convite usa: ambos passam pelo mesmo sanitize(), por isso
+   fotografias, citação, história, música, hashtag, pais, alojamento, presentes, organizador, flores, cores, títulos, secções ocultas e foco entram na comparação. */
+function invCanon(c){ try{ return JSON.stringify(invStable(WeddyInvite.sanitize(Object.assign({}, c||{}), invLang()))); }catch(e){ return JSON.stringify(invStable(c||{})); } }
 function invPending(){ const cfg = invCfg(); if(!cfg || !invRemote.publishedConfig) return false; return invCanon(invRemote.publishedConfig) !== invCanon(cfg); }
+/* Avisos (não bloqueiam): ligações que o servidor apagaria em silêncio por não serem https válidas. */
+function invWarnings(){
+  const d = invEnsure().draft, w = []; if(!d) return w;
+  const bad = (u)=>{ u = String(u||'').trim(); return !!u && !WeddyInvite.safeUrl(u); };
+  [['mapUrl',invW('Ligação do mapa','Map link')],['giftUrl',invW('Ligação de presentes','Gifts link')],['hotelUrl',invW('Ligação do alojamento','Accommodation link')]].forEach(x=>{ if(bad(d[x[0]])) w.push(x[1]+': '+invW('não é válida (tem de começar por https://) e não vai aparecer.','is not valid (it must start with https://) and will not appear.')); });
+  if(d.song && bad(d.song.u)) w.push(invW('Ligação da música: não é válida (tem de começar por https://) e não vai aparecer.','Music link: not valid (it must start with https://) and will not appear.'));
+  return w;
+}
 function invProblems(cfg){ const p = []; if(!cfg.names) p.push(ta('invErrNames')); if(!cfg.date) p.push(ta('invErrDate')); return p; }
 function invBack(label, to){ return `<button type="button" class="cb-link inv-back" data-invgo="${to}">‹ ${escapeHTML(label)}</button>`; }
 function invPremTag(){ return `<span class="inv-prem">${ICONS.crown||''}<span>Premium</span></span>`; }
@@ -9720,7 +9732,19 @@ function invPhotoSlot(slot, label, url){
   return `<div class="cb-f inv-phs"><span>${label}</span><div class="inv-phr">${ok?`<img class="inv-pht" src="${escapeHTML(url)}" alt="">`:'<span class="inv-pht empty" aria-hidden="true"></span>'}<label class="cb-add inv-phb">${invUI.phBusy===slot?'…':invW(ok?'Substituir':'Carregar fotografia', ok?'Replace':'Upload photo')}<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-invphoto="${slot}"></label>${ok?`<button type="button" class="cb-link" data-invphotodel="${slot}">${invW('Remover','Remove')}</button>`:''}</div></div>`; }
 function invPhotoGet(d, slot){ d.photos = (d.photos && typeof d.photos==='object') ? d.photos : {}; if(!Array.isArray(d.photos.gallery)) d.photos.gallery = []; return slot==='cover' ? (d.photos.cover||'') : (d.photos.gallery[+slot.slice(1)]||''); }
 function invPhotoSet(d, slot, url){ invPhotoGet(d, slot); if(slot==='cover') d.photos.cover = url; else { const k = +slot.slice(1); while(d.photos.gallery.length<=k) d.photos.gallery.push(''); d.photos.gallery[k] = url; } }
-function invPhotoDropOld(old){ try{ if(old && old.indexOf('firebasestorage.googleapis.com')>=0 && old.indexOf('/invitations%2F'+currentWeddingId)>=0) storage.refFromURL(old).delete().catch(()=>{}); }catch(e){} }
+/* Fotografias substituídas ou removidas não se apagam logo: a versão publicada ainda pode usá-las.
+   Ficam em state.invitation.photoTrash e só são apagadas depois de uma publicação bem-sucedida que já não as referencie. */
+function invPhotoIsOurs(u){ return !!(u && typeof u==='string' && u.indexOf('firebasestorage.googleapis.com')>=0 && u.indexOf('/invitations%2F'+currentWeddingId)>=0); }
+function invPhotoDropOld(old){ if(!invPhotoIsOurs(old)) return; const v = invEnsure(); if(!Array.isArray(v.photoTrash)) v.photoTrash = []; if(v.photoTrash.indexOf(old)<0) v.photoTrash.push(old); }
+function invPhotoUrls(c){ const p = (c && c.photos) || {}; return [p.cover].concat(Array.isArray(p.gallery)?p.gallery:[]).filter(Boolean); }
+function invPhotoClean(pubCfg){
+  try{ const v = invEnsure(); if(!Array.isArray(v.photoTrash) || !v.photoTrash.length) return;
+    const keep = new Set(invPhotoUrls(pubCfg).concat(invPhotoUrls(v.draft)));
+    const rest = [];
+    v.photoTrash.forEach(u=>{ if(keep.has(u)) return; try{ storage.refFromURL(u).delete().catch(()=>{}); }catch(e){} });
+    v.photoTrash = rest;
+  }catch(e){}
+}
 async function invUploadPhoto(slot, file){
   if(!file || !/^(cover|g[0-3])$/.test(slot)) return;
   if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ weddyAlert(invW('Usa uma fotografia JPG, PNG ou WebP.','Use a JPG, PNG or WebP photo.')); return; }
@@ -9767,13 +9791,33 @@ function invSectionView(){
   const ttl = { text:'invSecText', info:'invSecInfo', style:'invSecStyle', content:'invSecContent' }[s];
   return `${invBack(ta('invEditTitle'),'edit')}<h3 class="gimp-h2">${ta(ttl)}</h3>${body}<button type="button" class="cb-btn" data-invgo="edit">${ta('invSave')}</button>`;
 }
+/* Editor visual (Fase 2): página própria com o convite sempre visível. Só para os modelos Weddy (w-*); escreve no rascunho (state.invitation.draft), nunca publica sozinho. */
+function invOpenEditor(sec){
+  const d0 = invEnsure().draft;
+  if(!d0 || !invIsW(d0.tpl) || !window.WeddyInvEditor || !window.WeddyInviteSchema || !window.WeddyInviteSchema.SCHEMA[d0.tpl]) return false;
+  WeddyInvEditor.open({
+    lang: invLang(),
+    draft: ()=> invEnsure().draft,
+    cfg: ()=> invCfg(),
+    save: ()=>{ pushRemote(false); },
+    problems: (c)=> invProblems(c),
+    warnings: ()=> invWarnings(),
+    status: ()=> ({ published: invRemote.status==='published', pending: invRemote.status==='published' && invPending() }),
+    publish: ()=>{ invUI.view = 'ready'; invUI.msg = ''; _origRender(); },
+    close: ()=>{ invUI.view = 'home'; invUI.msg = ''; _origRender(); },
+    openPublished: ()=>{ if(invRemote.url) window.open(invRemote.url, '_blank', 'noopener'); },
+    removePhoto: (slot)=>{ const d = invEnsure().draft; if(!d) return; const old = invPhotoGet(d, slot); invPhotoSet(d, slot, ''); invPhotoDropOld(old); pushRemote(false); },
+    uploadPhoto: async (slot, file)=>{ await invUploadPhoto(slot, file); pushRemote(false); }
+  }, sec||'');
+  return true;
+}
 function invPrevView(){
   const c = invCfg(); if(!c) return invHomeView(); const pr = invProblems(c);
   return `${invBack(ta('invEditTitle'),'edit')}<h3 class="gimp-h2">${ta('invPreview')}</h3>
   
   ${true ? `<div class="cb-tabs inv-seg2"><button type="button" class="cb-tab" data-invdev="phone" aria-selected="${invUI.device==='phone'}">${ta('invPhone')}</button><button type="button" class="cb-tab" data-invdev="desk" aria-selected="${invUI.device==='desk'}">${ta('invDesk')}</button></div>` : ''}
   <div class="inv-stage">${invFrame(c, invUI.device)}</div>
-  ${pr.length ? `<p class="gimp-err" role="alert">${pr.map(escapeHTML).join(' ')}</p>` : ''}
+  ${pr.length ? `<p class="gimp-err" role="alert">${pr.map(escapeHTML).join(' ')}</p>` : ''}${invWarnings().length ? `<p class="cb-sub inv-warn" role="status">${invWarnings().map(escapeHTML).join(' ')}</p>` : ''}
   <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="edit">${ta('invEdit')}</button><button type="button" class="cb-btn" data-invgo="ready" ${pr.length?'disabled':''}>${ta('invPublish')}</button></div>`;
 }
 function invShareBlock(){
@@ -10116,7 +10160,7 @@ async function invPublish(){
     const dr = Object.assign({}, invEnsure().draft, { lang:invLang(), colors:cfg.colors });
     const r = await invCall('publishInvitation', { draft:Object.assign({}, cfg, { colors:cfg.colors }) });
     invRemote = { loaded:true, loading:false, status:'published', slug:r.slug, url:r.url, publishedConfig:cfg, publishedAt:Date.now(), error:'' };
-    invUI.msg = ''; invUI.view = 'done'; invDist.loaded = false;
+    invPhotoClean(cfg); invUI.msg = ''; invUI.view = 'done'; invDist.loaded = false;
   }catch(e){ invUI.msg = invErrMsg(e); }
   invUI.busy = ''; _origRender();
 }
@@ -10136,14 +10180,14 @@ async function invDownloadCard(){
   if(window.__invBound) return; window.__invBound = true;
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t || activeTab!=='papelaria' || sdTab!=='convites') return;
-    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } if(invUI.view==='edit' && invOpenEditor()) return; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const df = t.closest('[data-invdf]'); if(df){ invDist.filter = df.dataset.invdf; _origRender(); return; }
     const on1 = t.closest('[data-invone]'); if(on1){ invDist.sel = {}; invDist.sel[on1.dataset.invone] = true; invDist.one = on1.dataset.invone; invUI.view = 'one'; invUI.msg = ''; _origRender(); return; }
     const f = t.closest('[data-invfilter]'); if(f){ invUI.filter = f.dataset.invfilter; _origRender(); return; }
     const tp = t.closest('[data-invtpl]'); if(tp){ invUI.tpl = tp.dataset.invtpl; invUI.view = 'tpl'; invUI.mode = 'page'; _origRender(); return; }
     const md = t.closest('[data-invmode]'); if(md){ invUI.mode = md.dataset.invmode; _origRender(); return; }
     const dv = t.closest('[data-invdev]'); if(dv){ invUI.device = dv.dataset.invdev; _origRender(); return; }
-    const ch = t.closest('[data-invchoose]'); if(ch){ const v = invEnsure(); const id = ch.dataset.invchoose; if(!v.draft) v.draft = invDefaultDraft(id); else { v.draft.tpl = id; const T = WeddyInvite.tpl(id); if(!T.palettes.some(p=>p.id===v.draft.palette) && !(v.draft.palette==='custom' && invCustomPal())) v.draft.palette = T.palettes[0].id; } invUI.view = 'edit'; render(); return; }
+    const ch = t.closest('[data-invchoose]'); if(ch){ const v = invEnsure(); const id = ch.dataset.invchoose; if(!v.draft) v.draft = invDefaultDraft(id); else { v.draft.tpl = id; const T = WeddyInvite.tpl(id); if(!T.palettes.some(p=>p.id===v.draft.palette) && !(v.draft.palette==='custom' && invCustomPal())) v.draft.palette = T.palettes[0].id; } invUI.view = 'edit'; if(invOpenEditor()) return; render(); return; }
     const phd = t.closest('[data-invphotodel]'); if(phd){ const d = invEnsure().draft; if(d){ const old = invPhotoGet(d, phd.dataset.invphotodel); invPhotoSet(d, phd.dataset.invphotodel, ''); invPhotoDropOld(old); render(); } return; }
     const sc = t.closest('[data-invsec]'); if(sc){ invUI.sec = sc.dataset.invsec; invUI.view = 'sec'; _origRender(); return; }
     const pa = t.closest('[data-invpal]'); if(pa){ const d = invEnsure().draft; if(d){ d.palette = pa.dataset.invpal; if(d.palette==='custom'){ d.pal = invCustomPal() || d.pal; } render(); } return; }
