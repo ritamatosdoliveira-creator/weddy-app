@@ -70,7 +70,7 @@
     s += '.w1v-seal{position:absolute;z-index:4;left:49.3%;top:56%;width:17%;aspect-ratio:300/284;transform:translate(-50%,-50%);background:'+url('img/m1_seal_bot.png')+' center/contain no-repeat;filter:drop-shadow(0 6px 5px rgba(0,0,0,.4));transition:transform .8s cubic-bezier(.4,0,.6,1),opacity .6s ease .15s}'+O+' .w1v-seal{transform:translate(-50%,-60%) scale(1.18);opacity:0}';
     s += '.w1v-date{z-index:4;position:absolute;left:0;right:0;top:67%;text-align:center;font:400 12px/1 var(--fp);letter-spacing:.34em;color:#e9eed0}';
     /* cartão (capa e topo da página) */
-    s += '.w1-cd{display:grid;gap:10px;justify-items:center;padding:0 18px}.w1-cd.w1-full{gap:12px;padding:0 22px;min-height:68vh;min-height:68svh;align-content:center}';
+    s += '.w1-cd{display:grid;gap:10px;justify-items:center;padding:0 18px}.w1-cd.w1-full{gap:12px;padding:64px 22px 28px;min-height:0;align-content:center}';
     s += '.w1-mo{width:64px;height:64px;border:1px solid var(--olive2);border-radius:50%;display:grid;place-items:center;font:italic 400 21px/1 var(--fp);color:#7b8560}.w1-full .w1-mo{width:78px;height:78px;font-size:25.6px}';
     s += '.w1-cap{font:500 9.5px/1.4 var(--fp);letter-spacing:.3em;text-transform:uppercase}.w1-full .w1-cap{font-size:11.6px}';
     s += '.w1-nm{font:400 48px/.92 var(--fh);overflow-wrap:anywhere}.w1-nm span{display:block;font-size:25px}.w1-full .w1-nm{font-size:58.5px}.w1-full .w1-nm span{font-size:30.5px}';
@@ -355,6 +355,11 @@
   function genCss(){
     return [
       '.g-sec{position:relative;padding:54px 28px;text-align:center;color:var(--ink)}',
+      /* Espaço de foto sem fotografia (convite público): some em vez de ficar uma caixa vazia. */
+      '[data-wslot]:not(section)[style*="background-image:none"]{display:none!important}'+
+      /* contagem com foto de fundo, sem foto: passa a secção de papel normal (antes: bloco escuro de 430px) */
+      '.g-cph[style*="background-image:none"]{min-height:0;background-color:var(--paperc)!important;background-image:var(--paperimg)!important;background-size:360px!important}.g-cph[style*="background-image:none"]::before{display:none}'+
+      '.g-cph[style*="background-image:none"] .g-cphi{color:var(--ink);padding:34px 18px}.g-cph[style*="background-image:none"] .g-cphi .g-count b{color:var(--ink)}.g-cph[style*="background-image:none"] .g-cphi .g-count small{color:var(--soft)}.g-cph[style*="background-image:none"] .g-cphi .g-count div+div{border-color:var(--rule)}.g-cph[style*="background-image:none"] .g-cphi *:not(b):not(small){color:var(--ink)!important}.g-tfc:has(.g-tfp[style*="background-image:none"]) .g-clip{display:none}',
       '.g-sec.band{--ink:var(--bandfg);--soft:var(--bandsoft);--rule:var(--bandrule);--hit:var(--bandfg);--hitfg:var(--bandbg);--chipfg:var(--bandbg);--paperc:var(--bandbg);background-color:var(--bandbg);background-image:var(--bandimg);background-size:360px;color:var(--bandfg)}',
       '.g-eyebrow{font:400 10.5px/1.4 var(--f-ui);letter-spacing:.32em;text-transform:uppercase;color:var(--soft)}',
       '.g-sec h3{margin:10px 0 0;font:var(--h3);color:var(--ink);text-wrap:balance}.g-sec p{margin:12px auto 0;max-width:30ch;font:var(--fp);color:var(--ink);text-wrap:pretty}',
@@ -460,7 +465,21 @@
     var out = '<div class="wv wv-'+id.slice(2)+'"><input type="checkbox" class="wv-chk" id="wv-open" aria-label="'+esc(parts.openLabel)+'">'+
       '<label for="wv-open" class="wv-stage" aria-label="'+esc(parts.openLabel)+'">'+m.cover(cfg, esc, parts)+'<div class="wv-hint">'+esc(parts.openLabel)+'</div></label>'+
       '<div class="wv-page">'+decorate(innerHtml, cfg, esc).replace('<!--WV-HERO-->', hero).replace('<!--WV-HASH-->', hashHtml(cfg, esc)).replace('<!--WV-PH0-->', gal(0)+quoteHtml(cfg, esc)+songHtml(cfg, esc)).replace('<!--WV-PH1-->', gal(1,true))+'</div></div>';
-    return out;
+    return MODE==='public' ? stripEmptyPhotos(out) : out;
+  }
+  /* Convite público sem fotografia carregada: antes ficava um retângulo castanho liso (NEUTRAL) em cada
+     espaço de foto (polaroids, capas, fundos de secção). Agora esses espaços desaparecem e a secção fica
+     com o papel/cor do modelo. Só no modo 'public' (o editor continua a mostrar «Adicione a vossa foto»). */
+  function stripEmptyPhotos(html){
+    var N = NEUTRAL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return html
+      .replace(new RegExp('<div class="g-pola">\\s*<figure[^>]*>\\s*<img src="'+N+'"[^>]*>\\s*</figure>\\s*</div>', 'g'), '')
+      .replace(new RegExp('<figure[^>]*>\\s*<img src="'+N+'"[^>]*>(?:\\s*<(span|div) class="[^"]*">[^<]*</\\1>)?\\s*</figure>', 'g'), '')
+      .replace(new RegExp('<img src="'+N+'"[^>]*>', 'g'), '')
+      .replace(new RegExp("background-image:url\\('?"+N+"'?\\)", 'g'), 'background-image:none')
+      .replace(new RegExp("url\\('?"+N+"'?\\)", 'g'), 'none')
+      .replace(/<div class="g-polas">\s*<\/div>/g, '')
+      .replace(/<div class="[^"]*-ph\b[^"]*">\s*<\/div>/g, '');   /* molduras de foto que ficaram vazias (ex.: cartão do w-monograma) */
   }
   root.WeddyInviteW = { register:register, registerPorted:registerPorted, genInterior:genInterior, h:{ic:ic, iconFor:iconFor, url:url, U:U, O:O, BASE:BASE}, isW:isW, pageCss:pageCss, baseCss:BASE_CSS, wrap:wrap, models:MODELS, base:BASE, giftQr:giftQr, setMode:function(m){ var o = MODE; MODE = (m==='edit'||m==='demo') ? m : 'public'; return o; }, getMode:function(){ return MODE; } };
   if(typeof module!=='undefined' && module.exports) module.exports = root.WeddyInviteW;
