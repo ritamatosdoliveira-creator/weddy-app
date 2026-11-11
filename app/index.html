@@ -6787,6 +6787,7 @@ const APP_I18N = {
     sideJoint:'Conjunto',
     homeBudgetSpentLabel:'Orçamento gasto',
     homeToSpendLabel:'Por gastar',
+    homeOverBudgetLabel:'Acima do orçamento',
     homeBigDayLabel:'O grande dia',
     donutAllocatedLabel:'repartido',
     budgetOverTitle:'Orçamento ultrapassado',
@@ -8172,6 +8173,7 @@ const APP_I18N = {
     sideJoint:'Joint',
     homeBudgetSpentLabel:'Budget spent',
     homeToSpendLabel:'Left to spend',
+    homeOverBudgetLabel:'Over budget',
     homeBigDayLabel:'The big day',
     donutAllocatedLabel:'allocated',
     budgetOverTitle:'Budget exceeded',
@@ -11873,7 +11875,7 @@ function viewInicio(){
         <div class="ring-center"><span class="num">${fmtPct(spentPct)}</span><span class="sub">${fmtEUR(totalValue)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n" id="inicio-porgastar">${fmtEUR(budgetTotal-totalValue)}</div><div class="l">${ta('homeToSpendLabel')}</div></div>
+        <div><div class="n" id="inicio-porgastar">${fmtEUR(Math.abs(budgetTotal-totalValue))}</div><div class="l" id="inicio-porgastar-l">${ta(budgetTotal-totalValue<0 ? 'homeOverBudgetLabel' : 'homeToSpendLabel')}</div></div>
       </div>
     </div>
   </div>
@@ -19300,6 +19302,7 @@ let rsvpSearchQuery = '';
 let rsvpStatusFilter = 'all'; // all | yes | pending | no
 let rsvpFilterChipsOpen = false;
 let lastRSVPRefreshAt = null;
+let rsvpLastAttemptAt = Date.now();
 // Modo de agrupar convidados num único link de RSVP de família: enquanto
 // ativo, cada linha ganha uma checkbox; rsvpGroupSelection guarda as chaves
 // "side|catId|idx" dos convidados escolhidos até se criar o link.
@@ -19992,6 +19995,7 @@ function saveAndSyncWeddingSettingsToGuests(btn, fields){
 function loadRSVPResponses(){
   if(!FIREBASE_READY || !currentWeddingId) return Promise.resolve();
   rsvpLoadingResponses = true;
+  rsvpLastAttemptAt = Date.now();
   return GUESTS().where('weddingId','==',currentWeddingId).get().then(qs=>{
     const next = {};
     qs.forEach(doc=>{ next[doc.id] = doc.data(); });
@@ -23695,6 +23699,11 @@ function viewDefWeddingHealth(){
 function viewDefRSVP(){
   if(!hasActiveSubscription()) return viewDefPremiumLocked(ta('rsvpTitle'));
   if(!rsvpResponsesLoaded && !rsvpLoadingResponses) loadRSVPResponses();
+  // Respostas que chegam com a app aberta: antes os contadores ("Responderam",
+  // "Confirmados") só mudavam ao recarregar a página. Ao (re)entrar no ecrã,
+  // volta a ler se a última tentativa tiver mais de 60 s (no máximo 1 leitura/min,
+  // mesmo que a leitura falhe — nunca entra em ciclo).
+  else if(!rsvpLoadingResponses && Date.now() - rsvpLastAttemptAt > 60000){ rsvpLastAttemptAt = Date.now(); setTimeout(loadRSVPResponses, 0); }
   if(rsvpSubScreen==='deadline') return viewRSVPDeadline();
   if(rsvpSubScreen==='info') return viewRSVPInfo();
   if(rsvpSubScreen==='faq') return viewRSVPFaq();
@@ -27373,7 +27382,10 @@ function softUpdateGastos(){
   if(inicioRing) inicioRing.innerHTML = donutSVG(budgetTotal? totalValue/budgetTotal : 0, 'var(--blush-dark)', 92, 9)
     + `<div class="ring-center"><span class="num">${fmtPct(budgetTotal? Math.round(totalValue/budgetTotal*100):0)}</span><span class="sub">${fmtEUR(totalValue)}</span></div>`;
   const inicioPorGastar = document.getElementById('inicio-porgastar');
-  if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(budgetTotal-totalValue);
+  // Acima do orçamento: mostra o excesso em valor positivo com a etiqueta certa (antes: "-3020 € Por gastar").
+  if(inicioPorGastar) inicioPorGastar.textContent = fmtEUR(Math.abs(budgetTotal-totalValue));
+  const inicioPorGastarL = document.getElementById('inicio-porgastar-l');
+  if(inicioPorGastarL) inicioPorGastarL.textContent = ta(budgetTotal-totalValue<0 ? 'homeOverBudgetLabel' : 'homeToSpendLabel');
 
   pushRemote();
 }

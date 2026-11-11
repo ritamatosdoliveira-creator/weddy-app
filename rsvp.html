@@ -464,6 +464,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       chooseMealError: 'Escolhe uma refeição antes de enviar.',
       childDetailsRequired: 'Preenche o nome e a idade de cada criança antes de enviar.',
       sendError: 'Não foi possível enviar. Verifica a internet e tenta novamente.',
+      sendErrorRejected: 'Não foi possível guardar a resposta. Revê o que escreveste (textos muito longos não são aceites) e tenta novamente. Se continuar, contacta os noivos.',
       faqTitle: 'Perguntas frequentes',
       faqWhere: 'Onde é?',
       faqDress: 'Qual é o dress code?',
@@ -622,6 +623,7 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       chooseMealError: 'Choose a meal before sending.',
       childDetailsRequired: 'Fill in each child\'s name and age before sending.',
       sendError: 'Could not send. Check your connection and try again.',
+      sendErrorRejected: 'Your reply could not be saved. Check what you wrote (very long texts are not accepted) and try again. If it keeps happening, contact the couple.',
       faqTitle: 'Frequently asked questions',
       faqWhere: 'Where is it?',
       faqDress: "What's the dress code?",
@@ -1602,8 +1604,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
       document.getElementById('done-title').textContent = anyYes ? t('doneTitleYes') : (anyMaybe ? t('doneTitleMaybe') : t('doneTitleNo'));
       document.getElementById('done-sub').textContent = anyYes ? t('doneSubYes') : (anyMaybe ? t('doneSubMaybe') : t('doneSubNo'));
       show('done-state');
-    }).catch(()=>{
-      msgEl.textContent = t('sendError');
+    }).catch((err)=>{
+      // Recusa do servidor (regras/validação) não é falta de internet: mensagem própria.
+      msgEl.textContent = t(err && /permission-denied|invalid-argument|failed-precondition/.test(String(err.code||'')) ? 'sendErrorRejected' : 'sendError');
       msgEl.className = 'msg error';
     }).finally(()=>{
       btn.disabled = false;
@@ -1933,8 +1936,9 @@ h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; col
         document.getElementById('done-sub').textContent = attending ? t('doneSubYes') : t('doneSubNo');
       }
       show('done-state');
-    }).catch(()=>{
-      msgEl.textContent = t('sendError');
+    }).catch((err)=>{
+      // Recusa do servidor (regras/validação) não é falta de internet: mensagem própria.
+      msgEl.textContent = t(err && /permission-denied|invalid-argument|failed-precondition/.test(String(err.code||'')) ? 'sendErrorRejected' : 'sendError');
       msgEl.className = 'msg error';
       btn.disabled = false;
     });
