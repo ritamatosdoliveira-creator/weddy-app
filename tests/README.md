@@ -33,9 +33,18 @@ Relatórios: `tests/reports/last-run.md` e `.json`, e um `.log` completo por sui
 | `notify/` | email resumo (A.2) | Node + emulador (SMTP simulado) |
 | `backfill/` | `premiumUntil` | Node + emulador |
 | `rules/` | regras Firestore/Storage (Premium, consentimento, estado JSON/quarentena) | Node + emulador |
+| `qa/` | matriz `casos-p1p2.md`: cada caso P1/P2 do documento de casos de teste → suite que o cobre, ou porque fica manual | — |
 | `ui/` | interface (desktop 1360 px + telemóvel 390 px): notificações, preferências do email, ficha do convidado, RSVP, robustez do estado, inglês, paridade do estado, sanitização de entradas (XSS, imagens, limites, importador) | Python + Playwright |
 
 `ui/common.py` constrói em `tests/.build/` uma cópia de `app/index.html` com ganchos de teste (`window.__t`, `window.__a4`); o ficheiro real da app não é alterado. O Firebase é um Proxy sem rede e qualquer pedido que não seja `file://` do repositório é bloqueado. Capturas de ecrã vão para `tests/.build/shots/`.
+
+## Casos P1/P2 contra a app de produção
+`ui/qa_p1p2.py` usa por defeito `app/index.html` deste ramo. Para testar a app publicada:
+```
+git -C ../web show origin/main:app/index.html > /tmp/app-main.html
+WEDDY_APP_HTML=/tmp/app-main.html node run-all.js --only qa-p1p2
+```
+Cada linha do resultado começa pelo ID do caso (ex.: `CONV-15`), igual ao documento e a `qa/casos-p1p2.md`.
 
 ## Acrescentar uma suite
 1. Pôr o ficheiro na pasta do módulo (Node: sair com código ≠ 0 se falhar; Python UI: `from common import *` … `summary()`).

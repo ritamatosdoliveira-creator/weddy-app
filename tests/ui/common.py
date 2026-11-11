@@ -5,7 +5,7 @@ Tudo é relativo ao repositório: nada depende de /tmp nem de ficheiros fora de 
 - O Firebase é simulado por um Proxy (nunca há rede nem serviços de produção).
 - Qualquer pedido que não seja file:// do repositório é bloqueado.
 """
-import asyncio, re, sys, json, functools
+import asyncio, re, sys, json, functools, os
 from pathlib import Path
 from playwright.async_api import async_playwright
 
@@ -59,7 +59,8 @@ window.__s={ escapeHTML:escapeHTML, safeImgSrc:safeImgSrc, cssUrl:cssUrl, cssNum
 HOOK_EXTRA = ""
 
 def build_hooked(extra_hook=''):
-    src = (ROOT / 'app' / 'index.html').read_text(encoding='utf-8')
+    # WEDDY_APP_HTML: testar outra cópia da app (ex.: a de produção, `git show origin/main:app/index.html`).
+    src = Path(os.environ.get('WEDDY_APP_HTML') or (ROOT / 'app' / 'index.html')).read_text(encoding='utf-8')
     idx = [m.start() for m in re.finditer(r'\n\}\)\(\);', src)]
     pos = idx[-8]  # fim do IIFE principal (ver tests/README.md)
     out = BUILD / 'app_hooked.html'

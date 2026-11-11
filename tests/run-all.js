@@ -94,6 +94,7 @@ const SUITES = [
   { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
   { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
   { id: 'ui-sanitize', group: 'ui', name: 'UI sanitização de entradas (XSS, imagens, limites, importador)', cmd: py('sanitize_inputs.py') },
+  { id: 'qa-p1p2', group: 'qa', name: 'Casos funcionais P1/P2 na interface real: Início, Orçamento, Convidados, Gastos, Mesas, Checklist, To-do, Fornecedores, planeamento, Health, teclado, 390/768/1440 (ver qa/casos-p1p2.md)', cmd: py('qa_p1p2.py') },
 ];
 
 const args = process.argv.slice(2);
