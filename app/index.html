@@ -3812,6 +3812,19 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
 @media (min-width:900px){ .inv-grid{ grid-template-columns:repeat(4,1fr); } .inv-wrap{ max-width:900px; } .inv-hero-i{ transform:none; } }
 @media (prefers-reduced-motion:reduce){ .inv-hero-i{ transform:none; } }
 .inv-tpl .inv-cardw{margin:0 auto}
+/* Nov 2026 — layout em computador (≥1024px). Várias páginas pensadas para o telemóvel ficavam
+   numa coluna demasiado estreita, com metade do ecrã vazio (Bolo, Votos, Papelaria, Memories, Inspiração) ou
+   esticadas a toda a largura (Google Calendar, silhuetas do vestido). Só afeta o computador:
+   telemóvel e tablet ficam exatamente como estavam. */
+@media (min-width:1024px){
+  .cb-page{ max-width:960px; }
+  .mmx{ max-width:1100px; }
+  .insp-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; padding:8px 0 32px; }
+  .premium-upsell{ max-width:640px; margin-left:auto; margin-right:auto; }
+  .cd-sil-grid{ grid-template-columns:repeat(6,minmax(0,1fr)); max-width:880px; }
+  .hmx-note{ max-width:none; }
+  .hmx-cards:has(> .hmx-empty) + .hmx-quote{ margin:72px auto 0; text-align:center; }
+}
 </style>
 </head>
 <body>
