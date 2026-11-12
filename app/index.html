@@ -19205,6 +19205,18 @@ let googleCalendarIntegration = null; // null = ainda não carregado
 let googleCalendarLoading = false;
 let googleCalendarCalendars = null; // lista devolvida por googleCalendarListCalendars, quando a pedir para escolher calendário
 let googleCalendarCalendarsLoading = false;
+let gcalOAuthLeftAt = 0; // quando se saiu para o Google (ver repor ao voltar, abaixo)
+// Nov 2026: na app do iPhone o Google abre no Safari e a Weddy continua aberta por baixo; ao voltar
+// sem concluir, o botão ficava preso em «A ligar…» até fechar a app. Ao regressar à página, repõe-o.
+function gcalResetStuckConnect(){
+  if(!gcalOAuthLeftAt || !googleCalendarBusy) return;
+  if(Date.now() - gcalOAuthLeftAt < 1500) return; // ainda a sair para o Google
+  gcalOAuthLeftAt = 0; googleCalendarBusy = false;
+  try{ render(); }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') gcalResetStuckConnect(); });
+window.addEventListener('pageshow', e=>{ if(e.persisted) gcalResetStuckConnect(); });
+window.addEventListener('focus', gcalResetStuckConnect);
 let googleCalendarBusy = false; // true durante connect/sync/disconnect — desativa os botões para não haver duplo-clique
 let googleCalendarPrevCalId = null; // calendarId anterior, guardado ao tocar em "Alterar calendário" (para o Voltar repor a página do calendário)
 let googleCalendarActionMsg = null; // { type:'error'|'success', text } — mensagem da última ação, mostrada uma vez
@@ -27045,6 +27057,7 @@ function bindGoogleCalendarHandlers(){
       if(res.ok){
         // Sai da app a sério — o Google não pode ser aberto num iframe/SDK,
         // tem de ser uma navegação de topo (spec §32/33).
+        gcalOAuthLeftAt = Date.now();
         window.location.href = res.authorizationUrl;
       } else {
         googleCalendarBusy = false;
