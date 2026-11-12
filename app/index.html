@@ -37,9 +37,11 @@
       +'<p style="font-size:16px;line-height:1.5;margin:0 0 28px;max-width:300px;color:#5b534e">'+T.p+'</p>'
       +'<a href="'+url+'" style="display:block;width:100%;max-width:300px;box-sizing:border-box;padding:15px 20px;border-radius:99px;background:#B96752;color:#fff;font-weight:700;font-size:16px;text-decoration:none">'+T.b+'</a>'
       +'';
-    document.body.appendChild(o);
+    (document.body||document.documentElement).appendChild(o);
   }
-  if(document.body)show();else document.addEventListener('DOMContentLoaded',show);
+  /* Antes esperava pelo DOMContentLoaded (o documento inteiro, ~2,3 MB): no iPhone a página ficava em branco
+     vários segundos. O aviso é position:fixed, por isso pode entrar já no <html>, antes do <body> existir. */
+  show();
 }catch(e){}})();
 </script>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2998,6 +3000,10 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 #expense-sheet .sheet-field label{ font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:#98918A; margin-bottom:6px; line-height:1.3; }
 #expense-sheet .sheet-field input, #expense-sheet .sheet-field select{ height:46px; border-radius:8px; border-color:#EAE5E0; padding:0 12px; font-size:15px; box-sizing:border-box; min-width:0; max-width:100%; text-align:left; }
 #expense-sheet .sheet-field input:focus, #expense-sheet .sheet-field select:focus{ border-color:#B96750; }
+/* iOS Safari/WebView: input[type=date] tem largura mínima própria e invadia a coluna ao lado (Data) ou saía do ecrã
+   (Data limite). Sem o aspeto nativo, respeita a largura da grelha; o seletor de data do iOS continua a abrir. */
+#expense-sheet input[type="date"], #expense-sheet input[type="time"]{ -webkit-appearance:none; appearance:none; display:block; width:100%; min-width:0; max-width:100%; line-height:44px; background:#fff; }
+#expense-sheet input[type="date"]::-webkit-date-and-time-value{ text-align:left; margin:0; }
 @media (min-width:768px){
   .gtx{ padding:0 32px 48px; }
   .gtx-title{ font-size:52px; }
@@ -3589,7 +3595,7 @@ body.gimp-open{ overflow:hidden; }
 .lgx .login-field-icon{ left:17px; color:var(--lg-soft); }
 .lgx .login-field-toggle{ right:17px; color:var(--lg-soft); }
 .lgx .login-btn{ max-width:none; width:100%; height:46px; border-radius:24px; margin:8px 0 0; padding:0; display:flex; align-items:center; justify-content:center; background:var(--lg-brown); color:#fff; font-family:'Manrope',sans-serif; font-weight:600; font-size:14.5px; box-shadow:0 8px 20px rgba(139,82,55,.2); }
-.lgx .login-btn.lgx-alt{ background:rgba(255,253,250,.92); color:var(--lg-ink); border:1px solid var(--lg-line); box-shadow:none; gap:12px; margin-top:10px; font-weight:500; font-size:13.5px; }
+.lgx .login-btn.lgx-alt{ background:#FFFDFA; color:var(--lg-ink); border:1px solid var(--lg-line); box-shadow:none; gap:12px; margin-top:10px; font-weight:500; font-size:13.5px; }
 .lgx .login-btn.lgx-alt svg{ width:17px; height:17px; }
 .lgx-link{ margin-top:14px; font-size:12.5px; color:var(--lg-ink); text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .lgx-or{ display:flex; align-items:center; gap:14px; margin:16px 0 4px; color:var(--lg-soft); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
@@ -3600,7 +3606,8 @@ body.gimp-open{ overflow:hidden; }
 
 .lgx-foot{ margin-top:22px; padding:0 0 6px 0; width:100%; text-align:center; font-size:12.5px; color:var(--lg-soft); position:relative; z-index:1; }
 .lgx-foot u{ color:var(--lg-ink); font-weight:500; margin-left:4px; cursor:pointer; text-underline-offset:3px; }
-.lgx .login-msg{ margin:12px 0 0; }
+.lgx .login-msg{ margin:12px auto 0; text-align:center; max-width:320px; }
+.lgx .login-field input.is-invalid{ border-color:#B4533C !important; box-shadow:0 0 0 3px rgba(180,83,60,.12); }
 .lgx-consent{ display:flex; flex-direction:column; align-items:center; gap:6px; margin:4px auto 0; font-size:11.5px; color:var(--lg-soft); line-height:1.5; max-width:290px; cursor:pointer; }
 .login-lang-switch{ z-index:5; }
 @media (min-width:700px) and (min-height:560px){ .lgx-logo-l, .lgx-sprig-br{ display:none !important; } .lgx-login{ justify-content:flex-start; padding-top:calc(env(safe-area-inset-top,0px) + 190px); padding-bottom:30px; } .lgx-back{ top:150px; } .lgx-foot{ padding-right:0; } }
@@ -7790,7 +7797,7 @@ const APP_I18N = {
     cpNeedsClarification:'Falta quanto de quê? Posso ver pagamentos, orçamento, tarefas ou dias até ao casamento — diz-me qual.',
     cpContractedLabel:'contratado',
     cpInBudgetLabel:'no Budget',
-    cpSuggestPendingRSVP:(n)=>`${n} convidado${n===1?'':'s'} ainda ${n===1?'não respondeu':'não responderam'} ao RSVP.`,
+    cpSuggestPendingRSVP:(n)=>`${n} convidado${+n===1?'':'s'} ainda ${+n===1?'não respondeu':'não responderam'} ao RSVP.`,
     cpSuggestRSVPDeadlineToday:'O prazo para responder ao RSVP é hoje.',
     cpSuggestRSVPDeadlineDays:(days)=>`O prazo para responder ao RSVP é daqui a ${days} dia${days===1?'':'s'}.`,
     cpSuggestOverBudget:(x)=>`Já ultrapassaste o orçamento em ${x}.`,
@@ -9180,7 +9187,7 @@ const APP_I18N = {
     cpNeedsClarification:'How much of what is left? I can check payments, budget, tasks, or days until the wedding — tell me which.',
     cpContractedLabel:'contracted',
     cpInBudgetLabel:'in Budget',
-    cpSuggestPendingRSVP:(n)=>`${n} guest${n===1?'':'s'} ${n===1?'has':'have'} not responded to the RSVP yet.`,
+    cpSuggestPendingRSVP:(n)=>`${n} guest${+n===1?'':'s'} ${+n===1?'has':'have'} not responded to the RSVP yet.`,
     cpSuggestRSVPDeadlineToday:'The RSVP deadline is today.',
     cpSuggestRSVPDeadlineDays:(days)=>`The RSVP deadline is in ${days} day${days===1?'':'s'}.`,
     cpSuggestOverBudget:(x)=>`You've gone over budget by ${x}.`,
@@ -29801,6 +29808,8 @@ function renderLoginWelcome(){
 function renderLoginForm(msg, isError, isSuccess){
   if(lgxStage==='welcome'){ renderLoginWelcome(); return; }
   lastLoginRender = ()=>renderLoginForm(msg, isError, isSuccess);
+  // Antes, qualquer mensagem (ex.: password errada, campo vazio) redesenhava o formulário e apagava o email escrito.
+  const _keepEmail = (document.getElementById('login-email')||{}).value || '';
   const isSignup = authMode === 'signup';
   document.getElementById('login-inner').innerHTML = `
   <div class="lgx lgx-login">
@@ -29837,6 +29846,10 @@ function renderLoginForm(msg, isError, isSuccess){
   const backBtn = document.getElementById('login-back');
   if(backBtn) backBtn.addEventListener('click', ()=>{ lgxStage = 'welcome'; renderLoginForm(); });
   document.getElementById('login-send').addEventListener('click', handleAuthSubmit);
+  if(_keepEmail){ const _e = document.getElementById('login-email'); if(_e) _e.value = _keepEmail; }
+  ['login-email','login-pass','login-pass-confirm'].forEach(id=>{ const f = document.getElementById(id); if(!f) return;
+    f.addEventListener('input', ()=>{ f.classList.remove('is-invalid'); f.removeAttribute('aria-invalid');
+      const m = document.querySelector('#login-inner .login-msg.error'); if(m){ m.textContent=''; m.classList.remove('error'); } }); });
   document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
   const passConfirmEl = document.getElementById('login-pass-confirm');
   if(passConfirmEl) passConfirmEl.addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
@@ -29925,7 +29938,14 @@ function renderVerifyEmail(user){
 function handleAuthSubmit(){
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
-  if(!email || !pass){ renderLoginForm(ta('fillEmailPass'), true); return; }
+  if(!email || !pass){
+    renderLoginForm(ta('fillEmailPass'), true);
+    // Assinala o(s) campo(s) em falta e põe o cursor no primeiro (antes só aparecia o texto, sem indicação de onde).
+    const miss = [['login-email',!email],['login-pass',!pass]].filter(x=>x[1]).map(x=>document.getElementById(x[0])).filter(Boolean);
+    miss.forEach(f=>{ f.classList.add('is-invalid'); f.setAttribute('aria-invalid','true'); });
+    if(miss[0]) miss[0].focus();
+    return;
+  }
   if(authMode==='signup'){
     const passConfirm = document.getElementById('login-pass-confirm').value;
     if(pass !== passConfirm){ renderLoginForm(ta('passwordMismatch'), true); return; }
