@@ -181,11 +181,13 @@ async function revokeAppleSignIn(authorizationCode) {
 const REVIEW_SANDBOX_UIDS = ['gAC4JaBRfJPS1Z4TURluYHsPWCn2'];
 // Este não é secreto (é só um URL), por isso continua a ser defineString
 // — mas tem de corresponder EXATAMENTE ao URI autorizado configurado no
-// Google Cloud Console, ou o OAuth falha com redirect_uri_mismatch. Para
-// o projeto de testes, a Cloud Function fica sempre em
-// https://<região>-<projeto>.cloudfunctions.net/<nomeDaFunção>.
+// Google Cloud Console, ou o OAuth falha com redirect_uri_mismatch.
+// A Cloud Function fica sempre em https://<região>-<projeto>.cloudfunctions.net/<nomeDaFunção>.
+// Nov 2026: o valor por omissão era o do projeto de testes (weddy-premium-teste) e a produção
+// enviava esse endereço à Google → «Erro 400: redirect_uri_mismatch» ao ligar o Google Calendar.
+// Agora deriva do projeto onde a função corre (produção: weddy-app-bd12f).
 const GOOGLE_CALENDAR_REDIRECT_URI = defineString('GOOGLE_CALENDAR_REDIRECT_URI', {
-  default: 'https://europe-west1-weddy-premium-teste.cloudfunctions.net/googleCalendarOAuthCallback',
+  default: `https://europe-west1-${process.env.GCLOUD_PROJECT || 'weddy-app-bd12f'}.cloudfunctions.net/googleCalendarOAuthCallback`,
 });
 // Para onde o browser volta depois do OAuth (sucesso ou erro), como
 // query params — nunca com tokens. Ajusta se a app não estiver nesta
