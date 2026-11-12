@@ -3002,7 +3002,7 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 #expense-sheet .sheet-field input:focus, #expense-sheet .sheet-field select:focus{ border-color:#B96750; }
 /* iOS Safari/WebView: input[type=date] tem largura mínima própria e invadia a coluna ao lado (Data) ou saía do ecrã
    (Data limite). Sem o aspeto nativo, respeita a largura da grelha; o seletor de data do iOS continua a abrir. */
-#expense-sheet input[type="date"], #expense-sheet input[type="time"]{ -webkit-appearance:none; appearance:none; display:block; width:100%; min-width:0; max-width:100%; line-height:44px; background:#fff; }
+#expense-sheet input[type="date"], #expense-sheet input[type="time"], .sheet input[type="date"], .sheet input[type="time"]{ -webkit-appearance:none; appearance:none; display:block; width:100%; min-width:0; max-width:100%; line-height:44px; background:#fff; }
 #expense-sheet input[type="date"]::-webkit-date-and-time-value{ text-align:left; margin:0; }
 @media (min-width:768px){
   .gtx{ padding:0 32px 48px; }
@@ -11457,7 +11457,12 @@ function assignedGuestKeysSet(){
 // Confirmado ao vivo na Fase 2 (22 vs 19 convidados pendentes, para os
 // mesmos dados). Agora as duas funções chamam esta mesma regra.
 function isRsvpPending(g){
-  if(!g.entry.rsvpToken) return !isConfirmed(g.side, g.catId, g.idx);
+  // Nov 2026: quem o casal já confirmou à mão não está "por responder", mesmo
+  // que ainda não tenha aberto o link (antes contava como pendente e o
+  // Health/RSVP diziam "Confirmados 49 · Responderam 52" com um confirmado
+  // fora das respostas).
+  if(isConfirmed(g.side, g.catId, g.idx)) return false;
+  if(!g.entry.rsvpToken) return true;
   return !rsvpHasResponded(memberRSVPResponse(g));
 }
 // Urgência das respostas de RSVP (0.25 longe, 0.6 a aproximar-se, 1 perto/depois
@@ -20159,6 +20164,17 @@ function applyRSVPResponsesToState(){
     // membro do mesmo link partilhado.
     const childRefPrefix = item.entry.rsvpMemberId ? (token+'#'+item.entry.rsvpMemberId+'#') : (token+'#');
     const declared = Array.isArray(resp.children) ? resp.children : [];
+    // Nov 2026 (bug: o Luís, declarado pela Catarina no link, contava no total
+    // mas nunca em "Confirmados"): uma criança que o convidado diz que vem,
+    // numa resposta "Vou", fica confirmada — UMA vez (marca rsvpConfApplied),
+    // para o casal poder desmarcar à mão sem a sincronização a repor.
+    const confirmRsvpChild = (n)=>{
+      if(!n || !n.guestId || resp.attending!==true || n.rsvpConfApplied) return false;
+      n.rsvpConfApplied = true;
+      state.confirmed[n.guestId] = true;
+      summary.confirmedChanged++;
+      return true;
+    };
     const stillWanted = declared
       .map((c,i)=>({ name:c.name, age:c.age, attending:c.attending, ref: childRefPrefix+i }))
       .filter(c=>c.attending!==false);
@@ -20193,6 +20209,7 @@ function applyRSVPResponsesToState(){
       const existing = criancasCat.names.find(n=>n && n.rsvpChildOf===c.ref);
       if(existing){
         if(existing.name!==c.name || existing.age!==c.age){ existing.name=c.name; existing.age=c.age; changed=true; }
+        if(confirmRsvpChild(existing)) changed = true;
         return;
       }
       // Tenta adotar uma criança já existente (sem ligação a nenhum RSVP)
@@ -20203,6 +20220,7 @@ function applyRSVPResponsesToState(){
       );
       if(candidate){
         candidate.rsvpChildOf = c.ref;
+        confirmRsvpChild(candidate);
         if((candidate.age===undefined || candidate.age==='') && c.age!==undefined && c.age!==null && c.age!==''){
           candidate.age = c.age;
         }
@@ -20211,7 +20229,9 @@ function applyRSVPResponsesToState(){
       } else {
         {
           const newChildId = generateGuestId();
-          criancasCat.names.push({ id:newChildId, guestId:newChildId, name:c.name||'Criança', age:(c.age===undefined||c.age===null)?'':c.age, payingPct:0, rsvpChildOf:c.ref, rsvpCreated:true });
+          const child = { id:newChildId, guestId:newChildId, name:c.name||'Criança', age:(c.age===undefined||c.age===null)?'':c.age, payingPct:0, rsvpChildOf:c.ref, rsvpCreated:true };
+          criancasCat.names.push(child);
+          confirmRsvpChild(child);
         }
         changed = true;
         summary.childrenAdded++;
@@ -20267,10 +20287,9 @@ function saveAssistChatHistory(){
 // pronta ao abrir o Assistente pela primeira vez numa conversa.
 function getProactiveSuggestions(){
   const out = [];
-  const pendingCount = flattenAllGuestsForRSVP().filter(g=>{
-    if(!g.entry.rsvpToken) return false;
-    return !rsvpHasResponded(memberRSVPResponse(g));
-  }).length;
+  // Mesma contagem do Wedding Health e do Convites RSVP (antes só contava
+  // quem tinha link — "1 convidado ainda não respondeu" com 18 pendentes).
+  const pendingCount = flattenAllGuestsForRSVP().filter(isRsvpPending).length;
   if(pendingCount>0){
     out.push({ icon:ICONS.bell, text:ta('cpSuggestPendingRSVP')(fmtGuestCount(pendingCount)), ask:'quantos convidados já confirmaram presença' });
   }
