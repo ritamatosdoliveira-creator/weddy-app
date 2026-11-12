@@ -7395,7 +7395,7 @@ const APP_I18N = {
     privacyRightsTitle:'Direito às informações e à correção, eliminação ou bloqueio de dados pessoais',
     privacyRightsText:'Podes aceder, corrigir ou apagar a maior parte dos teus dados a qualquer momento diretamente na app (em "Segurança" e nos restantes ecrãs). Se quiseres apagar a conta e todos os dados associados por completo, bloquear o tratamento, ou tiveres qualquer outra questão sobre os teus dados, escreve para geral@weddy.pt — respondemos o mais rapidamente possível.',
     privacyPhotosTitle:'Nota sobre fotos',
-    privacyPhotosText:'As fotos que adicionares em secções como "Inspiração" ou "Dress" ficam guardadas apenas no teu telemóvel, não são enviadas para nenhum servidor — se desinstalares a app ou trocares de telemóvel, perdes essas fotos.',
+    privacyPhotosText:'As fotografias que carregues em secções como "Inspiração", "Dress", "Bolo", "Papelaria" ou "Memórias", e os documentos e contratos que guardares, ficam no Firebase Storage (Google Cloud), associados ao teu casamento — só as pessoas com acesso ao casamento os veem — e são apagados se eliminares a conta. Enquanto uma foto ainda não foi sincronizada, pode ficar temporariamente guardada no teu dispositivo.',
     privacyWhoSeesTitle:'Nota sobre quem vê os teus dados',
     privacyWhoSeesText:'Só as pessoas com o email que tu convidares (em "Convidar"), listadas em "Segurança", conseguem ver os dados do teu casamento. Podes remover o acesso de alguém a qualquer momento.',
     privacyGuestsTitle:'Nota sobre os teus convidados (Convites RSVP)',
@@ -7428,6 +7428,11 @@ const APP_I18N = {
     privacyCookiesText:'A Weddy não usa cookies nem armazenamento local para publicidade ou para te seguir noutros sites. Usamos apenas armazenamento local do teu próprio dispositivo (localStorage) para guardar preferências e conveniências — como o idioma escolhido, fotos de inspiração ainda não sincronizadas, ou teres já fechado um aviso — nunca para fins de marketing ou de perfilamento.',
     privacyMinorsTitle:'Menores',
     privacyMinorsText:'A Weddy não se destina a menores de 16 anos enquanto titulares de conta. Não recolhemos intencionalmente dados de menores para efeitos de conta própria. Dados de crianças eventualmente incluídos como convidados (por exemplo, na categoria "Crianças") são introduzidos pelo próprio casal, sob a sua responsabilidade — ver "Nota sobre os teus convidados" acima.',
+    privacyInvitesTitle:'Convites digitais (Premium)', privacyInvitesText:'Cada convite digital tem uma ligação pessoal por convidado ou família, que qualquer pessoa com essa ligação consegue abrir sem criar conta. O convite mostra apenas o que preencheres nele: nomes, data, local, programa, textos, a ligação da música que indicares e as fotografias que carregares (até 4, guardadas no Firebase Storage). Nunca mostra a lista de convidados nem as respostas de outras pessoas. Se enviares convites por email, o nome e o email do convidado e a ligação do convite são tratados pelo nosso serviço de envio de email para entregar a mensagem, e o estado do envio (aceite ou falhado) fica guardado no teu casamento; os envios por WhatsApp são sempre feitos por ti, no teu WhatsApp pessoal. Se despublicares o convite ou eliminares a conta, a ligação deixa de funcionar.',
+    privacyAiTitle:'Weddy AI: comparador de propostas (Premium)', privacyAiText:'No Weddy Compare, se carregares uma proposta de um fornecedor (PDF ou fotografia) e carregares em "Analisar com Weddy AI", o ficheiro é enviado, através de um servidor da Weddy, ao nosso fornecedor de inteligência artificial (OpenAI, Estados Unidos), que o lê para extrair preços, condições e itens da proposta. Só é enviado o ficheiro que escolheres analisar, nunca outros dados do teu casamento, e nada entra na comparação sem tu reveres e confirmares os dados. Os pedidos de lugares em texto livre no AI Seating seguem o que está descrito acima para o Assistente. Se preferires, não uses estas funcionalidades.',
+    privacyImportTitle:'Importar convidados (Excel/CSV)', privacyImportText:'O ficheiro que escolheres é lido no teu próprio dispositivo, e só os convidados que confirmares ficam guardados no teu casamento — o ficheiro em si não é enviado nem guardado por nós.',
+    privacyAbuseTitle:'Proteção contra abusos (App Check)', privacyAbuseText:'Para que só a app Weddy autêntica aceda aos nossos servidores, usamos o Firebase App Check com o reCAPTCHA Enterprise (Google) na versão web, que analisa sinais técnicos do browser (como o endereço IP e dados do dispositivo) apenas para distinguir pessoas de robôs. Não é usado para publicidade.',
+    privacyMoreSubTitle:'Outros prestadores', privacyMoreSubText:'Além dos indicados acima, a Weddy usa o Google reCAPTCHA Enterprise (proteção contra abusos), a OpenAI também para ler propostas no Weddy Compare (ver acima) e o serviço de envio de email do domínio weddy.pt para os convites enviados por email.',
     privacyConsentRecordTitle:'Registo da tua aceitação',
     privacyConsentRecordText:'Guardamos, junto dos dados do teu casamento, um registo de qual a versão dos Termos e Condições e desta Política de Privacidade que aceitaste e quando — isto permite-nos pedir-te uma nova aceitação sempre que uma alteração relevante o justifique (ver "Alterações a esta política" abaixo), e serve de prova de que aceitaste. Este registo é apagado junto com os restantes dados do teu casamento se eliminares a conta.',
     privacyChangesTitle:'Alterações a esta política',
@@ -7445,7 +7450,7 @@ const APP_I18N = {
     termsAccountTitle:'3. A tua conta',
     termsAccountText:'És responsável por manteres a password da tua conta em segurança e por tudo o que acontece através dela. O registo exige a confirmação do teu email através de um link de verificação. Podes convidar outras pessoas (por exemplo, o teu par) a aceder ao mesmo casamento, em "Segurança" — cada uma passa a ter acesso total aos dados desse casamento.',
     termsSubscriptionTitle:'4. Weddy Premium e pagamentos',
-    termsSubscriptionText:'Algumas funcionalidades fazem parte do plano Weddy Premium, com um período de acesso de 12 meses a partir da data de ativação. Os detalhes exatos — funcionalidades incluídas, duração e preço — são sempre mostrados dentro da app antes de subscreveres, e podem ser revistos ao longo do tempo, sem efeito retroativo sobre períodos já pagos. Podes cancelar a subscrição a qualquer momento em Definições — o acesso Premium mantém-se até ao fim do período já pago. O pagamento é processado pela Stripe (ver Política de Privacidade).',
+    termsSubscriptionText:'Algumas funcionalidades fazem parte do plano Weddy Premium: um pagamento único, com acesso de 12 meses a partir da data de ativação e sem renovação automática. O preço e as funcionalidades incluídas são sempre mostrados dentro da app antes de pagares e podem ser revistos ao longo do tempo, sem efeito retroativo sobre períodos já pagos. O pagamento é processado pela Apple (app iPhone/iPad) ou pela Stripe (versão web) — ver Política de Privacidade; os reembolsos de compras feitas na App Store são tratados pela Apple. Quando o acesso Premium termina, as funcionalidades Premium ficam bloqueadas, mas os dados que já introduziste mantêm-se.',
     termsWithdrawalTitle:'5. Direito de livre resolução',
     termsWithdrawalText:'Enquanto consumidor, tens um prazo de 14 dias para resolver a compra sem indicar motivo (Decreto-Lei n.º 24/2014). Como o acesso Premium é ativado de imediato, ao concluíres a compra vais poder pedir esse acesso imediato — sendo um conteúdo digital fornecido de imediato com o teu consentimento expresso, isso faz cessar o direito de livre resolução assim que o acesso for ativado, tal como a lei prevê.',
     termsContentTitle:'6. O teu conteúdo',
@@ -7454,8 +7459,8 @@ const APP_I18N = {
     termsIPText:'A aplicação Weddy — o seu código, design, estrutura e o nome "Weddy" — são propriedade da Weddy e não podem ser copiados, descompilados ou reutilizados sem autorização escrita. Isto não afeta em nada os teus próprios dados (ponto 6), que continuam a ser sempre teus.',
     termsSuppliersTitle:'8. Fornecedores recomendados',
     termsSuppliersText:'Alguns ecrãs da Weddy mostram uma lista de fornecedores recomendados, com carácter meramente informativo. A Weddy não é parte em nenhum contrato, orçamento ou reserva que faças com esses fornecedores, não garante os seus serviços, preços ou disponibilidade, e qualquer questão sobre um serviço contratado deve ser resolvida diretamente com o próprio fornecedor.',
-    termsGuestsTitle:'9. Convidados e RSVP',
-    termsGuestsText:'Quando convidas alguém através de um link de RSVP, és tu quem decide que informação pedir e como a usar — a Weddy trata esses dados só a teu pedido, nunca por conta própria (ver "Nota sobre os teus convidados" na Política de Privacidade). É tua responsabilidade informar os teus convidados sobre o que partilham contigo através da app.',
+    termsGuestsTitle:'9. Convidados, convites digitais e site',
+    termsGuestsText:'Quando convidas alguém através de um link de RSVP, de um convite digital ou do site do casamento, és tu quem decide que informação pedir, o que publicar e como a usar — a Weddy trata esses dados só a teu pedido, nunca por conta própria (ver as notas sobre convidados, convites digitais e site na Política de Privacidade). É tua responsabilidade informar os teus convidados sobre o que partilham contigo através da app, ter o direito de usar os textos, fotografias e músicas que publicares e ter a autorização das pessoas que aparecem nas fotografias. Podemos remover conteúdo ilícito ou que viole direitos de terceiros.',
     termsAcceptableUseTitle:'10. Utilização aceitável',
     termsAcceptableUseText:'Compromete-te a usar a Weddy apenas para organizar o teu próprio casamento, de forma lícita, sem tentar aceder a dados de outras contas nem perturbar o funcionamento do serviço.',
     termsAvailabilityTitle:'11. Disponibilidade e continuidade do serviço',
@@ -7463,7 +7468,7 @@ const APP_I18N = {
     termsFutureFeaturesTitle:'12. Funcionalidades futuras e versões beta',
     termsFutureFeaturesText:'Qualquer funcionalidade anunciada como "em breve", em fase experimental ou "beta" é disponibilizada sem garantias — pode ter erros, mudar significativamente ou ser descontinuada, incluindo com eliminação dos dados nela introduzidos.',
     termsLiabilityTitle:'13. Limitação de responsabilidade',
-    termsLiabilityText:'A Weddy é fornecida "tal como está". Na medida permitida por lei, não nos responsabilizamos por perdas indiretas decorrentes da utilização da app — recomendamos sempre que guardes também uma cópia externa das decisões e datas mais importantes do teu casamento (ver "Exportar dados"). Nada nestes termos afasta a responsabilidade que a lei não permite afastar, nem reduz os direitos que a lei garante aos consumidores.',
+    termsLiabilityText:'A Weddy é fornecida "tal como está". Na medida permitida por lei, não nos responsabilizamos por perdas indiretas decorrentes da utilização da app — recomendamos sempre que guardes também uma cópia externa das decisões e datas mais importantes do teu casamento (ver "Exportar dados"). Nada nestes termos afasta a responsabilidade que a lei não permite afastar, nem reduz os direitos que a lei garante aos consumidores. As leituras e sugestões da Weddy AI (por exemplo, a análise de propostas de fornecedores ou as propostas de lugares) são apenas um apoio e podem conter erros: confirma sempre os valores antes de decidires ou assinares seja o que for.',
     termsIndemnityTitle:'14. Indemnização',
     termsIndemnityText:'Obrigas-te a manter a Weddy indemne por qualquer reclamação, dano ou despesa que resulte do conteúdo que introduzas na app, da violação destes termos ou da lei, ou da violação de direitos de terceiros — por exemplo, ao carregares uma fotografia de alguém sem autorização.',
     termsTerminationTitle:'15. Cessação',
@@ -8809,7 +8814,7 @@ const APP_I18N = {
     privacyRightsTitle:'Right to information and to correction, erasure or restriction of personal data',
     privacyRightsText:'You can access, correct or delete most of your data at any time directly in the app (under "Security" and the other screens). If you want to delete your account and all associated data entirely, restrict processing, or have any other question about your data, write to geral@weddy.pt — we reply as quickly as possible.',
     privacyPhotosTitle:'Note about photos',
-    privacyPhotosText:'Photos you add in sections like "Inspiration" or "Dress" are stored only on your phone, never sent to any server — if you uninstall the app or switch phones, you lose those photos.',
+    privacyPhotosText:'Photos you upload in sections like "Inspiration", "Dress", "Cake", "Stationery" or "Memories", and the documents and contracts you save, are stored in Firebase Storage (Google Cloud), linked to your wedding — only people with access to the wedding can see them — and are deleted if you delete your account. Until a photo has synced, it may be kept temporarily on your device.',
     privacyWhoSeesTitle:'Note about who sees your data',
     privacyWhoSeesText:'Only the people whose email you\'ve invited (in "Invite"), listed in "Security", can see your wedding\'s data. You can remove someone\'s access at any time.',
     privacyGuestsTitle:'Note about your guests (RSVP invitations)',
@@ -8838,6 +8843,11 @@ const APP_I18N = {
     privacyCookiesText:'Weddy does not use cookies or local storage for advertising or to track you across other sites. We only use your own device\'s local storage (localStorage) for preferences and conveniences — such as your chosen language, inspiration photos not yet synced, or having already dismissed a notice — never for marketing or profiling purposes.',
     privacyMinorsTitle:'Minors',
     privacyMinorsText:'Weddy is not intended for account holders under 16. We do not intentionally collect data from minors for account purposes. Any children\'s data included as guests (for example, in the "Children" category) is entered by the couple themselves, under their own responsibility — see "Note about your guests" above.',
+    privacyInvitesTitle:'Digital invitations (Premium)', privacyInvitesText:'Each digital invitation has a personal link per guest or family, which anyone with that link can open without creating an account. The invitation only shows what you fill in: names, date, venue, programme, texts, the music link you provide and the photos you upload (up to 4, stored in Firebase Storage). It never shows the guest list or other people\'s answers. If you send invitations by email, the guest\'s name and email and the invitation link are handled by our email-sending service to deliver the message, and the sending status (accepted or failed) is saved in your wedding; WhatsApp sends are always made by you, from your personal WhatsApp. If you unpublish the invitation or delete your account, the link stops working.',
+    privacyAiTitle:'Weddy AI: proposal comparison (Premium)', privacyAiText:'In Weddy Compare, if you upload a supplier proposal (PDF or photo) and tap "Analyse with Weddy AI", the file is sent, through a Weddy server, to our artificial intelligence provider (OpenAI, United States), which reads it to extract prices, terms and items from the proposal. Only the file you choose to analyse is sent, never other data from your wedding, and nothing enters the comparison until you review and confirm the data. Free-text seating requests in AI Seating follow what is described above for the Assistant. If you prefer, don\'t use these features.',
+    privacyImportTitle:'Importing guests (Excel/CSV)', privacyImportText:'The file you choose is read on your own device, and only the guests you confirm are saved to your wedding — the file itself is not sent to or stored by us.',
+    privacyAbuseTitle:'Abuse protection (App Check)', privacyAbuseText:'So that only the genuine Weddy app can reach our servers, we use Firebase App Check with reCAPTCHA Enterprise (Google) on the web version, which analyses technical browser signals (such as the IP address and device data) only to tell people from bots. It is not used for advertising.',
+    privacyMoreSubTitle:'Other providers', privacyMoreSubText:'In addition to those listed above, Weddy uses Google reCAPTCHA Enterprise (abuse protection), OpenAI also to read proposals in Weddy Compare (see above) and the email-sending service of the weddy.pt domain for invitations sent by email.',
     privacyConsentRecordTitle:'Record of your acceptance',
     privacyConsentRecordText:'Alongside your wedding\'s data, we keep a record of which version of the Terms and Conditions and of this Privacy Policy you accepted, and when — this lets us ask you to accept again whenever a significant change justifies it (see "Changes to this policy" below), and serves as proof that you accepted. This record is deleted along with the rest of your wedding\'s data if you delete your account.',
     privacyChangesTitle:'Changes to this policy',
@@ -8855,7 +8865,7 @@ const APP_I18N = {
     termsAccountTitle:'3. Your account',
     termsAccountText:'You are responsible for keeping your account password secure and for everything that happens through it. Signing up requires confirming your email through a verification link. You can invite other people (for example, your partner) to access the same wedding, under "Security" — each one gets full access to that wedding\'s data.',
     termsSubscriptionTitle:'4. Weddy Premium and payments',
-    termsSubscriptionText:'Some features are part of the Weddy Premium plan, with a 12-month access period from the activation date. The exact details — features included, duration and price — are always shown inside the app before you subscribe, and may be revised over time, with no retroactive effect on periods already paid for. You can cancel your subscription at any time in Settings — Premium access stays active until the end of the period already paid for. Payment is processed by Stripe (see Privacy Policy).',
+    termsSubscriptionText:'Some features are part of the Weddy Premium plan: a one-time payment, with 12 months of access from the activation date and no automatic renewal. The price and the features included are always shown inside the app before you pay and may be revised over time, with no retroactive effect on periods already paid. Payment is processed by Apple (iPhone/iPad app) or Stripe (web version) — see the Privacy Policy; refunds for App Store purchases are handled by Apple. When Premium access ends, Premium features are locked, but the data you have already entered is kept.',
     termsWithdrawalTitle:'5. Right of withdrawal',
     termsWithdrawalText:'As a consumer, you have a 14-day period to withdraw from the purchase without giving a reason (Decree-Law no. 24/2014, Portugal). Since Premium access is activated immediately, completing the purchase will let you request that immediate access — being digital content supplied immediately with your express consent, this ends the right of withdrawal as soon as access is activated, as the law provides.',
     termsContentTitle:'6. Your content',
@@ -8864,8 +8874,8 @@ const APP_I18N = {
     termsIPText:'The Weddy app — its code, design, structure, and the name "Weddy" — belong to Weddy and may not be copied, decompiled or reused without written permission. This does not affect your own data (point 6) in any way, which always remains yours.',
     termsSuppliersTitle:'8. Recommended suppliers',
     termsSuppliersText:'Some Weddy screens show a list of recommended suppliers, for information only. Weddy is not a party to any contract, quote or booking you make with those suppliers, does not guarantee their services, prices or availability, and any question about a contracted service should be resolved directly with the supplier.',
-    termsGuestsTitle:'9. Guests and RSVP',
-    termsGuestsText:'When you invite someone through an RSVP link, you decide what information to ask for and how to use it — Weddy only processes that data at your request, never on its own (see "Note about your guests" in the Privacy Policy). It is your responsibility to inform your guests about what they share with you through the app.',
+    termsGuestsTitle:'9. Guests, digital invitations and website',
+    termsGuestsText:'When you invite someone through an RSVP link, a digital invitation or the wedding website, you decide what information to ask for, what to publish and how to use it — Weddy only processes that data at your request, never on its own initiative (see the notes on guests, digital invitations and the website in the Privacy Policy). You are responsible for telling your guests what they share with you through the app, for having the right to use the texts, photos and music you publish, and for having permission from the people who appear in the photos. We may remove content that is unlawful or infringes third-party rights.',
     termsAcceptableUseTitle:'10. Acceptable use',
     termsAcceptableUseText:'You agree to use Weddy only to organize your own wedding, lawfully, without trying to access other accounts\' data or disrupt the service.',
     termsAvailabilityTitle:'11. Service availability and continuity',
@@ -8873,7 +8883,7 @@ const APP_I18N = {
     termsFutureFeaturesTitle:'12. Future features and beta versions',
     termsFutureFeaturesText:'Any feature announced as "coming soon", experimental or "beta" is provided without guarantees — it may have bugs, change significantly, or be discontinued, including with deletion of the data entered into it.',
     termsLiabilityTitle:'13. Limitation of liability',
-    termsLiabilityText:'Weddy is provided "as is". To the extent permitted by law, we are not liable for indirect losses arising from your use of the app — we always recommend keeping an external copy of your wedding\'s most important decisions and dates too (see "Export data"). Nothing in these terms removes liability that the law does not allow to be removed, nor reduces the rights the law guarantees to consumers.',
+    termsLiabilityText:'Weddy is provided "as is". To the extent permitted by law, we are not liable for indirect losses arising from your use of the app — we always recommend keeping an external copy of your wedding\'s most important decisions and dates too (see "Export data"). Nothing in these terms removes liability that the law does not allow to be removed, nor reduces the rights the law guarantees to consumers. Weddy AI readings and suggestions (for example, the analysis of supplier proposals or seating proposals) are only a support and may contain errors: always check the figures before deciding or signing anything.',
     termsIndemnityTitle:'14. Indemnity',
     termsIndemnityText:'You agree to hold Weddy harmless from any claim, damage or expense arising from content you enter into the app, from violating these terms or the law, or from violating third parties\' rights — for example, by uploading a photo of someone without their permission.',
     termsTerminationTitle:'15. Termination',
@@ -25075,6 +25085,21 @@ function privacyBodyHtml(){
 
     <p><b>${ta('privacyMinorsTitle')}</b><br>
     ${ta('privacyMinorsText')}</p>
+
+    <p><b>${ta('privacyInvitesTitle')}</b><br>
+    ${ta('privacyInvitesText')}</p>
+
+    <p><b>${ta('privacyAiTitle')}</b><br>
+    ${ta('privacyAiText')}</p>
+
+    <p><b>${ta('privacyImportTitle')}</b><br>
+    ${ta('privacyImportText')}</p>
+
+    <p><b>${ta('privacyAbuseTitle')}</b><br>
+    ${ta('privacyAbuseText')}</p>
+
+    <p><b>${ta('privacyMoreSubTitle')}</b><br>
+    ${ta('privacyMoreSubText')}</p>
 
     <p><b>${ta('privacyConsentRecordTitle')}</b><br>
     ${ta('privacyConsentRecordText')}</p>
