@@ -3938,8 +3938,8 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
       </div>
       <input type="hidden" id="hm-theme-value" value="">
     </div>
-    <div class="sheet-field"><label data-t="labelHmPriceMin">Preço mínimo (€)</label><input type="number" min="0" id="hm-price-min" placeholder="0"></div>
-    <div class="sheet-field"><label data-t="labelHmPriceMax">Preço máximo (€)</label><input type="number" min="0" id="hm-price-max" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelHmPriceMin">Preço mínimo (€)</label><input type="number" inputmode="decimal" step="any" min="0" id="hm-price-min" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelHmPriceMax">Preço máximo (€)</label><input type="number" inputmode="decimal" step="any" min="0" id="hm-price-max" placeholder="0"></div>
     <div class="sheet-field"><label data-t="labelHmDueDate">Data limite de pagamento (opcional)</label><input type="date" id="hm-duedate"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="hm-option-cancel" data-t="btnCancel">Cancelar</button>
@@ -4054,8 +4054,8 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
     <div class="sheet-title" data-t="sheetTitleNewExpense">Novo movimento</div>
     <div class="sheet-field"><label data-t="labelExpenseDescription">Descrição</label><input type="text" id="sf-desc" data-t-placeholder="phExpenseDescExample" placeholder="Ex: Sinal do fotógrafo"></div>
     <div class="sheet-field"><label data-t="labelDateRequired">Data *</label><input type="date" id="sf-date"></div>
-    <div class="sheet-field"><label data-t="labelTotalValueRequired">Valor total (€) *</label><input type="number" min="0" id="sf-value" placeholder="0"></div>
-    <div class="sheet-field"><label data-t="labelAlreadyPaidRequired">Já pago (€) *</label><input type="number" min="0" id="sf-paid" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelTotalValueRequired">Valor total (€) *</label><input type="number" inputmode="decimal" step="any" min="0" id="sf-value" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelAlreadyPaidRequired">Já pago (€) *</label><input type="number" inputmode="decimal" step="any" min="0" id="sf-paid" placeholder="0"></div>
     <div class="sheet-field"><label data-t="labelPayByDateOptional">Data limite para pagar o resto (opcional)</label><input type="date" id="sf-duedate"></div>
     <div class="sheet-field"><label data-t="labelHmCategory">Categoria</label><select id="sf-cat"></select></div>
     <div class="sheet-field"><label data-t="labelSupplierOptional">Fornecedor (opcional)</label><select id="sf-supplier"></select></div>
@@ -12186,13 +12186,13 @@ function viewOrcamentoPlano(){
         ${c.id==='quinta' ? `
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('catPerPersonLabel')}</span>
-          <input type="number" class="field-input" data-catpp="${c.id}" min="0" inputmode="decimal" step="any" placeholder="—" aria-label="${ta('catPerPersonLabel')}" value="${catPPShown(c)}" style="max-width:110px; text-align:right; font-size:14px;">
+          <input type="number" inputmode="decimal" step="any" class="field-input" data-catpp="${c.id}" min="0" placeholder="—" aria-label="${ta('catPerPersonLabel')}" value="${catPPShown(c)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
         <div class="orcx-cat-pphint" data-catpphint="${c.id}">${guests ? ta('catPerPersonHint')(guests, fmtEUR(catTotal)) : ta('catPerPersonNote')}</div>
         ` : ''}
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('valueEurLabel')}</span>
-          <input type="number" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
+          <input type="number" inputmode="decimal" step="any" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
         <div class="orcx-cat-actions">
           <button type="button" class="orcx-act" data-renamecat="${c.id}">${ICONS.pencil} ${ta('btnRename')}</button>
@@ -12212,7 +12212,7 @@ function viewOrcamentoPlano(){
   <section class="orcx-stats">
     <div class="orcx-stat">
       <label class="orcx-lbl" for="in-total">${ta('budgetTotalLabel')}</label>
-      <div class="orcx-stat-v"><span class="orcx-cur">€</span><input class="orcx-in" id="in-total" type="number" min="0" inputmode="numeric" value="${total}"><span class="orcx-edit">${ORCX_ICO.pencil}</span></div>
+      <div class="orcx-stat-v"><span class="orcx-cur">€</span><input class="orcx-in" id="in-total" type="number" inputmode="decimal" step="any" min="0" value="${total}"><span class="orcx-edit">${ORCX_ICO.pencil}</span></div>
     </div>
     <div class="orcx-stat">
       <label class="orcx-lbl" for="in-guests">${ta('budgetGuestsEstLabel')}</label>
@@ -14240,7 +14240,7 @@ function gtxDetailHTML(i){
     <section class="gtx-form">
       <label class="gtx-f gtx-f-wide"><span>${ta('labelExpenseDescription')}</span><input class="gtx-in" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="${ta('placeholderDescription')}"></label>
       <label class="gtx-f"><span>${ta('labelDate')}</span><input class="gtx-in" type="date" data-exp="date|${i}" value="${escapeHTML(e.date||'')}"></label>
-      <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="number" min="0" inputmode="decimal" data-exp="paid|${i}" value="${paid}"></label>
+      <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="number" inputmode="decimal" step="any" min="0" data-exp="paid|${i}" value="${paid}"></label>
       <label class="gtx-f"><span>${ta('labelPaymentMethod')}</span>
         <select class="gtx-in" data-exp="method|${i}">
           <option value="" ${!e.method?'selected':''}>${ta('optionNotDefined')}</option>
@@ -15704,7 +15704,7 @@ function viewLuademelOption(o){
               <button type="button" data-hmodays="1" aria-label="+">${HMX_ICO.plus}</button>
             </div></section>
           <section class="hmx-sec"><label class="hmx-lbl" for="hmo-budget">${ta('labelEstimatedBudget')}</label>
-            <input class="hmx-input" type="number" min="0" inputmode="numeric" id="hmo-budget" value="${escapeHTML(o.budget||'')}" placeholder="0"></section>
+            <input class="hmx-input" type="number" inputmode="decimal" step="any" min="0" id="hmo-budget" value="${escapeHTML(o.budget||'')}" placeholder="0"></section>
         </div>
 
         <section class="hmx-sec"><label class="hmx-lbl" for="hmo-notes">${ta('labelNotesHelp')}</label>
@@ -18814,7 +18814,7 @@ function viewFornecedorDetalhe(){
 
   <div class="section-label">${ta('sectionPayments')}</div>
   <div class="supd-pay-card">
-    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="number" min="0" id="supd-valortotal" value="${escapeHTML(s.valorTotal||'')}" placeholder="Ex: 2500"></div>
+    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="number" inputmode="decimal" step="any" min="0" id="supd-valortotal" value="${escapeHTML(s.valorTotal||'')}" placeholder="Ex: 2500"></div>
     <div class="supd-pay-top">
       <div><div class="supd-pay-paid" id="supd-paid-val">${fmtEUR(paid)}</div><div class="supd-pay-pct">${ta('lblPaidLower')}</div></div>
       <div class="supd-pay-rest"><span id="supd-rest-val">${fmtEUR(rest)}</span><br>${ta('lblToPay').toLowerCase()}</div>
@@ -18825,7 +18825,7 @@ function viewFornecedorDetalhe(){
     <div class="supd-pay-addrow">
       <span class="supd-pay-date-label">${ta('labelDate')}</span>
       <input type="date" id="supd-pay-date">
-      <input type="number" min="0" id="supd-pay-amount" placeholder="${ta('placeholderValueEuro')}">
+      <input type="number" inputmode="decimal" step="any" min="0" id="supd-pay-amount" placeholder="${ta('placeholderValueEuro')}">
       <button class="add-circle" id="supd-pay-add">${ICONS.plus}</button>
     </div>
   </div>
@@ -18833,7 +18833,7 @@ function viewFornecedorDetalhe(){
   <div class="supd-field-card">
     <div class="supd-field-2col">
       <div><label>${ta('labelNextPayment')}</label><input type="date" id="supd-nextpaydate" value="${escapeHTML(s.nextPaymentDate||'')}"></div>
-      <div><label>${ta('valueEurLabel')}</label><input type="number" min="0" id="supd-nextpayamount" value="${escapeHTML(s.nextPaymentAmount||'')}" placeholder="${ta('phValueExample600')}"></div>
+      <div><label>${ta('valueEurLabel')}</label><input type="number" inputmode="decimal" step="any" min="0" id="supd-nextpayamount" value="${escapeHTML(s.nextPaymentAmount||'')}" placeholder="${ta('phValueExample600')}"></div>
     </div>
   </div>
 
