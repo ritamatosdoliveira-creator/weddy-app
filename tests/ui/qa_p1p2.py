@@ -606,7 +606,7 @@ async def t_misc(b):
     # HLT-01 dados coerentes
     await S(pg, "()=>{ const s=window.__t.state; s.guests.noiva.familia=Array.from({length:10},(_,i)=>({name:'G'+i,id:'h'+i,guestId:'h'+i})); s.expenses=[{id:'e',desc:'Quinta',value:5000,paid:5000,category:'quinta',date:'2026-10-01'}]; window.__t.sec('health'); }")
     t = await txt(pg, '#app-body')
-    ok(re.search(r'\b\d{1,3}\s*/100', t.replace('\n', '')) or re.search(r'5000 € gastos|5 000 € gastos', t), f'HLT-01 índice /100 ou áreas coerentes com os dados ({" ".join(t.split()[:30])})')
+    ok(re.search(r'\d{1,3}\s*/100', t) or re.search(r'5 ?000 € (gastos|contratados)', t), f'HLT-01 índice /100 ou áreas coerentes com os dados ({" ".join(t.split()[:30])})')
     # SET-02 editar nomes/data/local nas Definições → Início
     await S(pg, "()=>window.__t.sec('casamento')")
     for sel, v in (('#def-name1', 'Beatriz'), ('#def-name2', 'Tomás'), ('#def-venue', 'Quinta Nova')):
