@@ -5530,7 +5530,9 @@ function migrateGuestCategories(){
     const cat = state.guests[side].custom.find(c=>c.id==='criancas');
     if(cat) cat.names = cat.names.map(n=>{
       if(typeof n==='string') return { name:n, age:'', payingPct:0 };
-      if(n && n.payingPct===undefined) return { name:n.name, age:n.age||'', payingPct: n.paying ? 1 : 0 };
+      // Nov 2026: preserva id/guestId/telefone/email/convite/token RSVP (antes ficava só o nome e o convidado
+      // ganhava um id novo — perdia o lugar à mesa, a confirmação e o link de RSVP).
+      if(n && n.payingPct===undefined) return Object.assign({}, n, { name:n.name, age:n.age||'', payingPct: n.paying ? 1 : 0 });
       return n;
     });
   });
@@ -5541,7 +5543,7 @@ function migrateGuestCategories(){
     if(Array.isArray(state.guests[side].staff)){
       state.guests[side].staff = state.guests[side].staff.map(n=>{
         if(typeof n==='string') return { name:n, payingPct:1 };
-        if(n && n.payingPct===undefined) return { name:n.name, payingPct:1 };
+        if(n && n.payingPct===undefined) return Object.assign({}, n, { name:n.name, payingPct:1 }); // mantém id, contactos, convite e token RSVP
         return n;
       });
     }
@@ -6218,6 +6220,11 @@ function clearAllSeatsForTable(tableId){
 // helper continue a receber side/cat/idx (útil no render, onde a posição
 // atual é sempre fiável), o que fica gravado em state.confirmed é sempre
 // o guestId.
+// Nov 2026 (contadores uniformes): confirmados e totais contam PESSOAS em todos os ecrãs
+// (Início, Convidados, Convites RSVP, Wedding Health). Os pesos de pagamento (crianças/staff)
+// só entram nos custos («pagantes»).
+function countPeople(side){ let n=0; allGuestCategoriesOf(side).forEach(c=>{ n += (getGuestNames(side,c.id)||[]).length; }); return n; }
+function countConfirmedPeople(side){ let n=0; allGuestCategoriesOf(side).forEach(c=>{ (getGuestNames(side,c.id)||[]).forEach((x,idx)=>{ if(isConfirmed(side,c.id,idx)) n++; }); }); return n; }
 function isConfirmed(side,cat,idx){
   const arr = getGuestNames(side,cat);
   const entry = arr && arr[idx];
@@ -6652,7 +6659,7 @@ const APP_I18N = {
     whAreasTitle:"Estado por área",
     whAreaBudget:"Orçamento", whAreaGuests:"Convidados", whAreaTasks:"Tarefas", whAreaPayments:"Pagamentos",
     whBudgetNone:"Ainda não definiram o orçamento total.",
-    whBudgetOk: (spent,total)=>`${spent} gastos de ${total}.`,
+    whBudgetOk: (spent,total)=>`${spent} contratados de ${total}.`,
     whBudgetNear: (spent,total)=>`${spent} de ${total} — perto do limite.`,
     whBudgetOver: (over)=>`Ultrapassou o orçamento em ${over}.`,
     whGuestsNone:"Ainda não adicionaram convidados.",
@@ -6792,7 +6799,7 @@ const APP_I18N = {
     sideBride:'Noiva',
     sideGroom:'Noivo',
     sideJoint:'Conjunto',
-    homeBudgetSpentLabel:'Orçamento gasto',
+    homeBudgetSpentLabel:'Orçamento contratado',
     homeToSpendLabel:'Por gastar',
     homeOverBudgetLabel:'Acima do orçamento',
     homeBigDayLabel:'O grande dia',
@@ -6837,6 +6844,7 @@ const APP_I18N = {
     placeholderSearchGuest:'Procurar convidado',
     totalGuestsLabel:'convidados no total',
     perGuestPaidLabel:'Custo previsto / convidado',
+    perPayerPaidLabel:'Custo previsto / pagante', payersWord:'pagantes',
     placeholderNewGuestCategory:'Nova categoria (ex: Amigos da família)…',
 
     placeholderDescription:'Descrição',
@@ -6853,7 +6861,7 @@ const APP_I18N = {
     lblPaid:'Pago',
     ringDescPaid:'Por pagar: soma do que falta pagar nos movimentos abaixo.',
     lblToPay:'Por pagar',
-    lblOfBudget:'Do orçamento',
+    lblOfBudget:'Contratado',
     sectionPaidVsBudgeted:'Pago vs. orçamentado',
     sectionMovements:'Movimentos',
     emptyNoMovements:'sem movimentos registados',
@@ -7112,6 +7120,7 @@ const APP_I18N = {
     autopilotLateDesc:'Convidados que ainda não responderam e já ultrapassaram o prazo.',
     autopilotDueDesc:'Convidados que ainda não responderam e o prazo está a aproximar-se.',
     respondedLabel:'Responderam',
+    rsvpViaLinkNote:n=>`Inclui confirmações marcadas à mão · ${n} ${n===1?'resposta':'respostas'} pelo link`,
     maybeCountLabel:(n)=>`${fmtGuestCount(n)} ainda ${n===1?'não sabe':'não sabem'}`,
     transportCountLabel:(n)=>`${fmtGuestCount(n)} pede${n===1?'':'m'} transporte`,
     accommodationCountLabel:(n)=>`${fmtGuestCount(n)} pede${n===1?'':'m'} alojamento`,
@@ -8075,7 +8084,7 @@ const APP_I18N = {
     whAreasTitle:"Status by area",
     whAreaBudget:"Budget", whAreaGuests:"Guests", whAreaTasks:"Tasks", whAreaPayments:"Payments",
     whBudgetNone:"You haven't set a total budget yet.",
-    whBudgetOk: (spent,total)=>`${spent} spent of ${total}.`,
+    whBudgetOk: (spent,total)=>`${spent} committed of ${total}.`,
     whBudgetNear: (spent,total)=>`${spent} of ${total} — close to the limit.`,
     whBudgetOver: (over)=>`Over budget by ${over}.`,
     whGuestsNone:"You haven't added guests yet.",
@@ -8178,7 +8187,7 @@ const APP_I18N = {
     sideBride:'Bride',
     sideGroom:'Groom',
     sideJoint:'Joint',
-    homeBudgetSpentLabel:'Budget spent',
+    homeBudgetSpentLabel:'Budget committed',
     homeToSpendLabel:'Left to spend',
     homeOverBudgetLabel:'Over budget',
     homeBigDayLabel:'The big day',
@@ -8223,6 +8232,7 @@ const APP_I18N = {
     placeholderSearchGuest:'Search guest',
     totalGuestsLabel:'guests in total',
     perGuestPaidLabel:'Expected cost / guest',
+    perPayerPaidLabel:'Expected cost / paying guest', payersWord:'paying',
     placeholderNewGuestCategory:'New category (e.g. Family friends)…',
 
     placeholderDescription:'Description',
@@ -8239,7 +8249,7 @@ const APP_I18N = {
     lblPaid:'Paid',
     ringDescPaid:'Left to pay: sum of what is still owed in the entries below.',
     lblToPay:'Left to pay',
-    lblOfBudget:'Of budget',
+    lblOfBudget:'Committed',
     sectionPaidVsBudgeted:'Paid vs. budgeted',
     sectionMovements:'Transactions',
     emptyNoMovements:'no transactions recorded',
@@ -8528,6 +8538,7 @@ const APP_I18N = {
     autopilotLateDesc:'Guests who haven\'t answered yet and the deadline has already passed.',
     autopilotDueDesc:'Guests who haven\'t answered yet and the deadline is approaching.',
     respondedLabel:'Responded',
+    rsvpViaLinkNote:n=>`Includes confirmations marked by hand · ${n} ${n===1?'reply':'replies'} via link`,
     maybeCountLabel:(n)=>`${fmtGuestCount(n)} still ${n===1?'isn\'t':'aren\'t'} sure`,
     transportCountLabel:(n)=>`${fmtGuestCount(n)} need${n===1?'s':''} transport`,
     accommodationCountLabel:(n)=>`${fmtGuestCount(n)} need${n===1?'s':''} accommodation`,
@@ -11784,8 +11795,8 @@ const QL_ICONS = {
   suppliers: QL_SVG('<path d="M12 12h.01"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M22 13a18.15 18.15 0 0 1-20 0"/><rect width="20" height="14" x="2" y="6" rx="2"/>')
 };
 function viewInicio(){
-  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
+  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countPeople(s), 0);
+  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmedPeople(s), 0);
   const totalValue = totalExpenseValue();
   const budgetTotal = state.budget.total;
   const spentPct = budgetTotal ? Math.round((totalValue/budgetTotal)*100) : 0;
@@ -11870,9 +11881,9 @@ function viewInicio(){
         <div class="ring-center"><span class="num">${fmtGuestCount(totalConfirmed)}</span><span class="sub">de ${fmtGuestCount(totalGuests)}</span></div>
       </div>
       <div class="ring-breakdown">
-        <div><div class="n">${fmtGuestCount(countConfirmed('noiva'))}</div><div class="l">${ta('sideBride')}</div></div>
-        <div><div class="n">${fmtGuestCount(countConfirmed('noivo'))}</div><div class="l">${ta('sideGroom')}</div></div>
-        ${countGuests('conjunto')>0 ? `<div><div class="n">${fmtGuestCount(countConfirmed('conjunto'))}</div><div class="l">${ta('sideJoint')}</div></div>` : ''}
+        <div><div class="n">${countConfirmedPeople('noiva')}</div><div class="l">${ta('sideBride')}</div></div>
+        <div><div class="n">${countConfirmedPeople('noivo')}</div><div class="l">${ta('sideGroom')}</div></div>
+        ${countPeople('conjunto')>0 ? `<div><div class="n">${countConfirmedPeople('conjunto')}</div><div class="l">${ta('sideJoint')}</div></div>` : ''}
       </div>
     </div>
     <div class="ring-card tappable" data-goto="orcamento" style="cursor:pointer;">
@@ -12308,7 +12319,7 @@ function gxRowHTML(side, catKey, n, idx, canDrag){
 function gxCatStats(side, catKey){
   const items = getGuestNames(side, catKey) || [];
   const hasPayment = isPaymentTrackingCat(catKey);
-  const weightOf = n => hasPayment ? guestWeight(n) : 1;
+  const weightOf = n => 1; // pessoas (ver countPeople); os pesos de pagamento ficam na ficha
   const confirmed = items.reduce((s,n,idx)=> s + (isConfirmed(side,catKey,idx) ? weightOf(n) : 0), 0);
   const total = items.reduce((s,n)=> s + weightOf(n), 0);
   const fmt = x => hasPayment ? fmtGuestCount(x) : String(x);
@@ -12329,11 +12340,12 @@ function gxCatRowHTML(side, c){
   </div>`;
 }
 function gxSummaryHTML(){
-  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
+  const totalGuests = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countPeople(s), 0);
+  const totalConfirmed = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmedPeople(s), 0);
+  const totalPayers = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
   // Custo previsto por convidado: total dos movimentos ÷ convidados a pagar
   // (com os pesos das crianças/staff). Sem convidados, usa a estimativa do Orçamento.
-  const guestBase = totalGuests > 0 ? totalGuests : (state.budget.guestsEstimate || 0);
+  const guestBase = totalPayers > 0 ? totalPayers : (state.budget.guestsEstimate || 0);
   const perGuest = guestBase ? totalExpenseValue()/guestBase : 0;
   return `
   <div class="gx-sum">
@@ -12342,8 +12354,8 @@ function gxSummaryHTML(){
       <div class="gx-ring-c"><b>${fmtGuestCount(totalConfirmed)}</b><span>${ta('gxConfirmedWord')}</span></div>
     </div>
     <div class="gx-sum-list">
-      <div class="gx-sum-i"><span class="gx-sum-n">${fmtGuestCount(totalGuests)}</span><span class="gx-sum-l">${ta('totalGuestsLabel')}</span></div>
-      <div class="gx-sum-i"><span class="gx-sum-n">${fmtEUR(perGuest)}</span><span class="gx-sum-l">${ta('perGuestPaidLabel')}</span></div>
+      <div class="gx-sum-i"><span class="gx-sum-n">${totalGuests}</span><span class="gx-sum-l">${ta('totalGuestsLabel')}${Math.abs(totalPayers-totalGuests)>0.01 ? ` (${fmtGuestCount(totalPayers)} ${ta('payersWord')})` : ''}</span></div>
+      <div class="gx-sum-i"><span class="gx-sum-n">${fmtEUR(perGuest)}</span><span class="gx-sum-l">${Math.abs(totalPayers-totalGuests)>0.01 ? ta('perPayerPaidLabel') : ta('perGuestPaidLabel')}</span></div>
     </div>
     ${(()=>{ const ic = invCounts(); return `<div class="gx-sum-env" role="group" aria-label="${ta('invSheetTitle')}">
       <div class="gx-env-i is-done"><span class="gx-env-ic">${INV_ICON_DONE}</span><span class="gx-env-t"><b id="inv-n-done">${ic.delivered}</b><span>${ta('invSumDelivered')}</span></span></div>
@@ -14128,7 +14140,7 @@ function gtxCatRowsHTML(){
 function gtxRingHTML(kind){
   const totalValue = totalExpenseValue(), totalPaid = totalExpensePaid(), budgetTotal = state.budget.total;
   const pago = kind==='pago';
-  const frac = pago ? (totalValue? totalPaid/totalValue : 0) : (budgetTotal? totalPaid/budgetTotal : 0);
+  const frac = pago ? (totalValue? totalPaid/totalValue : 0) : (budgetTotal? totalValue/budgetTotal : 0); // «Contratado»: igual ao Início e ao Health
   return donutSVG(frac, pago ? 'var(--sage-dark)' : '#D0AD87', 104, 8)
     + `<div class="gtx-ring-c"><span class="gtx-ring-n">${fmtPct(Math.round(frac*100))}</span></div>`;
 }
@@ -14140,7 +14152,7 @@ function viewGastos(){
     gastosView = gastosPrev==='movs' ? 'movs' : 'main'; expDetailId = null;
   }
   if(gastosView==='movs') return gtxMovsHTML();
-  const totalPaid = totalExpensePaid(), budgetTotal = state.budget.total;
+  const totalPaid = totalExpensePaid(), totalValue = totalExpenseValue(), budgetTotal = state.budget.total;
   const recent = gtxSort(state.expenses.map((e,i)=>({e,i})),'date').slice(0,5);
   return `
   <div class="orcx gtx">
@@ -14158,7 +14170,7 @@ function viewGastos(){
         <div class="gtx-rc">
           <span class="gtx-rc-l">${ta('lblOfBudget')}</span>
           <div class="gtx-ring" id="orc-ring-wrap">${gtxRingHTML('orc')}</div>
-          <div class="gtx-rc-v"><b data-gtx-paid>${fmtEUR(totalPaid)}</b><span>${ta('gtxOfBudget')}</span></div>
+          <div class="gtx-rc-v"><b data-gtx-value>${fmtEUR(totalValue)}</b><span>${ta('gtxOfBudget')}</span></div>
         </div>
       </div>
       <div class="gtx-strip">
@@ -23749,13 +23761,15 @@ function rsvpNavRow(key, icon, colorIdx, title, desc){
 function viewRSVPHome(){
   const allGuests = flattenAllGuestsForRSVP();
   const totalGuests = allGuests.length;
-  let responded = 0, confirmedYes = 0;
+  let responded = 0, confirmedYes = 0, viaLink = 0;
   allGuests.forEach(item=>{
     const token = item.entry.rsvpToken;
     const resp = token ? memberRSVPResponse(item) : null;
     const status = rsvpStatusOf(resp);
-    if(status!=='pending') responded++;
-    if(status==='yes') confirmedYes++;
+    // Mesmos critérios do Início e do Wedding Health: conta também as confirmações marcadas à mão.
+    if(status!=='pending') viaLink++;
+    if(!isRsvpPending(item)) responded++;
+    if(status==='yes' || isConfirmed(item.side, item.catId, item.idx)) confirmedYes++;
   });
   const rustChip = 'background:rgba(193,88,62,0.12); color:var(--rust-dark);';
   // Fase 9.5 (Set 2026): a Rita achou a organização anterior confusa —
@@ -23783,6 +23797,7 @@ function viewRSVPHome(){
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('respondedLabel')}</div><div class="n">${fmtGuestCount(responded)}</div></div>
     <div class="stat-card" style="text-align:center;"><div class="l" style="margin:0 0 4px;">${ta('lblConfirmed')}</div><div class="n">${fmtGuestCount(confirmedYes)}</div></div>
   </div>
+  <p style="margin:-6px 16px 14px; font-size:12.5px; color:var(--ink-soft); text-align:center;">${ta('rsvpViaLinkNote')(viaLink)}</p>
   ${hubNavRow('deadline', ICONS.sparkle, ta('rsvpLembretesNavTitle'), ta('rsvpLembretesNavDesc'))}
   ${hubNavRow('info', ICONS.pencil, ta('guestInfoLabel'), ta('guestInfoSubLabel'))}
   ${hubNavRow('respostas', ICONS.guests, ta('rsvpHubTitle'), ta('rsvpRespostasNavDesc'))}
@@ -27368,6 +27383,7 @@ function softUpdateGastos(){
   const orcWrap = document.getElementById('orc-ring-wrap');
   if(orcWrap) orcWrap.innerHTML = gtxRingHTML('orc');
   document.querySelectorAll('[data-gtx-paid]').forEach(el=>{ el.textContent = fmtEUR(totalPaid); });
+  document.querySelectorAll('[data-gtx-value]').forEach(el=>{ el.textContent = fmtEUR(totalValue); });
   const porPagar = document.getElementById('pago-porpagar');
   if(porPagar) porPagar.textContent = fmtEUR(totalExpenseRemaining());
 
