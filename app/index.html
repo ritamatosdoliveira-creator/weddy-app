@@ -7741,7 +7741,7 @@ const APP_I18N = {
     cpInDays:(n)=>`em ${n} dia${n===1?'':'s'}`,
     cpRemainingNext15:(base,lista)=>`${base} Nos próximos 15 dias: ${lista}.`,
     cpRSVPInfoExplain:(n)=>`Em Definições → Convites RSVP consegues gerar um link individual para cada convidado — ele responde lá se vai, a refeição e restrições, sem ver a lista toda nem o orçamento. Neste momento tens ${n} convidado${n===1?'':'s'} por responder.`,
-    cpGuestCount:(total,confirmed)=>`Tens ${total} convidados na lista, dos quais ${confirmed} já confirmaram presença (contando pelo peso de cada um — crianças e staff podem contar meio ou nada, consoante o que definiste).`,
+    cpGuestCount:(total,confirmed)=>`Tens ${total} convidados na lista, dos quais ${confirmed} já confirmaram presença.`,
     cpBudgetSummary:(orc,gasto,pago)=>`O orçamento definido é de ${orc}. Já tens ${gasto} em despesas registadas, das quais ${pago} já foram pagas.`,
     cpCountdownFuture:(dias,date)=>dias===1?`Falta 1 dia para o grande dia (${date}).`:`Faltam ${dias} dias para o grande dia (${date}).`,
     cpCountdownNoDate:'Ainda não definiste a data do casamento. Podes fazê-lo em Definições.',
@@ -9157,7 +9157,7 @@ const APP_I18N = {
     cpInDays:(n)=>`in ${n} day${n===1?'':'s'}`,
     cpRemainingNext15:(base,lista)=>`${base} In the next 15 days: ${lista}.`,
     cpRSVPInfoExplain:(n)=>`In Settings → RSVP Invites you can generate an individual link for each guest — they respond there whether they're coming, their meal and restrictions, without seeing the full list or the budget. Right now you have ${n} guest${n===1?'':'s'} yet to respond.`,
-    cpGuestCount:(total,confirmed)=>`You have ${total} guests on the list, of which ${confirmed} have already confirmed attendance (counted by each one's weight — children and staff can count as half or nothing, depending on what you set).`,
+    cpGuestCount:(total,confirmed)=>`You have ${total} guests on the list, of which ${confirmed} have already confirmed attendance.`,
     cpBudgetSummary:(orc,gasto,pago)=>`The budget you set is ${orc}. You already have ${gasto} in recorded expenses, of which ${pago} have been paid.`,
     cpCountdownFuture:(dias,date)=>dias===1?`1 day left until the big day (${date}).`:`${dias} days left until the big day (${date}).`,
     cpCountdownNoDate:"You haven't set the wedding date yet. You can do it in Settings.",
@@ -13627,7 +13627,12 @@ function ntPrefs(){
   const em = (p.email && typeof p.email==='object' && !Array.isArray(p.email)) ? p.email : {};
   return { on: p.on!==false, email:{ digest: em.digest==='off' ? 'off' : 'weekly', alerts: em.alerts!==false }, types, min: (p.min in NT_PRIO) ? p.min : 'low', quiet:{ on:q.on!==false, from:ntHM(q.from,'22:00'), to:ntHM(q.to,'08:00') } };
 }
-function ntItems(){ const r = ntRaw(); return (r && Array.isArray(r.items)) ? r.items.filter(x=>x && typeof x==='object' && typeof x.id==='string' && NT_TYPES.includes(x.type)) : []; }
+function ntItems(){ const r = ntRaw(); const all = (r && Array.isArray(r.items)) ? r.items.filter(x=>x && typeof x==='object' && typeof x.id==='string' && NT_TYPES.includes(x.type)) : [];
+  // Nov 2026: cada sugestão do Copilot substitui a anterior — antes ficavam
+  // várias em lista com números diferentes ("20 / 16 / 1 / 4 convidados ainda
+  // não responderam"). Só se mostra a mais recente.
+  let last = null; all.forEach(x=>{ if(x.type==='copilot' && (!last || (Date.parse(x.at)||0) > (Date.parse(last.at)||0))) last = x; });
+  return all.filter(x=>x.type!=='copilot' || x===last); }
 function ntShown(it, pf){ return !it.x && pf.on && pf.types[it.type] && NT_PRIO[it.prio in NT_PRIO ? it.prio : 'normal'] >= NT_PRIO[pf.min]; }
 function ntUnread(){ const pf = ntPrefs(); return ntItems().filter(it=>!it.r && ntShown(it,pf)).length; }
 function ntYMD(d){ const p = n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
@@ -13796,6 +13801,7 @@ function ntRun(nowOverride){
       let p = c.p;
       if(t.newSub){ const mine = c.subItems.filter(x=>t.newSub.includes(x.sk)); p = Object.assign({}, c.p, { c:mine.length, names:mine.slice(0,3).map(x=>x.text), amt: mine.reduce((s,x)=>s+(x.amt||0),0) }); }
       const item = { id:c.id, type:c.type, prio:c.prio, k:c.k, p, at:iso, r:0, x:0, go:c.go||'' };
+      if(c.type==='copilot') n.items = n.items.filter(it=>!(it && it.type==='copilot'));
       n.items.unshift(item); reg([c.id].concat(t.newSub||[]));
       if(c.prio !== 'high') n.day.n++;
       fresh.push(item); changed = true;
@@ -21674,8 +21680,10 @@ async function respondeAssistente(pergunta){
   // pendente: uma confirmação só vale para a pergunta imediatamente anterior.
   if(classified.intent!==I.CONFIRM_PENDING && classified.intent!==I.CANCEL_PENDING) copilotPending = null;
 
-  const totalConvidados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
+  // Nov 2026: pessoas, tal como o Início, Convidados, RSVP e Health (antes era
+  // o total "por peso" — dizia 68/49 quando o resto da app dizia 70/50).
+  const totalConvidados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countPeople(s), 0);
+  const totalConfirmados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmedPeople(s), 0);
 
   // Por omissão, cada pergunta LIMPA o contexto reutilizável anterior — só
   // os casos que resolvem um fornecedor/mesa/convidado concreto o voltam a
