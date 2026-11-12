@@ -5530,7 +5530,9 @@ function migrateGuestCategories(){
     const cat = state.guests[side].custom.find(c=>c.id==='criancas');
     if(cat) cat.names = cat.names.map(n=>{
       if(typeof n==='string') return { name:n, age:'', payingPct:0 };
-      if(n && n.payingPct===undefined) return { name:n.name, age:n.age||'', payingPct: n.paying ? 1 : 0 };
+      // Nov 2026: preserva id/guestId/telefone/email/convite/token RSVP (antes ficava só o nome e o convidado
+      // ganhava um id novo — perdia o lugar à mesa, a confirmação e o link de RSVP).
+      if(n && n.payingPct===undefined) return Object.assign({}, n, { name:n.name, age:n.age||'', payingPct: n.paying ? 1 : 0 });
       return n;
     });
   });
@@ -5541,7 +5543,7 @@ function migrateGuestCategories(){
     if(Array.isArray(state.guests[side].staff)){
       state.guests[side].staff = state.guests[side].staff.map(n=>{
         if(typeof n==='string') return { name:n, payingPct:1 };
-        if(n && n.payingPct===undefined) return { name:n.name, payingPct:1 };
+        if(n && n.payingPct===undefined) return Object.assign({}, n, { name:n.name, payingPct:1 }); // mantém id, contactos, convite e token RSVP
         return n;
       });
     }
