@@ -3004,6 +3004,10 @@ select.gtx-in{ background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
    (Data limite). Sem o aspeto nativo, respeita a largura da grelha; o seletor de data do iOS continua a abrir. */
 #expense-sheet input[type="date"], #expense-sheet input[type="time"], .sheet input[type="date"], .sheet input[type="time"]{ -webkit-appearance:none; appearance:none; display:block; width:100%; min-width:0; max-width:100%; line-height:44px; background:#fff; }
 #expense-sheet input[type="date"]::-webkit-date-and-time-value{ text-align:left; margin:0; }
+/* Restantes folhas (ex.: «Editar momento»): mesma altura e alinhamento dos campos de texto ao lado
+   (39px = padding 9px + 19px + borda), em vez dos 44px de line-height pensados para a folha das despesas. */
+.sheet:not(#expense-sheet) .sheet-field input[type="date"], .sheet:not(#expense-sheet) .sheet-field input[type="time"]{ height:39px; line-height:19px; box-sizing:border-box; text-align:left; }
+.sheet input[type="date"]::-webkit-date-and-time-value, .sheet input[type="time"]::-webkit-date-and-time-value{ text-align:left; margin:0; }
 @media (min-width:768px){
   .gtx{ padding:0 32px 48px; }
   .gtx-title{ font-size:52px; }
