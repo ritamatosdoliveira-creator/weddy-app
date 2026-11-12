@@ -13928,9 +13928,13 @@ function ntRender(){
   const vis = ntItems().filter(it=>ntShown(it,pf)).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));
   const fresh = vis.filter(it=>!it.r), old = vis.filter(it=>it.r).slice(0,25);
   el.innerHTML = `<div class="gimp-in">
-    <div class="gimp-top"><button type="button" class="cb-link" data-ntclose>${ta('giClose')}</button></div>
-    <h1 class="orcx-title">${ta('ntTitle')}</h1>
-    <p class="orcx-sub">${ta('ntSub')}</p>
+    <header class="gx-dhead-row nt-head">
+      <button type="button" class="nav-back gx-back-i" data-ntclose aria-label="${escapeHTML(ta('giBackBtn'))}">${ICONS.chevleft}</button>
+      <div class="gx-dtxt">
+        <h1 class="orcx-title">${ta('ntTitle')}</h1>
+        <p class="orcx-sub">${ta('ntSub')}</p>
+      </div>
+    </header>
     ${fresh.length ? `<button type="button" class="cb-link" style="margin-top:10px" data-ntreadall>${ta('ntReadAll')}</button>` : ''}
     ${fresh.length ? `<div class="nt-sec">${ta('ntNewSec')}</div>${fresh.map(ntRowHTML).join('')}` : (vis.length ? '' : `<p class="nt-empty">${ta(pf.on ? 'ntEmpty' : 'ntOff')}</p>`)}
     ${old.length ? `<div class="nt-sec">${ta('ntOldSec')}</div>${old.map(ntRowHTML).join('')}` : (fresh.length||!vis.length ? '' : '')}
