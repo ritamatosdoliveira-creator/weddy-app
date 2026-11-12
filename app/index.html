@@ -4520,6 +4520,20 @@ let pendingStripeCheckoutReturn = null;
 // por conta neste dispositivo; se a pessoa recusar, nada é enviado.
 let aiConsentSession = false;
 function aiConsentKey(){ return 'weddyAIConsent_' + ((typeof auth!=='undefined' && auth && auth.currentUser && auth.currentUser.uid) || 'anon'); }
+// Weddy Compare: o ficheiro da proposta (PDF/foto) vai à OpenAI — pede-se
+// permissão explícita uma vez por conta neste dispositivo (como no texto livre).
+let aiFileConsentSession = false;
+async function ensureAIFileConsent(){
+  if(aiFileConsentSession) return true;
+  const k = 'weddyAIFileConsent_' + ((typeof auth!=='undefined' && auth && auth.currentUser && auth.currentUser.uid) || 'anon');
+  try{ if(localStorage.getItem(k)==='1'){ aiFileConsentSession = true; return true; } }catch(e){}
+  const msg = appLang==='en'
+    ? 'To read this proposal, Weddy sends the file you chose (PDF or photo) to our AI provider, OpenAI (United States), which processes it only to extract prices and terms. No other wedding data is sent. Do you agree?'
+    : 'Para ler esta proposta, a Weddy envia o ficheiro que escolheste (PDF ou fotografia) ao nosso fornecedor de IA, a OpenAI (Estados Unidos), que o processa só para extrair preços e condições. Não é enviado mais nenhum dado do casamento. Aceitas?';
+  const ok = await weddyConfirm(msg);
+  if(ok){ aiFileConsentSession = true; try{ localStorage.setItem(k,'1'); }catch(e){} }
+  return ok;
+}
 async function ensureAIConsent(){
   if(aiConsentSession) return true;
   try{ if(localStorage.getItem(aiConsentKey())==='1'){ aiConsentSession = true; return true; } }catch(e){}
@@ -7433,6 +7447,7 @@ const APP_I18N = {
     privacyImportTitle:'Importar convidados (Excel/CSV)', privacyImportText:'O ficheiro que escolheres é lido no teu próprio dispositivo, e só os convidados que confirmares ficam guardados no teu casamento — o ficheiro em si não é enviado nem guardado por nós.',
     privacyAbuseTitle:'Proteção contra abusos (App Check)', privacyAbuseText:'Para que só a app Weddy autêntica aceda aos nossos servidores, usamos o Firebase App Check com o reCAPTCHA Enterprise (Google) na versão web, que analisa sinais técnicos do browser (como o endereço IP e dados do dispositivo) apenas para distinguir pessoas de robôs. Não é usado para publicidade.',
     privacyMoreSubTitle:'Outros prestadores', privacyMoreSubText:'Além dos indicados acima, a Weddy usa o Google reCAPTCHA Enterprise (proteção contra abusos), a OpenAI também para ler propostas no Weddy Compare (ver acima) e o serviço de envio de email do domínio weddy.pt para os convites enviados por email.',
+    privacyNotifTitle:'Notificações', privacyNotifText:'As notificações da Weddy são geradas no teu próprio dispositivo a partir dos dados do teu casamento (por exemplo, pagamentos a aproximar-se). O aviso no telemóvel é opcional, só para o que for urgente, e podes desligá-lo a qualquer momento nas preferências de notificações. Não te enviamos notificações por email nem com fins de marketing.',
     privacyConsentRecordTitle:'Registo da tua aceitação',
     privacyConsentRecordText:'Guardamos, junto dos dados do teu casamento, um registo de qual a versão dos Termos e Condições e desta Política de Privacidade que aceitaste e quando — isto permite-nos pedir-te uma nova aceitação sempre que uma alteração relevante o justifique (ver "Alterações a esta política" abaixo), e serve de prova de que aceitaste. Este registo é apagado junto com os restantes dados do teu casamento se eliminares a conta.',
     privacyChangesTitle:'Alterações a esta política',
@@ -8848,6 +8863,7 @@ const APP_I18N = {
     privacyImportTitle:'Importing guests (Excel/CSV)', privacyImportText:'The file you choose is read on your own device, and only the guests you confirm are saved to your wedding — the file itself is not sent to or stored by us.',
     privacyAbuseTitle:'Abuse protection (App Check)', privacyAbuseText:'So that only the genuine Weddy app can reach our servers, we use Firebase App Check with reCAPTCHA Enterprise (Google) on the web version, which analyses technical browser signals (such as the IP address and device data) only to tell people from bots. It is not used for advertising.',
     privacyMoreSubTitle:'Other providers', privacyMoreSubText:'In addition to those listed above, Weddy uses Google reCAPTCHA Enterprise (abuse protection), OpenAI also to read proposals in Weddy Compare (see above) and the email-sending service of the weddy.pt domain for invitations sent by email.',
+    privacyNotifTitle:'Notifications', privacyNotifText:'Weddy notifications are generated on your own device from your wedding data (for example, payments coming up). The phone alert is optional, only for urgent items, and you can turn it off at any time in the notification preferences. We don\'t send you notification emails or marketing notifications.',
     privacyConsentRecordTitle:'Record of your acceptance',
     privacyConsentRecordText:'Alongside your wedding\'s data, we keep a record of which version of the Terms and Conditions and of this Privacy Policy you accepted, and when — this lets us ask you to accept again whenever a significant change justifies it (see "Changes to this policy" below), and serves as proof that you accepted. This record is deleted along with the rest of your wedding\'s data if you delete your account.',
     privacyChangesTitle:'Changes to this policy',
@@ -16408,6 +16424,7 @@ async function cmpAnalyze(cid, pid){
   if(!docs.length) return fail(ta('cmpAiErrNoFiles'),'no-files');
   if(docs.length > CMP_AI_MAX_FILES) return fail(ta('cmpAiTooMany'),'too-many');
   if(!cloudFunctions) return fail(ta('cmpAiErrUnavailable'),'unavailable');
+  if(!(await ensureAIFileConsent())) return;
   p.ai = { status:'processing', startedAt:new Date().toISOString(), draft:undefined };
   cmpTouch(c);
   cmpRerenderKeepScroll({cid, view:['proposta','revisao','detalhe']});
@@ -25100,6 +25117,9 @@ function privacyBodyHtml(){
 
     <p><b>${ta('privacyMoreSubTitle')}</b><br>
     ${ta('privacyMoreSubText')}</p>
+
+    <p><b>${ta('privacyNotifTitle')}</b><br>
+    ${ta('privacyNotifText')}</p>
 
     <p><b>${ta('privacyConsentRecordTitle')}</b><br>
     ${ta('privacyConsentRecordText')}</p>
