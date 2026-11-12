@@ -10,7 +10,7 @@
         "getGuestWhatsappConsent", "setGuestWhatsappConsent", "getWhatsappApiStatus", "updateGuestPhone", "whatsappWebhook", "sendWhatsappRsvpReminder",
         "saveWeddingSiteDraft", "checkWeddingSiteSlug", "publishWeddingSite", "unpublishWeddingSite", "refreshWeddingSite", "reactivateWeddingSite", "syncWeddingSiteLifecycle",
         "deleteWeddingAccount", "migrateFamilyGuestIds", "migrateMemoriesGuestId", "revokeDownloadTokensOnOwnerRemoval"],
-      "needs": ["secret:GOOGLE_CALENDAR_CLIENT_ID", "secret:GOOGLE_CALENDAR_CLIENT_SECRET", "secret:GOOGLE_TOKEN_ENCRYPTION_KEY", "secret:APPLE_SIGNIN_PRIVATE_KEY", "secret:WHATSAPP_ACCESS_TOKEN", "secret:WHATSAPP_APP_SECRET", "secret:WHATSAPP_PHONE_NUMBER_ID", "secret:WHATSAPP_VERIFY_TOKEN", "param:GOOGLE_CALENDAR_REDIRECT_URI"],
+      "needs": ["secret:GOOGLE_CALENDAR_CLIENT_ID", "secret:GOOGLE_CALENDAR_CLIENT_SECRET", "secret:GOOGLE_TOKEN_ENCRYPTION_KEY", "secret:APPLE_SIGNIN_PRIVATE_KEY", "secret:WHATSAPP_ACCESS_TOKEN", "secret:WHATSAPP_APP_SECRET", "secret:WHATSAPP_PHONE_NUMBER_ID", "secret:WHATSAPP_VERIFY_TOKEN"],
       "together": [["googleCalendarOAuthCallback", "googleCalendarFinalizeOAuth"]],
       "why": "googleCalendarOAuthCallback e googleCalendarFinalizeOAuth TÊM de ir juntas (a app chama a segunda). revokeDownloadTokensOnOwnerRemoval é gatilho Firestore em weddings/{id} (primeiro deploy de Eventarc/Firestore)." },
     { "id": "3-lembretes-e-resumos", "functions": ["sendRsvpReminders", "cleanupActivityLog", "sendCoupleEmailDigest", "unsubscribeNotify"],

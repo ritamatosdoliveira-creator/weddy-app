@@ -186,9 +186,12 @@ const REVIEW_SANDBOX_UIDS = ['gAC4JaBRfJPS1Z4TURluYHsPWCn2'];
 // Nov 2026: o valor por omissão era o do projeto de testes (weddy-premium-teste) e a produção
 // enviava esse endereço à Google → «Erro 400: redirect_uri_mismatch» ao ligar o Google Calendar.
 // Agora deriva do projeto onde a função corre (produção: weddy-app-bd12f).
-const GOOGLE_CALENDAR_REDIRECT_URI = defineString('GOOGLE_CALENDAR_REDIRECT_URI', {
-  default: `https://europe-west1-${process.env.GCLOUD_PROJECT || 'weddy-app-bd12f'}.cloudfunctions.net/googleCalendarOAuthCallback`,
-});
+// Calculado sempre a partir do projeto onde a função corre: um valor antigo em .env
+// (GOOGLE_CALENDAR_REDIRECT_URI do projeto de testes) continuava a ganhar ao valor por omissão.
+function googleCalendarRedirectUri() {
+  const project = process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || 'weddy-app-bd12f';
+  return `https://europe-west1-${project}.cloudfunctions.net/googleCalendarOAuthCallback`;
+}
 // Para onde o browser volta depois do OAuth (sucesso ou erro), como
 // query params — nunca com tokens. Ajusta se a app não estiver nesta
 // pasta/URL.
@@ -4552,7 +4555,7 @@ function sleepWithJitter(attempt) {
 function buildGoogleAuthUrl(state) {
   const params = new URLSearchParams({
     client_id: GOOGLE_CALENDAR_CLIENT_ID.value(),
-    redirect_uri: GOOGLE_CALENDAR_REDIRECT_URI.value(),
+    redirect_uri: googleCalendarRedirectUri(),
     response_type: 'code',
     scope: GOOGLE_CALENDAR_SCOPE,
     access_type: 'offline', // para receber refresh_token
@@ -4571,7 +4574,7 @@ async function exchangeGoogleCode(code) {
       code,
       client_id: GOOGLE_CALENDAR_CLIENT_ID.value(),
       client_secret: GOOGLE_CALENDAR_CLIENT_SECRET.value(),
-      redirect_uri: GOOGLE_CALENDAR_REDIRECT_URI.value(),
+      redirect_uri: googleCalendarRedirectUri(),
       grant_type: 'authorization_code',
     }),
   });
