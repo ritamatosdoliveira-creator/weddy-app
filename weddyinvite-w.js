@@ -158,7 +158,7 @@
     var ctr = '<span class="wv-pc">'+I('<path d="M3 7h4l10 10h4M3 17h4l2-2M14 9l3-2h4M18 4l3 3-3 3M18 14l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>')+'</span><span class="wv-pc">'+I('<path d="M18 6v12L9 12zM6 6v12" fill="currentColor"/>')+'</span><span class="wv-pc wv-pp">'+I('<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>')+'</span><span class="wv-pc">'+I('<path d="M6 6v12l9-6zM18 6v12" fill="currentColor"/>')+'</span><span class="wv-pc">'+I('<path d="M4 11V9a3 3 0 013-3h12M16 3l3 3-3 3M20 13v2a3 3 0 01-3 3H5M8 21l-3-3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>')+'</span>';
     var inner = '<span class="wv-bar"><i></i></span><span class="wv-ctrl">'+ctr+'</span>';
     if(S.u && /\.(mp3|m4a|aac|ogg|wav)(\?|#|$)/i.test(S.u)) return '<audio class="wv-au" controls preload="none" src="'+esc(S.u)+'" aria-label="'+(en?'Our song':'A nossa canção')+'"></audio>';
-    return S.u ? '<a class="wv-pl" href="'+esc(S.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+(en?'Listen':'Ouvir')+'">'+inner+'</a>' : ''; }
+    return S.u ? '<a class="wv-pl" href="'+esc(S.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+(en?'Listen':'Ouvir')+'">'+inner+'</a>' : (MODE!=='public' ? '<div class="wv-pl" aria-hidden="true">'+inner+'</div>' : ''); }
   function hashHtml(cfg, esc){ if(!cfg.hash) return ''; var en = cfg.lang==='en';
     return '<section class="wp-sec wv-hash" id="hashtag"><h2>'+(en?'Share your moments':'Partilhem os vossos momentos')+'</h2><div class="wv-hn">'+esc(cfg.hash)+'</div><p class="wp-p">'+(en?'Use our hashtag on your photos and videos from the day.':'Usem a nossa hashtag nas fotografias e vídeos do dia.')+'</p></section>'; }
   function qrSvg(text){
@@ -321,7 +321,7 @@
       else if(t==='countphoto'){ var cp = gph(cfg, pn++, 'walk'), cc = sc.datetime ? gcount(cfg, H, esc, 'colon') : '';
         h += '<section class="g-sec g-cph" data-wslot="'+cp.slot+'" style="background-image:url(\''+esc(cp.src)+'\');background-position:'+cp.pos+'"><div class="g-cphi">'+(cfg.date?'<div class="g-cap" style="font-size:13px;letter-spacing:.14em;color:#fff">'+esc(H.dl)+'</div>':'')+(cc?'<p style="color:#fff;font-size:12px;margin-top:10px">'+esc(en?'until the wedding:':'faltam para o casamento:')+'</p>'+cc:'')+'</div></section>'; }
       else if(t==='hash' && a[1]==='script'){ if(cfg.hash) h += gsec('', '<div class="g-scr" style="font-size:40px;line-height:1.1">'+esc(en?'Wedding hashtag':'Hashtag do casamento')+'</div><p style="font-size:12.5px;margin-top:20px">'+esc(en?'If you post photos from our wedding day on social media, please use our hashtag':'Se publicarem fotografias do nosso casamento nas redes sociais, usem por favor a nossa hashtag')+'</p><div class="g-cap" style="font-size:15px;margin-top:22px;letter-spacing:.06em;text-transform:none;overflow-wrap:anywhere">'+esc(cfg.hash)+'</div><div class="g-hr"></div>'); }
-      else if(t==='msg'){ if(a[1]==='verse'){ if(cfg.message) h += gsec('', '<p style="font-size:12px;max-width:30ch;font-style:italic">'+esc(cfg.message)+'</p>'); } else if(sc.message) h += gsec('', '<h3>'+esc(en?'With great joy':'Com muita alegria')+'</h3><p>'+esc(cfg.message || S.defMsg)+'</p>'); }
+      else if(t==='msg'){ if(a[1]==='verse'){ if(cfg.message) h += gsec('g-msgv', '<p style="font-size:12px;max-width:30ch;font-style:italic">'+esc(cfg.message)+'</p>'); } else if(sc.message) h += gsec('', '<h3>'+esc(en?'With great joy':'Com muita alegria')+'</h3><p>'+esc(cfg.message || S.defMsg)+'</p>'); }
       else if(t==='evpair'||t==='evone'){ if(!sc.location) return; var one = t==='evone', e1 = gev('church', cfg.cer, cfg, H, esc), e2 = gev('glasses', cfg.rec, cfg, H, esc, one);
         if(!e1 && !e2 && (cfg.venue||cfg.address)) e1 = gev(one?'glasses':'church', { t:cfg.time, p:cfg.venue, a:cfg.address }, cfg, H, esc, one).replace(esc(en?'Ceremony':'Cerimónia religiosa'), esc(S.whereT)).replace(esc(en?'Reception':'Receção'), esc(S.whereT));
         if(one){ e1 = gev('glasses', cfg.rec || cfg.cer || { t:cfg.time, p:cfg.venue, a:cfg.address }, cfg, H, esc, true); e2 = ''; }
@@ -394,6 +394,7 @@
       '.g-polas{position:relative;height:215px;margin:20px auto 0;max-width:300px}.g-pola{position:absolute;width:150px;background:#fbfaf7;padding:7px 7px 24px;box-shadow:0 10px 18px rgba(0,0,0,.28)}.g-pola .g-ph{aspect-ratio:1/1}.g-pola:nth-child(1){left:4px;top:14px;transform:rotate(-4deg)}.g-pola:nth-child(2){right:4px;top:0;transform:rotate(3deg)}.g-pola::before{content:"";position:absolute;top:-8px;left:50%;width:46px;height:15px;margin-left:-23px;background:rgba(220,205,170,.7);transform:rotate(-2deg);z-index:2}',
       '.g-cardin{position:relative;margin:0 auto;max-width:280px;background-color:#fbfbf9;padding:26px 18px;box-shadow:0 14px 24px rgba(40,30,15,.28),0 2px 4px rgba(40,30,15,.2)}',
       '.g-flor{height:96px;background:center/contain no-repeat;margin:-14px 0}',
+      '.g-sec.g-msgv{padding:30px 28px 0}.g-sec.g-msgv p{font-size:19px!important;line-height:1.4;max-width:26ch;margin-top:0}.g-sec.g-msgv+.g-sec{padding-top:34px}',
       '.g-sec .wv-qr{width:150px;height:150px;margin:18px auto 0;padding:8px;background:#fff}.g-sec .wp-btn{margin-top:14px}.g-sec.band .wp-btn.ghost{color:var(--bandfg);border-color:var(--bandfg)}.wv-gq{display:grid;gap:14px;justify-items:center;margin-top:16px}',
       '.wv .wp-hero{display:block}.wv .wp{background-color:var(--paperc);background-image:var(--paperimg);background-size:420px;color:var(--ink)}.wv .wp-hero{padding:0}',
       '.wv-hash{padding:30px 28px;text-align:center;color:var(--ink)}.wv-hash h2{font:var(--h3);margin:0;color:var(--ink);text-transform:none;letter-spacing:0;font-size:22px}.wv-hn{font:400 34px/1.1 var(--f-scr);color:var(--ink);margin:6px 0 10px;overflow-wrap:anywhere}.wv-hash .wp-p{font:var(--fp)}'
@@ -438,9 +439,9 @@
     '.wv-hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font:500 11px/1 system-ui,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#e5e8d0;z-index:9;transition:opacity .5s;pointer-events:none}',
     '.wv-chk:checked~.wv-stage .wv-hint{opacity:0}',
     '.wv-page{visibility:hidden}',
-    '.wv-chk:checked~.wv-page{animation:wvshow 0s linear 3.6s forwards}',
+    '.wv-chk:checked~.wv-page{animation:wvshow 0s linear 2.3s forwards}',
     '@keyframes wvshow{to{visibility:visible}}',
-    '.wv-chk:checked~.wv-stage{animation:wvfade 1.4s ease 3.6s forwards}',
+    '.wv-chk:checked~.wv-stage{animation:wvfade .7s ease 2.3s forwards}',
     '@keyframes wvfade{to{opacity:0;visibility:hidden}}',
     '@media(prefers-reduced-motion:reduce){.wv-stage *{transition:none!important;animation:none!important}.wv-chk:checked~.wv-page{animation:none;visibility:visible}.wv-chk:checked~.wv-stage{animation:none;display:none}}'
   ].join('');
