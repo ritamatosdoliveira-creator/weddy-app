@@ -26016,7 +26016,10 @@ function bindHandlers(){
       // do Assistente (o mesmo botão redondo que já existe sempre visível),
       // por isso este azulejo só abre essa janela em vez de navegar.
       if(key==='chatbot'){ openChatPanel(); return; }
-      if(key==='convites'){ closeAllSheets(); sdTab = 'convites'; invUI.view = 'home'; activeTab = 'papelaria'; _origRender(); return; }
+      // Nov 2026: a ferramenta abre sempre no topo — antes herdava o scroll do Início e os
+      // números do topo (RSVP, Wedding Health, Papelaria) ficavam escondidos.
+      const toTop = ()=>document.querySelectorAll('.tabpanel.active .scroll, .tabpanel.active').forEach(sc=>{ sc.scrollTop = 0; });
+      if(key==='convites'){ closeAllSheets(); sdTab = 'convites'; invUI.view = 'home'; activeTab = 'papelaria'; _origRender(); toTop(); return; }
       closeAllSheets();
       // Origem diferente do menu de Definições (ex.: Início) → "voltar" regressa lá.
       if(!(activeTab==='definicoes' && (definicoesSection===null || definicoesSection===key))) navBackSet('definicoes', key);
@@ -26027,6 +26030,7 @@ function bindHandlers(){
       rsvpAutopilotReview = null;
       if(key==='rsvp') setRSVPSeenCount(countRSVPResponded());
       _origRender();
+      toTop();
     });
   });
   document.querySelectorAll('[data-defback]').forEach(el=>{
