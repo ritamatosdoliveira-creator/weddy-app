@@ -51,7 +51,7 @@
 <body>
 <div class="wrap">
   <h1>Política de Privacidade</h1>
-  <div class="updated">Última atualização: 2 de outubro de 2026</div>
+  <div class="updated">Última atualização: 12 de novembro de 2026</div>
 
   <p>Esta Política de Privacidade explica que dados a aplicação <strong>Weddy</strong> recolhe, para que servem, com quem são partilhados e quais são os teus direitos, em conformidade com o Regulamento Geral sobre a Proteção de Dados (RGPD).</p>
 
@@ -81,9 +81,23 @@
   <ul>
     <li>Na app iPhone/iPad, a compra é feita pela <strong>Apple</strong> (In-App Purchase) e validada pela <strong>RevenueCat</strong>, que recebe o identificador da tua conta Weddy e o registo da compra. Na versão web, o pagamento é processado inteiramente pela <strong>Stripe</strong>. Nunca vemos, recebemos nem guardamos o número do teu cartão — apenas o resultado (pago/não pago) e um identificador da transação.</li>
   </ul>
+  <p><strong>Fotografias, documentos e ficheiros</strong></p>
+  <ul>
+    <li>As fotografias (por exemplo em Inspiração, Dress, Bolo, Papelaria ou Memórias), documentos e contratos que carregues ficam no Firebase Storage (Google Cloud), associados ao teu casamento, e são apagados se eliminares a conta.</li>
+  </ul>
+  <p><strong>Convites digitais (Premium)</strong></p>
+  <ul>
+    <li>Cada convite tem uma ligação pessoal por convidado ou família, que abre sem conta e mostra apenas o que preencheste (nomes, data, local, programa, textos, a ligação da música e até 4 fotografias). Nunca mostra a lista de convidados nem respostas de outras pessoas.</li>
+    <li>Se enviares convites por email, o nome e o email do convidado e a ligação do convite são tratados pelo nosso serviço de envio de email, e o estado do envio fica guardado no teu casamento. Os envios por WhatsApp são sempre feitos por ti, no teu WhatsApp pessoal.</li>
+  </ul>
+  <p><strong>Importar convidados (Excel/CSV)</strong></p>
+  <ul>
+    <li>O ficheiro é lido no teu dispositivo; só ficam guardados os convidados que confirmares. O ficheiro em si não é enviado nem guardado.</li>
+  </ul>
   <p><strong>Assistente de IA</strong></p>
   <ul>
     <li>As perguntas ou pedidos que escreves em texto livre (Assistente Weddy e sugestão de lugares) são enviados à OpenAI apenas para identificar do que estás a falar. A resposta em si é sempre gerada com os teus próprios dados guardados na app — nunca enviamos dados de pagamento ou de outros casamentos.</li>
+    <li>No Weddy Compare (Premium), se carregares uma proposta de fornecedor (PDF ou fotografia) e carregares em «Analisar com Weddy AI», o ficheiro é enviado, através de um servidor da Weddy, à OpenAI (Estados Unidos) para extrair preços, condições e itens. Só é enviado o ficheiro que escolheres analisar, nunca outros dados do casamento, e nada entra na comparação sem a tua confirmação.</li>
   </ul>
   <p><strong>Integração opcional com o Google Calendar</strong></p>
   <ul>
@@ -91,7 +105,7 @@
   </ul>
   <p><strong>WhatsApp (opcional, para convidados)</strong></p>
   <ul>
-    <li>Se um convidado optar por receber mensagens por WhatsApp, o número de telefone é usado através da WhatsApp Business API (Meta) apenas para esse fim, e só depois de consentimento explícito. Pode ser retirado a qualquer momento.</li>
+    <li>Se ativares para um convidado o envio de lembretes por WhatsApp (Premium), usamos o número de telefone que introduzires, com o consentimento explícito desse convidado, apenas para preparar a mensagem e abrir o teu WhatsApp pessoal já com o texto escrito — és sempre tu quem carrega em enviar. O número não é partilhado com a Meta nem com mais ninguém. O consentimento pode ser retirado a qualquer momento.</li>
   </ul>
 
   <h2>3. Para que usamos os teus dados</h2>
@@ -111,8 +125,9 @@
     <li><strong>Stripe</strong> — processamento de pagamentos na versão web</li>
     <li><strong>Apple</strong> — início de sessão com Apple e compras na App Store (o pagamento é feito com o teu Apple ID; nunca vemos dados de cartão)</li>
     <li><strong>RevenueCat</strong> — validação das compras feitas na App Store (recebe o identificador da tua conta Weddy e o registo da compra)</li>
-    <li><strong>OpenAI</strong> (Estados Unidos) — interpretação de perguntas e pedidos em texto livre no Assistente de IA e na sugestão de lugares; só enviamos o texto escrito, depois de a pessoa o autorizar na app</li>
-    <li><strong>Meta (WhatsApp Business API)</strong> — apenas para convidados que optem por receber mensagens por WhatsApp</li>
+    <li><strong>OpenAI</strong> (Estados Unidos) — interpretação de perguntas e pedidos em texto livre no Assistente de IA e na sugestão de lugares (só enviamos o texto escrito, depois de a pessoa o autorizar na app) e leitura das propostas de fornecedores no Weddy Compare (só o ficheiro que escolheres analisar)</li>
+    <li><strong>Google reCAPTCHA Enterprise / Firebase App Check</strong> — proteção contra abusos na versão web (analisa sinais técnicos do browser, como o IP, apenas para distinguir pessoas de robôs)</li>
+    <li><strong>Serviço de envio de email do domínio weddy.pt</strong> — entrega dos convites enviados por email</li>
     <li><strong>GitHub Pages</strong> — alojamento do site da aplicação</li>
   </ul>
 
@@ -134,7 +149,7 @@
   <p>Os dados são protegidos por regras de acesso ao nível da base de dados (só tu, e quem convidares para o teu casamento, conseguem ver os teus dados), e as chaves de pagamento e de serviços de terceiros nunca ficam expostas no código da aplicação.</p>
 
   <h2>8. Menores</h2>
-  <p>A Weddy não se destina a menores de 18 anos.</p>
+  <p>A Weddy não se destina a menores de 16 anos enquanto titulares de conta.</p>
 
   <h2>9. Alterações a esta política</h2>
   <p>Podemos atualizar esta política ocasionalmente. A data no topo desta página indica sempre a versão mais recente.</p>
