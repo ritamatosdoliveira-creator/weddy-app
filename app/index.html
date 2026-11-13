@@ -6168,7 +6168,8 @@ function newGuestEntry(catId, name){
 // (ex: 3 em vez de "3.0", mas 1.5 continua "1.5").
 function fmtGuestCount(n){
   const r = Math.round(n*10)/10;
-  return Number.isInteger(r) ? String(r) : String(r);
+  // Nov 2026: em PT a casa decimal é vírgula («67,5 pagantes», não «67.5»).
+  return Number.isInteger(r) ? String(r) : String(r).replace('.', appLang==='en' ? '.' : ',');
 }
 // Lista, para um lado (noiva/noivo), TODAS as categorias — as 4 fixas mais
 // as que a pessoa foi criando (Crianças, por defeito, e quaisquer outras
@@ -7587,7 +7588,7 @@ const APP_I18N = {
     iabAndP2:'<b>Abre a Google Play</b>, procura por <b>"Weddy"</b> e toca em <b>Instalar</b>.',
     iabAndNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "⋮" e escolher "Abrir no navegador".',
     btnOk:'Ok',
-    paymentAlertTitle:(n)=>`${n} pagamento${n>1?'s':''} a terminar o prazo`,
+    paymentAlertTitle:(n,late)=>late===n ? `${n} pagamento${n>1?'s':''} em atraso` : (late ? `${n} pagamento${n>1?'s':''} a acompanhar` : `${n} pagamento${n>1?'s':''} a terminar o prazo`),
     paymentOverdueSuffix:(d)=>`(atrasado ${d}d)`,
     paymentDueInSuffix:(d)=>`(em ${d}d)`,
     defaultExpenseLabel:'Gasto',
@@ -9003,7 +9004,7 @@ const APP_I18N = {
     iabAndP2:'<b>Open Google Play</b>, search for <b>"Weddy"</b> and tap <b>Install</b>.',
     iabAndNote:'Already have the app? Open it and sign in. You can also tap "⋮" and choose "Open in browser".',
     btnOk:'Ok',
-    paymentAlertTitle:(n)=>`${n} payment${n>1?'s':''} coming due`,
+    paymentAlertTitle:(n,late)=>late===n ? `${n} overdue payment${n>1?'s':''}` : (late ? `${n} payment${n>1?'s':''} to follow up` : `${n} payment${n>1?'s':''} coming due`),
     paymentOverdueSuffix:(d)=>`(${d}d overdue)`,
     paymentDueInSuffix:(d)=>`(in ${d}d)`,
     defaultExpenseLabel:'Expense',
@@ -11420,7 +11421,7 @@ function maybeShowPaymentAlert(){
   if(paymentAlertDismissed || activeTab!=='inicio' || !ntp.on || !ntp.types.payment){ popup.classList.remove('show'); return; }
   const upcoming = getUpcomingPayments();
   if(!upcoming.length){ popup.classList.remove('show'); return; }
-  document.getElementById('payment-alert-title').textContent = ta('paymentAlertTitle')(upcoming.length);
+  document.getElementById('payment-alert-title').textContent = ta('paymentAlertTitle')(upcoming.length, upcoming.filter(u=>u.overdue).length);
   document.getElementById('payment-alert-body').innerHTML = upcoming.map(u=>
     `<p>${escapeHTML(u.label)} — <b>${fmtEUR(u.amount)}</b> ${u.overdue?ta('paymentOverdueSuffix')(Math.abs(u.days)):ta('paymentDueInSuffix')(u.days)}</p>`
   ).join('');
