@@ -6542,11 +6542,11 @@ const APP_I18N = {
     tabHome:'Início', tabBudget:'Orçamento', tabGuests:'Convidados', tabExpenses:'Gastos', tabTables:'Mesas', tabSeating:'Lugares',
     defTitle:'Definições', defSubtitle:'Personaliza a tua experiência na Weddy<br>e gere o teu casamento.',
     sectionPremium:'Weddy Premium', sectionWedding:'O casamento', sectionData:'Os teus dados', sectionAccess:'Acesso e conta', sectionInfo:'Informação', sectionHelp:'Ajuda',
-    subscriptionTitle:'Gerir subscrição', subscriptionDesc:'O estado do teu plano Weddy Premium',
+    subscriptionTitle:'Gerir o teu Premium', subscriptionDesc:'O estado do teu plano Weddy Premium',
     subscriptionActiveStatus:'Weddy Premium está ativo', subscriptionActiveText:'Tens acesso a todas as funcionalidades Premium — RSVP, Wedding Health, Memórias, Documentos e Google Calendar.',
     subscriptionPlanLabel:'Plano', subscriptionManageNote:'(Protótipo — a gestão de faturação real ainda não está ligada a nenhum pagamento.)',
     subscriptionStartedLabel:'Início', subscriptionExpiresLabel:'Válida até',
-    btnCancelSubscription:'Cancelar subscrição', btnCancelingEllipsis:'A cancelar…',
+    btnCancelSubscription:'Terminar acesso Premium', btnCancelingEllipsis:'A cancelar…',
     subscriptionSubtitleText:'Mais funcionalidades. Um casamento mais completo.',
     subscriptionActiveBadge:'Ativo',
     subscriptionFeatureGuests:'Convidados ilimitados', subscriptionFeatureAISeating:'AI Seating', subscriptionFeatureWeddingHealth:'Wedding Health',
@@ -6555,8 +6555,8 @@ const APP_I18N = {
     premiumPriceYearNote:'30€ · pagamento único, válido durante 12 meses (sem renovação automática)',
     subscriptionRenewsOnLabel:(d)=>`Válido até ${d}`,
     subscriptionNeedHelpTitle:'Precisas de ajuda?', subscriptionNeedHelpDesc:'Fala com a nossa equipa de suporte.',
-    confirmCancelSubscriptionText:'Isto cancela já a subscrição Weddy Premium — todas as funcionalidades Premium (RSVP, Wedding Health, Memórias, Documentos, Google Calendar, Assistente) ficam bloqueadas de imediato. Confirmas?',
-    alertSubscriptionCancelError:'Não foi possível cancelar a subscrição agora — verifica a ligação e tenta de novo.',
+    confirmCancelSubscriptionText:'Isto termina já o teu acesso Weddy Premium — todas as funcionalidades Premium (RSVP, Wedding Health, Memórias, Documentos, Google Calendar, Assistente) ficam bloqueadas de imediato. Confirmas?',
+    alertSubscriptionCancelError:'Não foi possível terminar o acesso Premium agora — verifica a ligação e tenta de novo.',
     homePremiumSectionLabel:'Weddy Premium',
     premiumHubTitle:'Ferramentas Weddy', premiumHubDesc:'Tudo o que precisas para organizar o teu casamento num só lugar.',
     premiumHubBadge:'Weddy Premium',
@@ -6766,7 +6766,7 @@ const APP_I18N = {
     googleCalendarAccountLabel:'Conta Google', googleCalendarPartialSync:n=>`A última sincronização ficou incompleta: ${n} ${n===1?'evento não foi atualizado':'eventos não foram atualizados'}. Tenta sincronizar outra vez.`,
     googleCalendarLapsedNote:'O teu Premium terminou. A ligação ao Google Calendar mantém-se apenas para a poderes desligar: não há novas sincronizações. Os eventos que já estão no teu calendário e os dados do casamento não são apagados.',
     googleCalendarGenericSyncError:'A última sincronização falhou. Os teus dados na Weddy não foram alterados.',
-    subscriptionNeeded:'Subscrição necessária',
+    subscriptionNeeded:'Premium necessário',
     weddingInfoTitle:'Nomes, data e local', weddingInfoUnset:'Ainda por definir',
     designTitle:'Design e foto de capa', designDesc:'Personaliza a imagem do teu casamento',
     categoriesTitle:'Categorias de gastos', categoriesDesc:'Edita as categorias do teu orçamento',
@@ -7102,18 +7102,18 @@ const APP_I18N = {
     statusUploadingContract:'A carregar contrato…',
     legacyPaymentTag:'pagamento antigo migrado',
 
-    premiumLockedText:(title)=>`"${title}" e as restantes funcionalidades Premium ficam disponíveis assim que teres uma subscrição ativa.`,
+    premiumLockedText:(title)=>`"${title}" e as restantes funcionalidades Premium ficam disponíveis assim que tiveres o Premium ativo.`,
     premiumFeatureRSVP:'Convites RSVP com link individual por convidado',
     premiumFeatureAssistant:'Assistente Weddy para tirar dúvidas sobre o teu casamento',
     btnSubscribePremium:'Desbloquear Weddy Premium',
-    assistLockedText:'O Assistente Weddy e os Convites RSVP ficam disponíveis assim que tiveres uma subscrição ativa.',
+    assistLockedText:'O Assistente Weddy e os Convites RSVP ficam disponíveis assim que tiveres o Premium ativo.',
     assistGreeting1: name => `Olá${name}! 👋 Sou a assistente da Weddy e estou aqui para ajudar-te com tudo o que precisares sobre o teu casamento.`,
     assistGreeting2:'Podes perguntar-me sobre fornecedores, listas de convidados, orçamento, checklist, funcionalidades da app e muito mais!\n\nComo posso ajudar-te hoje?',
     assistChipSuppliers:'Quero saber sobre fornecedores', assistChipRSVP:'Como funciona o RSVP?', assistChipQuestion:'Tenho uma dúvida sobre a app', assistChipFeatures:'Quero ver novas funcionalidades',
     assistHeroEyebrow:'Assistente Weddy', assistHeroTitle:'O seu aliado no<br>planeamento do casamento', assistHeroText:'Tire as suas dúvidas, receba sugestões<br>e tenha tudo mais simples.',
     assistInputPlaceholder:'Escreve a tua pergunta…', assistSendLabel:'Enviar', btnClose:'Fechar',
     assistThinking:'A pensar…',
-    testAccountNote:'(Esta conta é de testes — a subscrição real ainda não está ligada a nenhum pagamento.)',
+    testAccountNote:'(Esta conta é de testes — o Premium real ainda não está ligado a nenhum pagamento.)',
     rsvpSyncChanged: parts => `O que mudou: ${parts}.`, rsvpSyncNothing:'Sem alterações novas desde a última vez.',
     rsvpConfirmedChanged: n => `${n} confirmaç${n===1?'ão':'ões'} atualizada${n===1?'':'s'}`,
     rsvpSeatsFreed: n => `${n} lugar${n===1?'':'es'} libertado${n===1?'':'s'} nas mesas`,
@@ -7272,8 +7272,8 @@ const APP_I18N = {
     alertSaveNoConnection:'Não foi possível guardar (sem ligação).',
     alertSaveError:'Não foi possível guardar. Tenta novamente.',
     alertNoConnectionRetry:'Sem ligação — tenta novamente.',
-    alertSubscriptionActivateError:'Não foi possível ativar a subscrição. Tenta novamente.',
-    stripeCheckoutSuccessText:'Pagamento recebido! A tua subscrição Weddy Premium fica ativa em poucos instantes — não precisas de fazer mais nada.',
+    alertSubscriptionActivateError:'Não foi possível ativar o Premium. Tenta novamente.',
+    stripeCheckoutSuccessText:'Pagamento recebido! O teu Weddy Premium fica ativo em poucos instantes — não precisas de fazer mais nada.',
     stripeCheckoutCancelledText:'Pagamento cancelado — não te foi cobrado nada. Podes tentar subscrever outra vez quando quiseres.',
     alertCheckoutStartError:'Não foi possível iniciar o pagamento. Verifica a ligação e tenta novamente.',
     btnPurchaseConfirmedWaiting:'Compra confirmada — a ativar…',
@@ -7454,7 +7454,7 @@ const APP_I18N = {
     // telefone nunca sai da nossa base de dados nem é partilhado com a Meta.
     privacyWhatsappText:'Se ativares para um convidado o envio de lembretes por WhatsApp (funcionalidade Weddy Premium), usamos o número de telefone que introduzires, com o consentimento explícito desse convidado, apenas para preparar a mensagem de lembrete e abrir o teu WhatsApp pessoal já com o texto escrito — és sempre tu quem carrega em enviar. Não usamos a API da Meta/WhatsApp Business Platform para isto, e o número de telefone não é partilhado com a Meta nem com mais ninguém. O convidado pode retirar o consentimento a qualquer momento, pedindo-te para removeres o número.',
     privacySubprocessorsTitle:'Com quem partilhamos os teus dados (subcontratantes)',
-    privacySubprocessorsText:'Não vendemos os teus dados nem os cedemos a terceiros para fins de marketing. Para o funcionamento da Weddy, recorremos aos seguintes prestadores, que tratam dados em nosso nome, sob contrato: Firebase / Google Cloud — base de dados, autenticação, armazenamento de ficheiros e as Cloud Functions que processam pedidos como a eliminação de conta; GitHub Pages — alojamento dos ficheiros da aplicação; Stripe — processamento de pagamentos da subscrição Weddy Premium na versão web; Apple — início de sessão com Apple e compras na App Store (o pagamento é feito com o teu Apple ID, nunca vemos dados de cartão); RevenueCat — validação das compras feitas na App Store (recebe o identificador da tua conta Weddy e o registo da compra); EmailJS — envio do email que nos chega quando usas "Reporta um problema"; OpenAI — apenas para ajudar a interpretar perguntas em linguagem livre no Assistente Weddy e no Weddy Concierge, como descrito acima; e, apenas se ligares essa funcionalidade, a API do Google Calendar (ver ponto seguinte). Os lembretes por WhatsApp são abertos diretamente no teu WhatsApp pessoal — não passam por nenhum subcontratante nosso. Usamos ainda redes de entrega de conteúdo (como a cdnjs e a jsDelivr) só para carregar bibliotecas técnicas do browser (como o gerador de Excel/PDF) — não lhes é enviado nenhum dado teu.',
+    privacySubprocessorsText:'Não vendemos os teus dados nem os cedemos a terceiros para fins de marketing. Para o funcionamento da Weddy, recorremos aos seguintes prestadores, que tratam dados em nosso nome, sob contrato: Firebase / Google Cloud — base de dados, autenticação, armazenamento de ficheiros e as Cloud Functions que processam pedidos como a eliminação de conta; GitHub Pages — alojamento dos ficheiros da aplicação; Stripe — processamento de pagamentos do Weddy Premium na versão web; Apple — início de sessão com Apple e compras na App Store (o pagamento é feito com o teu Apple ID, nunca vemos dados de cartão); RevenueCat — validação das compras feitas na App Store (recebe o identificador da tua conta Weddy e o registo da compra); EmailJS — envio do email que nos chega quando usas "Reporta um problema"; OpenAI — apenas para ajudar a interpretar perguntas em linguagem livre no Assistente Weddy e no Weddy Concierge, como descrito acima; e, apenas se ligares essa funcionalidade, a API do Google Calendar (ver ponto seguinte). Os lembretes por WhatsApp são abertos diretamente no teu WhatsApp pessoal — não passam por nenhum subcontratante nosso. Usamos ainda redes de entrega de conteúdo (como a cdnjs e a jsDelivr) só para carregar bibliotecas técnicas do browser (como o gerador de Excel/PDF) — não lhes é enviado nenhum dado teu.',
     privacyGCalTitle:'Google Calendar e APIs Google',
     privacyGCalText:'Se ligares a tua conta Google em Definições, acedemos ao teu Google Calendar apenas para criar, atualizar e eliminar os eventos que escolheres sincronizar a partir da Agenda — nunca aos restantes eventos do teu calendário. A utilização desta informação respeita a Política de Dados de Utilizador dos Serviços de API Google, incluindo os requisitos de Utilização Limitada (Limited Use). Podes revogar este acesso a qualquer momento em myaccount.google.com/permissions ou desligando a conta em Definições → Google Calendar.',
     privacyIntlTransferTitle:'Transferências internacionais',
@@ -9932,14 +9932,14 @@ function invPrevView(){
   <div class="gimp-nav"><button type="button" class="cb-btn ghost" data-invgo="edit">${ta('invEdit')}</button><button type="button" class="cb-btn" data-invgo="ready" ${pr.length?'disabled':''}>${ta('invPublish')}</button></div>`;
 }
 function invShareBlock(){
-  return `<div class="inv-acts"><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="wa">${ta('invWhats')}<i>›</i></button><button type="button" class="inv-act" data-invact="mail">${ta('invMail')}<i>›</i></button><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`;
+  return `<div class="inv-acts"><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="wa">${ta('invWhats')}<i>›</i></button><button type="button" class="inv-act" data-invact="mail">${ta('invMail')}<i>›</i></button></div>`;
 }
 function invReadyView(){
   const st = invRemote.status, pending = invPending(), pub = st==='published';
   return `${invBack(ta('invPreview'),'prev')}<div class="inv-ready"><div class="inv-check">✓</div><h3 class="gimp-h2">${ta('invReadyT')}</h3><p class="cb-sub">${ta(pub?'invReadyPub':'invReadySub')}</p>
   ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
   <button type="button" class="cb-btn" data-invact="publish" ${invUI.busy?'disabled':''}>${invUI.busy==='publish'?ta('invPublishing'):(pub?ta('invPublishChanges'):ta('invPublish'))}</button>${invUI.busy?'':''}
-  ${invRemote.url && invRemote.status!=='none' ? invShareBlock() : `<p class="cb-sub">${ta('invShareAfter')}</p><div class="inv-acts"><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`}</div>`;
+  ${invRemote.url && invRemote.status!=='none' ? invShareBlock() : `<p class="cb-sub">${ta('invShareAfter')}</p>`}</div>`;
 }
 function invManageView(){
   const st = invRemote.status, c = invCfg() || WeddyInvite.sanitize(invRemote.publishedConfig||{}, invLang()), pending = invPending();
@@ -9948,8 +9948,7 @@ function invManageView(){
   return `${invBack(ta('sdTabInvites'),'home')}<h3 class="gimp-h2">${ta('invManageT')}</h3>
   <div class="inv-card"><div class="inv-row">${invCardHTML(c, 80)}<div class="inv-row-b"><b>${escapeHTML(invTplName(c.tpl))}</b><span class="inv-pill ${st}">${lab}</span>${when?`<small>${ta('invUpdated')}: ${escapeHTML(when)}</small>`:''}</div></div></div>
   ${st==='suspended'?`<p class="cb-sub">${ta('invSuspendedNote')}</p>`:''}${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
-  <div class="inv-acts"><a class="inv-act" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}<i>›</i></a><button type="button" class="inv-act" data-invgo="edit">${ta('invEdit')}<i>›</i></button>${st==='published'?`<button type="button" class="inv-act" data-invact="publish" ${pending?'':'aria-disabled="false"'}>${ta('invPublishChanges')}${pending?` <em>${ta('invPendingDot')}</em>`:''}<i>›</i></button>`:''}</div>
-  ${st==='published'?`<div class="inv-acts"><button type="button" class="inv-act inv-act-main" data-invgo="send">${ta('invSendBtn')}<i>›</i></button><button type="button" class="inv-act" data-invgo="dist">${ta('invDistT')}<i>›</i></button><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="png">${ta('invDownload')}<i>›</i></button></div>`:invShareBlock()}
+  <div class="inv-acts"><a class="inv-act" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}<i>›</i></a><button type="button" class="inv-act" data-invgo="edit">${ta('invEdit')}<i>›</i></button>${st==='published'?`<button type="button" class="inv-act" data-invact="publish" ${pending?'':'aria-disabled="false"'}>${ta('invPublishChanges')}${pending?` <em>${ta('invPendingDot')}</em>`:''}<i>›</i></button>`:''}${st==='published'?`<button type="button" class="inv-act inv-act-main" data-invgo="send">${ta('invSendBtn')}<i>›</i></button><button type="button" class="inv-act" data-invgo="dist">${ta('invDistT')}<i>›</i></button><button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button>`:`<button type="button" class="inv-act" data-invact="copy">${ta('invCopy')}<i>›</i></button><button type="button" class="inv-act" data-invact="wa">${ta('invWhats')}<i>›</i></button><button type="button" class="inv-act" data-invact="mail">${ta('invMail')}<i>›</i></button>`}</div>
   ${st==='published'?`<button type="button" class="inv-del" data-invact="unpublish">${ta('invUnpublish')}</button>`:''}`;
 }
 /* ---------- Envio e distribuição (WhatsApp manual + email) ----------
@@ -10358,11 +10357,11 @@ async function invDownloadCard(){
   });
 })();
 
-function invModelsPage(){ return sdTab==='convites' && !!window.WeddyInvite && (invUI.view==='gallery' || invUI.view==='tpl'); }
+function invModelsPage(){ return sdTab==='convites' && !!window.WeddyInvite && invUI.view!=='home'; }
 function viewPapelariaCore(){
   sdEnsure();
   if(invModelsPage()) return `
-${pageHeader('papelaria-back', ta('invBackGallery'), '', pmBadge())}
+${pageHeader('papelaria-back', (invUI.view==='gallery'||invUI.view==='tpl') ? ta('invBackGallery') : ta('sdTabInvites'), '', pmBadge())}
 <div class="cb-page">${sdConvitesTab()}</div>`;
   const pg = sdProgress();
   const tabs = [['convites','sdTabInvites'],['itens','sdTabItems'],['design','sdTabDesign']].map(x=>`<button type="button" role="tab" class="cb-tab" data-sdtab="${x[0]}" aria-selected="${sdTab===x[0]?'true':'false'}">${escapeHTML(ta(x[1]))}</button>`).join('');
@@ -10381,7 +10380,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t) return;
     if(t.closest('#papelaria-back') && sdOpen){ e.stopImmediatePropagation(); sdOpen = null; _origRender(); return; }
-    if(t.closest('#papelaria-back') && activeTab==='papelaria' && invModelsPage()){ e.stopImmediatePropagation(); invUI.view = invUI.view==='tpl' ? 'gallery' : 'home'; invUI.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    if(t.closest('#papelaria-back') && activeTab==='papelaria' && invModelsPage()){ e.stopImmediatePropagation(); { const hh = invUI.hist, v0 = invUI.view; invUI.view = v0==='tpl' ? 'gallery' : (v0==='gallery' ? 'home' : (hh.length ? hh[hh.length-1] : 'home')); } invUI.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const tab = t.closest('[data-sdtab]');
     if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; sdManage = false; _origRender(); return; }
     if(t.closest('[data-sdaddopen]')){ sdAdding = true; _origRender(); const i = document.getElementById('sd-new-name'); if(i) i.focus(); return; }
