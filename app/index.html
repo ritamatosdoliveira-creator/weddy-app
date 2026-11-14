@@ -24558,8 +24558,11 @@ function bindChatPanelHandlers(){
       if(needsAI) assistChatHistory.pop();
       assistChatHistory.push({ role:'bot', text: resposta });
       renderChatPanelBody();
+      // Nov 2026: só volta a pôr o cursor no campo quando a pessoa escreveu (o teclado já estava
+      // aberto). Ao tocar numa sugestão, focar abria o teclado no iPhone e a página saltava,
+      // com o cabeçalho a ficar por baixo da barra de estado e a resposta tapada.
       const freshInput = document.getElementById('assist-chat-input');
-      if(freshInput) freshInput.focus();
+      if(freshInput && presetText===undefined) freshInput.focus();
       saveAssistChatHistory();
     }).catch(()=>{
       // Fase E: um erro inesperado nunca deixa o chat preso em "a pensar…".
