@@ -242,6 +242,12 @@ html{
  line-height:1;}
 .nav-action:active{ transform:scale(0.9); background:var(--rust-dark); }
 .nav-action svg{ width:16px; height:16px; }
+/* Nov 2026 (teste em Android): botões pequenos (30–34px; o ✕ dos momentos tinha 18px) eram difíceis de
+   acertar com o dedo. Área de toque invisível de ≥44px à volta, sem mudar o aspeto. */
+.nav-back, .nav-action, .sup-filter-toggle, .home-icon-btn{ position:relative; }
+.nav-back::after, .nav-action::after, .sup-filter-toggle::after, .home-icon-btn::after, .hero-edit-photo-btn::after{ content:''; position:absolute; inset:-7px; }
+.sup-filter-toggle::after, .nav-action::after{ inset:-9px; }
+.timeline-del::after{ content:''; position:absolute; inset:-13px; }
 
 .section-label{ font-size:12.5px; color:var(--ink-soft); margin:20px 18px 10px; letter-spacing:.01em; }
 .section-label-caps{ font-size:10.5px; color:var(--rust-dark); font-weight:600; letter-spacing:.09em; text-transform:uppercase; margin:22px 18px 10px; }
@@ -2025,7 +2031,7 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .supd-pay-addrow{ display:flex; gap:8px; margin-top:10px; align-items:center; }
 .supd-pay-addrow input{ border:1px solid var(--line); background:#fff; border-radius:9px; padding:8px 9px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; }
 .supd-pay-addrow input[type="date"]{ flex:1.2; min-width:0; }
-.supd-pay-addrow input[type="number"]{ flex:1; min-width:0; }
+.supd-pay-addrow input[type="number"], .supd-pay-addrow input[data-num]{ flex:1; min-width:0; }
 .supd-field-card{ margin:0 16px 12px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
 .supd-field-card label{ display:block; font-size:11px; color:var(--ink-soft); margin-bottom:6px; }
 .supd-field-card input, .supd-field-card textarea{ width:100%; border:none; background:transparent; padding:0; font-size:14.5px; font-family:inherit; color:var(--ink); outline:none; resize:none; }
@@ -3964,8 +3970,8 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
       </div>
       <input type="hidden" id="hm-theme-value" value="">
     </div>
-    <div class="sheet-field"><label data-t="labelHmPriceMin">Preço mínimo (€)</label><input type="number" inputmode="decimal" step="any" min="0" id="hm-price-min" placeholder="0"></div>
-    <div class="sheet-field"><label data-t="labelHmPriceMax">Preço máximo (€)</label><input type="number" inputmode="decimal" step="any" min="0" id="hm-price-max" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelHmPriceMin">Preço mínimo (€)</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="hm-price-min" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelHmPriceMax">Preço máximo (€)</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="hm-price-max" placeholder="0"></div>
     <div class="sheet-field"><label data-t="labelHmDueDate">Data limite de pagamento (opcional)</label><input type="date" id="hm-duedate"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" id="hm-option-cancel" data-t="btnCancel">Cancelar</button>
@@ -4080,8 +4086,8 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
     <div class="sheet-title" data-t="sheetTitleNewExpense">Novo movimento</div>
     <div class="sheet-field"><label data-t="labelExpenseDescription">Descrição</label><input type="text" id="sf-desc" data-t-placeholder="phExpenseDescExample" placeholder="Ex: Sinal do fotógrafo"></div>
     <div class="sheet-field"><label data-t="labelDateRequired">Data *</label><input type="date" id="sf-date"></div>
-    <div class="sheet-field"><label data-t="labelTotalValueRequired">Valor total (€) *</label><input type="number" inputmode="decimal" step="any" min="0" id="sf-value" placeholder="0"></div>
-    <div class="sheet-field"><label data-t="labelAlreadyPaidRequired">Já pago (€) *</label><input type="number" inputmode="decimal" step="any" min="0" id="sf-paid" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelTotalValueRequired">Valor total (€) *</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="sf-value" placeholder="0"></div>
+    <div class="sheet-field"><label data-t="labelAlreadyPaidRequired">Já pago (€) *</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="sf-paid" placeholder="0"></div>
     <div class="sheet-field"><label data-t="labelPayByDateOptional">Data limite para pagar o resto (opcional)</label><input type="date" id="sf-duedate"></div>
     <div class="sheet-field"><label data-t="labelHmCategory">Categoria</label><select id="sf-cat"></select></div>
     <div class="sheet-field"><label data-t="labelSupplierOptional">Fornecedor (opcional)</label><select id="sf-supplier"></select></div>
@@ -6128,7 +6134,9 @@ function fmtFileSize(bytes){
 // ou "0€" em vez de ser tratado como inválido. moneyNum() está definida
 // mais abaixo neste ficheiro, mas como é `function` (hoisted), já está
 // disponível aqui.
-function fmtEUR(n){ n=moneyNum(n); return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+// Nov 2026: valores com cêntimos passam a mostrar os cêntimos (12,50 €); antes arredondava para 13 €.
+// Valores inteiros continuam sem casas decimais (15 000 €).
+function fmtEUR(n){ n=moneyNum(n); const c=Math.round(n*100)/100; const dec=Number.isInteger(c)?0:2; return c.toLocaleString('pt-PT',{style:'currency',currency:'EUR',minimumFractionDigits:dec,maximumFractionDigits:dec}); }
 function fmtPct(n){ n=Number(n); if(isNaN(n)||!isFinite(n)) n=0; return n>999 ? '999%+' : `${n}%`; }
 function fmtEUR2(n){ n=moneyNum(n); return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function flagRequiredField(el){
@@ -6297,6 +6305,23 @@ function countConfirmed(side){
 // só aceita números e strings numéricas — qualquer outra coisa (incluindo
 // booleanos) conta como 0, tal como já acontecia quando o campo vinha
 // vazio ou undefined.
+// Nov 2026 (teste em Android): com o telemóvel em inglês, o Chrome Android apagava a vírgula num
+// <input type=number> («12,5» ficava «125», dez vezes mais). Os campos de dinheiro passaram a texto
+// com teclado decimal (data-num); aqui a vírgula vira ponto e só ficam algarismos e um separador.
+document.addEventListener('input', e=>{
+  const el = e.target;
+  if(!el || el.tagName!=='INPUT' || !el.hasAttribute || !el.hasAttribute('data-num')) return;
+  const v = el.value;
+  // o «-» inicial fica, para a validação de cada formulário continuar a recusar negativos
+  let n = v.replace(/,/g,'.').replace(/[^0-9.\-]/g,'').replace(/(?!^)-/g,'');
+  const i = n.indexOf('.');
+  if(i>=0) n = n.slice(0,i+1) + n.slice(i+1).replace(/\./g,'');
+  if(n!==v){
+    let pos = null; try{ pos = el.selectionStart; }catch(_){}
+    el.value = n;
+    if(pos!==null){ const p = Math.max(0, pos - (v.length - n.length)); try{ el.setSelectionRange(p,p); }catch(_){} }
+  }
+}, true);
 function moneyNum(v){
   if(typeof v === 'number') return isFinite(v) ? v : 0;
   if(typeof v === 'string' && v.trim()!=='' && isFinite(Number(v))) return Number(v);
@@ -12264,13 +12289,13 @@ function viewOrcamentoPlano(){
         ${c.id==='quinta' ? `
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('catPerPersonLabel')}</span>
-          <input type="number" inputmode="decimal" step="any" class="field-input" data-catpp="${c.id}" min="0" placeholder="—" aria-label="${ta('catPerPersonLabel')}" value="${catPPShown(c)}" style="max-width:110px; text-align:right; font-size:14px;">
+          <input type="text" inputmode="decimal" data-num autocomplete="off" step="any" class="field-input" data-catpp="${c.id}" min="0" placeholder="—" aria-label="${ta('catPerPersonLabel')}" value="${catPPShown(c)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
         <div class="orcx-cat-pphint" data-catpphint="${c.id}">${guests ? ta('catPerPersonHint')(guests, fmtEUR(catTotal)) : ta('catPerPersonNote')}</div>
         ` : ''}
         <div class="table-config-row" style="padding:6px 0;">
           <span class="title" style="flex:none; font-size:12.5px; color:var(--ink-soft);">${ta('valueEurLabel')}</span>
-          <input type="number" inputmode="decimal" step="any" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
+          <input type="text" inputmode="decimal" data-num autocomplete="off" step="any" class="field-input" data-catvalue="${c.id}" min="0" max="${Math.round(total)}" value="${Math.round(catTotal)}" style="max-width:110px; text-align:right; font-size:14px;">
         </div>
         <div class="orcx-cat-actions">
           <button type="button" class="orcx-act" data-renamecat="${c.id}">${ICONS.pencil} ${ta('btnRename')}</button>
@@ -12290,7 +12315,7 @@ function viewOrcamentoPlano(){
   <section class="orcx-stats">
     <div class="orcx-stat">
       <label class="orcx-lbl" for="in-total">${ta('budgetTotalLabel')}</label>
-      <div class="orcx-stat-v"><span class="orcx-cur">€</span><input class="orcx-in" id="in-total" type="number" inputmode="decimal" step="any" min="0" value="${total}"><span class="orcx-edit">${ORCX_ICO.pencil}</span></div>
+      <div class="orcx-stat-v"><span class="orcx-cur">€</span><input class="orcx-in" id="in-total" type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" value="${total}"><span class="orcx-edit">${ORCX_ICO.pencil}</span></div>
     </div>
     <div class="orcx-stat">
       <label class="orcx-lbl" for="in-guests">${ta('budgetGuestsEstLabel')}</label>
@@ -14323,7 +14348,7 @@ function gtxDetailHTML(i){
     <section class="gtx-form">
       <label class="gtx-f gtx-f-wide"><span>${ta('labelExpenseDescription')}</span><input class="gtx-in" data-exp="desc|${i}" value="${escapeHTML(e.desc)}" placeholder="${ta('placeholderDescription')}"></label>
       <label class="gtx-f"><span>${ta('labelDate')}</span><input class="gtx-in" type="date" data-exp="date|${i}" value="${escapeHTML(e.date||'')}"></label>
-      <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="number" inputmode="decimal" step="any" min="0" data-exp="paid|${i}" value="${paid}"></label>
+      <label class="gtx-f"><span>${ta('gtxPaidField')}</span><input class="gtx-in" type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" data-exp="paid|${i}" value="${paid}"></label>
       <label class="gtx-f"><span>${ta('labelPaymentMethod')}</span>
         <select class="gtx-in" data-exp="method|${i}">
           <option value="" ${!e.method?'selected':''}>${ta('optionNotDefined')}</option>
@@ -15787,7 +15812,7 @@ function viewLuademelOption(o){
               <button type="button" data-hmodays="1" aria-label="+">${HMX_ICO.plus}</button>
             </div></section>
           <section class="hmx-sec"><label class="hmx-lbl" for="hmo-budget">${ta('labelEstimatedBudget')}</label>
-            <input class="hmx-input" type="number" inputmode="decimal" step="any" min="0" id="hmo-budget" value="${escapeHTML(o.budget||'')}" placeholder="0"></section>
+            <input class="hmx-input" type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="hmo-budget" value="${escapeHTML(o.budget||'')}" placeholder="0"></section>
         </div>
 
         <section class="hmx-sec"><label class="hmx-lbl" for="hmo-notes">${ta('labelNotesHelp')}</label>
@@ -18898,7 +18923,7 @@ function viewFornecedorDetalhe(){
 
   <div class="section-label">${ta('sectionPayments')}</div>
   <div class="supd-pay-card">
-    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="number" inputmode="decimal" step="any" min="0" id="supd-valortotal" value="${escapeHTML(s.valorTotal||'')}" placeholder="Ex: 2500"></div>
+    <div class="sheet-field" style="margin-bottom:12px;"><label>${ta('labelTotalContractedValue')}</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="supd-valortotal" value="${escapeHTML(s.valorTotal||'')}" placeholder="Ex: 2500"></div>
     <div class="supd-pay-top">
       <div><div class="supd-pay-paid" id="supd-paid-val">${fmtEUR(paid)}</div><div class="supd-pay-pct">${ta('lblPaidLower')}</div></div>
       <div class="supd-pay-rest"><span id="supd-rest-val">${fmtEUR(rest)}</span><br>${ta('lblToPay').toLowerCase()}</div>
@@ -18909,7 +18934,7 @@ function viewFornecedorDetalhe(){
     <div class="supd-pay-addrow">
       <span class="supd-pay-date-label">${ta('labelDate')}</span>
       <input type="date" id="supd-pay-date">
-      <input type="number" inputmode="decimal" step="any" min="0" id="supd-pay-amount" placeholder="${ta('placeholderValueEuro')}">
+      <input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="supd-pay-amount" placeholder="${ta('placeholderValueEuro')}">
       <button class="add-circle" id="supd-pay-add">${ICONS.plus}</button>
     </div>
   </div>
@@ -18917,7 +18942,7 @@ function viewFornecedorDetalhe(){
   <div class="supd-field-card">
     <div class="supd-field-2col">
       <div><label>${ta('labelNextPayment')}</label><input type="date" id="supd-nextpaydate" value="${escapeHTML(s.nextPaymentDate||'')}"></div>
-      <div><label>${ta('valueEurLabel')}</label><input type="number" inputmode="decimal" step="any" min="0" id="supd-nextpayamount" value="${escapeHTML(s.nextPaymentAmount||'')}" placeholder="${ta('phValueExample600')}"></div>
+      <div><label>${ta('valueEurLabel')}</label><input type="text" inputmode="decimal" data-num autocomplete="off" step="any" min="0" id="supd-nextpayamount" value="${escapeHTML(s.nextPaymentAmount||'')}" placeholder="${ta('phValueExample600')}"></div>
     </div>
   </div>
 
