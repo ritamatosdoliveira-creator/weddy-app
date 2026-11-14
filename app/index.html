@@ -244,7 +244,7 @@ html{
    acertar com o dedo. Área de toque invisível de ≥44px à volta, sem mudar o aspeto. */
 .nav-back, .nav-action, .sup-filter-toggle, .home-icon-btn{ position:relative; }
 .nav-back::after, .nav-action::after, .sup-filter-toggle::after, .home-icon-btn::after, .hero-edit-photo-btn::after{ content:''; position:absolute; inset:-7px; }
-.sup-filter-toggle::after{ inset:-9px; }
+.sup-filter-toggle::after, .nav-action::after{ inset:-9px; }
 .timeline-del::after{ content:''; position:absolute; inset:-13px; }
 
 .section-label{ font-size:12.5px; color:var(--ink-soft); margin:20px 18px 10px; letter-spacing:.01em; }
@@ -6132,7 +6132,9 @@ function fmtFileSize(bytes){
 // ou "0€" em vez de ser tratado como inválido. moneyNum() está definida
 // mais abaixo neste ficheiro, mas como é `function` (hoisted), já está
 // disponível aqui.
-function fmtEUR(n){ n=moneyNum(n); return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+// Nov 2026: valores com cêntimos passam a mostrar os cêntimos (12,50 €); antes arredondava para 13 €.
+// Valores inteiros continuam sem casas decimais (15 000 €).
+function fmtEUR(n){ n=moneyNum(n); const c=Math.round(n*100)/100; const dec=Number.isInteger(c)?0:2; return c.toLocaleString('pt-PT',{style:'currency',currency:'EUR',minimumFractionDigits:dec,maximumFractionDigits:dec}); }
 function fmtPct(n){ n=Number(n); if(isNaN(n)||!isFinite(n)) n=0; return n>999 ? '999%+' : `${n}%`; }
 function fmtEUR2(n){ n=moneyNum(n); return n.toLocaleString('pt-PT',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function flagRequiredField(el){
@@ -6308,7 +6310,8 @@ document.addEventListener('input', e=>{
   const el = e.target;
   if(!el || el.tagName!=='INPUT' || !el.hasAttribute || !el.hasAttribute('data-num')) return;
   const v = el.value;
-  let n = v.replace(/,/g,'.').replace(/[^0-9.]/g,'');
+  // o «-» inicial fica, para a validação de cada formulário continuar a recusar negativos
+  let n = v.replace(/,/g,'.').replace(/[^0-9.\-]/g,'').replace(/(?!^)-/g,'');
   const i = n.indexOf('.');
   if(i>=0) n = n.slice(0,i+1) + n.slice(i+1).replace(/\./g,'');
   if(n!==v){
