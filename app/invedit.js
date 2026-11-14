@@ -52,6 +52,10 @@
   ' .ied-prev{order:-1}.ied-pbar{display:none}.ied-stage{padding:8px 8px 0}.ied-body.view{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px));box-sizing:border-box}',
   ' .ied-mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:#FAF8F5;border-top:1px solid #E6DCD4;z-index:2}.ied-mbar .ied-btn{flex:1;text-align:center}',
   ' .ied-top{padding:calc(8px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 8px calc(12px + env(safe-area-inset-left,0px));gap:8px}.ied-saved{display:none}.ied-ttl b{font-size:17px}',
+  /* Nov 2026: no telemóvel o título e o estado ficavam espremidos pelos dois botões («Verd…» e o estado
+     partido em 5 linhas por baixo do botão). «Rever e publicar» já está na barra de baixo; o estado fica numa linha. */
+  ' .ied-top [data-publish]{display:none}.ied-top .ied-btn.ghost{padding:8px 12px;font-size:12px}',
+  ' .ied-st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
   '}'
   ].join('\n');
 
