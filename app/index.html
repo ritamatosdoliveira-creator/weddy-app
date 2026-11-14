@@ -13659,7 +13659,12 @@ function ntPrefs(){
   const em = (p.email && typeof p.email==='object' && !Array.isArray(p.email)) ? p.email : {};
   return { on: p.on!==false, email:{ digest: em.digest==='off' ? 'off' : 'weekly', alerts: em.alerts!==false }, types, min: (p.min in NT_PRIO) ? p.min : 'low', quiet:{ on:q.on!==false, from:ntHM(q.from,'22:00'), to:ntHM(q.to,'08:00') } };
 }
-function ntItems(){ const r = ntRaw(); return (r && Array.isArray(r.items)) ? r.items.filter(x=>x && typeof x==='object' && typeof x.id==='string' && NT_TYPES.includes(x.type)) : []; }
+function ntItems(){ const r = ntRaw(); const all = (r && Array.isArray(r.items)) ? r.items.filter(x=>x && typeof x==='object' && typeof x.id==='string' && NT_TYPES.includes(x.type)) : [];
+  // Nov 2026: cada sugestão do Copilot substitui a anterior — antes ficavam
+  // várias em lista com números diferentes ("20 / 16 / 1 / 4 convidados ainda
+  // não responderam"). Só se mostra a mais recente.
+  let last = null; all.forEach(x=>{ if(x.type==='copilot' && (!last || (Date.parse(x.at)||0) > (Date.parse(last.at)||0))) last = x; });
+  return all.filter(x=>x.type!=='copilot' || x===last); }
 function ntShown(it, pf){ return !it.x && pf.on && pf.types[it.type] && NT_PRIO[it.prio in NT_PRIO ? it.prio : 'normal'] >= NT_PRIO[pf.min]; }
 function ntUnread(){ const pf = ntPrefs(); return ntItems().filter(it=>!it.r && ntShown(it,pf)).length; }
 function ntYMD(d){ const p = n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
@@ -13828,6 +13833,7 @@ function ntRun(nowOverride){
       let p = c.p;
       if(t.newSub){ const mine = c.subItems.filter(x=>t.newSub.includes(x.sk)); p = Object.assign({}, c.p, { c:mine.length, names:mine.slice(0,3).map(x=>x.text), amt: mine.reduce((s,x)=>s+(x.amt||0),0) }); }
       const item = { id:c.id, type:c.type, prio:c.prio, k:c.k, p, at:iso, r:0, x:0, go:c.go||'' };
+      if(c.type==='copilot') n.items = n.items.filter(it=>!(it && it.type==='copilot'));
       n.items.unshift(item); reg([c.id].concat(t.newSub||[]));
       if(c.prio !== 'high') n.day.n++;
       fresh.push(item); changed = true;
