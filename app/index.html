@@ -2046,6 +2046,11 @@ input[type="date"]{ min-width:0; width:auto; max-width:100%; box-sizing:border-b
 .seat-row .seat-name{ flex:1; font-size:14px; color:var(--ink-soft); min-width:0; }
 .seat-row.filled .seat-name{ color:var(--ink); font-weight:600; }
 .seat-row.filled .seat-n{ background:var(--sage); color:#fff; }
+/* Etiquetas de logística ao lado do nome (dieta, alergia, acessibilidade, crianças) — antes não tinham estilo
+   e colavam ao nome como texto («Maria Matosdieta»). */
+.seat-tags{ display:inline-flex; flex-wrap:wrap; gap:4px; margin-left:8px; vertical-align:middle; }
+.seat-tag{ display:inline-block; font-size:10.5px; font-weight:500; line-height:1; letter-spacing:.02em; padding:3px 7px; border-radius:999px; background:#F1EBE5; color:var(--ink-soft); white-space:nowrap; }
+.seat-tag.warn{ background:#F8E4DD; color:#A14B33; }
 
 /* Sheet: lista de seleção de convidado (mesas) */
 .picker-search{ margin:0 0 10px; background:rgba(20,20,20,0.07); border-radius:10px; padding:8px 10px; display:flex; align-items:center; gap:6px; }
@@ -6168,7 +6173,8 @@ function newGuestEntry(catId, name){
 // (ex: 3 em vez de "3.0", mas 1.5 continua "1.5").
 function fmtGuestCount(n){
   const r = Math.round(n*10)/10;
-  return Number.isInteger(r) ? String(r) : String(r);
+  // Nov 2026: em PT a casa decimal é vírgula («67,5 pagantes», não «67.5»).
+  return Number.isInteger(r) ? String(r) : String(r).replace('.', appLang==='en' ? '.' : ',');
 }
 // Lista, para um lado (noiva/noivo), TODAS as categorias — as 4 fixas mais
 // as que a pessoa foi criando (Crianças, por defeito, e quaisquer outras
@@ -7587,7 +7593,7 @@ const APP_I18N = {
     iabAndP2:'<b>Abre a Google Play</b>, procura por <b>"Weddy"</b> e toca em <b>Instalar</b>.',
     iabAndNote:'Já tens a app? Abre-a e entra com a tua conta. Também podes tocar nos "⋮" e escolher "Abrir no navegador".',
     btnOk:'Ok',
-    paymentAlertTitle:(n)=>`${n} pagamento${n>1?'s':''} a terminar o prazo`,
+    paymentAlertTitle:(n,late)=>late===n ? `${n} pagamento${n>1?'s':''} em atraso` : (late ? `${n} pagamento${n>1?'s':''} a acompanhar` : `${n} pagamento${n>1?'s':''} a terminar o prazo`),
     paymentOverdueSuffix:(d)=>`(atrasado ${d}d)`,
     paymentDueInSuffix:(d)=>`(em ${d}d)`,
     defaultExpenseLabel:'Gasto',
@@ -7745,7 +7751,7 @@ const APP_I18N = {
     cpInDays:(n)=>`em ${n} dia${n===1?'':'s'}`,
     cpRemainingNext15:(base,lista)=>`${base} Nos próximos 15 dias: ${lista}.`,
     cpRSVPInfoExplain:(n)=>`Em Definições → Convites RSVP consegues gerar um link individual para cada convidado — ele responde lá se vai, a refeição e restrições, sem ver a lista toda nem o orçamento. Neste momento tens ${n} convidado${n===1?'':'s'} por responder.`,
-    cpGuestCount:(total,confirmed)=>`Tens ${total} convidados na lista, dos quais ${confirmed} já confirmaram presença (contando pelo peso de cada um — crianças e staff podem contar meio ou nada, consoante o que definiste).`,
+    cpGuestCount:(total,confirmed)=>`Tens ${total} convidados na lista, dos quais ${confirmed} já confirmaram presença.`,
     cpBudgetSummary:(orc,gasto,pago)=>`O orçamento definido é de ${orc}. Já tens ${gasto} em despesas registadas, das quais ${pago} já foram pagas.`,
     cpCountdownFuture:(dias,date)=>dias===1?`Falta 1 dia para o grande dia (${date}).`:`Faltam ${dias} dias para o grande dia (${date}).`,
     cpCountdownNoDate:'Ainda não definiste a data do casamento. Podes fazê-lo em Definições.',
@@ -9003,7 +9009,7 @@ const APP_I18N = {
     iabAndP2:'<b>Open Google Play</b>, search for <b>"Weddy"</b> and tap <b>Install</b>.',
     iabAndNote:'Already have the app? Open it and sign in. You can also tap "⋮" and choose "Open in browser".',
     btnOk:'Ok',
-    paymentAlertTitle:(n)=>`${n} payment${n>1?'s':''} coming due`,
+    paymentAlertTitle:(n,late)=>late===n ? `${n} overdue payment${n>1?'s':''}` : (late ? `${n} payment${n>1?'s':''} to follow up` : `${n} payment${n>1?'s':''} coming due`),
     paymentOverdueSuffix:(d)=>`(${d}d overdue)`,
     paymentDueInSuffix:(d)=>`(in ${d}d)`,
     defaultExpenseLabel:'Expense',
@@ -9161,7 +9167,7 @@ const APP_I18N = {
     cpInDays:(n)=>`in ${n} day${n===1?'':'s'}`,
     cpRemainingNext15:(base,lista)=>`${base} In the next 15 days: ${lista}.`,
     cpRSVPInfoExplain:(n)=>`In Settings → RSVP Invites you can generate an individual link for each guest — they respond there whether they're coming, their meal and restrictions, without seeing the full list or the budget. Right now you have ${n} guest${n===1?'':'s'} yet to respond.`,
-    cpGuestCount:(total,confirmed)=>`You have ${total} guests on the list, of which ${confirmed} have already confirmed attendance (counted by each one's weight — children and staff can count as half or nothing, depending on what you set).`,
+    cpGuestCount:(total,confirmed)=>`You have ${total} guests on the list, of which ${confirmed} have already confirmed attendance.`,
     cpBudgetSummary:(orc,gasto,pago)=>`The budget you set is ${orc}. You already have ${gasto} in recorded expenses, of which ${pago} have been paid.`,
     cpCountdownFuture:(dias,date)=>dias===1?`1 day left until the big day (${date}).`:`${dias} days left until the big day (${date}).`,
     cpCountdownNoDate:"You haven't set the wedding date yet. You can do it in Settings.",
@@ -11420,7 +11426,7 @@ function maybeShowPaymentAlert(){
   if(paymentAlertDismissed || activeTab!=='inicio' || !ntp.on || !ntp.types.payment){ popup.classList.remove('show'); return; }
   const upcoming = getUpcomingPayments();
   if(!upcoming.length){ popup.classList.remove('show'); return; }
-  document.getElementById('payment-alert-title').textContent = ta('paymentAlertTitle')(upcoming.length);
+  document.getElementById('payment-alert-title').textContent = ta('paymentAlertTitle')(upcoming.length, upcoming.filter(u=>u.overdue).length);
   document.getElementById('payment-alert-body').innerHTML = upcoming.map(u=>
     `<p>${escapeHTML(u.label)} — <b>${fmtEUR(u.amount)}</b> ${u.overdue?ta('paymentOverdueSuffix')(Math.abs(u.days)):ta('paymentDueInSuffix')(u.days)}</p>`
   ).join('');
@@ -21678,8 +21684,10 @@ async function respondeAssistente(pergunta){
   // pendente: uma confirmação só vale para a pergunta imediatamente anterior.
   if(classified.intent!==I.CONFIRM_PENDING && classified.intent!==I.CANCEL_PENDING) copilotPending = null;
 
-  const totalConvidados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countGuests(s), 0);
-  const totalConfirmados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmed(s), 0);
+  // Nov 2026: pessoas (como Início, Convidados, RSVP e Health), não o peso de pagamento —
+  // antes respondia «67.5 convidados, 48.5 confirmados» com o ecrã a dizer «50 de 70».
+  const totalConvidados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countPeople(s), 0);
+  const totalConfirmados = ALL_GUEST_SIDES.reduce((sum,s)=>sum+countConfirmedPeople(s), 0);
 
   // Por omissão, cada pergunta LIMPA o contexto reutilizável anterior — só
   // os casos que resolvem um fornecedor/mesa/convidado concreto o voltam a
@@ -21832,10 +21840,7 @@ async function respondeAssistente(pergunta){
       return ta('cpRemainingNext15')(base, lista);
     }
     case I.GET_RSVP_INFO: {
-      const pendentes = flattenAllGuestsForRSVP().filter(g=>{
-        if(!g.entry.rsvpToken) return true;
-        return !rsvpHasResponded(memberRSVPResponse(g));
-      }).length;
+      const pendentes = flattenAllGuestsForRSVP().filter(isRsvpPending).length;
       return ta('cpRSVPInfoExplain')(fmtGuestCount(pendentes));
     }
     case I.GET_GUEST_COUNT:
@@ -26011,7 +26016,10 @@ function bindHandlers(){
       // do Assistente (o mesmo botão redondo que já existe sempre visível),
       // por isso este azulejo só abre essa janela em vez de navegar.
       if(key==='chatbot'){ openChatPanel(); return; }
-      if(key==='convites'){ closeAllSheets(); sdTab = 'convites'; invUI.view = 'home'; activeTab = 'papelaria'; _origRender(); return; }
+      // Nov 2026: a ferramenta abre sempre no topo — antes herdava o scroll do Início e os
+      // números do topo (RSVP, Wedding Health, Papelaria) ficavam escondidos.
+      const toTop = ()=>document.querySelectorAll('.tabpanel.active .scroll, .tabpanel.active').forEach(sc=>{ sc.scrollTop = 0; });
+      if(key==='convites'){ closeAllSheets(); sdTab = 'convites'; invUI.view = 'home'; activeTab = 'papelaria'; _origRender(); toTop(); return; }
       closeAllSheets();
       // Origem diferente do menu de Definições (ex.: Início) → "voltar" regressa lá.
       if(!(activeTab==='definicoes' && (definicoesSection===null || definicoesSection===key))) navBackSet('definicoes', key);
@@ -26022,6 +26030,7 @@ function bindHandlers(){
       rsvpAutopilotReview = null;
       if(key==='rsvp') setRSVPSeenCount(countRSVPResponded());
       _origRender();
+      toTop();
     });
   });
   document.querySelectorAll('[data-defback]').forEach(el=>{
