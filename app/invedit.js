@@ -13,7 +13,7 @@
   '.ied{position:fixed;inset:0;z-index:9000;background:#FAF8F5;color:#2B2522;font:14px/1.5 "Jost",system-ui,sans-serif;display:flex;flex-direction:column}',
   '.ied *{box-sizing:border-box}',
   '.ied-top{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) calc(18px + env(safe-area-inset-right,0px)) 10px calc(18px + env(safe-area-inset-left,0px));border-bottom:1px solid #E6DCD4;background:#FAF8F5;flex:none}',
-  '.ied-back{border:0;background:none;color:#6b5d4f;font:500 13px/1 inherit;cursor:pointer;padding:8px 4px}',
+  '.ied-back{border:0;background:none;color:#2B2522;cursor:pointer;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;margin-left:-8px;padding:0}',
   '.ied-ttl{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}.ied-ttl b{font:600 20px/1.1 "Cormorant Garamond",Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
   '.ied-st{font-size:12px;color:#7b6d5d}.ied-st.pend{color:#9a5b2e}',
   '.ied-saved{font-size:12px;color:#7b6d5d;white-space:nowrap}',
@@ -46,7 +46,7 @@
   '.ied-ph .b{flex:1;min-width:0;font-size:12px;color:#6b5d4f}.ied-ph .b p{margin:0 0 8px}',
   '.ied-warn{border-top:1px solid #E6DCD4;margin-top:22px;padding-top:12px;font-size:12.5px;color:#7a5a2c}.ied-warn p{margin:4px 0}.ied-err{color:#9a2f2f}',
   '.ied-mbar{display:none}',
-  '@media (max-width:899px){',
+  '@media (max-width:699px){',
   ' .ied-body{grid-template-columns:1fr;grid-template-rows:42% 1fr}.ied-body.view{grid-template-rows:1fr 0}.ied-body.view .ied-panel{display:none}',
   ' .ied-panel{border-right:0;border-top:1px solid #E6DCD4;border-radius:18px 18px 0 0;box-shadow:0 -8px 20px rgba(43,37,34,.08);padding-bottom:90px}',
   ' .ied-prev{order:-1}.ied-pbar{display:none}.ied-stage{padding:8px 8px 0}.ied-body.view{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px));box-sizing:border-box}',
@@ -122,7 +122,7 @@
 
   /* ---------- painel: detalhe de uma secção ---------- */
   function detailView(s){
-    var h = '<button type="button" class="ied-link" data-back>‹ '+W('Todas as secções','All sections')+'</button><h3 class="ied-h">'+esc(L(s.nome))+'</h3>';
+    var h = '<button type="button" class="ied-back ied-bk" data-back aria-label="'+W('Voltar','Back')+'"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4.5l-7.5 7.5 7.5 7.5"/></svg></button><h3 class="ied-h">'+esc(L(s.nome))+'</h3>';
     h += '<span class="ied-where">'+W('Aparece em: ','Appears in: ')+esc(L(s.nome))+'</span>';
     if(s.titulo){ var T = (A.draft().titles||{})[s.id]||''; h += '<div class="ied-box"><label class="ied-f" style="margin:0"><span>'+W('Título da secção','Section title')+' <small>'+W('original: ','original: ')+esc(L(s.titulo))+'</small></span><input class="ied-in" maxlength="40" data-title="'+s.id+'" value="'+esc(T)+'" placeholder="'+esc(L(s.titulo))+'"></label><button type="button" class="ied-link" data-retitle="'+s.id+'">'+W('Repor título','Reset title')+'</button></div>'; }
     if(s.ocultavel){ var on = hidden().indexOf(s.id)<0; h += '<div class="ied-row" style="justify-content:space-between"><span>'+W('Mostrar esta secção','Show this section')+'</span><button type="button" class="ied-tog" role="switch" aria-checked="'+on+'" aria-label="'+esc(W('Mostrar secção','Show section'))+'" data-tog="'+s.id+'"></button></div>'; }
@@ -257,7 +257,7 @@
   function statusHtml(){ var s = A.status(); return s.published ? (s.pending ? '<span class="ied-st pend">'+W('A editar alterações · o convite público não muda até publicarem','Editing changes · the public invitation stays the same until you publish')+'</span>' : '<span class="ied-st">'+W('Publicado · sem alterações por publicar','Published · no unpublished changes')+'</span>') : '<span class="ied-st">'+W('Rascunho · ainda não publicado','Draft · not published yet')+'</span>'; }
   function shell(){
     var sch = SCH(), nm = L(sch.nome);
-    return '<style>'+CSS+'</style><div class="ied-top"><button type="button" class="ied-back" data-close>‹ '+W('Convites digitais','Digital invitations')+'</button><div class="ied-ttl"><b>'+esc(nm)+'</b>'+statusHtml()+'</div><span class="ied-saved" role="status"></span>'+
+    return '<style>'+CSS+'</style><div class="ied-top"><button type="button" class="ied-back" data-close aria-label="'+W('Voltar','Back')+'"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4.5l-7.5 7.5 7.5 7.5"/></svg></button><div class="ied-ttl"><b>'+esc(nm)+'</b>'+statusHtml()+'</div><span class="ied-saved" role="status"></span>'+
       (A.status().published ? '<button type="button" class="ied-btn ghost" data-seepub>'+W('Ver convite publicado','View published')+'</button>' : '')+'<button type="button" class="ied-btn" data-publish>'+W('Rever e publicar','Review and publish')+'</button></div>'+
       '<div class="ied-body"><aside class="ied-panel" aria-label="'+W('Editar convite','Edit invitation')+'"></aside><section class="ied-prev"><div class="ied-pbar"><button type="button" class="ied-seg" data-dev="phone" aria-pressed="'+(st.device==='phone')+'">'+W('Telemóvel','Phone')+'</button><button type="button" class="ied-seg" data-dev="desk" aria-pressed="'+(st.device==='desk')+'">'+W('Computador','Computer')+'</button></div><div class="ied-stage"><div class="ied-dev"><div class="ied-scr"><iframe class="ied-ifr" title="'+esc(W('Pré-visualização do convite','Invitation preview'))+'" sandbox="allow-same-origin"></iframe></div></div></div></section></div>'+
       '<div class="ied-mbar"><button type="button" class="ied-btn ghost" data-mtoggle>'+W('Ver convite inteiro','View full invitation')+'</button><button type="button" class="ied-btn" data-publish>'+W('Rever e publicar','Review and publish')+'</button></div>';

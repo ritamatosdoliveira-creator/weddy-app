@@ -3784,6 +3784,7 @@ body.force-portrait-b{ transform: rotate(90deg) translate(0, -100%); }
 .inv-filters{ overflow-x:auto; flex-wrap:nowrap; justify-content:flex-start; scrollbar-width:none; } .inv-filters .cb-tab{ white-space:nowrap; flex:none; padding-left:14px; padding-right:14px; } .inv-one{ all:unset; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--rust,#B5654B); flex:none; } .inv-one svg{ width:18px; height:18px; } .inv-act-main{ font-weight:600; }
 .inv-wrap{ padding-bottom:12px; }
 .inv-back{ margin:2px 0 6px; }
+.inv-back-ic{ all:unset; box-sizing:border-box; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; margin:0 0 2px -10px; color:#2B2522; border-radius:50%; -webkit-tap-highlight-color:transparent; } .inv-back-ic svg{ width:22px; height:22px; } .inv-back-ic:active{ opacity:.5; }
 .inv-hero{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin:10px 0 14px; padding:18px 16px; border:1px solid var(--ox-line,#E6DCD4); border-radius:20px; background:linear-gradient(135deg,#F6EEE6,#FAF8F5); }
 .inv-hero-t{ flex:1; min-width:0; } .inv-hero-t h3{ font-family:'Cormorant Garamond',serif; font-size:28px; line-height:1.1; margin:6px 0; color:#2B2522; font-weight:600; } .inv-hero-t p{ margin:0 0 10px; font-size:13.5px; color:#6B5E57; line-height:1.5; }
 .inv-kick{ font-size:10px; letter-spacing:.22em; color:#8B7D74; }
@@ -3826,6 +3827,18 @@ input.cb-in[type=time]::-webkit-date-and-time-value, input.cb-in[type=date]::-we
 @media (min-width:900px){ .inv-grid{ grid-template-columns:repeat(4,1fr); } .inv-wrap{ max-width:900px; } .inv-hero-i{ transform:none; } }
 @media (prefers-reduced-motion:reduce){ .inv-hero-i{ transform:none; } }
 .inv-tpl .inv-cardw{margin:0 auto}
+/* Nov 2026 — Convites em tablet (700–1023px): coluna mais larga, galeria a 3 colunas, modelo com
+   pré-visualização ao lado do texto e cartão do topo sem sobreposição com o botão. */
+@media (min-width:700px) and (max-width:1023px){
+  .cb-page:has(.inv-wrap){ max-width:860px; }
+  .inv-hero{ gap:28px; padding:22px 26px; } .inv-hero-i{ transform:none; }
+  .inv-grid{ grid-template-columns:repeat(3,1fr); gap:20px 16px; }
+  .inv-tplv{ display:grid; grid-template-columns:minmax(0,1fr) 300px; grid-template-rows:auto 1fr; column-gap:28px; align-items:start; }
+  .inv-tplv > .inv-stage{ grid-column:1; grid-row:1 / span 2; margin:12px 0 16px; }
+  .inv-tplv-side{ grid-column:2; grid-row:1; padding-top:12px; }
+  .inv-tplv-act{ grid-column:2; grid-row:2; display:flex; flex-direction:column; gap:10px; }
+  .inv-tplv-act .cb-btn{ margin:0; }
+}
 /* Nov 2026 — foco visível para quem navega por teclado (só :focus-visible: toques e cliques
    não mostram o contorno). Os campos de texto mantêm o realce próprio. */
 :is(button, a[href], [role=button], [role=tab], summary, [tabindex]:not([tabindex="-1"]):not(input):not(textarea):not(select)):focus-visible{
@@ -9632,7 +9645,7 @@ function sdItemEditor(){
   ${`<div style="margin-top:24px"><button type="button" class="cb-link danger" data-sddelitem="${escapeHTML(it.id)}">${ta('sdRemoveItem')}</button></div>`}`;
 }
 Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregaram. Volta a abrir a app com ligação à internet.', sdTabInvites:'Convites', invTitle:'Convites digitais', invSub:'Um convite à altura da vossa história.', invExplore:'Explorar modelos', invRest:'Restante papelaria', invDraftT:'O vosso rascunho', invContinueEdit:'Continuar a editar', invNoNames:'Sem nomes ainda', invPublishedT:'Convite publicado', invManage:'Gerir convite', invStPublished:'Publicado', invStChanges:'Alterações por publicar', invStSuspended:'Indisponível (Premium terminado)', invStUnpublished:'Despublicado',
- invGalleryHint:'Escolham um design e deixem-no contar a vossa história.', invNoTpl:'Nenhum modelo neste estilo.', invBackGallery:'Modelos', invModePage:'Convite interativo', invModeCard:'Cartão digital', invChoose:'Escolher este modelo', invBackToTpl:'Voltar aos modelos', invPreviewTitle:'Pré-visualização do convite',
+ invGalleryHint:'Escolham um design e deixem-no contar a vossa história.', invNoTpl:'Nenhum modelo neste estilo.', invBackGallery:'Modelos', invBackAria:'Voltar', invModePage:'Convite interativo', invModeCard:'Cartão digital', invChoose:'Escolher este modelo', invBackToTpl:'Voltar aos modelos', invPreviewTitle:'Pré-visualização do convite',
  invStyle_todos:'Todos', invStyle_premium:'Coleção Premium', invStyle_classicos:'Clássicos', invStyle_minimalistas:'Minimalistas', invStyle_romanticos:'Românticos', invStyle_botanicos:'Botânicos', invStyle_contemporaneos:'Contemporâneos',
  invTpl_colorido:'Colorido Artístico', invTpl_natural:'Minimal Natural', invFEvN:'Título do momento', invFEvNc:'Título (ex.: Cerimónia civil)', invFEvNr:'Título (ex.: Receção)', invFTips:'Recomendações aos convidados', invFKids:'Informação sobre crianças', invFGifts:'Sugestões de presentes', invSecTips:'Recomendações', invSecKids:'Crianças', invSecGifts:'Presentes', invTpl_luxo:'Papelaria de Luxo', invTpl_arquitetura:'Arquitetura do Casamento', invTpl_romance:'Romance Contemporâneo', invFCer:'Cerimónia', invFRec:'Receção', invFEvT:'Hora', invFEvP:'Local', invOptsT:'Elementos deste modelo', invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Jardim', invTpl_classico:'Clássico', invTpl_mediterranico:'Mediterrânico', invTpl_romantico:'Romântico', invTpl_couture:'Couture', invTpl_campestre:'Campestre',
  invEditTitle:'Personalizar convite', invEditSub:'Escolham o que mostrar. A composição de cada modelo mantém-se.', invAutosave:'O rascunho guarda-se automaticamente.', invPreview:'Pré-visualizar', invSave:'Guardar',
@@ -9662,7 +9675,7 @@ Object.assign(APP_I18N.pt, { invUnavailable:'Os convites digitais não carregara
  invDemoCeremony:'Cerimónia', invDemoDinner:'Jantar', invDemoDress:'Formal',
  homePfInvT:'Convites Digitais', homePfInvD:'Escolhe um modelo e cria o teu convite.' });
 Object.assign(APP_I18N.en, { invUnavailable:'Digital invitations did not load. Reopen the app with an internet connection.', sdTabInvites:'Invitations', invTitle:'Digital invitations', invSub:'An invitation worthy of your story.', invExplore:'Explore templates', invRest:'Rest of the stationery', invDraftT:'Your draft', invContinueEdit:'Keep editing', invNoNames:'No names yet', invPublishedT:'Published invitation', invManage:'Manage invitation', invStPublished:'Published', invStChanges:'Unpublished changes', invStSuspended:'Unavailable (Premium ended)', invStUnpublished:'Unpublished',
- invGalleryHint:'Pick a design and let it tell your story.', invNoTpl:'No templates in this style.', invBackGallery:'Templates', invModePage:'Interactive invitation', invModeCard:'Digital card', invChoose:'Choose this template', invBackToTpl:'Back to templates', invPreviewTitle:'Invitation preview',
+ invGalleryHint:'Pick a design and let it tell your story.', invNoTpl:'No templates in this style.', invBackGallery:'Templates', invBackAria:'Back', invModePage:'Interactive invitation', invModeCard:'Digital card', invChoose:'Choose this template', invBackToTpl:'Back to templates', invPreviewTitle:'Invitation preview',
  invStyle_todos:'All', invStyle_premium:'Premium collection', invStyle_classicos:'Classic', invStyle_minimalistas:'Minimal', invStyle_romanticos:'Romantic', invStyle_botanicos:'Botanical', invStyle_contemporaneos:'Contemporary',
  invTpl_colorido:'Artistic Colour', invTpl_natural:'Natural Minimal', invFEvN:'Event title', invFEvNc:'Title (e.g. Civil ceremony)', invFEvNr:'Title (e.g. Reception)', invFTips:'Guest recommendations', invFKids:'Information about children', invFGifts:'Gift suggestions', invSecTips:'Recommendations', invSecKids:'Children', invSecGifts:'Gifts', invTpl_luxo:'Luxury Stationery', invTpl_arquitetura:'Wedding Architecture', invTpl_romance:'Contemporary Romance', invFCer:'Ceremony', invFRec:'Reception', invFEvT:'Time', invFEvP:'Place', invOptsT:'Template elements', invTpl_editorial:'Editorial', invTpl_minimal:'Minimal', invTpl_jardim:'Garden', invTpl_classico:'Classic', invTpl_mediterranico:'Mediterranean', invTpl_romantico:'Romantic', invTpl_couture:'Couture', invTpl_campestre:'Countryside',
  invEditTitle:'Customise invitation', invEditSub:'Choose what to show. Each template keeps its composition.', invAutosave:'Your draft saves automatically.', invPreview:'Preview', invSave:'Save',
@@ -9699,6 +9712,16 @@ Object.assign(APP_I18N.en, { invUnavailable:'Digital invitations did not load. R
    Motor de desenho partilhado: /weddyinvite.js (o mesmo da página pública convite.html).
    ============================================================================ */
 let invUI = { view:'home', tpl:'', mode:'page', device:'phone', filter:'todos', sec:'', msg:'', busy:'' };
+/* Nov 2026 — «voltar» nos Convites volta ao ecrã anterior (não ao menu principal): o histórico de
+   ecrãs guarda-se ao mudar de vista. Ir para um ecrã que já está no histórico corta-o até aí. */
+(function(){ const st = { v:'home', h:[] };
+  Object.defineProperty(invUI, 'hist', { value: st.h, enumerable:false });
+  Object.defineProperty(invUI, 'view', { enumerable:true, configurable:true, get(){ return st.v; }, set(n){
+    if(n===st.v) return;
+    if(n==='home'){ st.h.length = 0; }
+    else { const i = st.h.lastIndexOf(n); if(i>=0) st.h.length = i; else { st.h.push(st.v); if(st.h.length>20) st.h.shift(); } }
+    st.v = n; } });
+})();
 let invRemote = { loaded:false, status:'none', slug:'', url:'', publishedConfig:null, publishedAt:0, error:'' };
 const INV_SEC_LABEL = { cover:'invSecCover', message:'invSecMessage', datetime:'invSecDate', location:'invSecPlace', map:'invSecMap', program:'invSecProgram', dress:'invSecDress', tips:'invSecTips', kids:'invSecKids', gifts:'invSecGifts' };
 function invEnsure(){
@@ -9771,7 +9794,7 @@ function invWarnings(){
   return w;
 }
 function invProblems(cfg){ const p = []; if(!cfg.names) p.push(ta('invErrNames')); if(!cfg.date) p.push(ta('invErrDate')); return p; }
-function invBack(label, to){ return `<button type="button" class="cb-link inv-back" data-invgo="${to}">‹ ${escapeHTML(label)}</button>`; }
+function invBack(label, to, hard){ return `<button type="button" class="inv-back inv-back-ic" data-invback="${to}"${hard?' data-invhard="1"':''} aria-label="${escapeHTML(ta('invBackAria'))}">${ICONS.chevleft}</button>`; }
 function invPremTag(){ return `<span class="inv-prem">${ICONS.crown||''}<span>Premium</span></span>`; }
 /* ---------- ecrãs ---------- */
 function invHomeView(){
@@ -9799,7 +9822,7 @@ function invTplView(){
   const id = invUI.tpl, t = WeddyInvite.tpl(id), cfg = invDemoCfg(id), m = invUI.mode;
   return `<div class="inv-tplv"><div class="inv-tplv-side"><h3 class="gimp-h2">${invTplName(id)}</h3><p class="cb-sub">${escapeHTML(t.desc[invLang()])}</p></div>
   <div class="inv-stage">${invFrame(cfg,'phone','demo')}</div>
-  <div class="inv-tplv-act"><button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button><button type="button" class="cb-btn ghost" data-invgo="gallery">${ta('invBackToTpl')}</button></div></div>`;
+  <div class="inv-tplv-act"><button type="button" class="cb-btn" data-invchoose="${id}">${ta('invChoose')}</button></div></div>`;
 }
 function invEditView(){
   const c = invCfg(); if(!c) return invHomeView();
@@ -9886,7 +9909,7 @@ function invOpenEditor(sec){
     warnings: ()=> invWarnings(),
     status: ()=> ({ published: invRemote.status==='published', pending: invRemote.status==='published' && invPending() }),
     publish: ()=>{ invUI.view = 'ready'; invUI.msg = ''; _origRender(); },
-    close: ()=>{ invUI.view = 'home'; invUI.msg = ''; _origRender(); },
+    close: ()=>{ const hh = invUI.hist; invUI.view = hh.length ? hh[hh.length-1] : 'home'; invUI.msg = ''; _origRender(); },
     openPublished: ()=>{ if(invRemote.url) window.open(invRemote.url, '_blank', 'noopener'); },
     removePhoto: (slot)=>{ const d = invEnsure().draft; if(!d) return; const old = invPhotoGet(d, slot); invPhotoSet(d, slot, ''); invPhotoDropOld(old); pushRemote(false); },
     uploadPhoto: async (slot, file)=>{ await invUploadPhoto(slot, file); pushRemote(false); }
@@ -10020,13 +10043,13 @@ function invRsvpLabel(r){ return ta(r==='yes'?'invRsYes': r==='no'?'invRsNo': r=
 function invDoneView(){
   const c = invCfg() || WeddyInvite.sanitize(invRemote.publishedConfig||{}, invLang());
   const pub = invIsPub();
-  return `<div class="inv-ready inv-done"><div class="inv-check">✓</div><h3 class="gimp-h2">${ta('invDoneT')}</h3><p class="cb-sub">${ta('invDoneSub')}</p>
+  return `${invBack('','manage',true)}<div class="inv-ready inv-done"><div class="inv-check">✓</div><h3 class="gimp-h2">${ta('invDoneT')}</h3><p class="cb-sub">${ta('invDoneSub')}</p>
   <div class="inv-done-prev">${invCardHTML(c, 150)}</div>
   ${invUI.msg?`<p class="cb-sub" role="status">${escapeHTML(invUI.msg)}</p>`:''}
   <div class="inv-done-acts"><button type="button" class="cb-btn" data-invgo="send" ${pub?'':'disabled'}>${ta('invSendBtn')}</button>
   <a class="cb-btn ghost" href="${escapeHTML(invRemote.url||'#')}" target="_blank" rel="noopener">${ta('invSee')}</a>
   <button type="button" class="cb-btn ghost" data-invact="copy">${ta('invCopy')}</button>
-  <button type="button" class="cb-link" data-invgo="manage">${ta('invBackManage')}</button></div></div>`;
+  </div></div>`;
 }
 /* ---- seleção ---- */
 function invFiltered(us){
@@ -10262,7 +10285,7 @@ async function invDownloadCard(){
   if(window.__invBound) return; window.__invBound = true;
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t || activeTab!=='papelaria' || sdTab!=='convites') return;
-    const go = t.closest('[data-invgo]'); if(go){ invUI.view = go.dataset.invgo; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } if(invUI.view==='edit' && invOpenEditor()) return; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    const go = t.closest('[data-invgo],[data-invback]'); if(go){ const isBk = go.dataset.invback!==undefined; const hh = invUI.hist; const fb = isBk && (go.dataset.invhard || !hh.length); invUI.view = isBk ? (fb ? go.dataset.invback : hh[hh.length-1]) : go.dataset.invgo; if(fb) hh.length = 0; invUI.msg = ''; if(invUI.view==='prev'){ invUI.mode = 'page'; } if(invUI.view==='edit' && invOpenEditor()) return; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const df = t.closest('[data-invdf]'); if(df){ invDist.filter = df.dataset.invdf; _origRender(); return; }
     const on1 = t.closest('[data-invone]'); if(on1){ invDist.sel = {}; invDist.sel[on1.dataset.invone] = true; invDist.one = on1.dataset.invone; invUI.view = 'one'; invUI.msg = ''; _origRender(); return; }
     const f = t.closest('[data-invfilter]'); if(f){ invUI.filter = f.dataset.invfilter; _origRender(); return; }
