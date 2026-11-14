@@ -29969,7 +29969,7 @@ function renderLoginForm(msg, isError, isSuccess){
       <div class="login-msg ${isError?'error':isSuccess?'success':''}">${msg||''}</div>
       ${!isSignup? `<div class="lgx-link" id="login-forgot">${ta('forgotPassword')}</div>` : ''}
       <div class="lgx-or">${ta('orSeparatorLabel')}</div>
-      <button type="button" class="login-btn lgx-alt" id="login-google">${GOOGLE_G_ICON}<span>${ta('btnContinueGoogle')}</span></button>
+      ${isNativeIOSApp()? '' : `<button type="button" class="login-btn lgx-alt" id="login-google">${GOOGLE_G_ICON}<span>${ta('btnContinueGoogle')}</span></button>`}
       ${isNativeIOSApp()? `<button type="button" class="login-btn lgx-alt" id="login-apple">${APPLE_LOGO_ICON}<span>${ta('btnContinueApple')}</span></button>` : ''}
     </div>
     <div class="lgx-foot" id="login-toggle">${isSignup? ta('toggleToLogin') : ta('toggleToSignup')}</div>
@@ -30002,7 +30002,7 @@ function renderLoginForm(msg, isError, isSuccess){
   document.getElementById('login-toggle').addEventListener('click', ()=>{ authMode = isSignup?'login':'signup'; renderLoginForm(); });
   const forgotLink = document.getElementById('login-forgot');
   if(forgotLink) forgotLink.addEventListener('click', handleForgotPassword);
-  document.getElementById('login-google').addEventListener('click', handleGoogleSignIn);
+  { const gb = document.getElementById('login-google'); if(gb) gb.addEventListener('click', handleGoogleSignIn); }
   const appleBtn = document.getElementById('login-apple');
   if(appleBtn) appleBtn.addEventListener('click', handleAppleSignIn);
 }
