@@ -146,19 +146,19 @@ html{
   html.login-active, html .login-screen{ background:#FAF8F5; }
   html.login-active:has(.lgx-welcome), html .login-screen:has(.lgx-welcome){ background:#FAF8F5; }
   .login-screen::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:
-    url('/dsk-logo.png') center 4vh/auto min(22vh,210px) no-repeat,
+    url('/dsk-logo.png') center 9vh/auto min(22vh,210px) no-repeat,
     url('/dsk-casal.png') right bottom/auto min(34vh,300px) no-repeat,
     url('/dsk-flor-bl.png') left bottom/auto min(34vh,300px) no-repeat,
     url('/dsk-flor-tr.png') right top/auto min(30vh,250px) no-repeat,
     url('/dsk-flor-tl.png') left top/auto min(30vh,250px) no-repeat; }
   @media (min-width:1100px){ .login-screen::before{ background:
-    url('/dsk-logo.png') center 4vh/auto min(22vh,210px) no-repeat,
+    url('/dsk-logo.png') center 9vh/auto min(22vh,210px) no-repeat,
     url('/dsk-casal.png') right bottom/auto min(68vh,562px) no-repeat,
     url('/dsk-flor-bl.png') left bottom/auto min(62vh,592px) no-repeat,
     url('/dsk-flor-tr.png') right top/auto min(52vh,430px) no-repeat,
     url('/dsk-flor-tl.png') left top/auto min(52vh,430px) no-repeat; } }
-  .lgx-login{ justify-content:center !important; padding-top:calc(env(safe-area-inset-top,0px) + 4vh + min(22vh,210px)) !important; padding-bottom:4vh !important; } .lgx-login .lgx-back{ position:relative !important; left:auto !important; top:auto !important; align-self:flex-start; margin:0 0 6px -14px; }
-  .lgx-welcome{ justify-content:center; padding-top:calc(env(safe-area-inset-top,0px) + 4vh + min(22vh,210px)); padding-bottom:4vh; } .lgx-welcome .lgx-art{ flex:none; height:min(34vh,320px); margin-top:14px; } .lgx-welcome .lgx-cta{ margin-top:18px; max-width:340px; } .lgx-welcome .lgx-logo{ display:none; } .lgx-welcome .lgx-sprig-tr{ display:none; } /* o logótipo e as flores já vêm do fundo largo (::before): sem isto aparecem duplicados */
+  .lgx-login{ justify-content:flex-start !important; padding-top:calc(env(safe-area-inset-top,0px) + 9vh + min(22vh,210px) + 3vh) !important; padding-bottom:4vh !important; } .lgx-login .lgx-back{ position:relative !important; left:auto !important; top:auto !important; align-self:flex-start; margin:0 0 6px -14px; }
+  .lgx-welcome{ justify-content:center; padding-top:calc(env(safe-area-inset-top,0px) + 9vh + min(22vh,210px)); padding-bottom:4vh; } .lgx-welcome .lgx-art{ flex:none; height:min(34vh,320px); margin-top:14px; } .lgx-welcome .lgx-cta{ margin-top:18px; max-width:340px; } .lgx-welcome .lgx-logo{ display:none; } .lgx-welcome .lgx-sprig-tr{ display:none; } /* o logótipo e as flores já vêm do fundo largo (::before): sem isto aparecem duplicados */
   html .login-inner{ max-width:440px; margin-left:auto; margin-right:auto; }
   html body{ align-items:stretch; justify-content:flex-start; background:var(--cream); }
   html .screen{ width:100%; height:100%; flex:1; border-radius:0; box-shadow:none; padding-left:232px; box-sizing:border-box; }
