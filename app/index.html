@@ -9800,7 +9800,7 @@ function invWarnings(){
   return w;
 }
 function invProblems(cfg){ const p = []; if(!cfg.names) p.push(ta('invErrNames')); if(!cfg.date) p.push(ta('invErrDate')); return p; }
-function invBack(label, to, hard){ return `<button type="button" class="inv-back inv-back-ic" data-invback="${to}"${hard?' data-invhard="1"':''} aria-label="${escapeHTML(ta('invBackAria'))}">${ICONS.chevleft}</button>`; }
+function invBack(label, to, hard){ return ''; }
 function invPremTag(){ return `<span class="inv-prem">${ICONS.crown||''}<span>Premium</span></span>`; }
 /* ---------- ecrãs ---------- */
 function invHomeView(){
@@ -10380,7 +10380,7 @@ ${pageHeader('papelaria-back', ta('cdStatTitle'), ta('cdStatSub'), pmBadge())}
   document.addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target : null; if(!t) return;
     if(t.closest('#papelaria-back') && sdOpen){ e.stopImmediatePropagation(); sdOpen = null; _origRender(); return; }
-    if(t.closest('#papelaria-back') && activeTab==='papelaria' && invModelsPage()){ e.stopImmediatePropagation(); { const hh = invUI.hist, v0 = invUI.view; invUI.view = v0==='tpl' ? 'gallery' : (v0==='gallery' ? 'home' : (hh.length ? hh[hh.length-1] : 'home')); } invUI.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
+    if(t.closest('#papelaria-back') && activeTab==='papelaria' && invModelsPage()){ e.stopImmediatePropagation(); { const hh = invUI.hist, v0 = invUI.view; invUI.view = v0==='tpl' ? 'gallery' : (v0==='gallery' ? 'home' : (v0==='done' ? 'manage' : (hh.length ? hh[hh.length-1] : 'home'))); } invUI.msg = ''; _origRender(); const sc = document.querySelector('.tabpanel.active .scroll'); if(sc) sc.scrollTop = 0; return; }
     const tab = t.closest('[data-sdtab]');
     if(tab){ sdTab = tab.dataset.sdtab; sdOpen = null; sdAdding = false; sdManage = false; _origRender(); return; }
     if(t.closest('[data-sdaddopen]')){ sdAdding = true; _origRender(); const i = document.getElementById('sd-new-name'); if(i) i.focus(); return; }
