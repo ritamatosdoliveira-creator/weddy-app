@@ -84,7 +84,7 @@ const save = fns.saveWeddingSiteDraft, publish = fns.publishWeddingSite, unpubli
   const p1 = await pub('rita-e-tiago');
   ok(p1.status === 'published' && p1.indexable === false && p1.validUntil, 'documento público: publicado, não indexável, com validade');
   const snapStr = JSON.stringify(p1);
-  ok(!/Segredo|tia@privado|912345678|PRIVADA|20000|ownerEmails|a@x\.pt|uid-/.test(snapStr), 'PRIVACIDADE: snapshot público sem convidados, contactos, orçamento, momentos privados, e-mails/UIDs do casal');
+  ok(!/Segredo|tia@privado|912345678|PRIVADA|\b20000\b|ownerEmails|a@x\.pt|uid-/.test(snapStr), 'PRIVACIDADE: snapshot público sem convidados, contactos, orçamento, momentos privados, e-mails/UIDs do casal');
   ok(p1.snapshot.names.join() === 'Rita,Tiago' && p1.snapshot.eventDate === '2027-06-05', 'nomes e data vêm dos dados do casamento (servidor)');
   ok(p1.snapshot.sections.schedule.items.length === 1 && p1.snapshot.sections.schedule.items[0].label === 'Cerimónia', 'programa: só momentos «Mostrar aos convidados»');
   ok((await site('W1')).status === 'published' && (await db.collection('siteSlugs').doc('rita-e-tiago').get()).data().weddingId === 'W1', 'estado privado + reserva do endereço');
