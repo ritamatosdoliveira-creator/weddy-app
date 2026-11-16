@@ -70,6 +70,7 @@ const SUITES = [
   { id: 'rules-site', group: 'rules', name: 'Regras Wedding Website: leitura pública só publicado+válido, rascunho privado, fotos (Fase I)', cmd: ['node', 'rules/site-rules.test.mjs'], emu: true },
   { id: 'ui-memdocs', group: 'ui', name: 'UI Memories + Documents: ciclo, Storage, Premium, PT/EN (Fase G)', cmd: py('memdocs.py') },
   { id: 'rules-state', group: 'rules', name: 'Regras do estado JSON + quarentena', cmd: ['node', 'rules/state-rules.test.mjs'], emu: true },
+  { id: 'rules-r0', group: 'rules', name: 'R0: creatorEmail só na criação (não se acrescenta nem altera depois) + escritas reais da app', cmd: ['node', 'rules/creator-email-r0.test.mjs'], emu: true },
   { id: 'rules-consent', group: 'rules', name: 'Regras de consentimento', cmd: ['node', 'rules/consent-rules.test.mjs'], emu: true },
   { id: 'rules-logistics', group: 'rules', name: 'Regras da logística do convidado', cmd: ['node', 'rules/logistics-rules.test.mjs'], emu: true },
   { id: 'rules-hardening', group: 'rules', name: 'Regras adversariais Firestore+Storage: acesso cruzado, removido, só-servidor, uploads (Fase K)', cmd: ['node', 'rules/hardening-rules.test.mjs'], emu: true },

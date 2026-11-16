@@ -61,6 +61,9 @@ service cloud.firestore {
         // retirado dos donos por um parceiro (antes só a interface o impedia).
         // O próprio criador pode sair (mantém-se a opção "sair do casamento").
         && (!('creatorEmail' in resource.data) || request.resource.data.creatorEmail == resource.data.creatorEmail)
+        // R0 (Nov 2026, decisão Q0 da Weddy Planning): creatorEmail só existe se foi gravado na criação;
+        // num casamento que não o tem, nenhum dono o pode acrescentar depois.
+        && (('creatorEmail' in resource.data) == ('creatorEmail' in request.resource.data))
         && (
           !('creatorEmail' in resource.data)
           // criador que já não está na lista (saiu antes): nada a proteger
