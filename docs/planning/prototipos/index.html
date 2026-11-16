@@ -173,7 +173,9 @@ h2{font-weight:600;font-size:16px;letter-spacing:-.015em;margin:0}
 .share{list-style:none;margin:8px 0 0;padding:0}
 .share li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
 .lvl-pill{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
-.lvl-pill.edit{color:var(--sage-dark)}.lvl-pill.hidden{color:var(--ink-soft)}
+.lvl-pill.edit{color:var(--sage-dark)}.lvl-pill.none{color:var(--ink-soft)}
+.share li.private{color:var(--ink-soft)}
+.share .priv-note{font-size:12px;color:var(--ink-soft);padding:9px 0 0}
 .people{list-style:none;margin:8px 0 0;padding:0}
 .people li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .people small{color:var(--ink-soft);display:block;font-size:12px}
@@ -423,13 +425,15 @@ table.rs{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
               <div>
                 <h2>O que o casal partilha</h2>
                 <ul class="share">
-                  <li><span>Convidados e RSVP</span><span class="lvl-pill">ver</span></li>
-                  <li><span>Orçamento e gastos</span><span class="lvl-pill">ver</span></li>
-                  <li><span>Fornecedores</span><span class="lvl-pill edit">editar</span></li>
-                  <li><span>Programa do dia</span><span class="lvl-pill edit">editar</span></li>
-                  <li><span>Votos</span><span class="lvl-pill hidden">escondido</span></li>
+                  <li><span>Convidados e RSVP</span><span class="lvl-pill">Consultar</span></li>
+                  <li><span>Orçamento e gastos</span><span class="lvl-pill">Consultar</span></li>
+                  <li><span>Fornecedores</span><span class="lvl-pill edit">Consultar e editar</span></li>
+                  <li><span>Programa do dia</span><span class="lvl-pill edit">Consultar e editar</span></li>
+                  <li><span>Mesas</span><span class="lvl-pill none">Não partilhar</span></li>
+                  <li><span>Documentos</span><span class="lvl-pill none">Não partilhar</span></li>
+                  <li class="private"><span>Votos</span><span class="lvl-pill none">Privada · nunca partilhada</span></li>
                 </ul>
-                <div class="callout"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Decidido pela Marta a 2 de novembro. Só o casal pode alterar esta partilha.</div>
+                <div class="callout"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Escolhido pela Marta a 2 de novembro. Tudo começa em «Não partilhar»; só o casal pode alterar ou revogar.</div>
               </div>
               <div>
                 <h2>Equipa neste casamento</h2>

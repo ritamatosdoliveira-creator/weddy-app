@@ -42,6 +42,8 @@ Hoje = leitura principal + coluna de agenda · Carteira = mestre-detalhe · Pedi
 ## Componentes
 Botão primário escuro 36 px raio 6, secundário com contorno, ligação terracota sublinhada no hover. Etiquetas pill 20 px. Estado = ponto colorido + texto. Nota da IA = bloco `--mark` com rótulo mono "Weddy Intelligence" e ações explícitas; nada é executado sem confirmação.
 
+Níveis de partilha do casal (nomenclatura aprovada, Doc. 3 §5): **Não partilhar · Consultar · Consultar e editar**. Mostrar sempre o texto completo do nível (nunca só cor ou ícone). Secções privadas (votos, lua-de-mel, listas pessoais, visitas ao vestido) aparecem como "Privada · nunca partilhada", sem controlo.
+
 ## Regras de qualidade (verificar em cada ecrã)
 - Sem scroll horizontal a 390 px; testar 1440, 1024, 768 e 390 px.
 - Botões reais para ações, `<a>` só para navegação; nada de ações só no hover.
@@ -50,5 +52,5 @@ Botão primário escuro 36 px raio 6, secundário com contorno, ligação terrac
 - Animar só `transform`/`opacity`; sem `transition: all`; respeitar `prefers-reduced-motion`.
 - Uma camada de contenção (no máximo duas caixas encaixadas); sem faixas laterais coloridas em cartões.
 
-## Componentes de implementação (decisão pendente)
-Se a stack for Vite + React (Doc. 3 §13.2), usar **shadcn/ui** (Radix) para Dialog, Sheet, DropdownMenu, Command (⌘K), Tabs, Calendar e DataTable, tematizado com estes tokens. Se for HTML/ES modules sem build, implementar os mesmos padrões à mão, como no protótipo.
+## Componentes de implementação
+Stack aprovada: **React + Vite + shadcn/ui** (Doc. 3 §1). Usar shadcn/ui (Radix) para Dialog, Sheet, DropdownMenu, Command (⌘K), Tabs, Calendar e DataTable, **tematizado com estes tokens** (sem o tema por omissão do shadcn). O protótipo estático implementa os mesmos padrões à mão apenas como referência visual.

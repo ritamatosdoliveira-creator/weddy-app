@@ -1,6 +1,6 @@
 # Documento 5 — Design System da Weddy Planning
 
-Base: `docs/design/DESIGN-SYSTEM.md` (extraído do código real da Couples). A Planning **estende** esse sistema: mantém a paleta e o tom, mas é uma ferramenta de trabalho **desktop-first**, mais densa, com **tipografia sans geométrica minimalista** (revisão de 17/11, a pedido da Rita: as serifas deixam de ser usadas na Planning; a Couples não muda). Protótipo visual estático: `docs/planning/prototipos/index.html` (dados fictícios) e capturas em `docs/planning/prototipos/capturas/`.
+Base: `docs/design/DESIGN-SYSTEM.md` (extraído do código real da Couples). A Planning **estende** esse sistema: mantém a paleta e o tom, mas é uma ferramenta de trabalho **desktop-first**, mais densa, com **tipografia sans geométrica minimalista** (revisão de 16/11, a pedido da Rita: as serifas deixam de ser usadas na Planning; a Couples não muda). Protótipo visual estático: `docs/planning/prototipos/index.html` (dados fictícios) e capturas em `docs/planning/prototipos/capturas/`.
 
 Método: auditoria da identidade existente → extensão por padrões (formato "Extend" da skill `design:design-system`) → protótipo → capturas reais a 1440 px e 390 px → revisão visual e correções (3 rondas) → **revisão com as regras das skills Taste minimalist, Impeccable (/audit, /polish) e Vercel Web Interface Guidelines** (2 rondas: tipografia, botões, semântica, alvos de toque, algarismos tabulares).
 
@@ -65,7 +65,7 @@ Uma só família desenhada para a Weddy (21 símbolos num sprite): grelha 24, tr
 | Ecrã | Capturas | O que demonstra |
 |---|---|---|
 | Hoje | `hoje-desktop`, `hoje-telemovel`, `hoje-recolhida-desktop` | Números do negócio, radar com estado por ponto + texto, próximos casamentos, agenda, nota da IA com ações; barra lateral recolhida |
-| Carteira (novo) | `carteira-menu-desktop`, `carteira-telemovel`, `seletor-organizacao-desktop` | Mestre-detalhe; menu ⋮ aberto; **o que o casal partilha por secção** (ver/editar/escondido, decidido pelo casal); equipa atribuída; seletor de organização aberto |
+| Carteira (novo) | `carteira-menu-desktop`, `carteira-telemovel`, `seletor-organizacao-desktop` | Mestre-detalhe; menu ⋮ aberto; **o que o casal partilha por secção** (Não partilhar / Consultar / Consultar e editar, decidido pelo casal; votos como secção privada, não partilhável); equipa atribuída; seletor de organização aberto |
 | Pedidos | `crm-desktop` | Pipeline de 6 fases com filetes, etiquetas e valores |
 | Run sheet | `runsheet-desktop`, `runsheet-telemovel` | Tabela por fases, horas em mono, linha atual, estados, vistas Planner/Equipa/Fornecedores |
 | Conversas | `conversas-desktop`, `conversas-telemovel` | Três painéis, decisão registada, anexo, leitura individual |
@@ -79,17 +79,17 @@ Design system da Couples (`docs/design/DESIGN-SYSTEM.md`); padrões de mercado o
 
 ## 8. Skills de design utilizadas
 
-**2.ª ronda (17/11), pedidas pela Rita** — regras lidas nas fontes e aplicadas (nada instalado):
+**2.ª ronda (16/11), pedidas pela Rita** — regras lidas nas fontes e aplicadas (nada instalado):
 - **Menus (Uxcel Lab)**: tipo de menu pela estrutura da escolha, ordem por uso, 5–9 itens, divisórias, estados, atalhos só padrão → §4.
 - **Hallmark** ([nexu-io/open-design](https://github.com/nexu-io/open-design), Apache-2.0): variedade estrutural (mestre-detalhe) e anti-padrões (eyebrow em todas as secções, faixas laterais, hover-only, texto clicável em duas linhas) → §4.
 - **Icons8**: princípio de um só pacote coerente aplicado com um conjunto próprio; a skill exige MCP e licença da Icons8 → §5.
-- **shadcn/ui**: requer projeto com `components.json` (React + Tailwind); fica como recomendação de componentes se a stack for Vite + React → DESIGN.md.
+- **shadcn/ui**: biblioteca de componentes da stack aprovada (React + Vite); tematizada com os tokens do DESIGN.md → DESIGN.md.
 - **Redesign Existing Projects** (agora parte de `design-taste-frontend`, Leonxlnx): preservar marca e conteúdo, uma escala de raios, no máximo duas caixas encaixadas.
 - **Design System Generator**: produzido o [DESIGN.md](DESIGN.md) da Planning (tokens, tipografia, ícones, navegação, componentes, regras de qualidade).
 
 **1.ª ronda**:
 
-**Pedidas pela Rita a 17/11 e aplicadas** (regras lidas nos repositórios oficiais e aplicadas manualmente; nada instalado):
+**Pedidas pela Rita a 16/11 e aplicadas** (regras lidas nos repositórios oficiais e aplicadas manualmente; nada instalado):
 - **Taste — minimalist-skill** ([Leonxlnx/taste-skill-classics](https://github.com/Leonxlnx/taste-skill-classics)): sans geométrica, tracking negativo nos títulos, off-black, cor escassa, botões 4–6 px, sombras quase invisíveis, sem emojis.
 - **Impeccable** ([pbakaus/impeccable](https://github.com/pbakaus/impeccable)): `/audit` (acessibilidade, theming, responsivo, integridade) e `/polish` (alinhamento, estados, consistência tipográfica, alvos de toque).
 - **Web Interface Guidelines** ([vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)): botões reais em vez de `<a>` sem destino, `aria-hidden` nos ícones decorativos, link para saltar ao conteúdo, `tabular-nums`, `touch-action: manipulation`, `theme-color`, sem `transition: all`, campo de pesquisa com rótulo.

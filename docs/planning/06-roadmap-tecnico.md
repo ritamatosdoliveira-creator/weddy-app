@@ -1,6 +1,6 @@
 # Documento 6 — Roadmap técnico
 
-**Versão 2 (17/11/2026)** — a Fase 1 passa a cinco entregas independentes (1A–1E). Nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
+**Versão 2.1 (16/11/2026)** — a Fase 1 passa a cinco entregas independentes (1A–1E). Nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
 Complexidade: **S** (dias), **M** (1–2 semanas), **L** (3–5 semanas), **XL** (> 5 semanas) para uma pessoa com apoio de IA.
 
@@ -38,24 +38,24 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 - **Testes específicos**: convite expirado/reutilizado/revogado; membro de A tenta ler B; utilizador tenta alterar o próprio papel/estado; remoção concorrente com ação do próprio membro.
 
 ### 1B — RBAC, ABAC e isolamento
-- **Entregáveis**: matriz de papéis (owner, admin, planner, coordinator, assistant) e permissões por área da organização; helpers de autorização partilhados pelas funções; regras correspondentes; App Check (enforcement nas callables da Planning; Firestore/Storage em monitor).
+- **Entregáveis**: matriz de papéis (owner, admin, planner, coordinator, assistant) e permissões por área da organização; helpers de autorização partilhados pelas funções; regras correspondentes; App Check com a estratégia decidida em Q7 (proposta: enforcement nas callables da Planning; Firestore/Storage em monitor).
 - **Aceitação**: matriz de autorização do Doc. 3 §11 coberta por testes (cada linha, caso permitido e recusado); nenhuma decisão de segurança só no frontend.
 - **Testes específicos**: 2 organizações × 5 papéis × operações; pedidos sem App Check recusados nas callables; IDOR trocando `orgId` no caminho e no corpo do pedido.
 
 ### 1C — Grants e ligação profissional
 - **Entregáveis**: `planningInvites`; `professionalLinks/{orgId}` com `status`; `grants/{uid}`; aceitação com verificação de propriedade (Doc. 3 §8); fim da relação; revogação de grant; e-mails de convite com o envio existente (anti-injeção).
 - **Fora de âmbito**: qualquer leitura ou escrita dos dados do casal.
-- **Aceitação**: só um dono real do casamento associa o casamento; conhecer ID, email ou token não basta; regra de Q1 aplicada (até decisão: no máximo uma ligação ativa).
+- **Aceitação**: só um dono real do casamento associa o casamento; conhecer ID, email ou token não basta; comportamento com várias organizações conforme a decisão Q1 — **a 1C não começa sem essa decisão**.
 - **Testes específicos**: utilizador não-dono com token válido; dono com token de outro convite; convite expirado/revogado/reutilizado; força bruta (rate limit); casamento já ligado a esta/outra organização; contas Apple com email privado; fim da relação pelo casal e pela organização; Couples intacta após cada caso.
 
 ### 1D — Consentimento e projeção segura
-- **Entregáveis**: ecrã de permissões do casal (Doc. 7 §4); função de consentimento (só donos); `accessRequests`; projeções por secção com `sourceRev`; regras de leitura que verificam a autorização atual; invalidação na revogação; reconciliação agendada e a pedido; leitura sensível por função.
+- **Entregáveis**: ecrã de permissões do casal (Doc. 7 §4); função de consentimento (só donos); `accessRequests`; projeções conforme a estratégia decidida em Q4 (proposta: por secção, com `sourceRev`); regras de leitura que verificam a autorização atual; invalidação na revogação; reconciliação agendada e a pedido; leitura sensível por função.
 - **Aceitação**: nenhuma secção visível sem escolha afirmativa do casal; revogação com efeito imediato mesmo com projeção antiga.
 - **Testes específicos**: revogação durante uma leitura; alterações rápidas de permissões (`none→read→none` em < 1 s); trigger atrasada (simulada); trigger falhada (sem projeção); projeção desatualizada após revogação; casal e planner em simultâneo; cache local do planner após `permission-denied`; membro removido com listener aberto.
 
 ### 1E — Escrita controlada por secção
 - **Entregáveis**: função `planningUpdateSection` com verificação completa, `baseRev`, validação de esquema por secção e operações da tabela M4a (Doc. 4); registo em `activity` e `auditLog`.
-- **Aceitação**: escrita só em secções `read_write`; nenhuma eliminação pelo planner (proposta Q8); Couples sem regressões.
+- **Aceitação**: escrita só em secções `read_write`; operações do planner por secção conforme a decisão Q8 (proposta: sem eliminação); Couples sem regressões.
 - **Testes específicos**: escrita em `read` e `none` recusada; revogação entre leitura e escrita; conflito de `baseRev`; edição simultânea do casal e do planner na mesma chave e em chaves diferentes; tamanho do `json` dentro do limite; `validateWeddingStateOnWrite` aceita as escritas válidas; suite completa da Couples.
 
 ## Fases seguintes (inalteradas no âmbito, reordenadas na dependência)

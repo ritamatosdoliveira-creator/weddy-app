@@ -1,6 +1,6 @@
 # Documento 7 — Plano de integração e proteção da Weddy Couples
 
-**Versão 2 (17/11/2026)** — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
+**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
 Objetivo: a Couples continua a funcionar exatamente como hoje e **nunca depende** da Weddy Planning. Este documento lista tudo o que a Planning pode tocar, porquê, e como se prova que nada regrediu.
 
@@ -33,7 +33,7 @@ Não são criados sistemas paralelos de convidados, mesas, orçamento, fornecedo
 | `app/index.html` + `app/sw.js` | 1D/F3 (opcional) e **F4** | 1D/F3: um ponto de entrada discreto para a página de permissões, visível só com ligação; F4: ícone e ecrã de Conversations | Nada visível sem ligação ativa |
 | `rsvp.html`, `memorias.html`, `convite.html`, `site.html`, `weddysite.js`, `weddyinvite*.js`, `convites8/` | — | **Nenhuma** | — |
 
-Alteração em relação à v1: a proposta anterior acrescentava um campo `planningLink` ao documento `weddings/{id}` e protegia-o alterando a regra de `update` de `weddings`. Com a ligação numa subcoleção só do servidor (Doc. 3 §4), **a regra existente de `weddings` não precisa de mudar**.
+Alteração em relação à v1: a proposta anterior acrescentava um campo `planningLink` ao documento `weddings/{id}` e protegia-o alterando a regra de `update` de `weddings`. Com a ligação numa subcoleção só do servidor (proposta do Doc. 3 §4, pendente de Q1/Q3), **a regra existente de `weddings` não precisaria de mudar**.
 
 ## 3. Serviços partilhados
 

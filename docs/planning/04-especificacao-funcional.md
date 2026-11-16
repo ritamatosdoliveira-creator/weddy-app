@@ -1,6 +1,6 @@
 # Documento 4 — Especificação funcional da Weddy Planning
 
-**Versão 2 (17/11/2026)** — revista após a revisão da Fase 0. Especificação de produto; nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (ver Doc. 3 §16), **[Trabalho futuro]**. Os nomes de dados seguem o Doc. 3 v2 (`professionalLinks`, `consent`, `grants`), que substitui o antigo `planningLink`.
+**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. Especificação de produto; nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (ver Doc. 3 §16), **[Trabalho futuro]**. Os nomes de dados seguem o Doc. 3 v2 (`professionalLinks`, `consent`, `grants`), que substitui o antigo `planningLink`.
 
 Formato por módulo: **Objetivo · Utilizadores · Funcionalidades · Permissões · Dados · Estados · Dependências · Testes**. Papéis: OW owner, AD admin, PL planner, CO coordinator, AS assistant; casal: CP (owner/partner). "Grant" = acesso da pessoa ao casamento (Doc. 3 §4).
 

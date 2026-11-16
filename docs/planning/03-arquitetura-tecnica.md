@@ -1,6 +1,6 @@
 # Documento 3 — Arquitetura técnica
 
-**Versão 2 (17/11/2026)** — revista após a revisão da Fase 0. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões da §16. Nada deste documento está implementado.
+**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões da §16. Nada deste documento está implementado.
 
 Legenda usada em todo o documento:
 **[Estado atual]** o que existe hoje (ver Documento 1) · **[Decisão aprovada]** decidido pela proprietária · **[Proposta técnica]** recomendação, ainda não aprovada · **[Questão pendente]** exige decisão (§16) · **[Trabalho futuro]** fora da Fase 1.
@@ -97,7 +97,7 @@ Opções de leitura [Questão pendente] Q4:
 | **R2. Projeção protegida por regras que leem a autorização** | `plannerViews/{weddingId}_{orgId}/sections/{section}` gerada por trigger; a **regra** de leitura verifica, no momento, `consent/current.sections[section] in ['read','read_write']` + `grants/{uid}.status=='active'` + `professionalLinks/{orgId}.status=='active'` + membership ativa | Imediata: a regra lê a autorização atual, mesmo que a projeção ainda tenha dados antigos | Tempo real; 3–4 `get()` por leitura nas regras |
 | **R3. Híbrida** | R2 para leitura em tempo real + R1 para operações sensíveis (exportações, IA, documentos) | Imediata | Recomendada |
 
-**Recomendação técnica: R3.** Uma projeção por secção (não um documento único) para que retirar uma secção não exija reescrever as outras.
+**Recomendação técnica (pendente de Q4): R3.** Uma projeção por secção (não um documento único) para que retirar uma secção não exija reescrever as outras.
 
 Sincronização, invalidação e falhas [Proposta técnica]:
 - **Geração**: trigger `onDocumentWritten(weddings/{id})` compara a revisão por chave de topo e reescreve só as secções alteradas e autorizadas; cada documento de projeção guarda `sourceRev` e `generatedAt`.
@@ -237,6 +237,19 @@ Funções (codebase `planning`): organizações e membros, convites internos e a
 **Estratégia de migração**: nenhuma migração de dados existentes; todas as coleções são novas; casamentos sem ligação comportam-se como hoje.
 
 ## 16. Questões pendentes (decisão da proprietária)
+
+**Estado a 16/11/2026: as oito questões continuam por decidir.** As recomendações abaixo são propostas técnicas para apoiar a decisão; **não** são decisões aprovadas e nenhuma entrega que dependa delas começa antes da decisão expressa (ver Doc. 6, coluna «Decisões necessárias»). Onde este documento usa um modelo concreto (p. ex. `professionalLinks`, `clientId = leadId`, projeções R3), trata-se da proposta em avaliação.
+
+| Questão | Estado | Recomendação técnica (não aprovada) |
+|---|---|---|
+| Q1 Uma ou várias organizações por casamento | Pendente | Dados preparados para várias, produto com uma |
+| Q2 Leads, clientes, utilizadores e casamentos | Pendente | `clientId = leadId`; ficha interna após aceitação |
+| Q3 Modelo de grants e permissões | Pendente | Documentos por ligação, sem custom claims |
+| Q4 Projeções e invalidação | Pendente | R3 (híbrida) |
+| Q5 Retenção e auditoria | Pendente | Prazos com aconselhamento jurídico |
+| Q6 Staging e prova de isolamento | Pendente | Auditar o candidato; projeto novo se houver partilha |
+| Q7 Enforcement do App Check | Pendente | Callables em enforcement desde o início |
+| Q8 Operações do planner por secção | Pendente | Editar sem apagar |
 
 ### Q1. Uma ou várias organizações com relação ativa por casamento?
 - **Problema**: um casal pode ter, p. ex., uma planner e uma decoradora/coordenadora do dia; ou mudar de planner.
