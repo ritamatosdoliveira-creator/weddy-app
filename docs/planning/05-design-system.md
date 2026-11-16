@@ -1,8 +1,8 @@
 # Documento 5 — Design System da Weddy Planning
 
-Base: `docs/design/DESIGN-SYSTEM.md` (extraído do código real da Couples). A Planning **estende** esse sistema: mantém as fontes, a paleta e o tom, mas é uma ferramenta de trabalho **desktop-first**, mais densa e tipográfica. Protótipo visual estático: `docs/planning/prototipos/index.html` (dados fictícios) e capturas em `docs/planning/prototipos/capturas/`.
+Base: `docs/design/DESIGN-SYSTEM.md` (extraído do código real da Couples). A Planning **estende** esse sistema: mantém a paleta e o tom, mas é uma ferramenta de trabalho **desktop-first**, mais densa, com **tipografia sans geométrica minimalista** (revisão de 17/11, a pedido da Rita: as serifas deixam de ser usadas na Planning; a Couples não muda). Protótipo visual estático: `docs/planning/prototipos/index.html` (dados fictícios) e capturas em `docs/planning/prototipos/capturas/`.
 
-Método: auditoria da identidade existente → extensão por padrões (formato "Extend" da skill `design:design-system`) → protótipo → capturas reais a 1440 px e 390 px → revisão visual e correções (3 rondas: conflito de classes, cabeçalho fixo a tapar o título, transbordo no telemóvel).
+Método: auditoria da identidade existente → extensão por padrões (formato "Extend" da skill `design:design-system`) → protótipo → capturas reais a 1440 px e 390 px → revisão visual e correções (3 rondas) → **revisão com as regras das skills Taste minimalist, Impeccable (/audit, /polish) e Vercel Web Interface Guidelines** (2 rondas: tipografia, botões, semântica, alvos de toque, algarismos tabulares).
 
 ## 1. Princípios
 
@@ -10,7 +10,7 @@ Método: auditoria da identidade existente → extensão por padrões (formato "
 2. **Cada página com a forma da sua função.** Calendário parece calendário; run sheet parece documento operacional; pipeline parece ferramenta comercial; proposta parece apresentação; conversa parece conversa.
 3. **Um acento.** Terracota (`--rust`) para ação e seleção. Estado nunca só por cor (sempre com texto).
 4. **Densidade profissional.** Texto base 13.5 px, linhas de 13 px de padding, tabelas reais. O planner vê mais informação por ecrã do que o casal.
-5. **Família reconhecível.** Mesmas fontes e paleta da Couples, para o casal e o planner sentirem o mesmo produto.
+5. **Família reconhecível.** Mesma paleta e tom da Couples (creme, terracota); tipografia própria, moderna e sóbria, adequada a uma ferramenta profissional.
 
 ## 2. Paleta
 
@@ -28,17 +28,20 @@ Extensão Planning (proposta, a aprovar — §3.3 da regra-mãe exige aprovaçã
 
 Cores de estado (texto): crítico `#8E3A2F`, atenção `#A97F5B` (`--joint-dark`), ok `--sage-dark`. Sem azuis, roxos ou gradientes.
 
-## 3. Tipografia
+## 3. Tipografia (revisão minimalista)
+
+Famílias: **Geist** (UI, títulos, números) e **Geist Mono** (horas, datas, contagens, metadados, eyebrows). Ambas no Google Fonts; a usar alojadas em `fonts/` na implementação (RGPD, como a Couples). Evitar Inter, Roboto e Open Sans (regra minimalist). Sem serifas na Planning.
 
 | Papel | Estilo |
 |---|---|
-| Título de página | Cormorant Garamond 500, **44 px**, `--heading`, line-height 1.02 (36 px no telemóvel) |
-| Título de secção | Cormorant 500, 25 px |
-| Nomes do casal / datas grandes / horas do run sheet | Cormorant 500–600, 19–34 px (algarismos de estilo antigo, editoriais) |
-| Eyebrow | Manrope 600, 10.5 px, maiúsculas, `letter-spacing:.14em`, `--rust` |
-| Texto base | Manrope 400/500, 13.5 px |
-| Cabeçalho de tabela / colunas | Manrope 700, 10.5–11 px, maiúsculas, `.12em`, `--ink-soft` |
-| Lede | Manrope 400, 15 px, `--ink-2` |
+| Título de página | Geist 600, **38 px**, `letter-spacing:-.035em`, line-height 1.08, `--heading` (#2F2B28, off-black, nunca #000) |
+| Título de secção | Geist 600, 18 px, `-.02em` |
+| Nomes / subtítulos de bloco | Geist 600, 14–15 px, `-.01em` |
+| Números-chave | Geist 600, 28 px, `-.03em`, `tabular-nums` |
+| Horas (run sheet), datas, contagens | Geist Mono 500, 12–15 px, `tabular-nums` |
+| Eyebrow / metadados | Geist Mono 400, 11.5 px, `--ink-soft`, sem maiúsculas forçadas |
+| Texto base | Geist 400/500, 13.5 px, line-height 1.5 |
+| Lede | Geist 400, 15 px, `--ink-2` |
 
 ## 4. Layout e navegação
 
@@ -62,7 +65,7 @@ Cores de estado (texto): crítico `#8E3A2F`, atenção `#A97F5B` (`--joint-dark`
 | **Conversa** | — | 3 colunas (lista · conversa · decisões/anexos); balões `--cream2` (outros) e `#F1E3DC` (eu); **decisão** como faixa sálvia sob a mensagem; anexo como ficha com tipo e tamanho; recibo de leitura por pessoa ("Lida por Marta · Por ler por Duarte") | enviada, lida por, editada (com revisão), importante |
 | **Nota da IA** | Chatbot flutuante | Bloco `--mark` com rótulo "✦ Weddy Intelligence", pergunta em serifa, explicação e "nada é enviado sem confirmares" | sugestão, a preparar, pronto, recusado |
 | **Etiqueta** | — | Pill 10.5 px; neutra `--cream2`, alerta `--warn-bg`, ok `--ok-bg` | — |
-| **Botões** | — | Os da Couples: primário pill terracota 38 px, secundário contorno `--rule` em `--paper`, link terracota | normal, hover, foco 2 px, desativado .5 |
+| **Botões** | Pills genéricos (padrão "IA") | Primário escuro `--btn #2F2B28`, texto branco, **36 px, raio 6 px**, sem sombra, hover `#4A4440`, `:active scale(.98)`; secundário contorno `--rule` em `--paper`; link terracota com sublinhado no hover. Pills só para etiquetas | normal, hover, foco 2 px, ativo, desativado .5 |
 
 Acessibilidade: foco visível 2 px `--rust`; botões só com ícone com `aria-label` (ex.: "Conversas, 3 por ler"); alvos ≥ 36 px em desktop e ≥ 44 px em toque; estado sempre com texto; contraste do texto essencial com `--ink`/`--ink-2`; `prefers-reduced-motion` respeitado em todas as transições (a Couples só o tem no Comparador).
 
@@ -82,6 +85,16 @@ Ainda por desenhar (Fase 2+): proposta pública (apresentação premium), calend
 Design system da Couples (`docs/design/DESIGN-SYSTEM.md`); padrões de mercado observados no Doc. 2 (radar de riscos e partilha por ferramenta no Journey 2 Yes; run sheets por vista no Planning Pod/Aisle Planner); tipografia editorial de publicações de casamento (serifa de alto contraste nos títulos, sans geométrica no corpo).
 
 ## 8. Skills de design utilizadas
+
+**Pedidas pela Rita a 17/11 e aplicadas** (regras lidas nos repositórios oficiais e aplicadas manualmente; nada instalado):
+- **Taste — minimalist-skill** ([Leonxlnx/taste-skill-classics](https://github.com/Leonxlnx/taste-skill-classics)): sans geométrica, tracking negativo nos títulos, off-black, cor escassa, botões 4–6 px, sombras quase invisíveis, sem emojis.
+- **Impeccable** ([pbakaus/impeccable](https://github.com/pbakaus/impeccable)): `/audit` (acessibilidade, theming, responsivo, integridade) e `/polish` (alinhamento, estados, consistência tipográfica, alvos de toque).
+- **Web Interface Guidelines** ([vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)): botões reais em vez de `<a>` sem destino, `aria-hidden` nos ícones decorativos, link para saltar ao conteúdo, `tabular-nums`, `touch-action: manipulation`, `theme-color`, sem `transition: all`, campo de pesquisa com rótulo.
+
+Resultado verificado: fontes carregadas, 0 erros, 0 botões sem nome acessível, sem scroll horizontal a 390 px, alvos ≥ 28 px nas ligações de texto.
+
+Instalação: as três podem ser instaladas como skills (`npx skills add …`), mas são código de terceiros; recomendo rever o conteúdo antes e instalar só com a tua autorização expressa.
+
 
 - **Instaladas e usadas** (origem Anthropic, já ativas no ambiente): `design:design-system` (método de auditoria/extensão aplicado neste documento); `design:accessibility-review` e `design:design-critique` (para rever cada ecrã implementado na Fase 2); `design:ux-copy` (textos PT-PT).
 - **Pesquisa no catálogo da organização** (frontend design, UI/UX, dashboards SaaS, design systems, tipografia, responsivo, acessibilidade, qualidade visual): **sem resultados**.

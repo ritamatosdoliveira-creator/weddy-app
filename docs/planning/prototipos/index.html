@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Weddy Planning — protótipo visual</title>
+<meta name="theme-color" content="#FAF8F5">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <!-- PROTÓTIPO ESTÁTICO DE DESIGN (Fase 0). Não é a aplicação. Dados fictícios. Sem Firebase, sem rede. -->
 <style>
-@font-face{font-family:'Cormorant Garamond';src:url(../../../fonts/cormorant-garamond.woff) format('woff');font-weight:300 700;font-style:normal;font-display:swap}
-@font-face{font-family:'Cormorant Garamond';src:url(../../../fonts/cormorant-garamond-italic.woff) format('woff');font-weight:300 700;font-style:italic;font-display:swap}
-@font-face{font-family:'Manrope';src:url(../../../fonts/manrope.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}
 :root{
   /* Tokens herdados da Weddy Couples (DESIGN-SYSTEM.md §3) */
   --cream:#FAF8F5; --cream2:#F3EFEA; --card:#FFFDFC; --ink:#302C29; --ink-soft:#8E8780;
@@ -17,19 +17,21 @@
   --sage:#A8B39C; --sage-dark:#7C8A6E; --line:rgba(48,44,41,.09);
   /* Extensão Planning (proposta): superfície de trabalho mais densa e neutra */
   --paper:#FFFEFC; --rule:rgba(48,44,41,.14); --ink-2:#5E5751; --mark:#F6EDE6; --warn-bg:#FBEDEA; --ok-bg:#E8EEDF;
-  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+  --serif:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; --sans:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; --mono:'Geist Mono',ui-monospace,'SF Mono',monospace;
+  --heading:#2F2B28; --line:rgba(48,44,41,.08); --btn:#2F2B28; --btn-h:#4A4440;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.45;-webkit-font-smoothing:antialiased}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;touch-action:manipulation;font-feature-settings:'ss01'}
+.skip{position:absolute;left:-999px;top:8px;z-index:20;background:var(--btn);color:#fff;padding:8px 12px;border-radius:6px}.skip:focus{left:12px}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 
 .shell{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
 /* Barra lateral: tipográfica, sem ícones decorativos */
 .side{background:var(--cream2);border-right:1px solid var(--line);padding:26px 0 20px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
 .brand{padding:0 24px 22px;border-bottom:1px solid var(--line)}
-.brand b{font-family:var(--serif);font-weight:500;font-size:27px;color:var(--heading);letter-spacing:.01em}
+.brand b{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--ink);letter-spacing:-.03em}
 .brand small{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px}
 .org{padding:14px 24px;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--line)}
 .org span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
@@ -43,55 +45,60 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 .main{min-width:0}
 .top{display:flex;align-items:center;gap:18px;padding:14px 40px;border-bottom:1px solid var(--line);background:rgba(250,248,245,.92);position:sticky;top:0;z-index:2;backdrop-filter:blur(6px)}
-.search{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:8px 12px;color:var(--ink-soft);font-size:13px}
+label.search{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:8px 12px;color:var(--ink-soft);font-size:13px}
 .top .sp{flex:1}
+.search input{border:0;background:transparent;font:inherit;color:var(--ink);width:100%;outline:none}.search:focus-within{outline:2px solid var(--rust);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .ibtn{position:relative;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
 .ibtn:hover{background:rgba(48,44,41,.05)}
 .ibtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .ibtn .n{position:absolute;top:3px;right:2px;min-width:16px;height:16px;border-radius:8px;background:var(--rust);color:#fff;font-size:9.5px;font-weight:700;display:grid;place-items:center;padding:0 4px}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--blush);display:grid;place-items:center;font-size:11.5px;font-weight:700;color:var(--rust-dark)}
+.avatar{font-variant-numeric:tabular-nums;width:32px;height:32px;border-radius:50%;background:var(--blush);display:grid;place-items:center;font-size:11.5px;font-weight:700;color:var(--rust-dark)}
 
 .page{padding:34px 40px 60px;max-width:1280px}
-.eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--rust);font-weight:600}
-h1{font-family:var(--serif);font-weight:500;font-size:44px;line-height:1.02;color:var(--heading);margin:6px 0 4px;letter-spacing:.002em}
-h2{font-family:var(--serif);font-weight:500;font-size:25px;color:var(--heading);margin:0;line-height:1.1}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:0;color:var(--ink-soft);font-weight:400}
+h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.08;color:var(--heading);margin:8px 0 6px;letter-spacing:-.035em;text-wrap:balance}
+h2{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--heading);margin:0;line-height:1.2;letter-spacing:-.02em}
 .lede{color:var(--ink-2);font-size:15px;margin:0}
 .hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:22px;border-bottom:1px solid var(--rule)}
-.btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:99px;font-weight:600;font-size:13px;letter-spacing:.02em}
-.btn.p{background:var(--rust);color:#fff}
-.btn.s{border:1px solid var(--rule);background:var(--paper)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;font-weight:500;font-size:13px;transition:background-color .15s,border-color .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.p{background:var(--btn);color:#fff}.btn.p:hover{background:var(--btn-h)}
+.btn.s{border:1px solid var(--rule);background:var(--paper)}.btn.s:hover{border-color:rgba(48,44,41,.3)}
 .tabs{display:flex;gap:22px;margin-top:14px}
-.tabs a{padding:8px 0;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent}
-.tabs a[aria-current]{color:var(--ink);border-color:var(--rust)}
+.tabs button{padding:8px 0;font-weight:500;color:var(--ink-soft);border-bottom:2px solid transparent;min-height:36px}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-current]{color:var(--ink);border-color:var(--rust)}
 
 /* ===== HOJE (dashboard editorial: uma coluna de leitura + margem) ===== */
 .today{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:48px;margin-top:28px}
 .figures{display:flex;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:26px 0 0}
 .fig{flex:1;padding:16px 18px 14px;border-left:1px solid var(--line)}
 .fig:first-child{border-left:0;padding-left:0}
-.fig b{display:block;font-family:var(--serif);font-weight:500;font-size:34px;color:var(--heading);line-height:1}
+.fig b{display:block;font-family:var(--serif);font-weight:600;font-size:28px;color:var(--ink);line-height:1.1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .fig span{font-size:12px;color:var(--ink-soft)}
 .fig i{font-style:normal;font-size:11.5px;color:var(--sage-dark);font-weight:600}
 .sec{margin-top:34px}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-.sec-h a{font-size:12.5px;color:var(--rust);font-weight:600}
+.sec-h a{font-size:12.5px;color:var(--rust);font-weight:500;display:inline-flex;align-items:center;min-height:28px}
 .risk{list-style:none;margin:0;padding:0}
 .risk li{display:grid;grid-template-columns:86px 1fr auto;gap:16px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
-.risk .lvl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.risk .lvl{font-family:var(--mono);font-size:11px;font-weight:500}
 .lvl.hi{color:#8E3A2F}.lvl.md{color:#A97F5B}.lvl.lo{color:var(--sage-dark)}
 .risk strong{font-weight:600}
 .risk .w{color:var(--ink-soft);font-size:12.5px}
-.risk .act{font-size:12.5px;color:var(--rust);font-weight:600;white-space:nowrap}
+.risk .act{font-size:12.5px;color:var(--rust);font-weight:500;white-space:nowrap;display:inline-flex;align-items:center;min-height:32px;justify-self:end}
+.risk .act:hover,.sec-h a:hover{text-decoration:underline;text-underline-offset:3px}
 .wed{list-style:none;margin:0;padding:0}
 .wed li{display:grid;grid-template-columns:64px 1fr 120px;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
-.date b{display:block;font-family:var(--serif);font-size:28px;font-weight:500;line-height:.9;color:var(--ink)}
+.date b{display:block;font-family:var(--serif);font-size:22px;font-weight:600;line-height:1;color:var(--ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .date span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
-.wed strong{font-family:var(--serif);font-size:19px;font-weight:600}
+.wed strong{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em}
 .wed .meta{font-size:12px;color:var(--ink-soft)}
 .prog{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
 .prog i{display:block;height:100%;background:var(--rust)}
 .prog-l{font-size:11px;color:var(--ink-soft);margin-top:5px;text-align:right}
-.margin h3{font-family:var(--serif);font-weight:500;font-size:21px;color:var(--heading);margin:0 0 4px}
+.margin h3{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--heading);margin:0 0 4px}
 .agenda{list-style:none;margin:0 0 30px;padding:0;border-left:1px solid var(--rule)}
 .agenda li{position:relative;padding:0 0 16px 18px}
 .agenda li::before{content:"";position:absolute;left:-4px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--cream);border:1.5px solid var(--rust)}
@@ -99,21 +106,21 @@ h2{font-family:var(--serif);font-weight:500;font-size:25px;color:var(--heading);
 .agenda p{margin:1px 0 0}
 .agenda small{color:var(--ink-soft)}
 .note{background:var(--mark);border-radius:2px;padding:16px 18px;font-size:13px;color:var(--ink-2)}
-.note b{display:block;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);margin-bottom:4px}
-.ai{display:flex;gap:8px;align-items:center;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--rust);font-weight:700;margin-bottom:6px}
+.note b{display:block;font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-bottom:4px}
+.ai{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11.5px;color:var(--rust);font-weight:400;margin-bottom:6px}
 
 /* ===== CRM (pipeline em colunas finas, não cartões pesados) ===== */
 .pipe{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:0;margin-top:24px;border-top:1px solid var(--rule)}
 .col{border-left:1px solid var(--line);padding:14px 14px 20px;min-height:520px}
 .col:first-child{border-left:0;padding-left:0}
 .col-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
-.col-h b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
-.col-h span{font-family:var(--serif);font-size:20px;color:var(--ink-soft)}
+.col-h b{font-size:12px;font-weight:600;color:var(--ink)}
+.col-h span{font-family:var(--mono);font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
 .lead{padding:12px 0 12px;border-bottom:1px solid var(--line)}
 .lead strong{display:block;font-weight:600;font-size:13.5px}
 .lead .m{font-size:12px;color:var(--ink-soft)}
 .lead .v{display:flex;justify-content:space-between;margin-top:6px;font-size:12px}
-.lead .v b{font-weight:700}
+.lead .v b{font-weight:600;font-variant-numeric:tabular-nums}
 .tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--cream2);color:var(--ink-2);font-weight:600}
 .tag.w{background:var(--warn-bg);color:#8E3A2F}
 .tag.g{background:var(--ok-bg);color:#5F7355}
@@ -121,24 +128,25 @@ h2{font-family:var(--serif);font-weight:500;font-size:25px;color:var(--heading);
 
 /* ===== RUN SHEET (documento operacional) ===== */
 .rs-wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:40px;margin-top:24px}
-.views{display:flex;border:1px solid var(--rule);border-radius:99px;padding:3px;gap:2px;background:var(--paper)}
-.views a{padding:6px 14px;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--ink-soft)}
-.views a[aria-current]{background:var(--ink);color:var(--cream)}
-table.rs{width:100%;border-collapse:collapse}
+.views{display:flex;border:1px solid var(--rule);border-radius:8px;padding:3px;gap:2px;background:var(--paper)}
+.views button{padding:6px 12px;border-radius:5px;font-size:12.5px;font-weight:500;color:var(--ink-soft);min-height:30px}
+.views button:hover{color:var(--ink)}
+.views button[aria-pressed=true]{background:var(--btn);color:#fff}
+table.rs{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .rs th{text-align:left;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--rule)}
 .rs td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-.rs td.t{font-family:var(--serif);font-size:21px;font-weight:600;white-space:nowrap;width:84px;color:var(--ink)}
+.rs td.t{font-family:var(--mono);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;width:84px;color:var(--ink)}
 .rs td.t small{display:block;font-family:var(--sans);font-size:11px;font-weight:500;color:var(--ink-soft)}
 .rs .act strong{font-weight:600;display:block}
 .rs .act span{color:var(--ink-soft);font-size:12.5px}
 .rs .who{font-size:12.5px}
 .rs .who b{font-weight:600}
-.rs tr.phase td{background:var(--cream2);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--rust-dark);padding:8px 12px}
+.rs tr.phase td{background:var(--cream2);font-family:var(--mono);font-size:11px;font-weight:500;color:var(--rust-dark);padding:8px 12px}
 .rs tr.now td{background:var(--mark)}
 .rs tr.now td.t{box-shadow:inset 3px 0 0 var(--rust)}
 .st{font-size:11.5px;font-weight:700;white-space:nowrap}
 .st.ok{color:var(--sage-dark)}.st.pend{color:#A97F5B}.st.no{color:#8E3A2F}
-.aside h3{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--heading);margin:0 0 10px}
+.aside h3{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--heading);margin:0 0 10px}
 .contacts{list-style:none;margin:0 0 26px;padding:0}
 .contacts li{padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
 .contacts b{display:block;font-weight:600;font-size:13px}
@@ -147,9 +155,10 @@ table.rs{width:100%;border-collapse:collapse}
 .chat{display:grid;grid-template-columns:300px minmax(0,1fr) 270px;height:calc(100vh - 65px);border-top:0}
 .threads{border-right:1px solid var(--line);overflow:auto;background:var(--cream)}
 .threads .h{padding:22px 20px 10px}
-.th{display:block;padding:13px 20px;border-bottom:1px solid var(--line)}
+.th{display:block;width:100%;text-align:left;padding:13px 20px;border-bottom:1px solid var(--line)}
+.th:hover{background:rgba(48,44,41,.03)}
 .th[aria-current]{background:var(--paper);box-shadow:inset 3px 0 0 var(--rust)}
-.th strong{font-family:var(--serif);font-size:18px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.th strong{font-family:var(--serif);font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .th strong i{font-style:normal;font-family:var(--sans);font-size:10px;background:var(--rust);color:#fff;border-radius:9px;padding:1px 6px;font-weight:700}
 .th p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .conv{display:flex;flex-direction:column;min-width:0;background:var(--paper)}
@@ -170,7 +179,7 @@ table.rs{width:100%;border-collapse:collapse}
 .compose{border-top:1px solid var(--line);padding:14px 28px;display:flex;gap:12px;align-items:center}
 .compose div{flex:1;border:1px solid var(--rule);border-radius:12px;padding:11px 14px;color:var(--ink-soft)}
 .info{border-left:1px solid var(--line);padding:22px 20px;overflow:auto}
-.info h3{font-family:var(--serif);font-weight:500;font-size:19px;color:var(--heading);margin:0 0 8px}
+.info h3{font-family:var(--serif);font-weight:600;font-size:14px;color:var(--heading);margin:0 0 8px}
 .info ul{list-style:none;margin:0 0 22px;padding:0}
 .info li{padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
 .info li b{display:block;font-weight:600}
@@ -188,6 +197,7 @@ table.rs{width:100%;border-collapse:collapse}
 </style>
 </head>
 <body>
+<a class="skip" href="#conteudo">Saltar para o conteúdo</a>
 <div class="shell">
   <aside class="side" aria-label="Navegação principal">
     <div class="brand"><b>Weddy</b><small>Planning</small></div>
@@ -211,12 +221,12 @@ table.rs{width:100%;border-collapse:collapse}
     <div class="me-side">Inês Andrade · Owner</div>
   </aside>
 
-  <div class="main">
+  <main class="main" id="conteudo">
     <header class="top">
-      <div class="search">Procurar casamentos, contactos, fornecedores…</div>
+      <label class="search"><span class="sr">Procurar</span><input type="search" name="q" autocomplete="off" placeholder="Procurar casamentos, contactos, fornecedores…"></label>
       <span class="sp"></span>
-      <a class="ibtn" href="#conversas" aria-label="Conversas, 3 por ler"><svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4z"/></svg><span class="n">3</span></a>
-      <button class="ibtn" aria-label="Notificações"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button>
+      <a class="ibtn" href="#conversas" aria-label="Conversas, 3 por ler"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5.5h16v10H9l-5 4z"/></svg><span class="n">3</span></a>
+      <button type="button" class="ibtn" aria-label="Notificações"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button>
       <span class="avatar" aria-hidden="true">IA</span>
     </header>
 
@@ -225,10 +235,10 @@ table.rs{width:100%;border-collapse:collapse}
       <div class="chat">
         <div class="threads">
           <div class="h"><div class="eyebrow">Weddy Conversations</div><h2>Conversas</h2></div>
-          <a class="th" aria-current="true"><strong>Marta &amp; Duarte <i>2</i></strong><p>Marta: Podemos fechar a florista amanhã?</p></a>
-          <a class="th"><strong>Sofia &amp; Tomás <i>1</i></strong><p>Tomás: Enviei a lista final de transportes</p></a>
-          <a class="th"><strong>Leonor &amp; Miguel</strong><p>Tu: Ementa aprovada, obrigada!</p></a>
-          <a class="th"><strong>Carolina &amp; Rui</strong><p>Rui: Ficamos com a quinta em Sintra</p></a>
+          <button type="button" class="th" aria-current="true"><strong>Marta &amp; Duarte <i>2</i></strong><p>Marta: Podemos fechar a florista amanhã?</p></button>
+          <button type="button" class="th"><strong>Sofia &amp; Tomás <i>1</i></strong><p>Tomás: Enviei a lista final de transportes</p></button>
+          <button type="button" class="th"><strong>Leonor &amp; Miguel</strong><p>Tu: Ementa aprovada, obrigada!</p></button>
+          <button type="button" class="th"><strong>Carolina &amp; Rui</strong><p>Rui: Ficamos com a quinta em Sintra</p></button>
         </div>
         <div class="conv">
           <div class="conv-h"><div><h2 style="font-size:22px">Marta &amp; Duarte</h2><small>14 de junho de 2027 · Quinta do Vale, Alenquer · 4 participantes</small></div><a class="btn s" href="#conversas">Exportar PDF</a></div>
@@ -256,7 +266,7 @@ table.rs{width:100%;border-collapse:collapse}
       <div class="page">
         <div class="hdr">
           <div><div class="eyebrow">Run sheet · Versão 7 · Atualizada há 2 h</div><h1>Marta &amp; Duarte</h1><p class="lede">Sábado, 14 de junho de 2027 · Quinta do Vale, Alenquer · 142 convidados</p></div>
-          <div style="display:flex;gap:10px;align-items:center"><nav class="views" aria-label="Vista"><a aria-current="true">Planner</a><a>Equipa</a><a>Fornecedores</a></nav><a class="btn s">PDF</a></div>
+          <div style="display:flex;gap:10px;align-items:center"><nav class="views" aria-label="Vista"><button type="button" aria-pressed="true">Planner</button><button type="button" aria-pressed="false">Equipa</button><button type="button" aria-pressed="false">Fornecedores</button></nav><button type="button" class="btn s">PDF</button></div>
         </div>
         <div class="rs-wrap">
           <table class="rs">
@@ -287,9 +297,9 @@ table.rs{width:100%;border-collapse:collapse}
       <div class="page">
         <div class="hdr">
           <div><div class="eyebrow">Negócio</div><h1>Contactos e pedidos</h1><p class="lede">12 pedidos ativos · 86 400 € em propostas abertas</p></div>
-          <div style="display:flex;gap:10px"><a class="btn s">Formulário público</a><a class="btn p">Novo pedido</a></div>
+          <div style="display:flex;gap:10px"><button type="button" class="btn s">Formulário público</button><button type="button" class="btn p">Novo pedido</button></div>
         </div>
-        <div class="tabs"><a aria-current="true">Pipeline</a><a>Lista</a><a>Perdidos</a></div>
+        <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="true" aria-current="true">Pipeline</button><button type="button" role="tab" aria-selected="false">Lista</button><button type="button" role="tab" aria-selected="false">Perdidos</button></div>
         <div class="pipe">
           <div class="col"><div class="col-h"><b>Novo</b><span>4</span></div>
             <div class="lead"><strong>Beatriz &amp; Nuno</strong><div class="m">Set. 2027 · Douro · ~120</div><div class="v"><span class="tag">Instagram</span><b>18–22 k€</b></div></div>
@@ -314,7 +324,7 @@ table.rs{width:100%;border-collapse:collapse}
       <div class="page">
         <div class="hdr">
           <div><div class="eyebrow">Terça-feira, 16 de novembro</div><h1>Bom dia, Inês.</h1><p class="lede">Três casamentos precisam de ti esta semana.</p></div>
-          <a class="btn p">Novo casamento</a>
+          <button type="button" class="btn p">Novo casamento</button>
         </div>
         <div class="figures">
           <div class="fig"><b>18</b><span>casamentos ativos</span></div>
@@ -328,10 +338,10 @@ table.rs{width:100%;border-collapse:collapse}
               <div class="sec-h"><h2>Precisa de atenção</h2><a href="#hoje">Radar completo</a></div>
               <ul class="risk">
                 <li><span class="lvl hi">Crítico</span><div><strong>Fotógrafo sem confirmação</strong><div class="w">Marta &amp; Duarte · faltam 30 dias</div></div><a class="act" href="#runsheet">Abrir run sheet</a></li>
-                <li><span class="lvl hi">Crítico</span><div><strong>Orçamento ultrapassado em 8 %</strong><div class="w">Sofia &amp; Tomás · Decoração</div></div><a class="act">Rever</a></li>
+                <li><span class="lvl hi">Crítico</span><div><strong>Orçamento ultrapassado em 8 %</strong><div class="w">Sofia &amp; Tomás · Decoração</div></div><button type="button" class="act">Rever</button></li>
                 <li><span class="lvl md">Atenção</span><div><strong>Ementa à espera de aprovação há 6 dias</strong><div class="w">Leonor &amp; Miguel</div></div><a class="act" href="#conversas">Lembrar</a></li>
-                <li><span class="lvl md">Atenção</span><div><strong>2.ª prestação vence sexta-feira</strong><div class="w">Carolina &amp; Rui · 3 200 €</div></div><a class="act">Ver plano</a></li>
-                <li><span class="lvl lo">Lembrete</span><div><strong>Prova de menu sem responsável</strong><div class="w">Beatriz &amp; Nuno · 2 dez</div></div><a class="act">Atribuir</a></li>
+                <li><span class="lvl md">Atenção</span><div><strong>2.ª prestação vence sexta-feira</strong><div class="w">Carolina &amp; Rui · 3 200 €</div></div><button type="button" class="act">Ver plano</button></li>
+                <li><span class="lvl lo">Lembrete</span><div><strong>Prova de menu sem responsável</strong><div class="w">Beatriz &amp; Nuno · 2 dez</div></div><button type="button" class="act">Atribuir</button></li>
               </ul>
             </div>
             <div class="sec">
@@ -352,12 +362,12 @@ table.rs{width:100%;border-collapse:collapse}
                 <li><time>18:30</time><p>Prova de vinhos · Marta &amp; Duarte</p><small>Rita acompanha</small></li>
               </ul>
             </div>
-            <div class="note"><div class="ai">✦ Weddy Intelligence</div><b>Preparar a reunião das 15:00?</b>Junto a proposta v3, as respostas ao questionário e as 4 perguntas que ficaram em aberto. Nada é enviado sem confirmares.</div>
+            <div class="note"><div class="ai">Weddy Intelligence</div><b>Preparar a reunião das 15:00?</b>Junto a proposta v3, as respostas ao questionário e as 4 perguntas que ficaram em aberto. Nada é enviado sem confirmares.</div>
           </aside>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 </div>
 <div class="proto">Protótipo visual · dados fictícios</div>
 </body>
