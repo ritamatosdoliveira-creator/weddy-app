@@ -75,7 +75,9 @@ Verificação automática em todas as capturas: fontes carregadas, 0 erros de p�
 
 ## 7. Referências
 
-Design system da Couples (`docs/design/DESIGN-SYSTEM.md`); padrões de mercado observados no Doc. 2 (radar de riscos e partilha por ferramenta no Journey 2 Yes; run sheets por vista no Planning Pod/Aisle Planner); tipografia editorial de publicações de casamento (serifa de alto contraste nos títulos, sans geométrica no corpo).
+Design system da Couples (`docs/design/DESIGN-SYSTEM.md`); padrões de mercado observados no Doc. 2 (radar de riscos e partilha por ferramenta no Journey 2 Yes; run sheets por vista no Planning Pod/Aisle Planner); regras das skills de design aplicadas (§8): Taste minimalist, Impeccable, Vercel Web Interface Guidelines, Menus (Uxcel), Hallmark.
+
+**Direção anterior rejeitada:** a v1 do protótipo (16/11) usava tipografia editorial com serifa de alto contraste nos títulos (Cormorant Garamond, como a Couples). Foi **rejeitada a 16/11 pela Rita**: a Weddy Planning **não usa serifas**. Mantém-se aqui só como registo; não deve ser usada como referência.
 
 ## 8. Skills de design utilizadas
 

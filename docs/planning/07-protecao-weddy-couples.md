@@ -58,7 +58,13 @@ Alteração em relação à v1: a proposta anterior acrescentava um campo `plann
 ## 5. Regras: o que muda e o que não muda
 
 1. `weddings` — `allow read` e `allow update`: **não mudam**.
-2. `weddings/{id}/professionalLinks/{orgId}` e subcoleções: escrita só pelo servidor; leitura pelo casal (dono) e por membros da organização com grant ativo.
+2. `weddings/{id}/professionalLinks/{orgId}` e subcoleções: escrita só pelo servidor. Leitura destes documentos **de controlo** (estado da ligação, configuração do consentimento, pedidos de acesso): pelo casal (dono) e por membros da organização com **membership ativa** e **grant ativo**. Estes documentos **não contêm dados do casamento**.
+   **O grant, por si só, nunca dá acesso aos dados do casamento.** Ler ou escrever uma secção do casal exige, sempre e em conjunto, verificado no servidor (regras e funções) no momento do pedido:
+   - ligação profissional `active`;
+   - membership `active` na organização;
+   - grant `active` do utilizador nesse casamento;
+   - papel da organização que permita a operação;
+   - consentimento afirmativo do casal para essa secção (`read` para consultar, `read_write` para editar). Ausência de configuração = negado.
 3. Projeções da Planning: leitura condicionada à autorização atual (consentimento + grant + ligação + membership), nunca à projeção em si.
 4. Coleções novas da organização: negação por omissão; testes de acesso cruzado.
 
