@@ -8,323 +8,340 @@
 <meta name="theme-color" content="#FAF8F5">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
-<!-- PROTÓTIPO ESTÁTICO DE DESIGN (Fase 0). Não é a aplicação. Dados fictícios. Sem Firebase, sem rede. -->
+<!-- PROTÓTIPO ESTÁTICO DE DESIGN (Fase 0, v3). Não é a aplicação. Dados fictícios. Sem Firebase. -->
 <style>
+/* Tokens: ver docs/planning/DESIGN.md */
 :root{
-  /* Tokens herdados da Weddy Couples (DESIGN-SYSTEM.md §3) */
-  --cream:#FAF8F5; --cream2:#F3EFEA; --card:#FFFDFC; --ink:#302C29; --ink-soft:#8E8780;
-  --rust:#B96752; --rust-dark:#9A4F3D; --heading:#9A4F3D; --gold:#C9A480; --blush:#E7C5BB;
-  --sage:#A8B39C; --sage-dark:#7C8A6E; --line:rgba(48,44,41,.09);
-  /* Extensão Planning (proposta): superfície de trabalho mais densa e neutra */
-  --paper:#FFFEFC; --rule:rgba(48,44,41,.14); --ink-2:#5E5751; --mark:#F6EDE6; --warn-bg:#FBEDEA; --ok-bg:#E8EEDF;
-  --serif:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; --sans:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; --mono:'Geist Mono',ui-monospace,'SF Mono',monospace;
-  --heading:#2F2B28; --line:rgba(48,44,41,.08); --btn:#2F2B28; --btn-h:#4A4440;
+  --cream:#FAF8F5; --cream2:#F3EFEA; --paper:#FFFEFC; --ink:#2F2B28; --ink-2:#5E5751; --ink-soft:#8E8780;
+  --rust:#B96752; --rust-dark:#9A4F3D; --sage-dark:#5F7355; --mid:#946B47; --crit:#8E3A2F;
+  --line:rgba(48,44,41,.08); --rule:rgba(48,44,41,.14); --mark:#F6EDE6; --warn-bg:#FBEDEA; --ok-bg:#E8EEDF; --hover:rgba(48,44,41,.045);
+  --btn:#2F2B28; --btn-h:#4A4440;
+  --sans:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; --mono:'Geist Mono',ui-monospace,'SF Mono',monospace;
+  --r-s:6px; --r-m:8px; --r-l:12px;   /* uma só escala de raios */
+  --elev:0 8px 24px rgba(48,44,41,.12), 0 1px 3px rgba(48,44,41,.08);
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;touch-action:manipulation;font-feature-settings:'ss01'}
-.skip{position:absolute;left:-999px;top:8px;z-index:20;background:var(--btn);color:#fff;padding:8px 12px;border-radius:6px}.skip:focus{left:12px}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
 :focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;z-index:50;background:var(--btn);color:#fff;padding:8px 12px;border-radius:var(--r-s)}.skip:focus{left:12px}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-.shell{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
-/* Barra lateral: tipográfica, sem ícones decorativos */
-.side{background:var(--cream2);border-right:1px solid var(--line);padding:26px 0 20px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-.brand{padding:0 24px 22px;border-bottom:1px solid var(--line)}
-.brand b{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--ink);letter-spacing:-.03em}
-.brand small{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px}
-.org{padding:14px 24px;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--line)}
-.org span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-.nav{padding:14px 12px;flex:1;overflow:auto}
-.nav h6{margin:16px 12px 6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
-.nav a{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:8px;color:var(--ink-2);font-weight:500}
-.nav a:hover{background:rgba(48,44,41,.04)}
-.nav a[aria-current=page]{color:var(--ink);background:var(--paper);box-shadow:inset 2px 0 0 var(--rust)}
-.nav a em{font-style:normal;font-size:11px;color:var(--ink-soft)}
-.me-side{padding:12px 24px 0;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft)}
+/* ===== Shell. Navegação: barra lateral recolhível (ferramenta com muitas áreas e uso diário longo; o menu superior não comporta 12 destinos) ===== */
+.shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh;transition:grid-template-columns .2s cubic-bezier(.2,.7,.2,1)}
+.shell.collapsed{grid-template-columns:64px minmax(0,1fr)}
+.side{background:var(--cream2);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;min-width:0}
+.side-top{display:flex;align-items:center;justify-content:space-between;padding:18px 14px 12px 20px}
+.brand{font-weight:600;font-size:17px;letter-spacing:-.03em;white-space:nowrap}
+.brand span{color:var(--ink-soft);font-weight:500}
+.icon-btn{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:var(--r-s);color:var(--ink-2)}
+.icon-btn:hover{background:var(--hover);color:var(--ink)}
+/* Seletor de organização: dropdown de seleção única */
+.org-wrap{position:relative;padding:0 10px 10px}
+.org-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:var(--r-m);border:1px solid var(--line);background:var(--paper)}
+.org-btn:hover{border-color:var(--rule)}
+.org-mark{width:24px;height:24px;border-radius:var(--r-s);background:var(--ink);color:var(--cream);display:grid;place-items:center;font-size:11px;font-weight:600;flex:none}
+.org-btn b{display:block;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org-btn small{display:block;color:var(--ink-soft);font-size:11.5px}
+.org-btn .txt{min-width:0;flex:1}
+.nav{padding:4px 10px;flex:1;overflow:auto}
+.nav-g{margin:14px 10px 4px;font-size:11.5px;color:var(--ink-soft);font-weight:500;white-space:nowrap}
+.nav a{display:flex;align-items:center;gap:11px;min-height:34px;padding:0 10px;border-radius:var(--r-s);color:var(--ink-2);font-weight:500;white-space:nowrap}
+.nav a:hover{background:var(--hover);color:var(--ink)}
+.nav a[aria-current=page]{background:var(--paper);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+.nav a[aria-current=page] .ic{color:var(--rust)}
+.nav a .count{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
+.side-foot{border-top:1px solid var(--line);padding:10px 10px 14px}
+.me{display:flex;align-items:center;gap:10px;padding:6px 10px;font-size:12.5px;white-space:nowrap}
+.me small{display:block;color:var(--ink-soft)}
+.avatar{width:28px;height:28px;border-radius:50%;background:#EAD9CF;display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--rust-dark);flex:none}
+.shell.collapsed .nav .label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.shell.collapsed .count,.shell.collapsed .nav-g,.shell.collapsed .org-btn .txt,.shell.collapsed .brand span,.shell.collapsed .me .label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.shell.collapsed .side-top{padding:18px 15px 12px;flex-direction:column;gap:10px}
+.shell.collapsed .brand{font-size:15px}
+.shell.collapsed .nav a{justify-content:center;padding:0}
+.shell.collapsed .org-btn{justify-content:center;padding:6px}
+.shell.collapsed .org-btn .chev{display:none}
+.shell.collapsed .nav-sep{display:block;height:1px;background:var(--line);margin:10px 6px}
+.nav-sep{display:none}
 
+/* ===== Menus (dropdown, ⋮, paleta) ===== */
+.menu{position:absolute;z-index:30;min-width:220px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--elev);padding:6px;display:none}
+.menu.open{display:block}
+.menu [role=menuitem],.menu [role=menuitemradio]{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border-radius:var(--r-s);font-size:13px;color:var(--ink)}
+.menu [role=menuitem]:hover,.menu [role=menuitemradio]:hover,.menu [role=menuitem]:focus-visible,.menu [role=menuitemradio]:focus-visible{background:var(--hover);outline:none}
+.menu .kbd{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+.menu .check{margin-left:auto;color:var(--rust)}
+.menu hr{border:0;height:1px;background:var(--line);margin:5px 4px}
+.menu .danger{color:var(--crit)}
+.menu .mhead{padding:8px 10px 4px;font-size:11.5px;color:var(--ink-soft)}
+.org-menu{left:10px;right:10px;top:calc(100% - 4px)}
+.row-menu{right:0;top:calc(100% + 2px);min-width:250px}
+.menu [role^=menuitem]{white-space:nowrap}
+.scrim{position:fixed;inset:0;background:rgba(30,26,23,.28);z-index:29;display:none}.scrim.on{display:block}
+
+/* ===== Barra superior ===== */
 .main{min-width:0}
-.top{display:flex;align-items:center;gap:18px;padding:14px 40px;border-bottom:1px solid var(--line);background:rgba(250,248,245,.92);position:sticky;top:0;z-index:2;backdrop-filter:blur(6px)}
-label.search{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:8px 12px;color:var(--ink-soft);font-size:13px}
+.top{display:flex;align-items:center;gap:14px;height:60px;padding:0 32px;border-bottom:1px solid var(--line);background:rgba(250,248,245,.94);position:sticky;top:0;z-index:20;backdrop-filter:blur(6px)}
+.search{display:flex;align-items:center;gap:8px;flex:1;max-width:440px;min-width:0;height:36px;padding:0 10px;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-m);color:var(--ink-soft)}
+.search:hover{border-color:var(--rule)}
+.search .ph{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kbd-hint{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--cream)}
 .top .sp{flex:1}
-.search input{border:0;background:transparent;font:inherit;color:var(--ink);width:100%;outline:none}.search:focus-within{outline:2px solid var(--rust);outline-offset:2px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.ibtn{position:relative;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
-.ibtn:hover{background:rgba(48,44,41,.05)}
-.ibtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.ibtn .n{position:absolute;top:3px;right:2px;min-width:16px;height:16px;border-radius:8px;background:var(--rust);color:#fff;font-size:9.5px;font-weight:700;display:grid;place-items:center;padding:0 4px}
-.avatar{font-variant-numeric:tabular-nums;width:32px;height:32px;border-radius:50%;background:var(--blush);display:grid;place-items:center;font-size:11.5px;font-weight:700;color:var(--rust-dark)}
+.badge{position:absolute;top:2px;right:1px;min-width:16px;height:16px;border-radius:8px;background:var(--rust);color:#fff;font-size:10px;font-weight:600;display:grid;place-items:center;padding:0 4px;font-variant-numeric:tabular-nums}
+.icon-btn.rel{position:relative}
 
-.page{padding:34px 40px 60px;max-width:1280px}
-.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:0;color:var(--ink-soft);font-weight:400}
-h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.08;color:var(--heading);margin:8px 0 6px;letter-spacing:-.035em;text-wrap:balance}
-h2{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--heading);margin:0;line-height:1.2;letter-spacing:-.02em}
-.lede{color:var(--ink-2);font-size:15px;margin:0}
-.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:22px;border-bottom:1px solid var(--rule)}
-.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;font-weight:500;font-size:13px;transition:background-color .15s,border-color .15s,transform .1s}
+/* ===== Página ===== */
+.page{padding:28px 32px 56px;max-width:1320px}
+h1{font-weight:600;font-size:30px;line-height:1.12;letter-spacing:-.035em;margin:0;text-wrap:balance}
+h2{font-weight:600;font-size:16px;letter-spacing:-.015em;margin:0}
+.sub{color:var(--ink-2);font-size:14px;margin:4px 0 0}
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:var(--r-s);font-weight:500;font-size:13px;white-space:nowrap;transition:background-color .15s,border-color .15s,transform .1s}
 .btn:active{transform:scale(.98)}
 .btn.p{background:var(--btn);color:#fff}.btn.p:hover{background:var(--btn-h)}
 .btn.s{border:1px solid var(--rule);background:var(--paper)}.btn.s:hover{border-color:rgba(48,44,41,.3)}
-.tabs{display:flex;gap:22px;margin-top:14px}
-.tabs button{padding:8px 0;font-weight:500;color:var(--ink-soft);border-bottom:2px solid transparent;min-height:36px}
-.tabs button:hover{color:var(--ink)}
-.tabs button[aria-current]{color:var(--ink);border-color:var(--rust)}
+.link{color:var(--rust);font-weight:500;font-size:12.5px;display:inline-flex;align-items:center;min-height:30px;white-space:nowrap}
+.link:hover{text-decoration:underline;text-underline-offset:3px}
+.tag{display:inline-flex;align-items:center;height:20px;font-size:11px;padding:0 8px;border-radius:99px;background:var(--cream2);color:var(--ink-2);font-weight:500;white-space:nowrap}
+.tag.w{background:var(--warn-bg);color:var(--crit)}.tag.g{background:var(--ok-bg);color:var(--sage-dark)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.dot.crit{background:var(--crit)}.dot.mid{background:#C49A6C}.dot.ok{background:#8FA27E}
 
-/* ===== HOJE (dashboard editorial: uma coluna de leitura + margem) ===== */
-.today{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:48px;margin-top:28px}
-.figures{display:flex;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:26px 0 0}
-.fig{flex:1;padding:16px 18px 14px;border-left:1px solid var(--line)}
-.fig:first-child{border-left:0;padding-left:0}
-.fig b{display:block;font-family:var(--serif);font-weight:600;font-size:28px;color:var(--ink);line-height:1.1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.fig span{font-size:12px;color:var(--ink-soft)}
-.fig i{font-style:normal;font-size:11.5px;color:var(--sage-dark);font-weight:600}
-.sec{margin-top:34px}
-.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-.sec-h a{font-size:12.5px;color:var(--rust);font-weight:500;display:inline-flex;align-items:center;min-height:28px}
-.risk{list-style:none;margin:0;padding:0}
-.risk li{display:grid;grid-template-columns:86px 1fr auto;gap:16px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
-.risk .lvl{font-family:var(--mono);font-size:11px;font-weight:500}
-.lvl.hi{color:#8E3A2F}.lvl.md{color:#A97F5B}.lvl.lo{color:var(--sage-dark)}
+/* ===== HOJE: leitura principal + coluna de agenda ===== */
+.figures{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--rule)}
+.fig{padding:16px 18px 16px 0}
+.fig+.fig{padding-left:18px;border-left:1px solid var(--line)}
+.fig b{display:block;font-weight:600;font-size:26px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.fig span{font-size:12.5px;color:var(--ink-soft)}
+.fig i{font-style:normal;font-size:12px;color:var(--sage-dark);font-weight:500}
+.today{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:44px;margin-top:26px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.risk{list-style:none;margin:0 0 30px;padding:0}
+.risk li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
 .risk strong{font-weight:600}
 .risk .w{color:var(--ink-soft);font-size:12.5px}
-.risk .act{font-size:12.5px;color:var(--rust);font-weight:500;white-space:nowrap;display:inline-flex;align-items:center;min-height:32px;justify-self:end}
-.risk .act:hover,.sec-h a:hover{text-decoration:underline;text-underline-offset:3px}
+.risk .lvl{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-left:6px}
 .wed{list-style:none;margin:0;padding:0}
-.wed li{display:grid;grid-template-columns:64px 1fr 120px;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
-.date b{display:block;font-family:var(--serif);font-size:22px;font-weight:600;line-height:1;color:var(--ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.date span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
-.wed strong{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em}
-.wed .meta{font-size:12px;color:var(--ink-soft)}
-.prog{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
-.prog i{display:block;height:100%;background:var(--rust)}
-.prog-l{font-size:11px;color:var(--ink-soft);margin-top:5px;text-align:right}
-.margin h3{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--heading);margin:0 0 4px}
-.agenda{list-style:none;margin:0 0 30px;padding:0;border-left:1px solid var(--rule)}
-.agenda li{position:relative;padding:0 0 16px 18px}
-.agenda li::before{content:"";position:absolute;left:-4px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--cream);border:1.5px solid var(--rust)}
-.agenda time{font-size:11.5px;font-weight:700;color:var(--ink-2);letter-spacing:.04em}
-.agenda p{margin:1px 0 0}
-.agenda small{color:var(--ink-soft)}
-.note{background:var(--mark);border-radius:2px;padding:16px 18px;font-size:13px;color:var(--ink-2)}
-.note b{display:block;font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-bottom:4px}
-.ai{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11.5px;color:var(--rust);font-weight:400;margin-bottom:6px}
+.wed li{display:grid;grid-template-columns:52px minmax(0,1fr) 110px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.date b{display:block;font-weight:600;font-size:20px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.date span{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+.wed strong{font-weight:600}
+.wed .meta{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{height:4px;border-radius:2px;background:var(--line);overflow:hidden}.prog i{display:block;height:100%;background:var(--ink)}
+.prog-l{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:5px;text-align:right}
+.agenda{list-style:none;margin:8px 0 26px;padding:0}
+.agenda li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.agenda time{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.agenda p{margin:0;font-weight:500}.agenda small{color:var(--ink-soft)}
+.note{background:var(--mark);border-radius:var(--r-l);padding:16px 18px;font-size:13px;color:var(--ink-2)}
+.note .ai{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;color:var(--rust-dark);margin-bottom:6px}
+.note b{display:block;font-weight:600;color:var(--ink);margin-bottom:4px}
+.note .actions{margin-top:12px}
 
-/* ===== CRM (pipeline em colunas finas, não cartões pesados) ===== */
-.pipe{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:0;margin-top:24px;border-top:1px solid var(--rule)}
-.col{border-left:1px solid var(--line);padding:14px 14px 20px;min-height:520px}
-.col:first-child{border-left:0;padding-left:0}
-.col-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
-.col-h b{font-size:12px;font-weight:600;color:var(--ink)}
-.col-h span{font-family:var(--mono);font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
-.lead{padding:12px 0 12px;border-bottom:1px solid var(--line)}
-.lead strong{display:block;font-weight:600;font-size:13.5px}
+/* ===== CARTEIRA: mestre-detalhe ===== */
+.md{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);height:calc(100vh - 60px)}
+.md-list{border-right:1px solid var(--line);overflow:auto;background:var(--cream)}
+.md-list .h{padding:20px 20px 12px;display:flex;align-items:center;justify-content:space-between}
+.filters{display:flex;gap:6px;padding:0 20px 12px;flex-wrap:wrap}
+.chip{height:28px;padding:0 10px;border-radius:99px;border:1px solid var(--line);font-size:12px;color:var(--ink-2);background:var(--paper)}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.w-row{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) 34px;gap:10px;align-items:center;padding:10px 12px 10px 20px;border-top:1px solid var(--line)}
+.w-row:hover{background:var(--hover)}
+.w-row.sel{background:var(--paper)}
+.w-row.sel .w-name{color:var(--ink)}
+.w-row .row-link{position:absolute;inset:0;border-radius:0}
+.w-row .date,.w-row .w-txt{position:relative;pointer-events:none}
+.w-name{font-weight:600}
+.w-meta{font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kebab{position:relative;z-index:2}
+.w-row:has(.menu.open){z-index:40}.w-row:has(.menu.open) .kebab{z-index:41}
+.md-detail{overflow:auto;background:var(--paper)}
+.md-detail .inner{padding:24px 32px 48px;max-width:900px}
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin-top:18px;overflow-x:auto}
+.tabs button{padding:10px 0;font-weight:500;color:var(--ink-soft);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected=true]{color:var(--ink);border-color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:20px;border-bottom:1px solid var(--line)}
+.facts div{padding:0 16px 16px 0}.facts div+div{padding-left:16px;border-left:1px solid var(--line)}
+.facts dt{font-size:12px;color:var(--ink-soft)}.facts dd{margin:2px 0 0;font-weight:600;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;margin-top:24px}
+.share{list-style:none;margin:8px 0 0;padding:0}
+.share li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.lvl-pill{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.lvl-pill.edit{color:var(--sage-dark)}.lvl-pill.hidden{color:var(--ink-soft)}
+.people{list-style:none;margin:8px 0 0;padding:0}
+.people li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.people small{color:var(--ink-soft);display:block;font-size:12px}
+.callout{margin-top:22px;display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-m)}
+
+/* ===== CRM: pipeline em colunas com filetes ===== */
+.pipe{display:grid;grid-template-columns:repeat(6,minmax(180px,1fr));margin-top:20px;border-top:1px solid var(--rule);overflow-x:auto}
+.col{padding:12px 14px 20px;min-height:460px}
+.col+.col{border-left:1px solid var(--line)}
+.col:first-child{padding-left:0}
+.col-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.col-h b{font-size:12.5px;font-weight:600}
+.col-h span{font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+.lead{padding:11px 0;border-bottom:1px solid var(--line)}
+.lead strong{display:block;font-weight:600}
 .lead .m{font-size:12px;color:var(--ink-soft)}
-.lead .v{display:flex;justify-content:space-between;margin-top:6px;font-size:12px}
+.lead .v{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;font-size:12px}
 .lead .v b{font-weight:600;font-variant-numeric:tabular-nums}
-.tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--cream2);color:var(--ink-2);font-weight:600}
-.tag.w{background:var(--warn-bg);color:#8E3A2F}
-.tag.g{background:var(--ok-bg);color:#5F7355}
-.colsum{margin-top:12px;font-size:11.5px;color:var(--ink-soft)}
 
-/* ===== RUN SHEET (documento operacional) ===== */
-.rs-wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:40px;margin-top:24px}
-.views{display:flex;border:1px solid var(--rule);border-radius:8px;padding:3px;gap:2px;background:var(--paper)}
-.views button{padding:6px 12px;border-radius:5px;font-size:12.5px;font-weight:500;color:var(--ink-soft);min-height:30px}
+/* ===== RUN SHEET ===== */
+.views{display:inline-flex;border:1px solid var(--rule);border-radius:var(--r-m);padding:3px;gap:2px;background:var(--paper)}
+.views button{padding:0 12px;min-height:30px;border-radius:5px;font-size:12.5px;font-weight:500;color:var(--ink-soft)}
 .views button:hover{color:var(--ink)}
 .views button[aria-pressed=true]{background:var(--btn);color:#fff}
+.rs-wrap{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:36px;margin-top:20px}
+.rs-scroll{overflow-x:auto;min-width:0}
 table.rs{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.rs th{text-align:left;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--rule)}
-.rs td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-.rs td.t{font-family:var(--mono);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;width:84px;color:var(--ink)}
-.rs td.t small{display:block;font-family:var(--sans);font-size:11px;font-weight:500;color:var(--ink-soft)}
-.rs .act strong{font-weight:600;display:block}
-.rs .act span{color:var(--ink-soft);font-size:12.5px}
-.rs .who{font-size:12.5px}
-.rs .who b{font-weight:600}
-.rs tr.phase td{background:var(--cream2);font-family:var(--mono);font-size:11px;font-weight:500;color:var(--rust-dark);padding:8px 12px}
+.rs th{text-align:left;font-size:12px;color:var(--ink-soft);font-weight:500;padding:9px 12px;border-bottom:1px solid var(--rule)}
+.rs td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+.rs td.t{font-family:var(--mono);font-size:14px;white-space:nowrap;width:84px}
+.rs td.t small{display:block;font-size:11px;color:var(--ink-soft)}
+.rs .act strong{font-weight:600;display:block}.rs .act span{color:var(--ink-soft);font-size:12.5px}
+.rs tr.phase td{background:var(--cream2);font-size:12px;font-weight:600;color:var(--ink-2);padding:7px 12px}
 .rs tr.now td{background:var(--mark)}
-.rs tr.now td.t{box-shadow:inset 3px 0 0 var(--rust)}
-.st{font-size:11.5px;font-weight:700;white-space:nowrap}
-.st.ok{color:var(--sage-dark)}.st.pend{color:#A97F5B}.st.no{color:#8E3A2F}
-.aside h3{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--heading);margin:0 0 10px}
-.contacts{list-style:none;margin:0 0 26px;padding:0}
-.contacts li{padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
-.contacts b{display:block;font-weight:600;font-size:13px}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+.aside h2{margin-bottom:6px}
+.contacts{list-style:none;margin:0 0 22px;padding:0}
+.contacts li{padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-2)}
+.contacts b{display:block;font-weight:600;color:var(--ink)}
 
 /* ===== CONVERSAS ===== */
-.chat{display:grid;grid-template-columns:300px minmax(0,1fr) 270px;height:calc(100vh - 65px);border-top:0}
-.threads{border-right:1px solid var(--line);overflow:auto;background:var(--cream)}
-.threads .h{padding:22px 20px 10px}
-.th{display:block;width:100%;text-align:left;padding:13px 20px;border-bottom:1px solid var(--line)}
-.th:hover{background:rgba(48,44,41,.03)}
-.th[aria-current]{background:var(--paper);box-shadow:inset 3px 0 0 var(--rust)}
-.th strong{font-family:var(--serif);font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
-.th strong i{font-style:normal;font-family:var(--sans);font-size:10px;background:var(--rust);color:#fff;border-radius:9px;padding:1px 6px;font-weight:700}
+.chat{display:grid;grid-template-columns:300px minmax(0,1fr) 260px;height:calc(100vh - 60px)}
+.threads{border-right:1px solid var(--line);overflow:auto}
+.threads .h{padding:20px 20px 10px}
+.th{display:block;width:100%;padding:12px 20px;border-top:1px solid var(--line)}
+.th:hover{background:var(--hover)}
+.th[aria-current=true]{background:var(--paper)}
+.th strong{font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.th .n{font-size:10px;background:var(--rust);color:#fff;border-radius:9px;padding:1px 6px;font-weight:600;font-variant-numeric:tabular-nums}
 .th p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .conv{display:flex;flex-direction:column;min-width:0;background:var(--paper)}
-.conv-h{padding:16px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.conv-h{padding:14px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
 .conv-h small{color:var(--ink-soft);font-size:12px}
-.msgs{flex:1;overflow:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px}
-.day{align-self:center;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
-.m{max-width:62%}
-.m .who{font-size:11.5px;color:var(--ink-soft);margin-bottom:3px}
-.m .who b{color:var(--ink-2);font-weight:700}
-.m .b{padding:11px 14px;border-radius:14px;background:var(--cream2);font-size:13.5px}
-.m.me{align-self:flex-end}
-.m.me .who{text-align:right}
-.m.me .b{background:#F1E3DC}
-.m .dec{margin-top:6px;border-left:2px solid var(--sage-dark);padding:4px 10px;font-size:12px;color:#5F7355;font-weight:600;background:var(--ok-bg)}
-.m .att{margin-top:6px;display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12.5px;background:var(--paper)}
-.m .rd{font-size:11px;color:var(--ink-soft);margin-top:3px;text-align:right}
-.compose{border-top:1px solid var(--line);padding:14px 28px;display:flex;gap:12px;align-items:center}
-.compose div{flex:1;border:1px solid var(--rule);border-radius:12px;padding:11px 14px;color:var(--ink-soft)}
-.info{border-left:1px solid var(--line);padding:22px 20px;overflow:auto}
-.info h3{font-family:var(--serif);font-weight:600;font-size:14px;color:var(--heading);margin:0 0 8px}
+.msgs{flex:1;overflow:auto;padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+.day{align-self:center;font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+.m{max-width:64%}
+.m .who{font-size:12px;color:var(--ink-soft);margin-bottom:3px}.m .who b{color:var(--ink-2);font-weight:600}
+.m .b{padding:10px 13px;border-radius:var(--r-l);background:var(--cream2)}
+.m.mine{align-self:flex-end}.m.mine .who{text-align:right}.m.mine .b{background:#EFE3DC}
+.m .dec{margin-top:6px;display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;color:var(--sage-dark);font-weight:500;background:var(--ok-bg);border-radius:var(--r-s)}
+.m .att{margin-top:6px;display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:var(--r-m);padding:7px 10px;font-size:12.5px;background:var(--paper)}
+.m .rd{font-size:11.5px;color:var(--ink-soft);margin-top:3px;text-align:right}
+.compose{border-top:1px solid var(--line);padding:12px 24px;display:flex;gap:10px;align-items:center}
+.compose label{flex:1;display:flex;align-items:center;border:1px solid var(--rule);border-radius:var(--r-l);padding:0 12px;min-height:42px;color:var(--ink-soft)}
+.info{border-left:1px solid var(--line);padding:20px;overflow:auto}
+.info h2{margin-bottom:6px}
 .info ul{list-style:none;margin:0 0 22px;padding:0}
-.info li{padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
-.info li b{display:block;font-weight:600}
+.info li{padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-2)}
+.info li b{display:block;font-weight:600;color:var(--ink)}
 
-.view{display:none;scroll-margin-top:90px}
-.view:target,.view.default{display:block}
-.view:target ~ .view.default{display:none}
-.proto{position:fixed;right:14px;bottom:12px;font-size:10.5px;color:var(--ink-soft);background:var(--cream2);border:1px solid var(--line);padding:4px 9px;border-radius:99px}
-@media (max-width:1100px){.today,.rs-wrap{grid-template-columns:1fr}.chat{grid-template-columns:260px 1fr}.info{display:none}}
-@media (max-width:820px){.shell{grid-template-columns:1fr}.side{display:none}.page{padding:24px 18px}.top{padding:12px 18px}.pipe{grid-template-columns:repeat(6,78vw);overflow-x:auto;max-width:100%}
-  .hdr{flex-direction:column;align-items:flex-start}.hdr > div:last-child{flex-wrap:wrap}h1{font-size:36px}
-  .rs-wrap{min-width:0}.rs-wrap > table{display:block;overflow-x:auto;max-width:100%}.rs thead{display:none}
-  .rs tr{display:grid;grid-template-columns:72px 1fr;border-bottom:1px solid var(--line)}.rs td{border:0;padding:8px 6px}.rs tr.phase td{grid-column:1/-1}
-  .rs td:nth-child(n+3){grid-column:2;padding-top:0;font-size:12.5px}.search{max-width:none}.risk li{grid-template-columns:72px 1fr}.risk .act{grid-column:2}.wed li{grid-template-columns:52px 1fr}.wed li > div:last-child{grid-column:2}.figures{flex-wrap:wrap}.fig{flex:1 1 45%}.fig:nth-child(odd){padding-left:0;border-left:0}.chat{grid-template-columns:1fr}.threads{display:none}}
+.view{display:none}.view.on{display:block}
+.proto{position:fixed;right:12px;bottom:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);background:var(--cream2);border:1px solid var(--line);padding:3px 8px;border-radius:99px;z-index:40}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:1180px){.today,.rs-wrap,.two{grid-template-columns:1fr}.chat{grid-template-columns:260px minmax(0,1fr)}.info{display:none}}
+@media (max-width:860px){
+  .shell,.shell.collapsed{grid-template-columns:1fr}.side{display:none}
+  .page{padding:22px 16px 48px}.top{padding:0 16px}
+  .figures{grid-template-columns:1fr 1fr}.fig:nth-child(3){padding-left:0;border-left:0}.fig:nth-child(n+3){border-top:1px solid var(--line)}
+  .wed li{grid-template-columns:44px minmax(0,1fr)}.wed li>div:last-child{grid-column:2}
+  .md{grid-template-columns:1fr;height:auto}.md-detail{display:none}
+  .chat{grid-template-columns:1fr}.threads{display:none}
+  .pipe{grid-template-columns:repeat(6,78vw)}
+  .rs thead{display:none}.rs tr{display:grid;grid-template-columns:70px minmax(0,1fr)}.rs td{border:0;padding:6px}.rs tr.phase td{grid-column:1/-1}.rs td:nth-child(n+3){grid-column:2;padding-top:0;font-size:12.5px}.rs tr{border-bottom:1px solid var(--line)}
+  .search .kbd-hint{display:none}.m{max-width:85%}
+}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Uma só família de ícones: grelha 24, traço 1.5, pontas redondas, sem preenchimento. -->
+  <symbol id="i-today" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-7h11L20 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5z"/><path d="M4 13h4.5l1.5 2.5h4l1.5-2.5H20"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7.5A1.5 1.5 0 0 0 6 5v14a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19V7.5z"/><path d="M14 3.5v4h4M9 12h6M9 15.5h6"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 8l3 3"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="2"/><path d="M3.5 10h17M15.5 14.5h2"/></symbol>
+  <symbol id="i-rings" viewBox="0 0 24 24"><circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M10 5.5 12 3.5l2 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v7.5h13V12M10 19.5v-4.5h4v4.5"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.2A5.3 5.3 0 0 1 20.5 19"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4 3.5 8.5 12 13l8.5-4.5z"/><path d="M3.5 12.5 12 17l8.5-4.5M3.5 16.5 12 21l8.5-4.5"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4.5 5.5h15v10h-9l-4.5 4v-4h-1.5z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M12 5.5h.01M12 12h.01M12 18.5h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M9.5 4.5v15"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.8 16.9a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+</svg>
 <a class="skip" href="#conteudo">Saltar para o conteúdo</a>
-<div class="shell">
+<div class="shell" id="shell">
   <aside class="side" aria-label="Navegação principal">
-    <div class="brand"><b>Weddy</b><small>Planning</small></div>
-    <div class="org"><span>Organização</span>Atelier Lume · Estúdio</div>
-    <nav class="nav">
-      <a href="#hoje" aria-current="page">Hoje</a>
-      <a href="#hoje">Calendário</a>
-      <h6>Negócio</h6>
-      <a href="#crm">Contactos e pedidos <em>12</em></a>
-      <a href="#crm">Propostas <em>4</em></a>
-      <a href="#crm">Contratos</a>
-      <a href="#hoje">Financeiro</a>
-      <h6>Casamentos</h6>
-      <a href="#hoje">Carteira <em>18</em></a>
-      <a href="#runsheet">Run sheets</a>
-      <a href="#hoje">Fornecedores e espaços</a>
-      <h6>Estúdio</h6>
-      <a href="#hoje">Equipa</a>
-      <a href="#hoje">Modelos</a>
+    <div class="side-top">
+      <div class="brand">Weddy <span>Planning</span></div>
+      <button class="icon-btn" id="collapse" type="button" aria-expanded="true" aria-controls="nav" aria-label="Recolher a barra lateral"><svg class="ic"><use href="#i-panel"/></svg></button>
+    </div>
+    <div class="org-wrap">
+      <button class="org-btn" id="org-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="org-menu">
+        <span class="org-mark" aria-hidden="true">AL</span>
+        <span class="txt"><b>Atelier Lume</b><small>Estúdio · 4 membros</small></span>
+        <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+      </button>
+      <div class="menu org-menu" id="org-menu" role="menu" aria-label="Organizações">
+        <div class="mhead">As tuas organizações</div>
+        <button role="menuitemradio" aria-checked="true" type="button"><span class="org-mark" aria-hidden="true">AL</span>Atelier Lume<svg class="ic check" aria-hidden="true"><use href="#i-check"/></svg></button>
+        <button role="menuitemradio" aria-checked="false" type="button"><span class="org-mark" aria-hidden="true" style="background:#7C8A6E">CS</span>Casa Serra Eventos</button>
+        <hr>
+        <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Criar organização</button>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#hoje" data-view="hoje"><svg class="ic" aria-hidden="true"><use href="#i-today"/></svg><span class="label">Hoje</span></a>
+      <a href="#hoje" data-view="hoje-cal"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span class="label">Calendário</span></a>
+      <div class="nav-g">Negócio</div><div class="nav-sep"></div>
+      <a href="#crm" data-view="crm"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span class="label">Pedidos</span><span class="count">12</span></a>
+      <a href="#crm" data-view="crm-p"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg><span class="label">Propostas</span><span class="count">4</span></a>
+      <a href="#crm" data-view="crm-c"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg><span class="label">Contratos</span></a>
+      <a href="#hoje" data-view="fin"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg><span class="label">Financeiro</span></a>
+      <div class="nav-g">Casamentos</div><div class="nav-sep"></div>
+      <a href="#carteira" data-view="carteira"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg><span class="label">Carteira</span><span class="count">18</span></a>
+      <a href="#runsheet" data-view="runsheet"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg><span class="label">Run sheets</span></a>
+      <a href="#hoje" data-view="forn"><svg class="ic" aria-hidden="true"><use href="#i-store"/></svg><span class="label">Fornecedores</span></a>
+      <div class="nav-g">Estúdio</div><div class="nav-sep"></div>
+      <a href="#hoje" data-view="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><span class="label">Equipa</span></a>
+      <a href="#hoje" data-view="tpl"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><span class="label">Modelos</span></a>
     </nav>
-    <div class="me-side">Inês Andrade · Owner</div>
+    <div class="side-foot"><div class="me"><span class="avatar" aria-hidden="true">IA</span><span class="label">Inês Andrade<small>Owner</small></span></div></div>
   </aside>
 
   <main class="main" id="conteudo">
     <header class="top">
-      <label class="search"><span class="sr">Procurar</span><input type="search" name="q" autocomplete="off" placeholder="Procurar casamentos, contactos, fornecedores…"></label>
+      <button class="search" type="button" id="cmdk-btn" aria-label="Procurar e executar comandos (Command K)">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span class="ph">Procurar casamentos, contactos, fornecedores…</span><span class="kbd-hint">⌘ K</span>
+      </button>
       <span class="sp"></span>
-      <a class="ibtn" href="#conversas" aria-label="Conversas, 3 por ler"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5.5h16v10H9l-5 4z"/></svg><span class="n">3</span></a>
-      <button type="button" class="ibtn" aria-label="Notificações"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button>
-      <span class="avatar" aria-hidden="true">IA</span>
+      <a class="icon-btn rel" href="#conversas" aria-label="Conversas, 3 por ler"><svg class="ic"><use href="#i-msg"/></svg><span class="badge" aria-hidden="true">3</span></a>
+      <button class="icon-btn" type="button" aria-label="Notificações"><svg class="ic"><use href="#i-bell"/></svg></button>
     </header>
 
-    <!-- ===================== CONVERSAS ===================== -->
-    <section class="view" id="conversas" aria-label="Conversas">
-      <div class="chat">
-        <div class="threads">
-          <div class="h"><div class="eyebrow">Weddy Conversations</div><h2>Conversas</h2></div>
-          <button type="button" class="th" aria-current="true"><strong>Marta &amp; Duarte <i>2</i></strong><p>Marta: Podemos fechar a florista amanhã?</p></button>
-          <button type="button" class="th"><strong>Sofia &amp; Tomás <i>1</i></strong><p>Tomás: Enviei a lista final de transportes</p></button>
-          <button type="button" class="th"><strong>Leonor &amp; Miguel</strong><p>Tu: Ementa aprovada, obrigada!</p></button>
-          <button type="button" class="th"><strong>Carolina &amp; Rui</strong><p>Rui: Ficamos com a quinta em Sintra</p></button>
-        </div>
-        <div class="conv">
-          <div class="conv-h"><div><h2 style="font-size:22px">Marta &amp; Duarte</h2><small>14 de junho de 2027 · Quinta do Vale, Alenquer · 4 participantes</small></div><a class="btn s" href="#conversas">Exportar PDF</a></div>
-          <div class="msgs">
-            <div class="day">Terça-feira, 9 de novembro</div>
-            <div class="m"><div class="who"><b>Marta</b> · 10:12</div><div class="b">Vimos as duas propostas de flores. Gostámos mais da segunda, mas o orçamento está acima do previsto.</div></div>
-            <div class="m me"><div class="who"><b>Inês</b> (planner) · 10:40</div><div class="b">Falei com o atelier: retirando os arcos do corredor, fica 380 € abaixo. Envio a versão revista.</div><div class="att">PDF · Proposta flores v2.pdf · 1,2 MB</div><div class="rd">Lida por Marta · Por ler por Duarte</div></div>
-            <div class="m"><div class="who"><b>Duarte</b> · 18:05</div><div class="b">Perfeito para nós. Avancem com a segunda versão.</div><div class="dec">Decisão · Fornecedor escolhido: Atelier Folha (v2)</div></div>
-            <div class="day">Hoje</div>
-            <div class="m"><div class="who"><b>Marta</b> · 09:21</div><div class="b">Podemos fechar a florista amanhã? Queremos garantir a data.</div></div>
-          </div>
-          <div class="compose"><div>Escrever mensagem…</div><a class="btn p" href="#conversas">Enviar</a></div>
-        </div>
-        <aside class="info">
-          <h3>Decisões</h3>
-          <ul><li><b>Florista: Atelier Folha (v2)</b>Duarte · 9 nov</li><li><b>Ementa aprovada</b>Marta · 2 nov</li><li><b>Data da prova de vinhos</b>Inês · 28 out</li></ul>
-          <h3>Anexos</h3>
-          <ul><li><b>Proposta flores v2.pdf</b>9 nov</li><li><b>Planta da quinta.pdf</b>21 out</li></ul>
-        </aside>
-      </div>
-    </section>
-
-    <!-- ===================== RUN SHEET ===================== -->
-    <section class="view" id="runsheet" aria-label="Run sheet">
-      <div class="page">
-        <div class="hdr">
-          <div><div class="eyebrow">Run sheet · Versão 7 · Atualizada há 2 h</div><h1>Marta &amp; Duarte</h1><p class="lede">Sábado, 14 de junho de 2027 · Quinta do Vale, Alenquer · 142 convidados</p></div>
-          <div style="display:flex;gap:10px;align-items:center"><nav class="views" aria-label="Vista"><button type="button" aria-pressed="true">Planner</button><button type="button" aria-pressed="false">Equipa</button><button type="button" aria-pressed="false">Fornecedores</button></nav><button type="button" class="btn s">PDF</button></div>
-        </div>
-        <div class="rs-wrap">
-          <table class="rs">
-            <thead><tr><th>Hora</th><th>Atividade</th><th>Responsável</th><th>Local</th><th>Estado</th></tr></thead>
-            <tbody>
-              <tr class="phase"><td colspan="5">Montagem</td></tr>
-              <tr><td class="t">09:00<small>até 12:30</small></td><td class="act"><strong>Montagem da tenda e mobiliário</strong><span>Entrada pelo portão de serviço. Mesas redondas Ø180.</span></td><td class="who"><b>Alugar &amp; Cia</b><br>Coord.: Pedro</td><td>Jardim sul</td><td><span class="st ok">Confirmado</span></td></tr>
-              <tr><td class="t">11:00</td><td class="act"><strong>Flores: arco e centros de mesa</strong><span>Sem arcos no corredor (v2).</span></td><td class="who"><b>Atelier Folha</b></td><td>Capela · Jardim</td><td><span class="st pend">Hora por confirmar</span></td></tr>
-              <tr class="phase"><td colspan="5">Cerimónia</td></tr>
-              <tr class="now"><td class="t">16:00</td><td class="act"><strong>Chegada dos convidados</strong><span>Água aromatizada e sombrinhas à entrada.</span></td><td class="who"><b>Inês</b> · Rita (assistente)</td><td>Capela</td><td><span class="st ok">Pronto</span></td></tr>
-              <tr><td class="t">16:30</td><td class="act"><strong>Cerimónia religiosa</strong><span>Leituras: Ana (irmã) e Joaquim (avô).</span></td><td class="who"><b>Pe. António</b> · Quarteto Lis</td><td>Capela</td><td><span class="st ok">Confirmado</span></td></tr>
-              <tr class="phase"><td colspan="5">Receção</td></tr>
-              <tr><td class="t">17:30</td><td class="act"><strong>Cocktail e fotografias de grupo</strong><span>Lista de grupos enviada ao fotógrafo.</span></td><td class="who"><b>Luz Estúdio</b></td><td>Terraço</td><td><span class="st no">Sem confirmação</span></td></tr>
-              <tr><td class="t">19:30</td><td class="act"><strong>Jantar · entrada dos noivos</strong><span>3 menus vegetarianos, 2 sem glúten (mesas 4 e 9).</span></td><td class="who"><b>Sabores do Vale</b></td><td>Tenda</td><td><span class="st ok">Confirmado</span></td></tr>
-            </tbody>
-          </table>
-          <aside class="aside">
-            <h3>Contactos do dia</h3>
-            <ul class="contacts"><li><b>Inês Andrade</b>Planner · 912 000 001</li><li><b>Pedro Lopes</b>Quinta do Vale · 912 000 002</li><li><b>Luz Estúdio</b>Fotografia · 912 000 003</li></ul>
-            <div class="note"><b>2 pontos por fechar</b>Fotógrafo sem confirmação de hora; florista a confirmar entrada às 11:00.</div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== CRM ===================== -->
-    <section class="view" id="crm" aria-label="Contactos e pedidos">
-      <div class="page">
-        <div class="hdr">
-          <div><div class="eyebrow">Negócio</div><h1>Contactos e pedidos</h1><p class="lede">12 pedidos ativos · 86 400 € em propostas abertas</p></div>
-          <div style="display:flex;gap:10px"><button type="button" class="btn s">Formulário público</button><button type="button" class="btn p">Novo pedido</button></div>
-        </div>
-        <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="true" aria-current="true">Pipeline</button><button type="button" role="tab" aria-selected="false">Lista</button><button type="button" role="tab" aria-selected="false">Perdidos</button></div>
-        <div class="pipe">
-          <div class="col"><div class="col-h"><b>Novo</b><span>4</span></div>
-            <div class="lead"><strong>Beatriz &amp; Nuno</strong><div class="m">Set. 2027 · Douro · ~120</div><div class="v"><span class="tag">Instagram</span><b>18–22 k€</b></div></div>
-            <div class="lead"><strong>Joana &amp; Afonso</strong><div class="m">Mai. 2028 · Lisboa · ~80</div><div class="v"><span class="tag w">Sem resposta há 3 dias</span></div></div>
-            <div class="colsum">2 sem próximo passo</div></div>
-          <div class="col"><div class="col-h"><b>Contactado</b><span>3</span></div>
-            <div class="lead"><strong>Mariana &amp; Hugo</strong><div class="m">Out. 2027 · Comporta · ~150</div><div class="v"><span class="tag">Site</span><b>30 k€</b></div></div></div>
-          <div class="col"><div class="col-h"><b>Reunião</b><span>2</span></div>
-            <div class="lead"><strong>Rita &amp; Gonçalo</strong><div class="m">Quinta, 15:00 · Videochamada</div><div class="v"><span class="tag g">Questionário recebido</span></div></div></div>
-          <div class="col"><div class="col-h"><b>Proposta</b><span>2</span></div>
-            <div class="lead"><strong>Inês &amp; Vasco</strong><div class="m">Full Planning · v3</div><div class="v"><span class="tag">Vista 2×</span><b>24 600 €</b></div></div></div>
-          <div class="col"><div class="col-h"><b>Negociação</b><span>1</span></div>
-            <div class="lead"><strong>Catarina &amp; João</strong><div class="m">Partial Planning</div><div class="v"><span class="tag w">Pediu desconto</span><b>11 800 €</b></div></div></div>
-          <div class="col"><div class="col-h"><b>Contratado</b><span>6</span></div>
-            <div class="lead"><strong>Marta &amp; Duarte</strong><div class="m">Contrato assinado · 2 nov</div><div class="v"><span class="tag g">Casamento criado</span><b>21 000 €</b></div></div></div>
-        </div>
-      </div>
-    </section>
-
     <!-- ===================== HOJE ===================== -->
-    <section class="view default" id="hoje" aria-label="Hoje">
+    <section class="view" id="v-hoje" aria-labelledby="h-hoje">
       <div class="page">
         <div class="hdr">
-          <div><div class="eyebrow">Terça-feira, 16 de novembro</div><h1>Bom dia, Inês.</h1><p class="lede">Três casamentos precisam de ti esta semana.</p></div>
-          <button type="button" class="btn p">Novo casamento</button>
+          <div><h1 id="h-hoje">Bom dia, Inês</h1><p class="sub">Terça-feira, 16 de novembro · três casamentos precisam de ti esta semana.</p></div>
+          <div class="actions"><button type="button" class="btn s">Novo pedido</button><button type="button" class="btn p"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Novo casamento</button></div>
         </div>
         <div class="figures">
           <div class="fig"><b>18</b><span>casamentos ativos</span></div>
@@ -334,41 +351,254 @@ table.rs{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
         </div>
         <div class="today">
           <div>
-            <div class="sec">
-              <div class="sec-h"><h2>Precisa de atenção</h2><a href="#hoje">Radar completo</a></div>
-              <ul class="risk">
-                <li><span class="lvl hi">Crítico</span><div><strong>Fotógrafo sem confirmação</strong><div class="w">Marta &amp; Duarte · faltam 30 dias</div></div><a class="act" href="#runsheet">Abrir run sheet</a></li>
-                <li><span class="lvl hi">Crítico</span><div><strong>Orçamento ultrapassado em 8 %</strong><div class="w">Sofia &amp; Tomás · Decoração</div></div><button type="button" class="act">Rever</button></li>
-                <li><span class="lvl md">Atenção</span><div><strong>Ementa à espera de aprovação há 6 dias</strong><div class="w">Leonor &amp; Miguel</div></div><a class="act" href="#conversas">Lembrar</a></li>
-                <li><span class="lvl md">Atenção</span><div><strong>2.ª prestação vence sexta-feira</strong><div class="w">Carolina &amp; Rui · 3 200 €</div></div><button type="button" class="act">Ver plano</button></li>
-                <li><span class="lvl lo">Lembrete</span><div><strong>Prova de menu sem responsável</strong><div class="w">Beatriz &amp; Nuno · 2 dez</div></div><button type="button" class="act">Atribuir</button></li>
-              </ul>
-            </div>
-            <div class="sec">
-              <div class="sec-h"><h2>Próximos casamentos</h2><a href="#hoje">Carteira</a></div>
-              <ul class="wed">
-                <li><div class="date"><b>11</b><span>Dez</span></div><div><strong>Carolina &amp; Rui</strong><div class="meta">Palácio de Seteais, Sintra · 96 convidados · Coordination</div></div><div><div class="prog"><i style="width:88%"></i></div><div class="prog-l">88 % pronto</div></div></li>
-                <li><div class="date"><b>22</b><span>Mai</span></div><div><strong>Leonor &amp; Miguel</strong><div class="meta">Herdade da Malhadinha · 120 · Full Planning</div></div><div><div class="prog"><i style="width:61%"></i></div><div class="prog-l">61 %</div></div></li>
-                <li><div class="date"><b>14</b><span>Jun</span></div><div><strong>Marta &amp; Duarte</strong><div class="meta">Quinta do Vale, Alenquer · 142 · Full Planning</div></div><div><div class="prog"><i style="width:47%"></i></div><div class="prog-l">47 %</div></div></li>
-              </ul>
-            </div>
+            <div class="sec-h"><h2>Precisa de atenção</h2><a class="link" href="#hoje">Ver radar completo</a></div>
+            <ul class="risk">
+              <li><span class="dot crit" aria-hidden="true"></span><div><strong>Fotógrafo sem confirmação</strong><span class="lvl">crítico</span><div class="w">Marta &amp; Duarte · faltam 30 dias</div></div><a class="link" href="#runsheet">Abrir run sheet</a></li>
+              <li><span class="dot crit" aria-hidden="true"></span><div><strong>Orçamento ultrapassado em 8 %</strong><span class="lvl">crítico</span><div class="w">Sofia &amp; Tomás · Decoração</div></div><button type="button" class="link">Rever orçamento</button></li>
+              <li><span class="dot mid" aria-hidden="true"></span><div><strong>Ementa à espera de aprovação há 6 dias</strong><span class="lvl">atenção</span><div class="w">Leonor &amp; Miguel</div></div><a class="link" href="#conversas">Lembrar o casal</a></li>
+              <li><span class="dot mid" aria-hidden="true"></span><div><strong>2.ª prestação vence sexta-feira</strong><span class="lvl">atenção</span><div class="w">Carolina &amp; Rui · 3 200 €</div></div><button type="button" class="link">Ver plano</button></li>
+              <li><span class="dot ok" aria-hidden="true"></span><div><strong>Prova de menu sem responsável</strong><span class="lvl">lembrete</span><div class="w">Beatriz &amp; Nuno · 2 dez</div></div><button type="button" class="link">Atribuir</button></li>
+            </ul>
+            <div class="sec-h"><h2>Próximos casamentos</h2><a class="link" href="#carteira">Abrir carteira</a></div>
+            <ul class="wed">
+              <li><div class="date"><b>11</b><span>dez</span></div><div><strong>Carolina &amp; Rui</strong><div class="meta">Palácio de Seteais, Sintra · 96 convidados · Coordination</div></div><div><div class="prog"><i style="width:88%"></i></div><div class="prog-l">88 %</div></div></li>
+              <li><div class="date"><b>22</b><span>mai</span></div><div><strong>Leonor &amp; Miguel</strong><div class="meta">Herdade da Malhadinha · 120 · Full Planning</div></div><div><div class="prog"><i style="width:61%"></i></div><div class="prog-l">61 %</div></div></li>
+              <li><div class="date"><b>14</b><span>jun</span></div><div><strong>Marta &amp; Duarte</strong><div class="meta">Quinta do Vale, Alenquer · 142 · Full Planning</div></div><div><div class="prog"><i style="width:47%"></i></div><div class="prog-l">47 %</div></div></li>
+            </ul>
           </div>
-          <aside class="margin">
-            <div class="sec">
-              <h3>Agenda de hoje</h3>
-              <ul class="agenda">
-                <li><time>10:00</time><p>Visita à quinta · Beatriz &amp; Nuno</p><small>Quinta da Pacheca, Lamego</small></li>
-                <li><time>15:00</time><p>Reunião de proposta · Inês &amp; Vasco</p><small>Videochamada</small></li>
-                <li><time>18:30</time><p>Prova de vinhos · Marta &amp; Duarte</p><small>Rita acompanha</small></li>
-              </ul>
-            </div>
-            <div class="note"><div class="ai">Weddy Intelligence</div><b>Preparar a reunião das 15:00?</b>Junto a proposta v3, as respostas ao questionário e as 4 perguntas que ficaram em aberto. Nada é enviado sem confirmares.</div>
+          <aside aria-labelledby="h-ag">
+            <h2 id="h-ag">Agenda de hoje</h2>
+            <ul class="agenda">
+              <li><time>10:00</time><div><p>Visita à quinta · Beatriz &amp; Nuno</p><small>Quinta da Pacheca, Lamego</small></div></li>
+              <li><time>15:00</time><div><p>Reunião de proposta · Inês &amp; Vasco</p><small>Videochamada</small></div></li>
+              <li><time>18:30</time><div><p>Prova de vinhos · Marta &amp; Duarte</p><small>Rita acompanha</small></div></li>
+            </ul>
+            <div class="note"><div class="ai">Weddy Intelligence</div><b>Preparar a reunião das 15:00?</b>Junto a proposta v3, as respostas ao questionário e as 4 perguntas em aberto. Nada é enviado sem confirmares.<div class="actions"><button type="button" class="btn s">Preparar</button><button type="button" class="btn s" style="border-color:transparent;background:transparent">Agora não</button></div></div>
           </aside>
         </div>
       </div>
     </section>
+
+    <!-- ===================== CARTEIRA (mestre-detalhe) ===================== -->
+    <section class="view" id="v-carteira" aria-labelledby="h-cart">
+      <div class="md">
+        <div class="md-list">
+          <div class="h"><h1 id="h-cart" style="font-size:22px">Carteira</h1><button type="button" class="btn p"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Novo</button></div>
+          <div class="filters" role="group" aria-label="Filtrar"><button type="button" class="chip" aria-pressed="true">Ativos 18</button><button type="button" class="chip" aria-pressed="false">Convite pendente 2</button><button type="button" class="chip" aria-pressed="false">Concluídos</button></div>
+          <div class="w-row"><button class="row-link" type="button" aria-label="Abrir Carolina e Rui"></button><div class="date"><b>11</b><span>dez</span></div><div class="w-txt"><div class="w-name">Carolina &amp; Rui</div><div class="w-meta">Seteais · Coordination · ligado</div></div><div class="kebab"><button class="icon-btn" type="button" aria-label="Mais ações para Carolina e Rui" aria-haspopup="menu" aria-expanded="false"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+          <div class="w-row"><button class="row-link" type="button" aria-label="Abrir Leonor e Miguel"></button><div class="date"><b>22</b><span>mai</span></div><div class="w-txt"><div class="w-name">Leonor &amp; Miguel</div><div class="w-meta">Malhadinha · Full Planning · ligado</div></div><div class="kebab"><button class="icon-btn" type="button" aria-label="Mais ações para Leonor e Miguel" aria-haspopup="menu" aria-expanded="false"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+          <div class="w-row sel"><button class="row-link" type="button" aria-label="Abrir Marta e Duarte" aria-current="true"></button><div class="date"><b>14</b><span>jun</span></div><div class="w-txt"><div class="w-name">Marta &amp; Duarte</div><div class="w-meta">Quinta do Vale · Full Planning · ligado</div></div>
+            <div class="kebab"><button class="icon-btn" id="row-kebab" type="button" aria-label="Mais ações para Marta e Duarte" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu"><svg class="ic"><use href="#i-more"/></svg></button>
+              <div class="menu row-menu" id="row-menu" role="menu" aria-label="Ações do casamento">
+                <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-msg"/></svg>Abrir conversa<span class="kbd">C</span></button>
+                <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>Abrir run sheet</button>
+                <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg>Atribuir equipa</button>
+                <hr>
+                <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg>Exportar ficha (PDF)</button>
+                <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>Aplicar modelo</button>
+                <hr>
+                <button role="menuitem" type="button" class="danger"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Terminar ligação ao casal…</button>
+              </div>
+            </div>
+          </div>
+          <div class="w-row"><button class="row-link" type="button" aria-label="Abrir Beatriz e Nuno"></button><div class="date"><b>05</b><span>set</span></div><div class="w-txt"><div class="w-name">Beatriz &amp; Nuno</div><div class="w-meta">Douro · Partial · convite pendente</div></div><div class="kebab"><button class="icon-btn" type="button" aria-label="Mais ações para Beatriz e Nuno" aria-haspopup="menu" aria-expanded="false"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+          <div class="w-row"><button class="row-link" type="button" aria-label="Abrir Sofia e Tomás"></button><div class="date"><b>18</b><span>out</span></div><div class="w-txt"><div class="w-name">Sofia &amp; Tomás</div><div class="w-meta">Comporta · Full Planning · ligado</div></div><div class="kebab"><button class="icon-btn" type="button" aria-label="Mais ações para Sofia e Tomás" aria-haspopup="menu" aria-expanded="false"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+        </div>
+        <div class="md-detail">
+          <div class="inner">
+            <div class="hdr" style="border:0;padding:0">
+              <div><h1>Marta &amp; Duarte</h1><p class="sub">Sábado, 14 de junho de 2027 · Quinta do Vale, Alenquer</p></div>
+              <div class="actions"><a class="btn s" href="#conversas"><svg class="ic" aria-hidden="true"><use href="#i-msg"/></svg>Conversa</a><a class="btn p" href="#runsheet">Run sheet</a></div>
+            </div>
+            <div class="tabs" role="tablist" aria-label="Secções do casamento">
+              <button role="tab" type="button" aria-selected="true">Resumo</button><button role="tab" type="button" aria-selected="false">Planeamento</button><button role="tab" type="button" aria-selected="false">Orçamento</button><button role="tab" type="button" aria-selected="false">Fornecedores</button><button role="tab" type="button" aria-selected="false">Convidados</button><button role="tab" type="button" aria-selected="false">Cronograma</button><button role="tab" type="button" aria-selected="false">Documentos</button><button role="tab" type="button" aria-selected="false">Notas internas</button>
+            </div>
+            <dl class="facts">
+              <div><dt>Serviço</dt><dd>Full Planning</dd></div>
+              <div><dt>Convidados</dt><dd>142 · 98 confirmados</dd></div>
+              <div><dt>Orçamento do casal</dt><dd>38 000 €</dd></div>
+              <div><dt>Faltam</dt><dd>210 dias</dd></div>
+            </dl>
+            <div class="two">
+              <div>
+                <h2>O que o casal partilha</h2>
+                <ul class="share">
+                  <li><span>Convidados e RSVP</span><span class="lvl-pill">ver</span></li>
+                  <li><span>Orçamento e gastos</span><span class="lvl-pill">ver</span></li>
+                  <li><span>Fornecedores</span><span class="lvl-pill edit">editar</span></li>
+                  <li><span>Programa do dia</span><span class="lvl-pill edit">editar</span></li>
+                  <li><span>Votos</span><span class="lvl-pill hidden">escondido</span></li>
+                </ul>
+                <div class="callout"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Decidido pela Marta a 2 de novembro. Só o casal pode alterar esta partilha.</div>
+              </div>
+              <div>
+                <h2>Equipa neste casamento</h2>
+                <ul class="people">
+                  <li><span class="avatar" aria-hidden="true">IA</span><div>Inês Andrade<small>Planner responsável</small></div></li>
+                  <li><span class="avatar" aria-hidden="true" style="background:#DCE3D3;color:#5F7355">RM</span><div>Rita Melo<small>Assistente · cronograma e fornecedores</small></div></li>
+                </ul>
+                <h2 style="margin-top:22px">Casal</h2>
+                <ul class="people">
+                  <li><span class="avatar" aria-hidden="true" style="background:#EDE4F0;color:#6E5A78">M</span><div>Marta<small>Weddy Couples · ligada desde 2 nov</small></div></li>
+                  <li><span class="avatar" aria-hidden="true" style="background:#E3E8EE;color:#4F6476">D</span><div>Duarte<small>Weddy Couples · ligado desde 3 nov</small></div></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PEDIDOS (CRM) ===================== -->
+    <section class="view" id="v-crm" aria-labelledby="h-crm">
+      <div class="page">
+        <div class="hdr">
+          <div><h1 id="h-crm">Pedidos</h1><p class="sub">12 pedidos ativos · 86 400 € em propostas abertas</p></div>
+          <div class="actions"><button type="button" class="btn s">Formulário público</button><button type="button" class="btn p"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Novo pedido</button></div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Vistas"><button role="tab" type="button" aria-selected="true">Pipeline</button><button role="tab" type="button" aria-selected="false">Lista</button><button role="tab" type="button" aria-selected="false">Perdidos</button></div>
+        <div class="pipe">
+          <div class="col"><div class="col-h"><b>Novo</b><span>4</span></div>
+            <div class="lead"><strong>Beatriz &amp; Nuno</strong><div class="m">set. 2027 · Douro · ~120</div><div class="v"><span class="tag">Instagram</span><b>18–22 k€</b></div></div>
+            <div class="lead"><strong>Joana &amp; Afonso</strong><div class="m">mai. 2028 · Lisboa · ~80</div><div class="v"><span class="tag w">Sem resposta há 3 dias</span></div></div></div>
+          <div class="col"><div class="col-h"><b>Contactado</b><span>3</span></div>
+            <div class="lead"><strong>Mariana &amp; Hugo</strong><div class="m">out. 2027 · Comporta · ~150</div><div class="v"><span class="tag">Site</span><b>30 k€</b></div></div></div>
+          <div class="col"><div class="col-h"><b>Reunião</b><span>2</span></div>
+            <div class="lead"><strong>Rita &amp; Gonçalo</strong><div class="m">quinta, 15:00 · videochamada</div><div class="v"><span class="tag g">Questionário recebido</span></div></div></div>
+          <div class="col"><div class="col-h"><b>Proposta</b><span>2</span></div>
+            <div class="lead"><strong>Inês &amp; Vasco</strong><div class="m">Full Planning · v3</div><div class="v"><span class="tag">Vista 2×</span><b>24 600 €</b></div></div></div>
+          <div class="col"><div class="col-h"><b>Negociação</b><span>1</span></div>
+            <div class="lead"><strong>Catarina &amp; João</strong><div class="m">Partial Planning</div><div class="v"><span class="tag w">Pediu desconto</span><b>11 800 €</b></div></div></div>
+          <div class="col"><div class="col-h"><b>Contratado</b><span>6</span></div>
+            <div class="lead"><strong>Marta &amp; Duarte</strong><div class="m">contrato assinado · 2 nov</div><div class="v"><span class="tag g">Casamento criado</span><b>21 000 €</b></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RUN SHEET ===================== -->
+    <section class="view" id="v-runsheet" aria-labelledby="h-rs">
+      <div class="page">
+        <div class="hdr">
+          <div><h1 id="h-rs">Marta &amp; Duarte · run sheet</h1><p class="sub">Sábado, 14 de junho de 2027 · Quinta do Vale · 142 convidados · <span class="mono">versão 7, há 2 h</span></p></div>
+          <div class="actions"><div class="views" role="group" aria-label="Vista"><button type="button" aria-pressed="true">Planner</button><button type="button" aria-pressed="false">Equipa</button><button type="button" aria-pressed="false">Fornecedores</button></div><button type="button" class="btn s">Exportar PDF</button></div>
+        </div>
+        <div class="rs-wrap">
+          <div class="rs-scroll">
+          <table class="rs">
+            <thead><tr><th scope="col">Hora</th><th scope="col">Atividade</th><th scope="col">Responsável</th><th scope="col">Local</th><th scope="col">Estado</th></tr></thead>
+            <tbody>
+              <tr class="phase"><td colspan="5">Montagem</td></tr>
+              <tr><td class="t">09:00<small>até 12:30</small></td><td class="act"><strong>Montagem da tenda e mobiliário</strong><span>Entrada pelo portão de serviço. Mesas redondas Ø180.</span></td><td>Alugar &amp; Cia<br><span style="color:var(--ink-soft)">Coord.: Pedro</span></td><td>Jardim sul</td><td><span class="st"><span class="dot ok" aria-hidden="true"></span>Confirmado</span></td></tr>
+              <tr><td class="t">11:00</td><td class="act"><strong>Flores: arco e centros de mesa</strong><span>Sem arcos no corredor (v2).</span></td><td>Atelier Folha</td><td>Capela · Jardim</td><td><span class="st"><span class="dot mid" aria-hidden="true"></span>Hora por confirmar</span></td></tr>
+              <tr class="phase"><td colspan="5">Cerimónia</td></tr>
+              <tr class="now"><td class="t">16:00</td><td class="act"><strong>Chegada dos convidados</strong><span>Água aromatizada e sombrinhas à entrada.</span></td><td>Inês · Rita (assistente)</td><td>Capela</td><td><span class="st"><span class="dot ok" aria-hidden="true"></span>A decorrer</span></td></tr>
+              <tr><td class="t">16:30</td><td class="act"><strong>Cerimónia religiosa</strong><span>Leituras: Ana (irmã) e Joaquim (avô).</span></td><td>Pe. António · Quarteto Lis</td><td>Capela</td><td><span class="st"><span class="dot ok" aria-hidden="true"></span>Confirmado</span></td></tr>
+              <tr class="phase"><td colspan="5">Receção</td></tr>
+              <tr><td class="t">17:30</td><td class="act"><strong>Cocktail e fotografias de grupo</strong><span>Lista de grupos enviada ao fotógrafo.</span></td><td>Luz Estúdio</td><td>Terraço</td><td><span class="st"><span class="dot crit" aria-hidden="true"></span>Sem confirmação</span></td></tr>
+              <tr><td class="t">19:30</td><td class="act"><strong>Jantar · entrada dos noivos</strong><span>3 menus vegetarianos, 2 sem glúten (mesas 4 e 9).</span></td><td>Sabores do Vale</td><td>Tenda</td><td><span class="st"><span class="dot ok" aria-hidden="true"></span>Confirmado</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+          <aside class="aside" aria-labelledby="h-ct">
+            <h2 id="h-ct">Contactos do dia</h2>
+            <ul class="contacts"><li><b>Inês Andrade</b>Planner · <span class="mono">912 000 001</span></li><li><b>Pedro Lopes</b>Quinta do Vale · <span class="mono">912 000 002</span></li><li><b>Luz Estúdio</b>Fotografia · <span class="mono">912 000 003</span></li></ul>
+            <div class="note"><b>2 pontos por fechar</b>Fotógrafo sem confirmação de hora; florista a confirmar entrada às 11:00.</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CONVERSAS ===================== -->
+    <section class="view" id="v-conversas" aria-labelledby="h-conv">
+      <div class="chat">
+        <div class="threads">
+          <div class="h"><h1 id="h-conv" style="font-size:22px">Conversas</h1></div>
+          <button type="button" class="th" aria-current="true"><strong>Marta &amp; Duarte <span class="n">2</span></strong><p>Marta: Podemos fechar a florista amanhã?</p></button>
+          <button type="button" class="th"><strong>Sofia &amp; Tomás <span class="n">1</span></strong><p>Tomás: Enviei a lista final de transportes</p></button>
+          <button type="button" class="th"><strong>Leonor &amp; Miguel</strong><p>Tu: Ementa aprovada, obrigada!</p></button>
+          <button type="button" class="th"><strong>Carolina &amp; Rui</strong><p>Rui: Ficamos com a quinta em Sintra</p></button>
+        </div>
+        <div class="conv">
+          <div class="conv-h"><div><h2>Marta &amp; Duarte</h2><small>14 de junho de 2027 · 4 participantes</small></div><button type="button" class="btn s">Exportar PDF</button></div>
+          <div class="msgs">
+            <div class="day">terça-feira, 9 de novembro</div>
+            <div class="m"><div class="who"><b>Marta</b> · <span class="mono">10:12</span></div><div class="b">Vimos as duas propostas de flores. Gostámos mais da segunda, mas o orçamento está acima do previsto.</div></div>
+            <div class="m mine"><div class="who"><b>Inês</b> (planner) · <span class="mono">10:40</span></div><div class="b">Falei com o atelier: retirando os arcos do corredor, fica 380 € abaixo. Envio a versão revista.</div><div class="att"><svg class="ic" aria-hidden="true"><use href="#i-clip"/></svg>Proposta flores v2.pdf · 1,2&nbsp;MB</div><div class="rd">Lida por Marta · por ler por Duarte</div></div>
+            <div class="m"><div class="who"><b>Duarte</b> · <span class="mono">18:05</span></div><div class="b">Perfeito para nós. Avancem com a segunda versão.</div><div class="dec"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Decisão · fornecedor escolhido: Atelier Folha (v2)</div></div>
+            <div class="day">hoje</div>
+            <div class="m"><div class="who"><b>Marta</b> · <span class="mono">09:21</span></div><div class="b">Podemos fechar a florista amanhã? Queremos garantir a data.</div></div>
+          </div>
+          <div class="compose"><label><span class="sr">Mensagem</span><span>Escrever mensagem…</span></label><button type="button" class="icon-btn" aria-label="Anexar ficheiro"><svg class="ic"><use href="#i-clip"/></svg></button><button type="button" class="btn p">Enviar</button></div>
+        </div>
+        <aside class="info" aria-label="Decisões e anexos">
+          <h2>Decisões</h2>
+          <ul><li><b>Florista: Atelier Folha (v2)</b>Duarte · 9 nov</li><li><b>Ementa aprovada</b>Marta · 2 nov</li><li><b>Data da prova de vinhos</b>Inês · 28 out</li></ul>
+          <h2>Anexos</h2>
+          <ul><li><b>Proposta flores v2.pdf</b>9 nov</li><li><b>Planta da quinta.pdf</b>21 out</li></ul>
+        </aside>
+      </div>
+    </section>
   </main>
 </div>
-<div class="proto">Protótipo visual · dados fictícios</div>
+
+<!-- Paleta de comandos (⌘K): pesquisa + ações frequentes -->
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+<div id="cmdk" class="menu" role="dialog" aria-modal="true" aria-label="Procurar e executar comandos" style="position:fixed;z-index:31;left:50%;top:90px;transform:translateX(-50%);width:min(560px,calc(100vw - 32px));padding:8px">
+  <label style="display:flex;align-items:center;gap:8px;padding:6px 8px 10px;border-bottom:1px solid var(--line)"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Procurar</span><input id="cmdk-in" type="search" autocomplete="off" placeholder="Procurar ou escrever um comando…" style="border:0;outline:0;background:transparent;font:inherit;flex:1;color:var(--ink)"></label>
+  <div class="mhead">Ações</div>
+  <div role="menu" aria-label="Ações">
+    <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Novo casamento</button>
+    <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg>Novo pedido</button>
+    <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-msg"/></svg>Abrir conversas<span class="kbd">G C</span></button>
+  </div>
+  <div class="mhead">Casamentos</div>
+  <div role="menu" aria-label="Casamentos">
+    <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg>Marta &amp; Duarte · 14 jun 2027</button>
+    <button role="menuitem" type="button"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg>Carolina &amp; Rui · 11 dez 2026</button>
+  </div>
+</div>
+
+<div class="proto">protótipo · dados fictícios</div>
+
+<script>
+(function(){
+  var views=['hoje','carteira','crm','runsheet','conversas'];
+  function show(){
+    var h=(location.hash||'#hoje').slice(1); if(views.indexOf(h)<0) h='hoje';
+    views.forEach(function(v){ document.getElementById('v-'+v).classList.toggle('on', v===h); });
+    document.querySelectorAll('.nav a').forEach(function(a){ if(a.dataset.view===h) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',show); show();
+  // Barra lateral recolhível
+  var shell=document.getElementById('shell'), col=document.getElementById('collapse');
+  document.querySelectorAll('.nav a').forEach(function(a){ a.title=a.querySelector('.label').textContent; });
+  col.addEventListener('click',function(){ var c=shell.classList.toggle('collapsed'); col.setAttribute('aria-expanded',String(!c)); col.setAttribute('aria-label', c?'Expandir a barra lateral':'Recolher a barra lateral'); });
+  // Menus: abrir/fechar, Esc, clique fora, foco no 1.º item
+  function bind(btnId,menuId){
+    var b=document.getElementById(btnId), m=document.getElementById(menuId); if(!b||!m) return;
+    function close(){ m.classList.remove('open'); b.setAttribute('aria-expanded','false'); }
+    b.addEventListener('click',function(e){ e.stopPropagation(); var o=!m.classList.contains('open'); document.querySelectorAll('.menu.open').forEach(function(x){x.classList.remove('open');}); if(o){ m.classList.add('open'); b.setAttribute('aria-expanded','true'); var f=m.querySelector('[role^=menuitem]'); if(f) f.focus(); } else close(); });
+    document.addEventListener('click',function(e){ if(!m.contains(e.target)) close(); });
+    m.addEventListener('keydown',function(e){ var items=[].slice.call(m.querySelectorAll('[role^=menuitem]')), i=items.indexOf(document.activeElement);
+      if(e.key==='Escape'){ close(); b.focus(); } if(e.key==='ArrowDown'){ e.preventDefault(); items[(i+1)%items.length].focus(); } if(e.key==='ArrowUp'){ e.preventDefault(); items[(i-1+items.length)%items.length].focus(); } });
+  }
+  bind('org-btn','org-menu'); bind('row-kebab','row-menu');
+  // Paleta ⌘K
+  var k=document.getElementById('cmdk'), kb=document.getElementById('cmdk-btn');
+  var sc=document.getElementById('scrim'); new MutationObserver(function(){ sc.classList.toggle('on',k.classList.contains('open')); }).observe(k,{attributes:true,attributeFilter:['class']});
+  function openK(){ k.classList.add('open'); document.getElementById('cmdk-in').focus(); }
+  function closeK(){ k.classList.remove('open'); kb.focus(); }
+  kb.addEventListener('click',function(e){ e.stopPropagation(); openK(); });
+  document.addEventListener('keydown',function(e){ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openK(); } if(e.key==='Escape'&&k.classList.contains('open')) closeK(); });
+  document.addEventListener('click',function(e){ if(k.classList.contains('open')&&!k.contains(e.target)) k.classList.remove('open'); });
+  // Estados para capturas: ?estado=menu | recolhida | org | cmdk
+  var q=new URLSearchParams(location.search).get('estado');
+  if(q==='menu'){ document.getElementById('row-kebab').click(); }
+  if(q==='org'){ document.getElementById('org-btn').click(); }
+  if(q==='recolhida'){ col.click(); }
+  if(q==='cmdk'){ openK(); }
+})();
+</script>
 </body>
 </html>

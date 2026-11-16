@@ -43,48 +43,51 @@ Famílias: **Geist** (UI, títulos, números) e **Geist Mono** (horas, datas, co
 | Texto base | Geist 400/500, 13.5 px, line-height 1.5 |
 | Lede | Geist 400, 15 px, `--ink-2` |
 
-## 4. Layout e navegação
+## 4. Layout, navegação e menus (v3)
 
-- **Shell**: barra lateral 232 px (`--cream2`, como a Couples em desktop) + área de trabalho com cabeçalho fixo (pesquisa global, **Conversas** com contador, notificações, avatar). Largura de conteúdo máx. 1280 px, margens 40 px.
-- **Barra lateral tipográfica**: grupos (Negócio, Casamentos, Estúdio) com rótulos pequenos; itens só texto + contador; item ativo com filete terracota à esquerda. Sem ícones decorativos.
-- **Conversas não estão no menu** (regra do produto): só o ícone no cabeçalho com contador global.
-- **Organização ativa** sempre visível no topo da barra lateral (multi-organização).
-- **Responsivo**: ≥ 1100 px completo; 820–1100 px colunas laterais recolhem; < 820 px barra lateral esconde-se (menu), tabelas passam a linhas empilhadas, pipeline com scroll horizontal **dentro** do quadro (nunca da página). Verificado a 390 px sem scroll horizontal.
+Resumo operacional em [DESIGN.md](DESIGN.md). Decisões, com a regra da skill que as justifica:
 
-## 5. Componentes e padrões (extensão)
+- **Barra lateral recolhível** (240 → 64 px) com ícone + rótulo, grupos Negócio / Casamentos / Estúdio e contadores em mono. Recolhida, mantém o nome acessível (rótulo visualmente escondido) e uma dica ao passar o rato. *Menus/ux-navigation: 12 destinos de uso diário não cabem num menu superior.*
+- **Seletor de organização**: dropdown de seleção única com ✓; "Criar organização" separado por divisória. *Menus: escolha exclusiva → single-select.*
+- **Paleta de comandos ⌘K** com pesquisa, ações frequentes e casamentos, e fundo escurecido. Atalho mostrado só nos comandos comuns e nunca como único caminho. *Menus: atalhos padrão em ferramentas de produtividade.*
+- **Menu ⋮ por linha**, sempre visível (não só no hover), com a ação principal da linha visível fora do menu, 6 itens em 3 grupos e a ação destrutiva no fim, a vermelho, com "…". Itens ≥ 40 px, sem quebra de linha. *Menus: inline/overflow; Hallmark: sem affordances só no hover, sem textos clicáveis em duas linhas.*
+- **Conversas não estão no menu** (regra do produto): só o ícone no cabeçalho com contador.
+- **Variedade estrutural** (Hallmark): cada ecrã tem a forma da sua função — leitura + coluna (Hoje), **mestre-detalhe (Carteira, novo)**, pipeline em colunas (Pedidos), tabela operacional (Run sheet), três painéis (Conversas).
+- **Sem eyebrows por omissão** (Hallmark): os contextos passaram para o subtítulo; sem faixas laterais coloridas no item ativo nem na linha atual (preenchimento + contorno fino em vez disso).
+- **Responsivo**: ≥ 1180 px completo; < 1180 px colunas laterais recolhem; < 860 px barra lateral esconde-se, tabelas passam a linhas empilhadas, pipeline com scroll **dentro** do quadro. Verificado a 1440 e 390 px sem scroll horizontal.
 
-| Componente | Problema | Proposta | Estados |
-|---|---|---|---|
-| **Cabeçalho de página** | Títulos sem contexto | Eyebrow (contexto/data) + título Cormorant 44 + lede + ações à direita; filete `--rule` por baixo | — |
-| **Faixa de números** | Cartões KPI genéricos | Números em Cormorant entre filetes, separados por linhas verticais finas; legenda pequena; variação em sálvia | carregar, vazio ("—") |
-| **Lista de risco** | Alertas em caixas coloridas | Grelha `nível · descrição · ação`; nível em versaletes coloridos + texto; ação em link | aberto, reconhecido, resolvido |
-| **Linha de casamento** | Cartão por casamento | Data em Cormorant (dia) + mês em versaletes; nomes em serifa; meta numa linha; barra de progresso fina 4 px com % | — |
-| **Pipeline** | Kanban de cartões pesados | Colunas separadas por filetes verticais, cabeçalho em versaletes + contagem em serifa, leads como linhas com etiqueta e valor | arrastar (teclado: mover com menu), vazio |
-| **Tabela operacional** | — | Hora em Cormorant 21 px; fases como faixas `--cream2` em versaletes; linha atual com `--mark` + filete terracota; estado em texto colorido | por confirmar, confirmado, em curso, concluído, problema |
-| **Seletor de vista** | Abas genéricas | Pill segmentado com ativo escuro (`--ink`) para vistas do mesmo documento | — |
-| **Conversa** | — | 3 colunas (lista · conversa · decisões/anexos); balões `--cream2` (outros) e `#F1E3DC` (eu); **decisão** como faixa sálvia sob a mensagem; anexo como ficha com tipo e tamanho; recibo de leitura por pessoa ("Lida por Marta · Por ler por Duarte") | enviada, lida por, editada (com revisão), importante |
-| **Nota da IA** | Chatbot flutuante | Bloco `--mark` com rótulo "✦ Weddy Intelligence", pergunta em serifa, explicação e "nada é enviado sem confirmares" | sugestão, a preparar, pronto, recusado |
-| **Etiqueta** | — | Pill 10.5 px; neutra `--cream2`, alerta `--warn-bg`, ok `--ok-bg` | — |
-| **Botões** | Pills genéricos (padrão "IA") | Primário escuro `--btn #2F2B28`, texto branco, **36 px, raio 6 px**, sem sombra, hover `#4A4440`, `:active scale(.98)`; secundário contorno `--rule` em `--paper`; link terracota com sublinhado no hover. Pills só para etiquetas | normal, hover, foco 2 px, ativo, desativado .5 |
+## 5. Ícones (v3)
 
-Acessibilidade: foco visível 2 px `--rust`; botões só com ícone com `aria-label` (ex.: "Conversas, 3 por ler"); alvos ≥ 36 px em desktop e ≥ 44 px em toque; estado sempre com texto; contraste do texto essencial com `--ink`/`--ink-2`; `prefers-reduced-motion` respeitado em todas as transições (a Couples só o tem no Comparador).
+Uma só família desenhada para a Weddy (21 símbolos num sprite): grelha 24, traço 1.5, pontas redondas, sem preenchimento, `currentColor`, 18 px. *Icons8/Hallmark: um só pacote, sem misturar traços; metáfora universal ou nenhum ícone.* A skill da Icons8 exige o MCP da Icons8 e licença (a página bloqueou o acesso automático), por isso não foi usada; o conjunto próprio evita dependências e licenças. Alternativa futura: Lucide (licença ISC) ou Phosphor, se a stack for React.
 
-## 6. Primeiras propostas de interface (protótipo)
+## 6. Ecrãs do protótipo (v3)
 
-| Ecrã | Captura | O que demonstra |
+| Ecrã | Capturas | O que demonstra |
 |---|---|---|
-| Hoje | `capturas/hoje-desktop.png`, `hoje-telemovel.png` | Saudação editorial, faixa de números, radar "Precisa de atenção", próximos casamentos, agenda em linha temporal, nota da IA |
-| Contactos e pedidos | `capturas/crm-desktop.png` | Pipeline de 6 fases com filetes, etiquetas de origem/alerta e valores |
-| Run sheet | `capturas/runsheet-desktop.png`, `runsheet-telemovel.png` | Documento operacional por fases, linha atual, estados em texto, vistas Planner/Equipa/Fornecedores, contactos do dia |
-| Conversas | `capturas/conversas-desktop.png` | Lista por casamento com não lidas, decisão registada, anexo, leitura individual, exportar PDF |
+| Hoje | `hoje-desktop`, `hoje-telemovel`, `hoje-recolhida-desktop` | Números do negócio, radar com estado por ponto + texto, próximos casamentos, agenda, nota da IA com ações; barra lateral recolhida |
+| Carteira (novo) | `carteira-menu-desktop`, `carteira-telemovel`, `seletor-organizacao-desktop` | Mestre-detalhe; menu ⋮ aberto; **o que o casal partilha por secção** (ver/editar/escondido, decidido pelo casal); equipa atribuída; seletor de organização aberto |
+| Pedidos | `crm-desktop` | Pipeline de 6 fases com filetes, etiquetas e valores |
+| Run sheet | `runsheet-desktop`, `runsheet-telemovel` | Tabela por fases, horas em mono, linha atual, estados, vistas Planner/Equipa/Fornecedores |
+| Conversas | `conversas-desktop`, `conversas-telemovel` | Três painéis, decisão registada, anexo, leitura individual |
+| Paleta de comandos | `paleta-comandos-desktop` | ⌘K com ações e casamentos |
 
-Ainda por desenhar (Fase 2+): proposta pública (apresentação premium), calendário (mês/semana com casamentos, reuniões e prazos), ficha do casamento, financeiro, portal do fornecedor, ecrã de aceitação do convite (`/aceitar/`), ícone e conversa na Couples (com o design system da Couples, não este).
+Verificação automática em todas as capturas: fontes carregadas, 0 erros de página, 0 botões sem nome acessível, 0 alvos < 24 px, 0 itens de menu em duas linhas, sem scroll horizontal. Problemas encontrados e corrigidos na revisão: menu ⋮ cortado (colisão do nome de classe `.open`), links sem nome com a barra recolhida, item destrutivo em duas linhas.
 
 ## 7. Referências
 
 Design system da Couples (`docs/design/DESIGN-SYSTEM.md`); padrões de mercado observados no Doc. 2 (radar de riscos e partilha por ferramenta no Journey 2 Yes; run sheets por vista no Planning Pod/Aisle Planner); tipografia editorial de publicações de casamento (serifa de alto contraste nos títulos, sans geométrica no corpo).
 
 ## 8. Skills de design utilizadas
+
+**2.ª ronda (17/11), pedidas pela Rita** — regras lidas nas fontes e aplicadas (nada instalado):
+- **Menus (Uxcel Lab)**: tipo de menu pela estrutura da escolha, ordem por uso, 5–9 itens, divisórias, estados, atalhos só padrão → §4.
+- **Hallmark** ([nexu-io/open-design](https://github.com/nexu-io/open-design), Apache-2.0): variedade estrutural (mestre-detalhe) e anti-padrões (eyebrow em todas as secções, faixas laterais, hover-only, texto clicável em duas linhas) → §4.
+- **Icons8**: princípio de um só pacote coerente aplicado com um conjunto próprio; a skill exige MCP e licença da Icons8 → §5.
+- **shadcn/ui**: requer projeto com `components.json` (React + Tailwind); fica como recomendação de componentes se a stack for Vite + React → DESIGN.md.
+- **Redesign Existing Projects** (agora parte de `design-taste-frontend`, Leonxlnx): preservar marca e conteúdo, uma escala de raios, no máximo duas caixas encaixadas.
+- **Design System Generator**: produzido o [DESIGN.md](DESIGN.md) da Planning (tokens, tipografia, ícones, navegação, componentes, regras de qualidade).
+
+**1.ª ronda**:
 
 **Pedidas pela Rita a 17/11 e aplicadas** (regras lidas nos repositórios oficiais e aplicadas manualmente; nada instalado):
 - **Taste — minimalist-skill** ([Leonxlnx/taste-skill-classics](https://github.com/Leonxlnx/taste-skill-classics)): sans geométrica, tracking negativo nos títulos, off-black, cor escassa, botões 4–6 px, sombras quase invisíveis, sem emojis.
