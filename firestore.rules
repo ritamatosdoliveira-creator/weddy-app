@@ -1,0 +1,495 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Auditoria A.3 (Nov 2026): Premium ativo e dentro da validade, lido do
+    // documento do casamento. "premiumUntil" (Timestamp) é escrito SÓ pelos
+    // webhooks de pagamento (Admin SDK); contas antigas ainda sem esse campo
+    // contam pelo "active" (como o servidor já fazia sem startedAt).
+    function premiumOn(w) {
+      return ('subscription' in w)
+        && w.subscription.active == true
+        && (!('premiumUntil' in w.subscription) || w.subscription.premiumUntil > request.time);
+    }
+
+    match /weddings/{weddingId} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && (
+          request.auth.token.email in resource.data.ownerEmails
+          || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
+        );
+
+      // CRÍTICO (Out 2026, achado ao investigar a conta demo da Rita ficar
+      // Premium sem pagar): esta regra só verificava QUEM podia escrever no
+      // documento, nunca O QUÊ podia escrever. Como "update"/"create" sem
+      // mais nada dão acesso de escrita a QUALQUER campo, qualquer pessoa
+      // com sessão iniciada (não precisa de ser programadora: basta abrir a
+      // consola do browser) podia fazer
+      //   firebase.firestore().collection('weddings').doc(ID).update({subscription:{active:true,...}})
+      // e ficar Premium para sempre, de borla, sem passar pelo Stripe. A
+      // única escrita legítima que ATIVA "subscription" é a stripeWebhook
+      // (Cloud Function, usa a Admin SDK, que ignora estas regras) depois de
+      // o Stripe confirmar o pagamento — por isso o cliente nunca pode pôr
+      // "active" a true. Mas o botão "Cancelar subscrição" (ver index.html,
+      // subscription-cancel-btn) escreve subscription.active=false
+      // diretamente do browser, de propósito — essa escrita continua
+      // permitida, é só a ativação que fica fechada ao cliente.
+      allow update: if request.auth != null
+        && request.auth.token.email_verified == true
+        // A.4.3: o estado do casamento (campo "json") tem de ser uma string e caber no
+        // documento. O conteúdo é validado no servidor (validateWeddingStateOnWrite);
+        // aqui só se impede o que as regras conseguem ver: tipo e tamanho.
+        && (!('json' in request.resource.data) || (request.resource.data.json is string && request.resource.data.json.size() <= 900000))
+        && (
+          request.auth.token.email in resource.data.ownerEmails
+          || (('ownerUids' in resource.data) && request.auth.uid in resource.data.ownerUids)
+        )
+        // Auditoria A.3: antes bastava "active == false", e o cliente podia
+        // reescrever o resto do mapa (premiumUntil, ids de pagamento já
+        // processados...). Agora só pode desligar: mudam apenas "active" e
+        // "updatedAt" (e "plan", que o cancelar das versões antigas limpa).
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['subscription'])
+          || (
+            ('subscription' in resource.data)
+            && request.resource.data.subscription.active == false
+            && request.resource.data.subscription.diff(resource.data.subscription).affectedKeys().hasOnly(['active', 'updatedAt'])
+          )
+        )
+        // Out 2026 (auditoria): o criador do casamento não pode ser mudado nem
+        // retirado dos donos por um parceiro (antes só a interface o impedia).
+        // O próprio criador pode sair (mantém-se a opção "sair do casamento").
+        && (!('creatorEmail' in resource.data) || request.resource.data.creatorEmail == resource.data.creatorEmail)
+        && (
+          !('creatorEmail' in resource.data)
+          // criador que já não está na lista (saiu antes): nada a proteger
+          || !(resource.data.creatorEmail in resource.data.ownerEmails)
+          || request.auth.token.email.lower() == resource.data.creatorEmail.lower()
+          || request.resource.data.ownerEmails.hasAny([resource.data.creatorEmail, resource.data.creatorEmail.lower()])
+        );
+
+      // Out 2026 (auditoria de segurança): antes bastava o email de quem cria
+      // estar na lista — dava para criar um casamento com ownerEmails:
+      // [atacante, vítima] e "plantar" a vítima como co-dona (a app escolhe
+      // o casamento pelo menor id, por isso podia abrir o do atacante).
+      // Agora, ao criar, a lista tem de ter SÓ o próprio, e creatorEmail/
+      // ownerUids têm de ser os dele (convidar o parceiro/a continua a ser
+      // feito depois, pelo update com arrayUnion, como sempre).
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.ownerEmails.size() == 1
+        // A.4.3: o estado do casamento (campo "json") tem de ser uma string e caber no
+        // documento. O conteúdo é validado no servidor (validateWeddingStateOnWrite);
+        // aqui só se impede o que as regras conseguem ver: tipo e tamanho.
+        && (!('json' in request.resource.data) || (request.resource.data.json is string && request.resource.data.json.size() <= 900000))
+        && request.resource.data.ownerEmails[0] == request.auth.token.email
+        && (!('creatorEmail' in request.resource.data) || request.resource.data.creatorEmail == request.auth.token.email)
+        && (!('ownerUids' in request.resource.data) || request.resource.data.ownerUids == [request.auth.uid])
+        && !('subscription' in request.resource.data)
+        // Um email só pode CRIAR um casamento: o documento creators/{uid} (escrito
+        // no mesmo lote pela app) tem de ainda não existir e apontar para este.
+        && !exists(/databases/$(database)/documents/creators/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/creators/$(request.auth.uid)).data.weddingId == weddingId;
+
+      // Out 2026 (auditoria): o delete direto do casamento passa a ser recusado
+      // (como o comentário e a Cloud Function deleteWeddingAccount já assumiam).
+      // Apagar deixava convidados/memórias/ficheiros órfãos e inacessíveis.
+      allow delete: if false;
+
+      // ACHADO (Out 2026, ao investigar a Rita ver "Não foi possível
+      // carregar o histórico" em Histórico do casamento): esta subcoleção
+      // nunca teve regra nenhuma — o comentário ao pé de SNAPSHOTS() em
+      // index.html dizia que "as regras de posse já existentes em
+      // weddings/{weddingId} cobrem-na automaticamente", mas isso não é
+      // verdade no Firestore: um match num documento NUNCA se estende
+      // sozinho às subcoleções dentro dele, cada uma precisa da sua
+      // própria regra. Sem ela, createSnapshot() (index.html) — tanto o
+      // backup automático diário como o botão "Criar cópia de segurança
+      // agora" — falhava SEMPRE com permission-denied, silenciosamente
+      // (só ia para a consola, nunca mostrava erro à pessoa). Ou seja:
+      // nenhuma cópia de segurança deste tipo foi alguma vez guardada,
+      // para ninguém, desde que esta funcionalidade existe — a "rede de
+      // segurança" prometida no ecrã nunca esteve realmente ativa. (Isto
+      // é distinto da recuperação via Point-in-Time Recovery do próprio
+      // Firestore, que é do lado da infraestrutura e não depende destas
+      // regras — essa continuou a funcionar e foi o que permitiu recuperar
+      // as contas afetadas pelo incidente de perda de dados.)
+      match /snapshots/{snapshotId} {
+        allow read, write: if request.auth != null
+          && request.auth.token.email_verified == true
+          && (
+            request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+            || (
+              ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+              && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+            )
+          );
+      }
+
+      // Atividade recente (quem alterou o quê, últimos 30 dias). Só os donos do
+      // casamento leem e criam; cada pessoa só cria/atualiza registos em seu
+      // nome, com campos fixos e tamanhos limitados. Ninguém apaga a partir da
+      // app — a função agendada cleanupActivityLog apaga o que passar de 30 dias.
+      match /activity/{activityId} {
+        function isWeddingOwner() {
+          return request.auth != null
+            && request.auth.token.email_verified == true
+            && (
+              request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+              || (
+                ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+                && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+              )
+            );
+        }
+        function validActivity() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['at','uid','by','s','add','del','mod','sample'])
+            && d.keys().hasAll(['at','uid','by','s','add','del','mod','sample'])
+            && d.at == request.time
+            && d.uid == request.auth.uid
+            && d.by is string && d.by.size() <= 80
+            && d.s is string && d.s.size() <= 40
+            && d.sample is string && d.sample.size() <= 80
+            && d.add is int && d.add >= 0 && d.add <= 100000
+            && d.del is int && d.del >= 0 && d.del <= 100000
+            && d.mod is int && d.mod >= 0 && d.mod <= 100000;
+        }
+        allow read: if isWeddingOwner();
+        allow create: if isWeddingOwner() && validActivity();
+        allow update: if isWeddingOwner() && resource.data.uid == request.auth.uid && validActivity();
+        allow delete: if false;
+      }
+
+      // Mesmo problema, mesma causa: integrations/googleCalendar (ver
+      // loadGoogleCalendarIntegration em index.html) também nunca teve
+      // regra. Nunca escreve nada sensível aqui (o refresh token fica à
+      // parte, em privateIntegrations, nunca lido pelo cliente — ver
+      // comentário em index.html) — só o estado "ligado/desligado".
+      // Auditoria A.3: o cliente só LÊ este documento (index.html nunca o escreve;
+      // quem o escreve são as Cloud Functions do Google Calendar, com Admin SDK).
+      // Antes "write" estava aberto aos donos, que podiam forjar "connected" e
+      // "calendarId" — o servidor lê esses campos para decidir que agenda usar.
+      match /integrations/{integrationId} {
+        allow write: if false;
+        allow read: if request.auth != null
+          && request.auth.token.email_verified == true
+          && (
+            request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails
+            || (
+              ('ownerUids' in get(/databases/$(database)/documents/weddings/$(weddingId)).data)
+              && request.auth.uid in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerUids
+            )
+          );
+      }
+    }
+
+    // ACHADO (Out 2026, reportado pela Rita: app "toda lenta" e menus/
+    // Assistente sem abrir depois de abrir "Convites RSVP"): a coleção
+    // "guests" NUNCA teve aqui nenhuma regra — e sem "match", o Firestore
+    // nega tudo por omissão. Ou seja, loadRSVPResponses() (index.html),
+    // que faz GUESTS().where('weddingId','==',currentWeddingId).get()
+    // para mostrar a lista de convidados/respostas, falhava SEMPRE com
+    // "permission-denied", para toda a gente, desde sempre — não é uma
+    // regressão de hoje. O código reagia a essa falha voltando a
+    // renderizar o ecrã, que por sua vez tentava logo outra vez (ver fix
+    // em loadRSVPResponses), criando um ciclo sem fim de pedidos ao
+    // Firestore — isso sim era novo/raro de acontecer (só quando se
+    // visita esse ecrã específico), e foi isso que trancou a app.
+    //
+    // Esta regra corrige a causa raiz (a falta de permissão em si),
+    // mantendo o mesmo modelo de confiança já usado no resto da app:
+    // - rsvp.html (lado do convidado) NUNCA tem sessão iniciada — a
+    //   "segurança" do link é o próprio token (o ID do documento) ser
+    //   único e impossível de adivinhar, tal como o resto do fluxo de
+    //   convite já assume. Por isso só pode ler/escrever UM documento se
+    //   já souber o ID exato (allow get/update), e nunca pode listar a
+    //   coleção toda (isso exporia nomes/contactos de convidados de
+    //   QUALQUER casamento a quem quer que fosse).
+    // - index.html (lado do casal, sempre autenticado) só pode listar e
+    //   gerir os convidados do(s) casamento(s) de que é mesmo dono —
+    //   confirmado via o próprio documento weddings/{weddingId}, tal como
+    //   as regras acima.
+    match /guests/{guestId} {
+      function validGuestFieldTypes(keys) {
+        let d = request.resource.data;
+        return (!keys.hasAny(['meal'])        || d.meal == null        || (d.meal is string && d.meal.size() <= 200))
+            && (!keys.hasAny(['dietary'])     || d.dietary == null     || (d.dietary is string && d.dietary.size() <= 1000))
+            && (!keys.hasAny(['rsvpStatus'])  || d.rsvpStatus == null  || (d.rsvpStatus is string && d.rsvpStatus.size() <= 10))
+            && (!keys.hasAny(['attending'])   || d.attending == null   || d.attending is bool)
+            && (!keys.hasAny(['transporte'])  || d.transporte == null  || d.transporte is bool)
+            && (!keys.hasAny(['alojamento'])  || d.alojamento == null  || d.alojamento is bool)
+            && (!keys.hasAny(['children'])    || d.children == null    || (d.children is list && d.children.size() <= 20))
+            && (!keys.hasAny(['responses'])   || d.responses == null   || (d.responses is map && d.responses.size() <= 40))
+            && (!keys.hasAny(['logistics'])   || !('logistics' in d) || validLogistics(d.logistics))
+            // Sanitização (Nov 2026): o rsvp.html só grava serverTimestamp() ou null
+            // nestes dois campos; sem isto qualquer tipo/tamanho era aceite.
+            && (!keys.hasAny(['openedAt'])    || d.openedAt == null    || d.openedAt is timestamp)
+            && (!keys.hasAny(['respondedAt']) || d.respondedAt == null || d.respondedAt is timestamp);
+      }
+      // B.2 — logística do convidado (transporte, alojamento, alimentação,
+      // acessibilidade). Um único mapa opcional, com chaves e tamanhos
+      // limitados. Nos convites de família, cada membro leva o seu dentro de
+      // responses.<id> (as regras não validam o interior de "responses", tal
+      // como já acontece com meal/dietary/children dos membros).
+      function lgStrOk(m, k, n) { return !(k in m) || (m[k] is string && m[k].size() <= n); }
+      function lgIntOk(m, k, lo, hi) { return !(k in m) || (m[k] is int && m[k] >= lo && m[k] <= hi); }
+      function lgListOk(m, k) { return !(k in m) || (m[k] is list && m[k].size() <= 10); }
+      function validLogistics(l) {
+        return l == null || (l is map
+          && l.keys().hasOnly(['v', 'transport', 'lodging', 'food', 'access'])
+          && (!('transport' in l) || (l.transport is map
+                && l.transport.keys().hasOnly(['from', 'people', 'pref', 'notes'])
+                && lgStrOk(l.transport, 'from', 120) && lgIntOk(l.transport, 'people', 1, 20)
+                && lgStrOk(l.transport, 'pref', 10) && lgStrOk(l.transport, 'notes', 200)))
+          && (!('lodging' in l) || (l.lodging is map
+                && l.lodging.keys().hasOnly(['nights', 'arrive', 'depart', 'people', 'notes'])
+                && lgIntOk(l.lodging, 'nights', 1, 30) && lgIntOk(l.lodging, 'people', 1, 20)
+                && lgStrOk(l.lodging, 'arrive', 10) && lgStrOk(l.lodging, 'depart', 10)
+                && lgStrOk(l.lodging, 'notes', 200)))
+          && (!('food' in l) || (l.food is map
+                && l.food.keys().hasOnly(['allergies', 'intolerances', 'diets', 'pref'])
+                && lgListOk(l.food, 'allergies') && lgListOk(l.food, 'intolerances')
+                && (!('diets' in l.food) || (l.food.diets is list && l.food.diets.size() <= 8))
+                && lgStrOk(l.food, 'pref', 200)))
+          && (!('access' in l) || (l.access is map
+                && l.access.keys().hasOnly(['mobility', 'assistance', 'other'])
+                && (!('mobility' in l.access) || l.access.mobility is bool)
+                && (!('assistance' in l.access) || l.access.assistance is bool)
+                && lgStrOk(l.access, 'other', 200))));
+      }
+      allow get: if true;
+      // Out 2026 (auditoria de segurança): era "allow update: if true" — quem
+      // tivesse um link de convite podia reescrever QUALQUER campo do
+      // documento (email, nomes, prazo, weddingId...), o que permitia usar o
+      // envio de lembretes da Weddy como relay de spam/phishing e injetar
+      // HTML na página do convidado. Sem sessão, só se podem alterar os
+      // campos que o rsvp.html realmente escreve (a resposta do convidado).
+      // O casal (autenticado) continua a poder alterar tudo, pela regra
+      // abaixo.
+      // Out 2026 (auditoria): além de só poderem mudar estes campos, cada um
+      // tem de ter o tipo certo e um tamanho razoável (antes dava para
+      // gravar texto gigante). Só se valida o campo que está mesmo a mudar,
+      // para nunca bloquear respostas de documentos antigos.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'openedAt', 'respondedAt', 'responses',
+        'attending', 'rsvpStatus', 'meal', 'dietary',
+        'transporte', 'alojamento', 'children', 'logistics'
+      ])
+        && validGuestFieldTypes(request.resource.data.diff(resource.data).affectedKeys());
+
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+
+      // Auditoria Out 2026: o casal pode alterar o convidado, mas nunca mudar
+      // o weddingId (senão podia "plantar" convidados noutro casamento).
+      allow update: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails
+        && request.resource.data.weddingId == resource.data.weddingId;
+
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId)).data.ownerEmails;
+    }
+
+    // Mesma causa, mesmo padrão: "memories" (Weddy Memories — fotos que os
+    // convidados enviam pelo link do convite ou pelo QR code público, ver
+    // rsvp.html/memorias.html) também nunca teve regra. O envio de fotos
+    // (MEMORIES().add em memorias.html/rsvp.html) é feito SEM sessão
+    // iniciada, tal como os convites — por isso "create" fica aberto, igual
+    // ao resto deste fluxo de convidado. Ver/apagar a galeria completa
+    // (index.html: carregarMemories/deleteMemory) só pode ser feito pelo(s)
+    // dono(s) autenticados do casamento a que essas fotos pertencem.
+    // K.3-B: contador de fotos por casamento. Só o servidor escreve; os donos podem ler (para mostrar "X de N").
+    match /memoryQuota/{weddingId} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow write: if false;
+      match /items/{itemId} { allow read, write: if false; }
+    }
+
+    match /memories/{memoryId} {
+      // Out 2026 (auditoria de segurança): era "create: if true" sem validar
+      // campos — dava para criar documentos com um "url" arbitrário (ex.:
+      // javascript:...) que a galeria do casal renderizava. Agora só os
+      // campos que memorias.html/rsvp.html escrevem, e o ficheiro tem de
+      // estar na pasta deste casamento.
+      allow create: if request.resource.data.keys().hasOnly(['weddingId', 'token', 'guestName', 'storagePath', 'createdAt'])
+        && request.resource.data.weddingId is string
+        // P1 (pós-auditoria K.3): o caminho TEM de ser memories/{weddingId}/{token}/{ficheiro} com o MESMO weddingId e o MESMO token do
+        // documento — impede gastar a quota de outro convite/casamento manipulando o caminho.
+        && request.resource.data.storagePath is string
+        && request.resource.data.storagePath.split('/').size() == 4
+        && request.resource.data.storagePath.split('/')[0] == 'memories'
+        && request.resource.data.storagePath.split('/')[1] == request.resource.data.weddingId
+        && request.resource.data.storagePath.split('/')[2] == request.resource.data.token
+        && request.resource.data.storagePath.split('/')[3].size() > 0
+        // Auditoria Out 2026: o casamento tem de existir e o token tem de ser
+        // o do QR público ou um convite real DESTE casamento (antes dava para
+        // encher a galeria de qualquer casamento com entradas falsas).
+        && premiumOn(get(/databases/$(database)/documents/weddings/$(request.resource.data.weddingId)).data)
+        && request.resource.data.token is string
+        && (request.resource.data.token == 'publico'
+            || get(/databases/$(database)/documents/guests/$(request.resource.data.token)).data.weddingId == request.resource.data.weddingId)
+        && (!('guestName' in request.resource.data) || (request.resource.data.guestName is string && request.resource.data.guestName.size() <= 120))
+        // K.3-B: álbum cheio (contador mantido pelo servidor) → não aceita mais fotos.
+        && (!exists(/databases/$(database)/documents/memoryQuota/$(request.resource.data.weddingId))
+            || get(/databases/$(database)/documents/memoryQuota/$(request.resource.data.weddingId)).data.get('full', false) != true);
+
+      allow read, delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+    }
+
+    // "feedback" (botão "Reporta um problema" em Definições) também nunca
+    // teve regra. Só o próprio casal, autenticado, pode criar o seu
+    // relatório — nunca ler, atualizar nem apagar os reportados (nem os
+    // próprios, nem de outros: não existe ainda nenhum ecrã na app para os
+    // rever, só a consola do Firebase — ver comentário junto de FEEDBACK()
+    // em index.html).
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Um email só cria um casamento (ver regra de create em weddings). Só criar,
+    // só pelo próprio, nunca alterar nem apagar a partir da app.
+    match /creators/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['weddingId', 'email', 'createdAt'])
+        && request.resource.data.weddingId is string;
+    }
+
+    // Casamento ativo escolhido no seletor — também lido pelas Cloud Functions.
+    // As funções só o respeitam se a pessoa for mesmo dona desse casamento.
+    // premiumNudgeAt: data/hora da última vez que o lembrete do Premium foi
+    // mostrado a esta pessoa (no máximo uma vez a cada 7 dias, em todos os
+    // dispositivos). Os dois campos são opcionais, mas têm de ter o tipo certo.
+    match /userPrefs/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['activeWeddingId', 'updatedAt', 'premiumNudgeAt'])
+        && (!('activeWeddingId' in request.resource.data)
+            || (request.resource.data.activeWeddingId is string
+                && request.resource.data.activeWeddingId.size() <= 40))
+        && (!('premiumNudgeAt' in request.resource.data)
+            || request.resource.data.premiumNudgeAt is timestamp);
+    }
+
+    // Registos de incidente escritos pelo cliente (rede de segurança contra
+    // perda de dados). Antes não havia regra e todas as escritas falhavam em
+    // silêncio. Só criar; nunca ler/alterar/apagar a partir da app.
+    match /_incident_log/{logId} {
+      // Fase K.2: esquema fechado e tamanhos limitados (antes: qualquer conteúdo, até 1 MiB). Os registos
+      // financeiros (Stripe/RevenueCat) são escritos pelo servidor (Admin SDK) e não passam por aqui.
+      // NOTA: as regras não conseguem validar o tamanho de cada elemento de listas; o cliente mascara
+      // tokens (ver incidentSanitize em app/index.html). `expireAt` = +90 dias para uma futura política
+      // TTL — a TTL NÃO está ativa e não é criada por estas regras.
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['weddingId', 'type', 'at', 'userAgent', 'errorMessage', 'error',
+             'paths', 'count', 'local', 'recebido', 'failedCount', 'failedTokens', 'before', 'after', 'expireAt'])
+        && request.resource.data.type is string && request.resource.data.type.size() <= 80
+        && (!('weddingId' in request.resource.data) || (request.resource.data.weddingId is string && request.resource.data.weddingId.size() <= 40))
+        && (!('userAgent' in request.resource.data) || (request.resource.data.userAgent is string && request.resource.data.userAgent.size() <= 200))
+        && (!('errorMessage' in request.resource.data) || (request.resource.data.errorMessage is string && request.resource.data.errorMessage.size() <= 300))
+        && (!('error' in request.resource.data) || (request.resource.data.error is string && request.resource.data.error.size() <= 300))
+        && (!('paths' in request.resource.data) || (request.resource.data.paths is list && request.resource.data.paths.size() <= 20))
+        && (!('failedTokens' in request.resource.data) || (request.resource.data.failedTokens is list && request.resource.data.failedTokens.size() <= 50))
+        && (!('before' in request.resource.data) || request.resource.data.before == null || request.resource.data.before is map)
+        && (!('after' in request.resource.data) || request.resource.data.after == null || request.resource.data.after is map)
+        && (!('before' in request.resource.data) || request.resource.data.before == null || request.resource.data.before.keys().hasOnly(['guests', 'todos', 'keys']))
+        && (!('after' in request.resource.data) || request.resource.data.after == null || request.resource.data.after.keys().hasOnly(['guests', 'todos', 'keys']))
+        && (!('expireAt' in request.resource.data) || request.resource.data.expireAt is timestamp);
+    }
+  
+    // ── Site do casamento (Premium) ───────────────────────────────────────
+    // Rascunho: os donos do casamento só o LEEM. Toda a escrita (rascunho,
+    // estado, slug, publicação) passa pelas Cloud Functions (Admin SDK), que
+    // validam sessão, posse, Premium, tamanho e campos — nenhum cliente pode
+    // gravar aqui nem fingir uma publicação.
+    match /weddingSites/{weddingId} {
+      allow get: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(weddingId)).data.ownerEmails;
+      allow list, write: if false;
+    }
+
+    // Cópia pública: qualquer pessoa pode LER um documento se souber o slug
+    // (get), mas só enquanto estiver publicado E dentro da validade do Premium
+    // (validUntil é comparado com a hora do servidor, por isso o site fecha à
+    // hora exata em que o Premium termina). Documentos inexistentes,
+    // despublicados e suspensos respondem todos da mesma forma (negado).
+    // Nunca se pode listar nem escrever.
+    // Convites digitais: leitura pública só de convites publicados e dentro da validade do Premium.
+    // Ninguém lista nem escreve (só Cloud Functions). weddingInvitations e invitationSlugs: sem acesso de clientes.
+    match /publicInvitations/{slug} {
+      allow get: if resource.data.status == 'published'
+        && resource.data.validUntil > request.time;
+      allow list, write: if false;
+    }
+    match /weddingInvitations/{id} { allow read, write: if false; }
+    match /invitationSlugs/{id} { allow read, write: if false; }
+
+    match /publicWeddingSites/{slug} {
+      allow get: if resource.data.status == 'published'
+        && resource.data.validUntil > request.time;
+      allow list, write: if false;
+    }
+
+    // Consentimento WhatsApp dos convidados (A.3-bis): registo escrito SÓ por
+    // Cloud Functions (Admin SDK ignora as regras). O casal pode LER o estado
+    // dos convidados do seu casamento (ecrã do convidado); ninguém escreve.
+    match /whatsappConsents/{id} {
+      allow get: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+      allow list, write: if false;
+    }
+    match /whatsappConsentRateLimit/{id} {
+      allow read, write: if false;
+    }
+
+    // Estado de envio dos emails resumo (A.2): só o servidor.
+    // A.4.3: cópias de estados rejeitados pelo validador do servidor. Só o servidor lê/escreve.
+    match /weddingStateQuarantine/{docId} {
+      allow read, write: if false;
+    }
+
+    match /notifState/{id} {
+      allow read, write: if false;
+    }
+
+    // Distribuição dos Weddy Invitations (envio por email e partilha WhatsApp).
+    // Só o servidor escreve (Cloud Functions); só o casal do casamento lê, e só os seus registos.
+    // Os convidados nunca a leem: o estado de distribuição NÃO vive em guests/{token}.
+    match /invitationDeliveries/{id} {
+      allow read: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/weddings/$(resource.data.weddingId)).data.ownerEmails;
+      allow write: if false;
+    }
+    // Contador diário de emails de convites: só o servidor.
+    match /invitationQuota/{id} {
+      allow read, write: if false;
+    }
+
+    // Reservas de lembretes de RSVP (idempotência): só o servidor.
+    match /rsvpReminderSends/{id} {
+      allow read, write: if false;
+    }
+
+    // Reserva de endereços: só o servidor.
+    match /siteSlugs/{slug} {
+      allow read, write: if false;
+    }
+  }
+}

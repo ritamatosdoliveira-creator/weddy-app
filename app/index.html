@@ -4416,7 +4416,7 @@ const CURRENT_PRIVACY_VERSION = '2026-10-02';
   /* ==== MODO MANUTENÇÃO — ativado manualmente antes da migração para Weddy 2.0 ==== */
   /* Para reativar a app: mudar MAINTENANCE_MODE para false. */
   const MAINTENANCE_MODE = false;
-  const MAINTENANCE_MSG = "a Weddy 2.0 está a chegar. Estaremos em manutenção até amanhã às 14h";
+  const MAINTENANCE_MSG = (String((typeof navigator!=='undefined' && navigator.language) || '').toLowerCase().indexOf('en')===0) ? "Weddy 2.0 is coming. We will be under maintenance until tomorrow at 2 pm" : "a Weddy 2.0 está a chegar. Estaremos em manutenção até amanhã às 14h";
   if(MAINTENANCE_MODE){
     document.body.innerHTML = `
       <div style="position:fixed;inset:0;z-index:999999;background:#FBF4E8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 30px;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;">
@@ -4716,8 +4716,22 @@ const GuestCommsService = {
   // no botão. A Cloud Function valida de novo tudo (telefone, consentimento,
   // link de RSVP) do lado do servidor — isto aqui é só para dar feedback
   // rápido antes de sequer chamar a função, quando já sabemos que vai falhar.
+  // K.3-A — a interface só mostra controlos da API do WhatsApp se o SERVIDOR disser que está ativa.
+  // Falha fechada: sem ligação, sem sessão, função indisponível ou resposta inesperada → false (botão oculto).
+  // Não afeta os fluxos manuais por link wa.me.
+  _waApiEnabled: false,
+  async refreshWhatsappApiStatus(){
+    try{
+      if(!cloudFunctions) { this._waApiEnabled=false; return false; }
+      const res = await cloudFunctions.httpsCallable('getWhatsappApiStatus')({});
+      this._waApiEnabled = !!(res && res.data && res.data.enabled === true);
+    }catch(err){ this._waApiEnabled=false; }
+    return this._waApiEnabled;
+  },
+  whatsappApiVisible(){ return this._waApiEnabled === true; },
   async sendWhatsappRsvpReminder(guestId){
     if(!cloudFunctions) return { ok:false, message:ta('svcNoConnection') };
+    if(!this.whatsappApiVisible()) return { ok:false, code:'unavailable', message:whatsappSendErrorMessage({code:'unavailable'}) };
     try{
       const call = cloudFunctions.httpsCallable('sendWhatsappRsvpReminder');
       const res = await call({ guestId });
@@ -5904,7 +5918,7 @@ function a4SanitizeIncoming(incoming, source){
   try{ localStorage.setItem('weddy-corrupt-backup-'+(currentWeddingId||'x'), JSON.stringify({ at:new Date().toISOString(), source:source||'', repairs:r.repairs, removed:JSON.stringify(r.removed).slice(0,200000) })); }catch(e){}
   if(!a4IncidentLogged){
     a4IncidentLogged = true;
-    try{ firebase.firestore().collection('_incident_log').add({ weddingId:currentWeddingId, type:'corrupt_state_fields_repaired', paths:r.repairs.slice(0,20).map(x=>x.path), count:r.repairs.length, at:firebase.firestore.FieldValue.serverTimestamp(), userAgent:(typeof navigator!=='undefined'?navigator.userAgent:'') }).catch(()=>{}); }catch(e){}
+    try{ incidentAdd({ weddingId:currentWeddingId, type:'corrupt_state_fields_repaired', paths:r.repairs.slice(0,20).map(x=>x.path), count:r.repairs.length, at:firebase.firestore.FieldValue.serverTimestamp(), userAgent:(typeof navigator!=='undefined'?navigator.userAgent:'') }).catch(()=>{}); }catch(e){}
   }
   return r.state;
 }
@@ -27662,11 +27676,14 @@ const GUEST_PHONE_COUNTRY_CODES = [
   { cc:'+1',   label:'🇺🇸🇨🇦 EUA / Canadá (+1)' },
   { cc:'other', label:'Outro país…' },
 ];
+const GUEST_PHONE_COUNTRY_EN = { '+34':'🇪🇸 Spain (+34)', '+33':'🇫🇷 France (+33)', '+44':'🇬🇧 United Kingdom (+44)', '+49':'🇩🇪 Germany (+49)', '+39':'🇮🇹 Italy (+39)', '+31':'🇳🇱 Netherlands (+31)', '+41':'🇨🇭 Switzerland (+41)', '+353':'🇮🇪 Ireland (+353)', '+55':'🇧🇷 Brazil (+55)', '+1':'🇺🇸🇨🇦 USA / Canada (+1)', 'other':'Other country…' };
 function populateGuestPhoneCountrySelect(){
   const sel = document.getElementById('gp-phone-cc');
-  if(!sel || sel.dataset.filled) return;
-  sel.dataset.filled = '1';
-  sel.innerHTML = GUEST_PHONE_COUNTRY_CODES.map(c=>`<option value="${c.cc}">${c.label}</option>`).join('');
+  if(!sel || sel.dataset.filled===appLang) return;
+  const cur = sel.value;
+  sel.dataset.filled = appLang;
+  sel.innerHTML = GUEST_PHONE_COUNTRY_CODES.map(c=>`<option value="${c.cc}">${appLang==='en' && GUEST_PHONE_COUNTRY_EN[c.cc] ? GUEST_PHONE_COUNTRY_EN[c.cc] : c.label}</option>`).join('');
+  if(cur) sel.value = cur;
 }
 // Dado um número já gravado em E.164 (ex: "+34911223344"), tenta
 // adivinhar qual dos indicativos conhecidos foi usado, devolvendo
@@ -27714,7 +27731,7 @@ function openGuestPhoneSheet(side, cat, idx){
   populateGuestPhoneCountrySelect();
   const ccEl = document.getElementById('gp-phone-cc');
   const phoneEl = document.getElementById('gp-phone');
-  const split = splitGuestPhoneForEditing(entry.phone);
+  const split = splitGuestPhoneForEditing(entry.phone || entry.importedPhone);
   ccEl.value = split.cc;
   phoneEl.value = split.local;
   phoneEl.placeholder = (split.cc==='other') ? '+351912345678' : '912 345 678';
@@ -29301,7 +29318,7 @@ async function reauthenticateForAccountDeletion(user, pass){
   }
   if(ids.includes('apple.com')){
     const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
-    if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+    if(!SignInWithApple) throw new Error(appLang==='en' ? 'Sign in with Apple is unavailable' : 'Sign in with Apple indisponível');
     const rawNonce = appleSignInRandomNonce();
     const hashedNonce = await appleSignInSha256Hex(rawNonce);
     const result = await SignInWithApple.authorize({
@@ -29320,7 +29337,7 @@ async function reauthenticateForAccountDeletion(user, pass){
     const credential = new firebase.auth.OAuthProvider('apple.com').credential({ idToken: identityToken, rawNonce });
     return user.reauthenticateWithCredential(credential);
   }
-  throw new Error('Fornecedor de login não suportado para reautenticação.');
+  throw new Error(appLang==='en' ? 'Sign-in provider not supported for re-authentication.' : 'Fornecedor de login não suportado para reautenticação.');
 }
 function openDeleteAccountSheet(){
   const isSoleOwner = currentWeddingOwners.length<=1;
@@ -29371,7 +29388,7 @@ document.getElementById('delete-account-confirm').addEventListener('click', ()=>
     // apaga a conta de autenticação depois de confirmar que os dados foram
     // tratados. Precisa do deploy do Fix 2 — ver SEGURANCA-RGPD-README.md.
     if(!cloudFunctions){
-      return Promise.reject(new Error('Função de eliminação de conta não disponível (Cloud Functions não configuradas).'));
+      return Promise.reject(new Error(appLang==='en' ? 'Account deletion is not available (Cloud Functions not configured).' : 'Função de eliminação de conta não disponível (Cloud Functions não configuradas).'));
     }
     const call = cloudFunctions.httpsCallable('deleteWeddingAccount');
     const codeForRevoke = pendingAppleAuthCode; pendingAppleAuthCode = null;
@@ -30278,7 +30295,7 @@ function isAppleRelayEmail(email){ return /@privaterelay\.appleid\.com$/i.test(S
 // Pede à Apple (folha nativa) e devolve a credencial Firebase, sem iniciar sessão.
 async function acquireAppleCredential(){
   const SignInWithApple = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SignInWithApple;
-  if(!SignInWithApple) throw new Error('Sign in with Apple indisponível');
+  if(!SignInWithApple) throw new Error(appLang==='en' ? 'Sign in with Apple is unavailable' : 'Sign in with Apple indisponível');
   const rawNonce = appleSignInRandomNonce();
   const hashedNonce = await appleSignInSha256Hex(rawNonce);
   const result = await SignInWithApple.authorize({
@@ -30394,7 +30411,7 @@ function renderAppleLinkChoice(orphanUser, knownEmail, msg){
     const msgEl = document.getElementById('al-msg'); if(msgEl){ msgEl.textContent=''; msgEl.className='login-msg'; }
     document.querySelectorAll('#login-inner button').forEach(b=>b.disabled=true);
     try{
-      if(!auth.currentUser) throw new Error('sem sessão');
+      if(!auth.currentUser) throw new Error(appLang==='en' ? 'no session' : 'sem sessão');
       let gcred = null;
       try{
         if(nativeGooglePlugin()){ const gc0 = await nativeGoogleCredential(); await auth.currentUser.linkWithCredential(gc0); }
@@ -30930,7 +30947,7 @@ function flushPendingSave(){
     // perceber depois, ao rever os incidentes, que uma gravação falhou
     // aqui — em vez de desaparecer sem deixar vestígio nenhum.
     try{
-      firebase.firestore().collection('_incident_log').add({
+      incidentAdd({
         weddingId: currentWeddingId,
         type: 'flush_pending_save_failed',
         error: String(err && err.message || err),
@@ -30978,10 +30995,43 @@ function pushRemoteImmediate(){
 // botão de "Guardar"/"Sincronizar") E de deixar sempre um rasto no
 // _incident_log, mesmo quando não há UI síncrona para mostrar o erro
 // (ex.: sync automático do programa do dia).
+// Fase K.2 — registos de incidente (`_incident_log`): minimização e retenção.
+// Nunca grava tokens de convite RSVP completos, caminhos com tokens, nem cópias do estado do casamento;
+// limita tamanhos (as regras do Firestore repetem estes limites) e acrescenta `expireAt` (+90 dias)
+// que a administração poderá usar numa política TTL — a TTL em si NÃO está ativa e depende de aprovação.
+const INCIDENT_RETENTION_DAYS = 90;
+function incidentRedact(v){
+  // ids/tokens longos (>=12 alfanuméricos/_-) passam a "…" + últimos 6 caracteres; o resto fica (curto, sem segredo)
+  return String(v == null ? '' : v).slice(0, 300).replace(/[A-Za-z0-9_-]{12,}/g, m => '…' + m.slice(-6));
+}
+function incidentSummarize(x){
+  // nunca o objeto inteiro: só contagens
+  try{
+    if(x == null || typeof x !== 'object') return null;
+    if(x.guests) return countMeaningfulData(x);
+    return { keys: Object.keys(x).length };
+  }catch(e){ return null; }
+}
+function incidentSanitize(doc){
+  const out = {};
+  Object.keys(doc || {}).forEach(k=>{
+    const v = doc[k];
+    if(k === 'failedTokens' && Array.isArray(v)) out[k] = v.slice(0, 50).map(incidentRedact);
+    else if(k === 'paths' && Array.isArray(v)) out[k] = v.slice(0, 20).map(x=>String(x).slice(0, 200));
+    else if(k === 'error' || k === 'errorMessage') out[k] = String(v == null ? '' : v).slice(0, 300);
+    else if(k === 'userAgent') out[k] = String(v == null ? '' : v).slice(0, 200);
+    else if(k === 'type') out[k] = String(v).slice(0, 80);
+    else if(k === 'before' || k === 'after') out[k] = incidentSummarize(v);
+    else out[k] = v;
+  });
+  try{ out.expireAt = firebase.firestore.Timestamp.fromMillis(Date.now() + INCIDENT_RETENTION_DAYS * 86400000); }catch(e){}
+  return out;
+}
+function incidentAdd(doc){ return firebase.firestore().collection('_incident_log').add(incidentSanitize(doc)); }
 function logMassPropagationFailures(type, failedTokens){
   if(!failedTokens || !failedTokens.length) return;
   try{
-    firebase.firestore().collection('_incident_log').add({
+    incidentAdd({
       weddingId: currentWeddingId,
       type,
       failedCount: failedTokens.length,
@@ -31437,7 +31487,7 @@ function looksLikeSettingsLoss(before, after){
 }
 function logOutgoingWriteGuardTripped(kind, before, after){
   try{
-    firebase.firestore().collection('_incident_log').add({
+    incidentAdd({
       weddingId: currentWeddingId,
       type: 'outgoing_write_blocked_' + kind,
       before, after,
@@ -31667,7 +31717,7 @@ function attachFirestoreSync(){
         }catch(parseErr){
           console.error('[Weddy] Snapshot do Firestore com "json" inválido/corrompido — a ignorar.', parseErr);
           try{
-            firebase.firestore().collection('_incident_log').add({
+            incidentAdd({
               weddingId: currentWeddingId,
               type: 'corrupt_json_snapshot',
               errorMessage: parseErr && parseErr.message,
@@ -31684,7 +31734,7 @@ function attachFirestoreSync(){
             if(!dataLossGuardTripped){
               dataLossGuardTripped = true;
               try{
-                firebase.firestore().collection('_incident_log').add({
+                incidentAdd({
                   weddingId: currentWeddingId,
                   type: 'possible_data_loss_snapshot_blocked',
                   local: countMeaningfulData(state),
@@ -32425,7 +32475,7 @@ if(FIREBASE_READY){
       }
       user.getIdToken(true).catch(()=>{}).then(()=>{
         try{
-          if(!user.email) throw new Error('Conta sem email (Apple não partilhou o email).');
+          if(!user.email) throw new Error(appLang==='en' ? 'Account without email (Apple did not share the email).' : 'Conta sem email (Apple não partilhou o email).');
           findOrCreateFlow(user);
         }catch(e){
           console.error('Weddy login flow error:', e && e.message);

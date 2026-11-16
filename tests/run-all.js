@@ -1,0 +1,163 @@
+#!/usr/bin/env node
+/* Runner único das suites da Weddy. Tudo local: emuladores Firebase (projeto demo-weddy) e Chromium.
+ * Nunca toca em produção. Uso (a partir de tests/):
+ *   npm install && npx playwright install chromium   (uma vez; python: pip install playwright)
+ *   npm test                         # todas as suites
+ *   node run-all.js --list           # lista as suites
+ *   node run-all.js --only unit,ui   # grupos ou ids (separados por vírgula)
+ * Relatório: tests/reports/last-run.md e last-run.json (+ um .log por suite).
+ * Código de saída: 0 = tudo passou; 1 = alguma suite falhou.
+ */
+'use strict';
+const { spawnSync, spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = __dirname;
+const NM = path.join(ROOT, 'node_modules');
+const REPORTS = path.join(ROOT, 'reports');
+
+const py = (f) => ['python3', path.join('ui', f)];
+const SUITES = [
+  { id: 'i18n-parity', group: 'unit', name: 'Paridade PT/EN (app + rsvp)', cmd: ['node', 'unit/i18n-parity.test.js'] },
+  { id: 'validate-state', group: 'validate', name: 'Validação servidor do estado JSON', cmd: ['node', 'validate/state-validation.test.js'], emu: true },
+  { id: 'consent', group: 'consent', name: 'Consentimento WhatsApp (functions)', cmd: ['node', 'consent/whatsapp-consent.test.js'], emu: true },
+  { id: 'stop', group: 'consent', name: 'WhatsApp STOP: revogação robusta', cmd: ['node', 'consent/stop-revocation.test.js'], emu: true },
+  { id: 'rsvp-reminders', group: 'rsvp', name: 'Lembretes RSVP: legado, Autopilot, idempotência', cmd: ['node', 'rsvp/reminders.test.js'], emu: true },
+  { id: 'rsvp-reminders-logistics', group: 'rsvp', name: 'Lembretes × logística (Fase C, teste G)', cmd: ['node', 'rsvp/reminders-logistics.test.js'], emu: true },
+  { id: 'migrate', group: 'migrate', name: 'Migração de consentimentos', cmd: ['node', 'consent/migrate-consents.test.js'], emu: true },
+  { id: 'privacy-static', group: 'privacy', name: 'RGPD: sem terceiros/analítica/cookies, OpenAI store:false, regras (Fase J)', cmd: ['node', 'privacy/privacy-static.test.js'], emu: false },
+  { id: 'privacy-deletion', group: 'privacy', name: 'RGPD: eliminação de conta em cascata, isolamento, co-dono, falha parcial (Fase J)', cmd: ['node', 'privacy/deletion.test.js'], emu: true },
+  { id: 'hard-payments', group: 'hardening', name: 'Hardening: checkout, Stripe/RevenueCat webhooks, idempotência e concorrência (simulado) (Fase K)', cmd: ['node', 'hardening/payments.test.js'], emu: true },
+  { id: 'hard-auth-matrix', group: 'hardening', name: 'Hardening: matriz de autenticação/autorização de todas as funções (Fase K)', cmd: ['node', 'hardening/auth-matrix.test.js'], emu: true },
+  { id: 'hard-scale', group: 'hardening', name: 'Hardening: volume 50-1000 convidados e fusão de dois dispositivos (Fase K)', cmd: ['node', 'hardening/scale.test.js'], emu: false },
+  { id: 'ui-sweep', group: 'ui', name: 'UI varrimento: secções × 390/768/1360 × PT/EN, sem overflow nem erros (Fase K)', cmd: py('sweep_viewports.py') },
+  { id: 'k2-incident-sanitize', group: 'k2', name: 'K.2 incident log: sem tokens/estado, tamanhos, 90 dias (código real do cliente) (Fase K.2)', cmd: ['node', 'k2/incident-sanitize.test.js'], emu: false },
+  { id: 'k2-whatsapp-tokens', group: 'k2', name: 'K.2 flag WhatsApp desligada por defeito + revogação de tokens ao remover co-dono (Storage simulado) (Fase K.2)', cmd: ['node', 'k2/k2.test.js'], emu: true },
+  { id: 'k3-whatsapp-ui', group: 'k3', name: 'K.3-A estado da API WhatsApp na UI: oculta por defeito, falha fechada (Fase K.3)', cmd: ['node', 'k3/whatsapp-ui.test.js'], emu: true },
+  { id: 'k3-quota-rules', group: 'k3', name: 'K.3-B regras da quota de fotos (álbum cheio, contador só-servidor) (Fase K.3)', cmd: ['node', 'rules/quota-rules.test.mjs'], emu: true },
+  { id: 'k3-quota', group: 'k3', name: 'K.3-B quota de fotos: limites, concorrência, idempotência, recusas, libertação (Storage simulado) (Fase K.3)', cmd: ['node', 'k3/quota.test.js'], emu: true },
+  { id: 'k3-stripe-refunds', group: 'k3', name: 'K.3-E reembolsos Stripe: persistência, idempotência, total/parcial, fora de ordem, política (SDK simulado) (Fase K.3)', cmd: ['node', 'k3/stripe-refunds.test.js'], emu: true },
+  { id: 'k3-quota-defaults', group: 'k3', name: 'K.3 quota de fotos: valores efetivos aprovados 20/500/2000/5 GB e fronteiras (Fase K.3)', cmd: ['node', 'k3/quota-defaults.test.js'], emu: true },
+  { id: 'k3-quota-integrity', group: 'k3', name: 'K.3 pós-auditoria P1/P3: documentos sem ficheiro, coerência token/weddingId/caminho, ordem de eventos, limpeza com recuperação (Storage simulado) (Fase K.3)', cmd: ['node', 'k3/quota-integrity.test.js'], emu: true },
+  { id: 'k4-email-injection', group: 'k4', name: 'Pré-produção: lembretes de RSVP por email sem injeção de HTML/links', cmd: ['node', 'k4/email-injection.test.js'], emu: false },
+  { id: 'k4-billing-platforms', group: 'k4', name: 'Pré-produção: billing multi-plataforma — retry de webhooks, ativação por plataforma, REFUND Apple vs Stripe (SDK simulado)', cmd: ['node', 'k4/billing-platforms.test.js'], emu: true },
+  { id: 'k4-public-artifact', group: 'k4', name: 'Pré-produção: artefacto público (GitHub Pages) só com a allowlist; nada privado', cmd: ['node', 'k4/public-artifact.test.js'], emu: false },
+  { id: 'k4-deploy-plan', group: 'k4', name: 'Pré-produção: plano de deploy consistente com index.js; só comandos explícitos (sem apagar funções)', cmd: ['node', 'k4/deploy-plan.test.js'], emu: false },
+  { id: 'k4-quota-integrity', group: 'k4', name: 'K.4: integridade 1:1 documento↔objeto, libertação pelo objeto, marcadores terminais, casamento eliminado, reconciliação robusta, sanitização, inundação (Storage simulado) (Fase K.4)', cmd: ['node', 'k4/quota-integrity.test.js'], emu: true },
+  { id: 'packaging', group: 'packaging', name: 'Pacote de deploy sem segredos + OPENAI_API_KEY', cmd: ['node', 'packaging/package-contents.test.js'], emu: false },
+  { id: 'seating-engine', group: 'seating', name: 'AI Seating: motor, validação, segurança, privacidade (Fase D)', cmd: ['node', 'seating/seating-engine.test.js'], emu: true },
+  { id: 'ui-seating-ai', group: 'ui', name: 'UI AI Seating: motor real + app (Fase D)', cmd: py('seating_ai.py') },
+  { id: 'copilot-classify', group: 'copilot', name: 'Copilot servidor: classificação, Premium, quota, privacidade (Fase E)', cmd: ['node', 'copilot/copilot-classify.test.js'], emu: true },
+  { id: 'ui-compare', group: 'ui', name: 'UI Compare: preços, origem, assinatura, relatório, histórico, despesas, PDF real, PT/EN (Fase F)', cmd: py('compare.py') },
+  { id: 'ui-copilot', group: 'ui', name: 'UI Copilot: políticas, confirmação, escritas, isolamento, PT/EN (Fase E)', cmd: py('copilot.py') },
+  { id: 'compare', group: 'compare', name: 'Comparador (Premium)', cmd: ['node', 'compare/compare.test.js'], emu: true },
+  { id: 'gcal', group: 'gcal', name: 'Google Calendar servidor: OAuth, tokens, sync sem duplicados, Premium, isolamento (Fase I; Google simulado)', cmd: ['node', 'gcal/gcal.test.js'], emu: true },
+  { id: 'invitations', group: 'invitations', name: 'Convites Digitais servidor: publicar, sanitização, slug, Premium, isolamento, ciclo de vida (lote 15)', cmd: ['node', 'invitations/invitations.test.js'], emu: true },
+  { id: 'invitation-delivery', group: 'invitations', name: 'Envio e distribuição de convites: email, WhatsApp, famílias, duplicados, limite diário, falhas SMTP, isolamento (Weddy Invitations)', cmd: ['node', 'invitations/delivery.test.js'], emu: true },
+  { id: 'invitations-schema-sync', group: 'invitations', name: 'Convites Fase 2/3: titles, hiddenSections, photoFocus, schemaVersion e sincronia com o schema do cliente', cmd: ['node', 'invitations/extras.test.js'], emu: false },
+  { id: 'invitations-parity', group: 'invitations', name: 'Convites Fase 3: o publicado é exatamente o rascunho (8 modelos)', cmd: ['node', 'invitations/parity.test.js'], emu: false },
+  { id: 'invitations-e2e-8', group: 'invitations', name: 'Convites: ensaio controlado dos 8 modelos (rascunho≠público, falha preserva, Premium, token)', cmd: ['node', 'invitations/e2e-8models.test.js'], emu: true },
+  { id: 'rules-invitation-delivery', group: 'rules', name: 'Regras invitationDeliveries/invitationQuota: só o casal lê, ninguém escreve', cmd: ['node', 'invitations/delivery-rules.test.mjs'], emu: true },
+  { id: 'rules-invitations', group: 'rules', name: 'Regras Convites Digitais: leitura pública só publicado+válido, resto fechado (lote 15)', cmd: ['node', 'invitations/rules.test.mjs'], emu: true },
+  { id: 'site', group: 'site', name: 'Wedding Website servidor: rascunho, slug, publicação, privacidade, Premium, isolamento (Fase I; Storage simulado)', cmd: ['node', 'site/site.test.js'], emu: true },
+  { id: 'contact', group: 'contact', name: 'Formulário de contacto', cmd: ['node', 'contact/send-contact.test.js'], emu: true },
+  { id: 'contact-stress', group: 'contact', name: 'Formulário de contacto: concorrência repetida', cmd: ['node', 'contact/concurrency-stress.test.js'], emu: true },
+  { id: 'notify', group: 'notify', name: 'Email resumo (functions)', cmd: ['node', 'notify/email-digest.test.js'], emu: true },
+  { id: 'backfill', group: 'backfill', name: 'Backfill premiumUntil', cmd: ['node', 'backfill/backfill-premium-until.test.js'], emu: true },
+  { id: 'rules-premium', group: 'rules', name: 'Regras Firestore+Storage (Premium)', cmd: ['node', 'rules/premium-rules.test.mjs'], emu: true },
+  { id: 'rules-memdocs', group: 'rules', name: 'Regras Memories + Documents: isolamento, Premium, acesso direto (Fase G)', cmd: ['node', 'rules/memdocs-rules.test.mjs'], emu: true },
+  { id: 'rules-site', group: 'rules', name: 'Regras Wedding Website: leitura pública só publicado+válido, rascunho privado, fotos (Fase I)', cmd: ['node', 'rules/site-rules.test.mjs'], emu: true },
+  { id: 'ui-memdocs', group: 'ui', name: 'UI Memories + Documents: ciclo, Storage, Premium, PT/EN (Fase G)', cmd: py('memdocs.py') },
+  { id: 'rules-state', group: 'rules', name: 'Regras do estado JSON + quarentena', cmd: ['node', 'rules/state-rules.test.mjs'], emu: true },
+  { id: 'rules-consent', group: 'rules', name: 'Regras de consentimento', cmd: ['node', 'rules/consent-rules.test.mjs'], emu: true },
+  { id: 'rules-logistics', group: 'rules', name: 'Regras da logística do convidado', cmd: ['node', 'rules/logistics-rules.test.mjs'], emu: true },
+  { id: 'rules-hardening', group: 'rules', name: 'Regras adversariais Firestore+Storage: acesso cruzado, removido, só-servidor, uploads (Fase K)', cmd: ['node', 'rules/hardening-rules.test.mjs'], emu: true },
+  { id: 'rules-phasec', group: 'rules', name: 'Segurança e concorrência (Fase C)', cmd: ['node', 'rules/phasec-security.test.mjs'], emu: true },
+  { id: 'ui-notif-core', group: 'ui', name: 'UI notificações (núcleo)', cmd: py('notif_core.py') },
+  { id: 'ui-notif-center', group: 'ui', name: 'UI centro de notificações', cmd: py('notif_center.py') },
+  { id: 'ui-notif-email', group: 'ui', name: 'UI preferências do email resumo', cmd: py('notif_email_prefs.py') },
+  { id: 'ui-wa-sheet', group: 'ui', name: 'UI ficha do convidado (WhatsApp)', cmd: py('whatsapp_guest_sheet.py') },
+  { id: 'ui-wa-rsvp', group: 'ui', name: 'UI RSVP + consentimento', cmd: py('whatsapp_rsvp.py') },
+  { id: 'ui-robust-state', group: 'ui', name: 'UI robustez: estados corrompidos', cmd: py('robustness_state.py') },
+  { id: 'ui-robust-paths', group: 'ui', name: 'UI robustez: todos os caminhos', cmd: py('robustness_paths.py') },
+  { id: 'ui-autopilot', group: 'ui', name: 'UI RSVP Autopilot (B.1)', cmd: py('rsvp_autopilot.py') },
+  { id: 'ui-premium-lapsed', group: 'ui', name: 'UI Premium terminado: conteúdo antigo visível', cmd: py('premium_lapsed.py') },
+  { id: 'ui-cakestatvows', group: 'ui', name: 'UI Bolo + Papelaria + Votos: Premium, preservação, escrita, PT/EN (Fase H)', cmd: py('cakestatvows.py') },
+  { id: 'ui-gcal-lapsed', group: 'ui', name: 'UI Google Calendar: Premium terminado, conta, sync parcial, PT/EN (Fase I)', cmd: py('gcal_lapsed.py') },
+  { id: 'ui-site', group: 'ui', name: 'UI Wedding Website: Premium terminado, renderizador público seguro, RSVP sem conta, PT/EN (Fase I)', cmd: py('site_ui.py') },
+  { id: 'ui-logistics-rsvp', group: 'ui', name: 'UI RSVP com logística (B.2)', cmd: py('logistics_rsvp.py') },
+  { id: 'ui-logistics-couple', group: 'ui', name: 'UI logística do casal (B.2)', cmd: py('logistics_couple.py') },
+  { id: 'ui-logistics-tables', group: 'ui', name: 'UI logística nas mesas (B.2)', cmd: py('logistics_tables.py') },
+  { id: 'ui-phasec-e2e', group: 'ui', name: 'UI E2E Fase C (RSVP real → casal, mesas, Health, Premium, antigos; 390/768/1360)', cmd: py('phasec_e2e.py') },
+  { id: 'ui-logistics-concierge', group: 'ui', name: 'UI Concierge e logística (B.2)', cmd: py('logistics_concierge.py') },
+  { id: 'ui-state-shape', group: 'ui', name: 'Paridade cliente/servidor do estado', cmd: py('state_shape.py') },
+  { id: 'ui-i18n-en', group: 'ui', name: 'UI inglês: sem texto PT (desktop+mobile)', cmd: py('i18n_en.py') },
+  { id: 'ui-sanitize', group: 'ui', name: 'UI sanitização de entradas (XSS, imagens, limites, importador)', cmd: py('sanitize_inputs.py') },
+  { id: 'qa-p1p2', group: 'qa', name: 'Casos funcionais P1/P2 na interface real: Início, Orçamento, Convidados, Gastos, Mesas, Checklist, To-do, Fornecedores, planeamento, Health, teclado, 390/768/1440 (ver qa/casos-p1p2.md)', cmd: py('qa_p1p2.py') },
+];
+
+const args = process.argv.slice(2);
+const flag = (n) => args.includes(n);
+const val = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
+
+if (flag('--list')) { SUITES.forEach((s) => console.log(`${s.id.padEnd(18)} [${s.group}] ${s.name}${s.emu ? ' (emulador)' : ''}`)); process.exit(0); }
+
+const only = val('--only') ? val('--only').split(',').map((x) => x.trim()).filter(Boolean) : null;
+const selected = SUITES.filter((s) => !only || only.includes(s.id) || only.includes(s.group));
+if (!selected.length) { console.error('Nenhuma suite corresponde a --only. Use --list.'); process.exit(2); }
+
+const needsEmu = selected.some((s) => s.emu);
+if (needsEmu && !process.env.FIRESTORE_EMULATOR_HOST && !flag('--inner')) {
+  // Arranca os emuladores e volta a chamar-se a si próprio dentro deles.
+  const bin = path.join(NM, '.bin', process.platform === 'win32' ? 'firebase.cmd' : 'firebase');
+  if (!fs.existsSync(bin)) { console.error('Falta "npm install" em tests/ (firebase-tools).'); process.exit(2); }
+  // O CLI exige as regras dentro da pasta do projeto: usa uma cópia fresca em tests/.build/emulator/.
+  const proj = path.join(ROOT, '.build', 'emulator');
+  fs.mkdirSync(proj, { recursive: true });
+  fs.copyFileSync(path.join(ROOT, '..', 'firestore.rules'), path.join(proj, 'firestore.rules'));
+  fs.copyFileSync(path.join(ROOT, '..', 'storage.rules'), path.join(proj, 'storage.rules'));
+  fs.writeFileSync(path.join(proj, 'firebase.json'), JSON.stringify({
+    firestore: { rules: 'firestore.rules' }, storage: { rules: 'storage.rules' },
+    emulators: { firestore: { host: '127.0.0.1', port: 8085 }, storage: { host: '127.0.0.1', port: 9195 }, ui: { enabled: false }, singleProjectMode: true },
+  }, null, 2));
+  const inner = `node ${JSON.stringify(path.join(ROOT, 'run-all.js'))} --inner ${only ? '--only ' + only.join(',') : ''}`;
+  const r = spawnSync(bin, ['emulators:exec', '--only', 'firestore,storage', '--project', 'demo-weddy', inner], { cwd: proj, stdio: 'inherit', env: process.env });
+  process.exit(r.status === null ? 1 : r.status);
+}
+
+fs.mkdirSync(REPORTS, { recursive: true });
+const env = Object.assign({}, process.env, {
+  NODE_PATH: [NM, process.env.NODE_PATH].filter(Boolean).join(path.delimiter),
+  GCLOUD_PROJECT: 'demo-weddy',
+  WEDDY_EXPOSE_INTERNALS_FOR_TESTS: '1',
+  FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8085',
+  FIREBASE_STORAGE_EMULATOR_HOST: process.env.FIREBASE_STORAGE_EMULATOR_HOST || '127.0.0.1:9195',
+  PYTHONDONTWRITEBYTECODE: '1',
+});
+// Segurança: nunca contra produção.
+for (const k of ['GOOGLE_APPLICATION_CREDENTIALS', 'FIREBASE_TOKEN']) delete env[k];
+
+const results = [];
+for (const s of selected) {
+  const t0 = Date.now();
+  process.stdout.write(`▶ ${s.id.padEnd(18)} ${s.name} ... `);
+  const r = spawnSync(s.cmd[0], s.cmd.slice(1), { cwd: ROOT, env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 15 * 60 * 1000 });
+  const out = (r.stdout || '') + (r.stderr || '');
+  fs.writeFileSync(path.join(REPORTS, s.id + '.log'), out);
+  const lines = out.split('\n').map((l) => l.trim()).filter(Boolean);
+  const summary = [...lines].reverse().find((l) => /(\d+\s*\/\s*\d+\s*OK|\d+\s*OK,\s*\d+\s*(?:FALHAS|FAIL)|FAILS:|verificações OK|RESULT passed)/.test(l)) || lines[lines.length - 1] || '';
+  const passed = r.status === 0;
+  results.push({ id: s.id, name: s.name, group: s.group, passed, status: r.status, seconds: Math.round((Date.now() - t0) / 100) / 10, summary });
+  console.log(passed ? `OK  (${results[results.length - 1].seconds}s) ${summary}` : `FALHOU (exit ${r.status}) ${summary}`);
+  if (!passed) lines.filter((l) => /^FAIL|FALHOU|Error|ERRO/.test(l)).slice(0, 8).forEach((l) => console.log('     ' + l));
+}
+
+const failed = results.filter((r) => !r.passed);
+const md = ['# Relatório de testes Weddy', '', `Data: ${new Date().toISOString()}`, '', '| Suite | Estado | Tempo | Resumo |', '|---|---|---|---|']
+  .concat(results.map((r) => `| ${r.id} — ${r.name} | ${r.passed ? 'PASSOU' : 'FALHOU'} | ${r.seconds}s | ${r.summary.replace(/\|/g, '/')} |`))
+  .concat(['', `**${results.length - failed.length}/${results.length} suites passaram.**`]).join('\n');
+fs.writeFileSync(path.join(REPORTS, 'last-run.md'), md + '\n');
+fs.writeFileSync(path.join(REPORTS, 'last-run.json'), JSON.stringify({ at: new Date().toISOString(), results }, null, 2));
+console.log(`\n${results.length - failed.length}/${results.length} suites passaram. Relatório: tests/reports/last-run.md`);
+process.exit(failed.length ? 1 : 0);
