@@ -1,65 +1,98 @@
 # Documento 6 — Roadmap técnico
 
-Complexidade: **S** (dias), **M** (1–2 semanas), **L** (3–5 semanas), **XL** (> 5 semanas) para uma pessoa com apoio de IA. Cada fase só começa com aprovação e termina com os testes existentes (76 suites) a verde + os novos.
+**Versão 2 (17/11/2026)** — a Fase 1 passa a cinco entregas independentes (1A–1E). Nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
-## Pré-requisitos (antes da Fase 1)
+Complexidade: **S** (dias), **M** (1–2 semanas), **L** (3–5 semanas), **XL** (> 5 semanas) para uma pessoa com apoio de IA.
 
-| # | Item | Dono | Porquê |
+## Critério de conclusão comum a todas as entregas — [Decisão aprovada]
+
+Uma entrega **não** está concluída porque a interface funciona. Cada uma tem os seus próprios testes automatizados (emulador, sem dados reais) de:
+1. acesso autorizado; 2. acesso não autorizado; 3. acesso cruzado entre organizações; 4. utilizador removido e suspenso; 5. consentimento revogado; 6. permissão alterada; 7. operações concorrentes; 8. dados antigos em cache ou projeções; 9. regressões na Weddy Couples (as 76 suites existentes — referência 74/76 a 16/11, com as 2 exceções documentadas).
+
+E termina com relatório de testes e aprovação expressa antes da entrega seguinte. Publicação só pelos scripts, nunca nesta sequência sem autorização.
+
+## Pré-requisitos (antes da Fase 1A)
+
+| # | Item | Dono | Estado |
 |---|---|---|---|
-| P1 | Decidir a origem do GitHub Pages (doc. `docs/integracao/D-github-pages.md`) | Rita | Sem isto, nada desta branch pode entrar no `main` |
-| P2 | Decidir a tecnologia do frontend da Planning (Doc. 3 §13.2) | Rita | Define a estrutura da Fase 2 |
-| P3 | Ambiente de staging: `weddy-premium-teste` (ou projeto novo) para a Planning | Rita | Testes reais de convites/email sem tocar em produção |
-| P4 | Confirmar que versão do backend está em produção (só leitura) | Claude + Rita | Base fiável para as alterações às regras |
+| P1 | Origem do GitHub Pages (`docs/integracao/D-github-pages.md`): sem isto nada desta branch entra no `main` | Rita | [Questão pendente] |
+| P2 | Tecnologia do frontend | Rita | **[Decisão aprovada] React + Vite + shadcn/ui** com tema próprio |
+| P3 | Staging verdadeiramente isolado: auditoria por leitura do projeto candidato (Doc. 3 §12) e decisão Q6 | Rita + Claude | [Questão pendente] |
+| P4 | Versão do backend em produção confirmada (só leitura) | Claude + Rita | [Trabalho futuro] |
+| P5 | Decisões Q1–Q8 (Doc. 3 §16) necessárias a cada entrega (ver coluna "Decisões" abaixo) | Rita | [Questão pendente] |
+| P6 | Análise RGPD do reCAPTCHA (App Check) | Rita (jurídico) | [Questão pendente] |
 
-## Fases
+## Fase 1 — Weddy Core e arquitetura SaaS (cinco entregas)
 
-### Fase 1 — Weddy Core e arquitetura SaaS · **L**
-- Coleções `organizations`, `members`, `auditLog`; `weddings/{id}.planningLink` e `grants/{uid}`; regras (incluindo a proteção de `planningLink`); codebase `planning` de funções; callables de organização/membros/grants; projeção `weddingPlannerViews`; callable de escrita por secção.
-- **Dependências**: P1–P4.
-- **Riscos**: alteração das regras de `weddings` (partilhadas com a Couples); custo de leituras das regras (`get`/`exists`).
-- **Aceitação**: organização criada; membro com e sem grant; casal não consegue alterar `planningLink`; nenhuma suite existente regride.
-- **Testes novos**: matriz de acesso cruzado entre 2 organizações × 5 papéis × 3 casamentos; elevação de papel; IDOR por `weddingId`/`orgId` trocado; projeção respeita `hidden/view/edit`; concorrência casal/planner por secção.
+| Entrega | Âmbito | Decisões necessárias | Complexidade |
+|---|---|---|---|
+| **1A** Fundação de organizações e memberships | Organizações, identidade, memberships, convites internos, estados dos membros (`invited/active/suspended/removed`), estrutura multi-tenant, auditLog, codebase `planning`, shell da app (React + Vite) | P1–P3 | M |
+| **1B** RBAC, ABAC e isolamento | Papéis e matriz de permissões; acesso por organização, por casamento e por secção (estrutura); verificação no servidor; Firestore e Storage Rules; App Check nas callables da Planning; testes de isolamento | Q3, Q7 | M |
+| **1C** Grants e ligação profissional | Convites planner ↔ casal; relação profissional; **verificação da propriedade real do casamento**; grants; fim da relação; revogação de utilizador; **sem leitura nem edição de dados do casamento** | Q1, Q2 | L |
+| **1D** Consentimento e projeção segura | Interface de gestão de permissões na Couples (mínima, isolada); consentimento por secção (`none/read/read_write`, tudo começa em `none`); pedidos de acesso; projeções de leitura por secção; invalidação, reconciliação e revogação imediata | Q3, Q4, Q8 | L |
+| **1E** Escrita controlada por secção | Escrita só em secções `read_write`; validação no servidor; `baseRev`; concorrência casal/planner; histórico (`activity`) e auditoria; regressão completa da Couples | Q8 | L |
+
+### 1A — Fundação de organizações e memberships
+- **Entregáveis**: coleções `organizations`, `members`, `memberInvites`, `auditLog`; funções de criar organização, convidar/aceitar membro, suspender/reativar/remover; regras com negação por omissão; app Planning com login e seletor de organização.
+- **Aceitação**: dois utilizadores em duas organizações não se veem; convite interno de uso único, com validade e revogável; remoção e suspensão efetivas em regras e funções.
+- **Testes específicos**: convite expirado/reutilizado/revogado; membro de A tenta ler B; utilizador tenta alterar o próprio papel/estado; remoção concorrente com ação do próprio membro.
+
+### 1B — RBAC, ABAC e isolamento
+- **Entregáveis**: matriz de papéis (owner, admin, planner, coordinator, assistant) e permissões por área da organização; helpers de autorização partilhados pelas funções; regras correspondentes; App Check (enforcement nas callables da Planning; Firestore/Storage em monitor).
+- **Aceitação**: matriz de autorização do Doc. 3 §11 coberta por testes (cada linha, caso permitido e recusado); nenhuma decisão de segurança só no frontend.
+- **Testes específicos**: 2 organizações × 5 papéis × operações; pedidos sem App Check recusados nas callables; IDOR trocando `orgId` no caminho e no corpo do pedido.
+
+### 1C — Grants e ligação profissional
+- **Entregáveis**: `planningInvites`; `professionalLinks/{orgId}` com `status`; `grants/{uid}`; aceitação com verificação de propriedade (Doc. 3 §8); fim da relação; revogação de grant; e-mails de convite com o envio existente (anti-injeção).
+- **Fora de âmbito**: qualquer leitura ou escrita dos dados do casal.
+- **Aceitação**: só um dono real do casamento associa o casamento; conhecer ID, email ou token não basta; regra de Q1 aplicada (até decisão: no máximo uma ligação ativa).
+- **Testes específicos**: utilizador não-dono com token válido; dono com token de outro convite; convite expirado/revogado/reutilizado; força bruta (rate limit); casamento já ligado a esta/outra organização; contas Apple com email privado; fim da relação pelo casal e pela organização; Couples intacta após cada caso.
+
+### 1D — Consentimento e projeção segura
+- **Entregáveis**: ecrã de permissões do casal (Doc. 7 §4); função de consentimento (só donos); `accessRequests`; projeções por secção com `sourceRev`; regras de leitura que verificam a autorização atual; invalidação na revogação; reconciliação agendada e a pedido; leitura sensível por função.
+- **Aceitação**: nenhuma secção visível sem escolha afirmativa do casal; revogação com efeito imediato mesmo com projeção antiga.
+- **Testes específicos**: revogação durante uma leitura; alterações rápidas de permissões (`none→read→none` em < 1 s); trigger atrasada (simulada); trigger falhada (sem projeção); projeção desatualizada após revogação; casal e planner em simultâneo; cache local do planner após `permission-denied`; membro removido com listener aberto.
+
+### 1E — Escrita controlada por secção
+- **Entregáveis**: função `planningUpdateSection` com verificação completa, `baseRev`, validação de esquema por secção e operações da tabela M4a (Doc. 4); registo em `activity` e `auditLog`.
+- **Aceitação**: escrita só em secções `read_write`; nenhuma eliminação pelo planner (proposta Q8); Couples sem regressões.
+- **Testes específicos**: escrita em `read` e `none` recusada; revogação entre leitura e escrita; conflito de `baseRev`; edição simultânea do casal e do planner na mesma chave e em chaves diferentes; tamanho do `json` dentro do limite; `validateWeddingStateOnWrite` aceita as escritas válidas; suite completa da Couples.
+
+## Fases seguintes (inalteradas no âmbito, reordenadas na dependência)
 
 ### Fase 2 — Weddy Planning Core · **XL**
-- App `/planning/` (shell, navegação, design system), Hoje (sem radar completo), CRM inicial (leads + pipeline + conversão), clientes, carteira de casamentos, calendário, equipa, tarefas, notas internas, templates com prazos relativos.
-- **Aceitação**: um planner gere 3 casamentos fictícios de ponta a ponta no staging; revisão visual com capturas a 1440/1024/390; auditoria de acessibilidade (`design:accessibility-review`).
-- **Testes**: regras de cada coleção; UI (Playwright) das vistas principais; templates (recalcular datas).
+Hoje, CRM inicial (leads, pipeline, conversão idempotente), clientes, carteira, calendário, equipa, tarefas, notas internas, templates com prazos relativos. Usa 1A–1E. **Testes**: regras de cada coleção, UI (Playwright), templates.
 
-### Fase 3 — Integração Weddy Couples · **L**
-- Convites (criar, email, reenviar, revogar, expirar), página `/aceitar/`, criação do casamento pelo planner com o casal como dono, ligação a casamento existente com consentimento, partilha por secção, fim da relação.
-- **Riscos**: identidade (email da conta ≠ email convidado), contas Apple com email privado (relay), casamentos múltiplos do casal.
-- **Aceitação**: os 10 passos do fluxo do pedido (secção 6) passam no staging com conta nova e conta existente; casamento aparece na Couples sem alterar `app/index.html`.
-- **Testes**: convite válido, expirado, revogado, reutilizado, email diferente, força bruta (rate limit), conta existente, conta nova, fim de relação (planner perde acesso, casal mantém tudo).
+### Fase 3 — Integração Weddy Couples (experiência completa) · **L**
+O núcleo técnico (convites, ligação, consentimento) passou para 1C–1D. Fica aqui: página de aceitação final, ponto de entrada das permissões na Couples, casamento novo criado a partir do convite, mensagens e emails ao casal, revisão de UX. **Testes**: fluxo completo com conta nova e conta existente; Couples sem planner inalterada.
 
 ### Fase 4 — Weddy Conversations · **L**
-- Coleções e regras de conversas, anexos, leitura individual, decisões, mensagem → tarefa, pesquisa, exportação PDF + ZIP com checksum, ícone e ecrã na Couples (exceção autorizada), FCM (se aprovado).
-- **Aceitação**: as 6 regras de visibilidade do ícone; contadores por pessoa; PDF integral paginado; regressão completa da Couples.
-- **Testes**: participantes, anexos, edição auditada, sem eliminação, exportação (registo + link temporário), acesso após fim de relação.
+Conversas por casamento e organização, anexos por URL temporário, leitura individual, decisões, exportação PDF/ZIP com checksum, ícone na Couples (exceção autorizada), FCM se aprovado.
 
-### Fase 5 — Gestão profissional avançada · **XL** (dividir em sub-fases)
-5a Propostas (link público, extras, versões) · 5b Contratos + integração de assinatura · 5c Fornecedores e espaços · 5d Portal de fornecedores · 5e Financeiro + horas · 5f Run sheet completo + PDFs · 5g Questionários, reuniões e aprovações · 5h Documentos.
-- **Riscos**: requisitos legais (eIDAS, faturação certificada — integrar, não construir).
-- **Testes**: conteúdo da proposta pública sem custos/margens; portal do fornecedor isolado; finanças só com permissão.
+### Fase 5 — Gestão profissional avançada · **XL** (sub-fases)
+5a Propostas · 5b Contratos + assinatura (integração) · 5c Fornecedores e espaços · 5d Portal de fornecedores · 5e Financeiro + horas · 5f Run sheet + PDFs · 5g Questionários, reuniões e aprovações · 5h Documentos.
 
 ### Fase 6 — Weddy Intelligence · **L**
-Radar de riscos completo, workflows "quando X, faz Y", assistente com contexto autorizado montado no servidor, sugestões com confirmação. **Testes** adversariais de fuga de dados entre casamentos/organizações.
+Radar, workflows, assistente com contexto montado no servidor com a autorização atual; testes adversariais de fuga de dados.
 
 ### Fase 7 — SaaS comercial e lançamento · **L**
-Planos Solo/Studio/Agency com limites aplicados no servidor, subscrições (Stripe), onboarding, marca do planner, integrações (faturação certificada, calendário), pilotos com 3–5 planners, lançamento.
+Planos, subscrições, limites no servidor, onboarding, marca do planner, integrações, pilotos.
 
 ## Ordem e dependências
 
 ```
-P1–P4 ─► F1 Core ─► F2 Planning Core ─► F3 Integração Couples ─► F4 Conversations
-                                   └──────────────► F5 (sub-fases em paralelo após F3) ─► F6 ─► F7
+P1–P6 ─► 1A ─► 1B ─► 1C ─► 1D ─► 1E ─► F2 ─► F3 ─► F4
+                                          └──► F5 (sub-fases, após F3) ─► F6 ─► F7
 ```
 
 ## Riscos transversais
 
 | Risco | Mitigação |
 |---|---|
-| Regressão na Couples | Suites existentes antes e depois de cada alteração; Doc. 7 |
-| Custo das regras (`get`) e leituras | Grants por pessoa (1 `exists`), projeções em vez de leituras do `json` completo |
+| Regressão na Couples | Suite completa antes e depois de cada entrega; alterações na Couples mínimas e isoladas (Doc. 7) |
+| Projeções a expor dados revogados | Regras que verificam a autorização atual; invalidação + reconciliação (Doc. 3 §6) |
+| Associação indevida de casamentos | Verificação de propriedade no servidor (Doc. 3 §8) |
+| Permissões antigas em cache | Sem custom claims para permissões; verificação a cada pedido |
+| Staging que afinal toca produção | Auditoria por leitura antes da 1A (Doc. 3 §12) |
+| Custo das regras (`get`) | Grants e consentimento por ligação (O(1) por verificação); medir em staging |
 | Limite de 900 KB do `json` | A Planning nunca grava dados próprios no `json` |
-| Âmbito demasiado grande | Sub-fases com entregas utilizáveis; pilotos cedo (após F3) |
-| Dependência de publicação (Pages) | Resolver P1 antes de F1 |

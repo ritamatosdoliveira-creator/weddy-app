@@ -1,162 +1,289 @@
-# Documento 3 — Arquitetura técnica (proposta)
+# Documento 3 — Arquitetura técnica
 
-Princípio: **um casamento — uma fonte de dados — duas experiências**. Os nomes de coleções abaixo partem do esquema auditado (Documento 1). Nada disto foi implementado.
+**Versão 2 (17/11/2026)** — revista após a revisão da Fase 0. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões da §16. Nada deste documento está implementado.
 
-## 1. Visão geral
+Legenda usada em todo o documento:
+**[Estado atual]** o que existe hoje (ver Documento 1) · **[Decisão aprovada]** decidido pela proprietária · **[Proposta técnica]** recomendação, ainda não aprovada · **[Questão pendente]** exige decisão (§16) · **[Trabalho futuro]** fora da Fase 1.
 
-```
-                    ┌────────────────────── Weddy Core (Firebase weddy-app-bd12f) ──────────────────────┐
-                    │ Auth · Firestore · Storage · Functions (codebase "default" + nova "planning")      │
-                    │                                                                                   │
- Weddy Couples ───► │ weddings/{id}  (ownerEmails, json, settings, subscription)  ◄── fonte única        │
- app/index.html     │      + planningLink (novo, só servidor)                                            │
- (inalterada,       │      └─ grants/{uid}   (novo, só servidor) — acesso profissional por pessoa        │
-  exceto Conv.)     │ weddingPlannerViews/{id}  (novo, projeção filtrada para o planner)                 │
-                    │ conversations/{weddingId} (novo)                                                    │
- Weddy Planning ──► │ organizations/{orgId} + subcoleções (novo, isolado por organização)                │
- /planning/         │ planningInvites/{id} (novo, só servidor)                                            │
-                    └───────────────────────────────────────────────────────────────────────────────────┘
-```
+Princípio: **um casamento — uma fonte de dados — duas experiências.**
 
-- **Mesmo projeto Firebase**, mesma autenticação (uma pessoa pode ser noiva numa conta e planner noutra, ou ambas).
-- **Codebase de funções separada** (`planning/functions/`, declarada em `firebase.json` como `codebase: "planning"`): nada da Planning entra no `index.js` atual. Publicação por nome de função, como hoje.
-- **App Planning separada** em `/planning/` (HTML/JS próprios), sem tocar em `app/index.html`. Partilha tokens visuais e serviços de baixo nível (cliente Firebase, i18n) por cópia controlada, não por dependência da app do casal.
+## 1. Componentes e fronteiras
 
-## 2. Organizações (multi-tenant)
-
-```
-organizations/{orgId}
-  name, slug, country, locale, currency, vatDefaults, branding{logoPath, accent}, createdAt
-  plan: { tier: 'pilot'|'solo'|'studio'|'agency', limits:{members, activeWeddings, storageGB} }   ← preparado, sem cobrança
-  status: 'active'|'suspended'
-organizations/{orgId}/members/{uid}
-  email, displayName, role: 'owner'|'admin'|'planner'|'coordinator'|'assistant',
-  permissions: { sections:{crm:'edit'|'view'|'none', finance:..., ...} },  status, invitedAt, joinedAt
-organizations/{orgId}/clients/{clientId}         casal enquanto cliente (antes/depois de existir conta Weddy)
-organizations/{orgId}/leads/{leadId}             pipeline: stage, source, desiredDate, venue, guestsEst, budgetEst, lostReason
-organizations/{orgId}/proposals/{id}/versions/{v} linhas, extras, custos internos, margem, IVA, condições, estado
-organizations/{orgId}/contracts/{id}              modelo, campos, versão, estado de assinatura, prova
-organizations/{orgId}/weddings/{weddingId}        ficha PROFISSIONAL do casamento (interna): serviço, equipa, template, honorários
-organizations/{orgId}/weddings/{weddingId}/tasks|notes|timeEntries|runSheet|approvals|documents
-organizations/{orgId}/suppliers/{id} · venues/{id} · templates/{id} · questionnaires/{id}
-organizations/{orgId}/finance/{...}               plano de pagamentos, recebimentos, custos (registo de gestão, não fiscal)
-organizations/{orgId}/auditLog/{id}               append-only, só servidor
-```
-
-Regras: **todas** as leituras exigem `members/{request.auth.uid}` ativo na mesma `orgId` do caminho; escrita de `role`, `permissions`, `status`, `plan` e `auditLog` **só pelo servidor**. O isolamento vem do próprio caminho (`organizations/{orgId}/...`): não há consultas entre organizações.
-
-## 3. Ligação organização ↔ casamento (SAME)
-
-O casamento continua a ser `weddings/{weddingId}` do casal. Não se cria um segundo.
-
-```
-weddings/{weddingId}.planningLink   (novo; escrito só pelo servidor; regras impedem o casal de o alterar)
-  { orgId, status: 'pending'|'active'|'ended', since, endedAt, sharing: {guests:'edit'|'view'|'hidden', budget:..., ...} }
-weddings/{weddingId}/grants/{uid}    (novo; só servidor)
-  { orgId, role, sections:{...}, status:'active'|'revoked', grantedBy, at }
-```
-
-- **Planner nunca entra em `ownerEmails`** (seria dono total e poderia remover o casal).
-- `grants/{uid}` dá acesso **por pessoa** (ABAC por casamento): a Planning atribui membros da equipa a casamentos; o servidor cria/revoga os grants. As regras fazem uma verificação O(1): `exists(grants/{uid})` + `status=='active'` + `planningLink.status=='active'`.
-- `sharing` é o consentimento do casal por secção (padrão de mercado em PT, como no Journey 2 Yes). Valor por omissão aceite no convite.
-- **Fim da relação**: o servidor põe `planningLink.status='ended'` e revoga todos os grants. O casal mantém tudo; a organização mantém só o que é seu (ficha profissional, faturação, contratos), por obrigação legal; conversas ficam arquivadas e acessíveis ao casal.
-
-## 4. Como o planner lê e escreve os dados do casal
-
-O `json` é um campo único; as regras não conseguem filtrar secções. Por isso:
-
-| Operação | Mecanismo | Porquê |
+| Componente | O que é | Estado |
 |---|---|---|
-| Ler | `weddingPlannerViews/{weddingId}` — **projeção** gerada por trigger `onDocumentWritten(weddings/{id})` com só as secções que o `sharing` permite. Regras: lê quem tem grant ativo | Tempo real sem expor secções escondidas; sem alterar o modelo do casal |
-| Escrever | Callable `planningUpdateWeddingSection({weddingId, section, patch, baseRev})` → valida grant + `sharing[section]=='edit'` + esquema → transação por **chave de topo** no `json` | Compatível com a fusão a três vias do cliente Couples (Doc. 1 §5) |
-| Ver o que mudou | Entrada em `weddings/{id}/activity` com `actor: 'planner'` | O casal vê quem alterou |
+| **Weddy Core** | Infraestrutura partilhada: Firebase Auth, Firestore, Storage, Cloud Functions, regras, serviços de email, IA, pagamentos | [Estado atual] existe (projeto `weddy-app-bd12f`) |
+| **Weddy Couples** | App do casal (`app/index.html`, iOS/Android), páginas públicas (RSVP, convites, website, Memories) | [Estado atual] existe e tem utilizadores; continua **autónoma** |
+| **Weddy Planning** | App profissional independente em `/planning/` | [Decisão aprovada] app independente, **React + Vite + shadcn/ui** com tema próprio (`DESIGN.md`) |
+| **Serviços partilhados** | Autenticação, envio de email com anti-injeção, registo de incidentes, IA com `store:false`, validação do estado | [Estado atual] no `index.js`; a Planning reutiliza por chamada, não por cópia |
+| **Funções da Planning** | Codebase `planning` separada em `firebase.json` | [Decisão aprovada] codebase separada; [Proposta técnica] diretório `planning/functions/` |
 
-Conflitos: se o casal tiver a mesma chave "suja" localmente, a versão dele prevalece ao gravar. Mitigação: `baseRev` (revisão por secção guardada na projeção) e aviso ao planner quando a secção mudou desde a leitura; testes de concorrência obrigatórios (Fase 3).
+Regras de fronteira [Decisão aprovada]:
+- A Couples **não depende** da Planning: sem ligação profissional, tudo funciona como hoje; nenhuma chamada da Couples falha se a Planning estiver em baixo.
+- A Planning **não duplica** convidados, mesas, orçamento, fornecedores do casal, documentos, Memories, convites ou website: lê e (quando autorizado) escreve os dados existentes do casamento.
 
-## 5. Visibilidade (3 níveis)
+## 2. Três categorias de dados
 
-| Nível | Onde vive | Quem vê |
-|---|---|---|
-| PARTILHADO | `weddings/{id}.json` (dados do casal) e `conversations` | Casal + planner com grant |
-| INTERNO | `organizations/{orgId}/weddings/{id}/...` (notas, tarefas internas, margens, horas) | Só membros da organização com permissão. **Nunca** no `json` do casal |
-| PARTILHA CONTROLADA | rascunho em `organizations/...`; ao **publicar/aprovar**, o servidor copia para `weddings/{id}/shared/{itemId}` (novo) | Casal só depois da publicação |
+| Categoria | Dono | Onde vive | Quem acede | Estado |
+|---|---|---|---|---|
+| **Dados do casal** | O casal (sempre) | `weddings/{id}` (`json`, `settings`), `guests/{token}`, `memories`, `documents/{id}/…`, `weddingSites`, `weddingInvitations` | Casal; a organização **só** nas secções que o casal autorizou | [Estado atual] estrutura existente, sem alterações |
+| **Dados internos da organização** | A organização | `organizations/{orgId}/…` (leads, clientes, propostas, contratos, notas, tarefas internas, horas, margens, fornecedores da organização) | Membros autorizados da organização; **nunca** o casal | [Proposta técnica] coleções novas |
+| **Dados partilhados mediante consentimento** | O casal (origem) | Os próprios dados do casal, expostos à organização por secção e nível; eventualmente uma projeção de leitura derivada (§6) | Organização, enquanto o consentimento estiver ativo | [Proposta técnica] |
+| **Conteúdo publicado pela organização ao casal** | A organização (autor), visível ao casal | [Proposta técnica] `weddings/{id}/shared/{itemId}` (propostas aprovadas, cronogramas publicados) | Casal + organização ligada | [Trabalho futuro] |
 
-Como o interno vive num caminho diferente, um erro de interface não consegue mostrá-lo ao casal: as regras negam a leitura.
+Regra: os dados internos **nunca** são escritos no `json` do casal. O `json` não tem permissões por secção nas regras (é um único campo), por isso a separação faz-se por caminho, onde as regras conseguem negar.
 
-## 6. Convites e associação dos noivos
+## 3. Organizações (multi-tenant) — [Proposta técnica]
+
+```
+organizations/{orgId}                     name, slug, locale, currency, branding, status, plan{tier, limits} (preparado, sem cobrança)
+organizations/{orgId}/members/{uid}       email, role, permissions, status: invited|active|suspended|removed, since, by
+organizations/{orgId}/memberInvites/{id}  convites internos (hash do token, validade, estado)
+organizations/{orgId}/leads/{leadId}      ciclo comercial (§9)
+organizations/{orgId}/clients/{clientId}  cliente contratado (§9)
+organizations/{orgId}/weddings/{weddingId}  ficha PROFISSIONAL (interna) ligada ao casamento do casal
+organizations/{orgId}/…                   proposals, contracts, suppliers, venues, templates, finance, timeEntries
+organizations/{orgId}/auditLog/{id}       só servidor, append-only
+```
+Isolamento: toda a leitura exige `members/{request.auth.uid}.status == 'active'` na mesma `orgId` do caminho; `role`, `permissions`, `status`, `plan` e `auditLog` são escritos **só** pelo servidor.
+
+## 4. Relação profissional entre organização e casamento
+
+[Questão pendente] **uma ou várias organizações ativas por casamento** (Q1, §16). Até à decisão, o modelo descreve-se de forma neutra:
+
+```
+weddings/{weddingId}/professionalLinks/{orgId}       (só servidor)
+  status: pending | active | ended, createdAt, acceptedBy, acceptedAt, endedBy, endedAt, endReason
+weddings/{weddingId}/professionalLinks/{orgId}/consent/current   (escrito via função chamada pelo CASAL)
+  sections: { <secção>: 'none' | 'read' | 'read_write' }, version, updatedBy, updatedAt
+weddings/{weddingId}/professionalLinks/{orgId}/grants/{uid}       (só servidor)
+  role, status: active | revoked, grantedBy, at
+```
+- Com a opção A (uma só organização), o mesmo modelo funciona com um único documento ativo; a regra "no máximo um `active`" é aplicada na transação de aceitação.
+- O desenho anterior (`weddings/{id}.planningLink`, campo no documento do casamento) fica **substituído por esta proposta**, porque: (1) uma subcoleção serve as duas opções da Q1; (2) não acrescenta campos ao documento que a Couples grava; (3) não exige alterar a regra de `update` de `weddings`.
+- O planner **nunca** entra em `ownerEmails` (teria acesso total e poderia remover o casal — Doc. 1 §5).
+
+## 5. Consentimento do casal e permissões por secção — [Decisão aprovada] nos princípios, [Proposta técnica] no modelo
+
+Princípios **[Decisão aprovada]**:
+1. O casal é sempre o proprietário dos dados.
+2. Três estados por secção: **Não partilhar** (`none`), **Consultar** (`read`), **Consultar e editar** (`read_write`).
+3. **Todas as secções começam em "Não partilhar"**; aceitar o convite **não** partilha nada.
+4. O casal escolhe afirmativamente; pode alterar a qualquer momento; pode revogar o acesso profissional por completo.
+5. A **ausência de configuração** de uma secção significa **acesso negado**.
+6. O planner **não pode** atribuir nem alterar permissões em nome do casal (a função de consentimento só aceita pedidos de um dono do casamento, verificado no servidor).
+7. A revogação é aplicada **no servidor**, não só na interface.
+8. A interface de gestão de permissões existe **desde a primeira integração** com a Couples (pode começar fora da navegação principal — ver Doc. 7).
+
+Secções propostas [Proposta técnica] (mapeiam as chaves de topo existentes do `json`, Doc. 1 §5): `guests` (convidados, RSVP, `confirmed`), `seating`, `budget` (`budget`, `categories`, `expenses`, `payments`), `suppliers`, `compares`, `daySchedule` (programa do dia), `todos` (tarefas e checklists), `design` (`stationery*`, `cake`, `dressStyle`), `documents` (`weddingDocuments` + Storage `documents/`), `memories`, `website`, `invitations`. **Sempre excluídas** (não partilháveis nesta fase): `vows`, `honeymoon`, `checklistPersonal`, `dressVisits` (privacidade pessoal) — [Questão pendente] Q8.
+
+Pedidos de acesso a secções não autorizadas [Proposta técnica]:
+- O planner pode **pedir** acesso a uma secção (`accessRequests/{id}` sob a ligação: secção, nível pedido, motivo, estado `pending|accepted|declined|expired`).
+- O casal vê o pedido no ecrã de permissões e decide; **nada muda até o casal aceitar**. Recusar não tem efeito colateral; pedidos repetidos têm limite (ex.: 1 pendente por secção, 3 por semana).
+- Na Planning, uma secção não autorizada aparece como "Não partilhada pelo casal", sem conteúdo nem contagens.
+
+## 6. Leitura pelo planner: autorização no servidor, projeção só como cache — [Decisão aprovada] nos princípios
+
+Princípios **[Decisão aprovada]**:
+- A **fonte de autoridade** das permissões é o consentimento (`consent/current`) + o estado da ligação + o grant do utilizador + a membership — **nunca** uma projeção.
+- Triggers do Firestore são assíncronas, podem atrasar ou falhar: a autorização é verificada **no servidor em cada operação sensível**.
+- Uma projeção desatualizada **nunca** pode dar acesso a dados revogados; a revogação tem efeito imediato.
+- As projeções são **reconstruíveis** e nunca substituem os dados originais.
+
+Opções de leitura [Questão pendente] Q4:
+
+| Opção | Como | Revogação | Custo/latência |
+|---|---|---|---|
+| **R1. Só funções** | Callable `planningReadSection({weddingId, section})` verifica a autorização atual e devolve a secção lida do `json` | Imediata por construção | Uma chamada por leitura; sem tempo real |
+| **R2. Projeção protegida por regras que leem a autorização** | `plannerViews/{weddingId}_{orgId}/sections/{section}` gerada por trigger; a **regra** de leitura verifica, no momento, `consent/current.sections[section] in ['read','read_write']` + `grants/{uid}.status=='active'` + `professionalLinks/{orgId}.status=='active'` + membership ativa | Imediata: a regra lê a autorização atual, mesmo que a projeção ainda tenha dados antigos | Tempo real; 3–4 `get()` por leitura nas regras |
+| **R3. Híbrida** | R2 para leitura em tempo real + R1 para operações sensíveis (exportações, IA, documentos) | Imediata | Recomendada |
+
+**Recomendação técnica: R3.** Uma projeção por secção (não um documento único) para que retirar uma secção não exija reescrever as outras.
+
+Sincronização, invalidação e falhas [Proposta técnica]:
+- **Geração**: trigger `onDocumentWritten(weddings/{id})` compara a revisão por chave de topo e reescreve só as secções alteradas e autorizadas; cada documento de projeção guarda `sourceRev` e `generatedAt`.
+- **Invalidação na revogação**: a função de consentimento, na mesma operação, (1) grava o novo consentimento (efeito imediato pelas regras), (2) apaga as projeções das secções que deixaram de estar autorizadas, (3) incrementa `consent.version`. Se o passo 2 falhar, os dados ficam inacessíveis na mesma (regras) e um processo de reconciliação apaga-os.
+- **Reconciliação**: tarefa agendada (ex.: a cada hora) compara projeções com consentimento e `sourceRev`; reconstrói ou apaga. Também disponível a pedido (função de reconstrução por casamento).
+- **Triggers falhadas/atrasadas**: idempotentes (chave = `weddingId + sourceRev`), com repetição; a interface mostra "a atualizar" quando `sourceRev` da projeção < revisão atual conhecida.
+- **Cache no cliente**: o SDK pode manter cópias locais; ao receber `permission-denied` num listener, a app apaga a cache dessa secção e esconde-a. Leituras offline da Planning ficam **desativadas** para dados do casal.
+
+## 7. Escrita pelo planner — [Proposta técnica] (Fase 1E)
+
+- Só por função: `planningUpdateSection({weddingId, orgId, section, patch, baseRev})`.
+- Verificações no servidor, nesta ordem: autenticação + email verificado → membership ativa → papel permite editar a secção → grant ativo no casamento → ligação ativa → `consent.sections[section]=='read_write'` → `baseRev` atual → validação do esquema da secção → transação por **chave de topo** no `json` (compatível com a fusão a três vias da Couples, Doc. 1 §5).
+- Escrita registada em `weddings/{id}/activity` (`actor:'planner'`, organização, utilizador) e em `auditLog`.
+- Conflito: se `baseRev` estiver desatualizado, a função recusa e devolve a versão atual; a Planning mostra as diferenças. Edições do casal na mesma chave continuam a prevalecer quando o casal grava com a chave "suja" (risco documentado, testes na Fase 1E).
+
+## 8. Aceitação de convites e verificação de propriedade — [Decisão aprovada] nos requisitos
 
 ```
 planningInvites/{inviteId}   (só servidor)
-  orgId, weddingId|null, clientId, email (normalizado), role:'couple_owner'|'couple_partner'|'couple_member',
-  tokenHash (SHA-256 de 32 bytes aleatórios), expiresAt (ex.: 14 dias), status:'pending'|'accepted'|'expired'|'revoked',
+  orgId, kind: 'link_existing_wedding' | 'new_wedding', weddingId|null, clientId, email (normalizado),
+  tokenHash (SHA-256 de 32 bytes aleatórios), expiresAt, status: pending|accepted|expired|revoked,
   attempts, createdBy, acceptedBy, acceptedAt
 ```
 
-Fluxo:
-1. Planner cria o convite (callable `planningCreateInvite`): rate limit por organização; email enviado pelo servidor (reutiliza o envio com anti-injeção existente). O token só existe no link; guarda-se o hash.
-2. O link abre `/aceitar/` (página pública nova, **fora** de `app/index.html`). Sem sessão → entrar ou criar conta (os mesmos métodos da Couples); email tem de estar verificado.
-3. Callable `planningAcceptInvite({inviteId, token})`: compara hash em tempo constante, verifica validade, estado, utilização única e **email da conta = email convidado** (convites separados por noivo); máximo de tentativas.
-4. Dois casos:
-   - **Casamento criado pelo planner** (casal sem conta ou sem casamento): o servidor cria `weddings/{id}` com `ownerEmails=[email do noivo]` e `creatorEmail` = noivo (o casal é dono desde o início; o planner não é dono).
-   - **Casal já tem casamento na Couples**: o convite é um pedido de ligação; aceitar = dar consentimento e escolher a partilha. O casamento existente recebe `planningLink`.
-5. `planningLink.status='active'`, grants da equipa criados, evento em `auditLog`. O casamento aparece na Couples porque o email do noivo está em `ownerEmails` — **sem alterar a app**.
+Validação na função `planningAcceptInvite({inviteId, token, weddingId?})`, toda no servidor e numa transação:
+1. Utilizador autenticado, email verificado.
+2. Convite existe, `status=='pending'`, não expirado, não revogado, tentativas abaixo do limite (rate limit por utilizador e por convite).
+3. Hash do token igual (comparação em tempo constante); utilização única (estado passa a `accepted` na mesma transação).
+4. Email da conta = email convidado (normalizado). [Questão pendente] tratamento de contas Apple com email privado (relay).
+5. **Propriedade real do casamento**: o servidor lê `weddings/{weddingId}` e confirma que o email/UID autenticado está em `ownerEmails`/`ownerUids`. **Conhecer o ID do casamento, o email ou o token não basta.**
+6. Organização de destino ativa; o casamento indicado coincide com o do convite (quando o convite o fixa).
+7. Relações existentes: se já existir ligação ativa com esta organização → idempotente (sem duplicar); se existir ligação ativa com **outra** organização → depende de Q1 (opção A: recusar com mensagem clara; opção B: permitir, com consentimento independente).
+8. Resultado: cria `professionalLinks/{orgId}` com `status:'active'` e `consent/current` com **todas as secções em `none`**; regista em `auditLog`. O planner continua sem ver dados até o casal escolher o que partilha.
 
-## 7. Permissões (RBAC + ABAC)
+Caso "casamento novo criado pelo planner" (`kind:'new_wedding'`): o servidor só cria o casamento **depois** de o noivo aceitar, com `ownerEmails=[email do noivo]` e `creatorEmail` = noivo; o casal é dono desde o início. [Questão pendente] Q2 sobre como a ficha interna da organização se associa a este casamento antes de ele existir.
 
-- **RBAC (organização)**: owner > admin > planner > coordinator > assistant. Matriz de omissão por secção (CRM, propostas, contratos, finanças, equipa, definições, casamentos), editável pelo owner/admin.
-- **ABAC (casamento)**: grant por pessoa e casamento × consentimento `sharing` do casal × papel. Ex.: assistente com grant no casamento X pode editar `daySchedule` se `sharing.daySchedule=='edit'` e o papel tiver `weddings.timeline:'edit'`.
-- **Casal**: Couple Owner/Partner = `ownerEmails` (como hoje). Couple Member (ex.: mãe da noiva) — **não existe hoje**; propor como fase posterior para não alterar a Couples.
-- Ninguém altera o próprio papel: `role/permissions` só pelo servidor; callables verificam também o papel de quem concede.
-- Operações sensíveis registadas em `auditLog`: convites, aceitação, grants, mudança de papel, fim de relação, exportações, aprovações, alterações financeiras.
+## 9. Leads, clientes e casamentos — [Proposta técnica], modelo definitivo em Q2
 
-## 8. Weddy Conversations
+Ciclo: **Lead → Contacto → Reunião → Proposta → Negociação → Cliente contratado → Casamento**.
 
-```
-conversations/{weddingId}                 orgId, participants:{uid:{kind:'couple'|'planner', since}}, status, lastMessageAt
-conversations/{weddingId}/messages/{id}   authorUid, text, replyTo, attachments[], decision{type,label}|null,
-                                          createdAt, editedAt, revisions[] (texto anterior), deleted:false (nunca apagadas)
-conversations/{weddingId}/reads/{uid}     lastReadAt, unread (contador por pessoa)
-conversations/{weddingId}/exports/{id}    pedidoPor, filtros, nMensagens, nAnexos, versão, storagePath, sha256, criadoEm
-Storage: conversations/{weddingId}/{messageId}/{ficheiro}   · exports/{weddingId}/{exportId}.pdf|.zip
-```
-
-- Criada pelo servidor quando `planningLink` passa a `active`. Acesso: casal (`ownerEmails`) **só se** a ligação estiver ativa + planners com grant e permissão de conversas. Ligação terminada → só leitura para o casal (histórico), sem acesso do planner.
-- Mensagens criadas pelo cliente com regras estritas (autor = `request.auth.uid`, tamanho, sem campos extra); edição só do próprio texto, com revisão guardada por trigger; **sem eliminação**.
-- Leitura **individual**: cada pessoa escreve só o seu `reads/{uid}`. Contadores de não lidas por trigger.
-- Decisões e "mensagem → tarefa" por callable (cria a tarefa em `organizations/.../tasks` com referência à mensagem).
-- Exportação PDF/ZIP por callable assíncrona: gera no servidor, guarda em Storage privado, regista checksum, devolve URL assinado de curta duração. Texto integral, sem resumos. Aviso explícito: não é assinatura digital qualificada.
-- **Notificações push**: não existe FCM hoje. Proposta: Firebase Cloud Messaging (web push + APNs via Capacitor) só para Conversations, com consentimento; até lá, contador in-app e email opcional.
-- Ícone na Couples: visível só se `planningLink.status=='active'` (e o casal é participante). Não depende de Premium.
-
-## 9. Storage
-
-Novos caminhos, todos com negação por omissão:
-`organizations/{orgId}/...` (documentos internos, logótipo), `conversations/{weddingId}/{messageId}/{file}`, `exports/{weddingId}/{exportId}` (só leitura via URL assinado), `proposals/{orgId}/{proposalId}/...` (imagens da proposta pública). Tamanhos e tipos limitados; sem substituição; leitura verificada contra membership/grant/participação.
-
-## 10. Cloud Functions (codebase `planning`)
-
-Callables: organizações e membros, convites (criar, reenviar, revogar, aceitar), grants, `planningUpdateWeddingSection`, conversas (decisão, tarefa, exportação), propostas (publicar link, aceitar), templates (aplicar a casamento). Triggers: projeção `weddingPlannerViews`, contadores de conversas, revisões de mensagens, auditoria. Agendadas: expiração de convites, radar de riscos diário. Todas com: email verificado, membership ativa, papel/permissão, rate limit, App Check (quando ativado), registo de auditoria.
-
-## 11. Alterações necessárias no que existe (mínimas)
-
-| Ficheiro | Alteração | Motivo |
+| Entidade | Onde | Relações |
 |---|---|---|
-| `firestore.rules` | (a) proteger `planningLink` no `update` de `weddings` (casal não o pode escrever); (b) acrescentar leitura por grant a `weddings/{id}/shared` e `weddingPlannerViews`; (c) blocos novos `organizations`, `planningInvites`, `conversations` | Segurança; sem alterar o acesso atual do casal |
-| `storage.rules` | Blocos novos (conversas, organizações, exportações) | Idem |
-| `firebase.json` | Codebase `planning` | Isolar funções |
-| `scripts/build-public.js` | Acrescentar `/planning/` e `/aceitar/` à allowlist | Publicação |
-| `app/index.html` | Só na Fase 4: ícone de Conversations + ecrã da conversa | Exceção autorizada |
-| `index.js` | Avaliar só: `deleteWeddingAccount` e `revokeDownloadTokensOnOwnerRemoval` devem terminar a ligação profissional | Coerência no fim de conta |
+| Organização | `organizations/{orgId}` | tem membros, leads, clientes |
+| Membro | `…/members/{uid}` | é um Utilizador Weddy (Firebase Auth) |
+| Lead | `…/leads/{leadId}` | estado do pipeline; histórico comercial |
+| Cliente | `…/clients/{clientId}` | **criado a partir do lead, com `clientId = leadId`** (mesmo identificador, sem duplicar); guarda os contactos do casal enquanto pessoas da organização |
+| Casal | pessoas do cliente | podem ou não ter conta Weddy |
+| Utilizador Weddy | Firebase Auth | um noivo é Utilizador Weddy quando tem conta; ligação ao cliente só por aceitação de convite |
+| Casamento | `weddings/{weddingId}` (do casal) | fonte única; a organização tem uma ficha interna `…/weddings/{weddingId}` |
+| Relação profissional | `weddings/{weddingId}/professionalLinks/{orgId}` | liga organização ↔ casamento |
+| Convite | `planningInvites/{id}` | liga cliente/organização a um utilizador e a um casamento |
 
-## 12. Estratégia de migração
+Conversão lead → cliente [Proposta técnica]:
+- **Idempotente**: transação que só converte se `lead.status != 'converted'`; repetir devolve o mesmo `clientId`.
+- **Preserva identificadores**: `clientId = leadId`; o lead fica com `status:'converted'`, `convertedAt`, `convertedBy` (o histórico comercial mantém-se no lead).
+- **Auditável**: evento em `auditLog`.
+- **Reversível quando apropriado**: "desfazer conversão" só enquanto não existir convite aceite nem contrato assinado; repõe o estado anterior e regista o evento.
+- **Concorrência**: a transação lê e escreve o lead; duas conversões simultâneas resultam numa só.
+- **Sem duplicação de dados do casamento**: convidados, mesas, orçamento e fornecedores do casal vivem só no casamento.
 
-**Nenhuma migração de dados existentes.** Todos os campos e coleções são novos e opcionais; casamentos sem `planningLink` comportam-se exatamente como hoje. A única alteração com efeito nos casamentos atuais é a proteção de `planningLink` nas regras (campo que hoje não existe).
+## 10. Membros: remover, suspender, terminar relação, revogar acesso — [Decisão aprovada] na distinção
 
-## 13. Decisões que dependem da proprietária
+| Operação | Quem | Efeito imediato | O que acontece aos dados |
+|---|---|---|---|
+| **Remover membro da organização** | owner/admin | `members/{uid}.status='removed'`; **todos** os grants desse utilizador em todos os casamentos da organização → `revoked`; conversas, documentos, anexos e exportações deixam de lhe ser servidos; links temporários emitidos para ele invalidados; operações pendentes dele canceladas | Dados criados por ele ficam na organização (autoria preservada); nada é apagado |
+| **Suspender membro** | owner/admin | `status='suspended'`: acesso negado em todas as verificações (regras e funções); grants mantêm-se mas ficam **inoperantes** enquanto suspenso | Reativação restaura o acesso sem reconfigurar grants |
+| **Terminar relação profissional** (organização ↔ casamento) | casal **ou** organização (owner/admin) | `professionalLinks/{orgId}.status='ended'`; todos os grants dessa ligação revogados; projeções apagadas; conversa passa a só leitura para o casal | **Os dados do casal não são apagados**; a Couples continua igual; a organização mantém os seus dados internos (contratos, faturação) por obrigação legal |
+| **Revogar acesso de um utilizador a um casamento** | owner/admin da organização (gestão da equipa) **ou** o casal (pode retirar uma pessoa específica) [Questão pendente] | `grants/{uid}.status='revoked'` só para esse casamento | Nada é apagado |
 
-1. **Base da branch**: manter `feature/weddy-planning` sobre a integração aprovada (recomendado) em vez do `main` sem backend.
-2. **Tecnologia do frontend da Planning**: (A) ES modules sem build (publica como hoje, por branch) ou (B) Vite + framework leve com build em GitHub Actions (exige mudar a origem do Pages — decisão já pendente). Recomendação: **B**, porque a Planning é uma aplicação grande e desktop-first, e a mudança do Pages já é necessária para o merge do backend.
-3. **Consentimento de partilha do casal**: por omissão "partilhar tudo em modo ver + editar só cronograma/fornecedores", aceite no ecrã do convite, **sem** ecrã de definições novo na Couples nesta fase (para não alterar a Couples). Alterar a partilha depois passaria por uma página fora da app ou pela Fase 4.
-4. **FCM** para notificações de Conversations (nova dependência no iOS).
-5. **Couple Member** (familiares) fica fora até haver necessidade, porque mexe no modelo de donos da Couples.
-6. **Projeto de testes**: usar `weddy-premium-teste` para um ambiente de staging da Planning.
+Aplicação técnica:
+- **Cada operação sensível verifica a autorização atual** (membership + grant + ligação + consentimento) — nas regras e nas funções.
+- **Links temporários** (exportações, ficheiros): URLs assinados de curta duração (≤ 15 min), emitidos por função **depois** de verificar a autorização; a revogação impede novas emissões e as existentes expiram depressa. Não usar `getDownloadURL` permanentes para dados do casal ou da organização.
+- **Sessões e cache**: sem custom claims para permissões (evita tokens com permissões antigas até 1 h); as permissões vivem em documentos verificados a cada pedido. A app escuta o estado da própria membership e termina a sessão da organização ao detetar `removed/suspended`.
+- **Operações pendentes** (exportações em curso, envios agendados): verificam a autorização no início e antes de entregar o resultado; se revogada, cancelam e registam.
+
+## 11. Matriz de autorização
+
+Condição base em **todos** os casos: utilizador autenticado + email verificado (+ App Check quando em enforcement, §13).
+
+| Ação | Utilizador | Membership | Papel | Casamento / ligação | Grant | Secção / consentimento | Verificado em |
+|---|---|---|---|---|---|---|---|
+| Ler dados internos da organização | membro | `active` na `orgId` do caminho | conforme `permissions` | — | — | — | Regras Firestore/Storage |
+| Alterar papéis/membros | owner/admin | `active` | owner/admin | — | — | — | Função (servidor) + auditLog |
+| Criar convite ao casal | membro | `active` | planner+ | — | — | — | Função |
+| Aceitar convite | noivo | — | — | dono real do casamento (§8) | — | cria consentimento a `none` | Função (transação) |
+| Alterar consentimento | **só dono do casamento** | — | — | ligação existente | — | escreve `consent` | Função |
+| Ler secção do casal | membro | `active` | papel permite ler a secção | ligação `active` | `active` | `read` ou `read_write` | Regras (projeção, R2) **e** função (R1) |
+| Editar secção do casal | membro | `active` | papel permite editar | ligação `active` | `active` | `read_write` | Função (transação) |
+| Exportar / IA sobre dados do casal | membro | `active` | permitido | `active` | `active` | secções incluídas autorizadas | Função, no início e na entrega |
+| Conversa (ler/escrever) | casal ou membro | casal: dono; membro: `active` | papel com conversas | `active` (escrita); `ended` só leitura para o casal | membro: `active` | — | Regras + funções |
+| Ficheiros (anexos, documentos) | idem | idem | idem | idem | idem | `documents` autorizada para ficheiros do casal | Função emite URL assinado de curta duração |
+| Casal usar a Couples | dono | — | — | indiferente | — | — | Regras existentes (inalteradas) |
+
+O frontend **esconde** o que não é permitido, mas a segurança está nas regras e nas funções.
+
+## 12. Ambientes e staging — [Questão pendente] Q6
+
+[Estado atual] Existe o alias `teste: weddy-premium-teste` no `.firebaserc`. **O nome não prova isolamento.** Antes de qualquer implementação é obrigatório confirmar, por leitura e sem alterar nada:
+- que projeto Firebase/GCP é efetivamente usado por cada ambiente (IDs, faturação, organização GCP);
+- Firestore (dados existentes, se há dados reais copiados de produção), Authentication (utilizadores reais?), Storage (buckets e conteúdo), Cloud Functions publicadas e as suas variáveis;
+- secrets (Secret Manager) — se partilham valores com produção (SMTP, OpenAI, Stripe, Meta, Google OAuth);
+- ligações externas: webhooks Stripe/RevenueCat/WhatsApp, domínios autorizados no Auth, redirect URIs do Google, remetente de email;
+- credenciais e permissões IAM (quem tem acesso, contas de serviço).
+
+Requisitos de um staging **verdadeiramente isolado**: projeto próprio sem dados reais; utilizadores de teste; Stripe/RevenueCat em modo teste; SMTP para caixa de testes; WhatsApp desligado; OpenAI com chave e quota próprias; domínios e redirects próprios; regras e funções publicadas só por scripts com o alias de staging; App Check em modo debug documentado. Nesta tarefa **nada foi configurado**.
+
+## 13. App Check — [Decisão aprovada]: obrigatório antes de operações sensíveis com utilizadores reais
+
+[Estado atual] A Couples ativa App Check (reCAPTCHA Enterprise) em modo de **medição**; o servidor **não** exige o token; existe análise RGPD pendente sobre o reCAPTCHA (`docs/seguranca/fase-k1/ANALISE-UPLOADS-APP-CHECK-QUOTAS.md`).
+
+Requisitos para a Planning [Proposta técnica]:
+- **Serviços abrangidos**: todas as callables da codebase `planning`; Firestore e Storage acedidos pela app Planning; páginas públicas da Planning com escrita (aceitação de convite, propostas públicas, portal do fornecedor, formulários de leads).
+- **Fornecedores**: web (Planning e páginas públicas) — reCAPTCHA Enterprise; iOS (se a Planning vier a ter wrapper) — App Attest; Android — Play Integrity. Tokens de debug só em desenvolvimento e staging, nunca em produção.
+- **Estratégia**: (1) instrumentar em modo monitor desde o primeiro dia da Planning em staging; (2) medir a percentagem de pedidos válidos por serviço; (3) callables da Planning com `enforceAppCheck: true` **desde o início** (não há clientes antigos a proteger); (4) Firestore/Storage com enforcement quando > 99 % dos pedidos legítimos forem válidos durante um período definido; (5) considerar *replay protection* (`consumeAppCheckToken`) em operações críticas (aceitar convite, exportar, consentimento).
+- **Monitorização**: métricas do App Check na consola (pedidos verificados, não verificados, inválidos) por serviço; alerta quando os inválidos sobem.
+- **Clientes não autorizados**: pedido recusado com erro genérico (`unauthenticated`/`failed-precondition`), sem detalhe; registo minimizado; a app mostra "Não foi possível verificar este dispositivo; atualiza a página".
+- **Critério de entrada em produção**: nenhuma operação sensível da Planning disponível a utilizadores reais sem enforcement ativo e validado em staging.
+- **Impacto na Couples**: nenhum nesta fase (o enforcement da Couples é uma decisão separada).
+
+## 14. Weddy Conversations — [Proposta técnica], Fase 4
+
+```
+conversations/{weddingId}_{orgId}            participants, status, lastMessageAt
+  /messages/{id}   authorUid, text, replyTo, attachments[], decision|null, createdAt, editedAt, revisions[], sem eliminação
+  /reads/{uid}     lastReadAt, unread (por pessoa)
+  /exports/{id}    pedidoPor, filtros, nMensagens, nAnexos, versão, storagePath, sha256, criadoEm
+Storage: conversations/{weddingId}_{orgId}/{messageId}/{ficheiro} · exports/{…}
+```
+(Chave por casamento **e** organização para servir as duas opções da Q1.) Acesso: casal (dono) e membros com grant ativo, enquanto a ligação estiver ativa; após o fim, só leitura para o casal. Ficheiros por URL assinado de curta duração. Push (FCM) — [Questão pendente], não existe hoje.
+
+## 15. Storage e funções (resumo)
+
+Storage — novos caminhos com negação por omissão: `organizations/{orgId}/…`, `conversations/…`, `exports/…`, `proposals/{orgId}/…`. Ficheiros do casal (`documents/`, `memories/`) **não** ganham regras de leitura para a organização: o acesso profissional é feito por função que verifica o consentimento e devolve URL assinado.
+
+Funções (codebase `planning`): organizações e membros, convites internos e ao casal, aceitação, consentimento, leitura e escrita por secção, projeções e reconciliação, exportações, auditoria. Todas: verificação da autorização atual, rate limit, App Check, auditoria.
+
+**Estratégia de migração**: nenhuma migração de dados existentes; todas as coleções são novas; casamentos sem ligação comportam-se como hoje.
+
+## 16. Questões pendentes (decisão da proprietária)
+
+### Q1. Uma ou várias organizações com relação ativa por casamento?
+- **Problema**: um casal pode ter, p. ex., uma planner e uma decoradora/coordenadora do dia; ou mudar de planner.
+- **A. Uma só**: simples para o casal (um ecrã de permissões, uma conversa); menos superfície de ataque; mudar de planner exige terminar a anterior. Risco: bloqueia casos reais (planner + coordenadora do dia).
+- **B. Várias, com permissões independentes**: cobre todos os casos; consentimento, conversa e projeções por organização; o casal gere várias ligações. Riscos: mais complexidade de UI na Couples, mais custo de regras, maior risco de erro de isolamento entre organizações no mesmo casamento.
+- **Recomendação técnica**: modelo de dados preparado para B (§4, chave por organização), **produto lançado como A** (máximo 1 ativa, aplicado na transação de aceitação). Passar a B é só retirar essa restrição e acrescentar UI.
+- **Decisão necessária**: A, B, ou "dados B / produto A".
+
+### Q2. Associação definitiva entre leads, clientes, utilizadores e casamentos
+- **Problema**: o cliente existe antes da conta Weddy e, por vezes, antes do casamento.
+- **Opções**: (a) `clientId = leadId` e ficha interna do casamento criada só após aceitação; (b) ficha interna criada no contrato, com `weddingId` provisório substituído na aceitação; (c) cliente como entidade separada com várias pessoas/contas.
+- **Vantagens/desvantagens**: (a) simples e sem identificadores provisórios, mas o planner não planeia nada antes da aceitação; (b) permite trabalhar antes, mas exige migrar a ficha interna para o `weddingId` real (risco de duplicação); (c) mais flexível (famílias, pagadores), mais complexo.
+- **Recomendação**: (a) + permitir tarefas internas no cliente antes do casamento existir; avaliar (c) na Fase 5.
+- **Decisão necessária**: escolher o modelo.
+
+### Q3. Modelo técnico de grants e permissões por secção
+- **Opções**: (a) documentos por ligação (`consent/current` + `grants/{uid}`) lidos pelas regras; (b) custom claims no token; (c) tudo só em funções.
+- **Prós/contras**: (a) revogação imediata, custo de 3–4 `get()` por leitura; (b) leve nas regras mas o token mantém permissões antigas até 1 h — **incompatível** com revogação imediata; (c) mais simples nas regras, sem tempo real.
+- **Recomendação**: (a), com papéis da organização em `members` e consentimento por ligação.
+- **Decisão necessária**: aprovar (a) e a lista de secções (§5).
+
+### Q4. Estratégia de projeções e invalidação
+- **Opções**: R1, R2, R3 (§6). **Recomendação**: R3. **Decisão**: aprovar R3 e o intervalo de reconciliação.
+
+### Q5. Requisitos de retenção e auditoria
+- **Problema**: equilibrar RGPD (minimização) e obrigações legais/contratuais da organização.
+- **Opções**: retenção fixa (ex.: auditoria 2 anos, conversas enquanto a ligação existir + N anos para o casal), ou configurável por organização dentro de limites.
+- **Riscos**: retenção longa = mais dados pessoais em risco; curta = perda de prova.
+- **Recomendação**: valores por omissão definidos com aconselhamento jurídico; auditoria append-only sem conteúdo pessoal desnecessário.
+- **Decisão necessária**: prazos e quem os aprova.
+
+### Q6. Ambiente de staging e prova de isolamento
+- **Opções**: (a) usar `weddy-premium-teste` após auditoria completa (§12); (b) criar projeto novo dedicado à Planning.
+- **Prós/contras**: (a) mais rápido, mas pode ter dados/segredos partilhados; (b) isolamento garantido, mais configuração.
+- **Recomendação**: auditar (a) por leitura; se houver qualquer partilha com produção, (b).
+- **Decisão necessária**: projeto de staging e quem executa a verificação.
+
+### Q7. Estratégia de enforcement do App Check
+- **Opções**: (a) enforcement nas callables da Planning desde o início + Firestore/Storage após medição; (b) tudo em monitor até ao lançamento.
+- **Recomendação**: (a) (§13). **Riscos**: reCAPTCHA e RGPD (cookies/IP) — validar juridicamente.
+- **Decisão necessária**: aprovar (a) e a análise RGPD do reCAPTCHA.
+
+### Q8. Operações do planner por secção
+- **Problema**: "Consultar e editar" pode ser demasiado amplo (ex.: apagar convidados).
+- **Opções**: (a) editar = todas as operações; (b) editar sem apagar (apagar exige confirmação do casal); (c) operações finas por secção.
+- **Recomendação**: (b) na Fase 1E; tabela por secção no Doc. 4 §M4a como proposta.
+- **Decisão necessária**: aprovar a tabela por secção e as secções sempre privadas.
+
+### Outras questões (já registadas antes)
+Revogação de um utilizador pelo casal (§10); contas Apple com email privado (§8); FCM (§14); tecnologia de componentes já decidida (React + Vite + shadcn/ui).
