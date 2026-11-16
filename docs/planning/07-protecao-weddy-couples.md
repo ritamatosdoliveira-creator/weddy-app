@@ -1,6 +1,6 @@
 # Documento 7 — Plano de integração e proteção da Weddy Couples
 
-**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
+**Versão 2.2 (16/11/2026)** — regista a decisão Q0 e a R0 — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
 Objetivo: a Couples continua a funcionar exatamente como hoje e **nunca depende** da Weddy Planning. Este documento lista tudo o que a Planning pode tocar, porquê, e como se prova que nada regrediu.
 
@@ -24,7 +24,8 @@ Não são criados sistemas paralelos de convidados, mesas, orçamento, fornecedo
 
 | Ficheiro | Entrega | Alteração | Efeito nos casais sem ligação |
 |---|---|---|---|
-| `firestore.rules` | 1A–1E | **Só blocos novos**: `organizations/…`, `planningInvites`, `weddings/{id}/professionalLinks/…` (subcoleção), projeções da Planning. [Proposta técnica] **Sem alterar** os blocos existentes de `weddings`, `guests`, `memories`, etc. | Nenhum: os caminhos novos não existem para eles |
+| `firestore.rules` | P7 (antes da 1C) | **R0** — única alteração a um bloco existente: na regra `allow update` de `weddings`, `creatorEmail` não pode ser acrescentado depois da criação [Decisão aprovada, D1] | **Nenhum funcional**: nenhuma escrita da app acrescenta ou altera `creatorEmail` (verificado); suite completa obrigatória |
+| `firestore.rules` | 1A–1E | **Blocos novos**: `organizations/…`, `planningInvites`, `weddings/{id}/professionalLinks/…` (subcoleção), projeções da Planning. [Proposta técnica] Sem alterar `guests`, `memories` nem outros blocos existentes | Nenhum: os caminhos novos não existem para eles |
 | `storage.rules` | 1B / F4 | Blocos novos (`organizations/`, `conversations/`, `exports/`). Ficheiros do casal **sem** novas regras de leitura (acesso profissional por URL assinado emitido por função) | Nenhum |
 | `firebase.json` | 1A | Codebase `planning` | Nenhum (a codebase `default` / `index.js` não muda) |
 | `scripts/build-public.js` | 1A / 1D | Acrescentar a app `/planning/` e a página de permissões do casal à allowlist | Nenhum |
@@ -33,7 +34,7 @@ Não são criados sistemas paralelos de convidados, mesas, orçamento, fornecedo
 | `app/index.html` + `app/sw.js` | 1D/F3 (opcional) e **F4** | 1D/F3: um ponto de entrada discreto para a página de permissões, visível só com ligação; F4: ícone e ecrã de Conversations | Nada visível sem ligação ativa |
 | `rsvp.html`, `memorias.html`, `convite.html`, `site.html`, `weddysite.js`, `weddyinvite*.js`, `convites8/` | — | **Nenhuma** | — |
 
-Alteração em relação à v1: a proposta anterior acrescentava um campo `planningLink` ao documento `weddings/{id}` e protegia-o alterando a regra de `update` de `weddings`. Com a ligação numa subcoleção só do servidor (proposta do Doc. 3 §4, pendente de Q1/Q3), **a regra existente de `weddings` não precisaria de mudar**.
+Alteração em relação à v1: a proposta anterior acrescentava um campo `planningLink` ao documento `weddings/{id}` e protegia-o alterando a regra de `update` de `weddings`. Com a ligação numa subcoleção só do servidor (proposta do Doc. 3 §4, pendente de Q1/Q3), essa alteração deixa de ser necessária. A **única** alteração à regra de `weddings` é a **R0** (D1), por segurança da identidade do casal (Doc. 3 §8.1).
 
 ## 3. Serviços partilhados
 
@@ -53,11 +54,11 @@ Alteração em relação à v1: a proposta anterior acrescentava um campo `plann
 - [Proposta técnica] Implementada como **página própria** (ex.: `/permissoes/`), com o mesmo login da Couples, **fora de `app/index.html`**: acessível pelo link do convite aceite e pelos emails de pedido de acesso. Assim a 1D não obriga a alterar a app do casal.
 - [Questão pendente] Ponto de entrada dentro da Couples (Definições → "Planner e permissões"), visível só com ligação. É uma alteração mínima e isolada, mas é uma alteração à Couples: requer aprovação.
 - Conteúdo: secções com **Não partilhar / Consultar / Consultar e editar** (por omissão "Não partilhar"); pedidos de acesso pendentes; equipa da organização com acesso (e revogar uma pessoa — [Questão pendente]); "Terminar ligação"; histórico.
-- Regras: só donos do casamento alteram, verificado no servidor; o planner não consegue alterar por nenhuma via; efeito imediato.
+- Regras: só a **raiz do casamento ou um delegado registado** altera (Doc. 3 §8.1), verificado no servidor; outros donos e o planner não conseguem alterar por nenhuma via; efeito imediato.
 
 ## 5. Regras: o que muda e o que não muda
 
-1. `weddings` — `allow read` e `allow update`: **não mudam**.
+1. `weddings` — `allow read`: **não muda**. `allow update`: só a **R0** (`creatorEmail` não pode ser acrescentado depois da criação). Regras ativas em produção verificadas a 16/11/2026 (P4: publicação de 10/11/2026 11:38 = `feat/convites-envio-backend`, commit `b12885c`).
 2. `weddings/{id}/professionalLinks/{orgId}` e subcoleções: escrita só pelo servidor. Leitura destes documentos **de controlo** (estado da ligação, configuração do consentimento, pedidos de acesso): pelo casal (dono) e por membros da organização com **membership ativa** e **grant ativo**. Estes documentos **não contêm dados do casamento**.
    **O grant, por si só, nunca dá acesso aos dados do casamento.** Ler ou escrever uma secção do casal exige, sempre e em conjunto, verificado no servidor (regras e funções) no momento do pedido:
    - ligação profissional `active`;
@@ -72,6 +73,7 @@ Alteração em relação à v1: a proposta anterior acrescentava um campo `plann
 
 | Alteração | Quando | Condição |
 |---|---|---|
+| **R0** — proteção de `creatorEmail` | P7, antes de qualquer anúncio da Planning | [Decisão aprovada, D1]; publicação só com procedimento aprovado e suite completa |
 | Ponto de entrada para as permissões | 1D/F3, **se aprovado** | Só com ligação existente; nada visível sem ligação |
 | Ícone de Conversations junto às notificações, badge de não lidas, ecrã da conversa | F4 | Só com ligação ativa; não depende de Premium; convite pendente ou relação terminada = sem ícone |
 | Qualquer outra | — | Não prevista; precisa de justificação técnica e aprovação |
@@ -95,7 +97,9 @@ Antes e depois de cada entrega:
 
 ## 8. Garantias de não regressão
 
-- Fases 1A–1C: nenhum ficheiro da Couples alterado (só regras novas e configuração).
+- Fases 1A–1C: nenhum ficheiro da Couples alterado, exceto a **R0** nas regras (sem impacto funcional) e blocos novos de regras e configuração.
+- **Donos que também são profissionais** (Q0): se uma pessoa associada à organização for dona do casamento, a ligação fica bloqueada até o casal resolver; a Couples continua a gerir donos como hoje.
+- **Trabalho futuro da Couples**: papéis explícitos; corrigir `uid` arbitrário em `ownerUids` e `creators/{uid}` não verificado.
 - 1D: a página de permissões é nova e separada; o ponto de entrada na app só com aprovação.
 - F4: a única alteração visual prevista fica atrás de uma condição falsa para todos os casais sem ligação.
 - Nenhuma migração de dados; nenhum campo existente muda de significado.

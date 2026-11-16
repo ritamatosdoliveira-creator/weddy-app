@@ -1,6 +1,6 @@
 # Documento 4 — Especificação funcional da Weddy Planning
 
-**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. Especificação de produto; nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (ver Doc. 3 §16), **[Trabalho futuro]**. Os nomes de dados seguem o Doc. 3 v2 (`professionalLinks`, `consent`, `grants`), que substitui o antigo `planningLink`.
+**Versão 2.2 (16/11/2026)** — regista a decisão Q0 (identidade do casal) — revista após a revisão da Fase 0. Especificação de produto; nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (ver Doc. 3 §16), **[Trabalho futuro]**. Os nomes de dados seguem o Doc. 3 v2 (`professionalLinks`, `consent`, `grants`), que substitui o antigo `planningLink`.
 
 Formato por módulo: **Objetivo · Utilizadores · Funcionalidades · Permissões · Dados · Estados · Dependências · Testes**. Papéis: OW owner, AD admin, PL planner, CO coordinator, AS assistant; casal: CP (owner/partner). "Grant" = acesso da pessoa ao casamento (Doc. 3 §4).
 
@@ -13,6 +13,7 @@ Formato por módulo: **Objetivo · Utilizadores · Funcionalidades · Permissõe
 - **Permissões**: só OW altera owner/plano; OW/AD gerem membros; ninguém altera o próprio papel; papéis e estados só pelo servidor.
 - **Dados**: `organizations/{orgId}`, `members/{uid}`, `memberInvites/{id}`, `auditLog`.
 - **Estados do membro**: `invited → active ⇄ suspended → removed`; organização `active | suspended`.
+- **Histórico e transição** [Decisão aprovada, D2]: `invited/active/suspended` = relação atual; `removed` = histórico. `relationEndedAt` escrito pelo servidor com a hora do servidor; período de transição de **90 dias** em que a pessoa conta como associada à organização; histórico de membros só de acrescento; readmissão recusada enquanto a pessoa for raiz, delegada ou dona num casamento com ligação atual à organização (Doc. 3 §10).
 - **Operações distintas** [Decisão aprovada] (detalhe técnico no Doc. 3 §10):
 
 | Operação | Efeito |
@@ -80,10 +81,12 @@ Formato por módulo: **Objetivo · Utilizadores · Funcionalidades · Permissõe
 
 ## M4b. Gestão de permissões pelo casal (na Couples) — [Decisão aprovada] existe desde a primeira integração
 - **Objetivo**: o casal escolhe, altera e revoga o que partilha com cada organização.
+- **Quem gere** [Decisão aprovada, Q0]: a **raiz** do casamento (criador válido, Doc. 3 §8.1) ou quem a raiz **delegar** (registo no servidor, revogável pela raiz). Outros donos veem o estado, mas não alteram. Casamentos sem raiz válida: pedido de verificação assistida (Doc. 3 §8.2).
 - **Onde**: ecrã próprio, acessível pelo link do convite aceite e por um ponto de entrada discreto na Couples (ver Doc. 7); não tem de estar na navegação principal na primeira versão.
-- **Funcionalidades**: lista das secções com os três estados (por omissão "Não partilhar"); pedidos de acesso pendentes (aceitar/recusar); equipa da organização com acesso; "Terminar ligação"; histórico de alterações.
-- **Regras**: alterações gravadas por função que confirma que quem pede é dono do casamento; efeito imediato; cada alteração auditada.
-- **Testes**: só donos alteram; planner não consegue alterar por nenhuma via; efeito imediato nas leituras do planner; terminar ligação não afeta a Couples.
+- **Funcionalidades**: lista das secções com os três estados (por omissão "Não partilhar"); pedidos de acesso pendentes (aceitar/recusar); equipa da organização com acesso; "Terminar ligação"; delegar/revogar delegação (só a raiz); histórico de alterações.
+- **Transparência**: o ecrã mostra a raiz, todos os donos e, quando conhecido, quem acrescentou cada dono; cada aceitação, delegação, alteração e fim da ligação é comunicado por email a todos os donos.
+- **Regras**: alterações gravadas por função que confirma que quem pede é **raiz ou delegado** (Doc. 3 §8.1); efeito imediato; cada alteração auditada.
+- **Testes**: só a raiz ou delegados alteram; outros donos e o planner não conseguem alterar por nenhuma via (incluindo um segundo email do planner acrescentado como dono, duas identidades a confirmarem-se, ou identidades de outra organização); efeito imediato nas leituras do planner; terminar ligação não afeta a Couples.
 
 ## M5. Templates e biblioteca de processos
 - **Objetivo**: preparar automaticamente a estrutura de trabalho de cada casamento.

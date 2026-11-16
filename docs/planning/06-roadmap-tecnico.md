@@ -1,6 +1,6 @@
 # Documento 6 — Roadmap técnico
 
-**Versão 2.1 (16/11/2026)** — a Fase 1 passa a cinco entregas independentes (1A–1E). Nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
+**Versão 2.2 (16/11/2026)** — regista a decisão Q0 e o pré-requisito P7 (R0). A Fase 1 passa a cinco entregas independentes (1A–1E). Nada está implementado. Legenda: **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
 Complexidade: **S** (dias), **M** (1–2 semanas), **L** (3–5 semanas), **XL** (> 5 semanas) para uma pessoa com apoio de IA.
 
@@ -21,6 +21,7 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 | P4 | Versão do backend em produção confirmada (só leitura) | Claude + Rita | [Trabalho futuro] |
 | P5 | Decisões Q1–Q8 (Doc. 3 §16) necessárias a cada entrega (ver coluna "Decisões" abaixo) | Rita | [Questão pendente] |
 | P6 | Análise RGPD do reCAPTCHA (App Check) | Rita (jurídico) | [Questão pendente] |
+| P7 | **R0 publicada** nas regras da Couples (Doc. 3 §8.1), com testes no emulador e a suite completa a passar, **antes** de qualquer anúncio ou disponibilização da Planning. P4 (regras ativas em produção) verificada a 16/11/2026 | Rita (publicação) + Claude (preparação) | [Decisão aprovada]; publicação pendente de procedimento aprovado |
 
 ## Fase 1 — Weddy Core e arquitetura SaaS (cinco entregas)
 
@@ -33,7 +34,7 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 | **1E** Escrita controlada por secção | Escrita só em secções `read_write`; validação no servidor; `baseRev`; concorrência casal/planner; histórico (`activity`) e auditoria; regressão completa da Couples | Q8 | L |
 
 ### 1A — Fundação de organizações e memberships
-- **Entregáveis**: coleções `organizations`, `members`, `memberInvites`, `auditLog`; funções de criar organização, convidar/aceitar membro, suspender/reativar/remover; regras com negação por omissão; app Planning com login e seletor de organização.
+- **Entregáveis**: coleções `organizations`, `members`, `memberInvites`, `auditLog`; funções de criar organização, convidar/aceitar membro, suspender/reativar/remover; regras com negação por omissão; app Planning com login e seletor de organização; **`relationEndedAt`, histórico de membros só de acrescento, período de transição de 90 dias e readmissão controlada (D2)**.
 - **Aceitação**: dois utilizadores em duas organizações não se veem; convite interno de uso único, com validade e revogável; remoção e suspensão efetivas em regras e funções.
 - **Testes específicos**: convite expirado/reutilizado/revogado; membro de A tenta ler B; utilizador tenta alterar o próprio papel/estado; remoção concorrente com ação do próprio membro.
 
@@ -43,13 +44,13 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 - **Testes específicos**: 2 organizações × 5 papéis × operações; pedidos sem App Check recusados nas callables; IDOR trocando `orgId` no caminho e no corpo do pedido.
 
 ### 1C — Grants e ligação profissional
-- **Entregáveis**: `planningInvites`; `professionalLinks/{orgId}` com `status`; `grants/{uid}`; aceitação com verificação de propriedade (Doc. 3 §8); fim da relação; revogação de grant; e-mails de convite com o envio existente (anti-injeção).
+- **Entregáveis**: `planningInvites`; `professionalLinks/{orgId}` com `status`; `grants/{uid}`; **raiz e delegação registada (Doc. 3 §8.1)**; registo de proveniência dos donos (só deteção); aceitação apenas pela raiz ou delegado; fim da relação; revogação de grant; notificações a todos os donos; e-mails de convite com o envio existente (anti-injeção). **Depende de P7 (R0 publicada).**
 - **Fora de âmbito**: qualquer leitura ou escrita dos dados do casal.
-- **Aceitação**: só um dono real do casamento associa o casamento; conhecer ID, email ou token não basta; comportamento com várias organizações conforme a decisão Q1 — **a 1C não começa sem essa decisão**.
-- **Testes específicos**: utilizador não-dono com token válido; dono com token de outro convite; convite expirado/revogado/reutilizado; força bruta (rate limit); casamento já ligado a esta/outra organização; contas Apple com email privado; fim da relação pelo casal e pela organização; Couples intacta após cada caso.
+- **Aceitação**: só a raiz ou um delegado registado associa o casamento; estar em `ownerEmails`, conhecer ID, email ou token não basta; comportamento com várias organizações conforme a decisão Q1 — **a 1C não começa sem essa decisão**.
+- **Testes específicos**: ataques A1–A4 da análise Q0 (segundo email do planner acrescentado como dono; duas identidades a confirmarem-se; planner sai e deixa a outra identidade; identidades de outra organização; casamento sem `creatorEmail`; `creators/{uid}` forjado; criador associado); delegação e revogação pela raiz; utilizador não-dono com token válido; dono com token de outro convite; convite expirado/revogado/reutilizado; força bruta (rate limit); casamento já ligado a esta/outra organização; contas Apple com email privado; fim da relação pelo casal e pela organização; Couples intacta após cada caso.
 
 ### 1D — Consentimento e projeção segura
-- **Entregáveis**: ecrã de permissões do casal (Doc. 7 §4); função de consentimento (só donos); `accessRequests`; projeções conforme a estratégia decidida em Q4 (proposta: por secção, com `sourceRev`); regras de leitura que verificam a autorização atual; invalidação na revogação; reconciliação agendada e a pedido; leitura sensível por função.
+- **Entregáveis**: ecrã de permissões do casal (Doc. 7 §4); função de consentimento (só raiz ou delegado, Doc. 3 §8.1); `accessRequests`; projeções conforme a estratégia decidida em Q4 (proposta: por secção, com `sourceRev`); regras de leitura que verificam a autorização atual; invalidação na revogação; reconciliação agendada e a pedido; leitura sensível por função.
 - **Aceitação**: nenhuma secção visível sem escolha afirmativa do casal; revogação com efeito imediato mesmo com projeção antiga.
 - **Testes específicos**: revogação durante uma leitura; alterações rápidas de permissões (`none→read→none` em < 1 s); trigger atrasada (simulada); trigger falhada (sem projeção); projeção desatualizada após revogação; casal e planner em simultâneo; cache local do planner após `permission-denied`; membro removido com listener aberto.
 
@@ -57,6 +58,9 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 - **Entregáveis**: função `planningUpdateSection` com verificação completa, `baseRev`, validação de esquema por secção e operações da tabela M4a (Doc. 4); registo em `activity` e `auditLog`.
 - **Aceitação**: escrita só em secções `read_write`; operações do planner por secção conforme a decisão Q8 (proposta: sem eliminação); Couples sem regressões.
 - **Testes específicos**: escrita em `read` e `none` recusada; revogação entre leitura e escrita; conflito de `baseRev`; edição simultânea do casal e do planner na mesma chave e em chaves diferentes; tamanho do `json` dentro do limite; `validateWeddingStateOnWrite` aceita as escritas válidas; suite completa da Couples.
+
+### Fase posterior — Verificação assistida (D3)
+Processo do Doc. 3 §8.2 (`weddyStaff`, `rootVerifications`, objeção de 7 dias, revogação). **Só depois de parecer RGPD sobre as provas.** Até lá, casamentos sem raiz válida não têm ligação self-service.
 
 ## Fases seguintes (inalteradas no âmbito, reordenadas na dependência)
 
@@ -81,7 +85,7 @@ Planos, subscrições, limites no servidor, onboarding, marca do planner, integr
 ## Ordem e dependências
 
 ```
-P1–P6 ─► 1A ─► 1B ─► 1C ─► 1D ─► 1E ─► F2 ─► F3 ─► F4
+P1–P7 ─► 1A ─► 1B ─► 1C ─► 1D ─► 1E ─► F2 ─► F3 ─► F4
                                           └──► F5 (sub-fases, após F3) ─► F6 ─► F7
 ```
 

@@ -1,6 +1,6 @@
 # Documento 3 — Arquitetura técnica
 
-**Versão 2.1 (16/11/2026)** — revista após a revisão da Fase 0. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões da §16. Nada deste documento está implementado.
+**Versão 2.2 (16/11/2026)** — regista a decisão Q0 (identidade do casal, §8.1–8.2) e a verificação P4. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões Q1–Q8 da §16. Nada deste documento está implementado.
 
 Legenda usada em todo o documento:
 **[Estado atual]** o que existe hoje (ver Documento 1) · **[Decisão aprovada]** decidido pela proprietária · **[Proposta técnica]** recomendação, ainda não aprovada · **[Questão pendente]** exige decisão (§16) · **[Trabalho futuro]** fora da Fase 1.
@@ -70,7 +70,7 @@ Princípios **[Decisão aprovada]**:
 3. **Todas as secções começam em "Não partilhar"**; aceitar o convite **não** partilha nada.
 4. O casal escolhe afirmativamente; pode alterar a qualquer momento; pode revogar o acesso profissional por completo.
 5. A **ausência de configuração** de uma secção significa **acesso negado**.
-6. O planner **não pode** atribuir nem alterar permissões em nome do casal (a função de consentimento só aceita pedidos de um dono do casamento, verificado no servidor).
+6. O planner **não pode** atribuir nem alterar permissões em nome do casal (a função de consentimento só aceita pedidos da **raiz do casamento ou de um delegado registado pela raiz**, verificado no servidor — §8.1).
 7. A revogação é aplicada **no servidor**, não só na interface.
 8. A interface de gestão de permissões existe **desde a primeira integração** com a Couples (pode começar fora da navegação principal — ver Doc. 7).
 
@@ -127,12 +127,52 @@ Validação na função `planningAcceptInvite({inviteId, token, weddingId?})`, t
 2. Convite existe, `status=='pending'`, não expirado, não revogado, tentativas abaixo do limite (rate limit por utilizador e por convite).
 3. Hash do token igual (comparação em tempo constante); utilização única (estado passa a `accepted` na mesma transação).
 4. Email da conta = email convidado (normalizado). [Questão pendente] tratamento de contas Apple com email privado (relay).
-5. **Propriedade real do casamento**: o servidor lê `weddings/{weddingId}` e confirma que o email/UID autenticado está em `ownerEmails`/`ownerUids`. **Conhecer o ID do casamento, o email ou o token não basta.**
+5. **Propriedade real do casamento**: o servidor lê `weddings/{weddingId}` e confirma que quem aceita é **raiz válida ou delegado registado** (§8.1). Estar em `ownerEmails`/`ownerUids` **não basta**; conhecer o ID do casamento, o email ou o token também não.
 6. Organização de destino ativa; o casamento indicado coincide com o do convite (quando o convite o fixa).
 7. Relações existentes: se já existir ligação ativa com esta organização → idempotente (sem duplicar); se existir ligação ativa com **outra** organização → depende de Q1 (opção A: recusar com mensagem clara; opção B: permitir, com consentimento independente).
 8. Resultado: cria `professionalLinks/{orgId}` com `status:'active'` e `consent/current` com **todas as secções em `none`**; regista em `auditLog`. O planner continua sem ver dados até o casal escolher o que partilha.
 
 Caso "casamento novo criado pelo planner" (`kind:'new_wedding'`): o servidor só cria o casamento **depois** de o noivo aceitar, com `ownerEmails=[email do noivo]` e `creatorEmail` = noivo; o casal é dono desde o início. [Questão pendente] Q2 sobre como a ficha interna da organização se associa a este casamento antes de ele existir.
+
+### 8.1 Identidade do casal — [Decisão aprovada em 16/11/2026] Q0: raiz de confiança + delegação registada
+
+**Factos verificados (código e produção):**
+- `ownerEmails` contém qualquer pessoa convidada como «participante no planeamento», sem papéis nem confirmação; qualquer dono pode acrescentar qualquer email.
+- `ownerUids`, `uidByEmail`, `lastLoginByEmail` e `createdAt` são escritos pelo cliente e podem ser alterados por qualquer dono; `creators/{uid}` pode ser criado por qualquer utilizador com qualquer `weddingId`. **Nenhum destes campos prova identidade.**
+- `creatorEmail` é escrito pela app **apenas na criação** (`app/index.html`, criação do casamento; igual na cópia iOS).
+- **P4 (verificada a 16/11/2026):** a Couples usa a base `(default)`; as regras ativas, publicadas a **10/11/2026 às 11:38**, são iguais a `firestore.rules` de `feat/convites-envio-backend` (commit `b12885c`). Nelas, `creatorEmail`, **se existir**, não pode ser alterado nem o criador retirado dos donos por outra pessoa; **se não existir, pode ser acrescentado por qualquer dono** (lacuna fechada pela R0).
+
+**Raiz válida** (todos os critérios, verificados no servidor no momento de cada operação):
+1. o casamento tem `creatorEmail`;
+2. o email do token está verificado e é igual (normalizado) a `creatorEmail`;
+3. `creatorEmail` continua em `ownerEmails`;
+4. a pessoa não tem relação atual com a organização envolvida (`invited`, `active`, `suspended`), nem está no período de transição de 90 dias (§10), comparando `uid` e todos os emails conhecidos;
+5. o casamento não tem disputa de raiz aberta.
+
+Uma raiz confirmada por verificação assistida (§8.2) substitui os critérios 1 e 2; os critérios 3–5 mantêm-se.
+
+**Autoridade:** só a raiz, ou um **delegado registado pela raiz** (registo escrito só pelo servidor, com quem, quando, ligação e versão; revogável pela raiz), pode aceitar a ligação, alterar o consentimento ou terminar a ligação em nome do casal. Estar em `ownerEmails` não confere autoridade. As delegações mantêm-se se a raiz sair, enquanto o delegado for dono e não estiver associado à organização.
+
+**Proveniência dos donos:** a partir da ativação, um trigger da codebase `planning` com contexto de autenticação regista quem acrescentou cada dono. Serve **apenas** para deteção e conflitos (um dono acrescentado por um associado da organização nunca pode ser delegado; proveniência ainda não registada = desconhecida = não confiável). **Nenhuma decisão de autorização depende de triggers.** A proveniência dos donos anteriores à ativação é desconhecida.
+
+**R0 (alteração às regras da Couples, D1):** na regra `allow update` de `weddings`, acrescentar
+`&& (('creatorEmail' in resource.data) == ('creatorEmail' in request.resource.data))`.
+Juntamente com a regra existente, `creatorEmail` presente fica igual e ausente continua ausente. A regra de criação **não muda** (não se passa a exigir `creatorEmail` na criação, para não partir versões antigas da app iOS). Sem impacto funcional na Couples (nenhuma escrita da app acrescenta ou altera `creatorEmail`). Tem de entrar em vigor **antes** de qualquer anúncio ou disponibilização da Planning; publicação só com procedimento aprovado.
+
+**Sem raiz válida** (sem `creatorEmail`; criador que saiu sem delegações; criador associado à organização; disputa): sem ligação self-service; verificação assistida (§8.2).
+
+**Riscos aceites:** planner que criou o casamento com uma conta pessoal não associada (só deteção: aviso aos outros donos se o criador for membro de qualquer organização, notificações); alterações a `creatorEmail` anteriores à publicação da regra de proteção (data exata desconhecida); engenharia social sobre a raiz para obter delegações (mitigada mostrando a proveniência conhecida no ecrã de delegação). **Trabalho futuro da Couples:** papéis explícitos; corrigir `uid` arbitrário em `ownerUids` e `creators/{uid}` não verificado.
+
+**Transparência:** o ecrã de aceitação e de permissões mostra a raiz e todos os donos; cada aceitação, delegação, alteração de consentimento e fim da ligação é comunicado por email a todos os `ownerEmails` e registado em `auditLog`.
+
+### 8.2 Verificação assistida — [Decisão aprovada em 16/11/2026] D3; implementação só após parecer RGPD sobre as provas
+
+- **Pedido:** só por um dono autenticado, na página de permissões; nunca pela organização.
+- **Provas (minimizadas):** controlo do email (sessão); confirmação por email a todos os donos atuais com 7 dias para objeção; pelo menos uma prova não fabricável pela organização (p. ex. registo do pagamento Premium dessa conta, ou videochamada curta com o suporte); sem cópia de documentos de identificação salvo parecer que o exija.
+- **Validação:** pessoal Weddy numa lista só do servidor (`weddyStaff/{uid}`, papel verificador) sem relação atual nem histórica com a organização envolvida (verificado automaticamente); com objeção, duas pessoas quando existirem.
+- **Registo:** `rootVerifications/{weddingId}`, só servidor (requerente, referências das provas, verificador, `validatedAt`, versão, estado, validade), com eventos só de acrescento.
+- **Revogação:** manual (verificador ou outro membro da equipa Weddy) ou automática (requerente deixa de ser dono, passa a estar associado à organização, ou outro dono abre disputa); efeito imediato.
+- **Histórico:** auditável, retenção segundo Q5.
 
 ## 9. Leads, clientes e casamentos — [Proposta técnica], modelo definitivo em Q2
 
@@ -171,6 +211,7 @@ Aplicação técnica:
 - **Cada operação sensível verifica a autorização atual** (membership + grant + ligação + consentimento) — nas regras e nas funções.
 - **Links temporários** (exportações, ficheiros): URLs assinados de curta duração (≤ 15 min), emitidos por função **depois** de verificar a autorização; a revogação impede novas emissões e as existentes expiram depressa. Não usar `getDownloadURL` permanentes para dados do casal ou da organização.
 - **Sessões e cache**: sem custom claims para permissões (evita tokens com permissões antigas até 1 h); as permissões vivem em documentos verificados a cada pedido. A app escuta o estado da própria membership e termina a sessão da organização ao detetar `removed/suspended`.
+- **Histórico e período de transição (D2, [Decisão aprovada em 16/11/2026])**: `invited`, `active` e `suspended` são **relação atual** com a organização (contam como conflito de propriedade, §8.1); `removed` é **histórico**, não membership. Ao remover, o servidor escreve `members/{uid}.relationEndedAt` com `FieldValue.serverTimestamp()`; cada mudança de estado gera um evento só de acrescento em `organizations/{orgId}/memberHistory/{eventId}` (`uid`, emails conhecidos, de/para, `at` do servidor, autor). Durante **90 dias** após `relationEndedAt` a pessoa conta como associada (não pode ser raiz nem delegada dessa organização). Voltar a convidar ou ativar é relação atual (bloqueia de imediato); remover de novo escreve novo `relationEndedAt` (o prazo só recomeça mais tarde, nunca encurta); documentos de membros e histórico não se apagam. **Readmissão controlada:** convidar ou reativar é recusado enquanto a pessoa (por `uid` ou email conhecido) for raiz, delegada ou dona de um casamento com ligação atual (`pending`, `active`, `blocked`) a essa organização.
 - **Operações pendentes** (exportações em curso, envios agendados): verificam a autorização no início e antes de entregar o resultado; se revogada, cancelam e registam.
 
 ## 11. Matriz de autorização
@@ -182,8 +223,10 @@ Condição base em **todos** os casos: utilizador autenticado + email verificado
 | Ler dados internos da organização | membro | `active` na `orgId` do caminho | conforme `permissions` | — | — | — | Regras Firestore/Storage |
 | Alterar papéis/membros | owner/admin | `active` | owner/admin | — | — | — | Função (servidor) + auditLog |
 | Criar convite ao casal | membro | `active` | planner+ | — | — | — | Função |
-| Aceitar convite | noivo | — | — | dono real do casamento (§8) | — | cria consentimento a `none` | Função (transação) |
-| Alterar consentimento | **só dono do casamento** | — | — | ligação existente | — | escreve `consent` | Função |
+| Aceitar convite | **raiz ou delegado (§8.1)** | — | — | casamento sem conflito de propriedade (§8.1) | — | cria consentimento a `none` | Função (transação) |
+| Alterar consentimento | **raiz ou delegado (§8.1)** | — | — | ligação existente | — | escreve `consent` | Função |
+| Terminar a ligação (pelo casal) | **raiz ou delegado (§8.1)** | — | — | ligação `pending`/`active` | — | revoga grants | Função |
+| Delegar / revogar delegação | **só a raiz (§8.1)** | — | — | ligação existente | — | — | Função |
 | Ler secção do casal | membro | `active` | papel permite ler a secção | ligação `active` | `active` | `read` ou `read_write` | Regras (projeção, R2) **e** função (R1) |
 | Editar secção do casal | membro | `active` | papel permite editar | ligação `active` | `active` | `read_write` | Função (transação) |
 | Exportar / IA sobre dados do casal | membro | `active` | permitido | `active` | `active` | secções incluídas autorizadas | Função, no início e na entrega |
@@ -238,10 +281,11 @@ Funções (codebase `planning`): organizações e membros, convites internos e a
 
 ## 16. Questões pendentes (decisão da proprietária)
 
-**Estado a 16/11/2026: as oito questões continuam por decidir.** As recomendações abaixo são propostas técnicas para apoiar a decisão; **não** são decisões aprovadas e nenhuma entrega que dependa delas começa antes da decisão expressa (ver Doc. 6, coluna «Decisões necessárias»). Onde este documento usa um modelo concreto (p. ex. `professionalLinks`, `clientId = leadId`, projeções R3), trata-se da proposta em avaliação.
+**Estado a 16/11/2026: Q0 decidida (§8.1–8.2); Q1–Q8 continuam por decidir.** As recomendações abaixo são propostas técnicas para apoiar a decisão; **não** são decisões aprovadas e nenhuma entrega que dependa delas começa antes da decisão expressa (ver Doc. 6, coluna «Decisões necessárias»). Onde este documento usa um modelo concreto (p. ex. `professionalLinks`, `clientId = leadId`, projeções R3), trata-se da proposta em avaliação.
 
 | Questão | Estado | Recomendação técnica (não aprovada) |
 |---|---|---|
+| Q0 Identidade do casal | **Decidida (16/11/2026)** — raiz de confiança + delegação registada, com D1 (R0), D2 (90 dias), D3 (verificação assistida); condição P4 verificada | — |
 | Q1 Uma ou várias organizações por casamento | Pendente | Dados preparados para várias, produto com uma |
 | Q2 Leads, clientes, utilizadores e casamentos | Pendente | `clientId = leadId`; ficha interna após aceitação |
 | Q3 Modelo de grants e permissões | Pendente | Documentos por ligação, sem custom claims |
@@ -250,6 +294,9 @@ Funções (codebase `planning`): organizações e membros, convites internos e a
 | Q6 Staging e prova de isolamento | Pendente | Auditar o candidato; projeto novo se houver partilha |
 | Q7 Enforcement do App Check | Pendente | Callables em enforcement desde o início |
 | Q8 Operações do planner por secção | Pendente | Editar sem apagar |
+
+### Q0. Identidade do casal — DECIDIDA
+Ver §8.1 e §8.2. Decisões: **D1** R0 nas regras da Couples (publicação só com procedimento aprovado e antes de qualquer anúncio da Planning); **D2** período de transição de 90 dias com readmissão controlada (§10); **D3** verificação assistida, implementação após parecer RGPD. Papéis explícitos na Couples: trabalho futuro.
 
 ### Q1. Uma ou várias organizações com relação ativa por casamento?
 - **Problema**: um casal pode ter, p. ex., uma planner e uma decoradora/coordenadora do dia; ou mudar de planner.
