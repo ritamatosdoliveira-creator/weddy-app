@@ -1,6 +1,6 @@
 # Documento 7 — Plano de integração e proteção da Weddy Couples
 
-**Versão 2.2 (16/11/2026)** — regista a decisão Q0 e a R0 — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
+**Versão 2.3 (16/11/2026)** — regista a decisão Q0, a R0 e as ressalvas da auditoria à R0 — revista após a revisão da Fase 0. Legenda: **[Estado atual]**, **[Decisão aprovada]**, **[Proposta técnica]**, **[Questão pendente]** (Doc. 3 §16), **[Trabalho futuro]**.
 
 Objetivo: a Couples continua a funcionar exatamente como hoje e **nunca depende** da Weddy Planning. Este documento lista tudo o que a Planning pode tocar, porquê, e como se prova que nada regrediu.
 
@@ -58,7 +58,7 @@ Alteração em relação à v1: a proposta anterior acrescentava um campo `plann
 
 ## 5. Regras: o que muda e o que não muda
 
-1. `weddings` — `allow read`: **não muda**. `allow update`: só a **R0** (`creatorEmail` não pode ser acrescentado depois da criação). Regras ativas em produção verificadas a 16/11/2026 (P4: publicação de 10/11/2026 11:38 = `feat/convites-envio-backend`, commit `b12885c`).
+1. `weddings` — `allow read`: **não muda**. `allow update`: só a **R0** (`creatorEmail` não pode ser acrescentado depois da criação; diff aprovado a 16/11/2026, commit local `2b1f572`, publicação pendente). `allow create`: **não muda nesta intervenção** — já recusa `creatorEmail` alheio desde 05/10/2026; torná-lo obrigatório é a questão separada **R0b** (Doc. 3 §16), a decidir depois de confirmar a versão iOS publicada. Regras ativas em produção verificadas a 16/11/2026 (P4: publicação de 10/11/2026 11:38 = `feat/convites-envio-backend`, commit `b12885c`).
 2. `weddings/{id}/professionalLinks/{orgId}` e subcoleções: escrita só pelo servidor. Leitura destes documentos **de controlo** (estado da ligação, configuração do consentimento, pedidos de acesso): pelo casal (dono) e por membros da organização com **membership ativa** e **grant ativo**. Estes documentos **não contêm dados do casamento**.
    **O grant, por si só, nunca dá acesso aos dados do casamento.** Ler ou escrever uma secção do casal exige, sempre e em conjunto, verificado no servidor (regras e funções) no momento do pedido:
    - ligação profissional `active`;

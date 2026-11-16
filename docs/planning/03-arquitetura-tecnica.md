@@ -1,6 +1,6 @@
 # Documento 3 — Arquitetura técnica
 
-**Versão 2.2 (16/11/2026)** — regista a decisão Q0 (identidade do casal, §8.1–8.2) e a verificação P4. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões Q1–Q8 da §16. Nada deste documento está implementado.
+**Versão 2.3 (16/11/2026)** — regista a decisão Q0 (identidade do casal, §8.1–8.2), a verificação P4 e as ressalvas da auditoria à R0. A direção estratégica está aprovada; **a arquitetura técnica tem aprovação condicionada** às questões Q1–Q8 da §16. Nada deste documento está implementado.
 
 Legenda usada em todo o documento:
 **[Estado atual]** o que existe hoje (ver Documento 1) · **[Decisão aprovada]** decidido pela proprietária · **[Proposta técnica]** recomendação, ainda não aprovada · **[Questão pendente]** exige decisão (§16) · **[Trabalho futuro]** fora da Fase 1.
@@ -157,11 +157,11 @@ Uma raiz confirmada por verificação assistida (§8.2) substitui os critérios 
 
 **R0 (alteração às regras da Couples, D1):** na regra `allow update` de `weddings`, acrescentar
 `&& (('creatorEmail' in resource.data) == ('creatorEmail' in request.resource.data))`.
-Juntamente com a regra existente, `creatorEmail` presente fica igual e ausente continua ausente. A regra de criação **não muda** (não se passa a exigir `creatorEmail` na criação, para não partir versões antigas da app iOS). Sem impacto funcional na Couples (nenhuma escrita da app acrescenta ou altera `creatorEmail`). Tem de entrar em vigor **antes** de qualquer anúncio ou disponibilização da Planning; publicação só com procedimento aprovado.
+Juntamente com a regra existente, `creatorEmail` presente fica igual e ausente continua ausente. A regra de criação **não muda nesta intervenção**. [Estado atual] Desde 05/10/2026 (commit `b13c1b5`) ela já recusa criar um casamento com `creatorEmail` diferente do email autenticado (quando o campo é enviado), e exige `ownerEmails` igual a [email próprio], `ownerUids` igual a [uid próprio] e `creators/{uid}` escrito no mesmo lote. Tornar `creatorEmail` **obrigatório** na criação é a questão separada **R0b** (§16): a evidência indica que provavelmente não partiria nenhum cliente que hoje consiga criar casamentos (as versões que escrevem `creators/{uid}`, exigido desde 05/10/2026, já gravam `creatorEmail`, presente na app desde 10/09/2026), mas a versão iOS publicada na App Store não foi verificada. [Decisão aprovada] Diff da R0 aprovado a 16/11/2026 (commit local `2b1f572` em `feat/convites-envio-backend`, suite `rules-r0` 28/28); push e publicação pendentes de autorização. Sem impacto funcional na Couples (nenhuma escrita da app acrescenta ou altera `creatorEmail`). Tem de entrar em vigor **antes** de qualquer anúncio ou disponibilização da Planning; publicação só com procedimento aprovado.
 
 **Sem raiz válida** (sem `creatorEmail`; criador que saiu sem delegações; criador associado à organização; disputa): sem ligação self-service; verificação assistida (§8.2).
 
-**Riscos aceites:** planner que criou o casamento com uma conta pessoal não associada (só deteção: aviso aos outros donos se o criador for membro de qualquer organização, notificações); alterações a `creatorEmail` anteriores à publicação da regra de proteção (data exata desconhecida); engenharia social sobre a raiz para obter delegações (mitigada mostrando a proveniência conhecida no ecrã de delegação). **Trabalho futuro da Couples:** papéis explícitos; corrigir `uid` arbitrário em `ownerUids` e `creators/{uid}` não verificado.
+**Riscos aceites:** planner que criou o casamento com uma conta pessoal não associada (só deteção: aviso aos outros donos se o criador for membro de qualquer organização, notificações); alterações a `creatorEmail` anteriores à publicação da regra de proteção (data exata desconhecida); **casamentos criados antes de 05/10/2026**, quando a regra de criação não restringia `creatorEmail`: um cliente manipulado podia ter gravado um `creatorEmail` arbitrário (a app oficial gravou sempre o email do próprio utilizador); engenharia social sobre a raiz para obter delegações (mitigada mostrando a proveniência conhecida no ecrã de delegação). **Trabalho futuro da Couples:** papéis explícitos; corrigir `uid` arbitrário em `ownerUids` e `creators/{uid}` não verificado.
 
 **Transparência:** o ecrã de aceitação e de permissões mostra a raiz e todos os donos; cada aceitação, delegação, alteração de consentimento e fim da ligação é comunicado por email a todos os `ownerEmails` e registado em `auditLog`.
 
@@ -344,6 +344,11 @@ Ver §8.1 e §8.2. Decisões: **D1** R0 nas regras da Couples (publicação só 
 - **Opções**: (a) editar = todas as operações; (b) editar sem apagar (apagar exige confirmação do casal); (c) operações finas por secção.
 - **Recomendação**: (b) na Fase 1E; tabela por secção no Doc. 4 §M4a como proposta.
 - **Decisão necessária**: aprovar a tabela por secção e as secções sempre privadas.
+
+### R0b. Tornar `creatorEmail` obrigatório na criação — [Questão pendente], separada da R0
+- **Problema**: um cliente manipulado ainda pode criar um casamento **sem** `creatorEmail` (fica sem raiz; com a R0 nunca a ganha).
+- **Evidência**: a regra de criação exige `creators/{uid}` desde 05/10/2026; todas as versões da app que o escrevem já gravam `creatorEmail` (desde 10/09/2026) [inferência]; a versão iOS publicada não foi verificada.
+- **Decisão necessária**: depois de confirmar a versão iOS publicada, decidir se a regra de criação passa a exigir `creatorEmail`. Não misturar com a R0.
 
 ### Outras questões (já registadas antes)
 Revogação de um utilizador pelo casal (§10); contas Apple com email privado (§8); FCM (§14); tecnologia de componentes já decidida (React + Vite + shadcn/ui).
