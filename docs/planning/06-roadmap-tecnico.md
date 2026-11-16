@@ -18,7 +18,7 @@ E termina com relatório de testes e aprovação expressa antes da entrega segui
 | P1 | Origem do GitHub Pages (`docs/integracao/D-github-pages.md`): sem isto nada desta branch entra no `main` | Rita | [Questão pendente] |
 | P2 | Tecnologia do frontend | Rita | **[Decisão aprovada] React + Vite + shadcn/ui** com tema próprio |
 | P3 | Staging verdadeiramente isolado: auditoria por leitura do projeto candidato (Doc. 3 §12) e decisão Q6 | Rita + Claude | [Questão pendente] |
-| P4 | Versão do backend em produção confirmada (só leitura) | Claude + Rita | [Trabalho futuro] |
+| P4 | Regras Firestore ativas em produção confirmadas por leitura, na base `(default)` (publicação de 10/11/2026 às 11:38), correspondentes ao `firestore.rules` do commit `b12885c` (Doc. 3 §8.1). Código das Cloud Functions publicadas: só os nomes verificados (53 = 53) | Claude + Rita | **[Verificado a 16/11/2026]** (regras) |
 | P5 | Decisões Q1–Q8 (Doc. 3 §16) necessárias a cada entrega (ver coluna "Decisões" abaixo) | Rita | [Questão pendente] |
 | P6 | Análise RGPD do reCAPTCHA (App Check) | Rita (jurídico) | [Questão pendente] |
 | P7 | **R0 publicada** nas regras da Couples (Doc. 3 §8.1), com testes no emulador e a suite completa a passar, **antes** de qualquer anúncio ou disponibilização da Planning. P4 (regras ativas em produção) verificada a 16/11/2026 | Rita (publicação) + Claude (preparação) | [Decisão aprovada]; publicação pendente de procedimento aprovado |
